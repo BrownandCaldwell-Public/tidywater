@@ -28,7 +28,7 @@
 #' 
 #' @export
 #' 
-waterdef<-function(ph,temp,alk,tot_hard,c_hard,na,k,cl,so4,tot_ocl=0,type){
+define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_ocl=0, type){
   
   #Handle missing arguments with no default water type defined
   if(missing(ph) & missing(type)){
@@ -159,7 +159,7 @@ waterdef<-function(ph,temp,alk,tot_hard,c_hard,na,k,cl,so4,tot_ocl=0,type){
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-phfinal<-function(water){
+solve_ph <- function(water){
   cba<-water$cba
   kw<-water$kw
   
@@ -238,7 +238,7 @@ phfinal<-function(water){
 #' Units of all chemical additions in mg/L.
 #' Returns data frame of dosed water quality.
 #' 
-#' @param water Source water data frame created by waterdef
+#' @param water Source water data frame created by define_water
 #' @param hcl Hydrochloric acid: HCl -> H + Cl 
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3op4 Phosphoric acid: H3PO4 -> 3H + PO4
@@ -258,10 +258,10 @@ phfinal<-function(water){
 #' 
 #' @export
 #' 
-dose<-function(water,hcl=0,h2so4=0,h3po4=0,naoh=0,na2co3=0,nahco3=0,caoh2=0,mgoh2=0,cl2=0,naocl=0,caocl2=0){
+dose_chemical <- function(water, hcl=0, h2so4=0, h3po4=0, naoh=0, na2co3=0, nahco3=0, caoh2=0, mgoh2=0, cl2=0, naocl=0, caocl2=0){
   
   if(missing(water)){
-    stop("No source water vector defined. Create a source water vector using 'sourceWater' function.")}
+    stop("No source water vector defined. Create a source water vector using 'define_water' function.")}
   
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
   
@@ -394,7 +394,7 @@ dose<-function(water,hcl=0,h2so4=0,h3po4=0,naoh=0,na2co3=0,nahco3=0,caoh2=0,mgoh
 #' 
 #' @export
 #' 
-watersummary<-function(water){
+summarize_wq <- function(water){
   
   #Compile main WQ parameters to print
   params=data.frame(pH=water$ph,
@@ -448,7 +448,7 @@ watersummary<-function(water){
 #' 
 #' @export
 #' 
-waterplot<-function(water,title=""){
+plot_ions <- function(water, title=""){
   
   #Compile major ions to plot
   ions=data.frame(Na=water$na,
