@@ -20,36 +20,39 @@ dose(
 )
 }
 \arguments{
-\item{water}{Source water vector created by link function here}
+\item{water}{Source water data frame created by waterdef}
 
-\item{hcl}{Hydrochloric acid}
+\item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 
-\item{h2so4}{Sulfuric acid = H2SO4 -> 2H + SO4}
+\item{h2so4}{Sulfuric acid: H2SO4 -> 2H + SO4}
 
-\item{naoh}{Caustic = NaOH -> Na + OH}
+\item{naoh}{Caustic: NaOH -> Na + OH}
 
-\item{na2co3}{Soda Ash = Na2CO3 -> 2Na + CO3}
+\item{na2co3}{Soda ash: Na2CO3 -> 2Na + CO3}
 
-\item{nahco3}{description}
+\item{nahco3}{Sodium bicarbonate: NaHCO3 -> Na + H + CO3}
 
-\item{caoh2}{Lime = Ca(OH)2 -> Ca + 2OH}
+\item{caoh2}{Lime: Ca(OH)2 -> Ca + 2OH}
 
-\item{mgoh2}{description}
+\item{mgoh2}{Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH}
 
-\item{cl2}{Chlorine gas = Cl2(g) + H2O -> HOCl + H + Cl}
+\item{cl2}{Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl}
 
-\item{naocl}{Sodium Hypochlorite = NaOCl -> Na + OCl}
+\item{naocl}{Sodium hypochlorite: NaOCl -> Na + OCl}
 
-\item{caocl2}{description}
+\item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
 
-\item{h3op4}{Phosphoric acid}
+\item{h3op4}{Phosphoric acid: H3PO4 -> 3H + PO4}
 }
 \description{
-This function takes chemical doses and a source water vector and outpus a new sourcewater vector with updated ion balance an pH.
+This function takes chemical doses and a water data frame defined by 'waterdef' and outputs a new water data frame with updated ion balance and pH.
 Units of all chemical additions in mg/L.
-Returns dataframe of dosed water quality.
+Returns data frame of dosed water quality.
 }
 \examples{
 # Put example code here
 
+}
+\seealso{
+waterdef
 }

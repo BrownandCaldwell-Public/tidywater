@@ -10,6 +10,10 @@ License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports:
-  tidyverse,
-  knitr
-RoxygenNote: 7.2.3
+    tidyverse,
+    knitr,
+    ggplot2,
+    magrittr
+RoxygenNote: 7.3.0
+Depends: 
+    R (>= 2.10)
