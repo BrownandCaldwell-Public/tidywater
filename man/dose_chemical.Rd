@@ -20,7 +20,7 @@ dose_chemical(
 )
 }
 \arguments{
-\item{water}{Source water data frame created by define_water}
+\item{water}{Source water data frame created by \code{\link{define_water}}}
 
 \item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 

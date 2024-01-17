@@ -226,20 +226,20 @@ solve_ph <- function(water){
     p1 = pt
     delta=abs(p2-p1)*10^10
   }
-  
+
   hfinal=p2
   phfinal=-log10(hfinal)
   return(round(phfinal,2))
 }
 
 #' Chemical Dose Function
-#' 
-#' This function takes chemical doses and a water data frame defined by 'waterdef' and outputs a new water data frame with updated ion balance and pH.
+#'
+#' This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
 #' Units of all chemical additions in mg/L.
 #' Returns data frame of dosed water quality.
-#' 
-#' @param water Source water data frame created by define_water
-#' @param hcl Hydrochloric acid: HCl -> H + Cl 
+#'
+#' @param water Source water data frame created by \code{\link{define_water}}
+#' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3op4 Phosphoric acid: H3PO4 -> 3H + PO4
 #' @param naoh Caustic: NaOH -> Na + OH
