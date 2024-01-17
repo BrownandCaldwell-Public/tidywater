@@ -30,8 +30,7 @@
 #'
 #' @export
 #'
-define_water<-function(ph,temp,alk,tot_hard,c_hard,na,k,cl,so4,tot_ocl=0,type){
-
+define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_ocl=0, type){
   #Handle missing arguments with no default water type defined
   if(missing(ph) & missing(type)){
     stop("Missing value for pH. If not known, specify water type to use default estimated value.")
@@ -159,7 +158,7 @@ define_water<-function(ph,temp,alk,tot_hard,c_hard,na,k,cl,so4,tot_ocl=0,type){
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph<-function(water){
+solve_ph <- function(water){
   cba<-water$cba
   kw<-water$kw
 
@@ -213,11 +212,11 @@ solve_ph<-function(water){
 
 #' Chemical Dose Function
 #'
-#' This function takes chemical doses and a water data frame defined by 'define_water' and outputs a new water data frame with updated ion balance and pH.
+#' This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
 #' Units of all chemical additions in mg/L.
 #' Returns data frame of dosed water quality.
 #'
-#' @param water Source water data frame created by define_water
+#' @param water Source water data frame created by \code{\link{define_water}}
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3op4 Phosphoric acid: H3PO4 -> 3H + PO4
@@ -230,14 +229,14 @@ solve_ph<-function(water){
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
 #'
-#' @seealso define_water
+#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #' # Put example code here
 #'
 #' @export
 #'
-dose_chemical<-function(water,hcl=0,h2so4=0,h3po4=0,naoh=0,na2co3=0,nahco3=0,caoh2=0,mgoh2=0,cl2=0,naocl=0,caocl2=0){
+dose_chemical <- function(water, hcl=0, h2so4=0, h3po4=0, naoh=0, na2co3=0, nahco3=0, caoh2=0, mgoh2=0, cl2=0, naocl=0, caocl2=0){
 
   if(missing(water)){
     stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
@@ -360,7 +359,7 @@ dose_chemical<-function(water,hcl=0,h2so4=0,h3po4=0,naoh=0,na2co3=0,nahco3=0,cao
 
 #' Water Summary Table
 #'
-#' This function takes a water data frame defined by 'define_water' and outputs a formatted summary table.
+#' This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 #'
 #' @param water Source water vector created by link function here
 #'
@@ -371,8 +370,7 @@ dose_chemical<-function(water,hcl=0,h2so4=0,h3po4=0,naoh=0,na2co3=0,nahco3=0,cao
 #'
 #' @export
 #'
-summarize_wq<-function(water){
-
+summarize_wq <- function(water){
   #Compile main WQ parameters to print
   params=data.frame(pH=water$ph,
                     Temp=water$temp,
@@ -412,9 +410,9 @@ summarize_wq<-function(water){
   return(knitr::kables(list(tab1,tab2)))
 }
 
-#' Water Summary Plot
+#' Ion Summary Plot
 #'
-#' This function takes a water data frame defined by 'define_water' and outputs an ion balance plot.
+#' This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 #'
 #' @param water Source water vector created by link function here
 #' @param title Optional plot title
@@ -425,7 +423,7 @@ summarize_wq<-function(water){
 #'
 #' @export
 #'
-plot_wq<-function(water,title=""){
+plot_ions <- function(water, title=""){
 
   #Compile major ions to plot
   ions=data.frame(Na=water$na,
@@ -466,11 +464,11 @@ plot_wq<-function(water,title=""){
 #' This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
 #' Returns numeric value for dose in mg/L.
 #'
-#' @param water Source water data frame created by 'define_water'
+#' @param water Source water data frame created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), and magnesium hydroxide (Mg(OH)2).
 #'
-#' @seealso define_water
+#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #' # Put example code here
