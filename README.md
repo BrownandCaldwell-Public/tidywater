@@ -2,6 +2,7 @@
 # tidywater
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/BrownandCaldwell/tidywater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BrownandCaldwell/tidywater/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of tidywater is to provide an open-source package that to easily model common drinking water treatment processes. 
@@ -23,4 +24,3 @@ This is a basic example which shows you how to solve a common problem:
 library(tidywater)
 ## basic example code
 ```
-
