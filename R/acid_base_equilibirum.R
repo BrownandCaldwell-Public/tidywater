@@ -21,8 +21,6 @@
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as ??
 #'
-#' @importFrom dplyr filter
-#'
 #' @examples
 #' # Put example code here
 #'
@@ -414,6 +412,7 @@ summarize_wq <- function(water) {
 #'
 #' @param water Source water vector created by link function here
 #' @param title Optional plot title
+#' @import ggplot2
 #'
 #'
 #' @examples
