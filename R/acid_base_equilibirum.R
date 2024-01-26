@@ -219,7 +219,7 @@ solve_ph <- function(water){
 #' @param water Source water data frame created by \code{\link{define_water}}
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
-#' @param h3op4 Phosphoric acid: H3PO4 -> 3H + PO4
+#' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
 #' @param naoh Caustic: NaOH -> Na + OH
 #' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
