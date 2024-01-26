@@ -4,7 +4,7 @@
 # These functions determine pH and alkalinity after blending and chemical addition
 
 # Author: R. Mulhern, based on spreadsheet calculations by C. Corwin
-# Reviewers:
+# Reviewers: Sierra Johnson 1/19/24
 
 #' Define water vector
 #'
