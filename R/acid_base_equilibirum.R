@@ -563,3 +563,98 @@ dose_target <- function(water, target_ph, chemical) {
     return(mgoh2_dose)
   }
 }
+
+
+#' Blend water function
+#'
+#' This function takes up to 4 water data frames defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
+#'
+#' @param water1 Source water 1 data frame created by \code{\link{define_water}}
+#' @param ratio1 Blend ratio of water 1. (Blend ratios must sum to 1)
+#' @param water2 Source water 2 data frame created by \code{\link{define_water}}
+#' @param ratio2 Blend ratio of water 2. (Blend ratios must sum to 1)
+#' @param water3 Source water 3 data frame created by \code{\link{define_water}}
+#' @param ratio3 Blend ratio of water 3. (Blend ratios must sum to 1)
+#' @param water4 Source water 4 data frame created by \code{\link{define_water}}
+#' @param ratio4 Blend ratio of water 4. (Blend ratios must sum to 1)
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#' blend_waters(water1, 0.5, water2, .05)
+#'
+#' @export
+#'
+blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA), ratio3=0, water4=data.frame(ph=NA), ratio4=0, ...) {
+
+  if(ratio1 + ratio2 + ratio3 + ratio4 != 1) {
+    stop("Blend ratios do not sum up to 1")
+  }
+
+  # Mass balance - ions
+  water1$ratio = ratio1
+  water2$ratio = ratio2
+  water3$ratio = ratio3
+  water4$ratio = ratio4
+
+  blend_df <- bind_rows(water1, water2, water3, water4) %>%
+    mutate(across(!ratio, ~ .x * ratio)) %>%
+    summarise(across(!ph, ~ sum(.x, na.rm = TRUE)))
+
+  tot_na = blend_df$na
+  tot_ca = blend_df$ca
+  tot_mg = blend_df$mg
+  tot_k = blend_df$k
+  tot_cl = blend_df$cl
+  tot_so4 = blend_df$so4
+  tot_po4 = 0
+  tot_ocl = blend_df$tot_ocl
+  tot_co3 = blend_df$tot_co3
+  cba = blend_df$cba
+
+  # Calculate new pH, H+ and OH- concentrations
+  # Calculate kw from temp
+  temp = blend_df$temp
+  tempa = temp + 273.15 # absolute temperature (K)
+  pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
+  kw = 10^-pkw
+
+  # so4_dose, po4_dose, na_dose are all 0
+  ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
+  ph = solve_ph(ph_inputs)
+  h = 10^-ph
+  oh = kw / h
+
+  # Calculate new carbonate system balance
+  alpha1 = (discons$k1co3 * h) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
+  hco3 = tot_co3 * alpha1
+  co3 = tot_co3 * alpha2
+
+  # Calculate new alkalinity (mg/L as CacO3)
+  alk_eq = (hco3 + 2 * co3 + oh - h)
+  alk = (alk_eq / 2) * mweights$caco3 * 1000
+
+  # Calculate new hardness (mg/L as CaCO3)
+  tot_hard = (tot_ca * mweights$caco3 * 1000) + (tot_mg * mweights$caco3 * 1000)
+
+  # Compile complete dosed water data frame
+  data.frame(ph,
+             temp = temp,
+             alk,
+             tot_hard,
+             na = tot_na,
+             ca = tot_ca,
+             mg = tot_mg,
+             k = tot_k,
+             cl = tot_cl,
+             so4 = tot_so4,
+             hco3, co3, h, oh,
+             tot_co3,
+             tot_ocl,
+             cba,
+             kw,
+             alk_eq)
+
+
+}
