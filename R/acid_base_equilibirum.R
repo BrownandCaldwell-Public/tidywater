@@ -224,6 +224,7 @@ solve_ph <- function(water) {
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
+#' @param co2 Carbon Dioxide | CO2 (gas) | CO2 + H2O -> H2CO3*
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -232,7 +233,8 @@ solve_ph <- function(water) {
 #'
 #' @export
 #'
-dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0, cl2 = 0, naocl = 0, caocl2 = 0) {
+dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+                          cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0) {
 
   if (missing(water)) {
     stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
@@ -272,6 +274,9 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   # Calcium hypochlorite (Ca(OCl)2) as Cl2
   caocl2 = caocl2 / mweights$cl2 * 10^-3
 
+  # Carbon dioxide
+  co2 = co2 / 44.01 * 10^-3
+
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
 
   # Total sodium
@@ -307,7 +312,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   tot_ocl = water$tot_ocl + ocl_dose
 
   # Total carbonate
-  co3_dose = na2co3 + nahco3
+  co3_dose = na2co3 + nahco3 + co2
   tot_co3 = water$tot_co3 + co3_dose
 
   # Update acid/base balance equation with each chemical addition
