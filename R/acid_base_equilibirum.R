@@ -484,7 +484,7 @@ dose_target <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2")) == FALSE) {
     stop("Selected chemical addition not supported.")
   }
 
