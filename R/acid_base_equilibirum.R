@@ -484,7 +484,7 @@ dose_target <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2")) == FALSE) {
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -492,14 +492,6 @@ dose_target <- function(water, target_ph, chemical) {
   kw = water$kw
   h = 10^-target_ph
   oh = kw / h
-
-  # Calculate new carbonate system balance from target pH and chemical addition (if relevant)
-  if (chemical %in% c("naoh", "caoh2", "mgoh2")) {
-    alpha1 = (discons$k1co3 * h) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as HCO3-
-    alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
-    hco3 = water$tot_co3 * alpha1
-    co3 = water$tot_co3 * alpha2
-  }
 
   if (chemical %in% c("naoh", "caoh2", "mgoh2")) {
     # Solve for new CBA based on target pH
@@ -523,6 +515,29 @@ dose_target <- function(water, target_ph, chemical) {
       tol = 1e-5,
       trace = 1)
     cba <- root_cba$root
+
+  } else if (chemical %in% c("co2")) {
+
+    # Solve for new CO3 based on target pH
+    solve_co3 <- function(tot_co3, cba, h, kw) {
+      kw / h +
+        # (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
+        # (h ^ 2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h ^ 3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h ^ 2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
+        (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
+        # tot_ocl / (h / discons$kocl + 1) -
+        h - cba
+    }
+    root_co3 <- uniroot(solve_co3, interval = c(-1, 1),
+                        h = h,
+                        kw = kw,
+                        cba = water$cba,
+                        # so4_dose=so4_dose,
+                        # po4_dose=po4_dose,
+                        # tot_co3=tot_co3,
+                        # tot_ocl=tot_ocl,
+                        tol = 1e-5,
+                        trace = 1)
+    co3 <- root_co3$root
   }
 
   # Solve for required chemical dose
@@ -567,6 +582,73 @@ dose_target <- function(water, target_ph, chemical) {
     mgoh2_dose = mg_dose * mweights$mgoh2 * 1000
     return(mgoh2_dose)
   }
+
+  if (chemical == "co2") {
+    # CURRENTLY INCORRECT *********************************************************************************************
+    solve_dose <- function(co2_dose, co31, co32) {
+      co31 + co2_dose - co32
+    }
+    root_dose <- uniroot(solve_dose, interval = c(0, 100),
+                         co31 = water$co3,
+                         co32 = co3,
+                         extendInt = "yes",
+                         tol = 1e-5)
+    co2_dose <- root_dose$root
+    co2_dose = co2_dose * 44.01 * 1000
+    return(co2_dose)
+  }
+}
+
+
+#' Target Chemical Dose Function - V2
+#'
+#' This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+#' Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+#'
+#' @param water Source water data frame created by \code{\link{define_water}}
+#' @param target_ph The final pH to be achieved after the specified chemical is added.
+#' @param chemical The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), magnesium hydroxide (Mg(OH)2), and CO2.
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+dose_target2 <- function(water, target_ph, chemical) {
+  if (missing(water)) {
+    stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
+
+  if (missing(target_ph)) {
+    stop("No target pH defined. Enter a target pH for the chemical dose.")}
+
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
+    stop("Selected chemical addition not supported.")
+  }
+
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water$ph) |
+      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water$ph))) {
+    stop("Target pH cannot be reached with selected chemical")
+  }
+
+  # This is the function to minimize
+  match_ph <- function(root_dose, chemical, target_ph, water) {
+    naoh <- ifelse(chemical == "naoh", root_dose, 0)
+    caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
+    mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
+    co2 <- ifelse(chemical == "co2", root_dose, 0)
+
+    waterfin <- dose_chemical(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+    phfin <- waterfin$ph
+
+    abs(target_ph - phfin)
+
+  }
+
+  chemdose <- optimize(match_ph, interval = c(0, 100), chemical = chemical, target_ph = target_ph, water = water)
+  chemdose$minimum
+
 }
 
 
