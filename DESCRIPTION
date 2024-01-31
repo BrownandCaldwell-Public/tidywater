@@ -11,10 +11,13 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     dplyr,
-    ggplot2,
+    tidyr,
     knitr,
     ggplot2,
     magrittr
 RoxygenNote: 7.3.0
 Depends: 
     R (>= 2.10)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
