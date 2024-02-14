@@ -484,7 +484,7 @@ dose_target <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2","co2")) == FALSE) {
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -519,7 +519,7 @@ dose_target <- function(water, target_ph, chemical) {
   } else if (chemical %in% c("co2")) {
 
     # Solve for new CO3 based on target pH
-    solve_co3 <- function(tot_co3, cba, h, kw) {
+    solve_tot_co3 <- function(tot_co3, cba, h, kw) {
       kw / h +
         # (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
         # (h ^ 2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h ^ 3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h ^ 2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
@@ -527,7 +527,7 @@ dose_target <- function(water, target_ph, chemical) {
         # tot_ocl / (h / discons$kocl + 1) -
         h - cba
     }
-    root_co3 <- uniroot(solve_co3, interval = c(-1, 1),
+    root_tot_co3 <- uniroot(solve_tot_co3, interval = c(-1, 1),
                         h = h,
                         kw = kw,
                         cba = water$cba,
@@ -537,7 +537,8 @@ dose_target <- function(water, target_ph, chemical) {
                         # tot_ocl=tot_ocl,
                         tol = 1e-5,
                         trace = 1)
-    tot_co3 <- root_co3$root
+
+    tot_co3 <- root_tot_co3$root
   }
 
   # Solve for required chemical dose
@@ -584,7 +585,6 @@ dose_target <- function(water, target_ph, chemical) {
   }
 
   if (chemical == "co2") {
-    # CURRENTLY INCORRECT *********************************************************************************************
     solve_dose <- function(co2_dose, co31, co32) {
       co31 + co2_dose - co32
     }
@@ -647,7 +647,7 @@ dose_target2 <- function(water, target_ph, chemical) {
   }
 
   chemdose <- optimize(match_ph, interval = c(0, 100), chemical = chemical, target_ph = target_ph, water = water)
-  chemdose$minimum
+  round(chemdose$minimum, 1)
 
 }
 
@@ -697,7 +697,7 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   tot_po4 = 0
   tot_ocl = blend_df$tot_ocl
   tot_co3 = blend_df$tot_co3
-  cba = blend_df$cba
+  cba = blend_df$cba # INCORRECT? ************************************************************************ TODO
 
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
