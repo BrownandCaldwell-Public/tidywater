@@ -484,7 +484,7 @@ dose_target <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2")) == FALSE) {
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2","co2")) == FALSE) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -537,7 +537,7 @@ dose_target <- function(water, target_ph, chemical) {
                         # tot_ocl=tot_ocl,
                         tol = 1e-5,
                         trace = 1)
-    co3 <- root_co3$root
+    tot_co3 <- root_co3$root
   }
 
   # Solve for required chemical dose
@@ -589,8 +589,8 @@ dose_target <- function(water, target_ph, chemical) {
       co31 + co2_dose - co32
     }
     root_dose <- uniroot(solve_dose, interval = c(0, 100),
-                         co31 = water$co3,
-                         co32 = co3,
+                         co31 = water$tot_co3,
+                         co32 = tot_co3,
                          extendInt = "yes",
                          tol = 1e-5)
     co2_dose <- root_dose$root
