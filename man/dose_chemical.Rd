@@ -16,7 +16,8 @@ dose_chemical(
   mgoh2 = 0,
   cl2 = 0,
   naocl = 0,
-  caocl2 = 0
+  caocl2 = 0,
+  co2 = 0
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ dose_chemical(
 \item{naocl}{Sodium hypochlorite: NaOCl -> Na + OCl}
 
 \item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
+
+\item{co2}{Carbon Dioxide | CO2 (gas) | CO2 + H2O -> H2CO3*}
 
 \item{h3op4}{Phosphoric acid: H3PO4 -> 3H + PO4}
 }
