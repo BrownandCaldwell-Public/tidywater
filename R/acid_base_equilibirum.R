@@ -203,7 +203,7 @@ solve_ph <- function(water) {
       tot_ocl / (h / discons$kocl + 1) -
       (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
   }
-  root_h <- uniroot(solve_h, interval = c(0, 1),
+  root_h <- uniroot(solve_h, interval = c(1e-14, 1e-1),
     kw = kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
@@ -214,7 +214,7 @@ solve_ph <- function(water) {
     ca_dose = ca_dose,
     mg_dose = mg_dose,
     cl_dose = cl_dose,
-    tol = 1e-12)
+    tol = 1e-14)
   phfinal = -log10(root_h$root)
   return(round(phfinal, 2))
 }
@@ -222,7 +222,7 @@ solve_ph <- function(water) {
 #' Chemical Dose Function
 #'
 #' This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
-#' Units of all chemical additions in mg/L.
+#' Units of all chemical additions in mg/L as chemical (not as product).
 #' Returns data frame of dosed water quality.
 #'
 #' @param water Source water data frame created by \code{\link{define_water}}
@@ -237,7 +237,10 @@ solve_ph <- function(water) {
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
-#' @param co2 Carbon Dioxide | CO2 (gas) | CO2 + H2O -> H2CO3*
+#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
+#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
+#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -247,7 +250,8 @@ solve_ph <- function(water) {
 #' @export
 #'
 dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                          cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0) {
+                          cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                          alum = 0, fecl3 = 0, fe2so43 = 0) {
 
   if (missing(water)) {
     stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
@@ -290,6 +294,15 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   # Carbon dioxide
   co2 = co2 / 44.01 * 10^-3
 
+  # Alum - hydration included
+  alum = alum / (342.14 + 14*18) * 10^-3
+
+  # Ferric chloride
+  fecl3 = fecl3 / 162 * 10^-3
+
+  # Ferric sulfate
+  fe2so43 = fe2so43 / 400 * 10^-3
+
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
 
   # Total sodium
@@ -309,11 +322,11 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   tot_k = water$k + k_dose
 
   # Total chloride
-  cl_dose = hcl + cl2
+  cl_dose = hcl + cl2 + 3 * fecl3
   tot_cl = water$cl + cl_dose
 
   # Total sulfate
-  so4_dose = h2so4
+  so4_dose = h2so4 + 3 * alum + 3 * fe2so43
   tot_so4 = water$so4 + so4_dose
 
   # Total phosphate

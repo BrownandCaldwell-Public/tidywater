@@ -17,7 +17,10 @@ dose_chemical(
   cl2 = 0,
   naocl = 0,
   caocl2 = 0,
-  co2 = 0
+  co2 = 0,
+  alum = 0,
+  fecl3 = 0,
+  fe2so43 = 0
 )
 }
 \arguments{
@@ -45,11 +48,17 @@ dose_chemical(
 
 \item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
 
-\item{co2}{Carbon Dioxide | CO2 (gas) | CO2 + H2O -> H2CO3*}
+\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
+
+\item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
+
+\item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+
+\item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
 }
 \description{
 This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
-Units of all chemical additions in mg/L.
+Units of all chemical additions in mg/L as chemical (not as product).
 Returns data frame of dosed water quality.
 }
 \examples{
