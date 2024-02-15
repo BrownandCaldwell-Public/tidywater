@@ -5,6 +5,8 @@
 \title{Target Chemical Dose Function - V2}
 \usage{
 dose_target2(water, target_ph, chemical)
+
+dose_target2(water, target_ph, chemical)
 }
 \arguments{
 \item{water}{Source water data frame created by \code{\link{define_water}}}
@@ -16,11 +18,18 @@ dose_target2(water, target_ph, chemical)
 \description{
 This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
 Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+
+This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
 }
 \examples{
 # Put example code here
 
+# Put example code here
+
 }
 \seealso{
+\code{\link{define_water}}
+
 \code{\link{define_water}}
 }

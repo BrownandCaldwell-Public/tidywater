@@ -145,54 +145,63 @@ define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_oc
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
 
-  cba = hco3 + 2 * co3 + oh - h # calculate total acid base balance, equivalent to alkalinity in most natural waters
-
   # Compile complete source water data frame to save to environment
-  water_df = data.frame(ph, temp, alk, tot_hard, na, ca, mg, k, cl, so4, hco3, co3, h, oh, tot_ocl, tot_co3, cba, kw, alk_eq)
+  water_df = data.frame(ph, temp, alk, tot_hard, na, ca, mg, k, cl, so4, hco3, co3, h, oh, tot_ocl, tot_co3, kw, alk_eq)
   return(water_df)
 }
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
 solve_ph <- function(water) {
-  cba <- water$cba
   kw <- water$kw
-
-  #### COMPILE ACID DISSOCIATION CONSTANTS
+  alk_eq <- water$alk_eq
 
   # Carbonate
-  # k1co3=10^-6.35 #H2CO3<-->HCO3- + H+
-  # k2co3=10^-10.33 #HCO3-<-->CO32- + H+
   tot_co3 = water$tot_co3
 
   # Sulfate
-  # kso4=10^-1.99 #H2SO4<-->2H+ + SO42-
   if (is.null(water$so4_dose)) {
     so4_dose = 0
   } else {so4_dose = water$so4_dose}
 
   # Phosphate
-  # k1po4=10^-2.16 #H3PO4<-->H+ + H2PO4-
-  # k2po4=10^-7.20 #H2PO4-<-->H+ + HPO42-
-  # k3po4=10^-12.35 #HPO42--<-->H+ + PO43-
   if (is.null(water$po4_dose)) {
     po4_dose = 0
   } else {po4_dose = water$po4_dose}
 
   # Hypochlorite
-  # kocl=10^-7.6 #HOCl<-->H+ + OCl-
   if (is.null(water$tot_ocl)) {
     tot_ocl = 0
   } else {tot_ocl = water$tot_ocl}
 
+  # Sodium
+  if (is.null(water$na_dose)) {
+    na_dose = 0
+  } else {na_dose = water$na_dose}
+
+  # Calcium
+  if (is.null(water$ca_dose)) {
+    ca_dose = 0
+  } else {ca_dose = water$ca_dose}
+
+  # Magnesium
+  if (is.null(water$mg_dose)) {
+    mg_dose = 0
+  } else {mg_dose = water$mg_dose}
+
+  # Chloride
+  if (is.null(water$cl_dose)) {
+    cl_dose = 0
+  } else {cl_dose = water$cl_dose}
+
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, po4_dose, tot_co3, tot_ocl, cba) {
+  solve_h <- function(h, kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
       (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
       (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
       tot_ocl / (h / discons$kocl + 1) -
-      h - cba
+      (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
   }
   root_h <- uniroot(solve_h, interval = c(0, 1),
     kw = kw,
@@ -200,7 +209,11 @@ solve_ph <- function(water) {
     po4_dose = po4_dose,
     tot_co3 = tot_co3,
     tot_ocl = tot_ocl,
-    cba = cba,
+    alk_eq = alk_eq,
+    na_dose = na_dose,
+    ca_dose = ca_dose,
+    mg_dose = mg_dose,
+    cl_dose = cl_dose,
     tol = 1e-12)
   phfinal = -log10(root_h$root)
   return(round(phfinal, 2))
@@ -315,12 +328,10 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   co3_dose = na2co3 + nahco3 + co2
   tot_co3 = water$tot_co3 + co3_dose
 
-  # Update acid/base balance equation with each chemical addition
-  cba = water$cba + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose
-
   # Calculate new pH, H+ and OH- concentrations
   kw = water$kw
-  ph_inputs = data.frame(tot_cl, tot_so4, so4_dose, tot_po4, po4_dose, tot_na, na_dose, tot_ocl, tot_co3, cba, kw)
+  alk_eq = water$alk_eq
+  ph_inputs = data.frame(kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose)
   ph = solve_ph(ph_inputs)
   h = 10^-ph
   oh = kw / h
@@ -352,7 +363,6 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
     hco3, co3, h, oh,
     tot_co3,
     tot_ocl,
-    cba,
     kw,
     alk_eq)
   return(dosed_water_df)
@@ -495,13 +505,13 @@ dose_target <- function(water, target_ph, chemical) {
 
   if (chemical %in% c("naoh", "caoh2", "mgoh2")) {
     # Solve for new CBA based on target pH
-    solve_cba <- function(cba, h, kw, tot_co3) {
+    solve_cba <- function(cba, h, kw, tot_co3, na_dose, mg_dose, cl_dose) {
       kw / h +
         # (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
         # (h ^ 2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h ^ 3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h ^ 2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
         (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
         # tot_ocl / (h / discons$kocl + 1) -
-        h - cba
+        (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
     }
     root_cba <- uniroot(solve_cba, interval = c(-1, 1),
       h = h,
@@ -646,9 +656,8 @@ dose_target2 <- function(water, target_ph, chemical) {
 
   }
 
-  chemdose <- optimize(match_ph, interval = c(0, 100), chemical = chemical, target_ph = target_ph, water = water)
+  chemdose <- optimize(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
   round(chemdose$minimum, 1)
-
 }
 
 
@@ -743,5 +752,56 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
              kw,
              alk_eq)
 
+
+}
+
+#' Target Chemical Dose Function - V2
+#'
+#' This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+#' Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+#'
+#' @param water Source water data frame created by \code{\link{define_water}}
+#' @param target_ph The final pH to be achieved after the specified chemical is added.
+#' @param chemical The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), magnesium hydroxide (Mg(OH)2), and CO2.
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+dose_target2 <- function(water, target_ph, chemical) {
+  if (missing(water)) {
+    stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
+
+  if (missing(target_ph)) {
+    stop("No target pH defined. Enter a target pH for the chemical dose.")}
+
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
+    stop("Selected chemical addition not supported.")
+  }
+
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water$ph) |
+      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water$ph))) {
+    stop("Target pH cannot be reached with selected chemical")
+  }
+
+  # This is the function to minimize
+  match_ph <- function(root_dose, chemical, target_ph, water) {
+    naoh <- ifelse(chemical == "naoh", root_dose, 0)
+    caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
+    mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
+    co2 <- ifelse(chemical == "co2", root_dose, 0)
+
+    waterfin <- dose_chemical(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+    phfin <- waterfin$ph
+
+    abs(target_ph - phfin)
+
+  }
+
+  chemdose <- optimize(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+  chemdose$minimum
 
 }

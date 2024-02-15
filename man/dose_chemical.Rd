@@ -27,6 +27,8 @@ dose_chemical(
 
 \item{h2so4}{Sulfuric acid: H2SO4 -> 2H + SO4}
 
+\item{h3po4}{Phosphoric acid: H3PO4 -> 3H + PO4}
+
 \item{naoh}{Caustic: NaOH -> Na + OH}
 
 \item{na2co3}{Soda ash: Na2CO3 -> 2Na + CO3}
@@ -44,8 +46,6 @@ dose_chemical(
 \item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
 
 \item{co2}{Carbon Dioxide | CO2 (gas) | CO2 + H2O -> H2CO3*}
-
-\item{h3op4}{Phosphoric acid: H3PO4 -> 3H + PO4}
 }
 \description{
 This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
