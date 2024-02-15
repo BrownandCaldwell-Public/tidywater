@@ -14,7 +14,7 @@
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param c_hard Calcium hardness in mg/L as CaCO3
+#' @param ca_hard Calcium hardness in mg/L as CaCO3
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
@@ -26,7 +26,7 @@
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_ocl = 0, type) {
+define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, type) {
   # Handle missing arguments with no default water type defined
   if (missing(ph) & missing(type)) {
     stop("Missing value for pH. If not known, specify water type to use default estimated value.")
@@ -44,7 +44,7 @@ define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_oc
     stop("Missing value for total hardness. If not known, specify water type to use default estimated value.")
   }
 
-  if (missing(c_hard) & missing(type)) {
+  if (missing(ca_hard) & missing(type)) {
     stop("Missing value for calcium hardness. If not known, specify water type to use default estimated value.")
   }
 
@@ -65,7 +65,7 @@ define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_oc
   }
 
   # Handle missing water type when all other parameters are specified or unknown water type
-  if (missing(ph) == FALSE & missing(temp) == FALSE & missing(alk) == FALSE & missing(tot_hard) == FALSE & missing(c_hard) == FALSE
+  if (missing(ph) == FALSE & missing(temp) == FALSE & missing(alk) == FALSE & missing(tot_hard) == FALSE & missing(ca_hard) == FALSE
   & missing(na) == FALSE & missing(k) == FALSE & missing(cl) == FALSE & missing(so4) == FALSE & missing(type)) {
     type = NA
   } else if ((type %in% wq$water_type) == FALSE) {
@@ -97,8 +97,8 @@ define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_oc
     warning("Missing value for total hardness. Default value will be used based on entered water type.")
   }
 
-  if (missing(c_hard) & missing(type) == FALSE) {
-    c_hard = wq$c_hard
+  if (missing(ca_hard) & missing(type) == FALSE) {
+    ca_hard = wq$ca_hard
     warning("Missing value for calcium hardness. Default value will be used based on entered water type.")
   }
 
@@ -129,8 +129,8 @@ define_water <- function(ph, temp, alk, tot_hard, c_hard, na, k, cl, so4, tot_oc
 
   # convert major ion concentration inputs to mol/L
   na = na / mweights$na / 1000
-  ca = c_hard / mweights$caco3 / 1000
-  mg = (tot_hard - c_hard) / mweights$caco3 / 1000
+  ca = ca_hard / mweights$caco3 / 1000
+  mg = (tot_hard - ca_hard) / mweights$caco3 / 1000
   k = k / mweights$k / 1000
   cl = cl / mweights$cl / 1000
   so4 = so4 / mweights$so4 / 1000
