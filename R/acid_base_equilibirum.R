@@ -564,10 +564,11 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   tot_k = blend_df$k
   tot_cl = blend_df$cl
   tot_so4 = blend_df$so4
-  tot_po4 = 0
+  tot_po4 = 0 #placeholder value - currently assumes there is no PO4 in source waters
   tot_ocl = blend_df$tot_ocl
   tot_co3 = blend_df$tot_co3
-  cba = blend_df$cba # INCORRECT? ************************************************************************ TODO
+  alk = blend_df$alk
+  alk_eq = blend_df$alk_eq
 
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
@@ -577,8 +578,8 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   kw = 10^-pkw
 
   # so4_dose, po4_dose, na_dose are all 0
-  ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
-  ph = solve_ph(ph_inputs)
+  #ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
+  ph = solve_ph(blend_df)
   h = 10^-ph
   oh = kw / h
 
@@ -587,10 +588,6 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
-
-  # Calculate new alkalinity (mg/L as CacO3)
-  alk_eq = (hco3 + 2 * co3 + oh - h)
-  alk = (alk_eq / 2) * mweights$caco3 * 1000
 
   # Calculate new hardness (mg/L as CaCO3)
   tot_hard = (tot_ca * mweights$caco3 * 1000) + (tot_mg * mweights$caco3 * 1000)
@@ -606,12 +603,12 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
              k = tot_k,
              cl = tot_cl,
              so4 = tot_so4,
-             hco3, co3, h, oh,
+             hco3,
+             co3,
+             h,
+             oh,
              tot_co3,
              tot_ocl,
-             cba,
              kw,
              alk_eq)
-
-
 }
