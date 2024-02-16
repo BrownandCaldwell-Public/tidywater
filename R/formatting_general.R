@@ -126,19 +126,20 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   kw = 10^-pkw
   
   # convert major ion concentration inputs to mol/L
-  na = na / mweights$na / 1000
-  ca = ca_hard / mweights$caco3 / 1000
-  mg = (tot_hard - ca_hard) / mweights$caco3 / 1000
-  k = k / mweights$k / 1000
-  cl = cl / mweights$cl / 1000
-  so4 = so4 / mweights$so4 / 1000
+  na = convert_units(na, "na")
+  ca = convert_units(ca, "caco3")
+  mg = convert_units(tot_hard - ca_hard, "caco3")
+  k = convert_units(k, "k")
+  cl = convert_units(cl, "cl")
+  so4 = convert_units(so4, "so4")
   h = 10^-ph
   oh = kw / h
   
   # calculate carbonate system balance
   alpha1 = (discons$k1co3 * h) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
-  alk_eq = (alk * 2) / (mweights$caco3 * 1000) # convert alkalinity input to equivalents/L
+  alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
+  #convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   tot_co3 = (alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
@@ -249,4 +250,128 @@ plot_ions <- function(water, title = "") {
          title = title,
          subtitle = paste0("pH=", water$ph)) +
     guides(fill = "none")
+}
+
+
+#' Unit Converstions
+#'
+#' This function takes a value and converts units based on compound name.
+#'
+#' @param value Value to be converted
+#' @param formula Chemical formula of compound. Accepts compounds in \code{\link{mweights}} for conversions between g and mol or eq
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes
+#' @param endunit Desired units, currently accepts same as start units
+#'
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  
+  milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
+  mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
+  nano_list <- c("ng/L", "ng/L CaCO3", "nM", "neq/L")
+  stand_list <- c("g/L", "g/L CaCO3", "M", "eq/L")
+  
+  gram_list <- c("ng/L", "ug/L", "mg/L", "g/L", "mg/L CaCO3", "g/L CaCO3")
+  mole_list <- c("M", "mM", "uM", "nM")
+  eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
+  
+  caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
+ 
+  # Determine multiplier for order of magnitude conversion
+  # In the same list, no multiplier needed
+  if((startunit %in% milli_list & endunit %in% milli_list) | 
+     (startunit %in% stand_list & endunit %in% stand_list) |
+     (startunit %in% nano_list & endunit %in% nano_list) |
+     (startunit %in% mcro_list & endunit %in% mcro_list)) {
+    multiplier <- 1
+    # m - standard, n-u, u-n
+  } else if((startunit %in% milli_list & endunit %in% stand_list) |
+            (startunit %in% mcro_list & endunit %in% milli_list) |
+            (startunit %in% nano_list & endunit %in% mcro_list)) {
+    multiplier <- 1e-3
+  } else if((startunit %in% stand_list & endunit %in% milli_list) |
+            (startunit %in% milli_list & endunit %in% mcro_list) |
+            (startunit %in% mcro_list & endunit %in% nano_list)) {
+    multiplier <- 1e3
+    # u - standard
+  } else if((startunit %in% mcro_list & endunit %in% stand_list) |
+            (startunit %in% nano_list & endunit %in% milli_list)) {
+    multiplier <- 1e-6
+  } else if((startunit %in% stand_list & endunit %in% mcro_list) |
+            (startunit %in% milli_list & endunit %in% nano_list)) {
+    multiplier <- 1e6
+    # n - standard
+  } else if(startunit %in% nano_list & endunit %in% stand_list) {
+    multiplier <- 1e-9
+  } else if(startunit %in% stand_list & endunit %in% nano_list) {
+    multiplier <- 1e9
+  } else {
+    stop("Units not supported")
+  }
+  
+  # Need molar mass of CaCO3
+  caco3_mw <- mweights["caco3"]
+  
+  # Determine relevant molar weight
+  if(formula %in% colnames(mweights)) {
+    if((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
+       (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
+      molar_weight <- mweights["caco3"]
+    } else {
+      molar_weight <- mweights[formula]
+    }
+  } else if(!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
+    molar_weight <- 0
+  } else {
+    stop("Chemical formula not supported")
+  }
+  
+  # Determine charge for equivalents
+  if(formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na")) {
+    charge <- 1
+  } else if(formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca")) {
+    charge <- 2
+  } else if(formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43")) {
+    charge <- 3
+  } else if(!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
+    # This is included so that charge can be in equations later without impacting results
+    charge <- 1
+  } else {
+    stop("Unable to find charge for equivalent conversion")
+  }
+
+  # Unit conversion
+    # g - mol
+  if(startunit %in% gram_list & endunit %in% mole_list) {
+    value / molar_weight * multiplier
+  } else if(startunit %in% mole_list & endunit %in% gram_list) {
+    value * molar_weight * multiplier
+    # g - eq
+  } else if(startunit %in% eqvl_list & endunit %in% gram_list) {
+    value / charge * molar_weight * multiplier
+  } else if(startunit %in% gram_list & endunit %in% eqvl_list) {
+    value / molar_weight * charge * multiplier
+    # mol - eq
+  } else if(startunit %in% mole_list & endunit %in% eqvl_list) {
+    value * charge * multiplier
+  } else if(startunit %in% eqvl_list & endunit %in% mole_list) {
+    value / charge * multiplier
+    # g CaCO3 - g
+  } else if(startunit %in% caco_list & endunit %in% gram_list & !(endunit %in% caco_list)) {
+    value / caco3_mw * molar_weight
+  } else if(endunit %in% caco_list & startunit %in% gram_list & !(startunit %in% caco_list)) {
+    value / molar_weight * caco3_mw
+    # same lists
+  } else if((startunit %in% gram_list & endunit %in% gram_list) |
+            (startunit %in% mole_list & endunit %in% mole_list) |
+            (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
+    value * multiplier
+  } else {
+    stop("Units not supported")
+  }
+  
+   
 }

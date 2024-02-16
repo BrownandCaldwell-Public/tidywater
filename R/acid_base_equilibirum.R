@@ -114,49 +114,48 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
   # Hydrochloric acid (HCl) dose
-  hcl = hcl / mweights$hcl * 10^-3
-
+  hcl = convert_units(hcl, "hcl")
   # Sulfuric acid (H2SO4) dose
-  h2so4 = h2so4 / mweights$h2so4 * 10^-3
+  h2so4 = convert_units(h2so4, "h2so4")
 
   # Phosphoric acid (H3PO4) dose
-  h3po4 = h3po4 / mweights$h3po4 * 10^-3
+  h3po4 = convert_units(h3po4, "h3po4")
 
   # Caustic soda (NaOH) dose
-  naoh = naoh / mweights$naoh * 10^-3
+  naoh = convert_units(naoh, "naoh")
 
   # Soda ash (Na2CO3) dose
-  na2co3 = na2co3 / mweights$na2co3 * 10^-3
+  na2co3 = convert_units(na2co3, "na2co3")
 
   # Sodium bicarbonate (NaHCO3) dose
-  nahco3 = nahco3 / mweights$nahco3 * 10^-3
+  nahco3 = convert_units(nahco3, "nahco3")
 
   # Lime (Ca(OH)2) dose
-  caoh2 = caoh2 / mweights$caoh2 * 10^-3
+  caoh2 = convert_units(caoh2, "caoh2")
 
   # Magnesium hydroxide (Mg(OH)2) dose
-  mgoh2 = mgoh2 / mweights$mgoh2 * 10^-3
+  mgoh2 = convert_units(mgoh2, "mgoh2")
 
   # Chlorine gas (Cl2)
-  cl2 = cl2 / mweights$cl2 * 10^-3
+  cl2 = convert_units(cl2, "cl2")
 
   # Sodium hypochlorite (NaOCl) as Cl2
-  naocl = naocl / mweights$cl2 * 10^-3
+  naocl = convert_units(naocl, "cl2")
 
   # Calcium hypochlorite (Ca(OCl)2) as Cl2
-  caocl2 = caocl2 / mweights$cl2 * 10^-3
+  caocl2 = convert_units(caocl2, "cl2")
 
   # Carbon dioxide
-  co2 = co2 / 44.01 * 10^-3
+  co2 = convert_units(co2, "co2")
 
   # Alum - hydration included
-  alum = alum / (342.14 + 14*18) * 10^-3
+  alum = convert_units(alum, "alum")
 
   # Ferric chloride
-  fecl3 = fecl3 / 162 * 10^-3
+  fecl3 = convert_units(fecl3, "fecl3")
 
   # Ferric sulfate
-  fe2so43 = fe2so43 / 400 * 10^-3
+  fe2so43 = convert_units(fe2so43, "fe2so43")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
 
@@ -212,10 +211,13 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 
   # Calculate new alkalinity (mg/L as CacO3)
   alk_eq = (hco3 + 2 * co3 + oh - h)
-  alk = (alk_eq / 2) * mweights$caco3 * 1000
+  alk = convert_units(alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
 
   # Calculate new hardness (mg/L as CaCO3)
-  tot_hard = (tot_ca * mweights$caco3 * 1000) + (tot_mg * mweights$caco3 * 1000)
+  ca_hard = convert_units(tot_ca, formula = "ca", startunit = "M", endunit = "mg/L CaCO3")
+  mg_hard = convert_units(tot_mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3")
+
+  tot_hard = ca_hard + mg_hard
 
   # Compile complete dosed water data frame
   dosed_water_df = data.frame(ph,
@@ -336,6 +338,7 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   tot_co3 = blend_df$tot_co3
   alk = blend_df$alk
   alk_eq = blend_df$alk_eq
+  tot_hard = blend_df$tot_hard
 
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
@@ -355,9 +358,6 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
-
-  # Calculate new hardness (mg/L as CaCO3)
-  tot_hard = (tot_ca * mweights$caco3 * 1000) + (tot_mg * mweights$caco3 * 1000)
 
   # Compile complete dosed water data frame
   data.frame(ph,
