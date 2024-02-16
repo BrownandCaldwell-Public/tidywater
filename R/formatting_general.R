@@ -245,7 +245,7 @@ plot_ions <- function(water, title = "") {
               position = position_stack(vjust = 0.5)) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold")) +
-    labs(x = "Concentration (mol/L)",
+    labs(x = "Concentration (eq/L)",
          y = "Major cations and anions",
          title = title,
          subtitle = paste0("pH=", water$ph)) +
