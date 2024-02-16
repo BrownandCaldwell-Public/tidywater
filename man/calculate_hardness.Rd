@@ -5,8 +5,6 @@
 \title{Hardness calculation}
 \usage{
 calculate_hardness(ca, mg, type = "total")
-
-calculate_hardness(ca, mg, type = "total")
 }
 \arguments{
 \item{ca}{Calcium concentration in mg/L as Ca}
@@ -17,12 +15,8 @@ calculate_hardness(ca, mg, type = "total")
 }
 \description{
 This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
-
-This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 }
 \examples{
-# Put example code here
-
 # Put example code here
 
 }

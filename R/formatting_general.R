@@ -406,36 +406,6 @@ calculate_hardness <- function(ca, mg, type = "total") {
   
 }
 
-#' Hardness calculation
-#'
-#' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
-#'
-#' @param ca Calcium concentration in mg/L as Ca
-#' @param mg Magnesium concentration in mg/L as Mg
-#' @param type "total" returns total hardness, "ca" returns calcium hardness
-#'
-#' @examples
-#' # Put example code here
-#'
-#' @export
-#'
-calculate_hardness <- function(ca, mg, type = "total") {
-  ca <- convert_units(ca, "ca", "mg/L", "mg/L CaCO3")
-  mg <- convert_units(mg, "mg", "mg/L", "mg/L CaCO3")
-  tot_hard <- ca + mg
-  ca_hard <- ca
-  
-  if(type == "total") {
-    tot_hard
-  } else if(type == "ca") {
-    ca_hard
-  } else {
-    stop("Unsupported type, Specify 'total' or 'ca'")
-  }
-  
-}
-
-
 #' Ion balance a water
 #'
 #' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
