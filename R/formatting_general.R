@@ -136,8 +136,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   oh = kw / h
   
   # calculate carbonate system balance
-  alpha1 = (discons$k1co3 * h) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = (discons$k1co3 * discons$k2co3) / (h^2 + discons$k1co3 * h + discons$k1co3 * discons$k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
   alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
   #convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   tot_co3 = (alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
@@ -375,3 +375,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   
    
 }
+
+
+# Functions to determine alpha from H+ and disassociation constants
+# Not exported
+calculate_alpha1 <- function(h, k1, k2) {
+  (k1 * h) / (h^2 + k1 * h + k1 * k2)
+}
+
+calculate_alpha2 <- function(h, k1, k2) {
+  (k1 * k2) / (h^2 + k1 * h + k1 * k2)
+}
+
