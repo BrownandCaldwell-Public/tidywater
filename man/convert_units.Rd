@@ -2,7 +2,7 @@
 % Please edit documentation in R/formatting_general.R
 \name{convert_units}
 \alias{convert_units}
-\title{Unit Converstions}
+\title{Unit Conversions}
 \usage{
 convert_units(value, formula, startunit = "mg/L", endunit = "M")
 }

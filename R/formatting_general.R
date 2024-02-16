@@ -127,7 +127,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   
   # convert major ion concentration inputs to mol/L
   na = convert_units(na, "na")
-  ca = convert_units(ca, "caco3")
+  ca = convert_units(ca_hard, "caco3")
   mg = convert_units(tot_hard - ca_hard, "caco3")
   k = convert_units(k, "k")
   cl = convert_units(cl, "cl")
@@ -220,11 +220,11 @@ plot_ions <- function(water, title = "") {
   
   # Compile major ions to plot
   ions = data.frame(Na = water$na,
-                    Ca = water$ca,
-                    Mg = water$mg,
+                    Ca = water$ca * 2,
+                    Mg = water$mg * 2,
                     K = water$k,
                     Cl = water$cl,
-                    SO4 = water$so4,
+                    SO4 = water$so4 * 2,
                     HCO3 = water$hco3,
                     CO3 = water$co3,
                     H = water$h,
@@ -253,7 +253,7 @@ plot_ions <- function(water, title = "") {
 }
 
 
-#' Unit Converstions
+#' Unit Conversions
 #'
 #' This function takes a value and converts units based on compound name.
 #'
@@ -313,15 +313,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
   
   # Need molar mass of CaCO3
-  caco3_mw <- mweights["caco3"]
+  caco3_mw <- as.numeric(mweights["caco3"])
   
   # Determine relevant molar weight
   if(formula %in% colnames(mweights)) {
     if((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
-      molar_weight <- mweights["caco3"]
+      molar_weight <- as.numeric(mweights["caco3"])
     } else {
-      molar_weight <- mweights[formula]
+      molar_weight <- as.numeric(mweights[formula])
     }
   } else if(!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
@@ -374,6 +374,134 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
   
    
+}
+
+
+#' Hardness calculation
+#'
+#' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
+#'
+#' @param ca Calcium concentration in mg/L as Ca
+#' @param mg Magnesium concentration in mg/L as Mg
+#' @param type "total" returns total hardness, "ca" returns calcium hardness
+#'
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+calculate_hardness <- function(ca, mg, type = "total") {
+  ca <- convert_units(ca, "ca", "mg/L", "mg/L CaCO3")
+  mg <- convert_units(mg, "mg", "mg/L", "mg/L CaCO3")
+  tot_hard <- ca + mg
+  ca_hard <- ca
+  
+  if(type == "total") {
+    tot_hard
+  } else if(type == "ca") {
+    ca_hard
+  } else {
+    stop("Unsupported type. Specify 'total' or 'ca'")
+  }
+  
+}
+
+#' Hardness calculation
+#'
+#' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
+#'
+#' @param ca Calcium concentration in mg/L as Ca
+#' @param mg Magnesium concentration in mg/L as Mg
+#' @param type "total" returns total hardness, "ca" returns calcium hardness
+#'
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+calculate_hardness <- function(ca, mg, type = "total") {
+  ca <- convert_units(ca, "ca", "mg/L", "mg/L CaCO3")
+  mg <- convert_units(mg, "mg", "mg/L", "mg/L CaCO3")
+  tot_hard <- ca + mg
+  ca_hard <- ca
+  
+  if(type == "total") {
+    tot_hard
+  } else if(type == "ca") {
+    ca_hard
+  } else {
+    stop("Unsupported type, Specify 'total' or 'ca'")
+  }
+  
+}
+
+
+#' Ion balance a water
+#'
+#' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
+#' will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
+#' anions are added using chloride, unless sulfate is 0.
+#'
+#' @param water Water created with define_water, which may have some ions set to 0 when unknown
+#' 
+#' @examples
+#' # Put example code here
+#'
+#' @export
+#'
+balance_ions <- function(water) {
+  
+  na = water$na
+  ca = water$ca
+  mg = water$mg
+  k = water$k
+  h = water$h
+  cl = water$cl
+  so4 = water$so4
+  hco3 = water$hco3
+  co3 = water$co3
+  oh = water$oh
+  tot_ocl = water$tot_ocl
+  
+  # Set up ions to be changed
+  na_new <- na
+  k_new <- k
+  cl_new <- cl
+  so4_new <- so4
+  
+  # calculate charge
+  cations <- na + 2 * ca + 2 * mg + k + h
+  anions <- cl + 2 * so4 + hco3 + 2 * co3 + oh + tot_ocl
+  
+  # Add either sodium or potassium if cations are needed
+  if(cations < anions) {
+    add_cat <- anions - cations
+    if(na == 0) {
+      na_new <- add_cat
+    } else if(k == 0) {
+      k_new <- add_cat
+    } else {
+      na_new <- na + add_cat
+    }
+    # add chloride or sulfate if anions are needed
+  } else if(anions < cations) {
+    add_ani <- cations - anions
+    if(cl == 0) {
+      cl_new <- add_ani
+    } else if(so4 == 0) {
+      so4_new <- add_ani / 2
+    } else {
+      cl_new <- cl + add_ani
+    }
+  }
+  
+  water_df <- water %>%
+    mutate(na = na_new,
+           k = k_new,
+           cl = cl_new,
+           so4 = so4_new)
+  return(water_df)
+  
 }
 
 
