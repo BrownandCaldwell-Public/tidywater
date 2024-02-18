@@ -24,7 +24,7 @@ dose_chemical(
 )
 }
 \arguments{
-\item{water}{Source water data frame created by \code{\link{define_water}}}
+\item{water}{Source water of class "water" created by \code{\link{define_water}}}
 
 \item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 
@@ -59,7 +59,7 @@ dose_chemical(
 \description{
 This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
 Units of all chemical additions in mg/L as chemical (not as product).
-Returns data frame of dosed water quality.
+Returns "water" class object of dosed water.
 }
 \examples{
 # Put example code here

@@ -4,17 +4,7 @@
 \alias{blend_waters}
 \title{Blend water function}
 \usage{
-blend_waters(
-  water1,
-  ratio1,
-  water2,
-  ratio2,
-  water3 = data.frame(ph = NA),
-  ratio3 = 0,
-  water4 = data.frame(ph = NA),
-  ratio4 = 0,
-  ...
-)
+blend_waters(waters, ratios)
 }
 \arguments{
 \item{water1}{Source water 1 data frame created by \code{\link{define_water}}}

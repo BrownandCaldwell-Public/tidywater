@@ -15,7 +15,7 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
-  type
+  po4 = 0
 )
 }
 \arguments{
@@ -39,10 +39,10 @@ define_water(
 
 \item{tot_ocl}{Chlorine in mg/L as ??}
 
-\item{type}{Water type = treated drinking water (dw), raw groundwater (gw), raw surface water (sw), or treated wastewater (ww)}
+\item{po4}{Phosphate in mg/L as PO4}
 }
 \description{
-This function takes water quality parameters and creates a standard data frame that forms the input and output of all pH functions.
+This function takes water quality parameters and creates a "water" object that forms the input and output of all pH functions.
 Carbonate balance is calculated and units are converted to mol/L
 }
 \examples{

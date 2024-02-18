@@ -7,47 +7,7 @@
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph <- function(water) {
-  kw <- water$kw
-  alk_eq <- water$alk_eq
-
-  # Carbonate
-  tot_co3 = water$tot_co3
-
-  # Sulfate
-  if (is.null(water$so4_dose)) {
-    so4_dose = 0
-  } else {so4_dose = water$so4_dose}
-
-  # Phosphate
-  if (is.null(water$po4_dose)) {
-    po4_dose = 0
-  } else {po4_dose = water$po4_dose}
-
-  # Hypochlorite
-  if (is.null(water$tot_ocl)) {
-    tot_ocl = 0
-  } else {tot_ocl = water$tot_ocl}
-
-  # Sodium
-  if (is.null(water$na_dose)) {
-    na_dose = 0
-  } else {na_dose = water$na_dose}
-
-  # Calcium
-  if (is.null(water$ca_dose)) {
-    ca_dose = 0
-  } else {ca_dose = water$ca_dose}
-
-  # Magnesium
-  if (is.null(water$mg_dose)) {
-    mg_dose = 0
-  } else {mg_dose = water$mg_dose}
-
-  # Chloride
-  if (is.null(water$cl_dose)) {
-    cl_dose = 0
-  } else {cl_dose = water$cl_dose}
+solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
@@ -59,12 +19,12 @@ solve_ph <- function(water) {
       (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
   }
   root_h <- uniroot(solve_h, interval = c(1e-14, 1e-1),
-    kw = kw,
+    kw = water@kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
-    tot_co3 = tot_co3,
-    tot_ocl = tot_ocl,
-    alk_eq = alk_eq,
+    tot_co3 = water@tot_co3,
+    tot_ocl = water@tot_co3,
+    alk_eq = water@alk_eq,
     na_dose = na_dose,
     ca_dose = ca_dose,
     mg_dose = mg_dose,
@@ -78,9 +38,9 @@ solve_ph <- function(water) {
 #'
 #' This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
 #' Units of all chemical additions in mg/L as chemical (not as product).
-#' Returns data frame of dosed water quality.
+#' Returns "water" class object of dosed water.
 #'
-#' @param water Source water data frame created by \code{\link{define_water}}
+#' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
@@ -109,7 +69,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
                           alum = 0, fecl3 = 0, fe2so43 = 0) {
 
   if (missing(water)) {
-    stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
+    stop("No source water defined. Create a water using the 'define_water' function.")}
 
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
@@ -158,84 +118,65 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   fe2so43 = convert_units(fe2so43, "fe2so43")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
+dosed_water <- water
 
   # Total sodium
   na_dose = naoh + 2 * na2co3 + nahco3 + naocl
-  tot_na = water$na + na_dose
+  dosed_water@na = water@na + na_dose
 
   # Total calcium
   ca_dose = caoh2 + caocl2 / 2
-  tot_ca = water$ca + ca_dose
+  dosed_water@ca = water@ca + ca_dose
 
   # Total magnesium
   mg_dose = mgoh2
-  tot_mg = water$mg + mg_dose
+  dosed_water@mg = water@mg + mg_dose
 
   # Total potassium
   k_dose = 0
-  tot_k = water$k + k_dose
+  dosed_water@k = water@k + k_dose
 
   # Total chloride
   cl_dose = hcl + cl2 + 3 * fecl3
-  tot_cl = water$cl + cl_dose
+  dosed_water@cl = water@cl + cl_dose
 
   # Total sulfate
   so4_dose = h2so4 + 3 * alum + 3 * fe2so43
-  tot_so4 = water$so4 + so4_dose
+  dosed_water@so4 = water@so4 + so4_dose
 
   # Total phosphate
   po4_dose = h3po4
-  tot_po4 = po4_dose
+  dosed_water@po4 = water@po4 + po4_dose
 
   # Total hypochlorite
   ocl_dose = cl2 + naocl + caocl2
-  tot_ocl = water$tot_ocl + ocl_dose
+  dosed_water@tot_ocl = water@tot_ocl + ocl_dose
 
   # Total carbonate
   co3_dose = na2co3 + nahco3 + co2
-  tot_co3 = water$tot_co3 + co3_dose
+  dosed_water@tot_co3 = water@tot_co3 + co3_dose
 
   # Calculate new pH, H+ and OH- concentrations
-  kw = water$kw
-  alk_eq = water$alk_eq
-  ph_inputs = data.frame(kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose)
-  ph = solve_ph(ph_inputs)
+  ph = solve_ph(dosed_water, so4_dose = so4_dose, po4_dose = po4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
   h = 10^-ph
-  oh = kw / h
+  oh = dosed_water@kw / h
 
   # Calculate new carbonate system balance
   alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
-  hco3 = tot_co3 * alpha1
-  co3 = tot_co3 * alpha2
+  dosed_water@hco3 = dosed_water@tot_co3 * alpha1
+  dosed_water@co3 = dosed_water@tot_co3 * alpha2
 
-  # Calculate new alkalinity (mg/L as CacO3)
-  alk_eq = (hco3 + 2 * co3 + oh - h)
-  alk = convert_units(alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
-
-  # Calculate new hardness (mg/L as CaCO3)
-  ca_hard = convert_units(tot_ca, formula = "ca", startunit = "M", endunit = "mg/L CaCO3")
-  mg_hard = convert_units(tot_mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3")
-
-  tot_hard = ca_hard + mg_hard
+  # Calculate new alkalinity
+  dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
+  dosed_water@alk = convert_units(dosed_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
 
   # Compile complete dosed water data frame
-  dosed_water_df = data.frame(ph,
-    temp = water$temp,
-    alk,
-    tot_hard,
-    na = tot_na,
-    ca = tot_ca,
-    mg = tot_mg,
-    k = tot_k,
-    cl = tot_cl,
-    so4 = tot_so4,
-    hco3, co3, h, oh,
-    tot_co3,
-    tot_ocl,
-    kw,
-    alk_eq)
-  return(dosed_water_df)
+  dosed_water@ph = ph
+  dosed_water@h = h
+  dosed_water@oh = oh
+
+  return(dosed_water)
 }
 
 
@@ -245,7 +186,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 #' This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
 #' Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
 #'
-#' @param water Source water data frame created by \code{\link{define_water}}
+#' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), magnesium hydroxide (Mg(OH)2), and CO2.
 #'
@@ -258,7 +199,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 #'
 dose_target <- function(water, target_ph, chemical) {
   if (missing(water)) {
-    stop("No source water defined. Create a water quality data frame using the 'define_water' function.")}
+    stop("No source water defined. Create a water using the 'define_water' function.")}
 
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
@@ -267,8 +208,8 @@ dose_target <- function(water, target_ph, chemical) {
     stop("Selected chemical addition not supported.")
   }
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water$ph) |
-      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water$ph))) {
+  if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water@ph) |
+      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water@ph))) {
     stop("Target pH cannot be reached with selected chemical")
   }
 
@@ -311,71 +252,55 @@ dose_target <- function(water, target_ph, chemical) {
 #'
 #' @export
 #'
-blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA), ratio3=0, water4=data.frame(ph=NA), ratio4=0, ...) {
+blend_waters <- function(waters, ratios) {
 
-  if(ratio1 + ratio2 + ratio3 + ratio4 != 1) {
+  if(length(waters) != length(ratios)) {
+    stop("Length of waters vector must equal length of ratios vector.")
+  }
+
+  if(sum(ratios) != 1) {
     stop("Blend ratios do not sum up to 1")
   }
 
-  # Mass balance - ions
-  water1$ratio = ratio1
-  water2$ratio = ratio2
-  water3$ratio = ratio3
-  water4$ratio = ratio4
+  # Initialize empty blended water
+  blended_water <- new("water")
+  parameters <- slotNames(blended_water)
+  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
+  parameters <- setdiff(parameters, not_averaged)
 
-  blend_df <- bind_rows(water1, water2, water3, water4) %>%
-    mutate(across(!ratio, ~ .x * ratio)) %>%
-    summarise(across(!ph, ~ sum(.x, na.rm = TRUE)))
+  for(param in parameters) {
+    for(i in 1:length(waters)) {
+      temp_water <- waters[[i]]
+      ratio <- ratios[i]
 
-  tot_na = blend_df$na
-  tot_ca = blend_df$ca
-  tot_mg = blend_df$mg
-  tot_k = blend_df$k
-  tot_cl = blend_df$cl
-  tot_so4 = blend_df$so4
-  tot_po4 = 0 #placeholder value - currently assumes there is no PO4 in source waters
-  tot_ocl = blend_df$tot_ocl
-  tot_co3 = blend_df$tot_co3
-  alk = blend_df$alk
-  alk_eq = blend_df$alk_eq
-  tot_hard = blend_df$tot_hard
+      if(is.na(slot(blended_water, param))) {
+        slot(blended_water, param) = slot(temp_water, param) * ratio
+      } else {
+        slot(blended_water, param) = slot(temp_water, param) * ratio + slot(blended_water, param)
+      }
+    }
+  }
 
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
-  temp = blend_df$temp
-  tempa = temp + 273.15 # absolute temperature (K)
+  tempa = blended_water@temp + 273.15 # absolute temperature (K)
   pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
-  kw = 10^-pkw
+  blended_water@kw = 10^-pkw
 
   # so4_dose, po4_dose, na_dose are all 0
   #ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
-  ph = solve_ph(blend_df)
+  ph = solve_ph(blended_water)
   h = 10^-ph
-  oh = kw / h
+  blended_water@oh = blended_water@kw / h
+  blended_water@h = h
+  blended_water@ph = ph
 
   # Calculate new carbonate system balance
   alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
-  hco3 = tot_co3 * alpha1
-  co3 = tot_co3 * alpha2
+  blended_water@hco3 = blended_water@tot_co3 * alpha1
+  blended_water@co3 = blended_water@tot_co3 * alpha2
 
-  # Compile complete dosed water data frame
-  data.frame(ph,
-             temp = temp,
-             alk,
-             tot_hard,
-             na = tot_na,
-             ca = tot_ca,
-             mg = tot_mg,
-             k = tot_k,
-             cl = tot_cl,
-             so4 = tot_so4,
-             hco3,
-             co3,
-             h,
-             oh,
-             tot_co3,
-             tot_ocl,
-             kw,
-             alk_eq)
+  return(blended_water)
+
 }

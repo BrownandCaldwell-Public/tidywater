@@ -7,7 +7,7 @@
 dose_target(water, target_ph, chemical)
 }
 \arguments{
-\item{water}{Source water data frame created by \code{\link{define_water}}}
+\item{water}{Source water of class "water" created by \code{\link{define_water}}}
 
 \item{target_ph}{The final pH to be achieved after the specified chemical is added.}
 
