@@ -221,14 +221,14 @@ dose_target <- function(water, target_ph, chemical) {
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
     waterfin <- dose_chemical(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
-    phfin <- waterfin$ph
+    phfin <- waterfin@ph
 
-    abs(target_ph - phfin)
+    (target_ph - phfin)
 
   }
 
-  chemdose <- optimize(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
-  round(chemdose$minimum, 1)
+  chemdose <- uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+  round(chemdose$root, 1)
 }
 
 
@@ -258,8 +258,9 @@ blend_waters <- function(waters, ratios) {
     stop("Length of waters vector must equal length of ratios vector.")
   }
 
-  if(sum(ratios) != 1) {
+  if(round(sum(ratios), 5) != 1.0) {
     stop("Blend ratios do not sum up to 1")
+    # print(sum(ratios)) # this is for checking why the function is breaking
   }
 
   # Initialize empty blended water
