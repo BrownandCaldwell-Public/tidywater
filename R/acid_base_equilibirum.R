@@ -23,7 +23,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
     so4_dose = so4_dose,
     po4_dose = po4_dose,
     tot_co3 = water@tot_co3,
-    tot_ocl = water@tot_co3,
+    tot_ocl = water@tot_ocl,
     alk_eq = water@alk_eq,
     na_dose = na_dose,
     ca_dose = ca_dose,
