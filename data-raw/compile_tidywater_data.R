@@ -23,7 +23,9 @@ mweights <- data.frame(na = 22.98977,
   fe2so43 = 2 * 55.845 + 3 * 96.0626,
   mg = 24.305,
   ca = 40.078,
-  po4 = 94.97)
+  po4 = 94.97,
+  hco3 = 61.0168,
+  co3 = 60.0089)
 
 usethis::use_data(mweights, overwrite = TRUE)
 

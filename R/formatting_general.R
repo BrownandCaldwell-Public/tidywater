@@ -179,10 +179,10 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #'
 summarize_wq <- function(water) {
   # Compile main WQ parameters to print
-  params = data.frame(pH = water$ph,
-                      Temp = water$temp,
-                      Alkalinity = water$alk,
-                      Total_Hardness = water$tot_hard)
+  params = data.frame(pH = water@ph,
+                      Temp = water@temp,
+                      Alkalinity = water@alk,
+                      Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"))
   
   params = params %>%
     pivot_longer(c(pH:Total_Hardness), names_to = "param", values_to = "result") %>%
@@ -193,25 +193,23 @@ summarize_wq <- function(water) {
                       col.names = c("Key water quality parameters", "Result", "Units"))
   
   # Compile major ions to print
-  ions = data.frame(Na = water$na,
-                    Ca = water$ca,
-                    Mg = water$mg,
-                    K = water$k,
-                    Cl = water$cl,
-                    SO4 = water$so4,
-                    HCO3 = water$hco3,
-                    CO3 = water$co3,
-                    H = water$h,
-                    OH = water$oh)
+  ions = data.frame(Na = convert_units(water@na, "na", "M", "mg/L"),
+                    Ca = convert_units(water@ca, "ca", "M", "mg/L"),
+                    Mg = convert_units(water@mg, "mg", "M", "mg/L"),
+                    K = convert_units(water@k, "k", "M", "mg/L"),
+                    Cl = convert_units(water@cl, "cl", "M", "mg/L"),
+                    SO4 = convert_units(water@so4, "so4", "M", "mg/L"),
+                    HCO3 = convert_units(water@hco3, "hco3", "M", "mg/L"),
+                    CO3 = convert_units(water@co3, "co3", "M", "mg/L"))
   
   ions = ions %>%
-    pivot_longer(c(Na:OH), names_to = "ion", values_to = "c_mol")
+    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
   
   tab2 = knitr::kable(ions,
                       format = "simple",
-                      col.names = c("Major ions in source water", "Concentration (mol/L)"),
-                      format.args = list(scientific = TRUE),
-                      digits = 10)
+                      col.names = c("Major ions", "Concentration (mg/L)"),
+                      # format.args = list(scientific = TRUE),
+                      digits = 2)
   
   # print(kables(list(tab1,tab2)))
   return(knitr::kables(list(tab1, tab2)))
@@ -399,15 +397,16 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 #' @param ca Calcium concentration in mg/L as Ca
 #' @param mg Magnesium concentration in mg/L as Mg
 #' @param type "total" returns total hardness, "ca" returns calcium hardness
+#' @param startunit Units of Ca and Mg. Defaults to mg/L
 #'
 #' @examples
 #' # Put example code here
 #'
 #' @export
 #'
-calculate_hardness <- function(ca, mg, type = "total") {
-  ca <- convert_units(ca, "ca", "mg/L", "mg/L CaCO3")
-  mg <- convert_units(mg, "mg", "mg/L", "mg/L CaCO3")
+calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
+  ca <- convert_units(ca, "ca", startunit, "mg/L CaCO3")
+  mg <- convert_units(mg, "mg", startunit, "mg/L CaCO3")
   tot_hard <- ca + mg
   ca_hard <- ca
   

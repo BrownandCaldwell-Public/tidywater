@@ -4,7 +4,7 @@
 \alias{calculate_hardness}
 \title{Hardness calculation}
 \usage{
-calculate_hardness(ca, mg, type = "total")
+calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 }
 \arguments{
 \item{ca}{Calcium concentration in mg/L as Ca}
@@ -12,6 +12,8 @@ calculate_hardness(ca, mg, type = "total")
 \item{mg}{Magnesium concentration in mg/L as Mg}
 
 \item{type}{"total" returns total hardness, "ca" returns calcium hardness}
+
+\item{startunit}{Units of Ca and Mg. Defaults to mg/L}
 }
 \description{
 This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
