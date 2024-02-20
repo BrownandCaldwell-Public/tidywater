@@ -19,7 +19,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
       (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
   }
   root_h <- uniroot(solve_h, interval = c(0, 1),
-    kw = kw,
+    kw = water@kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
     tot_co3 = water@tot_co3,
@@ -238,21 +238,15 @@ dose_target <- function(water, target_ph, chemical) {
 
 #' Blend water function
 #'
-#' This function takes up to 4 water data frames defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
+#' This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
 #'
-#' @param water1 Source water 1 data frame created by \code{\link{define_water}}
-#' @param ratio1 Blend ratio of water 1. (Blend ratios must sum to 1)
-#' @param water2 Source water 2 data frame created by \code{\link{define_water}}
-#' @param ratio2 Blend ratio of water 2. (Blend ratios must sum to 1)
-#' @param water3 Source water 3 data frame created by \code{\link{define_water}}
-#' @param ratio3 Blend ratio of water 3. (Blend ratios must sum to 1)
-#' @param water4 Source water 4 data frame created by \code{\link{define_water}}
-#' @param ratio4 Blend ratio of water 4. (Blend ratios must sum to 1)
+#' @param waters Vector of source waters created by \code{\link{define_water}}
+#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1)
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' blend_waters(water1, 0.5, water2, .05)
+#' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
 #'
