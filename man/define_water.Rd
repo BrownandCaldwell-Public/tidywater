@@ -9,7 +9,7 @@ define_water(
   temp,
   alk,
   tot_hard,
-  c_hard,
+  ca_hard,
   na,
   k,
   cl,
@@ -27,7 +27,7 @@ define_water(
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
-\item{c_hard}{Calcium hardness in mg/L as CaCO3}
+\item{ca_hard}{Calcium hardness in mg/L as CaCO3}
 
 \item{na}{Sodium in mg/L Na+}
 
