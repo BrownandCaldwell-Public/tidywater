@@ -22,7 +22,10 @@ mweights <- data.frame(na = 22.98977,
   fecl3 = 55.845 + 35.453 * 3,
   fe2so43 = 2 * 55.845 + 3 * 96.0626,
   mg = 24.305,
-  ca = 40.078)
+  ca = 40.078,
+  po4 = 94.97,
+  hco3 = 61.0168,
+  co3 = 60.0089)
 
 usethis::use_data(mweights, overwrite = TRUE)
 
@@ -45,15 +48,15 @@ discons <- data.frame( # Carbonic acid
 usethis::use_data(discons, overwrite = TRUE)
 
 # Default water quality parameters - need to research and document sources for these values
-wq <- data.frame(water_type = c("dw", "gw", "sw", "ww"),
-  ph = c(7, 7, 7, 7),
-  temp = c(20, 25, 25, 25),
-  alk = c(25, 100, 50, 100),
-  tot_hard = c(100, 150, 100, 300),
-  c_hard = c(50, 75, 50, 150),
-  na = c(10, 50, 20, 44),
-  k = c(10, 0, 0, 0),
-  cl = c(10, 20, 50, 100),
-  so4 = c(40, 40, 40, 40))
-
-usethis::use_data(wq, overwrite = TRUE)
+# wq <- data.frame(water_type = c("dw", "gw", "sw", "ww"),
+#   ph = c(7, 7, 7, 7),
+#   temp = c(20, 25, 25, 25),
+#   alk = c(25, 100, 50, 100),
+#   tot_hard = c(100, 150, 100, 300),
+#   c_hard = c(50, 75, 50, 150),
+#   na = c(10, 50, 20, 44),
+#   k = c(10, 0, 0, 0),
+#   cl = c(10, 20, 50, 100),
+#   so4 = c(40, 40, 40, 40))
+#
+# usethis::use_data(wq, overwrite = TRUE)
