@@ -56,7 +56,7 @@ solve_ph <- function(water) {
       (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
       tot_ocl / (h / discons$kocl + 1) -
-      (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
+      (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
   }
   root_h <- uniroot(solve_h, interval = c(1e-14, 1e-1),
     kw = kw,
@@ -268,7 +268,7 @@ dose_target <- function(water, target_ph, chemical) {
   }
 
   if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water$ph) |
-      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water$ph))) {
+    (chemical == "co2" & (target_ph < 6.5 | target_ph >= water$ph))) {
     stop("Target pH cannot be reached with selected chemical")
   }
 
@@ -311,9 +311,9 @@ dose_target <- function(water, target_ph, chemical) {
 #'
 #' @export
 #'
-blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA), ratio3=0, water4=data.frame(ph=NA), ratio4=0, ...) {
+blend_waters <- function(water1, ratio1, water2, ratio2, water3 = data.frame(ph = NA), ratio3 = 0, water4 = data.frame(ph = NA), ratio4 = 0, ...) {
 
-  if(ratio1 + ratio2 + ratio3 + ratio4 != 1) {
+  if (ratio1 + ratio2 + ratio3 + ratio4 != 1) {
     stop("Blend ratios do not sum up to 1")
   }
 
@@ -333,7 +333,7 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   tot_k = blend_df$k
   tot_cl = blend_df$cl
   tot_so4 = blend_df$so4
-  tot_po4 = 0 #placeholder value - currently assumes there is no PO4 in source waters
+  tot_po4 = 0 # placeholder value - currently assumes there is no PO4 in source waters
   tot_ocl = blend_df$tot_ocl
   tot_co3 = blend_df$tot_co3
   alk = blend_df$alk
@@ -348,7 +348,7 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
   kw = 10^-pkw
 
   # so4_dose, po4_dose, na_dose are all 0
-  #ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
+  # ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
   ph = solve_ph(blend_df)
   h = 10^-ph
   oh = kw / h
@@ -361,21 +361,21 @@ blend_waters <- function(water1, ratio1, water2, ratio2, water3=data.frame(ph=NA
 
   # Compile complete dosed water data frame
   data.frame(ph,
-             temp = temp,
-             alk,
-             tot_hard,
-             na = tot_na,
-             ca = tot_ca,
-             mg = tot_mg,
-             k = tot_k,
-             cl = tot_cl,
-             so4 = tot_so4,
-             hco3,
-             co3,
-             h,
-             oh,
-             tot_co3,
-             tot_ocl,
-             kw,
-             alk_eq)
+    temp = temp,
+    alk,
+    tot_hard,
+    na = tot_na,
+    ca = tot_ca,
+    mg = tot_mg,
+    k = tot_k,
+    cl = tot_cl,
+    so4 = tot_so4,
+    hco3,
+    co3,
+    h,
+    oh,
+    tot_co3,
+    tot_ocl,
+    kw,
+    alk_eq)
 }
