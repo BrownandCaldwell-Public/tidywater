@@ -162,8 +162,8 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   oh = dosed_water@kw / h
 
   # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
   dosed_water@hco3 = dosed_water@tot_co3 * alpha1
   dosed_water@co3 = dosed_water@tot_co3 * alpha2
 
@@ -297,8 +297,8 @@ blend_waters <- function(waters, ratios) {
   blended_water@ph = ph
 
   # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
   blended_water@hco3 = blended_water@tot_co3 * alpha1
   blended_water@co3 = blended_water@tot_co3 * alpha2
 
