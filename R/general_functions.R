@@ -2,7 +2,6 @@
 # These functions include formatting and general helper functions
 
 
-
 # Create water class
 setClass("water",
   representation(ph = "numeric",
@@ -480,12 +479,13 @@ balance_ions <- function(water) {
 }
 
 
-# Functions to determine alpha from H+ and disassociation constants
+
+# Functions to determine alpha from H+ and dissociation constants for carbonate
 # Not exported
-calculate_alpha1 <- function(h, k1, k2) {
+calculate_alpha1_carbonate <- function(h, k1, k2) {
   (k1 * h) / (h^2 + k1 * h + k1 * k2)
 }
 
-calculate_alpha2 <- function(h, k1, k2) {
+calculate_alpha2_carbonate <- function(h, k1, k2) {
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
