@@ -67,7 +67,7 @@ setMethod("show",
             cat("Total carbonate (M): ", object@tot_co3, "\n")
             cat("Kw: ", object@kw, "\n")
             cat("Alkalinity (eq/L):", object@alk_eq)
-            
+
           })
 
 
@@ -94,7 +94,7 @@ setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, po4 = 0) {
-  
+
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
     ph = NA_real_
@@ -133,7 +133,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tempa = temp + 273.15 # absolute temperature (K)
   pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
   kw = 10^-pkw
-  
+
   # convert major ion concentration inputs to mol/L
   na = convert_units(na, "na")
   ca = convert_units(ca_hard, "caco3")
@@ -144,7 +144,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   po4 = convert_units(po4, "po4")
   h = 10^-ph
   oh = kw / h
-  
+
   # calculate carbonate system balance
   alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
@@ -153,14 +153,14 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tot_co3 = (alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
-  
+
   # Compile complete source water data frame to save to environment
   water_class <- new("water",
                      ph = ph, temp = temp, alk = alk, #tot_hard = tot_hard,
                      na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
-                     hco3 = hco3, co3 = co3, h = h, oh = oh, 
+                     hco3 = hco3, co3 = co3, h = h, oh = oh,
                      tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, alk_eq = alk_eq)
-  
+
   return(water_class)
 }
 
@@ -183,15 +183,15 @@ summarize_wq <- function(water) {
                       Temp = water@temp,
                       Alkalinity = water@alk,
                       Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"))
-  
+
   params = params %>%
     pivot_longer(c(pH:Total_Hardness), names_to = "param", values_to = "result") %>%
     mutate(units = c("-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3"))
-  
+
   tab1 = knitr::kable(params,
                       format = "simple",
                       col.names = c("Key water quality parameters", "Result", "Units"))
-  
+
   # Compile major ions to print
   ions = data.frame(Na = convert_units(water@na, "na", "M", "mg/L"),
                     Ca = convert_units(water@ca, "ca", "M", "mg/L"),
@@ -201,16 +201,16 @@ summarize_wq <- function(water) {
                     SO4 = convert_units(water@so4, "so4", "M", "mg/L"),
                     HCO3 = convert_units(water@hco3, "hco3", "M", "mg/L"),
                     CO3 = convert_units(water@co3, "co3", "M", "mg/L"))
-  
+
   ions = ions %>%
     pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
-  
+
   tab2 = knitr::kable(ions,
                       format = "simple",
                       col.names = c("Major ions", "Concentration (mg/L)"),
                       # format.args = list(scientific = TRUE),
                       digits = 2)
-  
+
   # print(kables(list(tab1,tab2)))
   return(knitr::kables(list(tab1, tab2)))
 }
@@ -230,7 +230,7 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-  
+
   # Compile major ions to plot
   ions = data.frame(Na = water@na,
                     Ca = water@ca * 2,
@@ -242,7 +242,7 @@ plot_ions <- function(water, title = "") {
                     CO3 = water@co3,
                     H = water@h,
                     OH = water@oh)
-  
+
   ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") == TRUE ~ "Cations",
@@ -281,21 +281,21 @@ plot_ions <- function(water, title = "") {
 #' @export
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  
+
   milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
   mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
   nano_list <- c("ng/L", "ng/L CaCO3", "nM", "neq/L")
   stand_list <- c("g/L", "g/L CaCO3", "M", "eq/L")
-  
+
   gram_list <- c("ng/L", "ug/L", "mg/L", "g/L", "mg/L CaCO3", "g/L CaCO3")
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
-  
+
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
- 
+
   # Determine multiplier for order of magnitude conversion
   # In the same list, no multiplier needed
-  if((startunit %in% milli_list & endunit %in% milli_list) | 
+  if((startunit %in% milli_list & endunit %in% milli_list) |
      (startunit %in% stand_list & endunit %in% stand_list) |
      (startunit %in% nano_list & endunit %in% nano_list) |
      (startunit %in% mcro_list & endunit %in% mcro_list)) {
@@ -324,10 +324,10 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else {
     stop("Units not supported")
   }
-  
+
   # Need molar mass of CaCO3
   caco3_mw <- as.numeric(mweights["caco3"])
-  
+
   # Determine relevant molar weight
   if(formula %in% colnames(mweights)) {
     if((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
@@ -341,7 +341,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else {
     stop("Chemical formula not supported")
   }
-  
+
   # Determine charge for equivalents
   if(formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na")) {
     charge <- 1
@@ -385,8 +385,8 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else {
     stop("Units not supported")
   }
-  
-   
+
+
 }
 
 
@@ -409,7 +409,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   mg <- convert_units(mg, "mg", startunit, "mg/L CaCO3")
   tot_hard <- ca + mg
   ca_hard <- ca
-  
+
   if(type == "total") {
     tot_hard
   } else if(type == "ca") {
@@ -417,7 +417,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   } else {
     stop("Unsupported type. Specify 'total' or 'ca'")
   }
-  
+
 }
 
 #' Ion balance a water
@@ -427,28 +427,28 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' anions are added using chloride, unless sulfate is 0.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
-#' 
+#'
 #' @examples
 #' # Put example code here
 #'
 #' @export
 #'
 balance_ions <- function(water) {
-  
+
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
   cl_new <- water@cl
   so4_new <- water@so4
-  
+
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
   anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl
-  
+
   if(is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
   }
-  
+
   # Add either sodium or potassium if cations are needed
   if(cations < anions) {
     add_cat <- anions - cations
@@ -470,14 +470,14 @@ balance_ions <- function(water) {
       cl_new <- water@cl + add_ani
     }
   }
-  
+
   water@na <- na_new
   water@k <- k_new
   water@cl <- cl_new
   water@so4 <- so4_new
-  
+
   return(water)
-  
+
 }
 
 
@@ -491,3 +491,39 @@ calculate_alpha2 <- function(h, k1, k2) {
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
 
+# General temperature correction for equilibrium constants
+# Temperature in deg C
+# Eqn 5-9 WTP Model Manual (changed using Meyer masters thesis to include the correct temp correction)
+pK_temp_adjust <- function(delta_h, k_a, temp) {
+  R <- 8.314
+  tempa <- temp + 273.15
+  lnK <- log(k_a)
+  -log10(exp((delta_h/R*(1/298.15 - 1/tempa)) + lnK))
+}
+
+# discons$k1co3 delta_h = 7700
+# discons$k2co3 delta_h = 14900
+
+# Ionic strength calc
+
+calculate_ionicstrength <- function(water) {
+
+  # From all ions: IS = 0.5 * sum(M * z^2)
+  0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h + water@oh + water@tot_ocl) * 1^2 +
+           (water@ca + water@mg + water@so4 + water@co3) * 2^2 +
+           (water@po4) * 3^2)
+
+}
+
+correlate_ionicstrength <- function(water, from = "cond") {
+  if(from == "cond") {
+    # Snoeyink & Jenkins 1980
+    1.6 * 10^-5 * water@cond
+  } else if(from == "tds") {
+    # MWH 2012 (5-38)
+    2.5 * 10^-5 * water@tds
+  } else {
+    stop("Specify correlation from 'cond' or 'tds'.")
+  }
+
+}
