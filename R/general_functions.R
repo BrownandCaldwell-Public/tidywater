@@ -176,6 +176,9 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @export
 #'
 summarize_wq <- function(water) {
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Compile main WQ parameters to print
   params = data.frame(pH = water@ph,
     Temp = water@temp,
@@ -228,7 +231,9 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Compile major ions to plot
   ions = data.frame(Na = water@na,
     Ca = water@ca * 2,
@@ -432,7 +437,9 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @export
 #'
 balance_ions <- function(water) {
-
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
