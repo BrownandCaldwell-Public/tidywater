@@ -16,7 +16,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
       (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
       tot_ocl / (h / discons$kocl + 1) -
-      (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
+      (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
   }
   root_h <- uniroot(solve_h, interval = c(1e-14, 1e-1),
     kw = water@kw,
@@ -118,7 +118,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   fe2so43 = convert_units(fe2so43, "fe2so43")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
-dosed_water <- water
+  dosed_water <- water
 
   # Total sodium
   na_dose = naoh + 2 * na2co3 + nahco3 + naocl
@@ -209,7 +209,7 @@ dose_target <- function(water, target_ph, chemical) {
   }
 
   if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water@ph) |
-      (chemical == "co2" & (target_ph < 6.5 | target_ph >= water@ph))) {
+    (chemical == "co2" & (target_ph < 6.5 | target_ph >= water@ph))) {
     stop("Target pH cannot be reached with selected chemical")
   }
 
@@ -254,11 +254,11 @@ dose_target <- function(water, target_ph, chemical) {
 #'
 blend_waters <- function(waters, ratios) {
 
-  if(length(waters) != length(ratios)) {
+  if (length(waters) != length(ratios)) {
     stop("Length of waters vector must equal length of ratios vector.")
   }
 
-  if(round(sum(ratios), 5) != 1.0) {
+  if (round(sum(ratios), 5) != 1.0) {
     stop("Blend ratios do not sum up to 1")
     # print(sum(ratios)) # this is for checking why the function is breaking
   }
@@ -269,12 +269,12 @@ blend_waters <- function(waters, ratios) {
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
   parameters <- setdiff(parameters, not_averaged)
 
-  for(param in parameters) {
-    for(i in 1:length(waters)) {
+  for (param in parameters) {
+    for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
       ratio <- ratios[i]
 
-      if(is.na(slot(blended_water, param))) {
+      if (is.na(slot(blended_water, param))) {
         slot(blended_water, param) = slot(temp_water, param) * ratio
       } else {
         slot(blended_water, param) = slot(temp_water, param) * ratio + slot(blended_water, param)
@@ -289,7 +289,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@kw = 10^-pkw
 
   # so4_dose, po4_dose, na_dose are all 0
-  #ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
+  # ph_inputs = data.frame(tot_cl, tot_so4, 0, tot_po4, 0, tot_na, 0, tot_ocl, tot_co3, cba, kw)
   ph = solve_ph(blended_water)
   h = 10^-ph
   blended_water@oh = blended_water@kw / h
