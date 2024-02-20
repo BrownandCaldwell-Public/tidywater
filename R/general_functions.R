@@ -2,7 +2,6 @@
 # These functions include formatting and general helper functions
 
 
-
 # Create water class
 setClass("water",
   representation(ph = "numeric",
@@ -145,8 +144,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   oh = kw / h
 
   # calculate carbonate system balance
-  alpha1 = calculate_alpha1(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
   alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
   # convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   tot_co3 = (alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
@@ -177,6 +176,9 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @export
 #'
 summarize_wq <- function(water) {
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Compile main WQ parameters to print
   params = data.frame(pH = water@ph,
     Temp = water@temp,
@@ -229,7 +231,9 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Compile major ions to plot
   ions = data.frame(Na = water@na,
     Ca = water@ca * 2,
@@ -433,7 +437,9 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @export
 #'
 balance_ions <- function(water) {
-
+  if(class(water) != "water") {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
@@ -480,13 +486,14 @@ balance_ions <- function(water) {
 }
 
 
-# Functions to determine alpha from H+ and disassociation constants
+
+# Functions to determine alpha from H+ and dissociation constants for carbonate
 # Not exported
-calculate_alpha1 <- function(h, k1, k2) {
+calculate_alpha1_carbonate <- function(h, k1, k2) {
   (k1 * h) / (h^2 + k1 * h + k1 * k2)
 }
 
-calculate_alpha2 <- function(h, k1, k2) {
+calculate_alpha2_carbonate <- function(h, k1, k2) {
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
 
