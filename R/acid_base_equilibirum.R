@@ -203,7 +203,7 @@ solve_ph <- function(water) {
       tot_ocl / (h / discons$kocl + 1) -
       (h + alk_eq + na_dose + 2*ca_dose + 2*mg_dose - cl_dose)
   }
-  root_h <- uniroot(solve_h, interval = c(1e-14, 1e-1),
+  root_h <- uniroot(solve_h, interval = c(0, 1),
     kw = kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
