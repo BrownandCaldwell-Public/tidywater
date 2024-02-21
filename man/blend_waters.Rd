@@ -7,27 +7,15 @@
 blend_waters(waters, ratios)
 }
 \arguments{
-\item{water1}{Source water 1 data frame created by \code{\link{define_water}}}
+\item{waters}{Vector of source waters created by \code{\link{define_water}}}
 
-\item{ratio1}{Blend ratio of water 1. (Blend ratios must sum to 1)}
-
-\item{water2}{Source water 2 data frame created by \code{\link{define_water}}}
-
-\item{ratio2}{Blend ratio of water 2. (Blend ratios must sum to 1)}
-
-\item{water3}{Source water 3 data frame created by \code{\link{define_water}}}
-
-\item{ratio3}{Blend ratio of water 3. (Blend ratios must sum to 1)}
-
-\item{water4}{Source water 4 data frame created by \code{\link{define_water}}}
-
-\item{ratio4}{Blend ratio of water 4. (Blend ratios must sum to 1)}
+\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1)}
 }
 \description{
-This function takes up to 4 water data frames defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
+This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
 }
 \examples{
-blend_waters(water1, 0.5, water2, .05)
+blend_waters(c(water1, water2), c(.4, .6))
 
 }
 \seealso{
