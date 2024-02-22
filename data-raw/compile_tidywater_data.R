@@ -60,3 +60,19 @@ usethis::use_data(discons, overwrite = TRUE)
 #   so4 = c(40, 40, 40, 40))
 #
 # usethis::use_data(wq, overwrite = TRUE)
+
+# Dummy data frame for function examples
+
+water_df <- data.frame(
+  ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
+  temp =  rep(c(20, 25, 19), 4),
+  alk = rep(c(50, 80, 100, 200), 3),
+  tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
+  ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
+  na= rep(c(20, 90), 6),
+  cl = rep(c(30, 92), 6),
+  so4 = rep(c(20, 40, 60, 80), 3),
+  tot_ocl = rep(c(0, 1), 6),
+  po4 = rep(c(0, 0, 1), 4))
+
+usethis::use_data(water_df, overwrite = TRUE)
