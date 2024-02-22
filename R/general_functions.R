@@ -181,7 +181,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @export
 #'
 summarize_wq <- function(water) {
-  if(class(water) != "water") {
+  if (class(water) != "water") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile main WQ parameters to print
@@ -236,7 +236,7 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-  if(class(water) != "water") {
+  if (class(water) != "water") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile major ions to plot
@@ -247,7 +247,9 @@ plot_ions <- function(water, title = "") {
     Cl = water@cl,
     SO4 = water@so4 * 2,
     HCO3 = water@hco3,
-    CO3 = water@co3,
+    CO3 = water@co3 * 2,
+    OCl = water@tot_ocl,
+    PO4 = water@po4 * 3,
     H = water@h,
     OH = water@oh)
 
@@ -442,7 +444,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @export
 #'
 balance_ions <- function(water) {
-  if(class(water) != "water") {
+  if (class(water) != "water") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Set up ions to be changed
@@ -453,7 +455,7 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl
+  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@po4
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")

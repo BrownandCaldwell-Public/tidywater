@@ -72,7 +72,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (class(water) != "water") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
@@ -204,7 +204,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 dose_target <- function(water, target_ph, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (class(water) != "water") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   if (missing(target_ph)) {
@@ -272,7 +272,7 @@ blend_waters <- function(waters, ratios) {
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
-      if(class(temp_water) != "water") {
+      if (class(temp_water) != "water") {
         stop("All input waters must be of class 'water'. Create a water using define_water.")
       }
       ratio <- ratios[i]
