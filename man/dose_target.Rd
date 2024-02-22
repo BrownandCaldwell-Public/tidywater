@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{dose_target}
 \alias{dose_target}
-\title{Target Chemical Dose Function}
+\title{Calculate a desired chemical dose for a target pH}
 \usage{
 dose_target(water, target_ph, chemical)
 }
@@ -11,16 +11,24 @@ dose_target(water, target_ph, chemical)
 
 \item{target_ph}{The final pH to be achieved after the specified chemical is added.}
 
-\item{chemical}{The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), magnesium hydroxide (Mg(OH)2), and CO2.}
+\item{chemical}{The chemical to be added. Current supported chemicals include: caustic soda ("naoh"), lime ("caoh2"),
+magnesium hydroxide ("mgoh2"), and carbon dioxide ("co2").}
 }
 \description{
-This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+\code{dose_target} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target
+and returns a numeric value for the required dose in mg/L.
+}
+\details{
+\code{dose_target} uses \code{uniroot} on \code{\link{dose_chemical}} to match the required dose for the requested pH target.
 }
 \examples{
-# Put example code here
+water <- define_water(ph = 7, temp = 25, alk = 10)
+
+# Calculate required dose of lime to reach pH 8
+dose_target(water, target_ph = 8, chemical = "lime")
 
 }
 \seealso{
-\code{\link{define_water}}
+\code{\link{define_water}}, \code{\link{dose_chemical}}
 }

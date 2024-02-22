@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{dose_chemical}
 \alias{dose_chemical}
-\title{Chemical Dose Function}
+\title{Add chemicals to water}
 \usage{
 dose_chemical(
   water,
@@ -24,47 +24,67 @@ dose_chemical(
 )
 }
 \arguments{
-\item{water}{Source water of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water object of class "water" created by \code{\link{define_water}}}
 
-\item{hcl}{Hydrochloric acid: HCl -> H + Cl}
+\item{hcl}{Amount of hydrochloric acid added in mg/L: HCl -> H + Cl}
 
-\item{h2so4}{Sulfuric acid: H2SO4 -> 2H + SO4}
+\item{h2so4}{Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4}
 
-\item{h3po4}{Phosphoric acid: H3PO4 -> 3H + PO4}
+\item{h3po4}{Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4}
 
-\item{naoh}{Caustic: NaOH -> Na + OH}
+\item{naoh}{Amount of caustic added in mg/L: NaOH -> Na + OH}
 
-\item{na2co3}{Soda ash: Na2CO3 -> 2Na + CO3}
+\item{na2co3}{Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3}
 
-\item{nahco3}{Sodium bicarbonate: NaHCO3 -> Na + H + CO3}
+\item{nahco3}{Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3}
 
-\item{caoh2}{Lime: Ca(OH)2 -> Ca + 2OH}
+\item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 
-\item{mgoh2}{Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH}
+\item{mgoh2}{Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
 
-\item{cl2}{Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl}
+\item{cl2}{Amount of chlorine gas added in mg/L: Cl2(g) + H2O -> HOCl + H + Cl}
 
-\item{naocl}{Sodium hypochlorite: NaOCl -> Na + OCl}
+\item{naocl}{Amount of sodium hypochlorite added in mg/L: NaOCl -> Na + OCl}
 
-\item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
+\item{caocl2}{Amount of calcium hypochlorite added in mg/L: Ca(OCl)2 -> Ca + 2OCl}
 
-\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
+\item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
-\item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
+\item{alum}{Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{fecl3}{Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+\item{fe2so43}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
 }
 \description{
-This function takes chemical doses and a water data frame defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
-Units of all chemical additions in mg/L as chemical (not as product).
-Returns "water" class object of dosed water.
+\code{dose_chemical} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+additions. The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
+chemical additions and returns a new object of class "water" with updated water quality.
+Units of all chemical additions are in mg/L as chemical (not as product).
+}
+\details{
+\code{dose_chemical} works by evaluating all the user-specified chemical additions and solving for what the new pH
+must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
+of the water that the chemical is added to. Multiple chemicals can be added simultaneously of each addition can be
+modeled independently through sequential doses.
 }
 \examples{
-# Put example code here
+water <- define_water(ph = 7, temp = 25, alk = 10)
+# Dose 1 mg/L of hydrochloric acid
+dosed_water <- dose_chemical(water, hcl = 1)
+dosed_water@ph
+
+#Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
+dosed_water <- dose_chemical(water, hcl = 1, alum = 5)
+dosed_water@ph
+
+#Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
+dosed_water1 <- dose_chemical(water, hcl = 1)
+dosed_water1@ph
+dosed_water2 <- dose_chemical(dosed_water1, alum = 5)
+dosed_water2@ph
 
 }
 \seealso{
-\code{\link{define_water}}
+\code{\link{define_water}}, \code{\link{convert_units}}
 }
