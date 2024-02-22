@@ -14,7 +14,8 @@ Imports:
     tidyr,
     knitr,
     ggplot2,
-    magrittr
+    magrittr,
+    methods
 RoxygenNote: 7.3.0
 Depends: 
     R (>= 2.10)

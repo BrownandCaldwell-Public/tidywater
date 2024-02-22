@@ -3,7 +3,7 @@
 
 
 # Create water class
-setClass("water",
+methods::setClass("water",
   representation(ph = "numeric",
     temp = "numeric",
     alk = "numeric",
@@ -43,7 +43,7 @@ setClass("water",
     kw = NA_real_,
     alk_eq = NA_real_))
 
-setMethod("show",
+methods::setMethod("show",
   "water",
   function(object) {
     cat("pH: ", object@ph, "\n")
@@ -158,7 +158,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   alk_eq = carb_alk_eq + tot_ocl / (h / discons$kocl + 1)
 
   # Compile complete source water data frame to save to environment
-  water_class <- new("water",
+  water_class <- methods::new("water",
     ph = ph, temp = temp, alk = alk, # tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
@@ -172,8 +172,6 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 #'
 #' @param water Source water vector created by link function here
-#'
-#' @importFrom knitr kable kables
 #'
 #' @examples
 #' # Put example code here

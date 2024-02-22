@@ -264,8 +264,8 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Initialize empty blended water
-  blended_water <- new("water")
-  parameters <- slotNames(blended_water)
+  blended_water <- methods::new("water")
+  parameters <- methods::slotNames(blended_water)
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
   parameters <- setdiff(parameters, not_averaged)
 
@@ -277,10 +277,10 @@ blend_waters <- function(waters, ratios) {
       }
       ratio <- ratios[i]
 
-      if (is.na(slot(blended_water, param))) {
-        slot(blended_water, param) = slot(temp_water, param) * ratio
+      if (is.na(methods::slot(blended_water, param))) {
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio
       } else {
-        slot(blended_water, param) = slot(temp_water, param) * ratio + slot(blended_water, param)
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio + methods::slot(blended_water, param)
       }
     }
   }
