@@ -15,8 +15,9 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
       (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
       (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
-      tot_ocl / (h / discons$kocl + 1) -
-      (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
+      cl_dose -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
+      alk_eq
   }
   root_h <- uniroot(solve_h, interval = c(0, 1),
     kw = water@kw,
