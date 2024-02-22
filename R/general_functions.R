@@ -101,7 +101,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 
   if (missing(temp)) {
     temp = 20
-    warning("Missing value for temperature. Default of 20C will be used.")
+    warning("Missing value for temperature. Default of 20 degrees C will be used.")
   }
 
   if (missing(alk)) {
@@ -140,17 +140,22 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   cl = convert_units(cl, "cl")
   so4 = convert_units(so4, "so4")
   po4 = convert_units(po4, "po4")
+  tot_ocl = convert_units(tot_ocl, "cl2")
   h = 10^-ph
   oh = kw / h
 
   # calculate carbonate system balance
   alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
-  alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
+  carb_alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
+
   # convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
-  tot_co3 = (alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
+  tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2) # calculate total carbonate concentration
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
+
+  # calculate total alkalinity (carbonate alkalinity + additional weak acid/bases that can take up H+)
+  alk_eq = carb_alk_eq + tot_ocl / (h / discons$kocl + 1)
 
   # Compile complete source water data frame to save to environment
   water_class <- new("water",
