@@ -4,7 +4,7 @@
 \name{tidywater-package}
 \alias{tidywater}
 \alias{tidywater-package}
-\title{tidywater: What the Package Does (Title Case)}
+\title{tidywater: Water quality modeling for water treatment}
 \description{
 More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
 }

@@ -179,7 +179,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @export
 #'
 summarize_wq <- function(water) {
-  if (class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile main WQ parameters to print
@@ -234,7 +234,7 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-  if (class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile major ions to plot
@@ -279,7 +279,7 @@ plot_ions <- function(water, title = "") {
 #' This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in \code{\link{mweights}} for conversions between g and mol or eq
+#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
 #' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
 #'
@@ -289,6 +289,8 @@ plot_ions <- function(water, title = "") {
 #' @export
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+
+  data(mweights)
 
   milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
   mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
@@ -442,7 +444,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @export
 #'
 balance_ions <- function(water) {
-  if (class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Set up ions to be changed

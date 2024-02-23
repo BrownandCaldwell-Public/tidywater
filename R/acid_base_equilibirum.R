@@ -20,7 +20,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
       alk_eq
   }
-  root_h <- uniroot(solve_h, interval = c(0, 1),
+  root_h <- stats::uniroot(solve_h, interval = c(0, 1),
     kw = water@kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
@@ -72,7 +72,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if (class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
@@ -204,7 +204,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 dose_target <- function(water, target_ph, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if (class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   if (missing(target_ph)) {
@@ -233,7 +233,7 @@ dose_target <- function(water, target_ph, chemical) {
 
   }
 
-  chemdose <- uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+  chemdose <- stats::uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
   round(chemdose$root, 1)
 }
 
@@ -248,6 +248,8 @@ dose_target <- function(water, target_ph, chemical) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#' water1 <- define_water(7, 20, 50)
+#' water2 <- define_water(7.5, 20, 100)
 #' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
@@ -272,7 +274,7 @@ blend_waters <- function(waters, ratios) {
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
-      if (class(temp_water) != "water") {
+      if (!methods::is(temp_water, "water")) {
         stop("All input waters must be of class 'water'. Create a water using define_water.")
       }
       ratio <- ratios[i]
