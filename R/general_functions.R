@@ -290,8 +290,6 @@ plot_ions <- function(water, title = "") {
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 
-  data(mweights)
-
   milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
   mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
   nano_list <- c("ng/L", "ng/L CaCO3", "nM", "neq/L")
