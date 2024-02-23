@@ -70,6 +70,7 @@ water_df <- data.frame(
   tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
   ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
   na= rep(c(20, 90), 6),
+  k= rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
   so4 = rep(c(20, 40, 60, 80), 3),
   tot_ocl = rep(c(0, 1), 6),
