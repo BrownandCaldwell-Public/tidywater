@@ -66,7 +66,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
 #'
 #' @export
 #'
-dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                           cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                           alum = 0, fecl3 = 0, fe2so43 = 0) {
 
@@ -201,7 +201,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 #'
 #' @export
 #'
-dose_target <- function(water, target_ph, chemical) {
+solvedose_ph <- function(water, target_ph, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
   if(class(water) != "water") {

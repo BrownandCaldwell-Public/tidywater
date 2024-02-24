@@ -7,6 +7,5 @@
 #' @importFrom magrittr %>%
 #' @import dplyr
 #' @import tidyr
-#' @import purrr
 ## usethis namespace: end
 NULL
