@@ -27,8 +27,7 @@ name: test-coverage
             needs: coverage
 
         - name: Local test coverage report
-          run: |
-            covr::report(
+          run: covr::report(
               file = "covr-report.html"
             )
           shell: Rscript {0}
@@ -38,12 +37,10 @@ name: test-coverage
     with:
       name: local-coverage-report
       path: covr-report.html
-      
+
   - name: Show testthat output
     if: always()
-    run: |
-      ## --------------------------------------------------------------------
-      find ${{ runner.temp }}/package -name 'testthat.Rout*' -exec cat '{}' \; || true
+    run: find ${{ runner.temp }}/package -name 'testthat.Rout*' -exec cat '{}' \; || true
     shell: bash
 
   - name: Upload test results
