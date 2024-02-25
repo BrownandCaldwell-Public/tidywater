@@ -23,7 +23,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: c('any::covr', 'any::DT', 'any::htmltools')
+          extra-packages: any::covr, any::DT, any::htmltools
           needs: coverage
 
       - name: Test coverage
