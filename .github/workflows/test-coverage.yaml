@@ -23,24 +23,13 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr, any::DT, any::htmltools
+          extra-packages: any::covr
           needs: coverage
 
       - name: Test coverage
         run: |
-          covr::report(file = "covr-report.html")
+          if(covr::percent_coverage(covr::package_coverage()) < 95, quit(-1), quit(0))
         shell: Rscript {0}
-
-      - name: Carter Notice Test
-        run: |
-          echo "::notice ::CARTER WAS HERE"
-        shell: bash
-
-      - name: Upload local coverage report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: local-coverage-report
-          path: covr-report.html
 
       - name: Show testthat output
         if: always()
