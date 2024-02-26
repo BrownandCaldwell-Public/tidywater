@@ -30,11 +30,11 @@ jobs:
         run: |
           codecoverage <- covr::percent_coverage(covr::package_coverage())
           if(codecoverage < 95) {
-            print(paste0("::error ::Code coverage = ", codecoverage, "%. Threshold = 95%"))
-            quit(-1)
+            write(paste0("::error ::Code coverage = ", codecoverage, "%. Threshold = 95%"), stdout())
+            quit(save = "no", -1)
           } else {
-            print(paste0("Code coverage = ", codecoverage, "%"))
-            quit(0)
+            write(paste0("Code coverage = ", codecoverage, "%"), stdout())
+            quit(save = "no", 0)
           }
         shell: Rscript {0}
 
