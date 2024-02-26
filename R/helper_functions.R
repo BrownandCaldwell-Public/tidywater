@@ -476,42 +476,38 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 
 
 blend_waters_once <- function(df, waters, ratios, output_water = "blended_water") {
-
+# Goals: 
+    #Iterate over an unknown number of columns
+    #Ratios can either be col name inputs or direct inputs
+    #waters MUST be colnames. Otherwise user should just use base blend_waters fn
   waters = c("defined_water", "dosed_chem_water")
   # ratios = c(.4, .6)
   ratios= c("ratios1", "ratios2")
-  # ratios = c(list(rep(.4, 12), rep(.6, 12)))
 
 df_subset <- df %>% select(all_of(waters))
 
-water_vec <- c()
-for(i in colnames(df_subset)) {
+df_ratio <- df %>% select(all_of(ratios))
+
+row_vec <- c()
+blend_raw <- c()
+blend_ratio <- c()
+for(row in 1:length(df_subset[[1]])) {
+  for(cols in 1:length(df_subset)) {
   
-  for(j  in length(df_subset[[i]])) {
-    
-  add <- df_subset[[i, j]]
-    
-    water_vec <- c(water_vec, add)
-    
+water_save <- c(df_subset[[cols]][row])
+ ratio_save <- c(df_ratio[[cols]][row])
+ 
+ blend_raw <- c(blend_raw, water_save)
+ blend_ratio <- c(blend_ratio, ratio_save)
+
   }
+  save <-  blend_waters(blend_raw, blend_ratio)
   
+  row_vec <- c(row_vec, save)
 
 }
 
-df_ratio <- df %>%
-  select(all_of(ratios))
-
-ratio_vec <- c()
-for(r in colnames(df_ratio)) {
-  ratio_vec <- c(ratio_vec, df_ratio[r])
-}
-
-# ratio_vec <- c()
-# for(r in length(ratios)) {
-#   # df_subset[1]
-#   ratio_add <- rep(ratios[r], length(df_subset[[r]]))
-#   ratio_vec <- c(ratio_vec, ratio_add)
-# }
+unlistrow <- unlist(row_vec)
 
   # output<- df %>%
   #   rowwise() %>%
