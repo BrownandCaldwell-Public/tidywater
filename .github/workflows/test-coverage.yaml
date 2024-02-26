@@ -28,7 +28,7 @@ jobs:
 
       - name: Test coverage
         run: |
-          if(covr::percent_coverage(covr::package_coverage()) < 95, quit(-1), quit(0))
+          ifelse(covr::percent_coverage(covr::package_coverage()) < 95, quit(-1), quit(0))
         shell: Rscript {0}
 
       - name: Show testthat output
