@@ -31,6 +31,11 @@ jobs:
           covr::report(file = "covr-report.html")
         shell: Rscript {0}
 
+      - name: Carter Notice Test
+        run: |
+          echo "::notice ::CARTER WAS HERE"
+        shell: bash
+
       - name: Upload local coverage report as artifact
         uses: actions/upload-artifact@v4
         with:
