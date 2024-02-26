@@ -99,7 +99,7 @@ test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
 test_that("Plot ions creates a ggplot object that can be printed.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
   expect_s3_class(plot_ions(water1), "ggplot")
-  expect_error(plot_ions(water1), NA)
+  expect_no_error(plot_ions(water1))
 })
 
 

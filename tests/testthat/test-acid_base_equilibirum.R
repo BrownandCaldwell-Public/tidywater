@@ -58,7 +58,7 @@ test_that("Dose target produces an error when target pH is unreachable but runs 
 
   expect_error(dose_target(water4, 6, "naoh"))
   expect_error(dose_target(water4, 6, "co2"))
-  expect_error(dose_target(water4, 9, "naoh"), NA)
+  expect_no_error(dose_target(water4, 9, "naoh"))
 })
 
 test_that("Dose target works.", {
