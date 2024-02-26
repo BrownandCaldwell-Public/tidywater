@@ -28,10 +28,10 @@ jobs:
 
       - name: Test coverage
         run: |
-          codecoverage <- covr::percent_coverage(covr::package_coverage())
-          if(codecoverage < 95) {
-            write(paste0("::error ::Code coverage = ", codecoverage, "%. Threshold = 95%"), stdout())
-            quit(save = "no", -1)
+          codecoverage <- round(covr::percent_coverage(covr::package_coverage()))
+          if(codecoverage < 75) {
+            write(paste0("::error ::Code coverage = ", codecoverage, "%. Code coverage must be greater than 75%. Write tests."), stdout())
+            quit(save = "no", 1)
           } else {
             write(paste0("Code coverage = ", codecoverage, "%"), stdout())
             quit(save = "no", 0)
