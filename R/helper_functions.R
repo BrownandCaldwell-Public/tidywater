@@ -486,7 +486,16 @@ df_subset <- df %>% select(all_of(waters))
 
 water_vec <- c()
 for(i in colnames(df_subset)) {
-  water_vec <- c(water_vec, df_subset[i])
+  
+  for(j  in length(df_subset[[i]])) {
+    
+  add <- df_subset[[i, j]]
+    
+    water_vec <- c(water_vec, add)
+    
+  }
+  
+
 }
 
 df_ratio <- df %>%
