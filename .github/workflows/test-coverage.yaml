@@ -28,7 +28,14 @@ jobs:
 
       - name: Test coverage
         run: |
-          ifelse(covr::percent_coverage(covr::package_coverage()) < 95, print("::error ::Code coverage less than threshold."; quit(-1), quit(0))
+          codecoverage <- covr::percent_coverage(covr::package_coverage())
+          if(codecoverage < 95) {
+            print(paste0("::error ::Code coverage = ", codecoverage, "%. Threshold = 95%"))
+            quit(-1)
+          } else {
+            print(paste0("Code coverage = ", codecoverage, "%"))
+            quit(0)
+          }
         shell: Rscript {0}
 
       - name: Show testthat output
