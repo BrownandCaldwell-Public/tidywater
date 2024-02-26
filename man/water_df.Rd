@@ -3,35 +3,28 @@
 \docType{data}
 \name{water_df}
 \alias{water_df}
-\title{Water Quality Parameters}
+\title{Data frame of water quality parameters}
 \format{
-A dataframe with placeholder water quality for tidywater inputs
+A dataframe with 12 rows and 11 columns:
+\describe{
+\item{ph}{pH in standard units (SU)}
+\item{temp}{Temperature in degree C}
+\item{alk}{Alkalinity in mg/L as CaCO3}
+\item{tot_hard}{Total hardness in mg/L as CaCO3}
+\item{ca_hard}{Calcium hardness in mg/L as CaCO3}
+\item{na}{Sodium in mg/L Na+}
+\item{k}{Potassium in mg/L K+}
+\item{cl}{Chloride in mg/L Cl-}
+\item{so4}{Sulfate in mg/L SO42-}
+\item{tot_ocl}{Total chlorine in mg/L as Cl2}
+\item{po4}{Phosphate in mg/L as PO42-}
+}
+}
+\source{
+Fabricated for use in examples.
 }
 \usage{
 water_df
-}
-\arguments{
-\item{ph}{pH in standard units (SU)}
-
-\item{temp}{Temperature in degree C}
-
-\item{alk}{Alkalinity in mg/L as CaCO3}
-
-\item{tot_hard}{Total hardness in mg/L as CaCO3}
-
-\item{ca_hard}{Calcium hardness in mg/L as CaCO3}
-
-\item{na}{Sodium in mg/L Na+}
-
-\item{k}{Potassium in mg/L K+}
-
-\item{cl}{Chloride in mg/L Cl-}
-
-\item{so4}{Sulfate in mg/L SO42-}
-
-\item{tot_ocl}{Total chlorine in mg/L as Cl2}
-
-\item{po4}{Phosphate in mg/L as PO42-}
 }
 \description{
 A dataset containing fabricated water quality to use as tidywater inputs.

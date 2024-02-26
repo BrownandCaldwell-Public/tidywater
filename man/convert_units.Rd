@@ -9,7 +9,7 @@ convert_units(value, formula, startunit = "mg/L", endunit = "M")
 \arguments{
 \item{value}{Value to be converted}
 
-\item{formula}{Chemical formula of compound. Accepts compounds in \code{\link{mweights}} for conversions between g and mol or eq}
+\item{formula}{Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq}
 
 \item{startunit}{Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes}
 

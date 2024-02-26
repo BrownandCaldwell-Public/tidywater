@@ -3,7 +3,7 @@
 
 
 # Create water class
-setClass("water",
+methods::setClass("water",
   representation(ph = "numeric",
     temp = "numeric",
     alk = "numeric",
@@ -43,7 +43,7 @@ setClass("water",
     kw = NA_real_,
     alk_eq = NA_real_))
 
-setMethod("show",
+methods::setMethod("show",
   "water",
   function(object) {
     cat("pH: ", object@ph, "\n")
@@ -158,7 +158,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   alk_eq = carb_alk_eq + tot_ocl / (h / discons$kocl + 1)
 
   # Compile complete source water data frame to save to environment
-  water_class <- new("water",
+  water_class <- methods::new("water",
     ph = ph, temp = temp, alk = alk, # tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
@@ -173,15 +173,13 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #'
 #' @param water Source water vector created by link function here
 #'
-#' @importFrom knitr kable kables
-#'
 #' @examples
 #' # Put example code here
 #'
 #' @export
 #'
 summarize_wq <- function(water) {
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile main WQ parameters to print
@@ -236,7 +234,7 @@ summarize_wq <- function(water) {
 #' @export
 #'
 plot_ions <- function(water, title = "") {
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile major ions to plot
@@ -247,7 +245,9 @@ plot_ions <- function(water, title = "") {
     Cl = water@cl,
     SO4 = water@so4 * 2,
     HCO3 = water@hco3,
-    CO3 = water@co3,
+    CO3 = water@co3 * 2,
+    OCl = water@tot_ocl,
+    PO4 = water@po4 * 3,
     H = water@h,
     OH = water@oh)
 
@@ -279,7 +279,7 @@ plot_ions <- function(water, title = "") {
 #' This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in \code{\link{mweights}} for conversions between g and mol or eq
+#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
 #' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
 #'
@@ -442,7 +442,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @export
 #'
 balance_ions <- function(water) {
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Set up ions to be changed
@@ -453,7 +453,7 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl
+  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@po4
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
