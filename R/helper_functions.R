@@ -475,17 +475,26 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' @export
 
 
-blend_waters_once <- function(df, waters, ratios, output_water = "blended_water", ...) {
+blend_waters_once <- function(df, waters, ratios, output_water = "blended_water") {
 
   waters = c("defined_water", "dosed_chem_water")
   # ratios = c(.4, .6)
-  ratios = c(list(rep(.4, 12), rep(.6, 12)))
+  ratios= c("ratios1", "ratios2")
+  # ratios = c(list(rep(.4, 12), rep(.6, 12)))
 
 df_subset <- df %>% select(all_of(waters))
 
 water_vec <- c()
 for(i in colnames(df_subset)) {
   water_vec <- c(water_vec, df_subset[i])
+}
+
+df_ratio <- df %>%
+  select(all_of(ratios))
+
+ratio_vec <- c()
+for(r in colnames(df_ratio)) {
+  ratio_vec <- c(ratio_vec, df_ratio[r])
 }
 
 # ratio_vec <- c()
@@ -503,16 +512,18 @@ for(i in colnames(df_subset)) {
   #                                 blend_waters))
   
   output <- df %>%
-    # rowwise() %>%
-    mutate(blended_water = purrr::pmap(list(waters = listdef,
-                                       ratios = ratioslist),   
+    rowwise() %>%
+    mutate(blended_water = purrr::pmap(list(waters = water_vec,
+                                       ratios = ratio_vec),   
                                   blend_waters))
 }
 
-example_df <- water_df %>% 
+df <- water_df %>% 
   define_water_chain() %>% 
   balance_ions_chain() %>%
-  chemdose_ph_chain(naoh = 22)
+  chemdose_ph_chain(naoh = 22) %>%
+  mutate(ratios1 = .4,
+         ratios2 = .6)
   blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c(0.25, .75))
     
 def<- define_water(
@@ -542,8 +553,9 @@ def2 <- define_water(
 
 blendexample1 <- blend_waters(c(def, def2), c(.4, .6))
 
-blendexample2 <- blend_waters(listdef, ratioslist)
 listdef <- c(def, def2)
 ratioslist <- c(.4, .6)
+
+blendexample2 <- blend_waters(listdef, ratioslist)
 
 
