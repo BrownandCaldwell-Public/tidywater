@@ -386,7 +386,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "dose_required".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
 #' @seealso \code{\link{solvedose_ph}}
@@ -414,7 +414,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @export
 
-solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
+solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
   
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0, 
@@ -457,110 +457,135 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' Its output is a data frame with updated ions and pH.
 #' 
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
+#' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #' 
 #' tidywater functions cannot be added after this function because they require a water class input.
 #' 
 #' 
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param waters Vector of source waters created by \code{\link{define_water}}
-#' @param ratios Vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
+#' @param waters List of column names containing a Water class to be blended
+#' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
+#'
+#' @seealso \code{\link{blend_waters}}
+#'
+#' @examples
+#'example_df <- water_df %>% 
+#'define_water_chain() %>% 
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22) %>%
+#'mutate(ratios1 = .4,
+#'       ratios2 = .6)
+#'blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"))
+#'
+#'
+#'example_df <- water_df %>% 
+#'define_water_chain() %>% 
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22)
+#'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' @export
+
+
+blend_waters_once <- function(df, waters, ratios) {
+
+df_subset <- df %>% select(all_of(waters))
+row_vec <- c()
+for(row in 1:length(df_subset[[1]])) {
+  
+  water_vectors <- c()
+  blend_ratios <- c()
+  
+  for(cols in 1:length(df_subset)) {
+
+    water_save <- df_subset[[cols]][row]
+    water_vectors <- c(water_vectors, water_save)
+    
+    if (is.character(ratios)) {
+      df_ratio <- df %>% select(all_of(ratios))
+      ratio_save <- df_ratio[[cols]][row]
+      blend_ratios <- c(blend_ratios, ratio_save)
+    } else {
+      ratio_save <- ratios[[cols]]
+      blend_ratios <- c(blend_ratios, ratio_save)
+    }
+
+  }
+
+ df$blended[row] <- list(blend_waters(water_vectors, blend_ratios))
+}
+
+  output <- df %>%
+    mutate(blend_df = purrr::map(blended, convert_Water)) %>%
+    unnest_wider(blend_df) %>%
+    select(-blended)
+
+}
+
+#' Blend Waters Chain 
+#'
+#' This function allows \code{\link{blend_waters}} to be added to a piped data frame. 
+#' Its output is a data frame with updated ions and pH.
+#' 
+#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
+#' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
+#' 
+#' 
+#' @param df a data frame containing a column, defined_water, which has already
+#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param waters List of column names containing a Water class to be blended
+#' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "blended_water".
 #'
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
+#'example_df <- water_df %>% 
+#'define_water_chain() %>% 
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22) %>%
+#'mutate(ratios1 = .4,
+#'       ratios2 = .6)
+#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 #'
+#'
+#'example_df <- water_df %>% 
+#'define_water_chain() %>% 
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22)
+#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
 #' @export
 
 
-blend_waters_once <- function(df, waters, ratios, output_water = "blended_water") {
-# Goals: 
-    #Iterate over an unknown number of columns
-    #Ratios can either be col name inputs or direct inputs
-    #waters MUST be colnames. Otherwise user should just use base blend_waters fn
-  waters = c("defined_water", "dosed_chem_water")
-  # ratios = c(.4, .6)
-  ratios= c("ratios1", "ratios2")
-
-df_subset <- df %>% select(all_of(waters))
-
-df_ratio <- df %>% select(all_of(ratios))
-
-row_vec <- c()
-blend_raw <- c()
-blend_ratio <- c()
-for(row in 1:length(df_subset[[1]])) {
-  for(cols in 1:length(df_subset)) {
+blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
   
-water_save <- c(df_subset[[cols]][row])
- ratio_save <- c(df_ratio[[cols]][row])
- 
- blend_raw <- c(blend_raw, water_save)
- blend_ratio <- c(blend_ratio, ratio_save)
-
+  df_subset <- df %>% select(all_of(waters))
+  
+  for(row in 1:length(df_subset[[1]])) {
+    water_vectors <- c()
+    blend_ratios <- c()
+    for(cols in 1:length(df_subset)) {
+      
+      water_save <- df_subset[[cols]][row]
+      water_vectors <- c(water_vectors, water_save)
+      
+      if (is.character(ratios)) {
+        df_ratio <- df %>% select(all_of(ratios))
+        ratio_save <- df_ratio[[cols]][row]
+        blend_ratios <- c(blend_ratios, ratio_save)
+      } else {
+        ratio_save <- ratios[[cols]]
+        blend_ratios <- c(blend_ratios, ratio_save)
+      }
+      
+    }
+    df$blended[row] <- list(blend_waters(water_vectors, blend_ratios))
   }
-  save <-  blend_waters(blend_raw, blend_ratio)
   
-  row_vec <- c(row_vec, save)
-
+  output<- df %>% 
+    rename(!!output_water := blended) 
 }
-
-unlistrow <- unlist(row_vec)
-
-  # output<- df %>%
-  #   rowwise() %>%
-  #   mutate(!!output_water := pmap(list(waters = c(test$defined_water, test$dosed_chem_water),
-  #                                      # ratios = ratios),
-  #                                      ratios = c(test$ratio1, test$ratio2)),
-  #                                 blend_waters))
-  
-  output <- df %>%
-    rowwise() %>%
-    mutate(blended_water = purrr::pmap(list(waters = water_vec,
-                                       ratios = ratio_vec),   
-                                  blend_waters))
-}
-
-df <- water_df %>% 
-  define_water_chain() %>% 
-  balance_ions_chain() %>%
-  chemdose_ph_chain(naoh = 22) %>%
-  mutate(ratios1 = .4,
-         ratios2 = .6)
-  blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c(0.25, .75))
-    
-def<- define_water(
-  ph = 8,
-  temp =  23,
-  alk = 100,
-  tot_hard = 100,
-  ca_hard = 50,
-  na= 20,
-  k= 20,
-  cl = 20,
-  so4 =20,
-  tot_ocl = 1,
-  po4 = 0) 
-def2 <- define_water(
-  ph = 6,
-  temp =  23,
-  alk = 100,
-  tot_hard = 100,
-  ca_hard = 50,
-  na= 20,
-  k= 20,
-  cl = 20,
-  so4 =20,
-  tot_ocl = 1,
-  po4 = 0)
-
-blendexample1 <- blend_waters(c(def, def2), c(.4, .6))
-
-listdef <- c(def, def2)
-ratioslist <- c(.4, .6)
-
-blendexample2 <- blend_waters(listdef, ratioslist)
-
-
