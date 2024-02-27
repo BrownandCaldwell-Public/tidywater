@@ -2,7 +2,7 @@
 # These functions format the base tidywater functions to make more user friendly
 
 # Author: Libby McKenna
-# Reviewers: 
+# Reviewers: Sierra Johnson 2/27/24
 
 
 #' Convert Water
@@ -10,11 +10,15 @@
 #' Function to convert from Water class to a dataframe.
 #' This is useful for one-off checks. It may be better to use fn_once
 #'
-#' @param water A Water class vector
+#' @param water A "water" class object
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#' 
+#' # Generates 1 row dataframe
+#' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
+#' convert_Water()
 #' 
 #' example_df <- water_df %>%
 #' define_water_chain %>%
@@ -79,7 +83,6 @@ define_water_once <- function(df) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' define_water_pipe(water_df)
 #' 
 #' example_df <- water_df %>% 
 #' define_water_chain() %>% 
@@ -93,13 +96,15 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
+  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "po4")
+  
   extras <- df %>%
-    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4))
+    select(!any_of(define_water_args))
   
   output<- df %>%
-    select(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4) %>%
+    select(any_of(define_water_args)) %>%
     mutate(!!output_water := purrr::pmap(., define_water)) %>%
-    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4)) %>%
+    select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
 
@@ -121,7 +126,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' balance_ions_once() 
 #' 
 #' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#' define_water_chain(output_water = "Different_defined_water_column") %>% 
 #' balance_ions_once(input_water = "Different_defined_water_column") 
 #'
 #' @export
