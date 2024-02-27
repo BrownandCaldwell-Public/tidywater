@@ -5,7 +5,24 @@
 # Reviewers: 
 
 
-#### Function to convert from Water class to a dataframe. Not exported in namespace.
+#' Convert Water
+#'
+#' Function to convert from Water class to a dataframe.
+#' This is useful for one-off checks. It may be better to use fn_once
+#'
+#' @param water A Water class vector
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#' 
+#' example_df <- water_df %>%
+#' define_water_chain %>%
+#' mutate(to_dataframe  = map(defined_water, convert_Water)) %>%
+#' unnest(to_dataframe) %>%
+#' select(-defined_water)
+#'
+#' @export
 
 convert_Water <- function(water) {
   nms <- slotNames(water)
