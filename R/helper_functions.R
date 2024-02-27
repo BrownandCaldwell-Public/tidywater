@@ -444,10 +444,11 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
   output<- chem %>%
     mutate(target_ph = target_ph,
            chemical = chemical) %>%
-    mutate(!!output_water := purrr::pmap(list(water= !!as.name(input_water), 
+    mutate(dose = purrr::pmap(list(water= !!as.name(input_water), 
                                      chemical = chemical,
                                      target_ph = target_ph),
-                                solvedose_ph))
+                                solvedose_ph)) %>%
+    mutate(!!output_column := as.numeric(dose))
 }
 
 
@@ -492,7 +493,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 blend_waters_once <- function(df, waters, ratios) {
 
 df_subset <- df %>% select(all_of(waters))
-row_vec <- c()
+
 for(row in 1:length(df_subset[[1]])) {
   
   water_vectors <- c()
