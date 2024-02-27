@@ -465,7 +465,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
                                      chemical = chemical,
                                      target_ph = target_ph),
                                 solvedose_ph)) %>%
-    mutate(!!output_column := as.numeric(dose))
+    mutate(!!output_column := as.numeric(dose)) %>%
+    select(-dose)
 }
 
 
