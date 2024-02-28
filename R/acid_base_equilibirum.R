@@ -188,7 +188,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 #' Target Chemical Dose Function
 #'
 #' This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-#' Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+#' Returns numeric value for dose in mg/L. Uses optimize on the chemdose_ph function.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
@@ -226,7 +226,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- dose_chemical(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+    waterfin <- chemdose_ph(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
     phfin <- waterfin@ph
 
     (target_ph - phfin)
