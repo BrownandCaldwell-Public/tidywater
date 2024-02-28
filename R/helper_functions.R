@@ -15,11 +15,11 @@
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' 
+#'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
 #' convert_water()
-#' 
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' mutate(to_dataframe  = map(defined_water, convert_water)) %>%
@@ -36,16 +36,16 @@ convert_water <- function(water) {
 
 #' Define Water Once
 #'
-#' This function allows \code{\link{define_water}} to be added to a piped data frame. 
-#' It outputs all carbonate calculations and other parameters in a data frame. 
-#' tidywater functions cannot be added after this function because they require a water class input. 
+#' This function allows \code{\link{define_water}} to be added to a piped data frame.
+#' It outputs all carbonate calculations and other parameters in a data frame.
+#' tidywater functions cannot be added after this function because they require a water class input.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' 
+#'
 #' example_df <- water_df %>% define_water_once()
 #'
 #' @export
@@ -62,10 +62,10 @@ define_water_once <- function(df) {
   so4 = df$so4
   tot_ocl = 0 + df$tot_ocl
   po4 = 0+ df$po4
-  
+
   df2 <- df %>%
     select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4))
-  
+
   water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4) %>%
     convert_water()
 }
@@ -73,22 +73,22 @@ define_water_once <- function(df) {
 
 #' Define Water chain
 #'
-#' This function allows \code{\link{define_water}} to be added to a piped data frame. 
+#' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
-#' 
+#'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "defined_water".
-#' 
+#'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' 
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#'
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
 #' balance_ions_once()
-#' 
-#' example_df <- water_df %>% 
-#' define_water_chain(output_water = "This is a column of water") %>% 
+#'
+#' example_df <- water_df %>%
+#' define_water_chain(output_water = "This is a column of water") %>%
 #' balance_ions_once(input_water ="This is a column of water")
 #'
 #' @export
@@ -96,10 +96,10 @@ define_water_once <- function(df) {
 define_water_chain <- function(df, output_water = "defined_water") {
 
   define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "po4")
-  
+
   extras <- df %>%
     select(!any_of(define_water_args))
-  
+
   output<- df %>%
     select(any_of(define_water_args)) %>%
     mutate(!!output_water := purrr::pmap(., define_water)) %>%
@@ -109,42 +109,42 @@ define_water_chain <- function(df, output_water = "defined_water") {
 
 #' Balance Ions Once
 #'
-#' This function allows \code{\link{balance_ions}} to be added to a piped data frame. 
+#' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a dataframe with updated ions depending on starting concentrations
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
+#'
 #' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
-#' 
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
-#' balance_ions_once() 
-#' 
-#' example_df <- water_df %>% 
-#' define_water_chain(output_water = "Different_defined_water_column") %>% 
-#' balance_ions_once(input_water = "Different_defined_water_column") 
+#'
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_once()
+#'
+#' example_df <- water_df %>%
+#' define_water_chain(output_water = "Different_defined_water_column") %>%
+#' balance_ions_once(input_water = "Different_defined_water_column")
 #'
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
-  
+
   output<- df %>%
     mutate(balanced_water = purrr::pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
     mutate(balance_df = purrr::map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
-    
+
 }
 
 #' Balance Ions chain
 #'
-#' This function allows \code{\link{balance_ions}} to be added to a piped data frame. 
+#' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
-#' 
+#'
 #' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "balanced_water".
@@ -152,39 +152,39 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_chain(naoh = 5)
 #'
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
 #' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
 #' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh =5)
 #'
 #' @export
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
-  
+
   output<- df %>%
     mutate(!!output_water := purrr::pmap(list(water = !!as.name(input_water)), balance_ions))
-  
+
 }
 
 #' Dose Chemical Once
 #'
-#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame. 
+#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
-#' 
+#'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' 
-#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the 
+#'
+#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 #' ones specified in the function's arguments.
-#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}. 
-#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}. 
-#' 
+#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
+#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
+#'
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
+#'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -207,13 +207,13 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_once(input_water = "balanced_water", naoh = 5)
-#' 
-#' example_df <- water_df %>% 
-#'  define_water_chain() %>% 
+#'
+#' example_df <- water_df %>%
+#'  define_water_chain() %>%
 #'   balance_ions_chain()%>%
 #'   mutate(hcl = seq(1,12, 1),
 #'          naoh = 20) %>%
@@ -225,12 +225,12 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0) {
-  
+
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                           na2co3, nahco3, caoh2, mgoh2,
                           cl2, naocl, caocl2, co2,
                           alum, fecl3, fe2so43)
-  
+
   output <- df %>%
     chemdose_ph_chain(input_water = input_water, output_water = "dosed_chem_water",
                       hcl, h2so4, h3po4, naoh,
@@ -245,31 +245,31 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 }
 
 
-example_df <- water_df %>%
-define_water_chain() %>%
-balance_ions_chain() %>%
-chemdose_ph_once(input_water = "balanced_water", naoh = 5)
-
-example_df <- water_df %>%
- define_water_chain() %>%
-  balance_ions_chain()%>%
-  mutate(hcl = seq(1,12, 1),
-         naoh = 20) %>%
-  chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+# example_df <- water_df %>%
+# define_water_chain() %>%
+# balance_ions_chain() %>%
+# chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#
+# example_df <- water_df %>%
+#  define_water_chain() %>%
+#   balance_ions_chain()%>%
+#   mutate(hcl = seq(1,12, 1),
+#          naoh = 20) %>%
+#   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 #' Dose Chemical Chain
 #'
-#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame. 
+#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 #' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
 #' Ions and pH will be updated based on input chemical doses.
-#' 
+#'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' 
-#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the 
+#'
+#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 #' ones specified in the function's arguments.
-#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}. 
-#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}. 
-#' 
+#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
+#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
+#'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -293,13 +293,13 @@ example_df <- water_df %>%
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
-#' example_df <- water_df %>% 
-#' define_water_chain() %>% 
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
-#' 
-#' example_df <- water_df %>% 
-#'  define_water_chain() %>% 
+#'
+#' example_df <- water_df %>%
+#'  define_water_chain() %>%
 #'   balance_ions_chain()%>%
 #'   mutate(hcl = seq(1,12, 1),
 #'          naoh = 20) %>%
@@ -312,7 +312,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0) {
-  
+
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
                             cl2, naocl, caocl2, co2,
@@ -320,19 +320,19 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 
   chem_inputs_arg <- dosable_chems %>%
     select_if(~any(. > 0))
-  
+
   chem_inputs_col <- df %>%
     subset(select = names(df) %in% names(dosable_chems)) %>%
     # add row number for joining
     mutate(ID = row_number())
-  
+
   if (length(chem_inputs_col) - 1 == 0 & length(chem_inputs_arg) == 0) {
     stop("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
-  
+
   if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) >0){
     if (any(names(chem_inputs_arg) %in% names(chem_inputs_col))) {
       stop("At least one chemical was dosed as both a function argument and a data frame column. Remove your chemical(s) from one of these inputs.")}}
-  
+
 if(nrow(chem_inputs_arg) == 1) {
     chem_doses <- chem_inputs_col %>%
       cross_join(chem_inputs_arg)
@@ -341,7 +341,7 @@ if(nrow(chem_inputs_arg) == 1) {
       subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
       cross_join(chem_doses) %>%
       mutate(ID = row_number())
-    
+
   } else if(nrow(chem_inputs_arg) > 1) {
 
     chem_inputs_arg <- chem_inputs_arg %>%
@@ -353,7 +353,7 @@ if(nrow(chem_inputs_arg) == 1) {
       mutate(ID = row_number()) %>%
       left_join(chem_doses, by = "ID")
   }
-  
+
   output<- df %>%
     subset(select = !names(df) %in% names(chem_inputs_col)) %>%
     mutate(ID = row_number()) %>%
@@ -377,33 +377,33 @@ if(nrow(chem_inputs_arg) == 1) {
                                         fe2so43= fe2so43),
                                    chemdose_ph)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
-  
+
 }
-
-example_df <- water_df %>%
-define_water_chain() %>%
-balance_ions_chain() %>%
-chemdose_ph_chain(input_water = "balanced_water", naoh = 5, hcl =33) 
-
-example_df <- water_df %>%
- define_water_chain() %>%
-  balance_ions_chain()%>%
-  mutate(hcl = seq(1,12, 1),
-         naoh = 20) %>%
-  chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#
+# example_df <- water_df %>%
+# define_water_chain() %>%
+# balance_ions_chain() %>%
+# chemdose_ph_chain(input_water = "balanced_water", naoh = 5, hcl =33)
+#
+# example_df <- water_df %>%
+#  define_water_chain() %>%
+#   balance_ions_chain()%>%
+#   mutate(hcl = seq(1,12, 1),
+#          naoh = 20) %>%
+#   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 #' Solve Dose for Target pH Once
 #'
-#' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame. 
+#' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame.
 #' Its output is a chemical dose in mg/L.
-#' 
+#'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' 
+#'
 #' If the input data frame has column(s) named "target_ph" or "chemical", the function will use the column(s)
 #' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
-#' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}. 
-#' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}. 
-#' 
+#' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
+#' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
+#'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -413,22 +413,22 @@ example_df <- water_df %>%
 #' @seealso \code{\link{solvedose_ph}}
 #'
 #' @examples
-#' 
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'mutate(target_ph = 10,
 #'       chemical = rep(c("naoh", "mgoh2"), 6)) %>%
 #'solvedose_ph_once()
-#' 
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
 #'
 #'
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'mutate(target_ph = seq(9, 10.1, .1)) %>%
 #'solvedose_ph_once(chemical = "naoh")
 #'
@@ -436,36 +436,36 @@ example_df <- water_df %>%
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
-  
+
   dosable_chems <-  tibble(
-    # hcl = 0, h2so4 = 0, h3po4 = 0, 
+    # hcl = 0, h2so4 = 0, h3po4 = 0,
                            co2 = 0,
                            naoh = 0, caoh2 = 0, mgoh2 = 0,
-                           # na2co3 = 0, nahco3 = 0, 
-                           # cl2 = 0, naocl = 0, caocl2 = 0, 
+                           # na2co3 = 0, nahco3 = 0,
+                           # cl2 = 0, naocl = 0, caocl2 = 0,
                            # alum = 0, fecl3 = 0, fe2so43 = 0
     )
 
   chem <- df %>%
     filter(chemical %in% names(dosable_chems))
-  
+
   if (length(chemical) > 0) {
      if (!chemical %in% names(dosable_chems)) {
     stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")}}
 
   if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
     stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")}
-  
+
   if ("target_ph" %in% names(df) & length(target_ph) >0) {
     stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")}
-  
+
   if ("chemical" %in% names(df) & length(chemical) > 0) {
     stop("Chemcial was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
-  
+
   output<- chem %>%
     mutate(target_ph = target_ph,
            chemical = chemical) %>%
-    mutate(dose = purrr::pmap(list(water= !!as.name(input_water), 
+    mutate(dose = purrr::pmap(list(water= !!as.name(input_water),
                                      chemical = chemical,
                                      target_ph = target_ph),
                                 solvedose_ph)) %>%
@@ -476,16 +476,16 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 
 #' Blend Waters Once
 #'
-#' This function allows \code{\link{blend_waters}} to be added to a piped data frame. 
+#' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
-#' 
+#'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The Water class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
-#' 
+#'
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
-#' 
+#'
+#'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param waters List of column names containing a Water class to be blended
@@ -494,8 +494,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'mutate(ratios1 = .4,
@@ -503,8 +503,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"))
 #'
 #'
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
@@ -517,15 +517,15 @@ blend_waters_once <- function(df, waters, ratios) {
 df_subset <- df %>% select(all_of(waters))
 
 for(row in 1:length(df_subset[[1]])) {
-  
+
   water_vectors <- c()
   blend_ratios <- c()
-  
+
   for(cols in 1:length(df_subset)) {
 
     water_save <- df_subset[[cols]][row]
     water_vectors <- c(water_vectors, water_save)
-    
+
     if (is.character(ratios)) {
       df_ratio <- df %>% select(all_of(ratios))
       ratio_save <- df_ratio[[cols]][row]
@@ -547,16 +547,16 @@ for(row in 1:length(df_subset[[1]])) {
 
 }
 
-#' Blend Waters Chain 
+#' Blend Waters Chain
 #'
-#' This function allows \code{\link{blend_waters}} to be added to a piped data frame. 
+#' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
-#' 
+#'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
-#' 
-#' 
+#'
+#'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param waters List of column names containing a Water class to be blended
@@ -566,8 +566,8 @@ for(row in 1:length(df_subset[[1]])) {
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'mutate(ratios1 = .4,
@@ -575,8 +575,8 @@ for(row in 1:length(df_subset[[1]])) {
 #'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 #'
 #'
-#'example_df <- water_df %>% 
-#'define_water_chain() %>% 
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
@@ -585,13 +585,13 @@ for(row in 1:length(df_subset[[1]])) {
 
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
-  
+
   output <- df %>%
     rowwise() %>%
     mutate(waters = purrr::pmap(across(all_of(waters)), list),
            ratios = ifelse(
-             is.numeric(ratios), 
-             list(ratios), 
+             is.numeric(ratios),
+             list(ratios),
              (list(c_across(all_of(ratios))))
            )) %>%
     ungroup() %>%

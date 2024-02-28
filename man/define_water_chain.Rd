@@ -12,17 +12,17 @@ define_water_chain(df, output_water = "defined_water")
 \item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "defined_water".}
 }
 \description{
-This function allows \code{\link{define_water}} to be added to a piped data frame. 
+This function allows \code{\link{define_water}} to be added to a piped data frame.
 Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
 }
 \examples{
 
-example_df <- water_df \%>\% 
-define_water_chain() \%>\% 
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
 balance_ions_once()
 
-example_df <- water_df \%>\% 
-define_water_chain(output_water = "This is a column of water") \%>\% 
+example_df <- water_df \%>\%
+define_water_chain(output_water = "This is a column of water") \%>\%
 balance_ions_once(input_water ="This is a column of water")
 
 }
