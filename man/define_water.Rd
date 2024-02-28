@@ -15,7 +15,7 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
-  po4 = 0
+  tot_po4 = 0
 )
 }
 \arguments{

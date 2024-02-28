@@ -91,7 +91,7 @@ methods::setMethod("show",
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, po4 = 0) {
+define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -139,7 +139,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   k = convert_units(k, "k")
   cl = convert_units(cl, "cl")
   so4 = convert_units(so4, "so4")
-  po4 = convert_units(po4, "po4")
+  tot_po4 = convert_units(tot_po4, "po4")
   tot_ocl = convert_units(tot_ocl, "cl2")
   h = 10^-ph
   oh = kw / h
@@ -160,7 +160,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   # Compile complete source water data frame to save to environment
   water_class <- methods::new("water",
     ph = ph, temp = temp, alk = alk, # tot_hard = tot_hard,
-    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
+    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, tot_po4 = tot_po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
     tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, alk_eq = alk_eq)
 
