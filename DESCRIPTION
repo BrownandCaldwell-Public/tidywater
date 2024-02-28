@@ -1,12 +1,12 @@
 Package: tidywater
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Water quality modeling for water treatment
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: The package maintainer <yourself@somewhere.net>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: Apache License (>= 2)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -15,7 +15,8 @@ Imports:
     knitr,
     ggplot2,
     magrittr,
-    purrr
+    purrr,
+    methods
 RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
