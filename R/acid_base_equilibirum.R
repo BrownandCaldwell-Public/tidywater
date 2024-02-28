@@ -15,11 +15,13 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
       (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
       (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
-      tot_ocl / (h / discons$kocl + 1) -
-      (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
+      tot_ocl / (h / discons$kocl + 1) +
+      cl_dose -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
+      alk_eq
   }
-  root_h <- uniroot(solve_h, interval = c(0, 1),
-    kw = kw,
+  root_h <- stats::uniroot(solve_h, interval = c(0, 1),
+    kw = water@kw,
     so4_dose = so4_dose,
     po4_dose = po4_dose,
     tot_co3 = water@tot_co3,
@@ -70,7 +72,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
@@ -202,7 +204,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 dose_target <- function(water, target_ph, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   if (missing(target_ph)) {
@@ -231,28 +233,24 @@ dose_target <- function(water, target_ph, chemical) {
 
   }
 
-  chemdose <- uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+  chemdose <- stats::uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
   round(chemdose$root, 1)
 }
 
 
 #' Blend water function
 #'
-#' This function takes up to 4 water data frames defined by \code{\link{define_water}} and outputs a new water data frame with updated ion balance and pH.
+#' This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
 #'
-#' @param water1 Source water 1 data frame created by \code{\link{define_water}}
-#' @param ratio1 Blend ratio of water 1. (Blend ratios must sum to 1)
-#' @param water2 Source water 2 data frame created by \code{\link{define_water}}
-#' @param ratio2 Blend ratio of water 2. (Blend ratios must sum to 1)
-#' @param water3 Source water 3 data frame created by \code{\link{define_water}}
-#' @param ratio3 Blend ratio of water 3. (Blend ratios must sum to 1)
-#' @param water4 Source water 4 data frame created by \code{\link{define_water}}
-#' @param ratio4 Blend ratio of water 4. (Blend ratios must sum to 1)
+#' @param waters Vector of source waters created by \code{\link{define_water}}
+#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1)
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' blend_waters(water1, 0.5, water2, .05)
+#' water1 <- define_water(7, 20, 50)
+#' water2 <- define_water(7.5, 20, 100)
+#' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
 #'
@@ -268,23 +266,23 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Initialize empty blended water
-  blended_water <- new("water")
-  parameters <- slotNames(blended_water)
+  blended_water <- methods::new("water")
+  parameters <- methods::slotNames(blended_water)
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
   parameters <- setdiff(parameters, not_averaged)
 
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
-      if(class(temp_water) != "water") {
+      if (!methods::is(temp_water, "water")) {
         stop("All input waters must be of class 'water'. Create a water using define_water.")
       }
       ratio <- ratios[i]
 
-      if (is.na(slot(blended_water, param))) {
-        slot(blended_water, param) = slot(temp_water, param) * ratio
+      if (is.na(methods::slot(blended_water, param))) {
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio
       } else {
-        slot(blended_water, param) = slot(temp_water, param) * ratio + slot(blended_water, param)
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio + methods::slot(blended_water, param)
       }
     }
   }
