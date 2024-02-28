@@ -11,11 +11,12 @@ solvedose_ph(water, target_ph, chemical)
 
 \item{target_ph}{The final pH to be achieved after the specified chemical is added.}
 
-\item{chemical}{The chemical to be added. Current supported chemicals include: caustic soda (NaOH), lime (Ca(OH2)), magnesium hydroxide (Mg(OH)2), and CO2.}
+\item{chemical}{The chemical to be added. Current supported chemicals include:
+acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 }
 \description{
 This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+Returns numeric value for dose in mg/L. Uses uniroot on the \code{\link{chemdose_ph}} function.
 }
 \examples{
 # Put example code here

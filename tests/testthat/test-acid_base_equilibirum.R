@@ -56,18 +56,18 @@ test_that("Dose chemical works", {
 test_that("Solve dose pH produces a warning and returns NA when target pH is unreachable but runs otherwise.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
 
-  expect_warning(dose_target(water4, 6, "naoh"))
-  expect_warning(dose_target(water4, 6, "co2"))
-  expect_equal(dose_target(water4, 6, "co2"), NA)
-  expect_no_warning(dose_target(water4, 9, "naoh"))
-  expect_no_error(dose_target(water4, 9, "naoh"))
+  expect_warning(solvedose_ph(water4, 6, "naoh"))
+  expect_warning(solvedose_ph(water4, 6, "co2"))
+  expect_equal(suppressWarnings(solvedose_ph(water4, 6, "co2")), NA)
+  expect_no_warning(solvedose_ph(water4, 9, "naoh"))
+  expect_no_error(solvedose_ph(water4, 9, "naoh"))
 })
 
 test_that("Dose target works.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
   # these are based on current tidywater outputs
-  expect_equal(dose_target(water4, 11, "naoh"), 38.7)
-  expect_equal(dose_target(water4, 7, "co2"), 3.7)
+  expect_equal(solvedose_ph(water4, 11, "naoh"), 38.7)
+  expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
 })
 
 
@@ -77,17 +77,17 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
 
   expect_warning(solvedose_alk(water5, 20, "naoh"))
-  expect_equal(solvedose_alk(water5, 100, "h2so4"), NA)
+  expect_equal(suppressWarnings(solvedose_alk(water5, 100, "h2so4")), NA)
   expect_no_warning(solvedose_alk(water5, 100, "naoh"))
   expect_no_error(solvedose_alk(water5, 100, "naoh"))
 })
 
-# test_that("Solve dose alk works.", {
-#   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
-#   # these are based on current tidywater outputs
-#   expect_equal(solvedose_alk(water5, 100, "naoh"), 5000)
-#   expect_equal(solvedose_alk(water5, 10, "h2so4"), 5000)
-# })
+test_that("Solve dose alk works.", {
+  water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
+  # these are based on current tidywater outputs
+  expect_equal(solvedose_alk(water5, 100, "naoh"), 40.1)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
+})
 
 
 # Blend waters ----

@@ -16,7 +16,6 @@ This function allows \code{\link{define_water}} to be added to a piped data fram
 Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
 }
 \examples{
-define_water_pipe(water_df)
 
 example_df <- water_df \%>\% 
 define_water_chain() \%>\% 

@@ -7,13 +7,17 @@
 convert_Water(water)
 }
 \arguments{
-\item{water}{A Water class vector}
+\item{water}{A "water" class object}
 }
 \description{
 Function to convert from Water class to a dataframe.
 This is useful for one-off checks. It may be better to use fn_once
 }
 \examples{
+
+# Generates 1 row dataframe
+example_df <- define_water(ph = 7, temp = 20, alk = 100) \%>\%
+convert_Water()
 
 example_df <- water_df \%>\%
 define_water_chain \%>\%
