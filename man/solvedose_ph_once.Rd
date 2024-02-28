@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{solvedose_ph_once}
 \alias{solvedose_ph_once}
-\title{Dose Target Once}
+\title{Solve Dose for Target pH Once}
 \usage{
 solvedose_ph_once(
   df,
@@ -31,15 +31,10 @@ Its output is a chemical dose in mg/L.
 \details{
 The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
-If the input data frame has a column(s) named "target_ph" or "chemical", the function will use the column(s) in addition to the 
-as a function argument. If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
+If the input data frame has column(s) named "target_ph" or "chemical", the function will use the column(s)
+as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
 The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}. 
-To see which chemicals can be dosed, see \code{\link{solvedose_ph}}. 
-
-The input data frame requires a column, "chemical", indicating which chemical should be used to reach the target pH
-The input data frame also requires a column, "target_ph", indicating the final pH after the selected chemical is added
-The column names must match the chemical names as displayed in \code{\link{solvedose_ph}}. 
-To see which chemicals can be passed into the function, see \code{\link{solvedose_ph}}.
+To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
 }
 \examples{
 
@@ -53,7 +48,7 @@ solvedose_ph_once()
 example_df <- water_df \%>\% 
 define_water_chain() \%>\% 
 balance_ions_chain() \%>\%
-solvedose_ph_once(input_water = "balanced_Water", target_ph = 8.8, chemical = "naoh")
+solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
 
 
 example_df <- water_df \%>\% 

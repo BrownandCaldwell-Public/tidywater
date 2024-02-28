@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_chain}
 \alias{chemdose_ph_chain}
-\title{Dose Chemical Pipe}
+\title{Dose Chemical Chain}
 \usage{
 chemdose_ph_chain(
   df,

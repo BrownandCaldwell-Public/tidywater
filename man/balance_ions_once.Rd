@@ -23,7 +23,7 @@ define_water_chain() \%>\%
 balance_ions_once() 
 
 example_df <- water_df \%>\% 
-define_water_chain() \%>\% 
+define_water_chain(output_water = "Different_defined_water_column") \%>\% 
 balance_ions_once(input_water = "Different_defined_water_column") 
 
 }

@@ -15,7 +15,7 @@ solvedose_ph(water, target_ph, chemical)
 }
 \description{
 This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-Returns numeric value for dose in mg/L. Uses optimize on the dose_chemical function.
+Returns numeric value for dose in mg/L. Uses optimize on the chemdose_ph function.
 }
 \examples{
 # Put example code here

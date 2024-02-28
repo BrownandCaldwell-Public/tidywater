@@ -15,7 +15,6 @@ It outputs all carbonate calculations and other parameters in a data frame.
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
-define_water_once(water_df)
 
 example_df <- water_df \%>\% define_water_once()
 
