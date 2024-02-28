@@ -1,0 +1,255 @@
+#Test convertWater converts a water class input to a dataframe
+test_that("convertWater works", {
+  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
+  df_water <- convert_Water(water1)
+  expect_true(is.data.frame(df_water))
+})
+
+# define_water helpers ----
+
+# Test that define_water_once outputs are the same as base function, define_water.
+# Testthat output is a dataframe
+
+test_that("define_water_once works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water2 <- convert_Water(water1)
+  
+  water3 <- define_water_once(slice(water_df, 1))
+  
+  expect_equal(water2, water3)
+  expect_true(is.data.frame(water3))
+})
+
+# Test that define_water_chain outputs are the same as base function, define_water.
+# Test that output is a column of water class lists, and changing the output column name works
+# Check that this function can be piped to the next one
+
+test_that("define_water_chain works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  # water2 <- convert_Water(water1)
+  
+  water2 <- define_water_chain(slice(water_df, 1), output_water = "new_name")
+  water3 <- pluck(water2, 1, 1)
+  
+  water4 <- water2 %>% balance_ions_chain("new_name")
+  
+  expect_equal(water1, water3)
+  expect_s4_class(water3, "water")
+  expect_equal(names(water2[1]), "new_name")
+  expect_equal(ncol(water4), 2)
+  
+})
+
+# balance_ions helpers ----
+# Check balance_ions_once outputs are the same as base function, balance_ions
+# Check that output is a data frame
+
+test_that("balance_ions_once works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water2 <- balance_ions(water1)
+  
+  water3 <- define_water_chain(slice(water_df, 1)) %>%
+    balance_ions_once() %>%
+    select(-defined_water)
+  
+  expect_equal(water2@cl, water3$cl) #check against base
+  expect_true(is.data.frame(water3))
+})
+
+
+# Test that balance_ions_chain outputs are the same as base function, balance_ions.
+# Test that output is a column of water class lists, and changing the output column name works
+# Check that this function can be piped to the next one
+test_that("balance_ions_chain works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water2 <- balance_ions(water1)
+  
+  water3 <- define_water_chain(slice(water_df, 1)) %>%
+    balance_ions_chain()
+  water4 <- pluck(water3, 2,1)
+  
+  water5 <- define_water_chain(slice(water_df, 1)) %>%
+    balance_ions_chain(output_water = "different_column") %>%
+    chemdose_ph_chain(naoh = 20)
+  
+  expect_equal(water2, water4) #check against base
+  expect_s4_class(water4, "water") # check class
+  expect_equal(names(water5[2]), "different_column") #check output_water arg
+  expect_equal(ncol(water5), 4) #check if pipe worked
+  
+})
+
+
+# chemdose_ph helpers ----
+# Check chemdose_ph_once outputs are the same as base function, chemdose_ph
+# Check that output is a data frame
+
+test_that("chemdose_ph_once works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() %>%
+    chemdose_ph(naoh = 5)
+  
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+  
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(naoh =5) %>%
+    balance_ions_chain() %>%
+    chemdose_ph_once(input_water = "balanced_water")
+  
+  expect_equal(water1@ph, water2$ph)
+  expect_true(is.data.frame(water2))
+  expect_equal(water2$ph, water3$ph) # test different ways to input chemical
+})
+
+
+# Test that balance_ions_chain outputs are the same as base function, chemdose_ph.
+# Test that output is a column of water class lists, and changing the output column name works
+# Check that this function can be piped to the next one
+test_that("chemdose_ph_chain works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() %>%
+    chemdose_ph(naoh =10)
+  
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 10)
+  
+  water3 <- pluck(water2, 4,1) 
+  
+  water4 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 10, output_water = "dosed_chem") %>% # check out put water changes
+    solvedose_ph_once(input_water = "dosed_chem", target_ph = 10.5, chemical = "naoh")
+  
+  water5 <- water_df %>%
+    define_water_chain() %>%
+    mutate(naoh =10) %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water")
+  
+  pluck4 <- pluck(water4, 4)
+  pluck5 <- pluck(water5, 4)
+  
+  expect_equal(water1, water3) #check against base
+  expect_s4_class(water3, "water") #check class
+  expect_equal(names(water5[4]), "dosed_chem_water") #check if outpu_water arg works
+  expect_equal(ncol(water5), 4) #check if pipe worked
+  expect_equal(pluck4, pluck5) # test different ways to input chemical
+})
+
+
+# solvedose_ph helper ----
+# Check solvedose_ph_once outputs are the same as base function, solvedose_ph
+# Check that output is a data frame
+
+test_that("solvedose_ph_once works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() %>%
+    solvedose_ph(target_ph = 9.2,  chemical = "naoh")
+  
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solvedose_ph_once(input_water = "balanced_water", target_ph = 9.2, chemical = "naoh")
+  
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(target_ph = 9.2,
+           chemical = "naoh") %>%
+    balance_ions_chain() %>%
+    solvedose_ph_once(input_water = "balanced_water", output_column = "caustic_dose")
+  
+  expect_equal(water1, water2$dose_required)
+  expect_true(is.data.frame(water2))
+  expect_equal(water2$dose_required, water3$caustic_dose) # test different ways to input chemical
+})
+
+
+
+# blend_waters helpers ----
+# Check blend_waters_once outputs are the same as base function, blend_waters
+# Check that output is a data frame
+
+test_that("blend_waters_once works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() 
+  
+  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() %>%
+    chemdose_ph(naoh = 20)
+  
+  blend1 <- blend_waters(waters = c(water1, water2), ratios = c(.4, .6))
+  
+  blend2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
+    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6))
+    
+  
+  blend3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
+    mutate(ratio1 = .4,
+           ratio2 = .6) %>%
+    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c("ratio1", "ratio2"))
+  
+  expect_equal(blend1@ph, blend2$ph)
+  expect_equal(blend1@temp, blend2$temp)
+  expect_equal(blend1@alk, blend2$alk)
+  expect_true(is.data.frame(blend2))
+  expect_equal(blend2$ph, blend3$ph) # test different ways to input chemical
+})
+
+
+# Test that blend_waters_chain outputs are the same as base function, blend_waters
+# Test that output is a column of water class lists, and changing the output column name works
+# Check that this function can be piped to the next one
+test_that("blend_waters_chain works", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() 
+  
+  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+    balance_ions() %>%
+    chemdose_ph(naoh = 20)
+  
+  blend1 <- blend_waters(waters = c(water1, water2), ratios = c(.4, .6))
+  
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
+    blend_waters_chain(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6))
+  
+  blend2 <- pluck(water2, 5, 1)
+  
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
+    mutate(ratio1 = .4,
+           ratio2 = .6) %>%
+    blend_waters_chain(waters = c("balanced_water", "dosed_chem_water"), ratios = c("ratio1", "ratio2"))
+  
+  blend3 <- pluck(water3,7, 1)
+  
+  expect_equal(blend1, blend2)
+  expect_s4_class(blend2, "water") #check class
+  expect_equal(blend2, blend3) # test different ways to input chemical
+})
