@@ -71,21 +71,22 @@ test_that("Dose target works.", {
 })
 
 
+# Solve Dose Alkalinity ----
 
 test_that("Solve dose alk produces a warning and returns NA when target alk is unreachable but runs otherwise.", {
   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
 
-  expect_warning(dose_target(water5, 20, "naoh"))
-  expect_equal(dose_target(water5, 100, "h2so4"), NA)
-  expect_no_warning(dose_target(water5, 100, "naoh"))
-  expect_no_error(dose_target(water5, 100, "naoh"))
+  expect_warning(solvedose_alk(water5, 20, "naoh"))
+  expect_equal(solvedose_alk(water5, 100, "h2so4"), NA)
+  expect_no_warning(solvedose_alk(water5, 100, "naoh"))
+  expect_no_error(solvedose_alk(water5, 100, "naoh"))
 })
 
 # test_that("Solve dose alk works.", {
 #   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
 #   # these are based on current tidywater outputs
-#   expect_equal(dose_target(water5, 100, "naoh"), 5000)
-#   expect_equal(dose_target(water5, 10, "h2so4"), 5000)
+#   expect_equal(solvedose_alk(water5, 100, "naoh"), 5000)
+#   expect_equal(solvedose_alk(water5, 10, "h2so4"), 5000)
 # })
 
 

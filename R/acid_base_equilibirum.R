@@ -229,7 +229,7 @@ dose_target <- function(water, target_ph, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- dose_chemical(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+    waterfin <- chemdose_ph(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
                               naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
                               caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
     phfin <- waterfin@ph
@@ -271,7 +271,7 @@ dose_target <- function(water, target_ph, chemical) {
 #'
 #' @export
 #'
-dose_target <- function(water, target_alk, chemical) {
+solvedose_alk <- function(water, target_alk, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
   if (!methods::is(water, "water")) {
@@ -298,7 +298,7 @@ dose_target <- function(water, target_alk, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- dose_chemical(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+    waterfin <- chemdose_ph(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
                               naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
                               caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
     alkfin <- waterfin@alk
