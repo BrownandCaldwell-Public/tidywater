@@ -21,7 +21,7 @@
 #' convert_water()
 #' 
 #' example_df <- water_df %>%
-#' define_water_chain %>%
+#' define_water_chain() %>%
 #' mutate(to_dataframe  = map(defined_water, convert_water)) %>%
 #' unnest(to_dataframe) %>%
 #' select(-defined_water)
@@ -89,7 +89,7 @@ define_water_once <- function(df) {
 #' 
 #' example_df <- water_df %>% 
 #' define_water_chain(output_water = "This is a column of water") %>% 
-#' balance_ions_once()
+#' balance_ions_once(input_water ="This is a column of water")
 #'
 #' @export
 
@@ -155,12 +155,12 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' example_df <- water_df %>% 
 #' define_water_chain() %>% 
 #' balance_ions_chain() %>%
-#' chemdose_ph_chain()
+#' chemdose_ph_chain(naoh = 5)
 #'
 #' example_df <- water_df %>% 
 #' define_water_chain() %>% 
 #' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
-#' chemdose_ph_chain()
+#' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh =5)
 #'
 #' @export
 
@@ -226,58 +226,36 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0) {
   
-
-  dosable_chems <- tibble(hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
-                           na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                           cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                           alum = 0, fecl3 = 0, fe2so43 = 0) 
-
-  chem_inputs_arg <- tibble(hcl, h2so4, h3po4, naoh,
-                              na2co3, nahco3, caoh2, mgoh2,
-                              cl2, naocl, caocl2, co2,
-                              alum, fecl3, fe2so43) %>% 
-    select_if(~any(. > 0))
-
-  chem_inputs_col <- df %>%
-    subset(select = names(df) %in% names(dosable_chems))
+  dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
+                          na2co3, nahco3, caoh2, mgoh2,
+                          cl2, naocl, caocl2, co2,
+                          alum, fecl3, fe2so43)
   
-  if (length(chem_inputs_col) == 0 & length(chem_inputs_arg) == 0) {
-    stop("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
-  
-  if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) >0){
-    if (names(chem_inputs_arg) %in% names(chem_inputs_col)) {
-    stop("At least one chemical was dosed as both a function argument and a data frame column. Remove your chemical(s) from one of these inputs.")}}
-
-chem2 <- dosable_chems %>%
-  subset(select = !names(dosable_chems) %in% names(chem_inputs_col)) %>%
-  subset(select = !names(.) %in% names(chem_inputs_arg)) %>%
-  cross_join(chem_inputs_col) %>%
-  cross_join(chem_inputs_arg)
-  
-  output<- df %>%
-    cross_join(chem_inputs_arg) %>%
-    mutate(dosed_chem_water = purrr::pmap(list(water= !!as.name(input_water),
-                                        hcl = chem2$hcl,
-                                        h2so4 = chem2$h2so4,
-                                        h3po4 = chem2$h3po4,
-                                        naoh= chem2$naoh,
-                                        na2co3 = chem2$na2co3,
-                                        nahco3 = chem2$nahco3,
-                                        caoh2 = chem2$caoh2,
-                                        mgoh2 = chem2$mgoh2,
-                                        cl2 = chem2$cl2,
-                                        naocl = chem2$naocl,
-                                        caocl2=chem2$caocl2,
-                                        co2=chem2$co2,
-                                        alum= chem2$alum,
-                                        fecl3= chem2$fecl3,
-                                        fe2so43= chem2$fe2so43
-                                        ),
-                                   chemdose_ph)) %>%
+  output <- df %>%
+    chemdose_ph_chain(input_water = input_water, output_water = "dosed_chem_water",
+                      hcl, h2so4, h3po4, naoh,
+                      na2co3, nahco3, caoh2, mgoh2,
+                      cl2, naocl, caocl2, co2,
+                      alum, fecl3, fe2so43) %>%
     mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-dosed_chem_water) 
+    select(-dosed_chem_water) #%>%
+    # select_if(where(~any(names(.) %in% names(dosable_chems))))
+    # select_if(~any(names(.) %in% names(dosable_chems)))
 }
+
+
+example_df <- water_df %>%
+define_water_chain() %>%
+balance_ions_chain() %>%
+chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+
+example_df <- water_df %>%
+ define_water_chain() %>%
+  balance_ions_chain()%>%
+  mutate(hcl = seq(1,12, 1),
+         naoh = 20) %>%
+  chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 #' Dose Chemical Chain
 #'
@@ -397,10 +375,22 @@ if(nrow(chem_inputs_arg) == 1) {
                                         alum= alum,
                                         fecl3= fecl3,
                                         fe2so43= fe2so43),
-                                   chemdose_ph))
-
+                                   chemdose_ph)) %>%
+    select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
+  
 }
 
+example_df <- water_df %>%
+define_water_chain() %>%
+balance_ions_chain() %>%
+chemdose_ph_chain(input_water = "balanced_water", naoh = 5, hcl =33) 
+
+example_df <- water_df %>%
+ define_water_chain() %>%
+  balance_ions_chain()%>%
+  mutate(hcl = seq(1,12, 1),
+         naoh = 20) %>%
+  chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 #' Solve Dose for Target pH Once
 #'
@@ -608,3 +598,16 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     mutate(!!output_column := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
 }
+
+# water_df <- data.frame(
+#   ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
+#   temp =  rep(c(20, 25, 19), 4),
+#   alk = rep(c(50, 80, 100, 200), 3),
+#   tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
+#   ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
+#   na= rep(c(20, 90), 6),
+#   k= rep(c(20, 90), 6),
+#   cl = rep(c(30, 92), 6),
+#   so4 = rep(c(20, 40, 60, 80), 3),
+#   tot_ocl = rep(c(0, 1), 6),
+#   po4 = rep(c(0, 0, 1), 4))
