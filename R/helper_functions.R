@@ -18,17 +18,17 @@
 #' 
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
-#' convert_Water()
+#' convert_water()
 #' 
 #' example_df <- water_df %>%
 #' define_water_chain %>%
-#' mutate(to_dataframe  = map(defined_water, convert_Water)) %>%
+#' mutate(to_dataframe  = map(defined_water, convert_water)) %>%
 #' unnest(to_dataframe) %>%
 #' select(-defined_water)
 #'
 #' @export
 
-convert_Water <- function(water) {
+convert_water <- function(water) {
   nms <- slotNames(water)
   lst <- lapply(nms, function(nm) slot(water, nm))
   as.data.frame(setNames(lst, nms))
@@ -68,7 +68,7 @@ define_water_once <- function(df) {
     select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4))
   
   water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4) %>%
-    convert_Water()
+    convert_water()
 }
 
 
@@ -135,7 +135,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
   
   output<- df %>%
     mutate(balanced_water = purrr::pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = purrr::map(balanced_water, convert_Water)) %>%
+    mutate(balance_df = purrr::map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
     
@@ -275,7 +275,7 @@ chem2 <- dosable_chems %>%
                                         fe2so43= chem2$fe2so43
                                         ),
                                    chemdose_ph)) %>%
-    mutate(dose_chem = purrr::map(dosed_chem_water, convert_Water)) %>%
+    mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water) 
 }
@@ -542,7 +542,7 @@ for(row in 1:length(df_subset[[1]])) {
 }
 
   output <- df %>%
-    mutate(blend_df = purrr::map(blended, convert_Water)) %>%
+    mutate(blend_df = purrr::map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 
