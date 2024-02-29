@@ -19,6 +19,8 @@ convert_units(value, formula, startunit = "mg/L", endunit = "M")
 This function takes a value and converts units based on compound name.
 }
 \examples{
-# Put example code here
+convert_units(50, "ca") # converts from mg/L to M by default
+convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
 
 }

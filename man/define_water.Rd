@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{define_water}
 \alias{define_water}
-\title{Define water vector}
+\title{Define water class object}
 \usage{
 define_water(
   ph,
@@ -42,10 +42,11 @@ define_water(
 \item{po4}{Phosphate in mg/L as PO4}
 }
 \description{
-This function takes water quality parameters and creates a "water" object that forms the input and output of all pH functions.
+This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 Carbonate balance is calculated and units are converted to mol/L
 }
 \examples{
-# Put example code here
+water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 
 }

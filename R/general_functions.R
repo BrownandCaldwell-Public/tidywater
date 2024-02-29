@@ -14,11 +14,11 @@ methods::setClass("water",
     k = "numeric",
     cl = "numeric",
     so4 = "numeric",
-    po4 = "numeric",
     hco3 = "numeric",
     co3 = "numeric",
     h = "numeric",
     oh = "numeric",
+    tot_po4 = "numeric",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     kw = "numeric",
@@ -33,11 +33,11 @@ methods::setClass("water",
     k = 0,
     cl = 0,
     so4 = 0,
-    po4 = 0,
     hco3 = NA_real_,
     co3 = NA_real_,
     h = NA_real_,
     oh = NA_real_,
+    tot_po4 = 0,
     tot_ocl = 0,
     tot_co3 = NA_real_,
     kw = NA_real_,
@@ -56,11 +56,11 @@ methods::setMethod("show",
     cat("Potassium (M): ", object@k, "\n")
     cat("Chloride (M): ", object@cl, "\n")
     cat("Sulfate (M): ", object@so4, "\n")
-    cat("Phosphate (M)", object@po4, "\n")
     cat("Bicarbonate ion (M): ", object@hco3, "\n")
     cat("Carbonate ion (M): ", object@co3, "\n")
     cat("H+ ion (M): ", object@h, "\n")
     cat("OH- ion (M): ", object@oh, "\n")
+    cat("Total phosphate (M)", object@tot_po4, "\n")
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Kw: ", object@kw, "\n")
@@ -69,9 +69,9 @@ methods::setMethod("show",
   })
 
 
-#' Define water vector
+#' Define water class object
 #'
-#' This function takes water quality parameters and creates a "water" object that forms the input and output of all pH functions.
+#' This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 #' Carbonate balance is calculated and units are converted to mol/L
 #'
 #' @param ph water pH
@@ -87,7 +87,8 @@ methods::setMethod("show",
 #' @param po4 Phosphate in mg/L as PO4
 #'
 #' @examples
-#' # Put example code here
+#' water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 #'
 #' @export
 #'
@@ -174,7 +175,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @param water Source water vector created by link function here
 #'
 #' @examples
-#' # Put example code here
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' summarize_wq(water_defined)
 #'
 #' @export
 #'
@@ -229,7 +231,8 @@ summarize_wq <- function(water) {
 #'
 #'
 #' @examples
-#' # Put example code here
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' plot_ions(water_defined)
 #'
 #' @export
 #'
@@ -247,7 +250,7 @@ plot_ions <- function(water, title = "") {
     HCO3 = water@hco3,
     CO3 = water@co3 * 2,
     OCl = water@tot_ocl,
-    PO4 = water@po4 * 3,
+    PO4 = water@tot_po4 * 3,
     H = water@h,
     OH = water@oh)
 
@@ -284,7 +287,9 @@ plot_ions <- function(water, title = "") {
 #' @param endunit Desired units, currently accepts same as start units
 #'
 #' @examples
-#' # Put example code here
+#' convert_units(50, "ca") # converts from mg/L to M by default
+#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
 #'
 #' @export
 #'
@@ -404,11 +409,14 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 #'
 #' @param ca Calcium concentration in mg/L as Ca
 #' @param mg Magnesium concentration in mg/L as Mg
-#' @param type "total" returns total hardness, "ca" returns calcium hardness
+#' @param type "total" returns total hardness, "ca" returns calcium hardness. Defaults to "total"
 #' @param startunit Units of Ca and Mg. Defaults to mg/L
 #'
 #' @examples
-#' # Put example code here
+#' calculate_hardness(50, 10)
+#'
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' calculate_hardness(water_defined@ca, water_defined@mg, "total", "M")
 #'
 #' @export
 #'
@@ -437,7 +445,9 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
 #'
 #' @examples
-#' # Put example code here
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#' balance_ions()
+#'
 #'
 #' @export
 #'
@@ -453,7 +463,7 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@po4
+  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@tot_po4
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")

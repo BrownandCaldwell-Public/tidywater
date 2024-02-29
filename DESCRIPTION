@@ -1,11 +1,16 @@
 Package: tidywater
 Type: Package
-Title: Water quality modeling for water treatment
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Title: Water Quality Modeling for Drinking Water Treatment
+Version: 1.0.0
+Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
+    person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut", "cre")),
+    person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6293-3672")),
+    person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
+    person("Brown and Caldwell", role = c("fnd", "cph")))
+URL: https://github.com/BrownandCaldwell-Public/tidywater
+BugReports: https://github.com/BrownandCaldwell-Public/tidywater/issues
+Description: Provides multiple water chemistry-based models and published empirical models in one standard format. Functions
+    can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

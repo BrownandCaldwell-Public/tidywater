@@ -15,6 +15,8 @@ will be added, unless a number for sodium is already provided and potassium is 0
 anions are added using chloride, unless sulfate is 0.
 }
 \examples{
-# Put example code here
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) \%>\%
+balance_ions()
+
 
 }

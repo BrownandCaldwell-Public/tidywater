@@ -4,8 +4,30 @@
 \name{tidywater-package}
 \alias{tidywater}
 \alias{tidywater-package}
-\title{tidywater: Water quality modeling for water treatment}
+\title{tidywater: Water Quality Modeling for Drinking Water Treatment}
 \description{
-More about what it does (maybe more than one line) Use four spaces when indenting paragraphs within the Description.
+Provides multiple water chemistry-based models and published empirical models in one standard format. Functions can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/BrownandCaldwell-Public/tidywater}
+  \item Report bugs at \url{https://github.com/BrownandCaldwell-Public/tidywater/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Sierra Johnson \email{sjohnson2@brwncald.com}
+
+Authors:
+\itemize{
+  \item Chris Corwin \email{ccorwin@brwncald.com} (\href{https://orcid.org/0000-0002-9462-0352}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item Brown and Caldwell [funder, copyright holder]
+}
+
 }
 \keyword{internal}
