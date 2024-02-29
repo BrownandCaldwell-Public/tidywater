@@ -65,12 +65,12 @@ define_water_once <- function(df) {
   cl = df$cl
   so4 = df$so4
   tot_ocl = 0 + df$tot_ocl
-  po4 = 0+ df$po4
+  tot_po4 = 0+ df$tot_po4
 
   df2 <- df %>%
-    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4))
+    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4))
 
-  water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, po4) %>%
+  water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4) %>%
     convert_water()
 }
 
@@ -99,7 +99,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "po4")
+  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4")
 
   extras <- df %>%
     select(!any_of(define_water_args))

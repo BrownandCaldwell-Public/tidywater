@@ -7,13 +7,13 @@
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
+solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
+  solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
       (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
-      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
+      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (tot_po4 / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
       tot_ocl / (h / discons$kocl + 1) +
       cl_dose -
@@ -23,7 +23,7 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
   root_h <- stats::uniroot(solve_h, interval = c(0, 1),
     kw = water@kw,
     so4_dose = so4_dose,
-    po4_dose = po4_dose,
+    tot_po4 = water@tot_po4,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
     alk_eq = water@alk_eq,
@@ -150,7 +150,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Total phosphate
   po4_dose = h3po4
-  dosed_water@po4 = water@po4 + po4_dose
+  dosed_water@tot_po4 = water@tot_po4 + po4_dose
 
   # Total hypochlorite
   ocl_dose = cl2 + naocl + caocl2
@@ -161,7 +161,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
 
   # Calculate new pH, H+ and OH- concentrations
-  ph = solve_ph(dosed_water, so4_dose = so4_dose, po4_dose = po4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
+  ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
   h = 10^-ph
   oh = dosed_water@kw / h
 

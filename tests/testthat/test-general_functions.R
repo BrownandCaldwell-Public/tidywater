@@ -132,7 +132,7 @@ test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
   expect_equal(water1@ca, water2@ca)
   expect_equal(water1@mg, water2@mg)
   expect_equal(water1@tot_ocl, water2@tot_ocl)
-  expect_equal(water1@po4, water2@po4)
+  expect_equal(water1@tot_po4, water2@tot_po4)
 })
 
 test_that("Balance ions results in neutral charge.", {
@@ -140,14 +140,14 @@ test_that("Balance ions results in neutral charge.", {
   water2 <- balance_ions(water1)
 
   expect_equal(water2@na + water2@ca * 2 + water2@mg * 2 + water2@k -
-    water2@cl - water2@so4 * 2 - water2@po4 * 3 - water2@hco3 - water2@co3 * 2 +
+    water2@cl - water2@so4 * 2 - water2@tot_po4 * 3 - water2@hco3 - water2@co3 * 2 +
     water2@h - water2@oh - water2@tot_ocl, 0)
 
-  water3 <- define_water(ph = 7, temp = 25, alk = 100, 10, 10, 10, 10, 10, 10, tot_ocl = 2, po4 = 1)
+  water3 <- define_water(ph = 7, temp = 25, alk = 100, 10, 10, 10, 10, 10, 10, tot_ocl = 2, tot_po4 = 1)
   water4 <- balance_ions(water3)
 
   expect_equal(water4@na + water4@ca * 2 + water4@mg * 2 + water4@k -
-    water4@cl - water4@so4 * 2 - water4@po4 * 3 - water4@hco3 - water4@co3 * 2 +
+    water4@cl - water4@so4 * 2 - water4@tot_po4 * 3 - water4@hco3 - water4@co3 * 2 +
     water4@h - water4@oh - water4@tot_ocl, 0)
 })
 
@@ -158,3 +158,4 @@ test_that("Carbonate alpha calculations work.", {
   expect_equal(round(calculate_alpha1_carbonate(10^-7, discons$k1co3, discons$k2co3), 2), 0.82)
   expect_equal(round(calculate_alpha2_carbonate(10^-7, discons$k1co3, discons$k2co3), 5), 0.00038)
 })
+
