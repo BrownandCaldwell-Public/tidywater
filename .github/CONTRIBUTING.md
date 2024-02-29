@@ -7,7 +7,7 @@ This guide is adapted from the tidyverse contribution guide. We will also genera
 
 You can fix typos, spelling mistakes, or grammatical errors in the documentation directly using the GitHub web interface, as long as the changes are made in the _source_ file. 
 This generally means you'll need to edit [roxygen2 comments](https://roxygen2.r-lib.org/articles/roxygen2.html) in an `.R`, not a `.Rd` file. 
-You can find the `.R` file that generates the `.Rd` by reading the comment in the first line.
+You can find the `.R` file that generates the `.Rd` by reading the comment in the first line of the `.Rd` file.
 
 ## Bigger changes
 
