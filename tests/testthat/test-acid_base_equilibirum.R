@@ -51,21 +51,52 @@ test_that("Dose chemical works", {
 
 })
 
-# Dose Target ----
+# Solve Dose pH ----
 
-test_that("Dose target produces an error when target pH is unreachable but runs otherwise.", {
+test_that("Solve dose pH produces a warning and returns NA when target pH is unreachable but runs otherwise.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
 
-  expect_error(solvedose_ph(water4, 6, "naoh"))
-  expect_error(solvedose_ph(water4, 6, "co2"))
+  expect_warning(solvedose_ph(water4, 6, "naoh"))
+  expect_warning(solvedose_ph(water4, 6, "co2"))
+  expect_equal(suppressWarnings(solvedose_ph(water4, 6, "co2")), NA)
+  expect_no_warning(solvedose_ph(water4, 9, "naoh"))
   expect_no_error(solvedose_ph(water4, 9, "naoh"))
 })
 
-test_that("Dose target works.", {
+test_that("Solve dose pH doesn't run when target pH is out of range.", {
+  water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
+
+  expect_error(solvedose_ph(water4, 20, "naoh"))
+})
+
+test_that("Solve dose pH returns the correct values.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
   # these are based on current tidywater outputs
   expect_equal(solvedose_ph(water4, 11, "naoh"), 38.7)
   expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
+  co2dose <- solvedose_ph(water4, 7, "co2")
+  expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
+})
+
+
+# Solve Dose Alkalinity ----
+
+test_that("Solve dose alk produces a warning and returns NA when target alk is unreachable but runs otherwise.", {
+  water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
+
+  expect_warning(solvedose_alk(water5, 20, "naoh"))
+  expect_equal(suppressWarnings(solvedose_alk(water5, 100, "h2so4")), NA)
+  expect_no_warning(solvedose_alk(water5, 100, "naoh"))
+  expect_no_error(solvedose_alk(water5, 100, "naoh"))
+})
+
+test_that("Solve dose alk works.", {
+  water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10)
+  # these are based on current tidywater outputs
+  expect_equal(solvedose_alk(water5, 100, "naoh"), 40.1)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
+  naohdose <- solvedose_alk(water5, 100, "naoh")
+  expect_equal(round(chemdose_ph(water5, naoh = naohdose)@alk), 100)
 })
 
 
