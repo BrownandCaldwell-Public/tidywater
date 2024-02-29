@@ -113,7 +113,6 @@ blend_waters_chain(c("raw_water_balanced", "finished_water"), ratios = c("ratio_
 raw_water <- water_df %>%
 define_water_chain("raw_water") %>%
 balance_ions_chain(input_water = "raw_water", output_water = "raw_water_balanced") %>%
-# The function automatically finds the alum column, but you can specify additional chemicals as well.
 chemdose_ph_once(input_water = "raw_water_balanced", alum = 30, hcl = 10)
 
 ```
