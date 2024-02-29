@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_chain}
 \alias{chemdose_ph_chain}
-\title{Dose Chemical Chain}
+\title{Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 chemdose_ph_chain(
   df,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{plot_ions}
 \alias{plot_ions}
-\title{Ion Summary Plot}
+\title{Create summary plot of ions from water class}
 \usage{
 plot_ions(water, title = "")
 }

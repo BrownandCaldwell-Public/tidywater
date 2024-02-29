@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{convert_units}
 \alias{convert_units}
-\title{Unit Conversions}
+\title{Calculate unit conversions for commons compounds}
 \usage{
 convert_units(value, formula, startunit = "mg/L", endunit = "M")
 }

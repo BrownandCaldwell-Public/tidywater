@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{solvedose_ph_once}
 \alias{solvedose_ph_once}
-\title{Solve Dose for Target pH Once}
+\title{Apply solvedose_ph to a dataframe and create a new column with numeric dose}
 \usage{
 solvedose_ph_once(
   df,

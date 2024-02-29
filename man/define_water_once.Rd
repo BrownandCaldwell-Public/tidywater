@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{define_water_once}
 \alias{define_water_once}
-\title{Define Water Once}
+\title{Apply define_water and output a dataframe}
 \usage{
 define_water_once(df)
 }

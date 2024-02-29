@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{define_water}
 \alias{define_water}
-\title{Define water class object}
+\title{Create water class object given water quality parameters}
 \usage{
 define_water(
   ph,

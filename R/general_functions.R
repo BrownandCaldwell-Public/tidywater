@@ -69,7 +69,7 @@ methods::setMethod("show",
   })
 
 
-#' Define water class object
+#' Create water class object given water quality parameters
 #'
 #' This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 #' Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
@@ -170,7 +170,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   return(water_class)
 }
 
-#' Water Summary Table
+#' Create summary table from water class
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 #'
@@ -223,7 +223,7 @@ summarize_wq <- function(water) {
   return(knitr::kables(list(tab1, tab2)))
 }
 
-#' Ion Summary Plot
+#' Create summary plot of ions from water class
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 #'
@@ -279,7 +279,7 @@ plot_ions <- function(water, title = "") {
 }
 
 
-#' Unit Conversions
+#' Calculate unit conversions for commons compounds
 #'
 #' This function takes a value and converts units based on compound name.
 #'
@@ -405,7 +405,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
-#' Hardness calculation
+#' Calculate hardness from calcium and magnesium
 #'
 #' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 #'

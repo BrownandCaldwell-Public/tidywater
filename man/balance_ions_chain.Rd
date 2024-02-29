@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{balance_ions_chain}
 \alias{balance_ions_chain}
-\title{Balance Ions chain}
+\title{Apply balance_ions within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 balance_ions_chain(
   df,

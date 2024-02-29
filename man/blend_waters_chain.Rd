@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{blend_waters_chain}
 \alias{blend_waters_chain}
-\title{Blend Waters Chain}
+\title{Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }

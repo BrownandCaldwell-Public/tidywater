@@ -5,10 +5,11 @@
 # Reviewers: Sierra Johnson 2/27/24
 
 
-#' Convert Water
+#' Convert water class object to a dataframe
 #'
-#' Function to convert from Water class to a dataframe.
-#' This is useful for one-off checks. It may be better to use fn_once
+#' This converts a water class to a dataframe with individual columns for each slot (water quality parameter) in the water.
+#' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
+#' there may be a `fn_once` tidywater function that provides a more efficient solution.
 #'
 #' @param water A "water" class object
 #'
@@ -38,7 +39,7 @@ convert_water <- function(water) {
   as.data.frame(setNames(lst, nms))
 }
 
-#' Define Water Once
+#' Apply define_water and output a dataframe
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' It outputs all carbonate calculations and other parameters in a data frame.
@@ -75,7 +76,7 @@ define_water_once <- function(df) {
 }
 
 
-#' Define Water chain
+#' Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
@@ -111,7 +112,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
     cbind(extras)
 }
 
-#' Balance Ions Once
+#' Apply balance_ions function and output a dataframe
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a dataframe with updated ions depending on starting concentrations
@@ -144,7 +145,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 
 }
 
-#' Balance Ions chain
+#' Apply balance_ions within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
@@ -176,7 +177,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 
 }
 
-#' Dose Chemical Once
+#' Apply chemdose_ph function and output a dataframe
 #'
 #' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
@@ -252,7 +253,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
     select(-dosed_chem_water)
 }
 
-#' Dose Chemical Chain
+#' Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 #' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
@@ -381,7 +382,7 @@ if(nrow(chem_inputs_arg) == 1) {
 }
 
 
-#' Solve Dose for Target pH Once
+#' Apply solvedose_ph to a dataframe and create a new column with numeric dose
 #'
 #' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame.
 #' Its output is a chemical dose in mg/L.
@@ -467,7 +468,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 }
 
 
-#' Blend Waters Once
+#' Apply blend_waters to a dataframe and output water as a dataframe
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
@@ -545,7 +546,7 @@ for(row in 1:length(df_subset[[1]])) {
 
 }
 
-#' Blend Waters Chain
+#' Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.

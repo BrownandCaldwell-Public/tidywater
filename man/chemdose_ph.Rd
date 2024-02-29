@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{chemdose_ph}
 \alias{chemdose_ph}
-\title{Add chemicals to water}
+\title{Add chemicals to water and apply acid/base equilibrium and ion mass balance}
 \usage{
 chemdose_ph(
   water,

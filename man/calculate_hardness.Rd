@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{calculate_hardness}
 \alias{calculate_hardness}
-\title{Hardness calculation}
+\title{Calculate hardness from calcium and magnesium}
 \usage{
 calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 }

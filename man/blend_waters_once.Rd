@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{blend_waters_once}
 \alias{blend_waters_once}
-\title{Blend Waters Once}
+\title{Apply blend_waters to a dataframe and output water as a dataframe}
 \usage{
 blend_waters_once(df, waters, ratios)
 }
