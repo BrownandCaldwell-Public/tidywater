@@ -1,5 +1,5 @@
 #Test convertWater converts a water class input to a dataframe
-test_that("convertWater works", {
+test_that("convertWater creates a dataframe", {
   water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
   df_water <- convert_Water(water1)
   expect_true(is.data.frame(df_water))
