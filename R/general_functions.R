@@ -69,12 +69,12 @@ methods::setMethod("show",
   })
 
 
-#' Create water class object given water quality parameters
+#' Create a water class object given water quality parameters
 #'
 #' This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 #' Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
 #' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
-#' manually specify all water quality parameters in the define water arguments.
+#' manually specify all water quality parameters in the define_water arguments.
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
@@ -279,7 +279,7 @@ plot_ions <- function(water, title = "") {
 }
 
 
-#' Calculate unit conversions for commons compounds
+#' Calculate unit conversions for common compounds
 #'
 #' This function takes a value and converts units based on compound name.
 #'
@@ -438,13 +438,13 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 
 }
 
-#' Add Na, K, Cl, or SO4 to balance charge in a water
+#' Add Na, K, Cl, or SO4 to balance overall charge in a water
 #'
 #' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
 #' will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
 #' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
-#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical
-#' always check the outputs to make sure values are reasonable for your source water.
+#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
+#' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
 #'

@@ -79,7 +79,7 @@ define_water_once <- function(df) {
 #' Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
-#' Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
+#' Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "defined_water".
@@ -148,7 +148,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' Apply balance_ions within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-#' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
+#' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 #'
 #' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -256,7 +256,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-#' Its output is a water class, and can therefore be used with "downstream" tidywater functions.
+#' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 #' Ions and pH will be updated based on input chemical doses.
 #'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
@@ -549,7 +549,7 @@ for(row in 1:length(df_subset[[1]])) {
 #' Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#' Its output is a data frame with updated ions and pH.
+#' Its output is a "water" class with updated ions and pH.
 #'
 #' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input

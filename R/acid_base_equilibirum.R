@@ -34,14 +34,14 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 
 #' Add chemicals to water and apply acid/base equilibrium and ion mass balance
 #'
-#' \code{dose_chemical} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+#' \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 #' additions. The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
 #' chemical additions and returns a new object of class "water" with updated water quality.
 #' Units of all chemical additions are in mg/L as chemical (not as product).
 #'
-#' \code{dose_chemical} works by evaluating all the user-specified chemical additions and solving for what the new pH
+#' \code{chemdose_ph} works by evaluating all the user-specified chemical additions and solving for what the new pH
 #' must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
-#' of the water that the chemical is added to. Multiple chemicals can be added simultaneously of each addition can be
+#' of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
 #' modeled independently through sequential doses.
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
@@ -66,17 +66,17 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 10)
 #' # Dose 1 mg/L of hydrochloric acid
-#' dosed_water <- dose_chemical(water, hcl = 1)
+#' dosed_water <- chemdose_ph(water, hcl = 1)
 #' dosed_water@ph
 #'
 #' #Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
-#' dosed_water <- dose_chemical(water, hcl = 1, alum = 5)
+#' dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
 #' dosed_water@ph
 #'
 #'#Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
-#' dosed_water1 <- dose_chemical(water, hcl = 1)
+#' dosed_water1 <- chemdose_ph(water, hcl = 1)
 #' dosed_water1@ph
-#' dosed_water2 <- dose_chemical(dosed_water1, alum = 5)
+#' dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
 #' dosed_water2@ph
 #'
 #' @export
@@ -202,24 +202,24 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
 #' Calculate a desired chemical dose for a target pH
 #'
-#' \code{dose_target} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-#' The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target
+#' \code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+#' The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
 #' and returns a numeric value for the required dose in mg/L.
 #'
-#' \code{dose_target} uses \code{uniroot} on \code{\link{dose_chemical}} to match the required dose for the requested pH target.
+#' \code{solvedose_ph} uses \code{uniroot} on \code{\link{chemdose_ph}} to match the required dose for the requested pH target.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
 #'
-#' @seealso \code{\link{define_water}}, \code{\link{dose_chemical}}
+#' @seealso \code{\link{define_water}}, \code{\link{chemdose_ph}}
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 10)
 #'
 #' # Calculate required dose of lime to reach pH 8
-#' dose_target(water, target_ph = 8, chemical = "caoh2")
+#' solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 #'
 #' @export
 #'
