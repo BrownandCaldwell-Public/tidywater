@@ -86,7 +86,7 @@ methods::setMethod("show",
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
-#' @param tot_po4 Phosphate in mg/L as PO4. Used when a starting water has a phosphate residual.
+#' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
