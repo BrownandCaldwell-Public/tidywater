@@ -239,23 +239,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                       alum, fecl3, fe2so43) %>%
     mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-dosed_chem_water) #%>%
-    # select_if(where(~any(names(.) %in% names(dosable_chems))))
-    # select_if(~any(names(.) %in% names(dosable_chems)))
+    select(-dosed_chem_water) 
 }
-
-
-# example_df <- water_df %>%
-# define_water_chain() %>%
-# balance_ions_chain() %>%
-# chemdose_ph_once(input_water = "balanced_water", naoh = 5)
-#
-# example_df <- water_df %>%
-#  define_water_chain() %>%
-#   balance_ions_chain()%>%
-#   mutate(hcl = seq(1,12, 1),
-#          naoh = 20) %>%
-#   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 #' Dose Chemical Chain
 #'
@@ -327,7 +312,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
     mutate(ID = row_number())
 
   if (length(chem_inputs_col) - 1 == 0 & length(chem_inputs_arg) == 0) {
-    stop("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
+    warning("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
 
   if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) >0){
     if (any(names(chem_inputs_arg) %in% names(chem_inputs_col))) {
@@ -379,18 +364,7 @@ if(nrow(chem_inputs_arg) == 1) {
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
 
 }
-#
-# example_df <- water_df %>%
-# define_water_chain() %>%
-# balance_ions_chain() %>%
-# chemdose_ph_chain(input_water = "balanced_water", naoh = 5, hcl =33)
-#
-# example_df <- water_df %>%
-#  define_water_chain() %>%
-#   balance_ions_chain()%>%
-#   mutate(hcl = seq(1,12, 1),
-#          naoh = 20) %>%
-#   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+
 
 #' Solve Dose for Target pH Once
 #'
