@@ -84,7 +84,7 @@ methods::setMethod("show",
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as ??
-#' @param po4 Phosphate in mg/L as PO4
+#' @param tot_po4 Phosphate in mg/L as PO4
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
