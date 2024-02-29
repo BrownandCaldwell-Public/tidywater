@@ -239,7 +239,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                       alum, fecl3, fe2so43) %>%
     mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-dosed_chem_water) 
+    select(-dosed_chem_water)
 }
 
 #' Dose Chemical Chain
@@ -381,7 +381,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
+#' @param output_water name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
 #' @seealso \code{\link{solvedose_ph}}
@@ -409,7 +409,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @export
 
-solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
+solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
 
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
@@ -443,7 +443,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
                                      chemical = chemical,
                                      target_ph = target_ph),
                                 solvedose_ph)) %>%
-    mutate(!!output_column := as.numeric(dose)) %>%
+    mutate(!!output_water := as.numeric(dose)) %>%
     select(-dose)
 }
 
@@ -569,7 +569,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
              (list(c_across(all_of(ratios))))
            )) %>%
     ungroup() %>%
-    mutate(!!output_column := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
+    mutate(!!output_water := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
 }
 
