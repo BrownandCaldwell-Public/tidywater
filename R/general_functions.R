@@ -72,7 +72,9 @@ methods::setMethod("show",
 #' Define water class object
 #'
 #' This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
-#' Carbonate balance is calculated and units are converted to mol/L
+#' Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
+#' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
+#' manually specify all water quality parameters in the define water arguments.
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
@@ -83,8 +85,8 @@ methods::setMethod("show",
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
-#' @param tot_ocl Chlorine in mg/L as ??
-#' @param tot_po4 Phosphate in mg/L as PO4
+#' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
+#' @param tot_po4 Phosphate in mg/L as PO4. Used when a starting water has a phosphate residual.
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
@@ -436,11 +438,13 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 
 }
 
-#' Ion balance a water
+#' Add Na, K, Cl, or SO4 to balance charge in a water
 #'
 #' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
 #' will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
-#' anions are added using chloride, unless sulfate is 0.
+#' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
+#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical
+#' always check the outputs to make sure values are reasonable for your source water.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
 #'
