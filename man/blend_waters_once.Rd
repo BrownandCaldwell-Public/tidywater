@@ -26,6 +26,11 @@ as columns with varied ratios (in this case, input column names in the function 
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
+
+library(dplyr)
+library(purrr)
+library(tidyr)
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%

@@ -268,8 +268,8 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' # Put example code here
-#'
+#' dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) %>%
+#'  solvedose_alk(target_alk = 150, "naoh")
 #' @export
 #'
 solvedose_alk <- function(water, target_alk, chemical) {

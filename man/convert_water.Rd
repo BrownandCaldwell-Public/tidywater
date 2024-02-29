@@ -15,6 +15,10 @@ This is useful for one-off checks. It may be better to use fn_once
 }
 \examples{
 
+library(dplyr)
+library(purrr)
+library(tidyr)
+
 # Generates 1 row dataframe
 example_df <- define_water(ph = 7, temp = 20, alk = 100) \%>\%
 convert_water()
