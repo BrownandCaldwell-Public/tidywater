@@ -75,6 +75,9 @@ To see which chemicals can be passed into the function, see \code{\link{chemdose
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
+
+library(tidyverse)
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%

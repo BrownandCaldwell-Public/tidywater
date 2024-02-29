@@ -16,6 +16,8 @@
 #'
 #' @examples
 #'
+#' library(tidyverse)
+#'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
 #' convert_water()
@@ -152,7 +154,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
-#' library(dplyr)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -208,6 +210,9 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
+#'
+#' library(tidyverse)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -279,6 +284,9 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
+#'
+#' library(tidyverse)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -389,6 +397,8 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @examples
 #'
+#' library(tidyverse)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
@@ -469,6 +479,9 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
+#'
+#' library(tidyverse)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
@@ -541,6 +554,9 @@ for(row in 1:length(df_subset[[1]])) {
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
+#'
+#' library(tidyverse)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%

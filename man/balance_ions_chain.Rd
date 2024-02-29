@@ -22,6 +22,7 @@ This function allows \code{\link{balance_ions}} to be added to a piped data fram
 Its output is a water class, and can therefore be used with "downstream" tidywater functions.
 }
 \examples{
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%
