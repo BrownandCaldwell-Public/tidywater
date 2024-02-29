@@ -14,7 +14,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
 
 test_that("Dose chemical returns the same pH/alkalinity when no chemical is added.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
-  water2 <- dose_chemical(water1, h2so4 = 0, h3po4 = 0)
+  water2 <- chemdose_ph(water1, h2so4 = 0, h3po4 = 0)
 
   expect_equal(water1@ph, water2@ph)
   expect_equal(water1@alk, water2@alk)
@@ -29,12 +29,12 @@ test_that("Dose chemical works", {
   water3 <- define_water(7.5, 20, 20, 50, 40, 10, 10, 10, 10)
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
 
-  test1 <- dose_chemical(water1, alum = 30)
-  test2 <- dose_chemical(water2, alum = 30)
-  test3 <- dose_chemical(water2, alum = 50, h2so4 = 20)
-  test4 <- dose_chemical(water3, alum = 50, naoh = 10)
-  test5 <- dose_chemical(water4, alum = 50)
-  test6 <- dose_chemical(water4, naoh = 80)
+  test1 <- chemdose_ph(water1, alum = 30)
+  test2 <- chemdose_ph(water2, alum = 30)
+  test3 <- chemdose_ph(water2, alum = 50, h2so4 = 20)
+  test4 <- chemdose_ph(water3, alum = 50, naoh = 10)
+  test5 <- chemdose_ph(water4, alum = 50)
+  test6 <- chemdose_ph(water4, naoh = 80)
   # Rounded values from waterpro spot check (doesn't match with more decimals)
   expect_equal(round(test1@ph, 1), 5.7)
   expect_equal(round(test1@alk, 0), 5)
@@ -56,16 +56,16 @@ test_that("Dose chemical works", {
 test_that("Dose target produces an error when target pH is unreachable but runs otherwise.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
 
-  expect_error(dose_target(water4, 6, "naoh"))
-  expect_error(dose_target(water4, 6, "co2"))
-  expect_no_error(dose_target(water4, 9, "naoh"))
+  expect_error(solvedose_ph(water4, 6, "naoh"))
+  expect_error(solvedose_ph(water4, 6, "co2"))
+  expect_no_error(solvedose_ph(water4, 9, "naoh"))
 })
 
 test_that("Dose target works.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
   # these are based on current tidywater outputs
-  expect_equal(dose_target(water4, 11, "naoh"), 38.7)
-  expect_equal(dose_target(water4, 7, "co2"), 3.7)
+  expect_equal(solvedose_ph(water4, 11, "naoh"), 38.7)
+  expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
 })
 
 
@@ -103,3 +103,4 @@ test_that("Blend waters conserves temperature and alkalinity.", {
   expect_equal(blend1@alk, 150)
   expect_equal(blend1@temp, 15)
 })
+
