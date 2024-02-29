@@ -20,6 +20,7 @@ Imports:
     knitr,
     ggplot2,
     magrittr,
+    purrr,
     methods
 RoxygenNote: 7.3.1
 Depends: 
