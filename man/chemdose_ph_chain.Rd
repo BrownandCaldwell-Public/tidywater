@@ -65,7 +65,7 @@ been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. Th
 }
 \description{
 This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-Its output is a water class, and can therefore be used with "downstream" tidywater functions.
+Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 Ions and pH will be updated based on input chemical doses.
 }
 \details{

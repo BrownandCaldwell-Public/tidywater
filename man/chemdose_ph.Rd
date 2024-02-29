@@ -57,31 +57,31 @@ chemdose_ph(
 \item{fe2so43}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
 }
 \description{
-\code{dose_chemical} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+\code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 additions. The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
 chemical additions and returns a new object of class "water" with updated water quality.
 Units of all chemical additions are in mg/L as chemical (not as product).
 }
 \details{
-\code{dose_chemical} works by evaluating all the user-specified chemical additions and solving for what the new pH
+\code{chemdose_ph} works by evaluating all the user-specified chemical additions and solving for what the new pH
 must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
-of the water that the chemical is added to. Multiple chemicals can be added simultaneously of each addition can be
+of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
 modeled independently through sequential doses.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 10)
 # Dose 1 mg/L of hydrochloric acid
-dosed_water <- dose_chemical(water, hcl = 1)
+dosed_water <- chemdose_ph(water, hcl = 1)
 dosed_water@ph
 
 #Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
-dosed_water <- dose_chemical(water, hcl = 1, alum = 5)
+dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
 dosed_water@ph
 
 #Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
-dosed_water1 <- dose_chemical(water, hcl = 1)
+dosed_water1 <- chemdose_ph(water, hcl = 1)
 dosed_water1@ph
-dosed_water2 <- dose_chemical(dosed_water1, alum = 5)
+dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
 dosed_water2@ph
 
 }

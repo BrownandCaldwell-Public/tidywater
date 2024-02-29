@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{define_water}
 \alias{define_water}
-\title{Create water class object given water quality parameters}
+\title{Create a water class object given water quality parameters}
 \usage{
 define_water(
   ph,
@@ -39,13 +39,13 @@ define_water(
 
 \item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
 
-\item{tot_po4}{Phosphate in mg/L as PO4. Used when a starting water has a phosphate residual.}
+\item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 }
 \description{
 This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
 NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
-manually specify all water quality parameters in the define water arguments.
+manually specify all water quality parameters in the define_water arguments.
 }
 \examples{
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100)

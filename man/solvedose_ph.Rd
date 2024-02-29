@@ -15,20 +15,20 @@ solvedose_ph(water, target_ph, chemical)
 acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 }
 \description{
-\code{dose_target} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target
+\code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
 and returns a numeric value for the required dose in mg/L.
 }
 \details{
-\code{dose_target} uses \code{uniroot} on \code{\link{dose_chemical}} to match the required dose for the requested pH target.
+\code{solvedose_ph} uses \code{uniroot} on \code{\link{chemdose_ph}} to match the required dose for the requested pH target.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 10)
 
 # Calculate required dose of lime to reach pH 8
-dose_target(water, target_ph = 8, chemical = "caoh2")
+solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 
 }
 \seealso{
-\code{\link{define_water}}, \code{\link{dose_chemical}}
+\code{\link{define_water}}, \code{\link{chemdose_ph}}
 }

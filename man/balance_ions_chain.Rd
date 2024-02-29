@@ -19,7 +19,7 @@ balance_ions_chain(
 }
 \description{
 This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-Its output is a water class, and can therefore be used with "downstream" tidywater functions.
+Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 }
 \examples{
 

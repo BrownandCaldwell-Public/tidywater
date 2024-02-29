@@ -13,7 +13,7 @@ define_water_chain(df, output_water = "defined_water")
 }
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
-Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
+Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
 }
 \examples{
 
