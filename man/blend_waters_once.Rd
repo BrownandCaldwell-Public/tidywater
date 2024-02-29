@@ -27,7 +27,9 @@ tidywater functions cannot be added after this function because they require a w
 }
 \examples{
 
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(tidyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

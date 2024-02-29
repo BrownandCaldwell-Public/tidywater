@@ -78,7 +78,9 @@ To see which chemicals can be passed into the function, see \code{\link{chemdose
 }
 \examples{
 
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(tidyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

@@ -27,7 +27,9 @@ as columns with varied ratios (in this case, input column names in the function 
 }
 \examples{
 
-library(tidyverse)
+library(dplyr)
+library(purrr)
+library(tidyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
