@@ -2,12 +2,14 @@
 % Please edit documentation in R/general_functions.R
 \name{define_water}
 \alias{define_water}
-\title{Define water vector}
+\title{Create a water class}
 \usage{
 define_water(
   ph,
   temp,
   alk,
+  tds,
+  cond,
   tot_hard,
   ca_hard,
   na,
@@ -24,6 +26,10 @@ define_water(
 \item{temp}{Temperature in degree C}
 
 \item{alk}{Alkalinity in mg/L as CaCO3}
+
+\item{tds}{Total Dissolved Solids in mg/L}
+
+\item{cond}{Electrical conductivity in}
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
@@ -42,10 +48,22 @@ define_water(
 \item{po4}{Phosphate in mg/L as PO4}
 }
 \description{
-This function takes water quality parameters and creates a "water" object that forms the input and output of all pH functions.
-Carbonate balance is calculated and units are converted to mol/L
+\code{define_water} takes user-defined water quality parameters and creates an object of class "water" that
+forms the input and output of all other tidywater water treatment modelling functions. The function calculates
+ionic strength and the carbonate balance, converts all ion concentrations to mol/L, and corrects for ionic
+activity coefficients.
+}
+\details{
+\code{define_water} calculates ionic strength and activity coefficients using the following established water chemistry
+equations:
+Ionic strength (if TDS provided): MWH equation 5-38
+Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
+Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
+Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
+Activity coefficients: Davies equation (1967), MWH equation 5-43
+Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
 }
 \examples{
-# Put example code here
+define_water(ph=7,temp=20,alk=100,tds=10)
 
 }

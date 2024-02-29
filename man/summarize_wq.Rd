@@ -13,6 +13,6 @@ summarize_wq(water)
 This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 }
 \examples{
-# Put example code here
+#
 
 }

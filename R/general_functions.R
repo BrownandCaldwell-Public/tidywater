@@ -7,7 +7,9 @@ methods::setClass("water",
   representation(ph = "numeric",
     temp = "numeric",
     alk = "numeric",
-    # tot_hard = "numeric",
+    tds = "numeric",
+    cond = "numeric",
+    tot_hard = "numeric",
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -22,11 +24,14 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     kw = "numeric",
+    i = "numeric",
     alk_eq = "numeric"),
   prototype(ph = NA_real_,
     temp = NA_real_,
     alk = NA_real_,
-    # tot_hard = NA_real_,
+    tds = NA_real_,
+    cond = NA_real_,
+    tot_hard = NA_real_,
     na = 0,
     ca = 0,
     mg = 0,
@@ -41,6 +46,7 @@ methods::setClass("water",
     tot_ocl = 0,
     tot_co3 = NA_real_,
     kw = NA_real_,
+    i = NA_real_,
     alk_eq = NA_real_))
 
 methods::setMethod("show",
@@ -49,7 +55,9 @@ methods::setMethod("show",
     cat("pH: ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
-    # cat("Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
+    cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
+    cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
     cat("Magnesium (M): ", object@mg, "\n")
@@ -64,19 +72,32 @@ methods::setMethod("show",
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Kw: ", object@kw, "\n")
+    cat("Ionic Strength:", object@i, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq)
-
   })
 
 
-#' Define water vector
+#' Create a water class
 #'
-#' This function takes water quality parameters and creates a "water" object that forms the input and output of all pH functions.
-#' Carbonate balance is calculated and units are converted to mol/L
+#' \code{define_water} takes user-defined water quality parameters and creates an object of class "water" that
+#' forms the input and output of all other tidywater water treatment modelling functions. The function calculates
+#' ionic strength and the carbonate balance, converts all ion concentrations to mol/L, and corrects for ionic
+#' activity coefficients.
+#'
+#' \code{define_water} calculates ionic strength and activity coefficients using the following established water chemistry
+#' equations:
+#' Ionic strength (if TDS provided): MWH equation 5-38
+#' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
+#' Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
+#' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
+#' Activity coefficients: Davies equation (1967), MWH equation 5-43
+#' Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
+#' @param tds Total Dissolved Solids in mg/L
+#' @param cond Electrical conductivity in
 #' @param tot_hard Total hardness in mg/L as CaCO3
 #' @param ca_hard Calcium hardness in mg/L as CaCO3
 #' @param na Sodium in mg/L Na+
@@ -87,11 +108,11 @@ methods::setMethod("show",
 #' @param po4 Phosphate in mg/L as PO4
 #'
 #' @examples
-#' # Put example code here
+#' define_water(ph=7,temp=20,alk=100,tds=10)
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, po4 = 0) {
+define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, po4 = 0) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -119,7 +140,13 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for calcium hardness. Default value of 65% of total will be used.")
   }
 
-  if (missing(na) | missing(k)) {
+  if (missing(tds)) {
+    tds=NA_real_} else {tds=tds}
+
+  if (missing(cond)) {
+    cond=NA_real_} else {cond=cond}
+
+  if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
@@ -127,12 +154,12 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
-  # Calculate kw from temp
+  # Calculate temperature dependent constants
   tempa = temp + 273.15 # absolute temperature (K)
   pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
   kw = 10^-pkw
 
-  # convert major ion concentration inputs to mol/L
+  # Convert major ion concentration inputs to mol/L
   na = convert_units(na, "na")
   ca = convert_units(ca_hard, "caco3")
   mg = convert_units(tot_hard - ca_hard, "caco3")
@@ -144,7 +171,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   h = 10^-ph
   oh = kw / h
 
-  # calculate carbonate system balance
+    # Calculate carbonate system balance
   alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
   carb_alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L") # convert alkalinity input to equivalents/L
@@ -154,15 +181,35 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   hco3 = tot_co3 * alpha1
   co3 = tot_co3 * alpha2
 
-  # calculate total alkalinity (carbonate alkalinity + additional weak acid/bases that can take up H+)
+  # Calculate ionic strength
+    if (is.na(tds) & is.na(cond)) {
+    i = 0.5 * (na + 4*ca + 4*mg + k + cl + 4*so4 + hco3 + 4*co3) # MWH 2012 (5-37)
+    } else if (is.na(tds)) {
+      i = 1.6 * 10^-5 * cond # Snoeyink & Jenkins 1980
+    } else {i = 2.5 * 10^-5 * tds # MWH equation 5-38
+  }
+
+  # Calculate activity coefficients
+  activity_z1 = calculate_activity(1, i, temp)
+  activity_z2 = calculate_activity(2, i, temp)
+  na = activity_z1 * na
+  ca = activity_z2 * ca
+  mg = activity_z2 * mg
+  k = activity_z1 * k
+  cl = activity_z1 * cl
+  so4 = activity_z2 * so4
+  hco3 = activity_z1 * hco3
+  co3 = activity_z2 * co3
+
+    # Calculate total alkalinity (carbonate alkalinity + additional weak acid/bases that can take up H+)
   alk_eq = carb_alk_eq + tot_ocl / (h / discons$kocl + 1)
 
   # Compile complete source water data frame to save to environment
   water_class <- methods::new("water",
-    ph = ph, temp = temp, alk = alk, # tot_hard = tot_hard,
+    ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
-    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, alk_eq = alk_eq)
+    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, i = i, alk_eq = alk_eq)
 
   return(water_class)
 }
@@ -174,7 +221,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 #' @param water Source water vector created by link function here
 #'
 #' @examples
-#' # Put example code here
+#' #
 #'
 #' @export
 #'
@@ -537,4 +584,12 @@ correlate_ionicstrength <- function(water, from = "cond") {
     stop("Specify correlation from 'cond' or 'tds'.")
   }
 
+}
+
+# Calculate activity coefficients
+calculate_activity <- function(z, i, temp){
+  tempa = temp + 273.15 # absolute temperature (K)
+  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9 * 10^-6 * (tempa - 298)^2 + 28 * 10^-9 * (tempa-298)^3) # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958) [MWH equation 5-45]
+  a = 1.29E6 * (sqrt(2)/((de*tempa)^1.5)) # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998) [MWH equation 5-44]
+  gamma = 10^(-a * z^2 * ((i^0.5 / (1 + i^0.5)) - 0.3 * i)) #Davies equation (1967) [MWH equation 5-43]
 }
