@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_chain}
 \alias{chemdose_ph_chain}
-\title{Dose Chemical Pipe}
+\title{Dose Chemical Chain}
 \usage{
 chemdose_ph_chain(
   df,
@@ -64,26 +64,26 @@ been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. Th
 \item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
 }
 \description{
-This function allows \code{\link{chemdose_ph}} to be added to a piped data frame. 
+This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 Its output is a water class, and can therefore be used with "downstream" tidywater functions.
 Ions and pH will be updated based on input chemical doses.
 }
 \details{
 The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
-If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the 
+If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 ones specified in the function's arguments.
-The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}. 
+The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 }
 \examples{
-example_df <- water_df \%>\% 
-define_water_chain() \%>\% 
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
 balance_ions_chain() \%>\%
 chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
 
-example_df <- water_df \%>\% 
- define_water_chain() \%>\% 
+example_df <- water_df \%>\%
+ define_water_chain() \%>\%
   balance_ions_chain()\%>\%
   mutate(hcl = seq(1,12, 1),
          naoh = 20) \%>\%

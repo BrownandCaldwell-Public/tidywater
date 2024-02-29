@@ -232,6 +232,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
     waterfin <- chemdose_ph(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
                               naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
                               caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+
     phfin <- waterfin@ph
 
     (target_ph - phfin)

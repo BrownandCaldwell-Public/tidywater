@@ -10,12 +10,11 @@ define_water_once(df)
 \item{df}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
 }
 \description{
-This function allows \code{\link{define_water}} to be added to a piped data frame. 
-It outputs all carbonate calculations and other parameters in a data frame. 
+This function allows \code{\link{define_water}} to be added to a piped data frame.
+It outputs all carbonate calculations and other parameters in a data frame.
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
-define_water_once(water_df)
 
 example_df <- water_df \%>\% define_water_once()
 

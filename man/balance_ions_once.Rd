@@ -12,19 +12,19 @@ balance_ions_once(df, input_water = "defined_water")
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 }
 \description{
-This function allows \code{\link{balance_ions}} to be added to a piped data frame. 
+This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 Its output is a dataframe with updated ions depending on starting concentrations
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
 
-example_df <- water_df \%>\% 
-define_water_chain() \%>\% 
-balance_ions_once() 
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_once()
 
-example_df <- water_df \%>\% 
-define_water_chain(output_water = "Different_defined_water_column") \%>\% 
-balance_ions_once(input_water = "Different_defined_water_column") 
+example_df <- water_df \%>\%
+define_water_chain(output_water = "Different_defined_water_column") \%>\%
+balance_ions_once(input_water = "Different_defined_water_column")
 
 }
 \seealso{
