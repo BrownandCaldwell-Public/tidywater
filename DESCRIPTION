@@ -3,8 +3,8 @@ Type: Package
 Title: Water Quality Modeling for Drinking Water Treatment
 Version: 1.0.0
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
-    person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut", "cre")),
-    person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-6293-3672")),
+    person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
+    person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
     person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
     person("Brown and Caldwell", role = c("fnd", "cph")))
 URL: https://github.com/BrownandCaldwell-Public/tidywater

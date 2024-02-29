@@ -21,6 +21,8 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Libby McKenna \email{lmckenna@brwncald.com}
+  \item Riley Mulhern \email{rmulhern@brwncald.com} (\href{https://orcid.org/0000-0001-6293-3672}{ORCID})
   \item Chris Corwin \email{ccorwin@brwncald.com} (\href{https://orcid.org/0000-0002-9462-0352}{ORCID})
 }
 
