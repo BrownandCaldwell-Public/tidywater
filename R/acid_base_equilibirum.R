@@ -211,6 +211,10 @@ solvedose_ph <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
+  if (target_ph > 14 | target_ph < 1) {
+    stop("Target pH should be between 1-14.")
+  }
+
   if ((chemical %in% c("hcl", "h2so4", "h3po4", "co2",
                        "naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) == FALSE) {
     stop("Selected chemical addition not supported.")
