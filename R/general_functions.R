@@ -24,7 +24,7 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     kw = "numeric",
-    i = "numeric",
+    is = "numeric",
     alk_eq = "numeric"),
   prototype(ph = NA_real_,
     temp = NA_real_,
@@ -46,7 +46,7 @@ methods::setClass("water",
     tot_ocl = 0,
     tot_co3 = NA_real_,
     kw = NA_real_,
-    i = NA_real_,
+    is = NA_real_,
     alk_eq = NA_real_))
 
 methods::setMethod("show",
@@ -72,7 +72,7 @@ methods::setMethod("show",
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Kw: ", object@kw, "\n")
-    cat("Ionic Strength:", object@i, "\n")
+    cat("Ionic Strength:", object@is, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq)
   })
 
@@ -183,15 +183,15 @@ define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl,
 
   # Calculate ionic strength
     if (is.na(tds) & is.na(cond)) {
-    i = 0.5 * (na + 4*ca + 4*mg + k + cl + 4*so4 + hco3 + 4*co3) # MWH 2012 (5-37)
+    is = 0.5 * (na + 4*ca + 4*mg + k + cl + 4*so4 + hco3 + 4*co3) # MWH 2012 (5-37)
     } else if (is.na(tds)) {
-      i = 1.6 * 10^-5 * cond # Snoeyink & Jenkins 1980
-    } else {i = 2.5 * 10^-5 * tds # MWH equation 5-38
+      is = 1.6 * 10^-5 * cond # Snoeyink & Jenkins 1980
+    } else {is = 2.5 * 10^-5 * tds # MWH equation 5-38
   }
 
   # Calculate activity coefficients
-  activity_z1 = calculate_activity(1, i, temp)
-  activity_z2 = calculate_activity(2, i, temp)
+  activity_z1 = calculate_activity(1, is, temp)
+  activity_z2 = calculate_activity(2, is, temp)
   na = activity_z1 * na
   ca = activity_z2 * ca
   mg = activity_z2 * mg
@@ -209,7 +209,7 @@ define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl,
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, po4 = po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
-    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, i = i, alk_eq = alk_eq)
+    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, is = is, alk_eq = alk_eq)
 
   return(water_class)
 }
