@@ -291,7 +291,7 @@ test_that("solvedose_ph_once works", {
     mutate(target_ph = 9.2,
            chemical = "naoh") %>%
     balance_ions_chain() %>%
-    solvedose_ph_once(input_water = "balanced_water", output_column = "caustic_dose")
+    solvedose_ph_once(input_water = "balanced_water", output_water = "caustic_dose")
 
   expect_equal(water1, water2$dose_required)
   expect_true(is.data.frame(water2))
