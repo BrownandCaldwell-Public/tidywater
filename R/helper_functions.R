@@ -152,6 +152,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#' library(dplyr)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
