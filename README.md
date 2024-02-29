@@ -97,7 +97,7 @@ library(dplyr)
 # Begin with a dataframe with column names matching define_water inputs. See water_df for an example.
 raw_water <- water_df %>%
 cross_join(tibble(alum = seq(0,50,2))) %>% # this creates a model scenario for each alum dose and each water
-define_water_chain("raw_water") %>%
+define_water_chain(output_water = "raw_water") %>%
 balance_ions_chain(input_water = "raw_water", output_water = "raw_water_balanced") %>%
 # The function automatically finds the alum column, but you can specify additional chemicals as well.
 chemdose_ph_chain(input_water = "raw_water_balanced", output_water = "coag_water", hcl = 10) %>% 
