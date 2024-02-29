@@ -12,7 +12,7 @@ Functions are built to be chained together to model a complete treatment process
 The "water" class is the foundation of the package; it provides a mechanism for linking models in any order while maintaining water quality information.
 To create a water, start with the `define_water` function. After the water has been defined, you can apply other models linked together with
 the pipe operator "%>%" or in separate lines. To access a water quality parameter in a water, use the @ operator. For example,
-water@ph returns the pH value. All water slots are defined in lowercase. To view slots in the water class, create something with `define_water`
+water@ph returns the pH value. All water slots are defined in lowercase. To view slots in the water class, use `define_water` with water quality inputs (i.e. `define_water(8, 25, 100, 150, 100)`)
 and print it in the console. 
 
 The package also includes several functions that do not use waters as the inputs and outputs.
