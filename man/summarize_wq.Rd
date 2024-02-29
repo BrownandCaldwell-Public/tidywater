@@ -13,6 +13,7 @@ summarize_wq(water)
 This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 }
 \examples{
-# Put example code here
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+summarize_wq(water_defined)
 
 }

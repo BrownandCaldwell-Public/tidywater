@@ -47,16 +47,19 @@ discons <- data.frame( # Carbonic acid
 
 usethis::use_data(discons, overwrite = TRUE)
 
-# Default water quality parameters - need to research and document sources for these values
-# wq <- data.frame(water_type = c("dw", "gw", "sw", "ww"),
-#   ph = c(7, 7, 7, 7),
-#   temp = c(20, 25, 25, 25),
-#   alk = c(25, 100, 50, 100),
-#   tot_hard = c(100, 150, 100, 300),
-#   c_hard = c(50, 75, 50, 150),
-#   na = c(10, 50, 20, 44),
-#   k = c(10, 0, 0, 0),
-#   cl = c(10, 20, 50, 100),
-#   so4 = c(40, 40, 40, 40))
-#
-# usethis::use_data(wq, overwrite = TRUE)
+# Dummy data frame for function examples
+
+water_df <- data.frame(
+  ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
+  temp =  rep(c(20, 25, 19), 4),
+  alk = rep(c(50, 80, 100, 200), 3),
+  tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
+  ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
+  na= rep(c(20, 90), 6),
+  k= rep(c(20, 90), 6),
+  cl = rep(c(30, 92), 6),
+  so4 = rep(c(20, 40, 60, 80), 3),
+  tot_ocl = rep(c(0, 1), 6),
+  tot_po4 = rep(c(0, 0, 1), 4))
+
+usethis::use_data(water_df, overwrite = TRUE)

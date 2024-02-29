@@ -3,21 +3,23 @@
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
+solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, po4_dose, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
+  solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
       (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
-      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (po4_dose / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
+      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (tot_po4 / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
       (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
-      tot_ocl / (h / discons$kocl + 1) -
-      (h + alk_eq + na_dose + 2 * ca_dose + 2 * mg_dose - cl_dose)
+      tot_ocl / (h / discons$kocl + 1) +
+      cl_dose -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
+      alk_eq
   }
-  root_h <- uniroot(solve_h, interval = c(0, 1),
+  root_h <- stats::uniroot(solve_h, interval = c(0, 1),
     kw = water@kw,
     so4_dose = so4_dose,
-    po4_dose = po4_dose,
+    tot_po4 = water@tot_po4,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
     alk_eq = water@alk_eq,
@@ -79,13 +81,13 @@ solve_ph <- function(water, so4_dose = 0, po4_dose = 0, na_dose = 0, ca_dose = 0
 #'
 #' @export
 #'
-dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                           cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                           alum = 0, fecl3 = 0, fe2so43 = 0) {
 
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
@@ -163,7 +165,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 
   # Total phosphate
   po4_dose = h3po4
-  dosed_water@po4 = water@po4 + po4_dose
+  dosed_water@tot_po4 = water@tot_po4 + po4_dose
 
   # Total hypochlorite
   ocl_dose = cl2 + naocl + caocl2
@@ -174,7 +176,7 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
 
   # Calculate new pH, H+ and OH- concentrations
-  ph = solve_ph(dosed_water, so4_dose = so4_dose, po4_dose = po4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
+  ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
   h = 10^-ph
   oh = dosed_water@kw / h
 
@@ -208,8 +210,8 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
-#' @param chemical The chemical to be added. Current supported chemicals include: caustic soda ("naoh"), lime ("caoh2"),
-#' magnesium hydroxide ("mgoh2"), and carbon dioxide ("co2").
+#' @param chemical The chemical to be added. Current supported chemicals include:
+#' acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{dose_chemical}}
 #'
@@ -221,40 +223,128 @@ dose_chemical <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3
 #'
 #' @export
 #'
-dose_target <- function(water, target_ph, chemical) {
+solvedose_ph <- function(water, target_ph, chemical) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
-  if(class(water) != "water") {
+  if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2", "co2")) == FALSE) {
-    stop("Selected chemical addition not supported.")
+  if (target_ph > 14 | target_ph < 1) {
+    stop("Target pH should be between 1-14.")
   }
 
-  if ((chemical %in% c("naoh", "caoh2", "mgoh2") & target_ph <= water@ph) |
-    (chemical == "co2" & (target_ph < 6.5 | target_ph >= water@ph))) {
-    stop("Target pH cannot be reached with selected chemical")
+  if ((chemical %in% c("hcl", "h2so4", "h3po4", "co2",
+                       "naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) == FALSE) {
+    stop("Selected chemical addition not supported.")
   }
 
   # This is the function to minimize
   match_ph <- function(root_dose, chemical, target_ph, water) {
+    hcl <- ifelse(chemical == "hcl", root_dose, 0)
+    h2so4 <- ifelse(chemical == "h2so4", root_dose, 0)
+    h3po4 <- ifelse(chemical == "h3po4", root_dose, 0)
+
     naoh <- ifelse(chemical == "naoh", root_dose, 0)
+    na2co3 <- ifelse(chemical == "na2co3", root_dose, 0)
+    nahco3 <- ifelse(chemical == "nahco3", root_dose, 0)
     caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- dose_chemical(water, naoh = naoh, caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+    waterfin <- chemdose_ph(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+                              naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+                              caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+
     phfin <- waterfin@ph
 
     (target_ph - phfin)
 
   }
 
-  chemdose <- uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
-  round(chemdose$root, 1)
+  # Target pH can't be met
+  if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
+       target_ph <= water@ph) |
+    (chemical == "co2" & (target_ph < 6.5)) |
+    (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
+     target_ph >= water@ph)) {
+    warning("Target pH cannot be reached with selected chemical. NA returned.")
+    return(NA)
+  } else {
+    chemdose <- stats::uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+    round(chemdose$root, 1)
+  }
+
+}
+
+
+#' Solve Dose for Target Alkalinity
+#'
+#' This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
+#' Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function.
+#'
+#' @param water Source water of class "water" created by \code{\link{define_water}}
+#' @param target_alk The final alkalinity in mg/L as CaCO3 to be achieved after the specified chemical is added.
+#' @param chemical The chemical to be added. Current supported chemicals include:
+#' acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#' dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) %>%
+#'  solvedose_alk(target_alk = 150, "naoh")
+#' @export
+#'
+solvedose_alk <- function(water, target_alk, chemical) {
+  if (missing(water)) {
+    stop("No source water defined. Create a water using the 'define_water' function.")}
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
+  if (missing(target_alk)) {
+    stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")}
+
+  if ((chemical %in% c("hcl", "h2so4", "h3po4", "co2",
+                       "naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) == FALSE) {
+    stop("Selected chemical addition not supported.")
+  }
+
+  # This is the function to minimize
+  match_alk <- function(root_dose, chemical, target_alk, water) {
+    hcl <- ifelse(chemical == "hcl", root_dose, 0)
+    h2so4 <- ifelse(chemical == "h2so4", root_dose, 0)
+    h3po4 <- ifelse(chemical == "h3po4", root_dose, 0)
+
+    naoh <- ifelse(chemical == "naoh", root_dose, 0)
+    na2co3 <- ifelse(chemical == "na2co3", root_dose, 0)
+    nahco3 <- ifelse(chemical == "nahco3", root_dose, 0)
+    caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
+    mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
+    co2 <- ifelse(chemical == "co2", root_dose, 0)
+
+    waterfin <- chemdose_ph(water, hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+                              naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+                              caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2)
+    alkfin <- waterfin@alk
+
+    (target_alk - alkfin)
+
+  }
+
+  # Target alkalinity can't be met
+  if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
+       target_alk <= water@alk) |
+      (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
+       target_alk >= water@alk)) {
+    warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
+    return(NA)
+  } else {
+    chemdose <- stats::uniroot(match_alk, interval = c(0, 1000), chemical = chemical, target_alk = target_alk, water = water)
+    round(chemdose$root, 1)
+  }
+
 }
 
 
@@ -268,6 +358,8 @@ dose_target <- function(water, target_ph, chemical) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#' water1 <- define_water(7, 20, 50)
+#' water2 <- define_water(7.5, 20, 100)
 #' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
@@ -284,23 +376,23 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Initialize empty blended water
-  blended_water <- new("water")
-  parameters <- slotNames(blended_water)
+  blended_water <- methods::new("water")
+  parameters <- methods::slotNames(blended_water)
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
   parameters <- setdiff(parameters, not_averaged)
 
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
-      if(class(temp_water) != "water") {
+      if (!methods::is(temp_water, "water")) {
         stop("All input waters must be of class 'water'. Create a water using define_water.")
       }
       ratio <- ratios[i]
 
-      if (is.na(slot(blended_water, param))) {
-        slot(blended_water, param) = slot(temp_water, param) * ratio
+      if (is.na(methods::slot(blended_water, param))) {
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio
       } else {
-        slot(blended_water, param) = slot(temp_water, param) * ratio + slot(blended_water, param)
+        methods::slot(blended_water, param) = methods::slot(temp_water, param) * ratio + methods::slot(blended_water, param)
       }
     }
   }
