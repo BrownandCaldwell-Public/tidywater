@@ -5,6 +5,13 @@ test_that("convertWater creates a dataframe", {
   expect_true(is.data.frame(df_water))
 })
 
+test_that("convert water works", {
+  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
+  df_water <- convert_Water(water1)
+  expect_equal(water1@ph, df_water$ph)
+  expect_equal(water1@tot_co3, df_water$tot_co3) 
+  })
+  
 # define_water helpers ----
 
 # Test that define_water_once outputs are the same as base function, define_water.
