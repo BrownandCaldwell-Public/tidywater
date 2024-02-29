@@ -39,7 +39,7 @@ define_water(
 
 \item{tot_ocl}{Chlorine in mg/L as ??}
 
-\item{po4}{Phosphate in mg/L as PO4}
+\item{tot_po4}{Phosphate in mg/L as PO4}
 }
 \description{
 This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
