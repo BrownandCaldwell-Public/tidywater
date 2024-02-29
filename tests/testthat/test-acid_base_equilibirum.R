@@ -56,16 +56,16 @@ test_that("Dose chemical works", {
 test_that("Dose target produces an error when target pH is unreachable but runs otherwise.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
 
-  expect_error(dose_target(water4, 6, "naoh"))
-  expect_error(dose_target(water4, 6, "co2"))
-  expect_no_error(dose_target(water4, 9, "naoh"))
+  expect_error(solvedose_ph(water4, 6, "naoh"))
+  expect_error(solvedose_ph(water4, 6, "co2"))
+  expect_no_error(solvedose_ph(water4, 9, "naoh"))
 })
 
 test_that("Dose target works.", {
   water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10)
   # these are based on current tidywater outputs
-  expect_equal(dose_target(water4, 11, "naoh"), 38.7)
-  expect_equal(dose_target(water4, 7, "co2"), 3.7)
+  expect_equal(solvedose_ph(water4, 11, "naoh"), 38.7)
+  expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
 })
 
 
@@ -103,3 +103,4 @@ test_that("Blend waters conserves temperature and alkalinity.", {
   expect_equal(blend1@alk, 150)
   expect_equal(blend1@temp, 15)
 })
+
