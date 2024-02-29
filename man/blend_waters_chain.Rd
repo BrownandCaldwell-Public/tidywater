@@ -26,6 +26,11 @@ The Water class columns to use in the function are specified as funciton argumen
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 }
 \examples{
+
+library(dplyr)
+library(purrr)
+library(tidyr)
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%

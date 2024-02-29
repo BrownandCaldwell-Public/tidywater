@@ -77,6 +77,11 @@ The column names must match the chemical names as displayed in \code{\link{chemd
 To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 }
 \examples{
+
+library(dplyr)
+library(purrr)
+library(tidyr)
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%

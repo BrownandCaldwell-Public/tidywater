@@ -16,6 +16,10 @@
 #'
 #' @examples
 #'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
 #' convert_water()
@@ -152,6 +156,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -207,6 +212,11 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
+#'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -278,6 +288,11 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
+#'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -388,6 +403,10 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @examples
 #'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
@@ -468,6 +487,11 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
+#'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
@@ -540,6 +564,11 @@ for(row in 1:length(df_subset[[1]])) {
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
+#'
+#' library(dplyr)
+#' library(purrr)
+#' library(tidyr)
+#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
@@ -573,15 +602,3 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     select(-c(waters, ratios))
 }
 
-# water_df <- data.frame(
-#   ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
-#   temp =  rep(c(20, 25, 19), 4),
-#   alk = rep(c(50, 80, 100, 200), 3),
-#   tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
-#   ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
-#   na= rep(c(20, 90), 6),
-#   k= rep(c(20, 90), 6),
-#   cl = rep(c(30, 92), 6),
-#   so4 = rep(c(20, 40, 60, 80), 3),
-#   tot_ocl = rep(c(0, 1), 6),
-#   po4 = rep(c(0, 0, 1), 4))
