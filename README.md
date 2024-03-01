@@ -2,7 +2,7 @@
 # tidywater
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/BrownandCaldwell/tidywater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BrownandCaldwell/tidywater/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](code_of_conduct.md)
 <!-- badges: end -->
 
@@ -61,7 +61,7 @@ coag_water@alk
 # Solve for target chemical dose based on pH or alkalinity setpoint
 
 caustic1 <- solvedose_ph(coag_water, 8.8, "naoh")
-caustic2 <- solvedose_alk(coag_water, 50, "naoh")
+caustic2 <- solvedose_alk(coag_water, 80, "naoh")
 
 finished_water <- chemdose_ph(coag_water, naoh = caustic1)
 
@@ -79,7 +79,7 @@ library(tidywater)
 # Create water
 raw_water <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 100, ca_hard = 80, na = 100, k = 10, cl = 50, so4 = 50) %>%
 balance_ions() %>%
-chemdose_ph(raw_water_balanced, alum = 30, hcl = 10)
+chemdose_ph(alum = 30, hcl = 10)
 
 ```
 
