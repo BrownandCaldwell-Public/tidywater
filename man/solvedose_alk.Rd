@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{solvedose_alk}
 \alias{solvedose_alk}
-\title{Solve Dose for Target Alkalinity}
+\title{Calculate a desired chemical dose for a target alkalinity}
 \usage{
 solvedose_alk(water, target_alk, chemical)
 }

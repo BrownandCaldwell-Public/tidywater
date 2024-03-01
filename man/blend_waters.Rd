@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{blend_waters}
 \alias{blend_waters}
-\title{Blend water function}
+\title{Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium}
 \usage{
 blend_waters(waters, ratios)
 }

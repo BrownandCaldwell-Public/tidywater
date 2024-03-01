@@ -146,7 +146,7 @@ Published models that we intend to incorporate into tidywater include:
 - EPA TELSS models
 - Other DOC and DBP models from the EPA WTP model
 
-If you are interested in contributing additional models, please see our [contribution guide](https://github.com/BrownandCaldwell/tidywater/tree/main.github/CONTRIBUTING.md) to make sure your efforts can
+If you are interested in contributing additional models, please see our [contribution guide](https://github.com/BrownandCaldwell/tidywater/tree/main/.github/CONTRIBUTING.md) to make sure your efforts can
 be incorporated into the package correctly and efficiently.
 
 

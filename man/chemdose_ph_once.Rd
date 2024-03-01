@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_once}
 \alias{chemdose_ph_once}
-\title{Dose Chemical Once}
+\title{Apply chemdose_ph function and output a dataframe}
 \usage{
 chemdose_ph_once(
   df,

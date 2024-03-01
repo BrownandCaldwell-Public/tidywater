@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_chain}
 \alias{chemdose_ph_chain}
-\title{Dose Chemical Chain}
+\title{Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 chemdose_ph_chain(
   df,
@@ -65,7 +65,7 @@ been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. Th
 }
 \description{
 This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-Its output is a water class, and can therefore be used with "downstream" tidywater functions.
+Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 Ions and pH will be updated based on input chemical doses.
 }
 \details{

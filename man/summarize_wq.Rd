@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{summarize_wq}
 \alias{summarize_wq}
-\title{Water Summary Table}
+\title{Create summary table from water class}
 \usage{
 summarize_wq(water)
 }

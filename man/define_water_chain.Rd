@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{define_water_chain}
 \alias{define_water_chain}
-\title{Define Water chain}
+\title{Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 define_water_chain(df, output_water = "defined_water")
 }
@@ -13,7 +13,7 @@ define_water_chain(df, output_water = "defined_water")
 }
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
-Its output is a Water class, and can therefore be chained with "downstream" tidywater functions.
+Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
 }
 \examples{
 

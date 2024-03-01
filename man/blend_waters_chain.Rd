@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{blend_waters_chain}
 \alias{blend_waters_chain}
-\title{Blend Waters Chain}
+\title{Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions}
 \usage{
 blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }
@@ -18,7 +18,7 @@ been computed using \code{\link{define_water}}, and a column named for each of t
 }
 \description{
 This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-Its output is a data frame with updated ions and pH.
+Its output is a "water" class with updated ions and pH.
 }
 \details{
 The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.

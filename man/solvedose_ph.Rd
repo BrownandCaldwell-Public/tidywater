@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibirum.R
 \name{solvedose_ph}
 \alias{solvedose_ph}
-\title{Target Chemical Dose Function}
+\title{Calculate a desired chemical dose for a target pH}
 \usage{
 solvedose_ph(water, target_ph, chemical)
 }
@@ -15,13 +15,20 @@ solvedose_ph(water, target_ph, chemical)
 acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 }
 \description{
-This function calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-Returns numeric value for dose in mg/L. Uses uniroot on the \code{\link{chemdose_ph}} function.
+\code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
+and returns a numeric value for the required dose in mg/L.
+}
+\details{
+\code{solvedose_ph} uses \code{uniroot} on \code{\link{chemdose_ph}} to match the required dose for the requested pH target.
 }
 \examples{
-# Put example code here
+water <- define_water(ph = 7, temp = 25, alk = 10)
+
+# Calculate required dose of lime to reach pH 8
+solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 
 }
 \seealso{
-\code{\link{define_water}}
+\code{\link{define_water}}, \code{\link{chemdose_ph}}
 }

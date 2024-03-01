@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{balance_ions_once}
 \alias{balance_ions_once}
-\title{Balance Ions Once}
+\title{Apply balance_ions function and output a dataframe}
 \usage{
 balance_ions_once(df, input_water = "defined_water")
 }
