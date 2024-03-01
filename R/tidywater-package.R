@@ -4,7 +4,6 @@
 # The following block is used by usethis to automatically manage
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
-#' @importFrom magrittr %>%
 #' @import dplyr
 #' @import tidyr
 ## usethis namespace: end
@@ -51,7 +50,7 @@ NULL
 #' \item{cl}{Chloride in mg/L Cl-}
 #' \item{so4}{Sulfate in mg/L SO42-}
 #' \item{tot_ocl}{Total chlorine in mg/L as Cl2}
-#' \item{po4}{Phosphate in mg/L as PO42-}
+#' \item{tot_po4}{Total phosphate in mg/L as PO42-}
 #' }
 #' @source Fabricated for use in examples.
 "water_df"

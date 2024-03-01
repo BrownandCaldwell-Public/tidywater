@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{calculate_hardness}
 \alias{calculate_hardness}
-\title{Hardness calculation}
+\title{Calculate hardness from calcium and magnesium}
 \usage{
 calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 }
@@ -11,7 +11,7 @@ calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 
 \item{mg}{Magnesium concentration in mg/L as Mg}
 
-\item{type}{"total" returns total hardness, "ca" returns calcium hardness}
+\item{type}{"total" returns total hardness, "ca" returns calcium hardness. Defaults to "total"}
 
 \item{startunit}{Units of Ca and Mg. Defaults to mg/L}
 }
@@ -19,6 +19,9 @@ calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 }
 \examples{
-# Put example code here
+calculate_hardness(50, 10)
+
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+calculate_hardness(water_defined@ca, water_defined@mg, "total", "M")
 
 }

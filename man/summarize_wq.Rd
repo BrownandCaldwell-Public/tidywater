@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{summarize_wq}
 \alias{summarize_wq}
-\title{Water Summary Table}
+\title{Create summary table from water class}
 \usage{
 summarize_wq(water)
 }
@@ -13,6 +13,7 @@ summarize_wq(water)
 This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 }
 \examples{
-#
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+summarize_wq(water_defined)
 
 }

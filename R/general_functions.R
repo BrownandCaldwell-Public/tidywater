@@ -16,11 +16,11 @@ methods::setClass("water",
     k = "numeric",
     cl = "numeric",
     so4 = "numeric",
-    po4 = "numeric",
     hco3 = "numeric",
     co3 = "numeric",
     h = "numeric",
     oh = "numeric",
+    tot_po4 = "numeric",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     kw = "numeric",
@@ -38,11 +38,11 @@ methods::setClass("water",
     k = 0,
     cl = 0,
     so4 = 0,
-    po4 = 0,
     hco3 = NA_real_,
     co3 = NA_real_,
     h = NA_real_,
     oh = NA_real_,
+    tot_po4 = 0,
     tot_ocl = 0,
     tot_co3 = NA_real_,
     kw = NA_real_,
@@ -64,11 +64,11 @@ methods::setMethod("show",
     cat("Potassium (M): ", object@k, "\n")
     cat("Chloride (M): ", object@cl, "\n")
     cat("Sulfate (M): ", object@so4, "\n")
-    cat("Phosphate (M)", object@po4, "\n")
     cat("Bicarbonate ion (M): ", object@hco3, "\n")
     cat("Carbonate ion (M): ", object@co3, "\n")
     cat("H+ ion (M): ", object@h, "\n")
     cat("OH- ion (M): ", object@oh, "\n")
+    cat("Total phosphate (M)", object@tot_po4, "\n")
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Kw: ", object@kw, "\n")
@@ -77,21 +77,16 @@ methods::setMethod("show",
   })
 
 
-#' Create a water class
+#' Create a water class object given water quality parameters
 #'
-#' \code{define_water} takes user-defined water quality parameters and creates an object of class "water" that
-#' forms the input and output of all other tidywater water treatment modelling functions. The function calculates
-#' ionic strength and the carbonate balance, converts all ion concentrations to mol/L, and corrects for ionic
-#' activity coefficients.
-#'
-#' \code{define_water} calculates ionic strength and activity coefficients using the following established water chemistry
-#' equations:
+#' This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+#' Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
+#' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
+#' manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
 #' Ionic strength (if TDS provided): MWH equation 5-38
 #' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
 #' Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
 #' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
-#' Activity coefficients: Davies equation (1967), MWH equation 5-43
-#' Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
@@ -104,15 +99,16 @@ methods::setMethod("show",
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
-#' @param tot_ocl Chlorine in mg/L as ??
-#' @param po4 Phosphate in mg/L as PO4
+#' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
+#' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #'
 #' @examples
-#' define_water(ph=7,temp=20,alk=100,tds=10)
+#' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, po4 = 0) {
+define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -166,7 +162,7 @@ define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl,
   k = convert_units(k, "k")
   cl = convert_units(cl, "cl")
   so4 = convert_units(so4, "so4")
-  po4 = convert_units(po4, "po4")
+  tot_po4 = convert_units(tot_po4, "po4")
   tot_ocl = convert_units(tot_ocl, "cl2")
   h = 10^-ph
   oh = kw / h
@@ -214,14 +210,15 @@ define_water <- function(ph, temp, alk, tds, cond, tot_hard, ca_hard, na, k, cl,
   return(water_class)
 }
 
-#' Water Summary Table
+#' Create summary table from water class
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table.
 #'
 #' @param water Source water vector created by link function here
 #'
 #' @examples
-#' #
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' summarize_wq(water_defined)
 #'
 #' @export
 #'
@@ -266,7 +263,7 @@ summarize_wq <- function(water) {
   return(knitr::kables(list(tab1, tab2)))
 }
 
-#' Ion Summary Plot
+#' Create summary plot of ions from water class
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 #'
@@ -276,7 +273,8 @@ summarize_wq <- function(water) {
 #'
 #'
 #' @examples
-#' # Put example code here
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' plot_ions(water_defined)
 #'
 #' @export
 #'
@@ -294,7 +292,7 @@ plot_ions <- function(water, title = "") {
     HCO3 = water@hco3,
     CO3 = water@co3 * 2,
     OCl = water@tot_ocl,
-    PO4 = water@po4 * 3,
+    PO4 = water@tot_po4 * 3,
     H = water@h,
     OH = water@oh)
 
@@ -321,7 +319,7 @@ plot_ions <- function(water, title = "") {
 }
 
 
-#' Unit Conversions
+#' Calculate unit conversions for common compounds
 #'
 #' This function takes a value and converts units based on compound name.
 #'
@@ -331,7 +329,9 @@ plot_ions <- function(water, title = "") {
 #' @param endunit Desired units, currently accepts same as start units
 #'
 #' @examples
-#' # Put example code here
+#' convert_units(50, "ca") # converts from mg/L to M by default
+#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
 #'
 #' @export
 #'
@@ -445,17 +445,20 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
-#' Hardness calculation
+#' Calculate hardness from calcium and magnesium
 #'
 #' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 #'
 #' @param ca Calcium concentration in mg/L as Ca
 #' @param mg Magnesium concentration in mg/L as Mg
-#' @param type "total" returns total hardness, "ca" returns calcium hardness
+#' @param type "total" returns total hardness, "ca" returns calcium hardness. Defaults to "total"
 #' @param startunit Units of Ca and Mg. Defaults to mg/L
 #'
 #' @examples
-#' # Put example code here
+#' calculate_hardness(50, 10)
+#'
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' calculate_hardness(water_defined@ca, water_defined@mg, "total", "M")
 #'
 #' @export
 #'
@@ -475,16 +478,20 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 
 }
 
-#' Ion balance a water
+#' Add Na, K, Cl, or SO4 to balance overall charge in a water
 #'
 #' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
 #' will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
-#' anions are added using chloride, unless sulfate is 0.
+#' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
+#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
+#' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
 #'
 #' @examples
-#' # Put example code here
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#' balance_ions()
+#'
 #'
 #' @export
 #'
@@ -500,7 +507,7 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@po4
+  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@tot_po4
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
@@ -587,6 +594,9 @@ correlate_ionicstrength <- function(water, from = "cond") {
 }
 
 # Calculate activity coefficients
+# Activity coefficients: Davies equation (1967), MWH equation 5-43
+# Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
+
 calculate_activity <- function(z, i, temp){
   tempa = temp + 273.15 # absolute temperature (K)
   de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9 * 10^-6 * (tempa - 298)^2 + 28 * 10^-9 * (tempa-298)^3) # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958) [MWH equation 5-45]

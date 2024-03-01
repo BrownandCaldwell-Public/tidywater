@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{define_water}
 \alias{define_water}
-\title{Create a water class}
+\title{Create a water class object given water quality parameters}
 \usage{
 define_water(
   ph,
@@ -17,7 +17,7 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
-  po4 = 0
+  tot_po4 = 0
 )
 }
 \arguments{
@@ -43,27 +43,18 @@ define_water(
 
 \item{so4}{Sulfate in mg/L SO42-}
 
-\item{tot_ocl}{Chlorine in mg/L as ??}
+\item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
 
-\item{po4}{Phosphate in mg/L as PO4}
+\item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 }
 \description{
-\code{define_water} takes user-defined water quality parameters and creates an object of class "water" that
-forms the input and output of all other tidywater water treatment modelling functions. The function calculates
-ionic strength and the carbonate balance, converts all ion concentrations to mol/L, and corrects for ionic
-activity coefficients.
-}
-\details{
-\code{define_water} calculates ionic strength and activity coefficients using the following established water chemistry
-equations:
-Ionic strength (if TDS provided): MWH equation 5-38
-Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
-Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
-Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
-Activity coefficients: Davies equation (1967), MWH equation 5-43
-Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
+This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
+NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
+manually specify all water quality parameters in the define_water arguments.
 }
 \examples{
-define_water(ph=7,temp=20,alk=100,tds=10)
+water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 
 }

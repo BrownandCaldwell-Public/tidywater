@@ -2,7 +2,7 @@
 % Please edit documentation in R/general_functions.R
 \name{plot_ions}
 \alias{plot_ions}
-\title{Ion Summary Plot}
+\title{Create summary plot of ions from water class}
 \usage{
 plot_ions(water, title = "")
 }
@@ -15,6 +15,7 @@ plot_ions(water, title = "")
 This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 }
 \examples{
-# Put example code here
+water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+plot_ions(water_defined)
 
 }
