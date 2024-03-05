@@ -5,20 +5,43 @@
 
 solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
+  # Determine activity coefficients
+  if (is.na(water@is)) {
+    activity_z1 = 1
+    activity_z2 = 1
+    activity_z3 = 1
+  } else {
+    activity_z1 = calculate_activity(1, water@is, water@temp)
+    activity_z2 = calculate_activity(2, water@is, water@temp)
+    activity_z3 = calculate_activity(3, water@is, water@temp)
+  }
+
+  # Eq constants
+  kso4 = discons$kso4 / activity_z2
+  k1po4 = discons$k1po4 / activity_z1^2
+  k2po4 = discons$k2po4 / activity_z2
+  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
+  k1co3 = discons$k1co3 / activity_z1^2
+  k2co3 = discons$k2co3 / activity_z2
+  kocl = discons$kocl / activity_z1^2
+
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
-      (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
-      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (tot_po4 / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
-      (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
-      tot_ocl / (h / discons$kocl + 1) +
+      (2 + h / kso4) * (so4_dose / (h / kso4 + 1)) +
+      tot_po4 * (calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4) +
+                   2 * calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4) +
+                   3 * calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)) +
+      tot_co3 * (calculate_alpha1_carbonate(h, k1co3, k2co3) +
+                   2 * calculate_alpha2_carbonate(h, k1co3, k2co3)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, kocl) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
       alk_eq
   }
-  root_h <- stats::uniroot(solve_h, interval = c(0, 1),
+  root_h <- stats::uniroot(solve_h, interval = c(1e-14, 1),
     kw = water@kw,
-    so4_dose = so4_dose,
+    so4_dose = so4_dose ,
     tot_po4 = water@tot_po4,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
@@ -174,6 +197,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   # Total carbonate
   co3_dose = na2co3 + nahco3 + co2
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
+
+  # Calculate dosed IS
+  # Assume all dosed CO3 is HCO3 and PO4 is H2PO4. This eliminates the need to loop and should be close enough.
+  dosed_water@is = water@is + 0.5 * (na_dose + cl_dose + k_dose + co3_dose + po4_dose) * 1^2 +
+    (ca_dose + mg_dose + so4_dose) * 2^2
 
   # Calculate new pH, H+ and OH- concentrations
   ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
