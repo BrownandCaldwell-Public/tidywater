@@ -6,6 +6,7 @@
 ## usethis namespace: start
 #' @import dplyr
 #' @import tidyr
+#' @importFrom magrittr %$%
 ## usethis namespace: end
 NULL
 

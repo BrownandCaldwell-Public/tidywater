@@ -181,8 +181,13 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   carb_alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
-  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  k1co3 = filter(discons, ID == "k1co3") %$%
+    pK_temp_adjust(deltah, k, temp)
+  k2co3 = filter(discons, ID == "k2co3") %$%
+    pK_temp_adjust(deltah, k, temp)
+
+  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
   tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
@@ -233,12 +238,18 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     }
 
     # Eq constants
-    k1po4 = discons$k1po4 / activity_z1^2
-    k2po4 = discons$k2po4 / activity_z2
-    k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
-    k1co3 = discons$k1co3 / activity_z1^2
-    k2co3 = discons$k2co3 / activity_z2
-    kocl = discons$kocl / activity_z1^2
+    k1co3 = filter(discons, ID == "k1co3") %$%
+      pK_temp_adjust(deltah, k, temp) / activity_z1^2
+    k2co3 = filter(discons, ID == "k2co3") %$%
+      pK_temp_adjust(deltah, k, temp) / activity_z2
+    k1po4 = filter(discons, ID == "k1po4") %$%
+      pK_temp_adjust(deltah, k, temp) / activity_z1^2
+    k2po4 = filter(discons, ID == "k2po4") %$%
+      pK_temp_adjust(deltah, k, temp) / activity_z2
+    k3po4 = filter(discons, ID == "k3po4") %$%
+      pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+    kocl = filter(discons, ID == "kocl") %$%
+      pK_temp_adjust(deltah, k, temp) / activity_z1^2
 
     # Carbonate and phosphate ions and ocl ions
     alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
@@ -255,7 +266,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     water@hpo4 = tot_po4 * alpha2p
     water@po4 = tot_po4 * alpha3p
 
-    water@ocl =  tot_ocl * calculate_alpha1_hypochlorite(h, discons$kocl)
+    water@ocl =  tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
 
     # Calculate total alkalinity (set equal to carbonate alkalinity for now)
     water@alk_eq = carb_alk_eq
@@ -355,8 +366,10 @@ plot_ions <- function(water, title = "") {
     SO4 = water@so4 * 2,
     HCO3 = water@hco3,
     CO3 = water@co3 * 2,
-    OCl = water@tot_ocl,
-    PO4 = water@tot_po4 * 3,
+    H2PO4 = water@h2po4,
+    HPO4 = water@hpo4 * 2,
+    PO4 = water@po4 * 3,
+    OCl = water@ocl,
     H = water@h,
     OH = water@oh)
 
@@ -571,7 +584,8 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@oh + water@tot_ocl + 3 * water@tot_po4
+  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@h2po4 + 2 * water@hpo4 + 3 * water@po4 +
+    water@oh + water@ocl
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
@@ -648,11 +662,9 @@ pK_temp_adjust <- function(delta_h, k_a, temp) {
   R <- 8.314
   tempa <- temp + 273.15
   lnK <- log(k_a)
-  -log10(exp((delta_h / R * (1 / 298.15 - 1 / tempa)) + lnK))
+  exp((delta_h / R * (1 / 298.15 - 1 / tempa)) + lnK)
 }
 
-# discons$k1co3 delta_h = 7700
-# discons$k2co3 delta_h = 14900
 
 # Ionic strength calc
 # MWH 2012 (5-37)

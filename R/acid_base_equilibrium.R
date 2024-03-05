@@ -17,13 +17,20 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   }
 
   # Eq constants
-  kso4 = discons$kso4 / activity_z2
-  k1po4 = discons$k1po4 / activity_z1^2
-  k2po4 = discons$k2po4 / activity_z2
-  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
-  k1co3 = discons$k1co3 / activity_z1^2
-  k2co3 = discons$k2co3 / activity_z2
-  kocl = discons$kocl / activity_z1^2
+  k1co3 = filter(discons, ID == "k1co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2co3 = filter(discons, ID == "k2co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k1po4 = filter(discons, ID == "k1po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2po4 = filter(discons, ID == "k2po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k3po4 = filter(discons, ID == "k3po4") %$%
+    pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  kocl = filter(discons, ID == "kocl") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  kso4 = filter(discons, ID == "kso4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
@@ -220,12 +227,18 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   }
 
   # Eq constants
-  k1po4 = discons$k1po4 / activity_z1^2
-  k2po4 = discons$k2po4 / activity_z2
-  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
-  k1co3 = discons$k1co3 / activity_z1^2
-  k2co3 = discons$k2co3 / activity_z2
-  kocl = discons$kocl / activity_z1^2
+  k1co3 = filter(discons, ID == "k1co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2co3 = filter(discons, ID == "k2co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k1po4 = filter(discons, ID == "k1po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2po4 = filter(discons, ID == "k2po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k3po4 = filter(discons, ID == "k3po4") %$%
+    pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  kocl = filter(discons, ID == "kocl") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
 
   # Carbonate and phosphate ions and ocl ions
   alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
@@ -241,7 +254,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@hpo4 = water@tot_po4 * alpha2p
   dosed_water@po4 = water@tot_po4 * alpha3p
 
-  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, discons$kocl)
+  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
 
   # Calculate new alkalinity
   dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -480,12 +493,19 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Eq constants
-  k1po4 = discons$k1po4 / activity_z1^2
-  k2po4 = discons$k2po4 / activity_z2
-  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
-  k1co3 = discons$k1co3 / activity_z1^2
-  k2co3 = discons$k2co3 / activity_z2
-  kocl = discons$kocl / activity_z1^2
+  # Eq constants
+  k1co3 = filter(discons, ID == "k1co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2co3 = filter(discons, ID == "k2co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k1po4 = filter(discons, ID == "k1po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2po4 = filter(discons, ID == "k2po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k3po4 = filter(discons, ID == "k3po4") %$%
+    pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  kocl = filter(discons, ID == "kocl") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
 
   # Carbonate and phosphate ions and ocl ions
   alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
@@ -501,7 +521,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@hpo4 = blended_water@tot_po4 * alpha2p
   blended_water@po4 = blended_water@tot_po4 * alpha3p
 
-  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, discons$kocl)
+  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
 
   return(blended_water)
 

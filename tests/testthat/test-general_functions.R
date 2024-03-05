@@ -161,7 +161,62 @@ test_that("Balance ions results in neutral charge.", {
 # Calculate alpha carbonate ----
 
 test_that("Carbonate alpha calculations work.", {
-  expect_equal(round(calculate_alpha1_carbonate(10^-7, discons$k1co3, discons$k2co3), 2), 0.82)
-  expect_equal(round(calculate_alpha2_carbonate(10^-7, discons$k1co3, discons$k2co3), 5), 0.00038)
+  expect_equal(round(
+    calculate_alpha1_carbonate(10^-7, discons$k[discons$ID == "k1co3"], discons$k[discons$ID == "k2co3"]), 2), 0.82)
+  expect_equal(round(
+    calculate_alpha2_carbonate(10^-7, discons$k[discons$ID == "k1co3"], discons$k[discons$ID == "k2co3"]), 5), 0.00038)
 })
 
+# Calculate alpha phosphate ----
+test_that("Phosphate alpha calculations work.", {
+  k1 = discons$k[discons$ID == "k1po4"]
+  k2 = discons$k[discons$ID == "k2po4"]
+  k3 = discons$k[discons$ID == "k3po4"]
+  expect_equal(round(calculate_alpha1_phosphate(10^-7, k1, k2, k3), 2), 0.61)
+  expect_equal(round(calculate_alpha2_phosphate(10^-7, k1, k2, k3), 2), 0.39)
+  expect_equal(signif(calculate_alpha3_phosphate(10^-7, k1, k2, k3), 2), 1.7E-6)
+})
+
+# Calculate temperature correction ----
+test_that("K temp correction returns a value close to K.", {
+  k1po4 = discons$k[discons$ID == "k1po4"]
+  k1po4_h = discons$deltah[discons$ID == "k1po4"]
+  lowtemp <- pK_temp_adjust(k1po4_h, k1po4, 5)
+  k2co3 = discons$k[discons$ID == "k2co3"]
+  k2co3_h = discons$deltah[discons$ID == "k2co3"]
+  hitemp <- pK_temp_adjust(k2co3_h, k2co3, 30)
+
+  expect_true(lowtemp / k1po4 < 1.3 && lowtemp / k1po4 > 1)
+  expect_true(hitemp / k2co3 < 1.2 && hitemp / k2co3 > 1)
+
+})
+
+# Ionic Strength ----
+
+test_that("Ionic strength calc in define water works.", {
+  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10)
+
+  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
+           (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
+           (water@po4) * 3^2)
+  expect_equal(water@is, is_calced)
+
+})
+
+test_that("Ionic strength correlation in define water works.", {
+  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, tds = 200)
+  is_calced <- 2.5 * 10^-5 * water@tds
+  expect_equal(water@is, is_calced)
+
+  water <- suppressWarnings(define_water(7, 25, 100, cond = 200))
+  is_calced <- 1.6 * 10^-5 * water@cond
+  expect_equal(water@is, is_calced)
+
+})
+
+# Activity coefficients ----
+
+test_that("Activity coefficient calculation works.", {
+  expect_equal(round(calculate_activity(1, .001, 25), 2), .97)
+  expect_equal(round(calculate_activity(2, .01, 25), 2), .66)
+})
