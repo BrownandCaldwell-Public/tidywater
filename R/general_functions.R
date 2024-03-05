@@ -103,8 +103,6 @@ methods::setMethod("show",
 #' @param ph water pH
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
-#' @param tds Total Dissolved Solids in mg/L
-#' @param cond Electrical conductivity in
 #' @param tot_hard Total hardness in mg/L as CaCO3
 #' @param ca_hard Calcium hardness in mg/L as CaCO3
 #' @param na Sodium in mg/L Na+
@@ -113,6 +111,8 @@ methods::setMethod("show",
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
+#' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
+#' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -148,11 +148,9 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for calcium hardness. Default value of 65% of total will be used.")
   }
 
-  if (missing(tds)) {
-    tds=NA_real_} else {tds=tds}
+  tds = ifelse(missing(tds), NA_real_, tds)
 
-  if (missing(cond)) {
-    cond=NA_real_} else {cond=cond}
+  cond = ifelse(missing(cond), NA_real_, cond)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
@@ -207,16 +205,20 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     if (!is.na(tds)) {
       water@is = correlate_ionicstrength(water, from = "tds")
       noloop = TRUE
-    } else if (is.na(tds) & (na > 0 & ca > 0 & mg > 0 & cl > 0 & so4 > 0 & alk > 0)) {
+      nois = FALSE
+    } else if (is.na(tds) & (na > 0 & ca > 0 & cl > 0 & so4 > 0 & alk > 0) & !is.na(ph)) {
       water@is = calculate_ionicstrength(water)
       noloop = FALSE
+      nois = FALSE
     } else if (!is.na(cond)) {
       water@is = correlate_ionicstrength(water, from = "cond")
       noloop = TRUE
+      nois = FALSE
     } else {
       warning("Ions missing and neither TDS or conductivity entered. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
       water@is = NA_real_
-      noloop = TRUE
+      noloop = FALSE
+      nois = TRUE
     }
 
     # Determine activity coefficients
@@ -258,12 +260,15 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     # Calculate total alkalinity (set equal to carbonate alkalinity for now)
     water@alk_eq = carb_alk_eq
 
+    if(noloop) {
+      break
+    } else if(nois) {
+      water@is = NA_real_
+      break
+    }
     water@is = calculate_ionicstrength(water)
     newis = water@is
     n=n+1
-    if(noloop) {
-      break
-    }
   }
 
   return(water)

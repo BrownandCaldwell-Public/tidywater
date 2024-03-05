@@ -12,7 +12,9 @@ test_that("Define water outputs water class.", {
 })
 
 test_that("Define water calculates correct carbonate balance.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  suppressWarnings( {
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  })
   expect_equal(water1@ph, 7)
   expect_equal(round(water1@tot_co3, 5), 0.00244)
   expect_equal(round(water1@hco3, 3), 0.002)
@@ -20,10 +22,14 @@ test_that("Define water calculates correct carbonate balance.", {
 })
 
 test_that("Define water gives missing value warnings.", {
-  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10),
+  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100),
     "Missing.+pH.+")
-  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10),
-    "Missing.+alkalinity+")
+  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100),
+    "Missing.+alkalinity.+")
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, tds = 100),
+                 "Missing.+cations.+")
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0),
+                 "Ions missing.+")
 })
 
 test_that("Define water doesn't output carbonate when pH or alk aren't provided.", {
@@ -89,7 +95,7 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
   expect_match(summarize_wq(water1), ".+pH.+7.+Alkalinity.+100.+")
   expect_s3_class(summarize_wq(water1), "knitr_kable")
 })
@@ -97,7 +103,7 @@ test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
 # Plot Ions ----
 
 test_that("Plot ions creates a ggplot object that can be printed.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
   expect_s3_class(plot_ions(water1), "ggplot")
   expect_no_error(plot_ions(water1))
 })
@@ -119,7 +125,7 @@ test_that("Calcium hardness calculation works.", {
 # Balance Ions ----
 
 test_that("Balance ions doesn't alter carbonate system.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
   water2 <- balance_ions(water1)
   expect_equal(water1@ph, water2@ph)
   expect_equal(water1@tot_co3, water2@tot_co3)
@@ -127,7 +133,7 @@ test_that("Balance ions doesn't alter carbonate system.", {
 })
 
 test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
   water2 <- balance_ions(water1)
   expect_equal(water1@ca, water2@ca)
   expect_equal(water1@mg, water2@mg)
@@ -136,7 +142,7 @@ test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
 })
 
 test_that("Balance ions results in neutral charge.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
   water2 <- balance_ions(water1)
 
   expect_equal(water2@na + water2@ca * 2 + water2@mg * 2 + water2@k -

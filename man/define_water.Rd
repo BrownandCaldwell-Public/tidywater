@@ -8,8 +8,6 @@ define_water(
   ph,
   temp,
   alk,
-  tds,
-  cond,
   tot_hard,
   ca_hard,
   na,
@@ -17,7 +15,9 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
-  tot_po4 = 0
+  tot_po4 = 0,
+  tds,
+  cond
 )
 }
 \arguments{
@@ -26,10 +26,6 @@ define_water(
 \item{temp}{Temperature in degree C}
 
 \item{alk}{Alkalinity in mg/L as CaCO3}
-
-\item{tds}{Total Dissolved Solids in mg/L}
-
-\item{cond}{Electrical conductivity in}
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
@@ -46,15 +42,23 @@ define_water(
 \item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
+
+\item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
+
+\item{cond}{Electrical conductivity in uS/cm (optional if ions are known)}
 }
 \description{
-This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
-Carbonate balance is calculated and units are converted to mol/L. Missing values are handled by defaulting to 0 or
+This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
 NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
-manually specify all water quality parameters in the define_water arguments.
+manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
+Ionic strength (if TDS provided): MWH equation 5-38
+Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
+Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
+Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
 }
 \examples{
-water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
+water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 
 }

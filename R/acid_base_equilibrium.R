@@ -208,11 +208,40 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   h = 10^-ph
   oh = dosed_water@kw / h
 
-  # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  # Determine activity coefficients
+  if (is.na(dosed_water@is)) {
+    activity_z1 = 1
+    activity_z2 = 1
+    activity_z3 = 1
+  } else {
+    activity_z1 = calculate_activity(1, dosed_water@is, dosed_water@temp)
+    activity_z2 = calculate_activity(2, dosed_water@is, dosed_water@temp)
+    activity_z3 = calculate_activity(3, dosed_water@is, dosed_water@temp)
+  }
+
+  # Eq constants
+  k1po4 = discons$k1po4 / activity_z1^2
+  k2po4 = discons$k2po4 / activity_z2
+  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
+  k1co3 = discons$k1co3 / activity_z1^2
+  k2co3 = discons$k2co3 / activity_z2
+  kocl = discons$kocl / activity_z1^2
+
+  # Carbonate and phosphate ions and ocl ions
+  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
   dosed_water@hco3 = dosed_water@tot_co3 * alpha1
   dosed_water@co3 = dosed_water@tot_co3 * alpha2
+
+  alpha1p = calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4)
+  alpha2p = calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4)
+  alpha3p = calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)
+
+  dosed_water@h2po4 = water@tot_po4 * alpha1p
+  dosed_water@hpo4 = water@tot_po4 * alpha2p
+  dosed_water@po4 = water@tot_po4 * alpha3p
+
+  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, discons$kocl)
 
   # Calculate new alkalinity
   dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -439,11 +468,40 @@ blend_waters <- function(waters, ratios) {
   blended_water@h = h
   blended_water@ph = ph
 
-  # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  # Determine activity coefficients
+  if (is.na(blended_water@is)) {
+    activity_z1 = 1
+    activity_z2 = 1
+    activity_z3 = 1
+  } else {
+    activity_z1 = calculate_activity(1, blended_water@is, blended_water@temp)
+    activity_z2 = calculate_activity(2, blended_water@is, blended_water@temp)
+    activity_z3 = calculate_activity(3, blended_water@is, blended_water@temp)
+  }
+
+  # Eq constants
+  k1po4 = discons$k1po4 / activity_z1^2
+  k2po4 = discons$k2po4 / activity_z2
+  k3po4 = discons$k3po4 * activity_z2 / (activity_z1 * activity_z3)
+  k1co3 = discons$k1co3 / activity_z1^2
+  k2co3 = discons$k2co3 / activity_z2
+  kocl = discons$kocl / activity_z1^2
+
+  # Carbonate and phosphate ions and ocl ions
+  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
   blended_water@hco3 = blended_water@tot_co3 * alpha1
   blended_water@co3 = blended_water@tot_co3 * alpha2
+
+  alpha1p = calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4)
+  alpha2p = calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4)
+  alpha3p = calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)
+
+  blended_water@h2po4 = blended_water@tot_po4 * alpha1p
+  blended_water@hpo4 = blended_water@tot_po4 * alpha2p
+  blended_water@po4 = blended_water@tot_po4 * alpha3p
+
+  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, discons$kocl)
 
   return(blended_water)
 

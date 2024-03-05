@@ -1,5 +1,5 @@
 #Test convertWater converts a water class input to a dataframe
-test_that("convertWater creates a dataframe", {
+test_that("convert water creates a dataframe", {
   water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
   df_water <- convert_water(water1)
   expect_true(is.data.frame(df_water))
@@ -295,7 +295,7 @@ test_that("solvedose_ph_once outputs data frame", {
     define_water_chain() %>%
     balance_ions_chain() %>%
     solvedose_ph_once(input_water = "balanced_water", target_ph = 9.2, chemical = "naoh")
-  
+
   expect_true(is.data.frame(water2))
 })
 
@@ -306,7 +306,7 @@ test_that("solvedose_ph_once can handle different input formats", {
     define_water_chain() %>%
     balance_ions_chain() %>%
     solvedose_ph_once(input_water = "balanced_water", target_ph = 9.2, chemical = "naoh")
-  
+
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -314,8 +314,8 @@ test_that("solvedose_ph_once can handle different input formats", {
            chemical = "naoh") %>%
     balance_ions_chain() %>%
     solvedose_ph_once(input_water = "balanced_water", output_water = "caustic_dose")
-  
-  expect_equal(water2$dose_required, water3$caustic_dose) 
+
+  expect_equal(water2$dose_required, water3$caustic_dose)
 })
 
 
@@ -348,14 +348,14 @@ test_that("blend_waters_once outputs are the same as base function, blend_waters
 # Check that output is a data frame
 
 test_that("blend_waters_once outputs a data frame", {
-  
+
   blend2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
     blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6))
-  
+
 
   expect_true(is.data.frame(blend2))
 })
@@ -370,8 +370,8 @@ test_that("blend_waters_once can handle different ways to input ratios", {
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
     blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6))
-  
-  
+
+
   blend3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -380,8 +380,8 @@ test_that("blend_waters_once can handle different ways to input ratios", {
     mutate(ratio1 = .4,
            ratio2 = .6) %>%
     blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c("ratio1", "ratio2"))
-  
- 
+
+
   expect_equal(blend2$ph, blend3$ph)
 })
 
@@ -410,16 +410,16 @@ test_that("blend_waters_chain outputs are the same as base function, blend_water
 
 # Test that output is a column of water class lists, and changing the output column name works
 test_that("blend_waters_chain outputs a column of water class lists, and output_water arg works", {
-  
+
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
     blend_waters_chain(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6), output_water = "testoutput")
-  
+
   blend2 <- purrr::pluck(water2, 5, 1)
-  
+
   expect_s4_class(blend2, "water") #check class
   expect_equal(names(water2[5]), "testoutput") #check output_water arg
 })
@@ -427,16 +427,16 @@ test_that("blend_waters_chain outputs a column of water class lists, and output_
 
 # Check that this function can handle different ways to input ratios
 test_that("blend_waters_chain can handle different ways to input ratios", {
- 
+
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
     blend_waters_chain(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6))
-  
+
   blend2 <- purrr::pluck(water2, 5, 1)
-  
+
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -445,9 +445,9 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
     mutate(ratio1 = .4,
            ratio2 = .6) %>%
     blend_waters_chain(waters = c("balanced_water", "dosed_chem_water"), ratios = c("ratio1", "ratio2"))
-  
+
   blend3 <- purrr::pluck(water3,7, 1)
-  
+
   expect_equal(blend2, blend3) # test different ways to input ratios
 })
 
