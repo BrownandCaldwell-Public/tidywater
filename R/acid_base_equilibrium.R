@@ -83,9 +83,9 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param nahco3 Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
 #' @param mgoh2  Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
-#' @param cl2 Amount of chlorine gas added in mg/L: Cl2(g) + H2O -> HOCl + H + Cl
-#' @param naocl Amount of sodium hypochlorite added in mg/L: NaOCl -> Na + OCl
-#' @param caocl2 Amount of calcium hypochlorite added in mg/L: Ca(OCl)2 -> Ca + 2OCl
+#' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
+#' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
+#' @param caocl2 Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2

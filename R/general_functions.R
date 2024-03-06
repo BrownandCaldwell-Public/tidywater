@@ -211,7 +211,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
       water@is = correlate_ionicstrength(water, from = "tds")
       noloop = TRUE
       nois = FALSE
-    } else if (is.na(tds) & (na > 0 & ca > 0 & cl > 0 & so4 > 0 & alk > 0) & !is.na(ph)) {
+    } else if (is.na(tds) & ((ca > 0 | na > 0) & (cl > 0 | so4 > 0) & alk > 0) & !is.na(ph)) {
       water@is = calculate_ionicstrength(water)
       noloop = FALSE
       nois = FALSE
