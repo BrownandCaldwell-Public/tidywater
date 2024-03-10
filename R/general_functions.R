@@ -30,6 +30,9 @@ methods::setClass("water",
     temp = NA_real_,
     alk = NA_real_,
     # tot_hard = NA_real_,
+    toc = NA_real_,
+    doc = NA_real_,
+    uv254 = NA_real_,
     na = 0,
     ca = 0,
     mg = 0,
@@ -140,12 +143,9 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
-  if (missing(toc) | missing(doc) | missing(uv254)) {
-    toc = ifelse(missing(toc), NA_real_, toc)
-    doc = ifelse(missing(doc), toc * 0.95, doc)
-    uv254 = ifelse(missing(uv254), NA_real_, uv254)
-    warning("Organic carbon parameters missing.")
-  }
+  toc = ifelse(missing(toc), NA_real_, toc)
+  doc = ifelse(missing(doc), toc * 0.95, doc)
+  uv254 = ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate kw from temp
   tempa = temp + 273.15 # absolute temperature (K)
