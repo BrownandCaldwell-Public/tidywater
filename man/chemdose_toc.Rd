@@ -24,7 +24,17 @@ DOC. Coagulated UVA is from the Water Treatment Plant Model. Note that the model
 unknown, utilize \code{\link{chemdose_ph}} first.
 }
 \examples{
-# example code
+water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
+dosed_water <- chemdose_ph(water, alum = 30) \%>\%
+chemdose_toc(alum = 30, coeff = "Alum")
 
+dosed_water <- chemdose_ph(water, fe2so43 = 30) \%>\%
+chemdose_toc(fe2so43 = 30, coeff = "Ferric")
 
+dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
+chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9, "x3" = 4.96, "k1" = -0.028, "k2" = 0.23, "b" = 0.068))
+
+}
+\seealso{
+\code{\link{chemdose_ph}}
 }

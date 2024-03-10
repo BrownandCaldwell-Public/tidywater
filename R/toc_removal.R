@@ -14,9 +14,18 @@
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #' 
-#' @examples
-#' # example code
+#' @seealso \code{\link{chemdose_ph}}
 #' 
+#' @examples
+#' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
+#' dosed_water <- chemdose_ph(water, alum = 30) %>%
+#' chemdose_toc(alum = 30, coeff = "Alum")
+#' 
+#' dosed_water <- chemdose_ph(water, fe2so43 = 30) %>%
+#' chemdose_toc(fe2so43 = 30, coeff = "Ferric")
+#' 
+#' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
+#' chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9, "x3" = 4.96, "k1" = -0.028, "k2" = 0.23, "b" = 0.068))
 #' 
 #' @export
 #' 
@@ -50,9 +59,9 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
     warning("No coagulants dosed. Final water will equal input water.")
   } else if (alum > 0 & (fecl3 > 0 | fe2so43 > 0)) {
     warning("Both alum and ferric coagulants entered.")
-  } else if ((fecl3 > 0 | fe2so43 > 0) & grepl("Alum", coeff)) {
+  } else if ((fecl3 > 0 | fe2so43 > 0) & any(grepl("Alum", coeff))) {
     warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeff' argument.")
-  } else if (alum > 0 & grepl("Ferric", coeff)) {
+  } else if (alum > 0 & any(grepl("Ferric", coeff))) {
     warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
   }
   
@@ -85,9 +94,9 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
     water@doc = water@doc
     water@uv254 = water@uv254
   } else {
-    if(water@toc >= water@doc) {
+    if(!is.na(water@toc) & water@toc >= water@doc) {
       water@toc = water@toc - water@doc + nonadsorb + adsorb
-    } else if (water@toc < water@doc) {
+    } else if (!is.na(water@toc) & water@toc < water@doc) {
       warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
       water@toc = nonadsorb + adsorb
     } else if (is.na(water@toc)) {
