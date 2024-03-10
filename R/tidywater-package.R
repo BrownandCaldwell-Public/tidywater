@@ -30,6 +30,26 @@ NULL
 #' @format A dataframe with one row and one column per constant
 "discons"
 
+#' Data frame of Edwards model coefficients
+#'
+#' A dataset containing coefficients from the Edwards (1997) model for coagulation TOC removal.
+#'
+#' @docType data
+#' @keywords datasets
+#' @name edwardscoeff
+#' @format A dataframe with 5 rows and 7 columns:
+#' \describe{
+#' \item{ID}{Coefficient type}
+#' \item{x3}{x3 parameter}
+#' \item{x2}{x2 parameter}
+#' \item{x1}{x1 parameter}
+#' \item{k1}{k1 parameter}
+#' \item{k2}{k2 parameter}
+#' \item{b}{b parameter}
+#' }
+#' @source Edwards (1997) Table 2.
+"edwardscoeff"
+
 #' Data frame of water quality parameters
 #'
 #' A dataset containing fabricated water quality to use as tidywater inputs.
