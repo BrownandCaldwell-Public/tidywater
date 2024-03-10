@@ -8,6 +8,9 @@ methods::setClass("water",
     temp = "numeric",
     alk = "numeric",
     # tot_hard = "numeric",
+    toc = "numeric",
+    doc = "numeric",
+    uv254 = "numeric",
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -50,6 +53,9 @@ methods::setMethod("show",
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
     # cat("Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    cat("Total organic carbon (mg/L): ", object@toc, "\n")
+    cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
+    cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
     cat("Magnesium (M): ", object@mg, "\n")
@@ -87,6 +93,9 @@ methods::setMethod("show",
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
+#' @param toc Total organic carbon (TOC) in mg/L
+#' @param doc Dissolved organic carbon (DOC) in mg/L
+#' @param uv254 UV absorbance at 254 nm (cm-1)
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100)
@@ -94,7 +103,8 @@ methods::setMethod("show",
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0) {
+define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0,
+                         toc, doc, uv254) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -128,6 +138,13 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
+  }
+
+  if (missing(toc) | missing(doc) | missing(uv254)) {
+    toc = ifelse(missing(toc), NA_real_, toc)
+    doc = ifelse(missing(doc), toc * 0.95, doc)
+    uv254 = ifelse(missing(uv254), NA_real_, uv254)
+    warning("Organic carbon parameters missing.")
   }
 
   # Calculate kw from temp
@@ -165,7 +182,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     ph = ph, temp = temp, alk = alk, # tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, tot_po4 = tot_po4,
     hco3 = hco3, co3 = co3, h = h, oh = oh,
-    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, alk_eq = alk_eq)
+    tot_ocl = tot_ocl, tot_co3 = tot_co3, kw = kw, alk_eq = alk_eq,
+    toc = toc, doc = doc, uv254 = uv254)
 
   return(water_class)
 }
