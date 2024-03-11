@@ -653,11 +653,11 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # Eqn 5-9 WTP Model Manual (changed using Meyer masters thesis to include the correct temp correction)
-pK_temp_adjust <- function(delta_h, k_a, temp) {
+pK_temp_adjust <- function(deltah, ka, temp) {
   R <- 8.314
   tempa <- temp + 273.15
-  lnK <- log(k_a)
-  exp((delta_h / R * (1 / 298.15 - 1 / tempa)) + lnK)
+  lnK <- log(ka)
+  exp((deltah / R * (1 / 298.15 - 1 / tempa)) + lnK)
 }
 
 
