@@ -40,6 +40,13 @@ test_that("Define water doesn't output carbonate when pH or alk aren't provided.
 
 })
 
+test_that("define_water handles toc inputs correctly.", {
+  water1 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
+  
+  expect_equal(water1@doc, 3.325) 
+})
+
+
 # Convert units ----
 test_that("Unit conversion between mg/L or mg/L CaCO3 and M works.", {
   hcl_mg <- 10

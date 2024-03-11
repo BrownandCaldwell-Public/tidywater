@@ -16,6 +16,14 @@ test_that("chemdose_toc does not run when coeff isn't supplied correctly.", {
   expect_error(chemdose_toc(water1, coeff = edwardscoeff[1]))
 })
 
+test_that("chemdose_toc handles inputs correctly.", {
+  water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
+  water2 <- suppressWarnings(define_water(ph = 7, uv254 = 0.1))
+
+  expect_warning(chemdose_toc(water1, alum = 20))
+  expect_error(chemdose_toc(water2, alum = 15))
+})
+
 test_that("chemdose_toc works.", {
   water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
   water2 <- suppressWarnings(chemdose_toc(water1, alum = 30))
