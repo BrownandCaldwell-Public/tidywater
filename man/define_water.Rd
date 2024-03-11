@@ -15,7 +15,10 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
-  tot_po4 = 0
+  tot_po4 = 0,
+  toc,
+  doc,
+  uv254
 )
 }
 \arguments{
@@ -40,6 +43,12 @@ define_water(
 \item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
+
+\item{toc}{Total organic carbon (TOC) in mg/L}
+
+\item{doc}{Dissolved organic carbon (DOC) in mg/L}
+
+\item{uv254}{UV absorbance at 254 nm (cm-1)}
 }
 \description{
 This function takes water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
