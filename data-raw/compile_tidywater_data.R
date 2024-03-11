@@ -33,7 +33,7 @@ usethis::use_data(mweights, overwrite = TRUE)
 # Carbonic acid
 discons <- data.frame(ID = c("k1co3", "k2co3"), # H2CO3<-->HCO3- + H+; HCO3<-->CO32- + H+
                       k = c(10^-6.35, 10^-10.33),
-                      deltah = c(7700, 14900)) %>%
+                      deltah = c(7700, 14900)) %>% #J/mol
   # Sulfate
   add_row(ID = "kso4", k = 10^-1.99, deltah = -21900) %>%
   # Phosphate
