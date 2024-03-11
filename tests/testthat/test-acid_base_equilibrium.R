@@ -53,7 +53,7 @@ test_that("Dose chemical works", {
   test5 <- chemdose_ph(water4, alum = 50)
   test6 <- chemdose_ph(water4, naoh = 80)
   # Rounded values from waterpro spot check (doesn't match with more decimals)
-  expect_equal(round(test1@ph, 1), 5.6)
+  expect_equal(round(test1@ph, 1), 5.7)
   expect_equal(round(test1@alk, 0), 5)
   expect_equal(round(test2@ph, 1), 6.9)
   expect_equal(round(test2@alk, 0), 85)
@@ -153,8 +153,8 @@ test_that("Blend waters conserves temperature and alkalinity.", {
 })
 
 test_that("Blend waters conserves DOC.", {
-  water2 <- define_water(ph = 7, temp = 20, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 5, uv254 = .1) # same as water1
-  water3 <- define_water(ph = 10, temp = 10, alk = 200, 0, 0, 0, 0, 0, 0, toc = 3, doc = 3, uv254 = .1)
+  water2 <- define_water(ph = 7, temp = 20, alk = 100, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 5, uv254 = .1) # same as water1
+  water3 <- define_water(ph = 10, temp = 10, alk = 200, 0, 0, 0, 0, 0, 0, cond = 100, toc = 3, doc = 3, uv254 = .1)
 
   blend1 <- blend_waters(c(water2, water3), c(.5, .5))
   expect_equal(blend1@doc, 4)

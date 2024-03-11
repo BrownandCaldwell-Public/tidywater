@@ -23,13 +23,17 @@ test_that("Define water calculates correct carbonate balance.", {
 })
 
 test_that("Define water gives missing value warnings.", {
-  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100),
+  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
+                              doc = 5, toc = 5, uv254 = .1),
     "Missing.+pH.+")
-  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100),
+  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
+                              doc = 5, toc = 5, uv254 = .1),
     "Missing.+alkalinity.+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, tds = 100),
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, tds = 100,
+                              doc = 5, toc = 5, uv254 = .1),
                  "Missing.+cations.+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0),
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0,
+                              doc = 5, toc = 5, uv254 = .1),
                  "Ions missing.+")
 
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, toc = 5, uv254 = .1),
@@ -160,7 +164,7 @@ test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
 })
 
 test_that("Balance ions doesn't alter organics.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- balance_ions(water1)
   expect_equal(water1@toc, water2@toc)
   expect_equal(water1@doc, water2@doc)
@@ -222,7 +226,7 @@ test_that("K temp correction returns a value close to K.", {
 # Ionic Strength ----
 
 test_that("Ionic strength calc in define water works.", {
-  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10)
+  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1)
 
   is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
            (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
@@ -232,7 +236,7 @@ test_that("Ionic strength calc in define water works.", {
 })
 
 test_that("Ionic strength correlation in define water works.", {
-  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, tds = 200)
+  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, tds = 200, doc = 5, toc = 5, uv254 = .1)
   is_calced <- 2.5 * 10^-5 * water@tds
   expect_equal(water@is, is_calced)
 

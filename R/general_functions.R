@@ -232,7 +232,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
                         hco3 = carb_alk_eq, co3 = 0, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
                         h = h, oh = oh,
                         tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
-                        kw = kw, is = 0, alk_eq = carb_alk_eq)
+                        kw = kw, is = 0, alk_eq = carb_alk_eq,
+                        doc = doc, toc = toc, uv254 = uv254)
 
 
   # Use loop to determine IS
