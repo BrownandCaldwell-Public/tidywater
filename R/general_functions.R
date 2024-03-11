@@ -10,6 +10,9 @@ methods::setClass("water",
     tds = "numeric",
     cond = "numeric",
     tot_hard = "numeric",
+    toc = "numeric",
+    doc = "numeric",
+    uv254 = "numeric",
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -36,6 +39,9 @@ methods::setClass("water",
     tds = NA_real_,
     cond = NA_real_,
     tot_hard = NA_real_,
+    toc = NA_real_,
+    doc = NA_real_,
+    uv254 = NA_real_,
     na = 0,
     ca = 0,
     mg = 0,
@@ -66,6 +72,9 @@ methods::setMethod("show",
     cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    cat("Total organic carbon (mg/L): ", object@toc, "\n")
+    cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
+    cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
     cat("Magnesium (M): ", object@mg, "\n")
@@ -113,6 +122,9 @@ methods::setMethod("show",
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
+#' @param toc Total organic carbon (TOC) in mg/L
+#' @param doc Dissolved organic carbon (DOC) in mg/L
+#' @param uv254 UV absorbance at 254 nm (cm-1)
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -120,7 +132,8 @@ methods::setMethod("show",
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond) {
+define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
+                         toc, doc, uv254) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -159,6 +172,28 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     so4 = ifelse(missing(so4), 0, so4)
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
+
+  if (missing(toc) & missing(doc) & missing(uv254)) {
+    warning("No organic parameters specified, DOC and DBP models will not work.")
+    toc = NA_real_
+    doc = NA_real_
+    uv254 = NA_real_
+  } else if (missing(toc) & missing(doc)) {
+    warning("Missing values for DOC and TOC. Add value for DOC or TOC to use DOC and DBP models.")
+    toc = NA_real_
+    doc = NA_real_
+  } else if (missing(toc) & !missing(doc)) {
+    warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
+    toc = doc / 0.95
+  } else if (missing(doc) & !missing(toc)) {
+    warning("Missing value for DOC. Default value of 95% of TOC will be used.")
+    doc = toc * 0.95
+  }
+
+  if (missing(uv254)) {
+    warning("Missing value for UV254, value set to NA and select DOC and DBP models will not work. For best results, add UV254 estimate.")
+  }
+  uv254 = ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
   tempa = temp + 273.15 # absolute temperature (K)

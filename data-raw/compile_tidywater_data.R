@@ -60,3 +60,29 @@ water_df <- data.frame(
   tot_po4 = rep(c(0, 0, 1), 4))
 
 usethis::use_data(water_df, overwrite = TRUE)
+
+# Data frame of Edwards model coefficients
+
+edwardscoeff <- data.frame(
+  ID = "Alum",
+  x3 = 4.91, x2 = -74.2, x1 = 284,
+  k1 = -0.075, k2 = 0.56,
+  b = 0.147) %>%
+  add_row(ID = "Ferric",
+          x3 = 4.96, x2 = -73.9, x1 = 280,
+          k1 = -0.028, k2 = 0.23,
+          b = 0.068) %>%
+  add_row(ID = "Low DOC",
+          x3 = 6.44, x2 = -99.2, x1 = 387,
+          k1 = -0.053, k2 = 0.54,
+          b = 0.107) %>%
+  add_row(ID = "General Alum",
+          x3 = 6.42, x2 = -98.6, x1 = 383,
+          k1 = -0.054, k2 = 0.54,
+          b = 0.145) %>%
+  add_row(ID = "General Ferric",
+          x3 = 6.42, x2 = -98.6, x1 = 383,
+          k1 = -0.054, k2 = 0.54,
+          b = 0.092)
+
+usethis::use_data(edwardscoeff, overwrite = TRUE)

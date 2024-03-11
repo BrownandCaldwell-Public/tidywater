@@ -2,7 +2,7 @@
 test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
-    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
     water2 <- define_water(temp = 25, tot_hard = 50)
     water3 <- define_water(ph = 7, temp = 25, alk = 100)
   })
@@ -13,8 +13,9 @@ test_that("Define water outputs water class.", {
 
 test_that("Define water calculates correct carbonate balance.", {
   suppressWarnings( {
-    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0)
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
   })
+
   expect_equal(water1@ph, 7)
   expect_equal(round(water1@tot_co3, 5), 0.00244)
   expect_equal(round(water1@hco3, 3), 0.002)
@@ -30,6 +31,12 @@ test_that("Define water gives missing value warnings.", {
                  "Missing.+cations.+")
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0),
                  "Ions missing.+")
+
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, toc = 5, uv254 = .1),
+                 "Missing.+DOC+")
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10),
+                 "No organic.+")
+
 })
 
 test_that("Define water doesn't output carbonate when pH or alk aren't provided.", {
@@ -45,6 +52,17 @@ test_that("Define water doesn't output carbonate when pH or alk aren't provided.
   expect_equal(water2@ph, NA_real_)
 
 })
+
+test_that("define_water handles organics inputs correctly.", {
+  water1 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
+  water2 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
+  water3 <- suppressWarnings(define_water(ph = 7, doc = 3.5, toc = 3.4))
+
+  expect_equal(water1@doc, 3.325)
+  expect_equal(round(water2@toc, 3), 3.684)
+  expect_equal(water3@uv254, NA_real_)
+})
+
 
 # Convert units ----
 test_that("Unit conversion between mg/L or mg/L CaCO3 and M works.", {
@@ -95,7 +113,7 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   expect_match(summarize_wq(water1), ".+pH.+7.+Alkalinity.+100.+")
   expect_s3_class(summarize_wq(water1), "knitr_kable")
 })
@@ -103,7 +121,7 @@ test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
 # Plot Ions ----
 
 test_that("Plot ions creates a ggplot object that can be printed.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   expect_s3_class(plot_ions(water1), "ggplot")
   expect_no_error(plot_ions(water1))
 })
@@ -125,7 +143,7 @@ test_that("Calcium hardness calculation works.", {
 # Balance Ions ----
 
 test_that("Balance ions doesn't alter carbonate system.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- balance_ions(water1)
   expect_equal(water1@ph, water2@ph)
   expect_equal(water1@tot_co3, water2@tot_co3)
@@ -133,7 +151,7 @@ test_that("Balance ions doesn't alter carbonate system.", {
 })
 
 test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- balance_ions(water1)
   expect_equal(water1@ca, water2@ca)
   expect_equal(water1@mg, water2@mg)
@@ -141,15 +159,23 @@ test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
   expect_equal(water1@tot_po4, water2@tot_po4)
 })
 
+test_that("Balance ions doesn't alter organics.", {
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+  water2 <- balance_ions(water1)
+  expect_equal(water1@toc, water2@toc)
+  expect_equal(water1@doc, water2@doc)
+  expect_equal(water1@uv254, water2@uv254)
+})
+
 test_that("Balance ions results in neutral charge.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- balance_ions(water1)
 
   expect_equal(water2@na + water2@ca * 2 + water2@mg * 2 + water2@k -
                  (water2@cl + 2 * water2@so4 + water2@hco3 + 2 * water2@co3 + water2@h2po4 + 2 * water2@hpo4 + 3 * water2@po4) +
     water2@h - water2@oh - water2@ocl, 0)
 
-  water3 <- define_water(ph = 7, temp = 25, alk = 100, 10, 10, 10, 10, 10, 10, tot_ocl = 2, tot_po4 = 1)
+  water3 <- define_water(ph = 7, temp = 25, alk = 100, 10, 10, 10, 10, 10, 10, tot_ocl = 2, tot_po4 = 1, toc = 5, doc = 4.8, uv254 = .1)
   water4 <- balance_ions(water3)
 
 
