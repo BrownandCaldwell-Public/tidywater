@@ -11,7 +11,7 @@ chemdose_toc(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum")
 
 \item{alum}{Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{fecl3}{Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
 \item{fe2so43}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
 
@@ -19,9 +19,9 @@ chemdose_toc(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum")
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
 \description{
-This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated 
-DOC. Coagulated UVA is from the Water Treatment Plant Model. Note that the models rely on pH of coagulation. If pH is 
-unknown, utilize \code{\link{chemdose_ph}} first.
+This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated
+DOC. Coagulated UVA is from the Water Treatment Plant Model 2.0, equation 5-80. Note that the models rely on pH of coagulation. If
+only raw water pH is known, utilize \code{\link{chemdose_ph}} first.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)

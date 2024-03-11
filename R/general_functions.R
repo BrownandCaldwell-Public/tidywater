@@ -143,8 +143,26 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
-  toc = ifelse(missing(toc), NA_real_, toc)
-  doc = ifelse(missing(doc), toc * 0.95, doc)
+  if (missing(toc) & missing(doc) & missing(uv254)) {
+    warning("No organic parameters specified, DOC and DBP models will not work.")
+    toc = NA_real_
+    doc = NA_real_
+    uv254 = NA_real_
+  } else if (missing(toc) & missing(doc)) {
+    warning("Missing values for DOC and TOC. Add value for DOC or TOC to use DOC and DBP models.")
+    toc = NA_real_
+    doc = NA_real_
+  } else if (missing(toc) & !missing(doc)) {
+    warning("Missing value for DOC. Default value of 95% of TOC will be used.")
+    toc = doc / 0.95
+  } else if (missing(doc) & !missing(toc)) {
+    warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
+    doc = toc * 0.95
+  }
+
+  if (missing(uv254)) {
+    warning("Missing value for UV254, value set to NA and select DOC and DBP models will not work. For best results, add UV254 estimate.")
+  }
   uv254 = ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate kw from temp
