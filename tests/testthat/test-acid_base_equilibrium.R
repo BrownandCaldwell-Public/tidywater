@@ -127,7 +127,7 @@ test_that("Blend waters gives error when ratios don't sum to 1 and runs otherwis
  })
 
   expect_error(blend_waters(c(water1, water2, water3), c(.5, .5, .5)))
-  expect_error(blend_waters(c(water1, water2, water3), c(1 / 3, 1 / 3, 1 / 3)), NA)
+  expect_no_error(blend_waters(c(water1, water2, water3), c(1 / 3, 1 / 3, 1 / 3)))
 })
 
 test_that("Blend waters outputs same water when ratio is 1 or the blending waters have the same parameters.", {

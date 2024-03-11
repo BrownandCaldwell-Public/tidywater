@@ -5,43 +5,19 @@
 
 solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
-  # Determine activity coefficients
-  if (is.na(water@is)) {
-    activity_z1 = 1
-    activity_z2 = 1
-    activity_z3 = 1
-  } else {
-    activity_z1 = calculate_activity(1, water@is, water@temp)
-    activity_z2 = calculate_activity(2, water@is, water@temp)
-    activity_z3 = calculate_activity(3, water@is, water@temp)
-  }
-
-  # Eq constants
-  k1co3 = filter(discons, ID == "k1co3") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z2
-  k1po4 = filter(discons, ID == "k1po4") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$%
-    pK_temp_adjust(deltah, k, water@temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl = filter(discons, ID == "kocl") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z1^2
-  kso4 = filter(discons, ID == "kso4") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z2
+  # Correct eq constants
+  k <- correct_k(water)
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
-      (2 + h / kso4) * (so4_dose / (h / kso4 + 1)) +
-      tot_po4 * (calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4) +
-                   2 * calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4) +
-                   3 * calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)) +
-      tot_co3 * (calculate_alpha1_carbonate(h, k1co3, k2co3) +
-                   2 * calculate_alpha2_carbonate(h, k1co3, k2co3)) +
-      tot_ocl * calculate_alpha1_hypochlorite(h, kocl) +
+      (2 + h / k$kso4) * (so4_dose / (h / k$kso4 + 1)) +
+      tot_po4 * (calculate_alpha1_phosphate(h, k) +
+                   2 * calculate_alpha2_phosphate(h, k) +
+                   3 * calculate_alpha3_phosphate(h, k)) +
+      tot_co3 * (calculate_alpha1_carbonate(h, k) +
+                   2 * calculate_alpha2_carbonate(h, k)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, k) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
       alk_eq
@@ -215,46 +191,24 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   h = 10^-ph
   oh = dosed_water@kw / h
 
-  # Determine activity coefficients
-  if (is.na(dosed_water@is)) {
-    activity_z1 = 1
-    activity_z2 = 1
-    activity_z3 = 1
-  } else {
-    activity_z1 = calculate_activity(1, dosed_water@is, dosed_water@temp)
-    activity_z2 = calculate_activity(2, dosed_water@is, dosed_water@temp)
-    activity_z3 = calculate_activity(3, dosed_water@is, dosed_water@temp)
-  }
-
-  # Eq constants
-  k1co3 = filter(discons, ID == "k1co3") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) / activity_z2
-  k1po4 = filter(discons, ID == "k1po4") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl = filter(discons, ID == "kocl") %$%
-    pK_temp_adjust(deltah, k, dosed_water@temp) / activity_z1^2
+  # Correct eq constants
+  k <- correct_k(water)
 
   # Carbonate and phosphate ions and ocl ions
-  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   dosed_water@hco3 = dosed_water@tot_co3 * alpha1
   dosed_water@co3 = dosed_water@tot_co3 * alpha2
 
-  alpha1p = calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4)
-  alpha2p = calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4)
-  alpha3p = calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)
+  alpha1p = calculate_alpha1_phosphate(h, k)
+  alpha2p = calculate_alpha2_phosphate(h, k)
+  alpha3p = calculate_alpha3_phosphate(h, k)
 
   dosed_water@h2po4 = water@tot_po4 * alpha1p
   dosed_water@hpo4 = water@tot_po4 * alpha2p
   dosed_water@po4 = water@tot_po4 * alpha3p
 
-  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
+  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
   # Calculate new alkalinity
   dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -481,47 +435,24 @@ blend_waters <- function(waters, ratios) {
   blended_water@h = h
   blended_water@ph = ph
 
-  # Determine activity coefficients
-  if (is.na(blended_water@is)) {
-    activity_z1 = 1
-    activity_z2 = 1
-    activity_z3 = 1
-  } else {
-    activity_z1 = calculate_activity(1, blended_water@is, blended_water@temp)
-    activity_z2 = calculate_activity(2, blended_water@is, blended_water@temp)
-    activity_z3 = calculate_activity(3, blended_water@is, blended_water@temp)
-  }
-
-  # Eq constants
-  # Eq constants
-  k1co3 = filter(discons, ID == "k1co3") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) / activity_z2
-  k1po4 = filter(discons, ID == "k1po4") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl = filter(discons, ID == "kocl") %$%
-    pK_temp_adjust(deltah, k, blended_water@temp) / activity_z1^2
+  # Correct eq constants
+  k <- correct_k(blended_water)
 
   # Carbonate and phosphate ions and ocl ions
-  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   blended_water@hco3 = blended_water@tot_co3 * alpha1
   blended_water@co3 = blended_water@tot_co3 * alpha2
 
-  alpha1p = calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4)
-  alpha2p = calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4)
-  alpha3p = calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)
+  alpha1p = calculate_alpha1_phosphate(h, k)
+  alpha2p = calculate_alpha2_phosphate(h, k)
+  alpha3p = calculate_alpha3_phosphate(h, k)
 
   blended_water@h2po4 = blended_water@tot_po4 * alpha1p
   blended_water@hpo4 = blended_water@tot_po4 * alpha2p
   blended_water@po4 = blended_water@tot_po4 * alpha3p
 
-  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
+  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
   return(blended_water)
 

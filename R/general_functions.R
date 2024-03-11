@@ -186,8 +186,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   k2co3 = filter(discons, ID == "k2co3") %$%
     pK_temp_adjust(deltah, k, temp)
 
-  alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
+  alpha1 = calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
   tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
@@ -226,47 +226,25 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
       nois = TRUE
     }
 
-    # Determine activity coefficients
-    if (is.na(water@is)) {
-      activity_z1 = 1
-      activity_z2 = 1
-      activity_z3 = 1
-    } else {
-      activity_z1 = calculate_activity(1, water@is, water@temp)
-      activity_z2 = calculate_activity(2, water@is, water@temp)
-      activity_z3 = calculate_activity(3, water@is, water@temp)
-    }
-
     # Eq constants
-    k1co3 = filter(discons, ID == "k1co3") %$%
-      pK_temp_adjust(deltah, k, temp) / activity_z1^2
-    k2co3 = filter(discons, ID == "k2co3") %$%
-      pK_temp_adjust(deltah, k, temp) / activity_z2
-    k1po4 = filter(discons, ID == "k1po4") %$%
-      pK_temp_adjust(deltah, k, temp) / activity_z1^2
-    k2po4 = filter(discons, ID == "k2po4") %$%
-      pK_temp_adjust(deltah, k, temp) / activity_z2
-    k3po4 = filter(discons, ID == "k3po4") %$%
-      pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
-    kocl = filter(discons, ID == "kocl") %$%
-      pK_temp_adjust(deltah, k, temp) / activity_z1^2
+    k <- correct_k(water)
 
     # Carbonate and phosphate ions and ocl ions
-    alpha1 = calculate_alpha1_carbonate(h, k1co3, k2co3) # proportion of total carbonate as HCO3-
-    alpha2 = calculate_alpha2_carbonate(h, k1co3, k2co3) # proportion of total carbonate as CO32-
+    alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
+    alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
     water@tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
     water@hco3 = water@tot_co3 * alpha1
     water@co3 = water@tot_co3 * alpha2
 
-    alpha1p = calculate_alpha1_phosphate(h, k1po4, k2po4, k3po4)
-    alpha2p = calculate_alpha2_phosphate(h, k1po4, k2po4, k3po4)
-    alpha3p = calculate_alpha3_phosphate(h, k1po4, k2po4, k3po4)
+    alpha1p = calculate_alpha1_phosphate(h, k)
+    alpha2p = calculate_alpha2_phosphate(h, k)
+    alpha3p = calculate_alpha3_phosphate(h, k)
 
     water@h2po4 = tot_po4 * alpha1p
     water@hpo4 = tot_po4 * alpha2p
     water@po4 = tot_po4 * alpha3p
 
-    water@ocl =  tot_ocl * calculate_alpha1_hypochlorite(h, kocl)
+    water@ocl =  tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
     # Calculate total alkalinity (set equal to carbonate alkalinity for now)
     water@alk_eq = carb_alk_eq
@@ -626,32 +604,49 @@ balance_ions <- function(water) {
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
 # Not exported
-calculate_alpha1_carbonate <- function(h, k1, k2) {
+calculate_alpha1_carbonate <- function(h, k) {
+  k1 = k$k1co3
+  k2 = k$k2co3
   (k1 * h) / (h^2 + k1 * h + k1 * k2)
 }
 
-calculate_alpha2_carbonate <- function(h, k1, k2) {
+calculate_alpha2_carbonate <- function(h, k) {
+  k1 = k$k1co3
+  k2 = k$k2co3
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
 
 # Equations from Benjamin 2e Table 5.3b
-calculate_alpha0_phosphate <- function(h, k1, k2, k3) {
+calculate_alpha0_phosphate <- function(h, k) {
+  k1 = k$k1po4
+  k2 = k$k2po4
+  k3 = k$k3po4
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 
-calculate_alpha1_phosphate <- function(h, k1, k2, k3) { # H2PO4
-  calculate_alpha0_phosphate(h, k1, k2, k3) * k1 / h
+calculate_alpha1_phosphate <- function(h, k) { # H2PO4
+  k1 = k$k1po4
+  k2 = k$k2po4
+  k3 = k$k3po4
+  calculate_alpha0_phosphate(h, k) * k1 / h
 }
 
-calculate_alpha2_phosphate <- function(h, k1, k2, k3) { # HPO4
-  calculate_alpha0_phosphate(h, k1, k2, k3) * (k1 * k2 / h^2)
+calculate_alpha2_phosphate <- function(h, k) { # HPO4
+  k1 = k$k1po4
+  k2 = k$k2po4
+  k3 = k$k3po4
+  calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
-calculate_alpha3_phosphate <- function(h, k1, k2, k3) { # PO4
-  calculate_alpha0_phosphate(h, k1, k2, k3) * (k1 * k2 * k3 / h^3)
+calculate_alpha3_phosphate <- function(h, k) { # PO4
+  k1 = k$k1po4
+  k2 = k$k2po4
+  k3 = k$k3po4
+  calculate_alpha0_phosphate(h, k) * (k1 * k2 * k3 / h^3)
 }
 
-calculate_alpha1_hypochlorite <- function(h, k1) { # OCl
+calculate_alpha1_hypochlorite <- function(h, k) { # OCl
+  k1 = k$kocl
   1 / (1 + h / k1)
 }
 
@@ -703,4 +698,41 @@ calculate_activity <- function(z, is, temp){
   a = 1.29E6 * (sqrt(2)/((de*tempa)^1.5))
   #Davies equation (1967) [MWH equation 5-43]
   10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+}
+
+correct_k <- function(water) {
+
+  # Determine activity coefficients
+    if (is.na(water@is)) {
+    activity_z1 = 1
+    activity_z2 = 1
+    activity_z3 = 1
+  } else {
+    activity_z1 = calculate_activity(1, water@is, water@temp)
+    activity_z2 = calculate_activity(2, water@is, water@temp)
+    activity_z3 = calculate_activity(3, water@is, water@temp)
+  }
+
+  temp = water@temp
+
+  # Eq constants
+  k1co3 = filter(discons, ID == "k1co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2co3 = filter(discons, ID == "k2co3") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k1po4 = filter(discons, ID == "k1po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2po4 = filter(discons, ID == "k2po4") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z2
+  k3po4 = filter(discons, ID == "k3po4") %$%
+    pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  kocl = filter(discons, ID == "kocl") %$%
+    pK_temp_adjust(deltah, k, temp) / activity_z1^2
+  kso4 = filter(discons, ID == "kso4") %$%
+    pK_temp_adjust(deltah, k, water@temp) / activity_z2
+
+  return(data.frame("k1co3" = k1co3, "k2co3" = k2co3,
+           "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
+           "kocl" = kocl, "kso4" = kso4))
+
 }

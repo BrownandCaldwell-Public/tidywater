@@ -163,20 +163,20 @@ test_that("Balance ions results in neutral charge.", {
 # Calculate alpha carbonate ----
 
 test_that("Carbonate alpha calculations work.", {
-  expect_equal(round(
-    calculate_alpha1_carbonate(10^-7, discons$k[discons$ID == "k1co3"], discons$k[discons$ID == "k2co3"]), 2), 0.82)
-  expect_equal(round(
-    calculate_alpha2_carbonate(10^-7, discons$k[discons$ID == "k1co3"], discons$k[discons$ID == "k2co3"]), 5), 0.00038)
+  k = data.frame("k1co3" = discons$k[discons$ID == "k1co3"],
+                "k2co3" = discons$k[discons$ID == "k2co3"])
+  expect_equal(round(calculate_alpha1_carbonate(10^-7, k), 2), 0.82)
+  expect_equal(round(calculate_alpha2_carbonate(10^-7, k), 5), 0.00038)
 })
 
 # Calculate alpha phosphate ----
 test_that("Phosphate alpha calculations work.", {
-  k1 = discons$k[discons$ID == "k1po4"]
-  k2 = discons$k[discons$ID == "k2po4"]
-  k3 = discons$k[discons$ID == "k3po4"]
-  expect_equal(round(calculate_alpha1_phosphate(10^-7, k1, k2, k3), 2), 0.61)
-  expect_equal(round(calculate_alpha2_phosphate(10^-7, k1, k2, k3), 2), 0.39)
-  expect_equal(signif(calculate_alpha3_phosphate(10^-7, k1, k2, k3), 2), 1.7E-6)
+  k = data.frame("k1po4" = discons$k[discons$ID == "k1po4"],
+                 "k2po4" = discons$k[discons$ID == "k2po4"],
+                 "k3po4" = discons$k[discons$ID == "k3po4"])
+  expect_equal(round(calculate_alpha1_phosphate(10^-7, k), 2), 0.61)
+  expect_equal(round(calculate_alpha2_phosphate(10^-7, k), 2), 0.39)
+  expect_equal(signif(calculate_alpha3_phosphate(10^-7, k), 2), 1.7E-6)
 })
 
 # Calculate temperature correction ----
