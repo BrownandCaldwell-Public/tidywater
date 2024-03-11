@@ -151,7 +151,7 @@ test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
   expect_equal(water1@tot_po4, water2@tot_po4)
 })
 
-test_that("Balance ions doesn't organics.", {
+test_that("Balance ions doesn't alter organics.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- balance_ions(water1)
   expect_equal(water1@toc, water2@toc)

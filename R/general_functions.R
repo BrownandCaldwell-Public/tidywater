@@ -153,10 +153,10 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     toc = NA_real_
     doc = NA_real_
   } else if (missing(toc) & !missing(doc)) {
-    warning("Missing value for DOC. Default value of 95% of TOC will be used.")
+    warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
     toc = doc / 0.95
   } else if (missing(doc) & !missing(toc)) {
-    warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
+    warning("Missing value for DOC. Default value of 95% of TOC will be used.")
     doc = toc * 0.95
   }
 
