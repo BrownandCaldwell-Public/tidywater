@@ -89,3 +89,73 @@ edwardscoeff <- data.frame(
           b = 0.092)
 
 usethis::use_data(edwardscoeff, overwrite = TRUE)
+
+# Data frame of equilibrium constants for lead and copper solubility
+
+leadsol_constants <- data.frame(
+  # following constants are from Schock et al. (1996) unless otherwise indicated
+  
+  # Solids 
+  
+  "K_solid_lead_hydroxide"= 13.06,
+  
+  "K_solid_cerussite" = -13.11,
+  "K_solid_hydrocerussite" = -18,
+  
+  "K_solid_hydroxypyromorphite_schock" = -62.83,
+  "K_solid_hydroxypyromorphite_zhu" = -66.77, #Zhu et al. (2015)
+  
+  "K_solid_pyromorphite_xie" = -80.4, # Xie & Giammar (2007)
+  "K_solid_pyromorphite_topolska" = -79.6, # Topolska et al. (2016)
+  
+  "K_solid_primary_lead_ortho" = -48.916, # Powell et al. (2009)
+  "K_solid_secondary_lead_ortho" = -23.81,
+  "K_solid_tertiary_lead_ortho" = -44.4, # Powell et al. (2009)
+  
+  
+  
+  "K_solid_anglesite" = -7.79,
+  "K_solid_laurionite_nl" = 0.619, # Nasanen & Lindell (1976)
+  "K_solid_laurionite_loth" = 0.29, # Lothenbach et al. (1999)
+  
+  # Lead-Hydroxide Complexes
+  
+  "B_1_OH" = -7.22, 
+  "B_2_OH" = -16.91, 
+  "B_3_OH" = -28.08, 
+  "B_4_OH" = -39.72, 
+  "B_2_1_OH" = -6.36, 
+  "B_3_4_OH" = -23.86, 
+  "B_4_4_OH" = -20.8, 
+  "B_6_8_OH" = -43.62,
+  
+  # Lead-Chloride Complexes
+  
+  "K_1_Cl" = 1.59, 
+  "B_2_Cl" = 1.8, 
+  "B_3_Cl" = 1.71, 
+  "B_4_Cl" = 1.43,
+  
+  # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
+  
+  "K_s" = -1.99, # Benjamin (2002) 
+  "K_1_SO4" = 2.73, 
+  "B_2_SO4" = 3.5,
+  
+  # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
+  
+  "K_c_1" = -6.355, #Powell et al. (2005) 
+  "K_c_2" = -10.336, #Powell et al. (2005) 
+  "K_1_CO3" = 12.59, 
+  "K_2_CO3" = 7.1, 
+  "K_3_CO3" = 10.33,
+  
+  # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
+  
+  "K_p_1" = -2.141, #Powell et al. (2005) 
+  "K_p_2" = -7.2, #Powell et al. (2005)  
+  "K_p_3" = -12.338, #Powell et al. (2005) 
+  "K_1_PO4" = 15.41,
+  "K_2_PO4" = 21.05)
+
+usethis::use_data(leadsol_constants, overwrite = TRUE)

@@ -74,3 +74,71 @@ NULL
 #' }
 #' @source Fabricated for use in examples.
 "water_df"
+
+#' Data frame of equilibrium constants for lead and copper solubility
+#'
+#' A dataset containing equilibrium constants for lead and copper solubility
+#'
+#' @docType data
+#' @keywords datasets
+#' @name leadsol_constants
+#' @format A dataframe with 1 row and 38 columns
+#' @format Solids:
+#' \describe{
+#' \item{K_solid_lead_hydroxide}{Solid lead hydroxide}
+#' \item{K_solid_cerussite}{Solid cerussite}
+#' \item{K_solid_hydrocerussite}{Solid hydrocerussite}
+#' \item{K_solid_hydroxypyromorphite_schock}{Solid hydroxypyromorphite, from Schock et al. 1996}
+#' \item{K_solid_hydroxypyromorphite_zhu}{Solid hydroxypyromorphite, from Zhu et al. 2015}
+#' \item{K_solid_pyromorphite_xie}{Solid pyromorphite, from Xie & Giammar 2007}
+#' \item{K_solid_pyromorphite_topolska}{Solid pyromorphite, from Topolska et al. 2016}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_secondary_lead_ortho}{Solid secondary lead orthophosphate}
+#' \item{K_solid_tertiary_lead_ortho}{Solid tertiary lead orthophosphate}
+#' \item{K_solid_anglesite}{Solid anglesite}
+#' \item{K_solid_laurionite_nl}{Solid laurionite, from Nasanen & Lindell 1976}
+#' \item{K_solid_laurionite_loth}{Solid laurionite, from Lothenbach et al. 1999}
+#' }
+#' @format Lead-Hydroxide Complexes:
+#' \describe{
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' }
+#' @format Lead-Chloride Complexes:
+#' \describe{
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' }
+#' @format Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes:
+#' \describe{
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' }
+#' @format Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes:
+#' \describe{
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' }
+#' @format Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes:
+#' \describe{
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+
+
+#' @source Edwards (1997) Table 2.
+"leadsol_constants"
