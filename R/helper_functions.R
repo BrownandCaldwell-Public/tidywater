@@ -73,6 +73,8 @@ define_water_once <- function(df) {
 
   water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4) %>%
     convert_water()
+  
+  cbind(df2, water_to_df)
 }
 
 

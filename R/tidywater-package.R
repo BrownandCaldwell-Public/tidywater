@@ -138,6 +138,7 @@ NULL
 #' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
 #' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
 #' \item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+#' }
 
 
 #' @source Edwards (1997) Table 2.
