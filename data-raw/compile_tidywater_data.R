@@ -95,69 +95,166 @@ usethis::use_data(edwardscoeff, overwrite = TRUE)
 # Data frame of equilibrium constants for lead and copper solubility
 
 leadsol_constants <- data.frame(
-  # following constants are from Schock et al. (1996) unless otherwise indicated
-  
+  species_name = c("Lead Hydroxide",
+            "Cerussite",
+            "Hydrocerussite",
+            "Hydroxypyromorphite_s",
+            "Hydroxypyromorphite_z",
+            "Pyromorphite_x",
+            "Pyromorphite_t",
+            "Primary Lead Orthophosphate",
+            "Secondary Lead Orthophosphate",
+            "Tertiary Lead Orthophosphate",
+            "Anglesite",
+            "Laurionite_nl",
+            "Laurionite_l",
+            "PbOH+",
+            "Pb(OH)2",
+            "Pb(OH)3-",
+            "Pb(OH)4-2",
+            "Pb2OH+3",
+            "Pb3(OH)4+2",
+            "Pb4(OH)4+4",
+            "Pb6(OH)8+4",
+            "PbCl+1",
+            "PbCl2",
+            "PbCl3-",
+            "PbCl4-2",
+            "SO4-2",
+            "PbSO4",
+            "Pb(SO4)2-2",
+            "Bicarbonate",
+            "Carbonate",
+            "PbHCO3+",
+            "PbCO3",
+            "Pb(CO3)2-2",
+            "H2PO4-",
+            "HPO4—2",
+            "PO4-3",
+            "PbHPO4",
+            "PbH2PO4+"
+  ),
+
+# following constants are from Schock et al. (1996) unless otherwise indicated
+
   # Solids 
+  constant_name = c(
+  "K_solid_lead_hydroxide",
   
-  "K_solid_lead_hydroxide"= 13.06,
+  "K_solid_cerussite",
+  "K_solid_hydrocerussite" ,
   
-  "K_solid_cerussite" = -13.11,
-  "K_solid_hydrocerussite" = -18,
+  "K_solid_hydroxypyromorphite_schock",
+  "K_solid_hydroxypyromorphite_zhu" , #Zhu et al. (2015)
   
-  "K_solid_hydroxypyromorphite_schock" = -62.83,
-  "K_solid_hydroxypyromorphite_zhu" = -66.77, #Zhu et al. (2015)
+  "K_solid_pyromorphite_xie", # Xie & Giammar (2007)
+  "K_solid_pyromorphite_topolska", # Topolska et al. (2016)
   
-  "K_solid_pyromorphite_xie" = -80.4, # Xie & Giammar (2007)
-  "K_solid_pyromorphite_topolska" = -79.6, # Topolska et al. (2016)
+  "K_solid_primary_lead_ortho", # Powell et al. (2009)
+  "K_solid_secondary_lead_ortho" ,
+  "K_solid_tertiary_lead_ortho" , # Powell et al. (2009)
   
-  "K_solid_primary_lead_ortho" = -48.916, # Powell et al. (2009)
-  "K_solid_secondary_lead_ortho" = -23.81,
-  "K_solid_tertiary_lead_ortho" = -44.4, # Powell et al. (2009)
-  
-  
-  
-  "K_solid_anglesite" = -7.79,
-  "K_solid_laurionite_nl" = 0.619, # Nasanen & Lindell (1976)
-  "K_solid_laurionite_loth" = 0.29, # Lothenbach et al. (1999)
+  "K_solid_anglesite",
+  "K_solid_laurionite_nl", # Nasanen & Lindell (1976)
+  "K_solid_laurionite_loth", # Lothenbach et al. (1999)
   
   # Lead-Hydroxide Complexes
   
-  "B_1_OH" = -7.22, 
-  "B_2_OH" = -16.91, 
-  "B_3_OH" = -28.08, 
-  "B_4_OH" = -39.72, 
-  "B_2_1_OH" = -6.36, 
-  "B_3_4_OH" = -23.86, 
-  "B_4_4_OH" = -20.8, 
-  "B_6_8_OH" = -43.62,
+  "B_1_OH", 
+  "B_2_OH" , 
+  "B_3_OH", 
+  "B_4_OH", 
+  "B_2_1_OH", 
+  "B_3_4_OH" , 
+  "B_4_4_OH" , 
+  "B_6_8_OH",
   
   # Lead-Chloride Complexes
   
-  "K_1_Cl" = 1.59, 
-  "B_2_Cl" = 1.8, 
-  "B_3_Cl" = 1.71, 
-  "B_4_Cl" = 1.43,
+  "K_1_Cl" , 
+  "B_2_Cl", 
+  "B_3_Cl" , 
+  "B_4_Cl" ,
   
   # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
   
-  "K_s" = -1.99, # Benjamin (2002) 
-  "K_1_SO4" = 2.73, 
-  "B_2_SO4" = 3.5,
+  "K_s" , # Benjamin (2002) 
+  "K_1_SO4" , 
+  "B_2_SO4" ,
   
   # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
   
-  "K_c_1" = -6.355, #Powell et al. (2005) 
-  "K_c_2" = -10.336, #Powell et al. (2005) 
-  "K_1_CO3" = 12.59, 
-  "K_2_CO3" = 7.1, 
-  "K_3_CO3" = 10.33,
+  "K_c_1" , #Powell et al. (2005) 
+  "K_c_2" , #Powell et al. (2005) 
+  "K_1_CO3" , 
+  "K_2_CO3" , 
+  "K_3_CO3" ,
   
   # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
   
-  "K_p_1" = -2.141, #Powell et al. (2005) 
-  "K_p_2" = -7.2, #Powell et al. (2005)  
-  "K_p_3" = -12.338, #Powell et al. (2005) 
-  "K_1_PO4" = 15.41,
-  "K_2_PO4" = 21.05)
+  "K_p_1" , #Powell et al. (2005) 
+  "K_p_2" , #Powell et al. (2005)  
+  "K_p_3" , #Powell et al. (2005) 
+  "K_1_PO4" ,
+  "K_2_PO4" ),
+
+log_value = c(
+  13.06,
+  -13.11,
+  -18,
+  -62.83,
+  -66.77, #Zhu et al. (2015)
+  -80.4, # Xie & Giammar (2007)
+  -79.6, # Topolska et al. (2016)
+  -48.916, # Powell et al. (2009)
+  -23.81,
+  -44.4, # Powell et al. (2009)
+  -7.79,
+  0.619, # Nasanen & Lindell (1976)
+  0.29, # Lothenbach et al. (1999)
+  
+  # Lead-Hydroxide Complexes
+  
+  -7.22, 
+  -16.91, 
+  -28.08, 
+  -39.72, 
+  -6.36, 
+  -23.86, 
+  -20.8, 
+  -43.62,
+  
+  # Lead-Chloride Complexes
+  
+  1.59, 
+  1.8, 
+  1.71, 
+  1.43,
+  
+  # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
+  
+  -1.99, # Benjamin (2002) 
+  2.73, 
+  3.5,
+  
+  # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
+  
+  -6.355, #Powell et al. (2005) 
+  -10.336, #Powell et al. (2005) 
+  12.59, 
+  7.1, 
+  10.33,
+  
+  # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
+  
+  -2.141, #Powell et al. (2005) 
+  -7.2, #Powell et al. (2005)  
+  -12.338, #Powell et al. (2005) 
+  15.41,
+  21.05)
+  
+)
+
+
 
 usethis::use_data(leadsol_constants, overwrite = TRUE)
