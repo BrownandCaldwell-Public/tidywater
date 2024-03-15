@@ -78,18 +78,27 @@ leadsol_constants <- data.frame(
 #'
 #' @export
 #' 
-
+library(tidywater)
+library(tidyverse)
 # test <- simulate_solubility(7, 20, .1, 20, 100, 10, 30)
 
 # Define function to simulate lead solubility
-simulate_solubility <- function(pH, 
-                                Temperature, # C
-                                IS, # M 
-                                Chloride, # mg/L
-                                DICmg, # mg/L  
-                                TOTPmg, # mg/L
-                                TOTSO4mg) { # mg/L
+# simulate_solubility <- function(pH, 
+#                                 Temperature, # C
+#                                 IS, # M 
+#                                 Chloride, # mg/L
+#                                 DICmg, # mg/L  
+#                                 TOTPmg, # mg/L
+#                                 TOTSO4mg) { # mg/L
+  simulate_solubility <- function(water, IS, DICmg) { # mg/L
   
+    pH = water@pH
+    Temperature = water@temp
+    Chloride = water@cl
+    TOTPmg = water@tot_po4
+    TOTSO4mg = water@so4 
+    
+    
   # for unit tests
   # pH = 7.86
   # Temperature = 7.1
