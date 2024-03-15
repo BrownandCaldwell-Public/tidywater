@@ -25,7 +25,9 @@ mweights <- data.frame(na = 22.98977,
   ca = 40.078,
   po4 = 94.97,
   hco3 = 61.0168,
-  co3 = 60.0089)
+  co3 = 60.0089,
+  pb = 207.2,
+  dic = 12.011)
 
 usethis::use_data(mweights, overwrite = TRUE)
 
