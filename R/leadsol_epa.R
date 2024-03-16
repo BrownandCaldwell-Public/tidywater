@@ -1,69 +1,163 @@
 leadsol_constants <- data.frame(
+  species_name = c("Lead Hydroxide",
+                   "Cerussite",
+                   "Hydrocerussite",
+                   "Hydroxypyromorphite_s",
+                   "Hydroxypyromorphite_z",
+                   "Pyromorphite_x",
+                   "Pyromorphite_t",
+                   "Primary Lead Orthophosphate",
+                   "Secondary Lead Orthophosphate",
+                   "Tertiary Lead Orthophosphate",
+                   "Anglesite",
+                   "Laurionite_nl",
+                   "Laurionite_l",
+                   "PbOH+",
+                   "Pb(OH)2",
+                   "Pb(OH)3-",
+                   "Pb(OH)4-2",
+                   "Pb2OH+3",
+                   "Pb3(OH)4+2",
+                   "Pb4(OH)4+4",
+                   "Pb6(OH)8+4",
+                   "PbCl+1",
+                   "PbCl2",
+                   "PbCl3-",
+                   "PbCl4-2",
+                   "SO4-2",
+                   "PbSO4",
+                   "Pb(SO4)2-2",
+                   "Bicarbonate",
+                   "Carbonate",
+                   "PbHCO3+",
+                   "PbCO3",
+                   "Pb(CO3)2-2",
+                   "H2PO4-",
+                   "HPO4—2",
+                   "PO4-3",
+                   "PbHPO4",
+                   "PbH2PO4+"
+  ),
+  
   # following constants are from Schock et al. (1996) unless otherwise indicated
   
   # Solids 
+  constant_name = c(
+    "K_solid_lead_hydroxide",
+    
+    "K_solid_cerussite",
+    "K_solid_hydrocerussite" ,
+    
+    "K_solid_hydroxypyromorphite_schock",
+    "K_solid_hydroxypyromorphite_zhu" , #Zhu et al. (2015)
+    
+    "K_solid_pyromorphite_xie", # Xie & Giammar (2007)
+    "K_solid_pyromorphite_topolska", # Topolska et al. (2016)
+    
+    "K_solid_primary_lead_ortho", # Powell et al. (2009)
+    "K_solid_secondary_lead_ortho" ,
+    "K_solid_tertiary_lead_ortho" , # Powell et al. (2009)
+    
+    "K_solid_anglesite",
+    "K_solid_laurionite_nl", # Nasanen & Lindell (1976)
+    "K_solid_laurionite_loth", # Lothenbach et al. (1999)
+    
+    # Lead-Hydroxide Complexes
+    
+    "B_1_OH", 
+    "B_2_OH" , 
+    "B_3_OH", 
+    "B_4_OH", 
+    "B_2_1_OH", 
+    "B_3_4_OH" , 
+    "B_4_4_OH" , 
+    "B_6_8_OH",
+    
+    # Lead-Chloride Complexes
+    
+    "K_1_Cl" , 
+    "B_2_Cl", 
+    "B_3_Cl" , 
+    "B_4_Cl" ,
+    
+    # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
+    
+    "K_s" , # Benjamin (2002) 
+    "K_1_SO4" , 
+    "B_2_SO4" ,
+    
+    # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
+    
+    "K_c_1" , #Powell et al. (2005) 
+    "K_c_2" , #Powell et al. (2005) 
+    "K_1_CO3" , 
+    "K_2_CO3" , 
+    "K_3_CO3" ,
+    
+    # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
+    
+    "K_p_1" , #Powell et al. (2005) 
+    "K_p_2" , #Powell et al. (2005)  
+    "K_p_3" , #Powell et al. (2005) 
+    "K_1_PO4" ,
+    "K_2_PO4" ),
   
-  "K_solid_lead_hydroxide"= 13.06,
+  log_value = c(
+    13.06,
+    -13.11,
+    -18,
+    -62.83,
+    -66.77, #Zhu et al. (2015)
+    -80.4, # Xie & Giammar (2007)
+    -79.6, # Topolska et al. (2016)
+    -48.916, # Powell et al. (2009)
+    -23.81,
+    -44.4, # Powell et al. (2009)
+    -7.79,
+    0.619, # Nasanen & Lindell (1976)
+    0.29, # Lothenbach et al. (1999)
+    
+    # Lead-Hydroxide Complexes
+    
+    -7.22, 
+    -16.91, 
+    -28.08, 
+    -39.72, 
+    -6.36, 
+    -23.86, 
+    -20.8, 
+    -43.62,
+    
+    # Lead-Chloride Complexes
+    
+    1.59, 
+    1.8, 
+    1.71, 
+    1.43,
+    
+    # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
+    
+    -1.99, # Benjamin (2002) 
+    2.73, 
+    3.5,
+    
+    # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
+    
+    -6.355, #Powell et al. (2005) 
+    -10.336, #Powell et al. (2005) 
+    12.59, 
+    7.1, 
+    10.33,
+    
+    # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
+    
+    -2.141, #Powell et al. (2005) 
+    -7.2, #Powell et al. (2005)  
+    -12.338, #Powell et al. (2005) 
+    15.41,
+    21.05)
   
-  "K_solid_cerussite" = -13.11,
-  "K_solid_hydrocerussite" = -18,
-  
-  "K_solid_hydroxypyromorphite_schock" = -62.83,
-  "K_solid_hydroxypyromorphite_zhu" = -66.77, #Zhu et al. (2015)
-  
-  "K_solid_pyromorphite_xie" = -80.4, # Xie & Giammar (2007)
-  "K_solid_pyromorphite_topolska" = -79.6, # Topolska et al. (2016)
-  
-  "K_solid_primary_lead_ortho" = -48.916, # Powell et al. (2009)
-  "K_solid_secondary_lead_ortho" = -23.81,
-  "K_solid_tertiary_lead_ortho" = -44.4, # Powell et al. (2009)
-  
-  
-  
-  "K_solid_anglesite" = -7.79,
-  "K_solid_laurionite_nl" = 0.619, # Nasanen & Lindell (1976)
-  "K_solid_laurionite_loth" = 0.29, # Lothenbach et al. (1999)
-  
-  # Lead-Hydroxide Complexes
-  
-  "B_1_OH" = -7.22, 
-  "B_2_OH" = -16.91, 
-  "B_3_OH" = -28.08, 
-  "B_4_OH" = -39.72, 
-  "B_2_1_OH" = -6.36, 
-  "B_3_4_OH" = -23.86, 
-  "B_4_4_OH" = -20.8, 
-  "B_6_8_OH" = -43.62,
-  
-  # Lead-Chloride Complexes
-  
-  "K_1_Cl" = 1.59, 
-  "B_2_Cl" = 1.8, 
-  "B_3_Cl" = 1.71, 
-  "B_4_Cl" = 1.43,
-  
-  # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
-  
-  "K_s" = -1.99, # Benjamin (2002) 
-  "K_1_SO4" = 2.73, 
-  "B_2_SO4" = 3.5,
-  
-  # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
-  
-  "K_c_1" = -6.355, #Powell et al. (2005) 
-  "K_c_2" = -10.336, #Powell et al. (2005) 
-  "K_1_CO3" = 12.59, 
-  "K_2_CO3" = 7.1, 
-  "K_3_CO3" = 10.33,
-  
-  # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
-  
-  "K_p_1" = -2.141, #Powell et al. (2005) 
-  "K_p_2" = -7.2, #Powell et al. (2005)  
-  "K_p_3" = -12.338, #Powell et al. (2005) 
-  "K_1_PO4" = 15.41,
-  "K_2_PO4" = 21.05)
-
+)
 #' Calc lead sol
 #'
 #' This function calcs leadsol
@@ -78,27 +172,20 @@ leadsol_constants <- data.frame(
 #'
 #' @export
 #' 
-library(tidywater)
-library(tidyverse)
-# test <- simulate_solubility(7, 20, .1, 20, 100, 10, 30)
+
+
 
 # Define function to simulate lead solubility
-# simulate_solubility <- function(pH, 
-#                                 Temperature, # C
-#                                 IS, # M 
-#                                 Chloride, # mg/L
-#                                 DICmg, # mg/L  
-#                                 TOTPmg, # mg/L
-#                                 TOTSO4mg) { # mg/L
-  simulate_solubility <- function(water, IS, DICmg) { # mg/L
+
+  simulate_solubility <- function(water, IS) { # mg/L
   
     ph = water@ph
     temp = water@temp
     cl = water@cl
     tot_po4 = water@tot_po4
     so4 = water@so4 
-    
-    
+    dic = calculate_dic(water=water)
+
   # for unit tests
   # ph = 7.86
   # temp = 7.1
@@ -107,26 +194,23 @@ library(tidyverse)
   # DICmg = 39
   # tot_po4 = 0
   # so4 = 156.6
-  
-  eq_constants <- read_excel("constants.xlsx", sheet = "Constants") %>%
-    mutate(K_num = 10^as.numeric(gsub("10\\^","",K)))
-  
+
   leadsol_K <- leadsol_constants %>%
-    mutate(across(everything(), ~10^.)) %>%
-    pivot_longer(everything(), names_to = "sim_Names", values_to = "K_num")
+    mutate(K_num = 10^log_value)
   
-  list2env(setNames(as.list(leadsol_K$K_num), leadsol_K$sim_Names), .GlobalEnv)
+  list2env(setNames(as.list(leadsol_K$K_num), leadsol_K$constant_name), .GlobalEnv)
   
   # Set molecular weights. NOTE!! Delete this once weights has pb, dic merged.
 
   Pb_MW <- 207.2
   DIC_MW <- 12.011
   
+  
   # Convert user selected concentrations to molar concentrations
   #NOTE!! need to add dic, po4, and pb to convert_units
   cl <- convert_units(cl, "cl")
   so4 <- convert_units(so4, "so4")
-  dic <- DICmg / 12.011 / 1000
+  dic <- dic / 12.011 / 1000
   # dic <- dic/mweights$dic/1000
   tot_po4 <- tot_po4 / mweights$po4/1000
   # tot_po4 <- convert_units(tot_po4, "po4")
@@ -147,41 +231,35 @@ library(tidyverse)
   gamma_4 <- 10^(-A * 4^2 * (IS^0.5 / (1 + IS^0.5) - 0.3 * IS))
   
   # Calculations for carbonate acid-base species
-  # Correct constants for ionic strength
-  
-  # acid_base <- eq_constants %>%
-  #   filter(Group == "Carbonate" | Group == "Sulfate" | Group == "Phosphate") %>%
-  #   mutate(K_corrected = case_when(molsPb == 1 ~ K_num / gamma_1,
-  #                                  molsPb == 2 ~ gamma_1 * K_num / gamma_2,
-  #                                  molsPb == 3 ~ gamma_2 * K_num / gamma_3)) %>%
-  #   select(sim_Names, K_corrected) %>%
-  #   pivot_wider(names_from = sim_Names, values_from = K_corrected)
-  
+
   ###################*
   # Carbonate species ----
   ###################*
-  K_c_1_c <- as.numeric(K_c_1) / gamma_1
-  K_c_2_c <- gamma_1 * as.numeric(K_c_2) / gamma_2
-
   
+  # Correct constants for ionic strength
+  K_c_1_c <- K_c_1 / gamma_1
+  K_c_2_c <- gamma_1 * K_c_2 / gamma_2
+
   # Calculations for carbonate acid-base species
   alpha_0_c <- 1 / (1 + K_c_1_c / H_plus_a + K_c_1_c * K_c_2_c / H_plus_a^2)
   alpha_1_c <- 1 / (H_plus_a / K_c_1_c + 1 + K_c_2_c / H_plus_a)
   alpha_2_c <- 1 / (H_plus_a^2 / (K_c_1_c * K_c_2_c) + H_plus_a / K_c_2_c + 1)
   
   # Calculate carbonate species concentrations
-  H2CO3 <- alpha_0_c * dic
-  HCO3_minus <- alpha_1_c * dic
-  CO3_2_minus <- alpha_2_c * dic
+  
+  # should these account for any carbonate already in water? Or maybe already incorporated into dic?
+  h2co3 <- alpha_0_c * dic
+  hco3 <- alpha_1_c * dic
+  co3 <- alpha_2_c * dic
   
   ###################*
   # Phosphate species----
   ###################*
-  K_p_1_c <- as.numeric(K_p_1) / gamma_1
-  K_p_2_c <- gamma_1 * as.numeric(K_p_2) / gamma_2
-  K_p_3_c <- gamma_2 * as.numeric(K_p_3) / gamma_3
+  # Correct constants for ionic strength
+  K_p_1_c <- K_p_1 / gamma_1
+  K_p_2_c <- gamma_1 * K_p_2 / gamma_2
+  K_p_3_c <- gamma_2 * K_p_3 / gamma_3
 
-  
   # Calculations for phosphate alpha values
   alpha_0_p <- 1 / (1 + K_p_1_c / H_plus_a + K_p_1_c * K_p_2_c / H_plus_a^2 + K_p_1_c * K_p_2_c * K_p_3_c / H_plus_a^3)
   alpha_1_p <- 1 / (H_plus_a / K_p_1_c + 1 + K_p_2_c / H_plus_a + K_p_2_c * K_p_3_c / H_plus_a^2)
@@ -191,77 +269,58 @@ library(tidyverse)
   ###################*
   # Sulfate species ----
   ###################*
-  K_s_c <- gamma_1 * as.numeric(K_s) / gamma_2
+  # Correct constants for ionic strength
+  K_s_c <- gamma_1 * K_s / gamma_2
   
   # Calculate phosphate species concentrations
-  H3PO4 <- alpha_0_p * tot_po4
-  H2PO4_minus <- alpha_1_p * tot_po4
-  HPO4_2_minus <- alpha_2_p * tot_po4
-  PO4_3_minus <- alpha_3_p * tot_po4
+  h3po4 <- alpha_0_p * tot_po4
+  h2po4 <- alpha_1_p * tot_po4
+  hpo4 <- alpha_2_p * tot_po4
+  ######should this actually be tot_po4  = alpha* tot_po4??----
+  po4 <- alpha_3_p * tot_po4
   
   # Calculations for sulfate acid-base species
   alpha_0_s <- 1 / (1 + K_s_c / H_plus_a)
   alpha_1_s <- 1 / (H_plus_a / K_s_c + 1)
   
   # Calculate sulfate species concentrations
-  HSO4_minus <- alpha_0_s * so4
-  SO4_2_minus <- alpha_1_s * so4
+  hso4 <- alpha_0_s * so4
+  so4 <- alpha_1_s * so4
   
   # * Calculate lead solid solubility based on controlling solid ----
   
-  #Set constants for each solid
-  pb_names <- tibble(Names = c("Lead Hydroxide",
-                                     "Cerussite",
-                                     "Hydrocerussite",
-                                     "Hydroxypyromorphite_s",
-                                     "Hydroxypyromorphite_z",
-                                     "Pyromorphite_x",
-                                     "Pyromorphite_t",
-                                     "Primary Lead Orthophosphate",
-                                     "Secondary Lead Orthophosphate",
-                                     "Tertiary Lead Orthophosphate",
-                                     "Anglesite",
-                                     "Laurionite_nl",
-                                     "Laurionite_l"))
   solids <- leadsol_K %>%
-    filter(grepl("solid", sim_Names)) %>%
+    filter(grepl("solid", constant_name)) %>%
     # Lead Hydroxide: Pb(OH)2(s) + 2H+ --> Pb2+ + 2H2O
-    mutate(Pb_2_plus = case_when(sim_Names == "K_solid_lead_hydroxide" ~ K_num * H_plus_a^2 / gamma_2,
+    mutate(Pb_2_plus = case_when(constant_name == "K_solid_lead_hydroxide" ~ K_num * H_plus_a^2 / gamma_2,
                                  # Cerussite: PbCO3(s) --> Pb2+ + CO32-
-                                 sim_Names == "K_solid_cerussite" ~ K_num / (gamma_2^2 * CO3_2_minus),
+                                 constant_name == "K_solid_cerussite" ~ K_num / (gamma_2^2 * co3),
                                  # Hydrocerussite: Pb3(CO3)2(OH)2(s) + 2H+ --> 3Pb2+ + 2CO32- + 2H2O
-                                 sim_Names == "K_solid_hydrocerussite" ~ (K_num * H_plus_a^2 / (gamma_2^5 * CO3_2_minus^2))^(1/3),
+                                 constant_name == "K_solid_hydrocerussite" ~ (K_num * H_plus_a^2 / (gamma_2^5 * co3^2))^(1/3),
                                  # Hydroxypyromorphite: Pb5(PO4)3OH(s) + H+ --> 5Pb2+ + 3PO43- + H2O
-                                 sim_Names == "K_solid_hydroxypyromorphite_schock" ~ (K_num * H_plus_a / (gamma_2^5 * gamma_3^3 * PO4_3_minus^3))^(1/5),
-                                 sim_Names == "K_solid_hydroxypyromorphite_zhu" ~ (K_num * H_plus_a / (gamma_2^5 * gamma_3^3 * PO4_3_minus^3))^(1/5),
+                                 constant_name == "K_solid_hydroxypyromorphite_schock" ~ (K_num * H_plus_a / (gamma_2^5 * gamma_3^3 * po4^3))^(1/5),
+                                 constant_name == "K_solid_hydroxypyromorphite_zhu" ~ (K_num * H_plus_a / (gamma_2^5 * gamma_3^3 * po4^3))^(1/5),
                                  # Pyromorphite: Pb5(PO4)3Cl(s) --> 5Pb2+ + 3PO43- + Cl-
-                                 sim_Names == "K_solid_pyromorphite_xie" ~ (K_num / (gamma_1 * gamma_2^5 * gamma_3^3 * PO4_3_minus^3 * cl))^(1/5),
-                                 sim_Names == "K_solid_pyromorphite_topolska" ~ (K_num / (gamma_1 * gamma_2^5 * gamma_3^3 * PO4_3_minus^3 * cl))^(1/5),
+                                 constant_name == "K_solid_pyromorphite_xie" ~ (K_num / (gamma_1 * gamma_2^5 * gamma_3^3 * po4^3 * cl))^(1/5),
+                                 constant_name == "K_solid_pyromorphite_topolska" ~ (K_num / (gamma_1 * gamma_2^5 * gamma_3^3 * po4^3 * cl))^(1/5),
                                  # Primary Lead Orthophosphate: Pb(H2PO4)2(s) --> Pb2+ + 2PO43- + 4H+
-                                 sim_Names == "K_solid_primary_lead_ortho" ~ K_num / (gamma_2 * gamma_3^2 * PO4_3_minus^2 * H_plus_a^4),
+                                 constant_name == "K_solid_primary_lead_ortho" ~ K_num / (gamma_2 * gamma_3^2 * po4^2 * H_plus_a^4),
                                  # Secondary Lead Orthophosphate: PbHPO4(s) --> Pb2+ + PO43- + H+
-                                 sim_Names == "K_solid_secondary_lead_ortho" ~ K_num / (gamma_2 * gamma_3 * PO4_3_minus * H_plus_a),
+                                 constant_name == "K_solid_secondary_lead_ortho" ~ K_num / (gamma_2 * gamma_3 * po4 * H_plus_a),
                                  # Tertiary Lead Orthophosphate: Pb3(PO4)2(s) --> 3Pb2+ + 2PO43- + H+
-                                 sim_Names == "K_solid_tertiary_lead_ortho" ~ (K_num / (gamma_2^3 * gamma_3^2 * PO4_3_minus^2))^(1/3),
+                                 constant_name == "K_solid_tertiary_lead_ortho" ~ (K_num / (gamma_2^3 * gamma_3^2 * po4^2))^(1/3),
                                  # Anglesite: PbSO4(s) --> Pb2+ + SO42-
-                                 sim_Names == "K_solid_anglesite" ~ K_num / (gamma_2^2 * SO4_2_minus),
+                                 constant_name == "K_solid_anglesite" ~ K_num / (gamma_2^2 * so4),
                                  # Laurionite: PbClOH(s) + H+ --> Pb2+ + Cl- + H2O
-                                 sim_Names == "K_solid_laurionite_nl" ~ K_num * H_plus_a / (gamma_2 * gamma_1 * cl),
-                                 sim_Names == "K_solid_laurionite_loth" ~ K_num * H_plus_a / (gamma_2 * gamma_1 * cl)
-                                 )) %>%
-    mutate(ph = ph,
-           dic = dic,
-           tot_po4 = tot_po4,
-           so4 = so4,
-           IS = IS,
-           cl=cl) %>%
-    cbind(pb_names)
-
+                                 constant_name == "K_solid_laurionite_nl" ~ K_num * H_plus_a / (gamma_2 * gamma_1 * cl),
+                                 constant_name == "K_solid_laurionite_loth" ~ K_num * H_plus_a / (gamma_2 * gamma_1 * cl)
+                                 ))
   
   # * Calculation of complex concentrations ----
   complexes <- leadsol_K %>%
-    filter(!grepl("solid|K_s|K_c|K_p", sim_Names)) %>%
-    pivot_wider(names_from = sim_Names, values_from = K_num)
+    filter(!grepl("solid|K_s|K_c|K_p", constant_name)) %>%
+    select(-log_value, -species_name) %>%
+    pivot_wider(names_from = constant_name, values_from = K_num)
   
   alllead <- solids %>%
     cross_join(complexes) %>%
@@ -280,15 +339,15 @@ library(tidyverse)
       PbCl3_minus = (B_3_Cl) * gamma_2 * Pb_2_plus * gamma_1^2 * cl^3,
       PbCl4_2_minus = (B_4_Cl) * Pb_2_plus * gamma_1^4 * cl^4,
       # Calculate lead-sulfate complex concentrations
-      PbSO4 = (K_1_SO4) * gamma_2^2 * Pb_2_plus * SO4_2_minus,
-      PbSO42_2_minus = (B_2_SO4) * gamma_2^2 * Pb_2_plus * SO4_2_minus^2,
+      PbSO4 = (K_1_SO4) * gamma_2^2 * Pb_2_plus * so4,
+      PbSO42_2_minus = (B_2_SO4) * gamma_2^2 * Pb_2_plus * so4^2,
       # Calculate lead-carbonate complex concentrations
-      PbHCO3_plus = ((K_1_CO3) * H_plus_a * gamma_2^2 * Pb_2_plus * CO3_2_minus) / gamma_1,
-      PbCO3 = (K_2_CO3) * gamma_2^2 * Pb_2_plus * CO3_2_minus,
-      PbCO32_2_minus = (K_3_CO3) * gamma_2^2 * Pb_2_plus * CO3_2_minus^2,
+      PbHCO3_plus = ((K_1_CO3) * H_plus_a * gamma_2^2 * Pb_2_plus * co3) / gamma_1,
+      PbCO3 = (K_2_CO3) * gamma_2^2 * Pb_2_plus * co3,
+      PbCO32_2_minus = (K_3_CO3) * gamma_2^2 * Pb_2_plus * co3^2,
       # Calculate lead-phosphate complex concentrations
-      PbHPO4 = (K_1_PO4) * H_plus_a * gamma_2 * gamma_3 * Pb_2_plus * PO4_3_minus,
-      PbH2PO4_plus = (K_2_PO4) * H_plus_a^2 * gamma_2 * gamma_3 * Pb_2_plus * PO4_3_minus / gamma_1) %>%
+      PbHPO4 = (K_1_PO4) * H_plus_a * gamma_2 * gamma_3 * Pb_2_plus * po4,
+      PbH2PO4_plus = (K_2_PO4) * H_plus_a^2 * gamma_2 * gamma_3 * Pb_2_plus * po4 / gamma_1) %>%
     mutate(# Calculate total dissolved lead molar concentration
       TOTSOLPb = Pb_2_plus +
         PbOH_plus + PbOH2 + PbOH3_minus + PbOH4_2_minus + 2 * Pb2OH_3_plus + 3 * Pb3OH4_2_plus + 4 * Pb4OH4_4_plus + 6 * Pb6OH8_4_plus +
@@ -298,19 +357,47 @@ library(tidyverse)
         PbHPO4 + PbH2PO4_plus)
   
   alllead_simple <- alllead %>%
-    select(Names, Pb_2_plus, TOTSOLPb)
+    select(species_name, Pb_2_plus, TOTSOLPb) %>%
+    mutate(ph = ph,
+           dic = dic,
+           tot_po4 = tot_po4,
+           so4 = so4,
+           IS = IS,
+           cl=cl
+           #output other things like hco3, co3 etc too?
+           ) 
   
   return(alllead_simple)
   
-}
-
+  }
+  
+  # these don't match epa dash, but epa doesn't have input for temp...
+#   test <- define_water(8, 25, 100, cl=100, tot_po4 =0, so4 = 100) %>%
+#     simulate_solubility(IS = 5)
+# dic <- calculate_dic(test)
+  
 # Controlling solid
 # Solid with lowest solubility will form the lead scale
 
-
-
-# Copied from my other code.  Copied from Damon's code before that.
-TOTCO3_calc <- function(Alkalinity, pH) {
+#' Calc DIC (TOTCO3)
+#'
+#' This function calcs dic
+#'
+#' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#'
+#' example_df <- water_df %>% define_water_once()
+#'
+#' @export
+#' 
+# Copied from Sierra's code.  Copied from Damon's code before that.
+calculate_dic <- function(water) {
+  
+  Alkalinity = water@alk
+  ph = water@ph
   
   # Convert alkalinity from mg/L as CaCO3 to meq/L
   Alkalinity_eq <- Alkalinity * (1/50) / 1000
