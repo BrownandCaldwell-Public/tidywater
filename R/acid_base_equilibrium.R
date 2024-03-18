@@ -81,7 +81,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #'
 #' @export
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 =0, caoh2 = 0, mgoh2 = 0,
                           cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                           alum = 0, fecl3 = 0, fe2so43 = 0) {
 
@@ -108,6 +108,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Sodium bicarbonate (NaHCO3) dose
   nahco3 = convert_units(nahco3, "nahco3")
+  # CaCO3
+  caco3 = convert_units(caco3, "caco3")
 
   # Lime (Ca(OH)2) dose
   caoh2 = convert_units(caoh2, "caoh2")
@@ -144,7 +146,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@na = water@na + na_dose
 
   # Total calcium
-  ca_dose = caoh2 + caocl2 / 2
+  ca_dose = caoh2 + caocl2 / 2 + caco3
   dosed_water@ca = water@ca + ca_dose
 
   # Total magnesium
@@ -172,7 +174,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@tot_ocl = water@tot_ocl + ocl_dose
 
   # Total carbonate
-  co3_dose = na2co3 + nahco3 + co2
+  co3_dose = na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
 
   # Calculate new pH, H+ and OH- concentrations
@@ -198,6 +200,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   return(dosed_water)
 }
 
+# test <- define_water(9.2, 25, 10)
+# test2 <- chemdose_ph(test, caco3 = -10)
+# test3 <- chemdose_ph(test, caco3 = 20)
 
 
 #' Calculate a desired chemical dose for a target pH
