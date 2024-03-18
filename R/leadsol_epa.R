@@ -173,8 +173,8 @@ leadsol_constants <- data.frame(
 #' @export
 #' 
 
-
-
+library(tidywater)
+library(tidyverse)
 # Define function to simulate lead solubility
 
   simulate_solubility <- function(water, IS) { # mg/L
@@ -371,10 +371,11 @@ leadsol_constants <- data.frame(
   
   }
   
-  # these don't match epa dash, but epa doesn't have input for temp...
-#   test <- define_water(8, 25, 100, cl=100, tot_po4 =0, so4 = 100) %>%
-#     simulate_solubility(IS = 5)
-# dic <- calculate_dic(test)
+# these don't match epa dash, but epa doesn't have input for temp...
+  test <- define_water(8, 25, 100, cl=100, tot_po4 =0, so4 = 100) 
+dic <- calculate_dic(test)
+test_sol <- test %>%
+  simulate_solubility(IS = 5)
   
 # Controlling solid
 # Solid with lowest solubility will form the lead scale
