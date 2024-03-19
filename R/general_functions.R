@@ -398,7 +398,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     charge <- 1
   } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca")) {
     charge <- 2
-  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43")) {
+  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
     charge <- 3
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     # This is included so that charge can be in equations later without impacting results
