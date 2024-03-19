@@ -86,9 +86,9 @@ NULL
 
 #' @format Solids:
 #' \describe{
-#' \item{K_solid_lead_hydroxide: Solid lead hydroxide}
-#' \item{K_solid_cerussite: Solid cerussite}
-#' \item{K_solid_hydrocerussite: Solid hydrocerussite}
+#' \item{K_solid_lead_hydroxide}{Solid lead hydroxide}
+#' \item{K_solid_cerussite}{Solid cerussite}
+#' \item{K_solid_hydrocerussite}{Solid hydrocerussite}
 #' \item{K_solid_hydroxypyromorphite_schock: Solid hydroxypyromorphite, from Schock et al. 1996}
 #' \item{K_solid_hydroxypyromorphite_zhu: Solid hydroxypyromorphite, from Zhu et al. 2015}
 #' \item{K_solid_pyromorphite_xie: Solid pyromorphite, from Xie & Giammar 2007}
