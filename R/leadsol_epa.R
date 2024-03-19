@@ -172,12 +172,12 @@ leadsol_constants <- data.frame(
 #'
 #' @export
 #' 
-
+# 
 library(tidywater)
 library(tidyverse)
 # Define function to simulate lead solubility
 
-  simulate_solubility <- function(water, IS) { # mg/L
+  simulate_solubility <- function(water, is) {
   
     ph = water@ph
     temp = water@temp
@@ -185,11 +185,13 @@ library(tidyverse)
     tot_po4 = water@tot_po4
     so4 = water@so4 
     dic = calculate_dic(water=water)
+    #use this once IS updates added to define water
+    # is = water@is
 
   # for unit tests
   # ph = 7.86
   # temp = 7.1
-  # IS = .02
+  # is = .02
   # cl = 241.8
   # DICmg = 39
   # tot_po4 = 0
@@ -198,6 +200,7 @@ library(tidyverse)
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
   
+  # There's probably a better way to do this than outputting all constants to global env
   list2env(setNames(as.list(leadsol_K$K_num), leadsol_K$constant_name), .GlobalEnv)
   
   # Set molecular weights. NOTE!! Delete this once weights has pb, dic merged.
@@ -225,10 +228,10 @@ library(tidyverse)
   
   A <- 1824830 * (epsilon * T_K)^-1.5
   
-  gamma_1 <- 10^(-A * 1^2 * (IS^0.5 / (1 + IS^0.5) - 0.3 * IS))
-  gamma_2 <- 10^(-A * 2^2 * (IS^0.5 / (1 + IS^0.5) - 0.3 * IS))
-  gamma_3 <- 10^(-A * 3^2 * (IS^0.5 / (1 + IS^0.5) - 0.3 * IS))
-  gamma_4 <- 10^(-A * 4^2 * (IS^0.5 / (1 + IS^0.5) - 0.3 * IS))
+  gamma_1 <- 10^(-A * 1^2 * (is^0.5 / (1 + is^0.5) - 0.3 * is))
+  gamma_2 <- 10^(-A * 2^2 * (is^0.5 / (1 + is^0.5) - 0.3 * is))
+  gamma_3 <- 10^(-A * 3^2 * (is^0.5 / (1 + is^0.5) - 0.3 * is))
+  gamma_4 <- 10^(-A * 4^2 * (is^0.5 / (1 + is^0.5) - 0.3 * is))
   
   # Calculations for carbonate acid-base species
 
@@ -362,7 +365,7 @@ library(tidyverse)
            dic = dic,
            tot_po4 = tot_po4,
            so4 = so4,
-           IS = IS,
+           is = is,
            cl=cl
            #output other things like hco3, co3 etc too?
            ) 
@@ -371,11 +374,11 @@ library(tidyverse)
   
   }
   
-# these don't match epa dash, but epa doesn't have input for temp...
-  test <- define_water(8, 25, 100, cl=100, tot_po4 =0, so4 = 100) 
-dic <- calculate_dic(test)
-test_sol <- test %>%
-  simulate_solubility(IS = 5)
+  # these don't match epa dash, but epa doesn't have input for temp...
+  test <- define_water(8, 25, 100, cl=100, tot_po4 =0, so4 = 100)
+  dic <- calculate_dic(test)
+  test_sol <- test %>%
+    simulate_solubility(is = 5)
   
 # Controlling solid
 # Solid with lowest solubility will form the lead scale
