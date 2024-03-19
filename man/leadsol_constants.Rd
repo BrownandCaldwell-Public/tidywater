@@ -12,61 +12,51 @@ Solids:
 \item{K_solid_lead_hydroxide}{Solid lead hydroxide}
 \item{K_solid_cerussite}{Solid cerussite}
 \item{K_solid_hydrocerussite}{Solid hydrocerussite}
-\item{K_solid_hydroxypyromorphite_schock: Solid hydroxypyromorphite, from Schock et al. 1996}
-\item{K_solid_hydroxypyromorphite_zhu: Solid hydroxypyromorphite, from Zhu et al. 2015}
-\item{K_solid_pyromorphite_xie: Solid pyromorphite, from Xie & Giammar 2007}
-\item{K_solid_pyromorphite_topolska: Solid pyromorphite, from Topolska et al. 2016}
-\item{K_solid_primary_lead_ortho: Solid primary lead orthophosphate}
-\item{K_solid_secondary_lead_ortho: Solid secondary lead orthophosphate}
-\item{K_solid_tertiary_lead_ortho: Solid tertiary lead orthophosphate}
-\item{K_solid_anglesite: Solid anglesite}
-\item{K_solid_laurionite_nl: Solid laurionite, from Nasanen & Lindell 1976}
-\item{K_solid_laurionite_loth: Solid laurionite, from Lothenbach et al. 1999}
+\item{K_solid_hydroxypyromorphite_schock}{Solid hydroxypyromorphite, from Schock et al. 1996}
+\item{K_solid_hydroxypyromorphite_zhu}{Solid hydroxypyromorphite, from Zhu et al. 2015}
+\item{K_solid_pyromorphite_xie}{Solid pyromorphite, from Xie & Giammar 2007}
+\item{K_solid_pyromorphite_topolska}{Solid pyromorphite, from Topolska et al. 2016}
+\item{K_solid_primary_lead_ortho}{Solid primary lead orthophosphate}
+\item{K_solid_secondary_lead_ortho}{Solid secondary lead orthophosphate}
+\item{K_solid_tertiary_lead_ortho}{Solid tertiary lead orthophosphate}
+\item{K_solid_anglesite}{Solid anglesite}
+\item{K_solid_laurionite_nl}{Solid laurionite, from Nasanen & Lindell 1976}
+\item{K_solid_laurionite_loth}{Solid laurionite, from Lothenbach et al. 1999}
 }
 
-Lead-Hydroxide Complexes from Table 4-14
-\describe{
-\item{B_1_OH: PbOH+}
-\item{B_2_OH: Pb(OH)2}
-\item{B_3_OH: Pb(OH)3-}
-\item{B_4_OH: Pb(OH)4-2}
-\item{B_2_1_OH: Pb2(OH)+3}
-\item{B_3_4_OH: Pb3(OH)4+2}
-\item{B_4_4_OH: Pb4(OH)4+4}
-\item{B_6_8_OH: Pb6(OH)8+4}
-}
+
 
 Lead-Chloride Complexes:
 \describe{
-\item{K_1_Cl: PbCl+1}
-\item{B_2_Cl: PbCl2}
-\item{B_3_Cl: PbCl3-}
-\item{B_4_Cl: PbCl4-2}
+\item{K_1_Cl}{PbCl+1}
+\item{B_2_Cl}{PbCl2}
+\item{B_3_Cl}{PbCl3-}
+\item{B_4_Cl}{PbCl4-2}
 }
 
 Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes:
 \describe{
-\item{K_s: SO4-2}
-\item{K_1_SO4: PbSO4}
-\item{B_2_SO4: Pb(SO4)2-2}
+\item{K_s}{SO4-2}
+\item{K_1_SO4}{PbSO4}
+\item{B_2_SO4}{Pb(SO4)2-2}
 }
 
 Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes:
 \describe{
-\item{K_c_1: Bicarbonate}
-\item{K_c_2: Carbonate}
-\item{K_1_CO3: PbHCO3+}
-\item{K_2_CO3: PbCO3}
-\item{K_3_CO3: Pb(CO3)2-2}
+\item{K_c_1}{Bicarbonate}
+\item{K_c_2}{Carbonate}
+\item{K_1_CO3}{PbHCO3+}
+\item{K_2_CO3}{PbCO3}
+\item{K_3_CO3}{Pb(CO3)2-2}
 }
 
 Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes:
 \describe{
-\item{K_p_1: H2PO4—}
-\item{K_p_2: HPO4—2}
-\item{K_p_3: PO4-3}
-\item{K_1_PO4: PbHPO4}
-\item{K_2_PO4: PbH2PO4+}
+\item{K_p_1}{H2PO4—}
+\item{K_p_2}{HPO4—2}
+\item{K_p_3}{PO4-3}
+\item{K_1_PO4}{PbHPO4}
+\item{K_2_PO4}{PbH2PO4+}
 }
 }
 \source{
