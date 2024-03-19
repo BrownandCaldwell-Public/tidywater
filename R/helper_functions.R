@@ -209,6 +209,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param caco3 Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
 #'
@@ -285,6 +286,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param caco3 Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
 #'
@@ -388,7 +390,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame.
 #' Its output is a chemical dose in mg/L.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
 #' If the input data frame has column(s) named "target_ph" or "chemical", the function will use the column(s)
 #' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
@@ -397,7 +399,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#' @param input_water name of the column of Water class data to be used as the input. Default is "defined_water".
 #' @param output_water name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
@@ -474,7 +476,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The Water class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
@@ -552,8 +554,8 @@ for(row in 1:length(df_subset[[1]])) {
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a "water" class with updated ions and pH.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
+#' The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The Water class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
 #'
@@ -561,7 +563,7 @@ for(row in 1:length(df_subset[[1]])) {
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param waters List of column names containing a Water class to be blended
 #' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "blended_water".
+#' @param output_water name of output column storing updated parameters with the class, Water. Default is "blended_water".
 #'
 #' @seealso \code{\link{blend_waters}}
 #'
@@ -577,7 +579,8 @@ for(row in 1:length(df_subset[[1]])) {
 #'chemdose_ph_chain(naoh = 22) %>%
 #'mutate(ratios1 = .4,
 #'       ratios2 = .6) %>%
-#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
+#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), 
+#'ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 #'
 #'
 #'example_df <- water_df %>%

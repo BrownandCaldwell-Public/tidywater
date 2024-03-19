@@ -51,6 +51,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param na2co3 Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3
+#' @param caco3 Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
 #' @param mgoh2  Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
 #' @param cl2 Amount of chlorine gas added in mg/L: Cl2(g) + H2O -> HOCl + H + Cl
