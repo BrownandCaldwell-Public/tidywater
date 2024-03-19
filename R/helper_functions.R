@@ -235,19 +235,19 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                               alum = 0, fecl3 = 0, fe2so43 = 0) {
+                               alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                           na2co3, nahco3, caoh2, mgoh2,
                           cl2, naocl, caocl2, co2,
-                          alum, fecl3, fe2so43)
+                          alum, fecl3, fe2so43, caco3)
 
   output <- df %>%
     chemdose_ph_chain(input_water = input_water, output_water = "dosed_chem_water",
                       hcl, h2so4, h3po4, naoh,
                       na2co3, nahco3, caoh2, mgoh2,
                       cl2, naocl, caocl2, co2,
-                      alum, fecl3, fe2so43) %>%
+                      alum, fecl3, fe2so43, caco3) %>%
     mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
@@ -312,12 +312,12 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                               alum = 0, fecl3 = 0, fe2so43 = 0) {
+                               alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
                             cl2, naocl, caocl2, co2,
-                            alum, fecl3, fe2so43)
+                            alum, fecl3, fe2so43, caco3)
 
   chem_inputs_arg <- dosable_chems %>%
     select_if(~any(. > 0))
@@ -375,7 +375,8 @@ if(nrow(chem_inputs_arg) == 1) {
                                         co2=co2,
                                         alum= alum,
                                         fecl3= fecl3,
-                                        fe2so43= fe2so43),
+                                        fe2so43= fe2so43,
+                                        caco3 =caco3),
                                    chemdose_ph)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
 
