@@ -398,6 +398,8 @@ library(tidyverse)
 #' @export
 #' 
 # Copied from Sierra's code.  Copied from Damon's code before that.
+  # NOTE: doesn't account for temperature. should we incorporate? Ben Trueman uses temp, but this requires phreeqc bleh
+  #https://github.com/bentrueman/pbcusol/blob/main/R/calculate_dic.R
 calculate_dic <- function(water) {
   
   Alkalinity = water@alk
