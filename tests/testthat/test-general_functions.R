@@ -213,10 +213,10 @@ test_that("Phosphate alpha calculations work.", {
 test_that("K temp correction returns a value close to K.", {
   k1po4 = discons$k[discons$ID == "k1po4"]
   k1po4_h = discons$deltah[discons$ID == "k1po4"]
-  lowtemp <- pK_temp_adjust(k1po4_h, k1po4, 5)
+  lowtemp <- K_temp_adjust(k1po4_h, k1po4, 5)
   k2co3 = discons$k[discons$ID == "k2co3"]
   k2co3_h = discons$deltah[discons$ID == "k2co3"]
-  hitemp <- pK_temp_adjust(k2co3_h, k2co3, 30)
+  hitemp <- K_temp_adjust(k2co3_h, k2co3, 30)
 
   expect_true(lowtemp / k1po4 < 1.3 && lowtemp / k1po4 > 1)
   expect_true(hitemp / k2co3 < 1.2 && hitemp / k2co3 > 1)

@@ -217,9 +217,9 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
   k1co3 = filter(discons, ID == "k1co3") %$%
-    pK_temp_adjust(deltah, k, temp)
+    K_temp_adjust(deltah, k, temp)
   k2co3 = filter(discons, ID == "k2co3") %$%
-    pK_temp_adjust(deltah, k, temp)
+    K_temp_adjust(deltah, k, temp)
 
   alpha1 = calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 = calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
@@ -689,8 +689,10 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # Eqn 5-9 WTP Model Manual (changed using Meyer masters thesis to include the correct temp correction)
-pK_temp_adjust <- function(deltah, ka, temp) {
-  R <- 8.314
+# From van't Hoff equation, MWH 5-68 and Benjamin 2-17
+# Assumes delta H for a reaction doesn't change with temperature, which is valid for ~0-30 deg C
+K_temp_adjust <- function(deltah, ka, temp) {
+  R <- 8.314 # J/mol * K
   tempa <- temp + 273.15
   lnK <- log(ka)
   exp((deltah / R * (1 / 298.15 - 1 / tempa)) + lnK)
@@ -752,20 +754,20 @@ correct_k <- function(water) {
   temp = water@temp
 
   # Eq constants
-  k1co3 = filter(discons, ID == "k1co3") %$%
-    pK_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$%
-    pK_temp_adjust(deltah, k, temp) / activity_z2
-  k1po4 = filter(discons, ID == "k1po4") %$%
-    pK_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$%
-    pK_temp_adjust(deltah, k, temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$%
-    pK_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl = filter(discons, ID == "kocl") %$%
-    pK_temp_adjust(deltah, k, temp) / activity_z1^2
-  kso4 = filter(discons, ID == "kso4") %$%
-    pK_temp_adjust(deltah, k, water@temp) / activity_z2
+  k1co3 = filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
+    K_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2co3 = filter(discons, ID == "k2co3") %$% # k2co3 = {h+}^2{co32-}/{h2co3}
+    K_temp_adjust(deltah, k, temp) / activity_z2
+  k1po4 = filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
+    K_temp_adjust(deltah, k, temp) / activity_z1^2
+  k2po4 = filter(discons, ID == "k2po4") %$% # k2po4 = {h+}^2{hpo42-}/{h3po4}
+    K_temp_adjust(deltah, k, temp) / activity_z2
+  k3po4 = filter(discons, ID == "k3po4") %$% # k3po4 = {h+}^3{po43-}/{h3po4}
+    K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  kocl = filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
+    K_temp_adjust(deltah, k, temp) / activity_z1^2
+  kso4 = filter(discons, ID == "kso4") %$% # kso4 = {h+}^2{so42-}/{h2so4}
+    K_temp_adjust(deltah, k, water@temp) / activity_z2
 
   return(data.frame("k1co3" = k1co3, "k2co3" = k2co3,
            "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,

@@ -192,7 +192,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   oh = dosed_water@kw / h
 
   # Correct eq constants
-  k <- correct_k(water)
+  k <- correct_k(dosed_water)
 
   # Carbonate and phosphate ions and ocl ions
   alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
