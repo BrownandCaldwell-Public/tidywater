@@ -1,12 +1,12 @@
 #Test convertWater converts a water class input to a dataframe
 test_that("convert water creates a dataframe", {
-  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
+  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10, toc = 3.5, doc = 3.2, uv254 = 0.1)
   df_water <- convert_water(water1)
   expect_true(is.data.frame(df_water))
 })
 
 test_that("convert water works", {
-  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10)
+  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10, toc = 3.5, doc = 3.2, uv254 = 0.1)
   df_water <- convert_water(water1)
   expect_equal(water1@ph, df_water$ph)
   expect_equal(water1@tot_co3, df_water$tot_co3)
@@ -17,7 +17,7 @@ test_that("convert water works", {
 # Test that define_water_once outputs are the same as base function, define_water.
 
 test_that("define_water_once output is the same as define_water", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   water2 <- convert_water(water1)
 
   water3 <- define_water_once(slice(water_df, 1))
@@ -28,7 +28,7 @@ test_that("define_water_once output is the same as define_water", {
 # Test that define_water_once output is a dataframe
 
 test_that("define_water_once outputs a data frame", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   water2 <- convert_water(water1)
 
   water3 <- define_water_once(slice(water_df, 1))
@@ -40,7 +40,7 @@ test_that("define_water_once outputs a data frame", {
 # Test that define_water_chain outputs are the same as base function, define_water.
 
 test_that("define_water_chain output is the same as define_water", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   # water2 <- convert_Water(water1)
 
   water2 <- define_water_chain(slice(water_df, 1), output_water = "new_name")
@@ -53,7 +53,7 @@ test_that("define_water_chain output is the same as define_water", {
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("define_water_chain outputs a water class and the output water argument works", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   # water2 <- convert_Water(water1)
 
   water2 <- define_water_chain(slice(water_df, 1), output_water = "new_name")
@@ -66,7 +66,7 @@ test_that("define_water_chain outputs a water class and the output water argumen
 # Check that this function can be piped to the next one and can handle a different output_water arg
 
 test_that("define_water_chain can be piped", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   # water2 <- convert_Water(water1)
 
   water2 <- define_water_chain(slice(water_df, 1), output_water = "new_name")
@@ -83,7 +83,7 @@ test_that("define_water_chain can be piped", {
 # Check balance_ions_once outputs are the same as base function, balance_ions
 
 test_that("balance_ions_once output is the same as balance_ions", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   water2 <- balance_ions(water1)
 
   water3 <- define_water_chain(slice(water_df, 1)) %>%
@@ -108,7 +108,7 @@ test_that("balance_ions_once outputs a data frame", {
 # Test that balance_ions_chain outputs are the same as base function, balance_ions.
 
 test_that("balance_ions_chain outputs are the same as base function, balance_ions", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0)
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   water2 <- balance_ions(water1)
 
   water3 <- define_water_chain(slice(water_df, 1)) %>%
@@ -148,7 +148,7 @@ test_that("balance_ions_chain can be piped and handle an output_water argument",
 # Check that output is a data frame
 
 test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     chemdose_ph(naoh = 5)
 
@@ -198,7 +198,7 @@ test_that("chemdose_ph_once can use a column or function argument for chemical d
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     chemdose_ph(naoh =10)
 
@@ -274,7 +274,7 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
 # Check solvedose_ph_once outputs are the same as base function, solvedose_ph
 
 test_that("solvedose_ph_once outputs are the same as base function, solvedose_ph", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     solvedose_ph(target_ph = 9.2,  chemical = "naoh")
 
@@ -324,10 +324,10 @@ test_that("solvedose_ph_once can handle different input formats", {
 # Check blend_waters_once outputs are the same as base function, blend_waters
 
 test_that("blend_waters_once outputs are the same as base function, blend_waters", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions()
 
-  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     chemdose_ph(naoh = 20)
 
@@ -387,10 +387,10 @@ test_that("blend_waters_once can handle different ways to input ratios", {
 
 # Test that blend_waters_chain outputs are the same as base function, blend_waters
 test_that("blend_waters_chain outputs are the same as base function, blend_waters", {
-  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions()
 
-  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0) %>%
+  water2 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     chemdose_ph(naoh = 20)
 
