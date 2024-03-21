@@ -761,17 +761,17 @@ correct_k <- function(water) {
   # Eq constants
   k1co3 = filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$% # k2co3 = {h+}^2{co32-}/{h2co3}
+  k2co3 = filter(discons, ID == "k2co3") %$% # k2co3 = {h+}{co32-}/{hco3-}
     K_temp_adjust(deltah, k, temp) / activity_z2
   k1po4 = filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$% # k2po4 = {h+}^2{hpo42-}/{h3po4}
+  k2po4 = filter(discons, ID == "k2po4") %$% # k2po4 = {h+}{hpo42-}/{h2po4-}
     K_temp_adjust(deltah, k, temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$% # k3po4 = {h+}^3{po43-}/{h3po4}
+  k3po4 = filter(discons, ID == "k3po4") %$% # k3po4 = {h+}{po43-}/{hpo42-}
     K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
   kocl = filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  kso4 = filter(discons, ID == "kso4") %$% # kso4 = {h+}^2{so42-}/{h2so4}
+  kso4 = filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
     K_temp_adjust(deltah, k, water@temp) / activity_z2
 
   return(data.frame("k1co3" = k1co3, "k2co3" = k2co3,
