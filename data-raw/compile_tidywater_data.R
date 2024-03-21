@@ -29,21 +29,18 @@ mweights <- data.frame(na = 22.98977,
 
 usethis::use_data(mweights, overwrite = TRUE)
 
-# List of acid dissociation constants
-discons <- data.frame( # Carbonic acid
-  k1co3 = 10^-6.35, # H2CO3<-->HCO3- + H+
-  k2co3 = 10^-10.33, # HCO3<-->CO32- + H+
-
+# Acid dissociation constants and corresponding enthalpy
+# Carbonic acid
+discons <- data.frame(ID = c("k1co3", "k2co3"), # H2CO3<-->HCO3- + H+; HCO3<-->CO32- + H+
+                      k = c(10^-6.35, 10^-10.33),
+                      deltah = c(7700, 14900)) %>% #J/mol
   # Sulfate
-  kso4 = 10^-1.99, # H2SO4<-->2H+ + SO42-
-
+  add_row(ID = "kso4", k = 10^-1.99, deltah = -21900) %>%
   # Phosphate
-  k1po4 = 10^-2.16, # H3PO4<-->H+ + H2PO4-
-  k2po4 = 10^-7.20, # H2PO4-<-->H+ + HPO42-
-  k3po4 = 10^-12.35, # HPO42--<-->H+ + PO43-
-
+  # H3PO4<-->H+ + H2PO4-; H2PO4-<-->H+ + HPO42-; HPO42--<-->H+ + PO43-
+  add_row(ID = c("k1po4", "k2po4", "k3po4"), k = c(10^-2.16, 10^-7.20, 10^-12.35), deltah = c(-8000, 4200, 14700)) %>%
   # Hypochlorite
-  kocl = 10^-7.6) # HOCl<-->H+ + OCl-
+  add_row(ID = "kocl", k = 10^-7.6, deltah = 13800)# HOCl<-->H+ + OCl-
 
 usethis::use_data(discons, overwrite = TRUE)
 
@@ -60,7 +57,13 @@ water_df <- data.frame(
   cl = rep(c(30, 92), 6),
   so4 = rep(c(20, 40, 60, 80), 3),
   tot_ocl = rep(c(0, 1), 6),
-  tot_po4 = rep(c(0, 0, 1), 4))
+  tot_po4 = rep(c(0, 0, 1), 4),
+  tds = rep(c(200, 100, NA), 4),
+  cond = rep(c(100, 150, NA), 4),
+  toc = rep(c(2, 3, 4), 4),
+  doc = rep(c(1.8, 2.8, 3.5), 4),
+  uv254 = rep(c(.05, .08, .12), 4))
+
 
 usethis::use_data(water_df, overwrite = TRUE)
 

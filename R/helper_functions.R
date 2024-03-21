@@ -56,25 +56,15 @@ convert_water <- function(water) {
 #' @export
 
 define_water_once <- function(df) {
-  ph = df$ph
-  temp =df$temp
-  alk = df$alk
-  tot_hard = df$tot_hard
-  ca_hard = df$ca_hard
-  na = df$na
-  k = df$k
-  cl = df$cl
-  so4 = df$so4
-  tot_ocl = 0 + df$tot_ocl
-  tot_po4 = 0+ df$tot_po4
 
-  df2 <- df %>%
-    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4))
+  df %>%
+    define_water_chain() %>%
+    mutate(defined_df = purrr::map(defined_water, convert_water)) %>%
+    unnest_wider(defined_df) %>%
+    select(-defined_water) %>%
+    as.data.frame()
 
-  water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4) %>%
-    convert_water()
 }
-
 
 #' Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions
 #'
@@ -100,7 +90,8 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4")
+  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4", "tds", "cond",
+                         "toc", "doc", "uv254")
 
   extras <- df %>%
     select(!any_of(define_water_args))
