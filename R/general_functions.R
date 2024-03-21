@@ -247,16 +247,16 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
       water@is = correlate_ionicstrength(water, from = "tds")
       noloop = TRUE
       nois = FALSE
-    } else if (is.na(tds) & ((ca > 0 | na > 0) & (cl > 0 | so4 > 0) & alk > 0) & !is.na(ph)) {
-      water@is = calculate_ionicstrength(water)
-      noloop = FALSE
-      nois = FALSE
     } else if (!is.na(cond)) {
       water@is = correlate_ionicstrength(water, from = "cond")
       noloop = TRUE
       nois = FALSE
+    } else if (is.na(tds) & is.na(cond) & ((ca > 0 | na > 0) & (cl > 0 | so4 > 0) & alk > 0) & !is.na(ph)) {
+      water@is = calculate_ionicstrength(water)
+      noloop = FALSE
+      nois = FALSE
     } else {
-      warning("Ions missing and neither TDS or conductivity entered. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
+      warning("Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
       water@is = NA_real_
       noloop = FALSE
       nois = TRUE
@@ -738,6 +738,11 @@ calculate_activity <- function(z, is, temp){
   10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
 }
 
+
+
+# Correct acid dissociation constants for temperature and ionic strength
+# Dissociation constants corrected for non-ideal solutions following Benjamin (2002) example 3.14.
+# See k_temp_adjust for temperature correction equation.
 correct_k <- function(water) {
 
   # Determine activity coefficients

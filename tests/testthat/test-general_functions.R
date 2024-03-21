@@ -34,7 +34,7 @@ test_that("Define water gives missing value warnings.", {
                  "Missing.+cations.+")
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0,
                               doc = 5, toc = 5, uv254 = .1),
-                 "Ions missing.+")
+                 "Major ions missing.+")
 
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, toc = 5, uv254 = .1),
                  "Missing.+DOC+")

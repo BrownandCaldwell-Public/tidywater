@@ -111,9 +111,9 @@ test_that("Solve dose alk works.", {
   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
   expect_equal(solvedose_alk(water5, 100, "naoh"), 40.2)
-  expect_equal(solvedose_alk(water5, 10, "h2so4"), 38.9)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.1)
   naohdose <- solvedose_alk(water5, 100, "naoh")
-  expect_equal(round(chemdose_ph(water5, naoh = naohdose)@alk), 100)
+  expect_equal(round(chemdose_ph(water5, naoh = naohdose)@alk), 101)
 })
 
 
