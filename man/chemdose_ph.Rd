@@ -45,11 +45,11 @@ chemdose_ph(
 
 \item{mgoh2}{Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
 
-\item{cl2}{Amount of chlorine gas added in mg/L: Cl2(g) + H2O -> HOCl + H + Cl}
+\item{cl2}{Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl}
 
-\item{naocl}{Amount of sodium hypochlorite added in mg/L: NaOCl -> Na + OCl}
+\item{naocl}{Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl}
 
-\item{caocl2}{Amount of calcium hypochlorite added in mg/L: Ca(OCl)2 -> Ca + 2OCl}
+\item{caocl2}{Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl}
 
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
