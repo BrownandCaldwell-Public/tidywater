@@ -181,23 +181,17 @@ leadsol_constants <- data.frame(
   
   # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
   
-  "K_s" , # Benjamin (2002) 
   "K_1_SO4" , 
   "B_2_SO4" ,
   
   # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
   
-  "K_c_1" , #Powell et al. (2005) 
-  "K_c_2" , #Powell et al. (2005) 
   "K_1_CO3" , 
   "K_2_CO3" , 
   "K_3_CO3" ,
   
   # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
   
-  "K_p_1" , #Powell et al. (2005) 
-  "K_p_2" , #Powell et al. (2005)  
-  "K_p_3" , #Powell et al. (2005) 
   "K_1_PO4" ,
   "K_2_PO4" ),
 
@@ -236,23 +230,17 @@ log_value = c(
   
   # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
   
-  -1.99, # Benjamin (2002) 
   2.73, 
   3.5,
   
   # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
   
-  -6.355, #Powell et al. (2005) 
-  -10.336, #Powell et al. (2005) 
   12.59, 
   7.1, 
   10.33,
   
   # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
-  
-  -2.141, #Powell et al. (2005) 
-  -7.2, #Powell et al. (2005)  
-  -12.338, #Powell et al. (2005) 
+ 
   15.41,
   21.05)
   
