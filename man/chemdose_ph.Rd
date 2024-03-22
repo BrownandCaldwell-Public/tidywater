@@ -39,7 +39,7 @@ chemdose_ph(
 
 \item{nahco3}{Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3}
 
-\item{caco3}{Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3}
+\item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 
 \item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 

@@ -86,3 +86,36 @@ NULL
 #' }
 #' @source Fabricated for use in examples.
 "water_df"
+
+#' Data frame of equilibrium constants for lead and copper solubility
+#'
+#' A dataset containing equilibrium constants for lead solubility
+#'
+#' @docType data
+#' @keywords datasets
+#' @name leadsol_constants
+#' @format A dataframe with 38 rows and 3 columns
+
+#' @format Solids:
+#' \describe{
+#' \item{species_name}{Name of lead solid or complex with possible _letter to cite different references}
+#' \item{constant_name}{Reference ID for constants}
+#' \item{log_value}{Equilibrium constant log value}
+#' \item{source}{Source for equilibrium constant value}
+
+#' }
+#'
+
+
+#' @source Benjamin, M. M. (2002) Water Chemistry, 1st Edition, McGraw-Hill, New York, NY.
+#' @source Lothenbach, B., Ochs, M., Wanner, H. & Yui, M. (1999) Thermodynamic Data for the Speciation and Solubility of Pd, Pb, Sn, Sb, Nb and Bi in Aqueous Solution. Japan Nuclear Cycle Development Institute, Ibaraki, Japan.
+#' @source Nasanen, R. & Lindell, E. (1976) Studies on Lead(II) Hydroxide Salts. Part I. The Solubility Product of Pb(OH)Cl, Finnish Chemical Letters, 95.
+#' @source Powell, K.J., Brown, P.L., Byrne, R.H., Gajda, T., Hefter, G., Leuz, A.K., Sjoberg, S. & Wanner, H. (2009) Chemical Speciation of Environmentally Significant Metals with Inorganic Ligands - Part 3: The Pb2+, OH—, Cl—, CO32—, SO42—, and PO43— Systems - (IUPAC Technical Report). Pure and Applied Chemistry, 81:12:2425.
+#' @source Powell, K.J., Brown, P.L., Byrne, R.H., Gajda, T., Hefter, G., Sjoberg, S. & Wanner, H. (2005) Chemical Speciation of Environmentally Significant Heavy Metals with Inorganic Ligands - Part 1: The Hg2+, Cl—, OH—, CO32—, SO42—, and PO43— Aqueous Systems - (IUPAC Technical Report). Pure and Applied Chemistry, 77:4:739.
+#' @source Schock, M.R., Wagner, I. & Oliphant, R.J. (1996) Chapter 4 - Corrosion and Solubility of Lead in Drinking Water. Internal Corrosion of Water Distribution Systems, 2nd Edition. American Water Works Association Research Foundation, Denver, CO.
+#' @source Topolska, J., Manecki, M., Bajda, T., Borkiewicz, O. & Budzewski, P. (2016) Solubility of Pyromorphite Pb5(PO4)3Cl at 5-65 °C and Its Experimentally Determined Thermodynamic Parameters. The Journal of Chemical Thermodynamics, 98:282.
+#' @source Xie, L. & Giammar, D.E. (2007) Equilibrium Solubility and Dissolution Rate of the Lead Phosphate Chloropyromorphite. Environmental Science & Technology, 41:23:8050.
+#' @source Zhu, Y.N., Zhu, Z.Q., Zhao, X., Liang, Y.P. & Huang, Y.H. (2015) Characterization, Dissolution, and Solubility of Lead Hydroxypyromorphite [Pb5(PO4)3OH] at 25-45 °C. Journal of Chemistry, 2015:269387:1.
+#' @source Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships. AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
+
+"leadsol_constants"

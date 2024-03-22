@@ -25,7 +25,9 @@ mweights <- data.frame(na = 22.98977,
   ca = 40.078,
   po4 = 94.97,
   hco3 = 61.0168,
-  co3 = 60.0089)
+  co3 = 60.0089,
+  pb = 207.2,
+  dic = 12.011)
 
 usethis::use_data(mweights, overwrite = TRUE)
 
@@ -92,3 +94,65 @@ edwardscoeff <- data.frame(
           b = 0.092)
 
 usethis::use_data(edwardscoeff, overwrite = TRUE)
+
+# Data frame of equilibrium constants for lead and copper solubility
+
+
+
+leadsol_constants <- data.frame(
+  species_name = c("Lead Hydroxide", "Cerussite",  "Hydrocerussite"),
+  constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
+  log_value = c(13.06, -13.11,  -18),
+  source = rep("Schock et al. (1996)", 3)) %>%
+  
+  # Solids
+  add_row(species_name = c("Hydroxypyromorphite", "Hydroxypyromorphite", "Pyromorphite", "Pyromorphite"),  
+          constant_name = c("K_solid_hydroxypyromorphite_s", "K_solid_hydroxypyromorphite_z" ,  "K_solid_pyromorphite_x",  "K_solid_pyromorphite_t"), 
+          log_value = c(62.83,-66.77, -80.4, -79.6),
+          source = c("Schock et al. (1996)", "Zhu et al. (2015)", "Xie & Giammar (2007)", "Topolska et al. (2016)")) %>%
+  
+  add_row(species_name = c( "Primary Lead Orthophosphate", "Secondary Lead Orthophosphate", "Tertiary Lead Orthophosphate"),  
+          constant_name = c( "K_solid_primary_lead_ortho", "K_solid_secondary_lead_ortho" , "K_solid_tertiary_lead_ortho"), 
+          log_value = c(-48.916, -23.81, -44.4),
+          source = c("Powell et al. (2009)", "Schock et al. (1996)", "Powell et al. (2009)")) %>%
+  
+  add_row(species_name = c( "Anglesite", "Laurionite","Laurionite"),  
+          constant_name = c( "K_solid_anglesite", "K_solid_laurionite_nl", "K_solid_laurionite_l"),
+          log_value = c(-7.79, 0.619, 0.29),
+          source = c("Schock et al. (1996)", "Nasanen & Lindell (1976)", "Lothenbach et al. (1999)")) %>%
+  
+  # Lead-Hydroxide Complexes
+  add_row(species_name = c("PbOH+", "Pb(OH)2", "Pb(OH)3-", "Pb(OH)4-2"),  
+          constant_name = c(  "B_1_OH", "B_2_OH" , "B_3_OH", "B_4_OH"),
+          log_value = c(-7.22, -16.91, -28.08, -39.72),
+          source = rep("Schock et al. (1996)", 4)) %>%
+  add_row(species_name = c("Pb2OH+3", "Pb3(OH)4+2", "Pb4(OH)4+4", "Pb6(OH)8+4"),  
+          constant_name = c("B_2_1_OH", "B_3_4_OH" , "B_4_4_OH", "B_6_8_OH"),
+          log_value = c(-6.36, -23.86, -20.88, -43.62),
+          source = rep("Schock et al. (1996)", 4)) %>%
+  
+  # Lead-Chloride Complexes
+  add_row(species_name = c("PbCl+1", "PbCl2", "PbCl3-", "PbCl4-2"),  
+          constant_name = c("K_1_Cl", "B_2_Cl", "B_3_Cl", "B_4_Cl"),
+          log_value = c(1.59, 1.8, 1.71, 1.43),
+          source = rep("Schock et al. (1996)", 4)) %>%
+  
+  # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
+  add_row(species_name = c("PbSO4", "Pb(SO4)2-2"),  
+          constant_name = c("K_1_SO4", "B_2_SO4"),
+          log_value = c(2.73, 3.5),
+          source = rep("Schock et al. (1996)", 2)) %>%
+  
+  # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
+  add_row(species_name = c("PbHCO3+", "PbCO3", "Pb(CO3)2-2"),  
+          constant_name = c("K_1_CO3", "K_2_CO3", "K_3_CO3"),
+          log_value = c(12.59, 7.1, 10.33),
+          source = rep("Schock et al. (1996)", 3)) %>%
+  
+  # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
+  add_row(species_name = c("PbHPO4", "PbH2PO4+"),  
+          constant_name = c( "K_1_PO4" , "K_2_PO4"),
+          log_value = c(15.41, 21.05),
+          source = rep("Schock et al. (1996)", 2))
+  
+  usethis::use_data(leadsol_constants, overwrite = TRUE)
