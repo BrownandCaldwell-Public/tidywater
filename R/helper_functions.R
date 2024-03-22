@@ -209,7 +209,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
-#' @param caco3 Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3
+#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
 #'
