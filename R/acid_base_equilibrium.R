@@ -201,9 +201,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   return(dosed_water)
 }
 
-# test <- define_water(9.2, 25, 10)
-# test2 <- chemdose_ph(test, caco3 = -10)
-# test3 <- chemdose_ph(test, caco3 = 20)
 
 
 #' Calculate a desired chemical dose for a target pH
