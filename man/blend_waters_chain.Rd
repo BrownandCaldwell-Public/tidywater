@@ -14,15 +14,15 @@ been computed using \code{\link{define_water}}, and a column named for each of t
 
 \item{ratios}{List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)}
 
-\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "blended_water".}
+\item{output_water}{name of output column storing updated parameters with the class, Water. Default is "blended_water".}
 }
 \description{
 This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 Its output is a "water" class with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
+The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The Water class columns to use in the function are specified as function arguments. Ratios may be input
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 }
 \examples{
@@ -37,7 +37,8 @@ balance_ions_chain() \%>\%
 chemdose_ph_chain(naoh = 22) \%>\%
 mutate(ratios1 = .4,
       ratios2 = .6) \%>\%
-blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
+blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), 
+ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 
 
 example_df <- water_df \%>\%

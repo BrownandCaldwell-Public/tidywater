@@ -5,20 +5,26 @@
 
 solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
+  # Correct eq constants
+  k <- correct_k(water)
+
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
-      (2 + h / discons$kso4) * (so4_dose / (h / discons$kso4 + 1)) +
-      (h^2 / discons$k2po4 / discons$k3po4 + 2 * h / discons$k3po4 + 3) * (tot_po4 / (h^3 / discons$k1po4 / discons$k2po4 / discons$k3po4 + h^2 / discons$k2po4 / discons$k3po4 + h / discons$k3po4 + 1)) +
-      (h / discons$k2co3 + 2) * (tot_co3 / (h^2 / discons$k1co3 / discons$k2co3 + h / discons$k2co3 + 1)) +
-      tot_ocl / (h / discons$kocl + 1) +
+      (2 + h / k$kso4) * (so4_dose / (h / k$kso4 + 1)) +
+      tot_po4 * (calculate_alpha1_phosphate(h, k) +
+                   2 * calculate_alpha2_phosphate(h, k) +
+                   3 * calculate_alpha3_phosphate(h, k)) +
+      tot_co3 * (calculate_alpha1_carbonate(h, k) +
+                   2 * calculate_alpha2_carbonate(h, k)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, k) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
       alk_eq
   }
-  root_h <- stats::uniroot(solve_h, interval = c(0, 1),
+  root_h <- stats::uniroot(solve_h, interval = c(1e-14, 1),
     kw = water@kw,
-    so4_dose = so4_dose,
+    so4_dose = so4_dose ,
     tot_po4 = water@tot_po4,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
@@ -51,11 +57,12 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param na2co3 Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3
+#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
 #' @param mgoh2  Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
-#' @param cl2 Amount of chlorine gas added in mg/L: Cl2(g) + H2O -> HOCl + H + Cl
-#' @param naocl Amount of sodium hypochlorite added in mg/L: NaOCl -> Na + OCl
-#' @param caocl2 Amount of calcium hypochlorite added in mg/L: Ca(OCl)2 -> Ca + 2OCl
+#' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
+#' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
+#' @param caocl2 Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
@@ -81,7 +88,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #'
 #' @export
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 =0, caoh2 = 0, mgoh2 = 0,
                           cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                           alum = 0, fecl3 = 0, fe2so43 = 0) {
 
@@ -108,6 +115,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Sodium bicarbonate (NaHCO3) dose
   nahco3 = convert_units(nahco3, "nahco3")
+  # CaCO3
+  caco3 = convert_units(caco3, "caco3")
 
   # Lime (Ca(OH)2) dose
   caoh2 = convert_units(caoh2, "caoh2")
@@ -144,7 +153,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@na = water@na + na_dose
 
   # Total calcium
-  ca_dose = caoh2 + caocl2 / 2
+  ca_dose = caoh2 + caocl2 / 2 + caco3
   dosed_water@ca = water@ca + ca_dose
 
   # Total magnesium
@@ -172,19 +181,37 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@tot_ocl = water@tot_ocl + ocl_dose
 
   # Total carbonate
-  co3_dose = na2co3 + nahco3 + co2
+  co3_dose = na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
+
+  # Calculate dosed IS
+  # Assume all dosed CO3 is HCO3 and PO4 is H2PO4. This eliminates the need to loop and should be close enough.
+  dosed_water@is = water@is + 0.5 * (na_dose + cl_dose + k_dose + co3_dose + po4_dose) * 1^2 +
+    (ca_dose + mg_dose + so4_dose) * 2^2
 
   # Calculate new pH, H+ and OH- concentrations
   ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
   h = 10^-ph
   oh = dosed_water@kw / h
 
-  # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  # Correct eq constants
+  k <- correct_k(dosed_water)
+
+  # Carbonate and phosphate ions and ocl ions
+  alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   dosed_water@hco3 = dosed_water@tot_co3 * alpha1
   dosed_water@co3 = dosed_water@tot_co3 * alpha2
+
+  alpha1p = calculate_alpha1_phosphate(h, k)
+  alpha2p = calculate_alpha2_phosphate(h, k)
+  alpha3p = calculate_alpha3_phosphate(h, k)
+
+  dosed_water@h2po4 = water@tot_po4 * alpha1p
+  dosed_water@hpo4 = water@tot_po4 * alpha2p
+  dosed_water@po4 = water@tot_po4 * alpha3p
+
+  dosed_water@ocl =  water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
   # Calculate new alkalinity
   dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -411,11 +438,24 @@ blend_waters <- function(waters, ratios) {
   blended_water@h = h
   blended_water@ph = ph
 
-  # Calculate new carbonate system balance
-  alpha1 = calculate_alpha1_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, discons$k1co3, discons$k2co3) # proportion of total carbonate as CO32-
+  # Correct eq constants
+  k <- correct_k(blended_water)
+
+  # Carbonate and phosphate ions and ocl ions
+  alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   blended_water@hco3 = blended_water@tot_co3 * alpha1
   blended_water@co3 = blended_water@tot_co3 * alpha2
+
+  alpha1p = calculate_alpha1_phosphate(h, k)
+  alpha2p = calculate_alpha2_phosphate(h, k)
+  alpha3p = calculate_alpha3_phosphate(h, k)
+
+  blended_water@h2po4 = blended_water@tot_po4 * alpha1p
+  blended_water@hpo4 = blended_water@tot_po4 * alpha2p
+  blended_water@po4 = blended_water@tot_po4 * alpha3p
+
+  blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
   return(blended_water)
 
