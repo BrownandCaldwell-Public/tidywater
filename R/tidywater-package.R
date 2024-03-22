@@ -101,6 +101,7 @@ NULL
 #' \item{species_name}{Name of lead solid or complex with possible _letter to cite different references}
 #' \item{constant_name}{Reference ID for constants}
 #' \item{log_value}{Equilibrium constant log value}
+#' \item{source}{Source for equilibrium constant value}
 
 #' }
 #'
