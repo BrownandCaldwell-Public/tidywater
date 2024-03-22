@@ -19,7 +19,7 @@ This function allows \code{\link{blend_waters}} to be added to a piped data fram
 Its output is a data frame with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 The Water class columns to use in the function are specified as function arguments. Ratios may be input
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 

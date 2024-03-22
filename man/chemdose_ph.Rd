@@ -12,6 +12,7 @@ chemdose_ph(
   naoh = 0,
   na2co3 = 0,
   nahco3 = 0,
+  caco3 = 0,
   caoh2 = 0,
   mgoh2 = 0,
   cl2 = 0,
@@ -37,6 +38,8 @@ chemdose_ph(
 \item{na2co3}{Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3}
 
 \item{nahco3}{Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3}
+
+\item{caco3}{Amount of calcium carbonate added in mg/L: CaCO3 -> Ca + CO3}
 
 \item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 
