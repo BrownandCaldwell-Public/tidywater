@@ -1,7 +1,16 @@
 
-#' Calc lead sol
+#' Simulate contributions of various lead solids to total soluble lead
 #'
-#' This function calcs leadsol
+#' This function takes a water data frame defined by \code{\link{define_water}} 
+#' and outputs a dataframe. Lead solid solubility is calculated based on controlling solid (Pb_2_plus, M).
+#' Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
+#' 
+#' The solid with lowest solubility will form the lead scale (controlling lead solid)
+#' 
+#' Make sure that total dissolved solids, conductivity, or 
+#' ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
+#' 
+#' Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
 #'
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
@@ -9,63 +18,48 @@
 #'
 #' @examples
 #'
-#' example_df <- water_df %>% define_water_once()
+#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#'  dissolve_pb()
 #'
 #' @export
-#' 
-# 
-library(tidywater)
-library(tidyverse)
-# Define function to simulate lead solubility
 
-  simulate_solubility <- function(water) {
-  
+  dissolve_pb <- function(water) {
+
     ph = water@ph
     temp = water@temp
     cl = water@cl
     tot_po4 = water@tot_po4
     so4 = water@so4 
-    dic = calculate_dic(water=water)
+    dic =   dic <-convert_units(calculate_dic(water=water), "dic")
     is = water@is
-
-  # for unit tests
-  ph = 7.86
-  temp = 25
-  is = .005
-  cl = 241.8
-  dic = 39
-  tot_po4 = 0
-  so4 = 156.6
-
-  discons_leadsol <- discons %>%
-    select(-deltah) %>%
-    filter(ID != "kocl") %>%
-    rename(species_name = ID,
-           K_num = k) %>%
-    mutate(constant_name = case_when(species_name == "k1co3" ~ "K_c_1",
-                                     species_name == "k2co3" ~ "K_c_2",
-                                     species_name == "kso4" ~ "K_s",
-                                     species_name == "k1po4" ~ "K_p_1",
-                                     species_name == "k2po4" ~ "K_p_2",
-                                     species_name == "k3po4" ~ "K_p_3"))
-  
-  leadsol_K <- leadsol_constants %>%
-    mutate(K_num = 10^log_value) %>%
-    full_join(discons_leadsol)
-  
-  
-  # There's probably a better way to do this than outputting all constants to global env
-  list2env(setNames(as.list(leadsol_K$K_num), leadsol_K$constant_name), .GlobalEnv)
-  
-  # Convert user selected concentrations to molar concentrations
-  #NOTE!! need to add dic, po4, and pb to convert_units
-  cl <- convert_units(cl, "cl")
-  so4 <- convert_units(so4, "so4")
-  dic <-convert_units(dic, "dic")
-  tot_po4 <- convert_units(tot_po4, "po4")
-  
-  # Calculate hydrogen ion activity
-  # Convert temperature to Kelvin
+    
+    # for unit testing/code review
+    # ph = 7.5
+    # temp = 25
+    # cl = 240
+    # tot_po4 = 0
+    # so4 = 150
+    # dic =  11.5
+    # is =.005
+    
+    discons_leadsol <- discons %>%
+      select(-deltah) %>%
+      filter(ID != "kocl") %>%
+      rename(species_name = ID,
+             K_num = k) %>%
+      mutate(constant_name = case_when(species_name == "k1co3" ~ "K_c_1",
+                                       species_name == "k2co3" ~ "K_c_2",
+                                       species_name == "kso4" ~ "K_s",
+                                       species_name == "k1po4" ~ "K_p_1",
+                                       species_name == "k2po4" ~ "K_p_2",
+                                       species_name == "k3po4" ~ "K_p_3"))
+    
+    leadsol_K <- leadsol_constants %>%
+      mutate(K_num = 10^log_value) %>%
+      full_join(discons_leadsol, by = c("species_name", "constant_name", "K_num"))
+    
+    # K_solid_hydroxypyromorphite_s = 10^-62.83
+    
   H_plus_a <- 10^-ph
   T_K <- temp + 273.15
   
@@ -86,8 +80,8 @@ library(tidyverse)
   ###################*
   
   # Correct constants for ionic strength
-  K_c_1_c <- K_c_1 / gamma_1
-  K_c_2_c <- gamma_1 * K_c_2 / gamma_2
+  K_c_1_c <- leadsol_K$K_num[leadsol_K$constant_name == "K_c_1"] / gamma_1
+  K_c_2_c <- gamma_1 * leadsol_K$K_num[leadsol_K$constant_name == "K_c_2"] / gamma_2
 
   # Calculations for carbonate acid-base species
   alpha_0_c <- 1 / (1 + K_c_1_c / H_plus_a + K_c_1_c * K_c_2_c / H_plus_a^2)
@@ -95,8 +89,6 @@ library(tidyverse)
   alpha_2_c <- 1 / (H_plus_a^2 / (K_c_1_c * K_c_2_c) + H_plus_a / K_c_2_c + 1)
   
   # Calculate carbonate species concentrations
-  
-  # should these account for any carbonate already in water? Or maybe already incorporated into dic?
   h2co3 <- alpha_0_c * dic
   hco3 <- alpha_1_c * dic
   co3 <- alpha_2_c * dic
@@ -105,9 +97,9 @@ library(tidyverse)
   # Phosphate species----
   ###################*
   # Correct constants for ionic strength
-  K_p_1_c <- K_p_1 / gamma_1
-  K_p_2_c <- gamma_1 * K_p_2 / gamma_2
-  K_p_3_c <- gamma_2 * K_p_3 / gamma_3
+  K_p_1_c <- leadsol_K$K_num[leadsol_K$constant_name == "K_p_1"] / gamma_1
+  K_p_2_c <- gamma_1 * leadsol_K$K_num[leadsol_K$constant_name == "K_p_2"] / gamma_2
+  K_p_3_c <- gamma_2 * leadsol_K$K_num[leadsol_K$constant_name == "K_p_3"] / gamma_3
 
   # Calculations for phosphate alpha values
   alpha_0_p <- 1 / (1 + K_p_1_c / H_plus_a + K_p_1_c * K_p_2_c / H_plus_a^2 + K_p_1_c * K_p_2_c * K_p_3_c / H_plus_a^3)
@@ -119,7 +111,7 @@ library(tidyverse)
   # Sulfate species ----
   ###################*
   # Correct constants for ionic strength
-  K_s_c <- gamma_1 * K_s / gamma_2
+  K_s_c <- gamma_1 * leadsol_K$K_num[leadsol_K$constant_name == "K_s"]  / gamma_2
   
   # Calculate phosphate species concentrations
   h3po4 <- alpha_0_p * tot_po4
@@ -198,7 +190,7 @@ library(tidyverse)
       PbHPO4 = (K_1_PO4) * H_plus_a * gamma_2 * gamma_3 * Pb_2_plus * po4,
       PbH2PO4_plus = (K_2_PO4) * H_plus_a^2 * gamma_2 * gamma_3 * Pb_2_plus * po4 / gamma_1) %>%
     mutate(# Calculate total dissolved lead molar concentration
-      TOTSOLPb = Pb_2_plus +
+      tot_dissolved_pb = Pb_2_plus +
         PbOH_plus + PbOH2 + PbOH3_minus + PbOH4_2_minus + 2 * Pb2OH_3_plus + 3 * Pb3OH4_2_plus + 4 * Pb4OH4_4_plus + 6 * Pb6OH8_4_plus +
         PbCl_plus + PbCl2 + PbCl3_minus + PbCl4_2_minus +
         PbSO4 + PbSO42_2_minus +
@@ -206,7 +198,7 @@ library(tidyverse)
         PbHPO4 + PbH2PO4_plus)
   
   alllead_simple <- alllead %>%
-    select(species_name, Pb_2_plus, TOTSOLPb) %>%
+    select(species_name, Pb_2_plus, tot_dissolved_pb) %>%
     mutate(ph = ph,
            dic = dic,
            tot_po4 = tot_po4,
@@ -220,19 +212,11 @@ library(tidyverse)
   
   }
   
-  # these don't match epa dash, but epa doesn't have input for temp...
-  test <- define_water(8, 25, 94, cl=100, tot_po4 =0, so4 = 100, tds = 200)
-  dic <- calculate_dic(test) #dic = 22.9
-  test_sol <- test %>%
-    simulate_solubility()
-  simulate_solubility_epa(pH_single = 8, IS_mM_single = 0.005, Cl_minus_mg_L_single = 100, DIC_mg_L_single = 22.9, TOTP_mg_L_single = 0, TOTSO4_mg_L_single = 100)
-  
-# Controlling solid
-# Solid with lowest solubility will form the lead scale
 
-#' Calc DIC (TOTCO3)
+#' Calculate dissolved inorganic carbon (DIC) from pH and alkalinity
 #'
-#' This function calcs dic
+#' This function takes a water class object defined by \code{\link{define_water}} 
+#' and outputs a DIC (mg/L).
 #'
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
@@ -240,7 +224,8 @@ library(tidyverse)
 #'
 #' @examples
 #'
-#' example_df <- water_df %>% define_water_once()
+#'example_dic <- define_water(8, 15, 200) %>% 
+#'  calculate_dic()
 #'
 #' @export
 #' 
@@ -265,8 +250,8 @@ calculate_dic <- function(water) {
   OH_Concentration_final <- (10^-14)/H_Concentration_final
   
   #Ka1 and Ka2 are the acidity constants for carbonic acid (need to be corrected for temperature?)
-  Ka1_CO3 <- 10^-6.35
-  Ka2_CO3 <- 10^-10.33
+  Ka1_CO3 <- discons$k[discons$ID == "k1co3"]
+  Ka2_CO3 <- discons$k[discons$ID == "k1co3"]
   
   # alpha - fraction of TOT with each protonation, alpha1 - HCO3, alpha2 - CO3 (number based on charge)
   # Benjamin 5.39 and 5.40
@@ -283,8 +268,7 @@ calculate_dic <- function(water) {
   # Simplified Benjamin eqn (8.16) as a check - matches pretty well, commenting this out.
   # TOTCO3_approx <- (Alkalinity_eq) / (alpha1_initial + 2 * alpha2_initial)
   
-  atom_weight_C <- 12.0107
   # Do we need to convert to M first?
-  dic <- TOTCO3_eq * atom_weight_C * 1000
+  dic <- TOTCO3_eq * mweights$dic * 1000
   return(dic)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/leadsol_epa.R
 \name{calculate_dic}
 \alias{calculate_dic}
-\title{Calc DIC (TOTCO3)}
+\title{Calculate dissolved inorganic carbon (DIC) from pH and alkalinity}
 \usage{
 calculate_dic(water)
 }
@@ -10,11 +10,13 @@ calculate_dic(water)
 \item{water}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
 }
 \description{
-This function calcs dic
+This function takes a water class object defined by \code{\link{define_water}} 
+and outputs a DIC (mg/L).
 }
 \examples{
 
-example_df <- water_df \%>\% define_water_once()
+example_dic <- define_water(8, 15, 200) \%>\% 
+ calculate_dic()
 
 }
 \seealso{
