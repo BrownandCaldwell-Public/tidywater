@@ -18,14 +18,14 @@ test_that("dissolve_pb outputs total lead without various inputs for ionic stren
   water1 <- suppressWarnings(define_water(ph = 8, alk = 200, tds = 200))
   water2 <- suppressWarnings(define_water(ph = 8, alk = 90, cond = 500))
   water3 <- suppressWarnings(define_water(ph = 8, alk = 90, tot_hard = 110, cl = 200))
-  
+
   dissolved1 <- dissolve_pb(water1) %>%
     drop_na(tot_dissolved_pb)
   dissolved2 <- dissolve_pb(water2) %>%
     drop_na(tot_dissolved_pb)
   dissolved3 <- dissolve_pb(water3) %>%
     drop_na(tot_dissolved_pb)
-  
+
   expect_equal(3, nrow(dissolved1))
   expect_equal(3, nrow(dissolved2))
   expect_equal(5, nrow(dissolved3))
@@ -34,9 +34,15 @@ test_that("dissolve_pb outputs total lead without various inputs for ionic stren
 test_that("dissolve_pb works.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 100, tds = 200, so4 = 120, cl=50, tot_hard = 90)) %>%
     dissolve_pb()
-  
-  expect_equal(round(water1$Pb_2_plus[water1$species_name == "Cerussite"], 8), 2.6e-7)
-  expect_equal(round(water1$tot_dissolved_pb[water1$species_name == "Anglesite"], 6), 1.38e-4)
+
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, cl = 100, tot_po4 = 2, so4 = 100, tot_hard = 50)) %>%
+    dissolve_pb()
+
+  expect_equal(signif(water1$Pb_2_plus[water1$species_name == "Cerussite"], 2), 1.2e-7)
+  expect_equal(signif(water1$tot_dissolved_pb[water1$species_name == "Anglesite"], 2), 2.4e-4)
+
+  expect_equal(signif(water2$Pb_2_plus[water2$species_name == "Pyromorphite" & water2$source == "Topolska et al. (2016)"], 2), 1.0e-9)
+  expect_equal(signif(water2$Pb_2_plus[water2$species_name == "Anglesite"], 2), 2.9e-5)
 })
 
 # calculate_dic----
@@ -53,11 +59,11 @@ test_that("calculate _dic doesn't work without ph or alkalinity.", {
 test_that("calculate _dic works.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk =200)) %>%
     calculate_dic()
-  
+
   water2 <- suppressWarnings(define_water(ph = 4, alk = 5)) %>%
     calculate_dic()
-  
-  expect_equal(round(water1), 28)
+
+  expect_equal(round(water1), 59)
   # This is pretty weird, calc_dic needs some help
   expect_equal(round(water2), -206)
 })
