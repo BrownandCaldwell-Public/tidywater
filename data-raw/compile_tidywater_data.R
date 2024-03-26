@@ -219,7 +219,7 @@ leadsol_constants <- data.frame(
     # treated
     #tthms
     add_row(ID = "tthm",
-            alias = "chloroform",
+            alias = "total trihalomethanes",
             water_type = "treated",
             A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.1560, e = 1.0263, f = 0.264) %>%
     add_row(ID = "chcl3",
