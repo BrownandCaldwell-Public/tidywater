@@ -32,6 +32,7 @@
 #'
 chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species = "tthm") {
   toc = water@toc
+  doc = water@doc
   uv254 = water@uv254
   temp = water@temp
   ph = water@ph
@@ -40,47 +41,86 @@ chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species =
   if (is.na(toc) | is.na(uv254) | is.na(temp) | is.na(ph)) {
     stop("Missing value for toc, uv254, temp, or ph. Please add them to define_water.")
   }
+  if (is.na(doc) & water_type == "treated") {
+    stop("Missing value for doc. Please add doc to define_water.")
+  }
+  if (missing(cl2) | missing(br) | missing(time)) {
+    stop("Missing value for cl2, br, or time. Please check the function inputs required to calculate DBP formation.")
+  }
+  
   if (toc < 1.2 | toc > 10.6) {
     warning("TOC is outside the model bounds of 1.2 <= toc <= 10.6 mg/L as set in the WTP model.")
   }
-  
-  if (uv254 < 0.01 | uv254 > 0.318) {
-    warning("UV254 is outside the model bounds of 0.01 <= uv254 <= 0.318 cm-1 as set in the WTP model.")
+  if (water_type == "treated" & (doc < 1.00 | doc > 7.77)) {
+    warning("DOC is outside the treated water model bounds of 1.00 <= doc <= 7.77 mg/L as set in the WTP model.")
   }
   
-  if (missing(cl2)) {
-    stop("Missing value for cl2. Chlorine must be dosed to calculate DBP formation.")
-  }
-  if (cl2 < 1.51 | cl2 > 33.55) {
-    warning("Chlorine is outside the model bounds of 1.51 <= cl2 <= 33.55 mg/L as set in the WTP model.")
+  if (water_type == "untreated" & (uv254 < 0.01 | uv254 > 0.318)) {
+    warning("UV254 is outside the untreated water model bounds of 0.01 <= uv254 <= 0.318 cm-1 as set in the WTP model.")
   }
   
-  if (missing(br)) {
-    stop("Missing value for br. Bromide must be dosed to calculate DBP formation.")
+  if (water_type == "treated" & (uv254 < 0.016 | uv254 > 0.215)) {
+    warning("UV254 is outside the treated water model bounds of 0.016 <= uv254 <= 0.215 cm-1 as set in the WTP model.")
   }
-  if (br < 7 | br > 600) {
-    warning("Bromide is outside the model bounds of 7 <= cl2 <= 600 ug/L as set in the WTP model.")
+
+  if (water_type == "untreated" & (cl2 < 1.51 | cl2 > 33.55)) {
+    warning("Chlorine is outside the untreated water model bounds of 1.51 <= cl2 <= 33.55 mg/L as set in the WTP model.")
+  }
+  if (water_type == "treated" & (cl2 < 1.11 | cl2 > 24.75)) {
+    warning("Chlorine is outside the treated water model bounds of 1.11 <= cl2 <= 24.75 mg/L as set in the WTP model.")
+  }
+
+  if (water_type == "untreated" & (br < 7 | br > 600)) {
+    warning("Bromide is outside the untreated water model bounds of 7 <= cl2 <= 600 ug/L as set in the WTP model.")
+  }
+  if (water_type == "treated" & (br < 23 | br > 308)) {
+    warning("Bromide is outside the treated water model bounds of 23 <= cl2 <= 308 ug/L as set in the WTP model.")
   }
   
-  if (temp < 15 | temp > 25) {
-    warning("Temperature is outside the model bounds of 15 <= temp <= 25 Celsius as set in the WTP model.")
+  if (water_type == "untreated" & (temp < 15 | temp > 25)) {
+    warning("Temperature is outside the untreated water model bounds of 15 <= temp <= 25 Celsius as set in the WTP model.")
+  }
+  if (water_type == "treated" & temp != 20 ) {
+    warning("Temperature is not set to 20 Celsius as set in the WTP model for treated water modeling.")
   }
   
-  if (ph < 6.5 | ph > 8.5) {
-    warning("pH is outside the model bounds of 6.5 <= ph <= 8.5 as set in the WTP model.")
+  if (water_type == "untreated" & (ph < 6.5 | ph > 8.5)) {
+    warning("pH is outside the untreated water model bounds of 6.5 <= ph <= 8.5 as set in the WTP model.")
   }
-  
-  if (missing(time)) {
-    stop("Missing value for time. Please add a reaction time to form DBPs.")
+  if (water_type == "untreated" & ph != 7.5) {
+    warning("pH is not set to 7.5 as set in the WTP model for treated water modeling.")
   }
+
   if (time < 2 | time > 168) {
     warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours as set in the WTP model.")
   }
   
-  tthm = 4.21e-2 * toc^1.098 * cl2^0.152 * br^0.068 * temp^0.609 * ph^1.601 * time^0.263
-  return(tthm)
+  if (water_type == "untreated") {
+
+    predicted_dbp <- dbpcoeffs %>%
+      filter(water_type == "untreated") %>%
+      filter(ID == species) %>%
+      mutate(modeled_dbp_ug.L = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f)%>%
+      select(-c(A:f))
+  } 
+  
+  if (water_type == "treated") {
+    
+    predicted_dbp <- dbpcoeffs %>%
+      filter(water_type == "treated") %>%
+      filter(ID == species) %>%
+      mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-7.5) * e^(temp-20) * time^f) %>%
+      select(-c(A:f))
+  }
+  
+
+  return(predicted_dbp)
 }
+# 
+water <- define_water(8, 25, 66, toc = 4, uv254 = .2)
+cl2 = 2
+br=8
+time=5
+species = "tthm"
 
-test <- define_water(8, 25, 66, toc = 4, uv254 = .2) %>%
-  chemdose_dbp(cl2=1, br = 8, time = 5)
-
+  test <- chemdose_dbp(water, cl2=2, br = 30, time = 168)
