@@ -10,18 +10,27 @@
 #' The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
 #' chlorine addition and returns a dataframe of predicted DBP formation.
 #' 
-#' TTHMs: Amy et al. (1998), WTP Model v. 2.0, equation 5-131
-#' HAAs: Amy et al. (1998), WTP Model v. 2.0, equation 5-134 
+#' TTHMs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-131
+#' HAAs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-134 
+#' 
+#' TTHMs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-139
+#' HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142 
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2 applied chlorine dose (mg/L as Cl2). Dose should be between 1.51 and 33.55 mg/L
 #' @param br bromide concentration (ug/L). Concentration should be between 7 and 600 ug/L
 #' @param time reaction time (hours). Reaction time should be between 2 and 168 hours
+#' @param water_type type of treatment applied to the water. Default type is "treated", but
+#' user may also specify "untreated". Untreated water is generally raw water. "treated water applies to 
+#' water that has been coagulated or softened.
+#' @param species the dbp species or group of species that should be modeled. Default species is "tthm", but
+#' user may also specify haa5, haa6, haa9, or any of the species within these groups. Note: haa9 and its subspecies
+#' are only available when water_type = "treated".
 #' @examples
 #'
 #' @export
 #'
-chemdose_dbp <- function(water, cl2, br, time) {
+chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species = "tthm") {
   toc = water@toc
   uv254 = water@uv254
   temp = water@temp
