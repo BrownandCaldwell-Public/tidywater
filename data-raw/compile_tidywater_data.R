@@ -108,7 +108,7 @@ leadsol_constants <- data.frame(
   # Solids
   add_row(species_name = c("Hydroxypyromorphite", "Hydroxypyromorphite", "Pyromorphite", "Pyromorphite"),  
           constant_name = c("K_solid_hydroxypyromorphite_s", "K_solid_hydroxypyromorphite_z" ,  "K_solid_pyromorphite_x",  "K_solid_pyromorphite_t"), 
-          log_value = c(62.83,-66.77, -80.4, -79.6),
+          log_value = c(-62.83,-66.77, -80.4, -79.6),
           source = c("Schock et al. (1996)", "Zhu et al. (2015)", "Xie & Giammar (2007)", "Topolska et al. (2016)")) %>%
   
   add_row(species_name = c( "Primary Lead Orthophosphate", "Secondary Lead Orthophosphate", "Tertiary Lead Orthophosphate"),  
