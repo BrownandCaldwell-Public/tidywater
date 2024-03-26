@@ -2,16 +2,16 @@
 # These functions help predict total trihalomethane (TTHM) and haloacetic acid (HAA) formation
 
 
-#' Create a water class object given water quality parameters
+#' Calculate DBP formation using dosed chlorine, ambient bromide, and reaction time.
 #'
-#' This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
-#' Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
-#' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
-#' manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
-#' Ionic strength (if TDS provided): MWH equation 5-38
-#' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
-#' Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
-#' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
+#' \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on
+#' chlorine addition, bromide, TOC, UV254, bromide, temperature, pH, and reaction time. This function will 
+#' calculate haloacetic acids (HAA) as HAA5 or HAA6, as well as total trihalomethanes (TTHM).
+#' The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
+#' chlorine addition and returns a dataframe of predicted DBP formation.
+#' 
+#' TTHMs: Amy et al. (1998), WTP Model v. 2.0, equation 5-131
+#' HAAs: Amy et al. (1998), WTP Model v. 2.0, equation 5-134 
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2 applied chlorine dose (mg/L as Cl2). Dose should be between 1.51 and 33.55 mg/L
@@ -28,16 +28,13 @@ chemdose_dbp <- function(water, cl2, br, time) {
   ph = water@ph
   
   # Handle missing arguments with warnings (not all parameters are needed for all models).
-  if (is.na(toc)) {
-    stop("Missing value for toc. TOC is required for calculating DBP formation.")
+  if (is.na(toc) | is.na(uv254) | is.na(temp) | is.na(ph)) {
+    stop("Missing value for toc, uv254, temp, or ph. Please add them to define_water.")
   }
   if (toc < 1.2 | toc > 10.6) {
     warning("TOC is outside the model bounds of 1.2 <= toc <= 10.6 mg/L as set in the WTP model.")
   }
   
-  if (is.na(uv254)) {
-    stop("Missing value for uv254. UV254 is required for calculating DBP formation.")
-  }
   if (uv254 < 0.01 | uv254 > 0.318) {
     warning("UV254 is outside the model bounds of 0.01 <= uv254 <= 0.318 cm-1 as set in the WTP model.")
   }
@@ -54,6 +51,14 @@ chemdose_dbp <- function(water, cl2, br, time) {
   }
   if (br < 7 | br > 600) {
     warning("Bromide is outside the model bounds of 7 <= cl2 <= 600 ug/L as set in the WTP model.")
+  }
+  
+  if (temp < 15 | temp > 25) {
+    warning("Temperature is outside the model bounds of 15 <= temp <= 25 Celsius as set in the WTP model.")
+  }
+  
+  if (ph < 6.5 | ph > 8.5) {
+    warning("pH is outside the model bounds of 6.5 <= ph <= 8.5 as set in the WTP model.")
   }
   
   if (missing(time)) {
