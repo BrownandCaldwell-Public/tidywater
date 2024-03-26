@@ -9,6 +9,7 @@ A dataframe with 13 rows and 9 columns
 \describe{
 \item{ID}{abbreviation of dbp species}
 \item{alias}{full name of dbp species}
+\item{water_type}{specifies which model the constants apply to, either untreated or coagulated water}
 \item{A}{First coefficient in DBP model}
 \item{a}{Second coefficient in DBP model, associated with TOC or DOC}
 \item{b}{Third coefficient in DBP model, associated with Cl2 }
