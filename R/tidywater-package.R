@@ -119,3 +119,28 @@ NULL
 #' @source Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships. AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 
 "leadsol_constants"
+
+#' Data frame of DBP coefficients for predicting DBP formation
+#'
+#' A dataset containing coefficients for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbpcoeffs
+#' @format A dataframe with 13 rows and 9 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{A}{First coefficient in DBP model}
+#' \item{a}{Second coefficient in DBP model, associated with TOC or DOC}
+#' \item{b}{Third coefficient in DBP model, associated with Cl2 }
+#' \item{c}{Fourth coefficient in DBP model, associated with Br-}
+#' \item{d}{Fifth coefficient in DBP model, associated with temperature}
+#' \item{e}{Sixth coefficient in DBP model, associated with pH}
+#' \item{f}{Seventh coefficient in DBP model, associated with reaction time}
+#' }
+#'
+
+
+#' @source Amy et al. (1998)
+"dbpcoeffs"

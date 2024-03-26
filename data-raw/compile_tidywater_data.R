@@ -97,8 +97,6 @@ usethis::use_data(edwardscoeff, overwrite = TRUE)
 
 # Data frame of equilibrium constants for lead and copper solubility
 
-
-
 leadsol_constants <- data.frame(
   species_name = c("Lead Hydroxide", "Cerussite",  "Hydrocerussite"),
   constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
@@ -156,3 +154,50 @@ leadsol_constants <- data.frame(
           source = rep("Schock et al. (1996)", 2))
   
   usethis::use_data(leadsol_constants, overwrite = TRUE)
+
+  # Data frame of THM and HAA coefficients
+  
+  dbpcoeffs <- data.frame(
+    ID = "tthm",
+    alias = "total trihalomethanes",
+    A = 4.121e-2, a = 1.098, b = 0.152, c = 0.068, d = 0.609, e = 1.601, f = 0.263) %>%
+    add_row(ID = "chcl3",
+            alias = "chloroform",
+            A = 6.237e-2, a = 1.617, b = -0.094, c = -0.175, d = 0.607, e = 1.403, f = 0.306) %>%
+    add_row(ID = "chcl2br",
+            alias = "dichlorobromomethane",
+            A = 1.445e-3, a = 0.901, b = 0.017, c = 0.733, d = 0.498, e = 1.511, f = 0.199) %>%
+    add_row(ID = "chbr2cl",
+            alias = "dibromochloromethane",
+            A = 2.244e-6, a = -0.226, b = 0.108, c = 1.810, d = 0.512, e = 2.212, f = 0.146) %>%
+    add_row(ID = "chbr3",
+            alias = "bromoform",
+            A = 1.49e-8, a = -0.983, b = 0.804, c = 1.765, d = 0.754, e = 2.139, f = 0.566) %>% 
+    
+    add_row(ID = "haa5",
+            alias = "Five haloacetic acids",
+            A = 30, a = 0.997, b = 0.278, c = -0.138, d = 0.341, e = -0.799, f = 0.169) %>%
+    add_row(ID = "haa6",
+            alias = "Six haloacetic acids",
+            A = 9.98, a = 0.935, b = 0.443, c = -0.031, d = 0.387, e = -0.655, f = 0.178) %>%
+    add_row(ID = "mcaa",
+            alias = "monochloroacetic acid",
+            A = 0.45, a = 0.173, b = 0.379, c = 0.029, d = 0.573, e = -0.279, f = 0.009) %>%
+    add_row(ID = "dcaa",
+            alias = "dichloroacetic acid",
+            A = 0.3, a = 1.396, b = 0.379, c = -0.149, d = 0.465, e = 0.200, f = 0.218)%>%
+    add_row(ID = "tcaa",
+            alias = "trichloroacetic acid",
+            A = 92.68, a = 1.152, b = 0.331, c = -0.2299, d = 0.299, e = -1.627, f = 0.180) %>%
+    add_row(ID = "mbaa",
+            alias = "monobromoacetic acid",
+            A = 6.21e-5, a = -0.584, b = 0.754, c = 1.10, d = 0.707, e = 0.604, f = 0.090)%>%
+    add_row(ID = "dbaa",
+            alias = "dibromoacetic acid",
+            A = 3.69e-5, a = -1.087, b = 0.673, c = 2.052, d = 0.380, e = -0.001, f = 0.095) %>%
+    add_row(ID = "bcaa",
+            alias = "bromochloroacetic acid",
+            A = 5.51e-3, a = 0.463, b = 0.522, c = 0.667, d = 0.379, e = 0.581, f = 0.220)
+  
+  usethis::use_data(dbpcoeffs, overwrite = TRUE)
+  
