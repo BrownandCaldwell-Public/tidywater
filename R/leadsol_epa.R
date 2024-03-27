@@ -11,6 +11,17 @@
 #' ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
 #'
 #' Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
+#' which is licensed under MIT License:
+#' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
+#' associated documentation files (the "Software"), to deal in the Software without restriction, 
+#' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+#' copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the 
+#' following conditions: The above copyright notice and this permission notice shall be included in all copies or 
+#' substantial portions of the Software.
+#' 
+#' Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). 
+#' Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
+#' AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 #'
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
@@ -136,12 +147,12 @@ dissolve_pb <- function(water) {
 }
 
 
-#' Calculate dissolved inorganic carbon (DIC) from pH and alkalinity
+#' Calculate dissolved inorganic carbon (DIC) from total carbonate
 #'
 #' This function takes a water class object defined by \code{\link{define_water}}
 #' and outputs a DIC (mg/L).
 #'
-#' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
+#' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -152,40 +163,10 @@ dissolve_pb <- function(water) {
 #'
 #' @export
 #'
-# Copied from Sierra's code.  Copied from Damon's code before that.
-  # NOTE: doesn't account for temperature. should we incorporate? Ben Trueman uses temp, but this requires phreeqc bleh
-  #https://github.com/bentrueman/pbcusol/blob/main/R/calculate_dic.R
+
 calculate_dic <- function(water) {
 
-  ph = water@ph
-
-  # pH_EndPoint is the pH used for the endpoint of the titration curve to define alkalinity
-  pH_EndPoint <- 4.5
-
-  # This calculates the initial and final {H+} and {OH-} based on ph
-  H_Concentration_initial <- 10^-ph
-  H_Concentration_final <- 10^-pH_EndPoint
-  OH_Concentration_initial <- water@kw / H_Concentration_initial
-  OH_Concentration_final <- water@kw/H_Concentration_final
-
-  k = correct_k(water)
-
-  # alpha - fraction of TOT with each protonation, alpha1 - HCO3, alpha2 - CO3 (number based on charge)
-  # Benjamin 5.39 and 5.40
-  alpha1_initial <- calculate_alpha1_carbonate(H_Concentration_initial, k)
-  alpha2_initial <- calculate_alpha2_carbonate(H_Concentration_initial, k)
-  alpha1_final <- 1/((H_Concentration_final/k$k1co3)+1+(k$k2co3/H_Concentration_final))
-  alpha2_final <- 1/(((H_Concentration_final^2)/(k$k1co3*k$k2co3))+(H_Concentration_final/k$k2co3)+1)
-
-  # Calculate TOTCO3 (rearrangement of Benjamin 8.20 + 8.21b)
-  # I think the result is in mol/L ???
-  TOTCO3_eq <- ((H_Concentration_final - H_Concentration_initial) - (OH_Concentration_final - OH_Concentration_initial) - water@alk_eq) /
-    ((alpha1_final- alpha1_initial) + 2 * (alpha2_final - alpha2_initial))
-
-  # Simplified Benjamin eqn (8.16) as a check - matches pretty well, commenting this out.
-  # TOTCO3_approx <- (Alkalinity_eq) / (alpha1_initial + 2 * alpha2_initial)
-
-  # Do we need to convert to M first?
-  dic <- TOTCO3_eq * mweights$dic * 1000
+  dic <- water@tot_co3 * mweights$dic * 1000
+  
   return(dic)
 }

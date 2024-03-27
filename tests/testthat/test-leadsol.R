@@ -63,7 +63,7 @@ test_that("calculate _dic works.", {
   water2 <- suppressWarnings(define_water(ph = 4, alk = 5)) %>%
     calculate_dic()
 
-  expect_equal(round(water1), 60)
+  expect_equal(round(water1), 59)
   # This is pretty weird, calc_dic needs some help
-  expect_equal(round(water2), -225)
+  expect_equal(round(water2), 569)
 })
