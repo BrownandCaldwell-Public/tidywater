@@ -6,7 +6,7 @@
 #' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
 #' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
-#' The user may change the constants to hydroxypyromorphite = "zhu" or pyromorphite = "xie" or laurionite = "lothenbach"
+#' The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite = "Xie" or laurionite = "Lothenbach"
 #'
 #' The solid with lowest solubility will form the lead scale (controlling lead solid).
 #'
@@ -35,7 +35,7 @@
 #'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'  dissolve_pb()
 #'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
-#'  dissolve_pb(pyromorphite = "xie")
+#'  dissolve_pb(pyromorphite = "Xie")
 #'
 #' @export
 
