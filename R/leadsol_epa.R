@@ -2,10 +2,13 @@
 #' Simulate contributions of various lead solids to total soluble lead
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}}
-#' and outputs a dataframe. Lead solid solubility is calculated based on controlling solid (Pb_2_plus, M).
+#' and outputs a dataframe of the controlling lead solid and total lead solubility. 
+#' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
+#' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
+#' The user may change the constants to hydroxypyromorphite = "zhu" or pyromorphite = "xie" or laurionite = "lothenbach"
 #'
-#' The solid with lowest solubility will form the lead scale (controlling lead solid)
+#' The solid with lowest solubility will form the lead scale (controlling lead solid).
 #'
 #' Make sure that total dissolved solids, conductivity, or
 #' ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
@@ -31,10 +34,12 @@
 #'
 #'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'  dissolve_pb()
+#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#'  dissolve_pb(pyromorphite = "xie")
 #'
 #' @export
 
-dissolve_pb <- function(water) {
+dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
 
 
   # for unit testing/code review
@@ -53,14 +58,6 @@ dissolve_pb <- function(water) {
 
   # Correction of carbonate, phosphate, and sulfate equilibrium constants
   k <- correct_k(water)
-
-  # Calculations for sulfate acid-base species
-  alpha_0_s <- 1 / (1 + k$kso4 / h)
-  alpha_1_s <- 1 / (h / k$kso4 + 1)
-
-  # Calculate sulfate species concentrations
-  hso4 <- alpha_0_s * water@so4
-  so4 <- alpha_1_s * water@so4
 
   # * Calculate lead solid solubility based on controlling solid ----
 
@@ -85,7 +82,7 @@ dissolve_pb <- function(water) {
                                  # Tertiary Lead Orthophosphate: Pb3(PO4)2(s) --> 3Pb2+ + 2PO43- + H+
                                  constant_name == "K_solid_tertiary_lead_ortho" ~ (K_num / (gamma_2^3 * gamma_3^2 * water@po4^2))^(1/3),
                                  # Anglesite: PbSO4(s) --> Pb2+ + SO42-
-                                 constant_name == "K_solid_anglesite" ~ K_num / (gamma_2^2 * so4),
+                                 constant_name == "K_solid_anglesite" ~ K_num / (gamma_2^2 * water@so4),
                                  # Laurionite: PbClOH(s) + H+ --> Pb2+ + Cl- + H2O
                                  constant_name == "K_solid_laurionite_nl" ~ K_num * h / (gamma_2 * gamma_1 * water@cl),
                                  constant_name == "K_solid_laurionite_l" ~ K_num * h / (gamma_2 * gamma_1 * water@cl)
@@ -114,8 +111,8 @@ dissolve_pb <- function(water) {
       PbCl3_minus = (B_3_Cl) * gamma_2 * Pb_2_plus * gamma_1^2 * water@cl^3,
       PbCl4_2_minus = (B_4_Cl) * Pb_2_plus * gamma_1^4 * water@cl^4,
       # Calculate lead-sulfate complex concentrations
-      PbSO4 = (K_1_SO4) * gamma_2^2 * Pb_2_plus * so4,
-      PbSO42_2_minus = (B_2_SO4) * gamma_2^2 * Pb_2_plus * so4^2,
+      PbSO4 = (K_1_SO4) * gamma_2^2 * Pb_2_plus * water@so4,
+      PbSO42_2_minus = (B_2_SO4) * gamma_2^2 * Pb_2_plus * water@so4^2,
       # Calculate lead-carbonate complex concentrations
       PbHCO3_plus = ((K_1_CO3) * h * gamma_2^2 * Pb_2_plus * water@co3) / gamma_1,
       PbCO3 = (K_2_CO3) * gamma_2^2 * Pb_2_plus * water@co3,
@@ -131,16 +128,17 @@ dissolve_pb <- function(water) {
         PbHCO3_plus + PbCO3 + PbCO32_2_minus +
         PbHPO4 + PbH2PO4_plus)
 
-  alllead_simple <- alllead %>%
+  alllead_simple2 <- alllead %>%
     select(species_name, Pb_2_plus, tot_dissolved_pb, source) %>%
-    mutate(ph = water@ph,
-           # dic = dic,
-           tot_po4 = water@tot_po4,
-           so4 = water@so4,
-           is = water@is,
-           cl = water@cl
-           #output other things like hco3, co3 etc too?
-    )
+    mutate(keep = case_when(species_name == "Hydroxypyromorphite" & grepl(hydroxypyromorphite, source) ~ "keep",
+                            species_name == "Pyromorphite" & grepl(pyromorphite, source) ~ "keep",
+                            species_name == "Laurionite" & grepl(laurionite, source) ~ "keep",
+                            !grepl("Hydroxyp|Pyro|Lauri", species_name) ~ "keep"
+                             )) %>%
+    drop_na(keep) %>%
+    mutate(controlling_solid = case_when(tot_dissolved_pb == min(tot_dissolved_pb) ~ species_name)) %>%
+    drop_na(controlling_solid) %>%
+    select(controlling_solid, tot_dissolved_pb)
 
   return(alllead_simple)
 
