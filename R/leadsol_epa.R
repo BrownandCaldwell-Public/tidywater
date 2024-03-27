@@ -174,8 +174,8 @@ calculate_dic <- function(water) {
   # Benjamin 5.39 and 5.40
   alpha1_initial <- calculate_alpha1_carbonate(H_Concentration_initial, k)
   alpha2_initial <- calculate_alpha2_carbonate(H_Concentration_initial, k)
-  alpha1_final <- 1/((H_Concentration_final/Ka1_CO3)+1+(Ka2_CO3/H_Concentration_final))
-  alpha2_final <- 1/(((H_Concentration_final^2)/(Ka1_CO3*Ka2_CO3))+(H_Concentration_final/Ka2_CO3)+1)
+  alpha1_final <- 1/((H_Concentration_final/k$k1co3)+1+(k$k2co3/H_Concentration_final))
+  alpha2_final <- 1/(((H_Concentration_final^2)/(k$k1co3*k$k2co3))+(H_Concentration_final/k$k2co3)+1)
 
   # Calculate TOTCO3 (rearrangement of Benjamin 8.20 + 8.21b)
   # I think the result is in mol/L ???
