@@ -4,15 +4,19 @@
 
 # Create water class
 methods::setClass("water",
-  representation(ph = "numeric",
+  representation(
+    #basic water quality
+    ph = "numeric",
     temp = "numeric",
     alk = "numeric",
     tds = "numeric",
     cond = "numeric",
     tot_hard = "numeric",
+    #organics
     toc = "numeric",
     doc = "numeric",
     uv254 = "numeric",
+    #ions
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -30,18 +34,45 @@ methods::setClass("water",
     tot_po4 = "numeric",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
+    is = NA_real_,
+    #miscellaneous
     kw = "numeric",
-    is = "numeric",
-    alk_eq = "numeric"),
-  prototype(ph = NA_real_,
+    alk_eq = "numeric",
+    #dbps
+    tthm = "numeric",
+    chcl3 = "numeric",
+    chcl2br = "numeric",
+    chbr2cl = "numeric",
+    chbr3 = "numeric",
+    
+    haa5 = "numeric",
+    mcaa = "numeric",
+    dcaa = "numeric",
+    tcaa = "numeric",
+    mbaa = "numeric",
+    dbaa = "numeric",
+    
+    haa6 = "numeric",
+    bcaa = "numeric",
+    
+    haa9 = "numeric",
+    cdbaa = "numeric",
+    dcbaa = "numeric",
+    tbaa = "numeric"
+    ),
+  prototype(
+    #basic water quality
+    ph = NA_real_,
     temp = NA_real_,
     alk = NA_real_,
     tds = NA_real_,
     cond = NA_real_,
     tot_hard = NA_real_,
+    #organics
     toc = NA_real_,
     doc = NA_real_,
     uv254 = NA_real_,
+    #ions
     na = 0,
     ca = 0,
     mg = 0,
@@ -59,22 +90,47 @@ methods::setClass("water",
     tot_po4 = 0,
     tot_ocl = 0,
     tot_co3 = NA_real_,
-    kw = NA_real_,
     is = NA_real_,
-    alk_eq = NA_real_))
+    #miscellaneous
+    kw = NA_real_,
+    alk_eq = NA_real_,
+    #dbps
+    tthm = NA_real_,
+    chcl3 = NA_real_,
+    chcl2br = NA_real_,
+    chbr2cl = NA_real_,
+    chbr3 = NA_real_,
+    
+    haa5 = NA_real_,
+    mcaa = NA_real_,
+    dcaa = NA_real_,
+    tcaa = NA_real_,
+    mbaa = NA_real_,
+    dbaa = NA_real_,
+    
+    haa6 = NA_real_,
+    bcaa = NA_real_,
+    
+    haa9 = NA_real_,
+    cdbaa = NA_real_,
+    dcbaa = NA_real_,
+    tbaa = NA_real_))
 
 methods::setMethod("show",
   "water",
   function(object) {
+    #basic water quality
     cat("pH: ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
     cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    #organics
     cat("Total organic carbon (mg/L): ", object@toc, "\n")
     cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
     cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
+    #ions
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
     cat("Magnesium (M): ", object@mg, "\n")
@@ -92,9 +148,31 @@ methods::setMethod("show",
     cat("Total phosphate (M)", object@tot_po4, "\n")
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
-    cat("Kw: ", object@kw, "\n")
     cat("Ionic Strength:", object@is, "\n")
+    #miscellaneous
+    cat("Kw: ", object@kw, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq)
+    #dbps
+    tthm = NA_real_,
+    chcl3 = NA_real_,
+    chcl2br = NA_real_,
+    chbr2cl = NA_real_,
+    chbr3 = NA_real_,
+    
+    haa5 = NA_real_,
+    mcaa = NA_real_,
+    dcaa = NA_real_,
+    tcaa = NA_real_,
+    mbaa = NA_real_,
+    dbaa = NA_real_,
+    
+    haa6 = NA_real_,
+    bcaa = NA_real_,
+    
+    haa9 = NA_real_,
+    cdbaa = NA_real_,
+    dcbaa = NA_real_,
+    tbaa = NA_real_
   })
 
 
