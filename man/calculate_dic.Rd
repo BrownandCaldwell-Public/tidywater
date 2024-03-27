@@ -2,20 +2,20 @@
 % Please edit documentation in R/leadsol_epa.R
 \name{calculate_dic}
 \alias{calculate_dic}
-\title{Calculate dissolved inorganic carbon (DIC) from pH and alkalinity}
+\title{Calculate dissolved inorganic carbon (DIC) from total carbonate}
 \usage{
 calculate_dic(water)
 }
 \arguments{
-\item{water}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
+\item{water}{a water class object containing columns with all the parameters listed in \code{\link{define_water}}}
 }
 \description{
-This function takes a water class object defined by \code{\link{define_water}} 
+This function takes a water class object defined by \code{\link{define_water}}
 and outputs a DIC (mg/L).
 }
 \examples{
 
-example_dic <- define_water(8, 15, 200) \%>\% 
+example_dic <- define_water(8, 15, 200) \%>\%
  calculate_dic()
 
 }
