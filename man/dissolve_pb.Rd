@@ -13,6 +13,12 @@ dissolve_pb(
 }
 \arguments{
 \item{water}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
+
+\item{hydroxypyromorphite}{defaults to the constant, K, developed by Schock et al (1996). Can also use "Zhu".}
+
+\item{pyromorphite}{defaults to the constant, K, developed by Topolska et al (2016). Can also use "Xie".}
+
+\item{laurionite}{defaults to the constant, K, developed by Nasane & Lindell (1976). Can also use "Lothenbach".}
 }
 \description{
 This function takes a water data frame defined by \code{\link{define_water}}

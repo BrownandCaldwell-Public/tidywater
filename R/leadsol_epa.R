@@ -27,7 +27,9 @@
 #' AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 #'
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
-#'
+#' @param hydroxypyromorphite defaults to the constant, K, developed by Schock et al (1996). Can also use "Zhu".
+#' @param pyromorphite defaults to the constant, K, developed by Topolska et al (2016). Can also use "Xie".
+#' @param laurionite defaults to the constant, K, developed by Nasane & Lindell (1976). Can also use "Lothenbach".
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
