@@ -43,6 +43,7 @@ methods::setClass("water",
     kw = "numeric",
     alk_eq = "numeric",
     treatment = "character",
+    dic = "numeric",
     
     #dbps
     tthm = "numeric",
@@ -113,6 +114,7 @@ methods::setClass("water",
     kw = NA_real_,
     alk_eq = NA_real_,
     treatment = NA_character_,
+    dic = NA_real_,
     
     #dbps
     tthm = NA_real_,
@@ -186,7 +188,8 @@ methods::setMethod("show",
     cat("Kw: ", object@kw, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq)
     cat("Treatment applied to water class:", object@treatment)
-    
+    cat("Dissolved inorganic carbon:", object@dic)  
+  
     #dbps
     cat("Total trihalomethanes (ug/L):", object@tthm, "\n")
     cat("Chloroform (ug/L):", object@chcl3, "\n")
@@ -295,12 +298,10 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
-    warning("No organic parameters specified, DOC and DBP models will not work.")
     toc = NA_real_
     doc = NA_real_
     uv254 = NA_real_
   } else if (missing(toc) & missing(doc)) {
-    warning("Missing values for DOC and TOC. Add value for DOC or TOC to use DOC and DBP models.")
     toc = NA_real_
     doc = NA_real_
   } else if (missing(toc) & !missing(doc)) {
@@ -311,9 +312,6 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     doc = toc * 0.95
   }
 
-  if (missing(uv254)) {
-    warning("Missing value for UV254, value set to NA and select DOC and DBP models will not work. For best results, add UV254 estimate.")
-  }
   uv254 = ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
