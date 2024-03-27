@@ -112,7 +112,7 @@ chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species =
     predicted_dbp <- dbpcoeffs %>%
       filter(water_type == "treated") %>%
       filter(ID %in% species) %>%
-      mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-7.5) * e^(temp-20) * time^f) %>%
+      mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(temp-20) * e^(ph-7.5) * time^f) %>%
       select(-c(A:f))
   }
   
