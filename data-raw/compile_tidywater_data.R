@@ -97,8 +97,6 @@ usethis::use_data(edwardscoeff, overwrite = TRUE)
 
 # Data frame of equilibrium constants for lead and copper solubility
 
-
-
 leadsol_constants <- data.frame(
   species_name = c("Lead Hydroxide", "Cerussite",  "Hydrocerussite"),
   constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
@@ -156,3 +154,140 @@ leadsol_constants <- data.frame(
           source = rep("Schock et al. (1996)", 2))
   
   usethis::use_data(leadsol_constants, overwrite = TRUE)
+
+  # Data frame of THM and HAA coefficients
+  
+  dbpcoeffs <- data.frame(
+    
+    #raw/untreated water
+    #tthms
+    ID = "tthm",
+    alias = "total trihalomethanes",
+    water_type = "untreated",
+    A = 4.121e-2, a = 1.098, b = 0.152, c = 0.068, d = 0.609, e = 1.601, f = 0.263) %>%
+    add_row(ID = "chcl3",
+            alias = "chloroform",
+            water_type = "untreated",
+            A = 6.237e-2, a = 1.617, b = -0.094, c = -0.175, d = 0.607, e = 1.403, f = 0.306) %>%
+    add_row(ID = "chcl2br",
+            alias = "dichlorobromomethane",
+            water_type = "untreated",
+            A = 1.445e-3, a = 0.901, b = 0.017, c = 0.733, d = 0.498, e = 1.511, f = 0.199) %>%
+    add_row(ID = "chbr2cl",
+            alias = "dibromochloromethane",
+            water_type = "untreated",
+            A = 2.244e-6, a = -0.226, b = 0.108, c = 1.810, d = 0.512, e = 2.212, f = 0.146) %>%
+    add_row(ID = "chbr3",
+            alias = "bromoform",
+            water_type = "untreated",
+            A = 1.49e-8, a = -0.983, b = 0.804, c = 1.765, d = 0.754, e = 2.139, f = 0.566) %>% 
+    
+    #haa5 and haa6
+    add_row(ID = "haa5",
+            alias = "Five haloacetic acids",
+            water_type = "untreated",
+            A = 30, a = 0.997, b = 0.278, c = -0.138, d = 0.341, e = -0.799, f = 0.169) %>%
+    add_row(ID = "haa6",
+            alias = "Six haloacetic acids",
+            water_type = "untreated",
+            A = 9.98, a = 0.935, b = 0.443, c = -0.031, d = 0.387, e = -0.655, f = 0.178) %>%
+    add_row(ID = "mcaa",
+            alias = "monochloroacetic acid",
+            water_type = "untreated",
+            A = 0.45, a = 0.173, b = 0.379, c = 0.029, d = 0.573, e = -0.279, f = 0.009) %>%
+    add_row(ID = "dcaa",
+            alias = "dichloroacetic acid",
+            water_type = "untreated",
+            A = 0.3, a = 1.396, b = 0.379, c = -0.149, d = 0.465, e = 0.200, f = 0.218)%>%
+    add_row(ID = "tcaa",
+            alias = "trichloroacetic acid",
+            water_type = "untreated",
+            A = 92.68, a = 1.152, b = 0.331, c = -0.2299, d = 0.299, e = -1.627, f = 0.180) %>%
+    add_row(ID = "mbaa",
+            alias = "monobromoacetic acid",
+            water_type = "untreated",
+            A = 6.21e-5, a = -0.584, b = 0.754, c = 1.10, d = 0.707, e = 0.604, f = 0.090)%>%
+    add_row(ID = "dbaa",
+            alias = "dibromoacetic acid",
+            water_type = "untreated",
+            A = 3.69e-5, a = -1.087, b = 0.673, c = 2.052, d = 0.380, e = -0.001, f = 0.095) %>%
+    add_row(ID = "bcaa",
+            alias = "bromochloroacetic acid",
+            water_type = "untreated",
+            A = 5.51e-3, a = 0.463, b = 0.522, c = 0.667, d = 0.379, e = 0.581, f = 0.220) %>%
+  
+    # treated
+    #tthms
+    add_row(ID = "tthm",
+            alias = "total trihalomethanes",
+            water_type = "treated",
+            A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.0263, e = 1.1560, f = 0.264) %>%
+    add_row(ID = "chcl3",
+            alias = "chloroform",
+            water_type = "treated",
+            A = 266, a = 0.403, b = 0.424, c = -0.679, d = 1.0179, e = 1.1322, f = 0.333) %>%
+    add_row(ID = "chcl2br",
+            alias = "dichlorobromomethane",
+            water_type = "treated",
+            A = 1.68, a = 0.260, b = 0.114, c = 0.462, d = 1.0260, e = 1.0977, f = 0.196) %>%
+    add_row(ID = "chbr2cl",
+            alias = "dibromochloromethane",
+            water_type = "treated",
+            A = 8.0e-3, a = -0.056, b = -0.157, c = 1.425, d = 1.0212, e = 1.1271, f = 0.148) %>%
+    add_row(ID = "chbr3",
+            alias = "bromoform",
+            water_type = "treated",
+            A = 4.4e-5, a = -0.300, b = -0.221, c = 2.134, d = 1.0374, e = 1.3907, f = 0.143) %>% 
+    #haa5 & haa6
+    add_row(ID = "haa5",
+            alias = "Five haloacetic acids",
+            water_type = "treated",
+            A = 30.7, a = 0.302, b = 0.541, c = -0.012, d = 1.021, e = 0.932, f = 0.161) %>%
+    add_row(ID = "haa6",
+            alias = "Six haloacetic acids",
+            water_type = "treated",
+            A = 41.6, a = 0.328, b = 0.585, c = -0.121, d = 1.022, e = 0.9216, f = 0.150) %>%
+    add_row(ID = "mcaa",
+            alias = "monochloroacetic acid",
+            water_type = "treated",
+            A = 4.58, a = -0.090, b = 0.662, c = -0.224, d = 1.024, e = 1.042, f = 0.043) %>%
+    add_row(ID = "dcaa",
+            alias = "dichloroacetic acid",
+            water_type = "treated",
+            A = 60.4, a = 0.397, b = 0.665, c = -0.558, d = 1.017, e = 1.034, f = 0.222)%>%
+    add_row(ID = "tcaa",
+            alias = "trichloroacetic acid",
+            water_type = "treated",
+            A = 52.6, a = 0.403, b = 0.749, c = -0.416, d = 1.014, e = 0.8739, f = 0.163) %>%
+    add_row(ID = "mbaa",
+            alias = "monobromoacetic acid",
+            water_type = "treated",
+            A = 2.06e-2, a = 0.358, b = -0.101, c = 0.812, d = 1.162, e = 0.6526, f = 0.043)%>%
+    add_row(ID = "dbaa",
+            alias = "dibromoacetic acid",
+            water_type = "treated",
+            A = 9.42e-5, a = 0.0590, b = 0.182, c = 2.109, d = 1.007, e = 1.210, f = 0.070) %>%
+    add_row(ID = "bcaa",
+            alias = "bromochloroacetic acid",
+            water_type = "treated",
+            A = 3.23e-1, a = 0.153, b = 0.257, c = 0.586, d = 1.042, e = 1.181, f = 0.201) %>% 
+    
+    #haa9
+    add_row(ID = "cdbaa",
+            alias = "chlorodibromoacetic acid",
+            water_type = "treated",
+            A = 3.70e-3, a = -0.0162, b = -0.170, c = 0.972, d = 1.054, e = 0.839, f = 0.685)%>%
+    add_row(ID = "dcbaa",
+            alias = "dichlorobromoacetic acid",
+            water_type = "treated",
+            A = 5.89e-1, a = 0.230, b = 0.140, c = 0.301, d = 1.022, e = 0.700, f = 0.422) %>%
+    add_row(ID = "tbaa",
+            alias = "tribromoacetic acid",
+            water_type = "treated",
+            A = 5.59e-6, a = 0.0657, b = -2.51, c = 2.32, d = 1.059, e = 0.555, f = 1.26)%>%
+    add_row(ID = "haa9",
+            alias = "Nine haloacetic acids",
+            water_type = "treated",
+            A = 10.78, a = 0.25, b = 0.5, c = 0.054, d = 1.015, e = 0.894, f = 0.348) 
+  usethis::use_data(dbpcoeffs, overwrite = TRUE)
+  
