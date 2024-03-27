@@ -12,10 +12,13 @@ methods::setClass("water",
     tds = "numeric",
     cond = "numeric",
     tot_hard = "numeric",
+    
     #organics
     toc = "numeric",
     doc = "numeric",
+    bdoc = "numeric",
     uv254 = "numeric",
+    
     #ions
     na = "numeric",
     ca = "numeric",
@@ -34,10 +37,13 @@ methods::setClass("water",
     tot_po4 = "numeric",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
-    is = NA_real_,
+    is = "numeric",
+    
     #miscellaneous
     kw = "numeric",
     alk_eq = "numeric",
+    treatment = "character",
+    
     #dbps
     tthm = "numeric",
     chcl3 = "numeric",
@@ -58,7 +64,15 @@ methods::setClass("water",
     haa9 = "numeric",
     cdbaa = "numeric",
     dcbaa = "numeric",
-    tbaa = "numeric"
+    tbaa = "numeric",
+    
+    # corrosion indices
+    aggressive = "numeric",
+    ryznar = "numeric",
+    langelier = "numeric",
+    ccpp = "numeric",
+    larsonskold = "numeric",
+    csmr = "numeric"
     ),
   prototype(
     #basic water quality
@@ -68,10 +82,13 @@ methods::setClass("water",
     tds = NA_real_,
     cond = NA_real_,
     tot_hard = NA_real_,
+    
     #organics
     toc = NA_real_,
     doc = NA_real_,
+    bdoc = NA_real_,
     uv254 = NA_real_,
+    
     #ions
     na = 0,
     ca = 0,
@@ -91,9 +108,12 @@ methods::setClass("water",
     tot_ocl = 0,
     tot_co3 = NA_real_,
     is = NA_real_,
+    
     #miscellaneous
     kw = NA_real_,
     alk_eq = NA_real_,
+    treatment = NA_character_,
+    
     #dbps
     tthm = NA_real_,
     chcl3 = NA_real_,
@@ -114,7 +134,16 @@ methods::setClass("water",
     haa9 = NA_real_,
     cdbaa = NA_real_,
     dcbaa = NA_real_,
-    tbaa = NA_real_))
+    tbaa = NA_real_,
+    
+    # corrosion indices
+    aggressive = NA_real_,
+    ryznar = NA_real_,
+    langelier = NA_real_,
+    ccpp = NA_real_,
+    larsonskold = NA_real_,
+    csmr = NA_real_
+    ))
 
 methods::setMethod("show",
   "water",
@@ -126,10 +155,13 @@ methods::setMethod("show",
     cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    
     #organics
     cat("Total organic carbon (mg/L): ", object@toc, "\n")
     cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
+    cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
     cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
+    
     #ions
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
@@ -149,30 +181,41 @@ methods::setMethod("show",
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Ionic Strength:", object@is, "\n")
+    
     #miscellaneous
     cat("Kw: ", object@kw, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq)
+    cat("Treatment applied to water class:", object@treatment)
+    
     #dbps
-    tthm = NA_real_,
-    chcl3 = NA_real_,
-    chcl2br = NA_real_,
-    chbr2cl = NA_real_,
-    chbr3 = NA_real_,
+    cat("Total trihalomethanes (ug/L):", object@tthm, "\n")
+    cat("Chloroform (ug/L):", object@chcl3, "\n")
+    cat("Dichlorobromomethane (ug/L):", object@chcl2br, "\n")
+    cat("Dibromochloromethane (ug/L):", object@chbr2cl, "\n")
+    cat("Bromoform (ug/L):", object@chbr3, "\n")
     
-    haa5 = NA_real_,
-    mcaa = NA_real_,
-    dcaa = NA_real_,
-    tcaa = NA_real_,
-    mbaa = NA_real_,
-    dbaa = NA_real_,
+    cat("Five haloacetic acids (ug/L):", object@haa5, "\n")
+    cat("Monochloroacetic acid (ug/L):", object@mcaa, "\n")
+    cat("Dichloroacetic acid (ug/L):", object@dcaa, "\n")
+    cat("Trichloroacetic acid (ug/L):", object@tcaa, "\n")
+    cat("Monobromoacetic acid (ug/L):", object@mbaa, "\n")
+    cat("Dibromoacetic acid (ug/L):", object@dbaa, "\n")
     
-    haa6 = NA_real_,
-    bcaa = NA_real_,
+    cat("Six haloacetic acids (ug/L):", object@haa6, "\n")
+    cat("Bromochloroacetic acid (ug/L):", object@bcaa, "\n")
     
-    haa9 = NA_real_,
-    cdbaa = NA_real_,
-    dcbaa = NA_real_,
-    tbaa = NA_real_
+    cat("Nine haloacetic acids (ug/L):", object@haa9, "\n")
+    cat("Chlorodibromoacetic acid (ug/L):", object@cdbaa, "\n")
+    cat("Dichlorobromoacetic acid (ug/L):", object@dcbaa, "\n")
+    cat("Tribromoacetic acid (ug/L):", object@tbaa, "\n")
+    
+    # corrosion indices
+    cat("Aggressive Index (unitless):", object@aggressive, "\n")
+    cat("Ryznar Stability Index (unitless):", object@ryznar, "\n")
+    cat("Langelier Saturation Index (unitless):", object@langelier, "\n")
+    cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
+    cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
+    cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
   })
 
 
