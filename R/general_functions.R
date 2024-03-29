@@ -13,11 +13,12 @@ methods::setClass("water",
     cond = "numeric",
     tot_hard = "numeric",
     
-    #organics
+    #carbon
     toc = "numeric",
     doc = "numeric",
     bdoc = "numeric",
     uv254 = "numeric",
+    dic = "numeric",
     
     #ions
     na = "numeric",
@@ -38,12 +39,6 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     is = "numeric",
-    
-    #miscellaneous
-    kw = "numeric",
-    alk_eq = "numeric",
-    treatment = "character",
-    dic = "numeric",
     
     #dbps
     tthm = "numeric",
@@ -73,7 +68,12 @@ methods::setClass("water",
     langelier = "numeric",
     ccpp = "numeric",
     larsonskold = "numeric",
-    csmr = "numeric"
+    csmr = "numeric",
+    
+    #miscellaneous
+    kw = "numeric",
+    alk_eq = "numeric",
+    treatment = "character"
     ),
   prototype(
     #basic water quality
@@ -84,10 +84,11 @@ methods::setClass("water",
     cond = NA_real_,
     tot_hard = NA_real_,
     
-    #organics
+    #carbon
     toc = NA_real_,
     doc = NA_real_,
     bdoc = NA_real_,
+    dic = NA_real_,
     uv254 = NA_real_,
     
     #ions
@@ -109,12 +110,6 @@ methods::setClass("water",
     tot_ocl = 0,
     tot_co3 = NA_real_,
     is = NA_real_,
-    
-    #miscellaneous
-    kw = NA_real_,
-    alk_eq = NA_real_,
-    treatment = NA_character_,
-    dic = NA_real_,
     
     #dbps
     tthm = NA_real_,
@@ -144,7 +139,12 @@ methods::setClass("water",
     langelier = NA_real_,
     ccpp = NA_real_,
     larsonskold = NA_real_,
-    csmr = NA_real_
+    csmr = NA_real_,
+    
+    #miscellaneous
+    kw = NA_real_,
+    alk_eq = NA_real_,
+    treatment = "defined"
     ))
 
 methods::setMethod("show",
@@ -158,10 +158,11 @@ methods::setMethod("show",
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
     
-    #organics
+    #carbon
     cat("Total organic carbon (mg/L): ", object@toc, "\n")
     cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
     cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
+    cat("Dissolved inorganic carbon:", object@dic, "\n")  
     cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
     
     #ions
@@ -184,12 +185,6 @@ methods::setMethod("show",
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Ionic Strength:", object@is, "\n")
     
-    #miscellaneous
-    cat("Kw: ", object@kw, "\n")
-    cat("Alkalinity (eq/L):", object@alk_eq)
-    cat("Treatment applied to water class:", object@treatment)
-    cat("Dissolved inorganic carbon:", object@dic)  
-  
     #dbps
     cat("Total trihalomethanes (ug/L):", object@tthm, "\n")
     cat("Chloroform (ug/L):", object@chcl3, "\n")
@@ -219,6 +214,11 @@ methods::setMethod("show",
     cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
     cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
     cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
+    
+    #miscellaneous
+    cat("Kw: ", object@kw, "\n")
+    cat("Alkalinity (eq/L):", object@alk_eq, "\n")
+    cat("Treatment applied to water class:", object@treatment, "\n")
   })
 
 
@@ -750,6 +750,7 @@ balance_ions <- function(water) {
   water@k <- k_new
   water@cl <- cl_new
   water@so4 <- so4_new
+  water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
   return(water)
 

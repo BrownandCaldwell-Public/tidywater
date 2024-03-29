@@ -134,11 +134,14 @@ test_that("Blend waters outputs same water when ratio is 1 or the blending water
   water3 <- define_water(ph = 10, temp = 10, alk = 200, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
+  blend1@treatment <- "defined" #set treatments to be the same to avoid an error
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
+  blend2@treatment <- "defined" #set treatments to be the same to avoid an error
   expect_equal(water1, blend1)
   expect_equal(water3, blend2)
 
   blend3 <- blend_waters(c(water1, water2), c(.5, .5))
+  blend3@treatment <- "defined"
   expect_equal(water1, blend3)
 
 })

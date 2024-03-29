@@ -2,10 +2,15 @@
 
 test_that("chemdose_toc returns the same water when coagulant dose is 0.", {
   water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
+ toc_rem1 <-  suppressWarnings(chemdose_toc(water1))
+ toc_rem1@treatment <- "defined" # add this to prevent error when comparing numbers
+ 
   water2 <- suppressWarnings(define_water(ph = 7, toc = 3.5, doc = 3.2, uv254 = 0.1))
+  toc_rem2 <-  suppressWarnings(chemdose_toc(water2))
+  toc_rem2@treatment <- "defined" # add this to prevent error when comparing numbers
 
-  expect_equal(water1, suppressWarnings(chemdose_toc(water1)))
-  expect_equal(water2, suppressWarnings(chemdose_toc(water2)))
+  expect_equal(water1,toc_rem1)
+  expect_equal(water2, toc_rem2)
 })
 
 test_that("chemdose_toc does not run when coeff isn't supplied correctly.", {
