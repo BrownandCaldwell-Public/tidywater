@@ -913,7 +913,7 @@ correlate_ionicstrength <- function(water, from = "cond") {
 calculate_activity <- function(z, is, temp){
   tempa = temp + 273.15 # absolute temperature (K)
   # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958) [MWH equation 5-45]
-  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9 * 10^-6 * (tempa - 298)^2 + 28 * 10^-9 * (tempa-298)^3)
+  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa-298)^3)
   # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998) [MWH equation 5-44]
   a = 1.29E6 * (sqrt(2)/((de*tempa)^1.5))
   #Davies equation (1967) [MWH equation 5-43]
