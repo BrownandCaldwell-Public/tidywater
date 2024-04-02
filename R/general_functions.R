@@ -12,14 +12,14 @@ methods::setClass("water",
     tds = "numeric",
     cond = "numeric",
     tot_hard = "numeric",
-    
+
     #carbon
     toc = "numeric",
     doc = "numeric",
     bdoc = "numeric",
     uv254 = "numeric",
     dic = "numeric",
-    
+
     #ions
     na = "numeric",
     ca = "numeric",
@@ -39,29 +39,29 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     is = "numeric",
-    
+
     #dbps
     tthm = "numeric",
     chcl3 = "numeric",
     chcl2br = "numeric",
     chbr2cl = "numeric",
     chbr3 = "numeric",
-    
+
     haa5 = "numeric",
     mcaa = "numeric",
     dcaa = "numeric",
     tcaa = "numeric",
     mbaa = "numeric",
     dbaa = "numeric",
-    
+
     haa6 = "numeric",
     bcaa = "numeric",
-    
+
     haa9 = "numeric",
     cdbaa = "numeric",
     dcbaa = "numeric",
     tbaa = "numeric",
-    
+
     # corrosion indices
     aggressive = "numeric",
     ryznar = "numeric",
@@ -69,7 +69,7 @@ methods::setClass("water",
     ccpp = "numeric",
     larsonskold = "numeric",
     csmr = "numeric",
-    
+
     #miscellaneous
     kw = "numeric",
     alk_eq = "numeric",
@@ -83,14 +83,14 @@ methods::setClass("water",
     tds = NA_real_,
     cond = NA_real_,
     tot_hard = NA_real_,
-    
+
     #carbon
     toc = NA_real_,
     doc = NA_real_,
     bdoc = NA_real_,
     dic = NA_real_,
     uv254 = NA_real_,
-    
+
     #ions
     na = 0,
     ca = 0,
@@ -110,29 +110,29 @@ methods::setClass("water",
     tot_ocl = 0,
     tot_co3 = NA_real_,
     is = NA_real_,
-    
+
     #dbps
     tthm = NA_real_,
     chcl3 = NA_real_,
     chcl2br = NA_real_,
     chbr2cl = NA_real_,
     chbr3 = NA_real_,
-    
+
     haa5 = NA_real_,
     mcaa = NA_real_,
     dcaa = NA_real_,
     tcaa = NA_real_,
     mbaa = NA_real_,
     dbaa = NA_real_,
-    
+
     haa6 = NA_real_,
     bcaa = NA_real_,
-    
+
     haa9 = NA_real_,
     cdbaa = NA_real_,
     dcbaa = NA_real_,
     tbaa = NA_real_,
-    
+
     # corrosion indices
     aggressive = NA_real_,
     ryznar = NA_real_,
@@ -140,7 +140,7 @@ methods::setClass("water",
     ccpp = NA_real_,
     larsonskold = NA_real_,
     csmr = NA_real_,
-    
+
     #miscellaneous
     kw = NA_real_,
     alk_eq = NA_real_,
@@ -157,14 +157,14 @@ methods::setMethod("show",
     cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
-    
+
     #carbon
     cat("Total organic carbon (mg/L): ", object@toc, "\n")
     cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
     cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
-    cat("Dissolved inorganic carbon:", object@dic, "\n")  
+    cat("Dissolved inorganic carbon:", object@dic, "\n")
     cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
-    
+
     #ions
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
@@ -184,29 +184,29 @@ methods::setMethod("show",
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
     cat("Ionic Strength:", object@is, "\n")
-    
+
     #dbps
     cat("Total trihalomethanes (ug/L):", object@tthm, "\n")
     cat("Chloroform (ug/L):", object@chcl3, "\n")
     cat("Dichlorobromomethane (ug/L):", object@chcl2br, "\n")
     cat("Dibromochloromethane (ug/L):", object@chbr2cl, "\n")
     cat("Bromoform (ug/L):", object@chbr3, "\n")
-    
+
     cat("Five haloacetic acids (ug/L):", object@haa5, "\n")
     cat("Monochloroacetic acid (ug/L):", object@mcaa, "\n")
     cat("Dichloroacetic acid (ug/L):", object@dcaa, "\n")
     cat("Trichloroacetic acid (ug/L):", object@tcaa, "\n")
     cat("Monobromoacetic acid (ug/L):", object@mbaa, "\n")
     cat("Dibromoacetic acid (ug/L):", object@dbaa, "\n")
-    
+
     cat("Six haloacetic acids (ug/L):", object@haa6, "\n")
     cat("Bromochloroacetic acid (ug/L):", object@bcaa, "\n")
-    
+
     cat("Nine haloacetic acids (ug/L):", object@haa9, "\n")
     cat("Chlorodibromoacetic acid (ug/L):", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L):", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L):", object@tbaa, "\n")
-    
+
     # corrosion indices
     cat("Aggressive Index (unitless):", object@aggressive, "\n")
     cat("Ryznar Stability Index (unitless):", object@ryznar, "\n")
@@ -214,7 +214,7 @@ methods::setMethod("show",
     cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
     cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
     cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
-    
+
     #miscellaneous
     cat("Kw: ", object@kw, "\n")
     cat("Alkalinity (eq/L):", object@alk_eq, "\n")
@@ -228,10 +228,10 @@ methods::setMethod("show",
 #' Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
 #' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
 #' manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
-#' Ionic strength (if TDS provided): MWH equation 5-38
-#' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
-#' Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
-#' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
+#' Ionic strength (if TDS provided): Crittenden et al. (2012) equation 5-38
+#' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins (1980)
+#' Ionic strength (from ion concentrations): Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37
+#' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), Crittenden et al. (2012) equation 5-45.
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
@@ -808,9 +808,9 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl
 
 # General temperature correction for equilibrium constants
 # Temperature in deg C
-# Eqn 5-9 WTP Model Manual (changed using Meyer masters thesis to include the correct temp correction)
-# From van't Hoff equation, MWH 5-68 and Benjamin 2-17
+# van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17
 # Assumes delta H for a reaction doesn't change with temperature, which is valid for ~0-30 deg C
+
 K_temp_adjust <- function(deltah, ka, temp) {
   R <- 8.314 # J/mol * K
   tempa <- temp + 273.15
@@ -819,8 +819,8 @@ K_temp_adjust <- function(deltah, ka, temp) {
 }
 
 
-# Ionic strength calc
-# MWH 2012 (5-37)
+# Ionic strength calculation
+# Crittenden et al (2012) equation 5-37
 
 calculate_ionicstrength <- function(water) {
 
@@ -833,10 +833,10 @@ calculate_ionicstrength <- function(water) {
 
 correlate_ionicstrength <- function(water, from = "cond") {
   if (from == "cond") {
-    # Snoeyink & Jenkins 1980
+    # Snoeyink & Jenkins (1980)
     1.6 * 10^-5 * water@cond
   } else if (from == "tds") {
-    # MWH 2012 (5-38)
+    # Crittenden et al. (2012) eqn. 5-38
     2.5 * 10^-5 * water@tds
   } else {
     stop("Specify correlation from 'cond' or 'tds'.")
@@ -845,23 +845,21 @@ correlate_ionicstrength <- function(water, from = "cond") {
 }
 
 # Calculate activity coefficients
-# Activity coefficients: Davies equation (1967), MWH equation 5-43
-# Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
+# Activity coefficients: Davies (1967), Crittenden et al. (2012) equation 5-43
+# Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
 
 calculate_activity <- function(z, is, temp){
   tempa = temp + 273.15 # absolute temperature (K)
-  # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958) [MWH equation 5-45]
+  # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
   de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa-298)^3)
-  # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998) [MWH equation 5-44]
   a = 1.29E6 * (sqrt(2)/((de*tempa)^1.5))
-  #Davies equation (1967) [MWH equation 5-43]
+  #Davies equation
   10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
 }
 
 
-
 # Correct acid dissociation constants for temperature and ionic strength
-# Dissociation constants corrected for non-ideal solutions following Benjamin (2002) example 3.14.
+# Dissociation constants corrected for non-ideal solutions following Benjamin (2010) example 3.14.
 # See k_temp_adjust for temperature correction equation.
 correct_k <- function(water) {
 
