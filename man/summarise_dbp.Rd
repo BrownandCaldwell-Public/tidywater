@@ -15,6 +15,6 @@ modeled DBP concentrations.
 }
 \examples{
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-summarise_wq(water_defined)
+summarise_dbp(water_defined)
 
 }
