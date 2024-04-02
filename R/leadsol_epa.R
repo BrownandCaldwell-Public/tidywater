@@ -43,9 +43,9 @@
 
 dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
 
-
-  # for unit testing/code review
-  # water <- define_water(ph = 7, alk = 100, temp = 25, cl = 100, tot_po4 = 2, so4 = 100, tot_hard = 50)
+  if (is.na(water@is) | is.na(water@alk)) {
+    warning("Water is missing ionic strength or alkalinity. Output dataframe will be empty.")
+  }
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
