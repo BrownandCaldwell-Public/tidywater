@@ -221,6 +221,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@ph = ph
   dosed_water@h = h
   dosed_water@oh = oh
+  dosed_water@treatment <- paste(dosed_water@treatment, "_chemdosed", sep = "")
 
   return(dosed_water)
 }
@@ -385,7 +386,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' water1 <- define_water(7, 20, 50)
+#'  water1 <- define_water(7, 20, 50)
 #' water2 <- define_water(7.5, 20, 100)
 #' blend_waters(c(water1, water2), c(.4, .6))
 #'
@@ -405,7 +406,7 @@ blend_waters <- function(waters, ratios) {
   # Initialize empty blended water
   blended_water <- methods::new("water")
   parameters <- methods::slotNames(blended_water)
-  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw")
+  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw",  "treatment")
   parameters <- setdiff(parameters, not_averaged)
 
   for (param in parameters) {
@@ -456,6 +457,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@po4 = blended_water@tot_po4 * alpha3p
 
   blended_water@ocl =  blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
+  blended_water@treatment = paste(blended_water@treatment, "_blended", sep = "")
 
   return(blended_water)
 

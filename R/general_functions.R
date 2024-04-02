@@ -4,15 +4,23 @@
 
 # Create water class
 methods::setClass("water",
-  representation(ph = "numeric",
+  representation(
+    #basic water quality
+    ph = "numeric",
     temp = "numeric",
     alk = "numeric",
     tds = "numeric",
     cond = "numeric",
     tot_hard = "numeric",
+    
+    #carbon
     toc = "numeric",
     doc = "numeric",
+    bdoc = "numeric",
     uv254 = "numeric",
+    dic = "numeric",
+    
+    #ions
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -30,18 +38,60 @@ methods::setClass("water",
     tot_po4 = "numeric",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
-    kw = "numeric",
     is = "numeric",
-    alk_eq = "numeric"),
-  prototype(ph = NA_real_,
+    
+    #dbps
+    tthm = "numeric",
+    chcl3 = "numeric",
+    chcl2br = "numeric",
+    chbr2cl = "numeric",
+    chbr3 = "numeric",
+    
+    haa5 = "numeric",
+    mcaa = "numeric",
+    dcaa = "numeric",
+    tcaa = "numeric",
+    mbaa = "numeric",
+    dbaa = "numeric",
+    
+    haa6 = "numeric",
+    bcaa = "numeric",
+    
+    haa9 = "numeric",
+    cdbaa = "numeric",
+    dcbaa = "numeric",
+    tbaa = "numeric",
+    
+    # corrosion indices
+    aggressive = "numeric",
+    ryznar = "numeric",
+    langelier = "numeric",
+    ccpp = "numeric",
+    larsonskold = "numeric",
+    csmr = "numeric",
+    
+    #miscellaneous
+    kw = "numeric",
+    alk_eq = "numeric",
+    treatment = "character"
+    ),
+  prototype(
+    #basic water quality
+    ph = NA_real_,
     temp = NA_real_,
     alk = NA_real_,
     tds = NA_real_,
     cond = NA_real_,
     tot_hard = NA_real_,
+    
+    #carbon
     toc = NA_real_,
     doc = NA_real_,
+    bdoc = NA_real_,
+    dic = NA_real_,
     uv254 = NA_real_,
+    
+    #ions
     na = 0,
     ca = 0,
     mg = 0,
@@ -59,22 +109,63 @@ methods::setClass("water",
     tot_po4 = 0,
     tot_ocl = 0,
     tot_co3 = NA_real_,
-    kw = NA_real_,
     is = NA_real_,
-    alk_eq = NA_real_))
+    
+    #dbps
+    tthm = NA_real_,
+    chcl3 = NA_real_,
+    chcl2br = NA_real_,
+    chbr2cl = NA_real_,
+    chbr3 = NA_real_,
+    
+    haa5 = NA_real_,
+    mcaa = NA_real_,
+    dcaa = NA_real_,
+    tcaa = NA_real_,
+    mbaa = NA_real_,
+    dbaa = NA_real_,
+    
+    haa6 = NA_real_,
+    bcaa = NA_real_,
+    
+    haa9 = NA_real_,
+    cdbaa = NA_real_,
+    dcbaa = NA_real_,
+    tbaa = NA_real_,
+    
+    # corrosion indices
+    aggressive = NA_real_,
+    ryznar = NA_real_,
+    langelier = NA_real_,
+    ccpp = NA_real_,
+    larsonskold = NA_real_,
+    csmr = NA_real_,
+    
+    #miscellaneous
+    kw = NA_real_,
+    alk_eq = NA_real_,
+    treatment = "defined"
+    ))
 
 methods::setMethod("show",
   "water",
   function(object) {
+    #basic water quality
     cat("pH: ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
     cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
     cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
     cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
+    
+    #carbon
     cat("Total organic carbon (mg/L): ", object@toc, "\n")
     cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
+    cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
+    cat("Dissolved inorganic carbon:", object@dic, "\n")  
     cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
+    
+    #ions
     cat("Sodium (M): ", object@na, "\n")
     cat("Calcium (M): ", object@ca, "\n")
     cat("Magnesium (M): ", object@mg, "\n")
@@ -92,9 +183,42 @@ methods::setMethod("show",
     cat("Total phosphate (M)", object@tot_po4, "\n")
     cat("Total OCl (M): ", object@tot_ocl, "\n")
     cat("Total carbonate (M): ", object@tot_co3, "\n")
-    cat("Kw: ", object@kw, "\n")
     cat("Ionic Strength:", object@is, "\n")
-    cat("Alkalinity (eq/L):", object@alk_eq)
+    
+    #dbps
+    cat("Total trihalomethanes (ug/L):", object@tthm, "\n")
+    cat("Chloroform (ug/L):", object@chcl3, "\n")
+    cat("Dichlorobromomethane (ug/L):", object@chcl2br, "\n")
+    cat("Dibromochloromethane (ug/L):", object@chbr2cl, "\n")
+    cat("Bromoform (ug/L):", object@chbr3, "\n")
+    
+    cat("Five haloacetic acids (ug/L):", object@haa5, "\n")
+    cat("Monochloroacetic acid (ug/L):", object@mcaa, "\n")
+    cat("Dichloroacetic acid (ug/L):", object@dcaa, "\n")
+    cat("Trichloroacetic acid (ug/L):", object@tcaa, "\n")
+    cat("Monobromoacetic acid (ug/L):", object@mbaa, "\n")
+    cat("Dibromoacetic acid (ug/L):", object@dbaa, "\n")
+    
+    cat("Six haloacetic acids (ug/L):", object@haa6, "\n")
+    cat("Bromochloroacetic acid (ug/L):", object@bcaa, "\n")
+    
+    cat("Nine haloacetic acids (ug/L):", object@haa9, "\n")
+    cat("Chlorodibromoacetic acid (ug/L):", object@cdbaa, "\n")
+    cat("Dichlorobromoacetic acid (ug/L):", object@dcbaa, "\n")
+    cat("Tribromoacetic acid (ug/L):", object@tbaa, "\n")
+    
+    # corrosion indices
+    cat("Aggressive Index (unitless):", object@aggressive, "\n")
+    cat("Ryznar Stability Index (unitless):", object@ryznar, "\n")
+    cat("Langelier Saturation Index (unitless):", object@langelier, "\n")
+    cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
+    cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
+    cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
+    
+    #miscellaneous
+    cat("Kw: ", object@kw, "\n")
+    cat("Alkalinity (eq/L):", object@alk_eq, "\n")
+    cat("Treatment applied to water class:", object@treatment, "\n")
   })
 
 
@@ -174,12 +298,10 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
-    warning("No organic parameters specified, DOC and DBP models will not work.")
     toc = NA_real_
     doc = NA_real_
     uv254 = NA_real_
   } else if (missing(toc) & missing(doc)) {
-    warning("Missing values for DOC and TOC. Add value for DOC or TOC to use DOC and DBP models.")
     toc = NA_real_
     doc = NA_real_
   } else if (missing(toc) & !missing(doc)) {
@@ -190,9 +312,6 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     doc = toc * 0.95
   }
 
-  if (missing(uv254)) {
-    warning("Missing value for UV254, value set to NA and select DOC and DBP models will not work. For best results, add UV254 estimate.")
-  }
   uv254 = ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
@@ -631,6 +750,7 @@ balance_ions <- function(water) {
   water@k <- k_new
   water@cl <- cl_new
   water@so4 <- so4_new
+  water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
   return(water)
 
