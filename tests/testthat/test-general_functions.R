@@ -116,8 +116,8 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
-  expect_match(summarize_wq(water1), ".+pH.+7.+Alkalinity.+100.+")
-  expect_s3_class(summarize_wq(water1), "knitr_kable")
+  expect_match(summarise_wq(water1), ".+pH.+7.+Alkalinity.+100.+")
+  expect_s3_class(summarise_wq(water1), "knitr_kable")
 })
 
 # Plot Ions ----
