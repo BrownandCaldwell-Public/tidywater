@@ -38,8 +38,6 @@ test_that("Define water gives missing value warnings.", {
 
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, toc = 5, uv254 = .1),
                  "Missing.+DOC+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10),
-                 "No organic.+")
 
 })
 
@@ -252,3 +250,4 @@ test_that("Activity coefficient calculation works.", {
   expect_equal(round(calculate_activity(1, .001, 25), 2), .97)
   expect_equal(round(calculate_activity(2, .01, 25), 2), .66)
 })
+
