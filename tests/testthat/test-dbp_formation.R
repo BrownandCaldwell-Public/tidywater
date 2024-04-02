@@ -4,7 +4,7 @@ test_that("chemdose_dbp returns no modeled DBPs when chlorine dose is 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
   dbps <-   suppressWarnings(chemdose_dbp(water1, cl2 = 0, br = 30, time = 8))
 
-  expect_equal(dbps$modeled_dbp_ug.L, 0)
+  expect_equal(dbps@tthm, 0)
 })
 
 test_that("chemdose_dbp does not run when water_type or species isn't supplied correctly.", {
@@ -50,9 +50,12 @@ test_that("chemdose_dbp works.", {
   water3 <- chemdose_dbp(water1, cl2 = 3, br = 50, time = 8, water_type = "untreated")
   water4 <- chemdose_dbp(water1, cl2 = 3, br = 50, time = 8, species = c("tthm", "haa5", "haa6", "haa9"))
 
-  expect_equal(round(water2$modeled_dbp_ug.L), 59)
-  expect_equal(round(water3$modeled_dbp_ug.L), 68)
-  expect_equal(length(water4$modeled_dbp_ug.L), 4)
+  expect_equal(round(water2@tthm), 59)
+  expect_equal(round(water3@tthm), 68)
+  expect_equal(round(water4@tthm), 59)
+  expect_equal(round(water4@haa5), 53)
+  expect_equal(round(water4@haa6), 44)
+  expect_equal(round(water4@haa9), 36)
   
 })
 
