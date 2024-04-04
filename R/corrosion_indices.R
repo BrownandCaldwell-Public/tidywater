@@ -113,6 +113,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   ##############################*
   # USE MWH TO CALC LSI ----
+  # see eq 22-30
   # Plummer, L., and Busenberg, E. (1982) "The Solubilities of Calcite Aragonite and
       # Vaterite in CO2-H2O Solutions between 0 and 90 Degrees C, and an Evaluation
       # of the Aqueous Model for the System CaCO3-CO2-H2O," Geochim. Cosmochim.
@@ -150,8 +151,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
  
     # water@ryznar <- 2*ph_s - water@ph
     2*ph_s_awwa - water@ph
-  2*ph_s_chris - water@ph
-  2*ph_s_mwh - water@ph
+    2*ph_s_chris - water@ph
+    2*ph_s_mwh - water@ph
   }
 
   #CCPP (Merrill and Sanks, 1977a,b, 1978).
