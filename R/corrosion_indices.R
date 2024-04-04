@@ -166,8 +166,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   # check against Chris's spreadsheet
   # https://legacy.azdeq.gov/environ/water/dw/download/vol_II_app_abc.pdf
+  # https://awwa.onlinelibrary.wiley.com/doi/pdfdirect/10.1002/j.1551-8833.1998.tb08471.x
   if ("ccpp" %in% index) {
-    # water@ccpp <- 
+     
   }
   
   
