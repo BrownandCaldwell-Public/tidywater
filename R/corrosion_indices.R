@@ -22,7 +22,7 @@
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-water <- define_water(ph = 7, temp = 25, alk = 10, tot_hard = 150)
+#' water <- define_water(ph = 7, temp = 25, alk = 10, tot_hard = 150, tds = 100, cl = 150, so4 = 200)
 #'
 #' @export
 #'
@@ -40,85 +40,24 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
 # for review/checks:
 # downloaded this  ref from EPA https://nepis.epa.gov/Exe/ZyNET.exe/10003FIW.txt?ZyActionD=ZyDocument&Client=EPA&Index=1981%20Thru%201985&Docs=&Query=%28ryznar%29%20OR%20FNAME%3D%2210003FIW.txt%22%20AND%20FNAME%3D%2210003FIW.txt%22&Time=&EndTime=&SearchMethod=1&TocRestrict=n&Toc=&TocEntry=&QField=&QFieldYear=&QFieldMonth=&QFieldDay=&UseQField=&IntQFieldOp=0&ExtQFieldOp=0&XmlQuery=&File=D%3A%5CZYFILES%5CINDEX%20DATA%5C81THRU85%5CTXT%5C00000001%5C10003FIW.txt&User=ANONYMOUS&Password=anonymous&SortMethod=h%7C-&MaximumDocuments=1&FuzzyDegree=0&ImageQuality=r75g8/r75g8/x150y150g16/i425&Display=hpfr&DefSeekPage=x&SearchBack=ZyActionL&Back=ZyActionS&BackDesc=Results%20page&MaximumPages=1&ZyEntry=2#
-  water <- define_water(ph = 7, temp = 25, alk = 10, tot_hard = 150)
+  water <- define_water(ph = 7, temp = 25, alk = 10, tot_hard = 150, tds = 408, cl = 150, so4 = 200)
   
-
   ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
-  mg_hard <- convert_units(water@mg, "mg", "M", "mg/L CaCO3")
-  tot_hard <- ca_hard + mg_hard
-  
-
-  # https://www.awwa.org/search/results?s=calculate%20ryznar
-  # scroll down and click on the watermath-corrosivity exceldownloads
-  # this gives equations for finding A and B (named differently than what's in the EPA doc)
-  # equations are close but don't quite find the same constant value as in the EPA doc (tables 6.2, 6.3)
-  # BUT EPA doesn't have the equations for these...
-  # Trying to find A and B based on Chris's spreadsheet
-  
-  
-  # Temp correction
-  A = -13.12 * log10(water@temp + 273) + 34.55
-  
-  #TDS correction
-  B =  9.3 + (log10(water@tds) - 1) / 10
-  
-  # pH of saturation
-  ph_s  = A + B - log10(ca_hard) - log10(water@alk)
-  #a and b  = constants related to temp and dissolved solids. are these the same as the K's we already have?
-
-  #langelier
-  if ("langelier" %in% index) {
-    # ph -ph_s
-    water@langelier <- water@ph - ph_s
-    
-    # From Chris's Spreadsheet 
-    # k <- correct_k(water)
-    # tempa = water@temp + 273.15
-    # active_1 = calculate_activity(1, water@is, tempa) #not sure if calculating activities is what's happening in his spreadsheet
-    # active_2 = calculate_activity(2, water@is, tempa) 
-    # 
-    # lsi = ph - (k$k2co3 -(171.9065+0.077993*tempa-2839.319/tempa-71.595*log10(tempa)) #I don't think we have this anywhere. looks like K for solid CaCO3 as calcite.
-    #             - log(ca_hard) - log10(water@alk) - log(active_1) - log(active_2))
-  
-  }
-  
-  #ryznar
-  if ("ryznar" %in% index) {
-    # 2*pHs - pH
-    water@ryznar <- 2*ph_s - water@ph
-    
-    # From Chris's Spreadsheet 
-    # k <- correct_k(water)
-    # tempa = water@temp + 273.15
-    # active_1 = calculate_activity(1, water@is, tempa) 
-    # active_2 = calculate_activity(2, water@is, tempa) 
-    # 
-    # RI = 2* (k$k2co3 -(171.9065+0.077993*tempa-2839.319/tempa-71.595*log10(tempa)) #I don't think we have this anywhere. looks like K for solid CaCO3 as calcite.
-    #             - log(ca_hard) - log10(water@alk) - log(active_1) - log(active_2)) - water@ph
-    
-  }
+  tempa = water@temp + 273.15
   
   #aggressive
+                 # AWWA (1977) AWWA Standard for Asbestos-Cement Pressure Pipe, 4 in. through 24 in.,
+                 # for Water and Other Liquids, AWWA C400-77, Rev of C400-75, American Water
+                 # Works Association, Denver, CO.
   if ("aggressive" %in% index) {
     water@aggressive <- water@ph + log10(water@alk * ca_hard)
   }
   
-  #larsonskold
-  # epm = equivalents per million
-  # (epmCl + epm SO4)/ (epm HCO3 + epm CO3)
-  
-  cl_eq <- convert_units(water@cl, "cl", "M", "meq/L")
-  so4_eq <- convert_units(water@so4, "so4", "M", "meq/L")
-  
-  if ("larsonskold" %in% index) {
-    water@larsonskold <- (cl_eq + so4_eq) / (water@alk_eq)
-  }
-  
   #CSMR
-    cl <- convert_units(water@cl, "cl", "M", "mg/L")
-  so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-  
   if ("csmr" %in% index) {
+    
+    cl <- convert_units(water@cl, "cl", "M", "mg/L")
+    so4 <- convert_units(water@so4, "so4", "M", "mg/L")
     
     water@csmr <- cl/so4
     
@@ -127,11 +66,107 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     }
   }
   
-  #CCPP
+  #larsonskold
+  if ("larsonskold" %in% index) {
+    # epm = equivalents per million
+    # (epm Cl + epm SO4)/ (epm HCO3 + epm CO3)
+    cl_meq <- convert_units(water@cl, "cl", "M", "meq/L")
+    so4_meq <- convert_units(water@so4, "so4", "M", "meq/L")
+    alk_meq <- water@alk_eq*1000
+    
+    water@larsonskold <- (cl_meq + so4_meq) / (alk_meq)
+  }
+  
+  
+  ###########################################################################################*
+  ###########################################################################################*
+  # LANGELIER MESS ------------------------------
+  
+  ##  USE AWWA TO CALC LSI ----
+  
+  # AWWA Spreadsheet - matches Chris's calcs pretty well
+  # https://www.awwa.org/search/results?s=calculate%20ryznar
+  # scroll down and click on the watermath-corrosivity exceldownloads
+  # this gives equations for finding A and B (named differently than what's in the EPA doc - see above link)
+  # equations are close but don't quite find the same constant value as in the EPA doc (tables 6.2, 6.3)
+  # BUT EPA doesn't have the equations for these...
+  
+  # TDS correction, 2 options to calc (From AWWA spreadsheet)
+  # A =  9.7 + ((2.5*(water@is)^0.5) / (1.0 + 5.3*(water@is)^0.5 + 5.5*water@is))
+  A = (log10(water@tds) - 1) / 10
+  
+  # Temp correction
+  # B = 2.24961-0.017853*water@temp + 8.238E-5*water@temp^2 - 4.1E-7*water@temp^3 
+  B = -13.12 * log10(tempa) + 34.55
+  # pH of saturation
+  ph_s_awwa  = 9.3 + A + B - log10(ca_hard) + 0.4 - log10(water@alk)
+
+  ##############################*
+  # USE CHRIS' SPREADSHEET TO CALC LSI ----
+
+  active_1 = calculate_activity(1, water@is, tempa) 
+  active_2 = calculate_activity(2, water@is, tempa)
+  alk_mol = convert_units(water@alk, "caco3", startunit = "mg/L CaCO3")
+  ph_s_chris = ((2902.39 / tempa + 0.02379*tempa - 6.498) -
+                  (171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595 * log10(tempa)) -
+                  log10(water@ca) - log10(alk_mol)- log10(active_1) - log10(active_2))
+  
+  ##############################*
+  # USE MWH TO CALC LSI ----
+  # Plummer, L., and Busenberg, E. (1982) "The Solubilities of Calcite Aragonite and
+      # Vaterite in CO2-H2O Solutions between 0 and 90 Degrees C, and an Evaluation
+      # of the Aqueous Model for the System CaCO3-CO2-H2O," Geochim. Cosmochim.
+      # Acta, 46, 1, 1011–1023.
+  
+  # Langelier, W. (1936) "The Analytical Control of Anti-Corrosion Water Treatment,"
+      # J. AWWA, 28, 11, 1500–1522.
+  
+  log_k2 = -107.8871 - 0.03252849*tempa + 5151.79/tempa + 38.92561*log10(tempa) - 56713.9/(tempa^2) #From Plummer and Busenberg (1982), MWH table 22-9
+  #mixed solubility constant for CaCO3
+  log_kso = -171.9065 - 0.077993*tempa + 2839.319/tempa + 71.595 * log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
+  
+  ph_s_mwh = log_k2 - log_kso - log10(water@ca) - log10(water@alk_eq) # from MWH eq 22-30
+  water@ph - ph_s_mwh # whyyyy doesnt this match chris/awwa
+
+# NOTE!!!
+  # Original Langlier paper has simplified pH_s equation as A-B+C+D, but others (AWWA, EPA, Chris) have ph_s = A-B-C-D OR A+B-C-D
+  # Original paper has alk in equivalence. Chris and other use mols
+  
+  
+  #langelier
+  if ("langelier" %in% index) {
+   
+    # water@langelier <- water@ph - ph_s
+    water@ph - ph_s_awwa
+    #OR:   lsi = ph - ph_s_chris
+    water@ph - ph_s_chris
+    
+    water@ph - ph_s_mwh
+  }
+  
+  #ryznar Ryznar 1944
+  # Ryznar,T.(1944) "A New Index for Determining the Amount of Calcium Carbonate Scale Formed by a Water," J. AWWA, 36, 4, 472–486.
+  if ("ryznar" %in% index) {
+ 
+    # water@ryznar <- 2*ph_s - water@ph
+    2*ph_s_awwa - water@ph
+  2*ph_s_chris - water@ph
+  2*ph_s_mwh - water@ph
+  }
+
+  #CCPP (Merrill and Sanks, 1977a,b, 1978).
+  
+  # Merrill, D., and Sanks, R. (1977a) "Corrosion Control by Deposition of CaCO3
+      # Films, Part I," J. AWWA, 69, 11, 592–599.
+  # Merrill, D., and Sanks, R. (1977b) "Corrosion Control by Deposition of CaCO3
+      # Films, Part 2," J. AWWA, 69, 12, 634–640.
+  # Merrill, D., and Sanks, R. (1978) "Corrosion Control by Deposition of CaCO3 Films,
+      # Part 3," J. AWWA, 70, 1, 12–18.
+  
   # check against Chris's spreadsheet
   # https://legacy.azdeq.gov/environ/water/dw/download/vol_II_app_abc.pdf
   if ("ccpp" %in% index) {
-    water@ccpp <- 
+    # water@ccpp <- 
   }
   
   
