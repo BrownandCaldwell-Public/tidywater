@@ -32,9 +32,9 @@ TTHMs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-139
 HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142
 }
 \examples{
-example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2)) \%>\%
+example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
 chemdose_dbp(cl2 = 2, time = 8)
-example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2)) \%>\%
+example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
 chemdose_dbp(cl2 = 2, time = 8, water_type = "untreated")
 
 }
