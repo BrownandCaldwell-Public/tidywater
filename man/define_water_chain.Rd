@@ -17,6 +17,9 @@ Its output is a "water" class, and can therefore be chained with "downstream" ti
 }
 \examples{
 
+library(purrr)
+library(furrr)
+
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_once()

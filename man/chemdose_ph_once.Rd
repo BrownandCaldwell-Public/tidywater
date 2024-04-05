@@ -81,6 +81,7 @@ tidywater functions cannot be added after this function because they require a w
 
 library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
 
 example_df <- water_df \%>\%

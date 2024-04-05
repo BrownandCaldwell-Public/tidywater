@@ -29,6 +29,7 @@ as columns with varied ratios (in this case, input column names in the function 
 
 library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
 
 example_df <- water_df \%>\%

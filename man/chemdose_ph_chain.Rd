@@ -83,6 +83,7 @@ To see which chemicals can be passed into the function, see \code{\link{chemdose
 
 library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
 
 example_df <- water_df \%>\%

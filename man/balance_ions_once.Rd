@@ -17,6 +17,8 @@ Its output is a dataframe with updated ions depending on starting concentrations
 tidywater functions cannot be added after this function because they require a water class input.
 }
 \examples{
+library(purrr)
+library(furrr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

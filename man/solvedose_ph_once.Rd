@@ -40,6 +40,7 @@ To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
 
 library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
 
 example_df <- water_df \%>\%
