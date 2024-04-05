@@ -50,7 +50,7 @@ convert_water <- function(water) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#'
+#' library(furrr)
 #' example_df <- water_df %>% define_water_once()
 #'
 #' @export
@@ -77,6 +77,8 @@ define_water_once <- function(df) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#'
+#'library(furrr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -137,6 +139,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#'library(furrr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -170,6 +173,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#'library(furrr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -229,7 +233,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
 #'
 #' example_df <- water_df %>%
@@ -306,7 +310,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
 #'
 #' example_df <- water_df %>%
@@ -421,7 +425,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
 #'
 #'example_df <- water_df %>%
@@ -506,7 +510,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
 #'
 #'example_df <- water_df %>%
@@ -583,7 +587,7 @@ for(row in 1:length(df_subset[[1]])) {
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
 #'
 #'example_df <- water_df %>%
