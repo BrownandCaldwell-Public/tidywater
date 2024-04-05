@@ -56,10 +56,10 @@ convert_water <- function(water) {
 #' @export
 
 define_water_once <- function(df) {
-
+future::plan(multisession)
   df %>%
     define_water_chain() %>%
-    mutate(defined_df = purrr::map(defined_water, convert_water)) %>%
+    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
     as.data.frame()
@@ -89,16 +89,17 @@ define_water_once <- function(df) {
 #' @export
 
 define_water_chain <- function(df, output_water = "defined_water") {
-
+  # df <- slice(water_df, 1)
+  future::plan(multisession)
   define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4", "tds", "cond",
-                         "toc", "doc", "uv254")
+                         "toc", "doc", "bdoc", "uv254")
 
   extras <- df %>%
     select(!any_of(define_water_args))
 
-  output<- df %>%
+  output1<- df %>%
     select(any_of(define_water_args)) %>%
-    mutate(!!output_water := purrr::pmap(., define_water)) %>%
+    mutate(!!output_water := furrr::future_pmap(., define_water)) %>%
     select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
@@ -127,10 +128,11 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
-
+  future::plan(multisession)
+  
   output<- df %>%
-    mutate(balanced_water = purrr::pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = purrr::map(balanced_water, convert_water)) %>%
+    mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
+    mutate(balance_df = furrr:: future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
 
@@ -163,8 +165,10 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
 
+  future::plan(multisession)
+  
   output<- df %>%
-    mutate(!!output_water := purrr::pmap(list(water = !!as.name(input_water)), balance_ions))
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
 
 }
 
@@ -228,6 +232,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
+  future::plan(multisession)
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                           na2co3, nahco3, caoh2, mgoh2,
@@ -240,7 +245,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                       na2co3, nahco3, caoh2, mgoh2,
                       cl2, naocl, caocl2, co2,
                       alum, fecl3, fe2so43, caco3) %>%
-    mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
 }
@@ -306,6 +311,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
+  future::plan(multisession)
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
@@ -353,7 +359,7 @@ if(nrow(chem_inputs_arg) == 1) {
     mutate(ID = row_number()) %>%
     left_join(chem2, by = "ID") %>%
     select(-ID) %>%
-    mutate(!!output_water := purrr::pmap(list(water= !!as.name(input_water),
+    mutate(!!output_water := furrr::future_pmap(list(water= !!as.name(input_water),
                                         hcl = hcl,
                                         h2so4 = h2so4,
                                         h3po4 = h3po4,
@@ -425,6 +431,8 @@ if(nrow(chem_inputs_arg) == 1) {
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
 
+  future::plan(multisession)
+  
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
                            co2 = 0,
@@ -453,7 +461,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
   output<- chem %>%
     mutate(target_ph = target_ph,
            chemical = chemical) %>%
-    mutate(dose = purrr::pmap(list(water= !!as.name(input_water),
+    mutate(dose = furrr::future_pmap(list(water= !!as.name(input_water),
                                      chemical = chemical,
                                      target_ph = target_ph),
                                 solvedose_ph)) %>%
@@ -507,6 +515,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 
 blend_waters_once <- function(df, waters, ratios) {
 
+future::plan(multisession)
+  
 df_subset <- df %>% select(all_of(waters))
 
 for(row in 1:length(df_subset[[1]])) {
@@ -534,7 +544,7 @@ for(row in 1:length(df_subset[[1]])) {
 }
 
   output <- df %>%
-    mutate(blend_df = purrr::map(blended, convert_water)) %>%
+    mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 
@@ -585,16 +595,18 @@ for(row in 1:length(df_subset[[1]])) {
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
 
+  future::plan(multisession)
+  
   output <- df %>%
     rowwise() %>%
-    mutate(waters = purrr::pmap(across(all_of(waters)), list),
+    mutate(waters = furrr::future_pmap(across(all_of(waters)), list),
            ratios = ifelse(
              is.numeric(ratios),
              list(ratios),
              (list(c_across(all_of(ratios))))
            )) %>%
     ungroup() %>%
-    mutate(!!output_water := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
+    mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
 }
 
