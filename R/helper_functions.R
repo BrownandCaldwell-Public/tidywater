@@ -56,7 +56,7 @@ convert_water <- function(water) {
 #' @export
 
 define_water_once <- function(df) {
-future::plan(multisession)
+  future::plan("future::multisession")
   df %>%
     define_water_chain() %>%
     mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
@@ -90,14 +90,14 @@ future::plan(multisession)
 
 define_water_chain <- function(df, output_water = "defined_water") {
   # df <- slice(water_df, 1)
-  future::plan(multisession)
+future::plan("future::multisession")
   define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4", "tds", "cond",
                          "toc", "doc", "bdoc", "uv254")
 
   extras <- df %>%
     select(!any_of(define_water_args))
 
-  output1<- df %>%
+  output <- df %>%
     select(any_of(define_water_args)) %>%
     mutate(!!output_water := furrr::future_pmap(., define_water)) %>%
     select(!any_of(define_water_args)) %>%
@@ -128,7 +128,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
-  future::plan(multisession)
+  future::plan("future::multisession")
   
   output<- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
@@ -165,7 +165,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
 
-  future::plan(multisession)
+  future::plan("future::multisession")
   
   output<- df %>%
     mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
@@ -232,7 +232,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
-  future::plan(multisession)
+  future::plan("future::multisession")
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                           na2co3, nahco3, caoh2, mgoh2,
@@ -311,7 +311,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
-  future::plan(multisession)
+  future::plan("future::multisession")
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
@@ -431,7 +431,7 @@ if(nrow(chem_inputs_arg) == 1) {
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
 
-  future::plan(multisession)
+  future::plan("future::multisession")
   
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
@@ -515,7 +515,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 
 blend_waters_once <- function(df, waters, ratios) {
 
-future::plan(multisession)
+  future::plan("future::multisession")
   
 df_subset <- df %>% select(all_of(waters))
 
@@ -595,7 +595,7 @@ for(row in 1:length(df_subset[[1]])) {
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
 
-  future::plan(multisession)
+  future::plan("future::multisession")
   
   output <- df %>%
     rowwise() %>%
