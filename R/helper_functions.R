@@ -530,7 +530,7 @@ for(row in 1:length(df_subset[[1]])) {
 
   }
 
- df$blended[row] <- list(blend_waters(water_vectors, blend_ratios))
+  suppressWarnings(df$blended[row] <- list(blend_waters(water_vectors, blend_ratios)))
 }
 
   output <- df %>%
