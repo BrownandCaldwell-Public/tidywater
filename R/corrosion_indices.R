@@ -121,12 +121,15 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   # Langelier, W. (1936) "The Analytical Control of Anti-Corrosion Water Treatment,"
       # J. AWWA, 28, 11, 1500–1522.
+  a_h = water@kw/water@oh
+  K.2 = a_h*water@co3 /water@hco3  
+    
+  log_k2_libby = log10(K.2)
   
-  log_k2 = -107.8871 - 0.03252849*tempa + 5151.79/tempa + 38.92561*log10(tempa) - 56713.9/(tempa^2) #From Plummer and Busenberg (1982), MWH table 22-9
   #mixed solubility constant for CaCO3
-  log_kso = -171.9065 - 0.077993*tempa + 2839.319/tempa + 71.595 * log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
+  log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
   
-  ph_s_mwh = log_k2 - log_kso - log10(water@ca) - log10(water@alk_eq) # from MWH eq 22-30
+  ph_s_mwh = -log_k2_libby - log_kso - log10(water@ca) - log10(water@alk_eq) # from MWH eq 22-30
   water@ph - ph_s_mwh # whyyyy doesnt this match chris/awwa
 
 # NOTE!!!
