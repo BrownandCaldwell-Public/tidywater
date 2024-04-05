@@ -4,7 +4,7 @@
 \alias{plot_ions}
 \title{Create summary plot of ions from water class}
 \usage{
-plot_ions(water, title = "")
+plot_ions(water)
 }
 \arguments{
 \item{water}{Source water vector created by link function here}
