@@ -27,6 +27,8 @@ methods::setClass("water",
     k = "numeric",
     cl = "numeric",
     so4 = "numeric",
+    no3 = "numeric",
+    nh3 = "numeric",
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",
@@ -98,6 +100,8 @@ methods::setClass("water",
     k = 0,
     cl = 0,
     so4 = 0,
+    no3 = 0,
+    nh3 = 0,
     hco3 = NA_real_,
     co3 = NA_real_,
     h2po4 = 0,
@@ -172,6 +176,8 @@ methods::setMethod("show",
     cat("Potassium (M): ", object@k, "\n")
     cat("Chloride (M): ", object@cl, "\n")
     cat("Sulfate (M): ", object@so4, "\n")
+    cat("Nitrate (M): ", object@no3, "\n")
+    cat("Ammonia (M): ", object@nh3, "\n")
     cat("Bicarbonate ion (M): ", object@hco3, "\n")
     cat("Carbonate ion (M): ", object@co3, "\n")
     cat("Dihydrogen phosphate ion - H2PO4 (M): ", object@h2po4, "\n")
