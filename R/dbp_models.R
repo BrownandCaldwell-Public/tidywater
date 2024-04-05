@@ -17,39 +17,35 @@
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2 Applied chlorine dose (mg/L as Cl2). Dose should be between 1.51 and 33.55 mg/L
-#' @param br Bromide (br-) concentration (ug/L). Concentration should be between 7 and 600 ug/L
 #' @param time Reaction time (hours). Reaction time should be between 2 and 168 hours
 #' @param water_type Type of treatment applied to the water. Default type is "treated", but
 #' user may also specify "untreated". Untreated water is generally raw water. "Treated" water applies to
 #' water that has been coagulated or softened.
-#' @param species The dbp species or group of species that should be modeled. Default species is "tthm", but
-#' user may also specify haa5, haa6, haa9, or any of the species within these groups. Note: haa9 and its subspecies
-#' are only available when water_type = "treated". For a list of all species names, see dbpcoeffs dataframe. Multiple
-#' species may be selected using c().
 #' @examples
 #' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2)) %>%
-#' chemdose_dbp(cl2 = 2, br = 30, time = 8)
+#' chemdose_dbp(cl2 = 2, time = 8)
 #'example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2)) %>%
-#'chemdose_dbp(cl2 = 2, br = 30, time = 8, water_type = "untreated", species = c("tthm", "chcl3", "chcl2br", "chbr2cl", "chbr3"))
+#'chemdose_dbp(cl2 = 2, time = 8, water_type = "untreated")
 #'
 #' @export
 #'
-chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species = "tthm") {
+chemdose_dbp <- function(water, cl2, time, water_type = "treated") {
   toc = water@toc
   doc = water@doc
   uv254 = water@uv254
   temp = water@temp
   ph = water@ph
+  br = water@br
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
-  if (is.na(toc) | is.na(uv254) | is.na(temp) | is.na(ph)) {
-    stop("Missing value for toc, uv254, temp, or ph. Please add them to define_water.")
+  if (is.na(toc) | is.na(uv254) | is.na(temp) | is.na(ph) | is.na(br)) {
+    stop("Missing value for toc, uv254, temp, ph, or br. Please add them to define_water.")
   }
   if (is.na(doc) & water_type == "treated") {
     stop("Missing value for doc. Please add doc to define_water.")
   }
-  if (missing(cl2) | missing(br) | missing(time)) {
-    stop("Missing value for cl2, br, or time. Please check the function inputs required to calculate DBP formation.")
+  if (missing(cl2) | missing(time)) {
+    stop("Missing value for cl2 or time. Please check the function inputs required to calculate DBP formation.")
   }
 
   if (water_type == "untreated" & (toc < 1.2 | toc > 10.6)) {
@@ -76,10 +72,10 @@ chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species =
   }
 
   if (water_type == "untreated" & (br < 7 | br > 600)) {
-    warning("Bromide is outside the untreated water model bounds of 7 <= cl2 <= 600 ug/L as set in the WTP model.")
+    warning("Bromide is outside the untreated water model bounds of 7 <= br <= 600 ug/L as set in the WTP model.")
   }
   if (water_type == "treated" & (br < 23 | br > 308)) {
-    warning("Bromide is outside the treated water model bounds of 23 <= cl2 <= 308 ug/L as set in the WTP model.")
+    warning("Bromide is outside the treated water model bounds of 23 <= br <= 308 ug/L as set in the WTP model.")
   }
 
   if (water_type == "untreated" & (temp < 15 | temp > 25)) {
@@ -106,7 +102,6 @@ chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species =
 
     predicted_dbp <- dbpcoeffs %>%
       filter(water_type == "untreated") %>%
-      filter(ID %in% species) %>%
       mutate(modeled_dbp_ug.L = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f)%>%
       select(-c(A:f))
   }
@@ -115,12 +110,9 @@ chemdose_dbp <- function(water, cl2, br, time, water_type = "treated", species =
 
     predicted_dbp <- dbpcoeffs %>%
       filter(water_type == "treated") %>%
-      filter(ID %in% species) %>%
       mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(temp-20) * e^(ph-7.5) * time^f) %>%
       select(-c(A:f))
   }
-
-  water@br = br
 
   water@tthm = predicted_dbp%>%filter(ID=="tthm")%>%{.$modeled_dbp_ug.L}
   water@chcl3 = predicted_dbp%>%filter(ID=="chcl3")%>%{.$modeled_dbp_ug.L}
