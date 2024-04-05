@@ -254,7 +254,7 @@ methods::setMethod("show",
 #' @param toc Total organic carbon (TOC) in mg/L
 #' @param doc Dissolved organic carbon (DOC) in mg/L
 #' @param uv254 UV absorbance at 254 nm (cm-1)
-#'
+#' @param br Bromide in mg/L Br-
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
@@ -262,7 +262,7 @@ methods::setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br) {
+                         toc, doc, uv254, br = NA_real_) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
