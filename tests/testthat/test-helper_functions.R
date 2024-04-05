@@ -17,6 +17,7 @@ test_that("convert water works", {
 # Test that define_water_once outputs are the same as base function, define_water.
 
 test_that("define_water_once output is the same as define_water", {
+  library(purrr)
   water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
   water2 <- convert_water(water1)
   
