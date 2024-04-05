@@ -56,7 +56,7 @@ convert_water <- function(water) {
 #' @export
 
 define_water_once <- function(df) {
-  future::plan("future::multisession")
+
   df %>%
     define_water_chain() %>%
     mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
@@ -89,10 +89,9 @@ define_water_once <- function(df) {
 #' @export
 
 define_water_chain <- function(df, output_water = "defined_water") {
-  # df <- slice(water_df, 1)
-future::plan("future::multisession")
+
   define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4", "tds", "cond",
-                         "toc", "doc", "bdoc", "uv254")
+                         "toc", "doc", "uv254")
 
   extras <- df %>%
     select(!any_of(define_water_args))
@@ -103,6 +102,28 @@ future::plan("future::multisession")
     select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
+# 
+# future::plan(multisession)
+# setwd("C:/Users/lmckenna/Desktop")
+# 
+# tick = Sys.time()
+# SP_ph <- read.csv("for define_water_chain.csv") %>%
+#   define_water_chain(output_water = "SP_defined")
+# Sys.time() -tick
+# #
+# tick = Sys.time()
+# def_water_andblend_once<- read.csv("for blend_once.csv") %>%
+#   define_water_chain(output_water = "BB_defined")%>%
+#   select(-c(Fluoride:Nitrate)) %>%
+#   full_join(SP_ph, by = "Group") %>%
+#   rowwise() %>%
+#   mutate(sumratio = sum(BB_ratio, SP_ratio),
+#          SP_ratio = case_when(sumratio < 1 ~ SP_ratio + (1-sumratio), TRUE ~ SP_ratio)) %>%
+#   ungroup() %>%
+#   blend_waters_once(waters = c("BB_defined", "SP_defined"), ratios = c("BB_ratio", "SP_ratio")) %>%
+#   select(Group, ph, alk) %>%
+#   pivot_longer(ph:alk, names_to = "Parameter", values_to = "C_raw_blend")
+# Sys.time()-tick
 
 #' Apply balance_ions function and output a dataframe
 #'
@@ -128,8 +149,7 @@ future::plan("future::multisession")
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
-  future::plan("future::multisession")
-  
+
   output<- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
     mutate(balance_df = furrr:: future_map(balanced_water, convert_water)) %>%
@@ -165,8 +185,6 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
 
-  future::plan("future::multisession")
-  
   output<- df %>%
     mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
 
@@ -232,7 +250,6 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
-  future::plan("future::multisession")
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                           na2co3, nahco3, caoh2, mgoh2,
@@ -311,8 +328,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
-  future::plan("future::multisession")
-
+ 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
                             cl2, naocl, caocl2, co2,
@@ -430,9 +446,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
-
-  future::plan("future::multisession")
-  
+ 
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
                            co2 = 0,
@@ -515,9 +529,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 
 blend_waters_once <- function(df, waters, ratios) {
 
-  future::plan("future::multisession")
-  
-df_subset <- df %>% select(all_of(waters))
+ df_subset <- df %>% select(all_of(waters))
 
 for(row in 1:length(df_subset[[1]])) {
 
@@ -595,8 +607,6 @@ for(row in 1:length(df_subset[[1]])) {
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
 
-  future::plan("future::multisession")
-  
   output <- df %>%
     rowwise() %>%
     mutate(waters = furrr::future_pmap(across(all_of(waters)), list),
