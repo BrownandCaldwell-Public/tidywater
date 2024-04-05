@@ -14,7 +14,7 @@
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
-#' @seealso \code{\link{chemdose_ph}}
+#' @seealso \code{\link{chemdose_ph}} 
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
