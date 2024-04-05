@@ -4,25 +4,18 @@
 \alias{chemdose_dbp}
 \title{Calculate DBP formation using dosed chlorine, ambient bromide, and reaction time.}
 \usage{
-chemdose_dbp(water, cl2, br, time, water_type = "treated", species = "tthm")
+chemdose_dbp(water, cl2, time, water_type = "treated")
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
 
 \item{cl2}{Applied chlorine dose (mg/L as Cl2). Dose should be between 1.51 and 33.55 mg/L}
 
-\item{br}{Bromide (br-) concentration (ug/L). Concentration should be between 7 and 600 ug/L}
-
 \item{time}{Reaction time (hours). Reaction time should be between 2 and 168 hours}
 
 \item{water_type}{Type of treatment applied to the water. Default type is "treated", but
 user may also specify "untreated". Untreated water is generally raw water. "Treated" water applies to
 water that has been coagulated or softened.}
-
-\item{species}{The dbp species or group of species that should be modeled. Default species is "tthm", but
-user may also specify haa5, haa6, haa9, or any of the species within these groups. Note: haa9 and its subspecies
-are only available when water_type = "treated". For a list of all species names, see dbpcoeffs dataframe. Multiple
-species may be selected using c().}
 }
 \description{
 \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the WTP model. Parameters required
@@ -40,8 +33,8 @@ HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142
 }
 \examples{
 example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2)) \%>\%
-chemdose_dbp(cl2 = 2, br = 30, time = 8)
+chemdose_dbp(cl2 = 2, time = 8)
 example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2)) \%>\%
-chemdose_dbp(cl2 = 2, br = 30, time = 8, water_type = "untreated", species = c("tthm", "chcl3", "chcl2br", "chbr2cl", "chbr3"))
+chemdose_dbp(cl2 = 2, time = 8, water_type = "untreated")
 
 }

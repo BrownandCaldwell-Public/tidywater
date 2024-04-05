@@ -31,31 +31,29 @@ test_that("chemdose_dbp stops working when inputs are missing", {
   water1 <- suppressWarnings(define_water(toc = 3.5, uv254 = 0.1, br = 50))
   water2 <- suppressWarnings(define_water(ph = 7.5, uv254 = 0.1, br = 5))
   water3 <- suppressWarnings(define_water(ph = 8, toc = 3, br = 50))
-  water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2))
+  water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2, br = NA_real_))
+  water5 <- suppressWarnings(define_water(ph = 8, temp =25, toc = 3, uv = 0.2, br = 50))
   
-  expect_error(chemdose_dbp(water1, cl2 = 1, time = 8)) #missing ph
+  expect_error(chemdose_dbp(water1, cl2 = 4, time = 8)) #missing ph
   expect_error(chemdose_dbp(water2, cl2 = 4, time = 8)) #missing toc
-  expect_error(chemdose_dbp(water3, cl2 = 4, time = 1)) 
-  expect_error(chemdose_dbp(water4, br = 50, time = 8))
-  expect_error(chemdose_dbp(water4, cl2 = 4, time = 8))
-  expect_error(chemdose_dbp(water4, cl2 = 4, br = 50))
+  expect_error(chemdose_dbp(water3, cl2 = 4, time = 1)) #missing uv
+  expect_error(chemdose_dbp(water4, cl2 = 4, time = 8)) #missing br
+  expect_error(chemdose_dbp(water5, time = 8)) #missing cl2
+  expect_error(chemdose_dbp(water5, cl2 = 4)) #missing time
   
 })
 
 
 test_that("chemdose_dbp works.", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1))
-  water2 <- chemdose_dbp(water1, cl2 = 3, br = 50, time = 8)
-  water3 <- chemdose_dbp(water1, cl2 = 3, br = 50, time = 8, water_type = "untreated")
-  water4 <- chemdose_dbp(water1, cl2 = 3, br = 50, time = 8, species = c("tthm", "haa5", "haa6", "haa9"))
+  water1 <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- chemdose_dbp(water1, cl2 = 3, time = 8)
+  water3 <- chemdose_dbp(water1, cl2 = 3, time = 8, water_type = "untreated")
   
-  expect_equal(round(water2@tthm), 59)
+  expect_equal(round(water2@tthm), 59) 
+  expect_equal(round(water2@haa9), 36)
   expect_equal(round(water3@tthm), 68)
-  expect_equal(round(water4@tthm), 59)
-  expect_equal(round(water4@haa5), 53)
-  expect_equal(round(water4@haa6), 44)
-  expect_equal(round(water4@haa9), 36)
-  
+  expect_equal(round(water3@haa5), 65)
+  expect_equal(round(water3@haa6), 57)
 })
 
 

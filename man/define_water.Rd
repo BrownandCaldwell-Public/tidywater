@@ -20,7 +20,8 @@ define_water(
   cond,
   toc,
   doc,
-  uv254
+  uv254,
+  br
 )
 }
 \arguments{
