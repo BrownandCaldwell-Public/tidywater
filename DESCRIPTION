@@ -21,6 +21,7 @@ Imports:
     ggplot2,
     magrittr,
     purrr,
+    furrr,
     methods
 RoxygenNote: 7.3.1
 Depends: 
