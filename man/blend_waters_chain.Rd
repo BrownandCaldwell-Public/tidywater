@@ -27,10 +27,10 @@ as columns with varied ratios (in this case, input column names in the function 
 }
 \examples{
 
-library(dplyr)
 library(purrr)
 library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

@@ -38,10 +38,10 @@ To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
 }
 \examples{
 
-library(dplyr)
 library(purrr)
 library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

@@ -17,6 +17,8 @@ tidywater functions cannot be added after this function because they require a w
 \examples{
 library(purrr)
 library(furrr)
+library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\% define_water_once()
 

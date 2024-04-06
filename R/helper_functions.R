@@ -50,8 +50,10 @@ convert_water <- function(water) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>% define_water_once()
 #'
@@ -80,13 +82,15 @@ define_water_once <- function(df) {
 #'
 #' @examples
 #'
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
-#'
+#' 
 #' example_df <- water_df %>%
 #' define_water_chain(output_water = "This is a column of water") %>%
 #' balance_ions_once(input_water ="This is a column of water")
@@ -107,28 +111,6 @@ define_water_chain <- function(df, output_water = "defined_water") {
     select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
-# 
-# future::plan(multisession)
-# setwd("C:/Users/lmckenna/Desktop")
-# 
-# tick = Sys.time()
-# SP_ph <- read.csv("for define_water_chain.csv") %>%
-#   define_water_chain(output_water = "SP_defined")
-# Sys.time() -tick
-# #
-# tick = Sys.time()
-# def_water_andblend_once<- read.csv("for blend_once.csv") %>%
-#   define_water_chain(output_water = "BB_defined")%>%
-#   select(-c(Fluoride:Nitrate)) %>%
-#   full_join(SP_ph, by = "Group") %>%
-#   rowwise() %>%
-#   mutate(sumratio = sum(BB_ratio, SP_ratio),
-#          SP_ratio = case_when(sumratio < 1 ~ SP_ratio + (1-sumratio), TRUE ~ SP_ratio)) %>%
-#   ungroup() %>%
-#   blend_waters_once(waters = c("BB_defined", "SP_defined"), ratios = c("BB_ratio", "SP_ratio")) %>%
-#   select(Group, ph, alk) %>%
-#   pivot_longer(ph:alk, names_to = "Parameter", values_to = "C_raw_blend")
-# Sys.time()-tick
 
 #' Apply balance_ions function and output a dataframe
 #'
@@ -142,8 +124,10 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -177,8 +161,10 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -237,10 +223,10 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -315,10 +301,10 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -431,10 +417,10 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -517,10 +503,10 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -595,10 +581,10 @@ for(row in 1:length(df_subset[[1]])) {
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'library(purrr)
-#'library(furrr)
+#' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%

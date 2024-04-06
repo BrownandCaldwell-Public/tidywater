@@ -24,6 +24,8 @@ Its output is a "water" class, and can therefore be used with "downstream" tidyw
 \examples{
 library(purrr)
 library(furrr)
+library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%

@@ -19,6 +19,8 @@ Its output is a "water" class, and can therefore be chained with "downstream" ti
 
 library(purrr)
 library(furrr)
+library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
