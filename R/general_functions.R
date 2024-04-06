@@ -482,7 +482,6 @@ summarize_wq <- function(water) {
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 #'
 #' @param water Source water vector created by link function here
-#' @param title Optional plot title
 #' @import ggplot2
 #'
 #'
