@@ -67,12 +67,15 @@ define_water_chain() \%>\%
 mutate(target_ph = seq(9, 10.1, .1)) \%>\%
 solvedose_ph_once(chemical = "naoh")
 
-
+# Initialize parallel processing
 plan (multisession)
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 mutate(target_ph = seq(9, 10.1, .1)) \%>\%
 solvedose_ph_once(chemical = "naoh")
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{

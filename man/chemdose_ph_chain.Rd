@@ -104,12 +104,15 @@ example_df <- water_df \%>\%
          naoh = 20) \%>\%
   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
-
+# Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%
 chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{

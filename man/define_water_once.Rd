@@ -29,8 +29,12 @@ library(dplyr)
 
 example_df <- water_df \%>\% define_water_once()
 
+# Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\% define_water_once()
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{
