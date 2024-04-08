@@ -15,6 +15,13 @@ define_water_chain(df, output_water = "defined_water")
 This function allows \code{\link{define_water}} to be added to a piped data frame.
 Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
 }
+\details{
+For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
+}
 \examples{
 
 library(purrr)
@@ -29,6 +36,11 @@ balance_ions_once()
 example_df <- water_df \%>\%
 define_water_chain(output_water = "This is a column of water") \%>\%
 balance_ions_once(input_water ="This is a column of water")
+
+plan(multisession)
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_once()
 
 }
 \seealso{

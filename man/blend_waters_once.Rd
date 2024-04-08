@@ -24,6 +24,12 @@ The Water class columns to use in the function are specified as function argumen
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 
 tidywater functions cannot be added after this function because they require a water class input.
+
+ For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
 
@@ -40,7 +46,13 @@ mutate(ratios1 = .4,
       ratios2 = .6) \%>\%
 blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"))
 
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_chain() \%>\%
+chemdose_ph_chain(naoh = 22) \%>\%
+blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 
+plan(multisession)
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain() \%>\%

@@ -17,7 +17,6 @@ there may be a `fn_once` tidywater function that provides a more efficient solut
 \examples{
 
 library(dplyr)
-library(purrr)
 library(tidyr)
 
 # Generates 1 row dataframe
