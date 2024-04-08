@@ -20,7 +20,8 @@ define_water(
   cond,
   toc,
   doc,
-  uv254
+  uv254,
+  br = NA_real_
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ define_water(
 \item{doc}{Dissolved organic carbon (DOC) in mg/L}
 
 \item{uv254}{UV absorbance at 254 nm (cm-1)}
+
+\item{br}{Bromide in mg/L Br-}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.

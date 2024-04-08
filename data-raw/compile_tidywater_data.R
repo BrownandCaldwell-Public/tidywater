@@ -102,63 +102,62 @@ leadsol_constants <- data.frame(
   constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
   log_value = c(13.06, -13.11,  -18),
   source = rep("Schock et al. (1996)", 3)) %>%
-  
+
   # Solids
-  add_row(species_name = c("Hydroxypyromorphite", "Hydroxypyromorphite", "Pyromorphite", "Pyromorphite"),  
-          constant_name = c("K_solid_hydroxypyromorphite_s", "K_solid_hydroxypyromorphite_z" ,  "K_solid_pyromorphite_x",  "K_solid_pyromorphite_t"), 
+  add_row(species_name = c("Hydroxypyromorphite", "Hydroxypyromorphite", "Pyromorphite", "Pyromorphite"),
+          constant_name = c("K_solid_hydroxypyromorphite_s", "K_solid_hydroxypyromorphite_z" ,  "K_solid_pyromorphite_x",  "K_solid_pyromorphite_t"),
           log_value = c(-62.83,-66.77, -80.4, -79.6),
           source = c("Schock et al. (1996)", "Zhu et al. (2015)", "Xie & Giammar (2007)", "Topolska et al. (2016)")) %>%
-  
-  add_row(species_name = c( "Primary Lead Orthophosphate", "Secondary Lead Orthophosphate", "Tertiary Lead Orthophosphate"),  
-          constant_name = c( "K_solid_primary_lead_ortho", "K_solid_secondary_lead_ortho" , "K_solid_tertiary_lead_ortho"), 
+
+  add_row(species_name = c( "Primary Lead Orthophosphate", "Secondary Lead Orthophosphate", "Tertiary Lead Orthophosphate"),
+          constant_name = c( "K_solid_primary_lead_ortho", "K_solid_secondary_lead_ortho" , "K_solid_tertiary_lead_ortho"),
           log_value = c(-48.916, -23.81, -44.4),
           source = c("Powell et al. (2009)", "Schock et al. (1996)", "Powell et al. (2009)")) %>%
-  
-  add_row(species_name = c( "Anglesite", "Laurionite","Laurionite"),  
+
+  add_row(species_name = c( "Anglesite", "Laurionite","Laurionite"),
           constant_name = c( "K_solid_anglesite", "K_solid_laurionite_nl", "K_solid_laurionite_l"),
           log_value = c(-7.79, 0.619, 0.29),
           source = c("Schock et al. (1996)", "Nasanen & Lindell (1976)", "Lothenbach et al. (1999)")) %>%
-  
+
   # Lead-Hydroxide Complexes
-  add_row(species_name = c("PbOH+", "Pb(OH)2", "Pb(OH)3-", "Pb(OH)4-2"),  
+  add_row(species_name = c("PbOH+", "Pb(OH)2", "Pb(OH)3-", "Pb(OH)4-2"),
           constant_name = c(  "B_1_OH", "B_2_OH" , "B_3_OH", "B_4_OH"),
           log_value = c(-7.22, -16.91, -28.08, -39.72),
           source = rep("Schock et al. (1996)", 4)) %>%
-  add_row(species_name = c("Pb2OH+3", "Pb3(OH)4+2", "Pb4(OH)4+4", "Pb6(OH)8+4"),  
+  add_row(species_name = c("Pb2OH+3", "Pb3(OH)4+2", "Pb4(OH)4+4", "Pb6(OH)8+4"),
           constant_name = c("B_2_1_OH", "B_3_4_OH" , "B_4_4_OH", "B_6_8_OH"),
           log_value = c(-6.36, -23.86, -20.88, -43.62),
           source = rep("Schock et al. (1996)", 4)) %>%
-  
+
   # Lead-Chloride Complexes
-  add_row(species_name = c("PbCl+1", "PbCl2", "PbCl3-", "PbCl4-2"),  
+  add_row(species_name = c("PbCl+1", "PbCl2", "PbCl3-", "PbCl4-2"),
           constant_name = c("K_1_Cl", "B_2_Cl", "B_3_Cl", "B_4_Cl"),
           log_value = c(1.59, 1.8, 1.71, 1.43),
           source = rep("Schock et al. (1996)", 4)) %>%
-  
+
   # Sulfate Acid-Base Chemistry and Lead-Sulfate Complexes
-  add_row(species_name = c("PbSO4", "Pb(SO4)2-2"),  
+  add_row(species_name = c("PbSO4", "Pb(SO4)2-2"),
           constant_name = c("K_1_SO4", "B_2_SO4"),
           log_value = c(2.73, 3.5),
           source = rep("Schock et al. (1996)", 2)) %>%
-  
+
   # Carbonate Acid-Base Chemistry and Lead-Carbonate Complexes
-  add_row(species_name = c("PbHCO3+", "PbCO3", "Pb(CO3)2-2"),  
+  add_row(species_name = c("PbHCO3+", "PbCO3", "Pb(CO3)2-2"),
           constant_name = c("K_1_CO3", "K_2_CO3", "K_3_CO3"),
           log_value = c(12.59, 7.1, 10.33),
           source = rep("Schock et al. (1996)", 3)) %>%
-  
+
   # Phosphate Acid-Base Chemistry and Lead-Phosphate Complexes
-  add_row(species_name = c("PbHPO4", "PbH2PO4+"),  
+  add_row(species_name = c("PbHPO4", "PbH2PO4+"),
           constant_name = c( "K_1_PO4" , "K_2_PO4"),
           log_value = c(15.41, 21.05),
           source = rep("Schock et al. (1996)", 2))
-  
+
   usethis::use_data(leadsol_constants, overwrite = TRUE)
 
-  # Data frame of THM and HAA coefficients
-  
+# Data frame of THM and HAA coefficients
+
   dbpcoeffs <- data.frame(
-    
     #raw/untreated water
     #tthms
     ID = "tthm",
@@ -180,8 +179,8 @@ leadsol_constants <- data.frame(
     add_row(ID = "chbr3",
             alias = "bromoform",
             water_type = "untreated",
-            A = 1.49e-8, a = -0.983, b = 0.804, c = 1.765, d = 0.754, e = 2.139, f = 0.566) %>% 
-    
+            A = 1.49e-8, a = -0.983, b = 0.804, c = 1.765, d = 0.754, e = 2.139, f = 0.566) %>%
+
     #haa5 and haa6
     add_row(ID = "haa5",
             alias = "Five haloacetic acids",
@@ -215,7 +214,7 @@ leadsol_constants <- data.frame(
             alias = "bromochloroacetic acid",
             water_type = "untreated",
             A = 5.51e-3, a = 0.463, b = 0.522, c = 0.667, d = 0.379, e = 0.581, f = 0.220) %>%
-  
+
     # treated
     #tthms
     add_row(ID = "tthm",
@@ -237,7 +236,7 @@ leadsol_constants <- data.frame(
     add_row(ID = "chbr3",
             alias = "bromoform",
             water_type = "treated",
-            A = 4.4e-5, a = -0.300, b = -0.221, c = 2.134, d = 1.0374, e = 1.3907, f = 0.143) %>% 
+            A = 4.4e-5, a = -0.300, b = -0.221, c = 2.134, d = 1.0374, e = 1.3907, f = 0.143) %>%
     #haa5 & haa6
     add_row(ID = "haa5",
             alias = "Five haloacetic acids",
@@ -270,8 +269,8 @@ leadsol_constants <- data.frame(
     add_row(ID = "bcaa",
             alias = "bromochloroacetic acid",
             water_type = "treated",
-            A = 3.23e-1, a = 0.153, b = 0.257, c = 0.586, d = 1.042, e = 1.181, f = 0.201) %>% 
-    
+            A = 3.23e-1, a = 0.153, b = 0.257, c = 0.586, d = 1.042, e = 1.181, f = 0.201) %>%
+
     #haa9
     add_row(ID = "cdbaa",
             alias = "chlorodibromoacetic acid",
@@ -288,6 +287,5 @@ leadsol_constants <- data.frame(
     add_row(ID = "haa9",
             alias = "Nine haloacetic acids",
             water_type = "treated",
-            A = 10.78, a = 0.25, b = 0.5, c = 0.054, d = 1.015, e = 0.894, f = 0.348) 
+            A = 10.78, a = 0.25, b = 0.5, c = 0.054, d = 1.015, e = 0.894, f = 0.348)
   usethis::use_data(dbpcoeffs, overwrite = TRUE)
-  
