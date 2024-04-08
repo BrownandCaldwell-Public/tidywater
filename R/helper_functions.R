@@ -63,8 +63,12 @@ convert_water <- function(water) {
 #'
 #' example_df <- water_df %>% define_water_once()
 #'
+#'# Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>% define_water_once()
+#' 
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -110,10 +114,14 @@ define_water_once <- function(df) {
 #' define_water_chain(output_water = "This is a column of water") %>%
 #' balance_ions_once(input_water ="This is a column of water")
 #'
+#'# Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
+#' 
+#' #' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -163,11 +171,15 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' define_water_chain(output_water = "Different_defined_water_column") %>%
 #' balance_ions_once(input_water = "Different_defined_water_column")
 #'
+#'# Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
 #'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
+#' 
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
@@ -213,11 +225,15 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
 #' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
 #' 
+#' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_chain(naoh = 5)
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -288,12 +304,16 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'   mutate(hcl = seq(1,12, 1),
 #'          naoh = 20) %>%
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
-#'   
+#'  
+#'# Initialize parallel processing   
 #' plan(multisession)   
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -379,12 +399,15 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #'          naoh = 20) %>%
 #'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 #'
-#'
+#'# Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#' 
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #' 
 #' @export
 
@@ -514,12 +537,15 @@ if(nrow(chem_inputs_arg) == 1) {
 #'mutate(target_ph = seq(9, 10.1, .1)) %>%
 #'solvedose_ph_once(chemical = "naoh")
 #'
-#'
+#'# Initialize parallel processing
 #' plan (multisession)
 #' example_df <- water_df %>%
 #'define_water_chain() %>%
 #'mutate(target_ph = seq(9, 10.1, .1)) %>%
 #'solvedose_ph_once(chemical = "naoh")
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -607,12 +633,16 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#'# Initialize parallel processing
 #' plan(multisession)
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -698,6 +728,7 @@ for(row in 1:length(df_subset[[1]])) {
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#'# Initialize parallel processing
 #'plan(multisession)
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -705,6 +736,8 @@ for(row in 1:length(df_subset[[1]])) {
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
