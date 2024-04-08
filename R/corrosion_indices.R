@@ -130,32 +130,26 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
   
   ph_s_mwh = -log_k2_libby - log_kso - log10(water@ca) - log10(water@alk_eq) # from MWH eq 22-30
-  water@ph - ph_s_mwh # whyyyy doesnt this match chris/awwa
+  water@ph - ph_s_mwh
 
+  water@ph - ph_s_awwa  #-1.95
+  water@ph - ph_s_chris #-1.92
+  water@ph - ph_s_mwh   #-1.38
+  
 # NOTE!!!
-  # Original Langlier paper has simplified pH_s equation as A-B+C+D, but others (AWWA, EPA, Chris) have ph_s = A-B-C-D OR A+B-C-D
   # Original paper has alk in equivalence. Chris and other use mols
   
-  
   #langelier
-  if ("langelier" %in% index) {
+  if ("langelier" %in% index | "ccpp" %in% index) {
    
-    # water@langelier <- water@ph - ph_s
-    water@ph - ph_s_awwa
-    #OR:   lsi = ph - ph_s_chris
-    water@ph - ph_s_chris
-    
-    water@ph - ph_s_mwh
+    water@langelier <- water@ph - ph_s
   }
   
   #ryznar Ryznar 1944
   # Ryznar,T.(1944) "A New Index for Determining the Amount of Calcium Carbonate Scale Formed by a Water," J. AWWA, 36, 4, 472–486.
   if ("ryznar" %in% index) {
  
-    # water@ryznar <- 2*ph_s - water@ph
-    2*ph_s_awwa - water@ph
-    2*ph_s_chris - water@ph
-    2*ph_s_mwh - water@ph
+    water@ryznar <- 2*ph_s - water@ph
   }
 
   #CCPP (Merrill and Sanks, 1977a,b, 1978).
@@ -171,7 +165,17 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # https://legacy.azdeq.gov/environ/water/dw/download/vol_II_app_abc.pdf
   # https://awwa.onlinelibrary.wiley.com/doi/pdfdirect/10.1002/j.1551-8833.1998.tb08471.x
   if ("ccpp" %in% index) {
-     
+     ca_est = (ca_hard-water@langelier*20)/100.869/1000 # cell A821
+     IS = water@is - 4*(water@ca - ca_est) # cell C821
+     activity_1 =  calculate_activity(1, IS, tempa) # cell D821
+     activity_2 =  calculate_activity(2, IS, tempa) # cell E821
+     activity_3 =  calculate_activity(3, IS, tempa) # cell F821
+     tot_co3 = water@tot_co3 - (water@ca - ca_est) # cell G821, mol/L
+     Cb_Ca = (water@hco3 + 2*water@co3 + water@oh - water@h) - 2 * (water@ca - ca_est) #cell H821
+    h_conc = solve_h?  #cell I821 - solve_H?
+      ph = -log10(h_conc) #cell J821
+    k = correct_k(water)
+    a_1 = calculate_alpha1_carbonate(h_conc, k)
   }
   
   
