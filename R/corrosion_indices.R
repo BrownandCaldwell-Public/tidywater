@@ -165,17 +165,26 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # https://legacy.azdeq.gov/environ/water/dw/download/vol_II_app_abc.pdf
   # https://awwa.onlinelibrary.wiley.com/doi/pdfdirect/10.1002/j.1551-8833.1998.tb08471.x
   if ("ccpp" %in% index) {
-     ca_est = (ca_hard-water@langelier*20)/100.869/1000 # cell A821
-     IS = water@is - 4*(water@ca - ca_est) # cell C821
+     Ca_est = (ca_hard-water@langelier*20)/100.869/1000 # cell A821
+     IS = water@is - 4*(water@ca - Ca_est) # cell C821
      activity_1 =  calculate_activity(1, IS, tempa) # cell D821
      activity_2 =  calculate_activity(2, IS, tempa) # cell E821
      activity_3 =  calculate_activity(3, IS, tempa) # cell F821
-     tot_co3 = water@tot_co3 - (water@ca - ca_est) # cell G821, mol/L
-     Cb_Ca = (water@hco3 + 2*water@co3 + water@oh - water@h) - 2 * (water@ca - ca_est) #cell H821
+     tot_co3 = water@tot_co3 - (water@ca - Ca_est) # cell G821, mol/L
+     Cb_Ca = (water@hco3 + 2*water@co3 + water@oh - water@h) - 2 * (water@ca - Ca_est) #cell H821
     h_conc = solve_h?  #cell I821 - solve_H?
       ph = -log10(h_conc) #cell J821
     k = correct_k(water)
-    a_1 = calculate_alpha1_carbonate(h_conc, k)
+    a_1 = calculate_alpha1_carbonate(h_conc, k) #cell K821
+    a_2 = calculate_alpha2_carbonate(h_conc, k) #cell L821
+    Ca_sol = (10^(-log_kso))/(activity_2^2)/a_2/tot_co3*(1+(10^-water@kw)/activity_1^2 * (10^-T48)*activity_2/h_conc +
+                                                       (10^-T49) *activity_2*a_1*tot_co3 +
+                                                       (10^-T50)*activity_2^2*a_2*tot_co3 +
+                                                       (10^-T51) * activity_2^2*0)  #cell M821
+    C1_C2 = (Ca_est - Ca_sol) * 1000000 #cell N821
+    LHS_RHS = Ca_sol/Ca_est#cell O821
+    Ca = convert_units(Ca_sol, "ca", "M", "mg/L CaCO3") #cell P821
+    CCPP = ca_hard - Ca #cell Q821
   }
   
   
