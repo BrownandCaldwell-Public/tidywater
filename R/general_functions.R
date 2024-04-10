@@ -72,12 +72,10 @@ methods::setClass("water",
     haa5 = "numeric",
 
     bcaa = "numeric", #bromochloroacetic acid
-    haa6 = "numeric",
 
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
-    tbaa = "numeric", #tribromoacetic acid
-    haa9 = "numeric"
+    tbaa = "numeric" #tribromoacetic acid
   ),
 
   prototype(
@@ -147,12 +145,11 @@ methods::setClass("water",
     haa5 = NA_real_,
 
     bcaa = NA_real_, #bromochloroacetic acid
-    haa6 = NA_real_,
 
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
-    tbaa = NA_real_, #tribromoacetic acid
-    haa9 = NA_real_
+    tbaa = NA_real_ #tribromoacetic acid
+
   ))
 
 methods::setMethod("show",
@@ -224,12 +221,10 @@ methods::setMethod("show",
     cat("Sum of 5 haloacetic acids (ug/L): ", object@haa5, "\n")
 
     cat("Bromochloroacetic acid (ug/L): ", object@bcaa, "\n")
-    cat("Sum of 6 haloacetic acids (ug/L): ", object@haa6, "\n")
 
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-    cat("Sum of 9 haloacetic acids (ug/L): ", object@haa9, "\n")
 })
 
 
@@ -268,7 +263,7 @@ methods::setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br = NA_real_) {
+                         toc, doc, uv254, br) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {

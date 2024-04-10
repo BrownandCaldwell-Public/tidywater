@@ -598,3 +598,49 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     select(-c(waters, ratios))
 }
 
+
+#' Pluck out a single parameter from a water class object
+#'
+#' This function plucks a selected parameter from a column of water class objects.
+#' To view multiple parameters, please use one of the "fn_once" functions. 
+#'
+#' @param df a data frame containing a column, defined_water, which has already
+#' been computed using \code{\link{define_water}}
+#' @param input_water name of the column of Water class data to be used as the input for this function.
+#' @param parameter water class attribute to view outside the water column
+#' @param output_column name of output column storing the plucked variable's values
+#'
+#' @seealso \code{\link{blend_waters}}
+#'
+#' @examples
+#'
+#' library(dplyr)
+#' library(furrr)
+#' library(purrr)
+#' library(tidyr)
+#'
+#' pluck_example <- water_df %>%
+#'   define_water_chain() %>%
+#'   pluck_water(parameter = "tot_co3") 
+#'   
+#' pluck_example <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   pluck_water(parameter = "na", output_column = "defined_na") %>%
+#'  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+#'
+#' @export
+
+pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL){
+  if (missing(parameter)) {
+    stop("Parameter not specified to pluck.")
+  }
+
+  if(is.null(output_column)) {
+    output_column = parameter
+  } 
+  
+  df %>% 
+    mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
+  
+}
