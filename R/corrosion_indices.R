@@ -42,6 +42,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 # downloaded this  ref from EPA https://nepis.epa.gov/Exe/ZyNET.exe/10003FIW.txt?ZyActionD=ZyDocument&Client=EPA&Index=1981%20Thru%201985&Docs=&Query=%28ryznar%29%20OR%20FNAME%3D%2210003FIW.txt%22%20AND%20FNAME%3D%2210003FIW.txt%22&Time=&EndTime=&SearchMethod=1&TocRestrict=n&Toc=&TocEntry=&QField=&QFieldYear=&QFieldMonth=&QFieldDay=&UseQField=&IntQFieldOp=0&ExtQFieldOp=0&XmlQuery=&File=D%3A%5CZYFILES%5CINDEX%20DATA%5C81THRU85%5CTXT%5C00000001%5C10003FIW.txt&User=ANONYMOUS&Password=anonymous&SortMethod=h%7C-&MaximumDocuments=1&FuzzyDegree=0&ImageQuality=r75g8/r75g8/x150y150g16/i425&Display=hpfr&DefSeekPage=x&SearchBack=ZyActionL&Back=ZyActionS&BackDesc=Results%20page&MaximumPages=1&ZyEntry=2#
   water <- define_water(ph = 7, temp = 25, alk = 10, tot_hard = 150, tds = 408, cl = 150, so4 = 200)
   
+  #for ccpp
+  water <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200)
+  
+  
   ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
   tempa = water@temp + 273.15
   
@@ -197,46 +201,43 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   
   
-  # using Trussell
+  # using Trussell https://brwncald-my.sharepoint.com/personal/ccorwin_brwncald_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fccorwin%5Fbrwncald%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FTrussell%201998%20JAWWA%2Epdf&parent=%2Fpersonal%2Fccorwin%5Fbrwncald%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files&ga=1
   water <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200)
+  
   if ("ccpp" %in% index) {
     
-    #before precipitation
-    water1 <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200) #initial pH
-    ca = convert_units(water1@ca, "ca", "M", "mM")
-    alk_meq = water1@alk_eq *1000 #meq/L
-    #From Trussell eq S4. Charge coefficient for carbonate species in eq/mol.
-    sig_co2 = (water1@hco3 + 2 * water1@co3)/water1@tot_co3 #meq/mol
-    #electroneutrality shift, equation S6
-    delta = (water1@oh - water1@h) *1000 #meq/L
-    tot_co3 = water1@tot_co3 * 1000    # mmol/L
-    Kso = ca * water1@co3*1000
-    k = correct_k(water1)
-    a_2 = calculate_alpha2_carbonate(water1@h, k)
-    x = (tot_co3*sig_co2 -delta - alk_meq) / (sig_co2 - 2)
-    pH_i = (ca - x) * (tot_co3 -x) *a_2  - Kso
+    solve_x <- function(x, tot_co3, sig_co2, delta, alk_meq) {
+      (tot_co3*sig_co2 -delta - alk_meq) / (sig_co2 - 2) -x
+    }
+    
+    solve_kso <- function(kso, ca, x, tot_co3, a_2) {
+      (ca - x) * (tot_co3 -x) *a_2  - kso
+    }
+    
     ph = 4 #initial guess
     
-    # while(ph > 7) {
+    # while(ph > 7) { #maybe ths should be some kind of uniroot instead
       
     # after precipitation
-    water_loop <- define_water(ph = ph, temp = 25, alk = 220, ca_hard = 200)
-    ca_loop = convert_units(water_loop@ca, "ca", "M", "mM")
-    alk_meq_loop = water_loop@alk_eq *1000 #meq/L
-    sig_co2_loop  = (water_loop@hco3 + 2 * water_loop@co3)/water_loop@tot_co3 #meq/mol
-    delta_loop  = (water_loop@oh - water_loop@h) *1000 #meq/L
-    tot_co3_loop  = water_loop@tot_co3 * 1000    # mmol/L
-    Kso_loop  = ca_loop* water_loop@co3*1000
-    k_loop  = correct_k(water_loop)
-    a_2_loop  = calculate_alpha2_carbonate(water_loop@h, k)
+    water_loop <- define_water(ph = ph, temp = water@temp, alk = water@alk, ca_hard = 200)
     
-    x_loop = (tot_co3_loop*sig_co2_loop -delta_loop - alk_meq_loop) / (sig_co2_loop - 2)
-    # x= -.01
+    root_x <- stats::uniroot(solve_x, interval = c(-100, 100),
+                             tot_co3 = water_loop@tot_co3 * 1000, # mmol/L
+                             #From Trussell eq S4. Charge coefficient for carbonate species in eq/mol.
+                             sig_co2 =  (water_loop@hco3 + 2 * water_loop@co3)/water_loop@tot_co3, #meq/mol
+                             #electroneutrality shift, equation S6
+                             delta = (water_loop@oh - water_loop@h) *1000,
+                             alk_meq = water_loop@alk_eq *1000)
+    x = root_x$root
+    k = correct_k(water_loop)
 
-    pH_f = (ca_loop - x_loop) * (tot_co3_loop -x_loop) *a_2  - Kso_loop
+    root_kso <- stats::uniroot(solve_kso, interval = c(-100, 100),
+                               ca = convert_units(water@ca, "ca", "M", "mM"),
+                               x =  x,
+                               tot_co3 =  water@tot_co3 * 1000,
+                               a_2 =calculate_alpha2_carbonate(water_loop@h, k))
+    K_so = root_kso$root
     
-    err = pH_i - pH_f
-    err
     ph = ph - 0.1
     
       
