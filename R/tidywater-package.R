@@ -142,6 +142,40 @@ NULL
 #' }
 #'
 
-
 #' @source Amy et al. (1998)
 "dbpcoeffs"
+
+#' Data frame of conversion factors for estimating DBP formation from chloramines
+#'
+#' A dataset containing conversion factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbpcoeffs
+#' @format A dataframe with 17 rows and 3 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{percent}{specifies the percent of DBP formation predicted from chloramines compared to chlorine, assuming the same chlorine dose applied}
+#' }
+
+#' @source U.S. EPA (2001), Table 5-10
+"conv_chloramine"
+
+#' Data frame of correction factors for estimating DBP formation as a function of location
+#'
+#' A dataset containing correction factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbpcoeffs
+#' @format A dataframe with 17 rows and 4 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{plant}{specifies the correction factor for modelling DBP formation within a treatment plant}
+#' \item{ds}{specifies the correction factor for modelling DBP formation within the distribution system}
+#' }
+
+#' @source U.S. EPA (2001), Table 5-7
+"dbp_correction"

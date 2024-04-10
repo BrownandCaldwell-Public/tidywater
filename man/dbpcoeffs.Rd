@@ -3,6 +3,8 @@
 \docType{data}
 \name{dbpcoeffs}
 \alias{dbpcoeffs}
+\alias{conv_chloramine}
+\alias{dbp_correction}
 \title{Data frame of DBP coefficients for predicting DBP formation}
 \format{
 A dataframe with 30 rows and 10 columns
@@ -18,14 +20,41 @@ A dataframe with 30 rows and 10 columns
 \item{e}{Sixth coefficient in DBP model, associated with pH}
 \item{f}{Seventh coefficient in DBP model, associated with reaction time}
 }
+
+A dataframe with 17 rows and 3 columns
+\describe{
+\item{ID}{abbreviation of dbp species}
+\item{alias}{full name of dbp species}
+\item{percent}{specifies the percent of DBP formation predicted from chloramines compared to chlorine, assuming the same chlorine dose applied}
+}
+
+A dataframe with 17 rows and 4 columns
+\describe{
+\item{ID}{abbreviation of dbp species}
+\item{alias}{full name of dbp species}
+\item{plant}{specifies the correction factor for modelling DBP formation within a treatment plant}
+\item{ds}{specifies the correction factor for modelling DBP formation within the distribution system}
+}
 }
 \source{
 Amy et al. (1998)
+
+U.S. EPA (2001), Table 5-10
+
+U.S. EPA (2001), Table 5-7
 }
 \usage{
 dbpcoeffs
+
+conv_chloramine
+
+dbp_correction
 }
 \description{
 A dataset containing coefficients for calculating DBP formation
+
+A dataset containing conversion factors for calculating DBP formation
+
+A dataset containing correction factors for calculating DBP formation
 }
 \keyword{datasets}

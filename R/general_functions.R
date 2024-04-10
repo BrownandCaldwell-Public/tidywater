@@ -570,20 +570,20 @@ summarise_dbp <- function(water) {
                     Trichloroacetic_acid = ifelse(length(water@tcaa)==0, NA, water@tcaa),
                     Bromoacetic_acid = ifelse(length(water@mbaa)==0, NA, water@mbaa),
                     Dibromoacetic_acid = ifelse(length(water@dbaa)==0, NA, water@dbaa),
-                    Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5),
-                    Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-                    Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
-                    Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
-                    Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-                    Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+                    Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5))
+                    # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
+                    # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
+                    # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
+                    # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
+                    # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
+                    # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
   thms = thms %>%
     pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_9_haloacetic_acids), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   thms = knitr::kable(thms,

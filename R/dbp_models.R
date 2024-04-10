@@ -53,133 +53,152 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     stop("Missing value for cl2 or time. Please check the function inputs required to calculate DBP formation.")
   }
 
+  # toc/doc warnings
   if (treatment == "raw" & (toc < 1.2 | toc > 10.6)) {
-    warning("TOC is outside the model bounds of 1.2 <= toc <= 10.6 mg/L as set in the WTP model.")
+    warning("TOC is outside the model bounds of 1.2 <= TOC <= 10.6 mg/L.")
   }
 
-  if (treatment == "raw" & (doc < 1.00 | doc > 7.77)) {
-    warning("DOC is outside the treated water model bounds of 1.00 <= doc <= 7.77 mg/L as set in the WTP model.")
+  if (treatment == "coag" & (doc < 1.00 | doc > 7.77)) {
+    warning("DOC is outside the model bounds of 1.00 <= doc <= 7.77 mg/L for coagulated water.")
   }
 
+  if (treatment == "gac" & (doc < 0.14 | doc > 2.0)) {
+    warning("DOC is outside the model bounds of 0.14 <= DOC <= 2.0 mg/L for GAC treated water.")
+  }
+
+  # uv254 warnings
   if (treatment == "raw" & (uv254 < 0.01 | uv254 > 0.318)) {
-    warning("UV254 is outside the untreated water model bounds of 0.01 <= uv254 <= 0.318 cm-1 as set in the WTP model.")
+    warning("UV254 is outside the model bounds of 0.01 <= UV254 <= 0.318 cm-1 for raw water.")
   }
 
   if (treatment == "coag" & (uv254 < 0.016 | uv254 > 0.215)) {
-    warning("UV254 is outside the treated water model bounds of 0.016 <= uv254 <= 0.215 cm-1 as set in the WTP model.")
+    warning("UV254 is outside the model bounds of 0.016 <= UV254 <= 0.215 cm-1 for coagulated water.")
   }
 
+  if (treatment == "gac" & (uv254 < 0.001 | uv254 > 0.048)) {
+    warning("UV254 is outside the model bounds of 0.001 <= UV254 <= 0.048 cm-1 for GAC treated water.")
+  }
+
+# cl2 warnings
   if (treatment == "raw" & (cl2 < 1.51 | cl2 > 33.55)) {
-    warning("Chlorine is outside the untreated water model bounds of 1.51 <= cl2 <= 33.55 mg/L as set in the WTP model.")
+    warning("Chlorine is outside the model bounds of 1.51 <= Cl2 <= 33.55 mg/L for raw water.")
   }
+
   if (treatment == "coag" & (cl2 < 1.11 | cl2 > 24.75)) {
-    warning("Chlorine is outside the treated water model bounds of 1.11 <= cl2 <= 24.75 mg/L as set in the WTP model.")
+    warning("Chlorine is outside the model bounds of 1.11 <= Cl2 <= 24.75 mg/L for coagulated water.")
   }
 
+  if (treatment == "gac" & (cl2 < 0.5 | cl2 > 3.0)) {
+    warning("Chlorine is outside the model bounds of 0.5 <= Cl2 <= 3.0 mg/L for GAC treated water.")
+  }
+
+# br warnings
   if (treatment == "raw" & (br < 7 | br > 600)) {
-    warning("Bromide is outside the untreated water model bounds of 7 <= br <= 600 ug/L as set in the WTP model.")
-  }
-  if (treatment == "coag" & (br < 23 | br > 308)) {
-    warning("Bromide is outside the treated water model bounds of 23 <= br <= 308 ug/L as set in the WTP model.")
+    warning("Bromide is outside the model bounds of 7 <= Br <= 600 ug/L for raw water.")
   }
 
+  if (treatment == "coag" & (br < 23 | br > 308)) {
+    warning("Bromide is outside the model bounds of 23 <= Br <= 308 ug/L for coagulated water.")
+  }
+
+  if (treatment == "gac" & (br < 10 | br > 570)) {
+    warning("Bromide is outside the model bounds of 10 <= Br <= 570 ug/L for GAC treated water.")
+  }
+
+# temp warnings
   if (treatment == "raw" & (temp < 15 | temp > 25)) {
-    warning("Temperature is outside the untreated water model bounds of 15 <= temp <= 25 Celsius as set in the WTP model.")
+    warning("Temperature is outside the model bounds of 15 <= temp <= 25 Celsius for raw water.")
   }
 
   if (treatment == "coag" & temp != 20 ) {
-    warning("Temperature is not set to 20 Celsius as set in the WTP model for treated water modeling.")
+    warning("Temperature is outside the model bounds of temp=20 Celsius for coagulated water.")
   }
 
+  if (treatment == "gac" & (temp < 3 | temp > 33)) {
+    warning("Temperature is outside the model bounds of 3 <= temp <= 33 Celsius for GAC treated water.")
+  }
+
+# ph warnings
   if (treatment == "raw" & (ph < 6.5 | ph > 8.5)) {
-    warning("pH is outside the untreated water model bounds of 6.5 <= ph <= 8.5 as set in the WTP model.")
+    warning("pH is outside the model bounds of 6.5 <= pH <= 8.5 for raw water.")
   }
 
   if (treatment == "coag" & ph != 7.5) {
-    warning("pH is not set to 7.5 as set in the WTP model for treated water modeling.")
+    warning("pH is outside the model bounds of pH = 7.5 for coagulated water")
   }
 
+  if (treatment == "gac" & (ph < 6.7 | ph > 10)) {
+    warning("pH is outside the model bounds of 6.7 <= pH <= 10 for GAC treated water.")
+  }
+
+  # time warning
   if (time < 2 | time > 168) {
-    warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours as set in the WTP model.")
+    warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours.")
   }
 
-  # estimate formation based on level of treatment
+  # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- dbpcoeffs %>%
       filter(treatment == "raw") %>%
-      mutate(modeled_dbp_ug.L = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f)
+      mutate(modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f)
   } else if (treatment == "coag") {
     predicted_dbp <- dbpcoeffs %>%
       filter(treatment == "coag") %>%
-      mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-ph_const) * e^(temp-20) * time^f)
+      mutate(modeled_dbp = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-ph_const) * e^(temp-20) * time^f)
   } else if (treatment == "gac") {
     predicted_dbp <- dbpcoeffs %>%
       filter(treatment == "gac") %>%
-      mutate(modeled_dbp_ug.L = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-ph_const) * e^(temp-20) * time^f)
+      mutate(modeled_dbp = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-ph_const) * e^(temp-20) * time^f)
   }
 
-# apply dbp correction factors for "raw" and "coag" treatment (corrections do not apply to "gac" treatment)
+# apply dbp correction factors for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
   if (location == "plant" & location!="gac") {
-    corrected_dbp <- predicted_dbp%>%
+    corrected_dbp_1 <- predicted_dbp%>%
       left_join(dbp_correction, by="ID")%>%
-      mutate(modeled_dbp_ug.L = modeled_dbp_ug.L/plant)
+      mutate(modeled_dbp = modeled_dbp/plant)%>%
+      select(ID, group, modeled_dbp)
   } else if(location == "ds" & location!="gac") {
-    corrected_dbp <- predicted_dbp%>%
+    corrected_dbp_1 <- predicted_dbp%>%
       left_join(dbp_correction, by="ID")%>%
-      mutate(modeled_dbp_ug.L = modeled_dbp_ug.L/ds)
+      mutate(modeled_dbp = modeled_dbp/ds)%>%
+      select(ID, group, modeled_dbp)
   }
 
-# estimate reduced formation if using chloramines
-  if (cl_type == "chloramine") {
-    corrected_dbp <- corrected_dbp%>%
-      left_join(conv_chloramine, by="ID")%>%
-      mutate(modeled_dbp_ug.L = modeled_dbp_ug.L * percent)
-  }
+# proportional corrections following U.S. EPA (2001), section 5.7.3
+bulk_dbp <- corrected_dbp_1%>%
+  filter(ID %in% c("tthm", "haa5")) # only model tthm and haa5, problems with haa6 and haa9 model outputs being <haa5 with low Br or Cl2
 
-# proportional corrections
-bulk_dbp <- predicted_dbp%>%
-  filter(ID %in% c("tthm", "haa5", "haa6", "haa9"))%>%
-  select(ID, group, modeled_dbp_ug.L)%>%
-  rename("bulk_c" = modeled_dbp_ug.L)
-# problem with haas, haa6 and haa9 are <haa5
-
-individual_dbp <- predicted_dbp%>%
-  filter(!(ID %in% c("tthm", "haa5", "haa6", "haa9")))%>%
+individual_dbp <- corrected_dbp_1%>%
+  filter(!(ID %in% c("tthm", "haa5")),
+         !(group %in% c("haa6", "haa9")))%>%
   group_by(group)%>%
-  mutate(sum_group = sum(modeled_dbp_ug.L),
-         proportion_group = modeled_dbp_ug.L/sum_group)%>%
-  # ungroup()%>%
-  # mutate(proportion = case_when(group=="tthm" | group=="haa5" ~ modeled_dbp_ug.L/sum_group,
-  #                               group=="haa6" ~ modeled_dbp_ug.L/(sum_group + lag(sum_group, 1)),
-  #                               ID=="cdbaa" ~ modeled_dbp_ug.L/(sum_group + lag(sum_group,1) + lag(sum_group, 2)),
-  #                               ID=="dcbaa" ~ modeled_dbp_ug.L/(sum_group + lag(sum_group,2) + lag(sum_group, 3)),
-  #                               ID=="tbaa" ~ modeled_dbp_ug.L/(sum_group + lag(sum_group,3) + lag(sum_group, 4)),
-  #                               TRUE ~ NA))%>%
-  left_join(bulk_dbp, by="group")%>%
-  mutate(corrected_c = proportion_group*bulk_c)
+  mutate(sum_group = sum(modeled_dbp),
+         proportion_group = modeled_dbp/sum_group)%>%
+  left_join(bulk_dbp[2:3], by="group", suffix=c("_ind", "_bulk"))%>%
+  mutate(modeled_dbp = proportion_group*modeled_dbp_bulk)
 
-  #left_join(bulk_dbp, by="type")%>%
-  select(ID.x, ID.y, type, modeled_dbp_ug.L, bulk_c)%>%
-  mutate(proportion = modeled_dbp_ug.L/bulk_c)
+corrected_dbp_2 <- individual_dbp%>%
+  select(ID, group, modeled_dbp)%>%
+  rbind(bulk_dbp)
 
+# estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
+if (cl_type == "chloramine") {
+  corrected_dbp_2 <- corrected_dbp_2%>%
+    left_join(conv_chloramine, by="ID")%>%
+    mutate(modeled_dbp = modeled_dbp * percent)
+}
 
-  water@tthm = corrected_dbp%>%filter(ID=="tthm")%>%{.$modeled_dbp_ug.L}
-  water@chcl3 = corrected_dbp%>%filter(ID=="chcl3")%>%{.$modeled_dbp_ug.L}
-  water@chcl2br = corrected_dbp%>%filter(ID=="chcl2br")%>%{.$modeled_dbp_ug.L}
-  water@chbr2cl = corrected_dbp%>%filter(ID=="chbr2cl")%>%{.$modeled_dbp_ug.L}
-  water@chbr3 = corrected_dbp%>%filter(ID=="chbr3")%>%{.$modeled_dbp_ug.L}
-  water@haa5 = corrected_dbp%>%filter(ID=="haa5")%>%{.$modeled_dbp_ug.L}
-  water@haa6 = corrected_dbp%>%filter(ID=="haa6")%>%{.$modeled_dbp_ug.L}
-  water@haa9 = corrected_dbp%>%filter(ID=="haa9")%>%{.$modeled_dbp_ug.L}
-  water@mcaa = corrected_dbp%>%filter(ID=="mcaa")%>%{.$modeled_dbp_ug.L}
-  water@dcaa = corrected_dbp%>%filter(ID=="dcaa")%>%{.$modeled_dbp_ug.L}
-  water@tcaa = corrected_dbp%>%filter(ID=="tcaa")%>%{.$modeled_dbp_ug.L}
-  water@mbaa = corrected_dbp%>%filter(ID=="mbaa")%>%{.$modeled_dbp_ug.L}
-  water@dbaa = corrected_dbp%>%filter(ID=="dbaa")%>%{.$modeled_dbp_ug.L}
-  water@bcaa = corrected_dbp%>%filter(ID=="bcaa")%>%{.$modeled_dbp_ug.L}
-  water@cdbaa = corrected_dbp%>%filter(ID=="cdbaa")%>%{.$modeled_dbp_ug.L}
-  water@dcbaa = corrected_dbp%>%filter(ID=="dcbaa")%>%{.$modeled_dbp_ug.L}
-  water@tbaa = corrected_dbp%>%filter(ID=="tbaa")%>%{.$modeled_dbp_ug.L}
+  water@tthm = corrected_dbp_2%>%filter(ID=="tthm")%>%{.$modeled_dbp}
+  water@chcl3 = corrected_dbp_2%>%filter(ID=="chcl3")%>%{.$modeled_dbp}
+  water@chcl2br = corrected_dbp_2%>%filter(ID=="chcl2br")%>%{.$modeled_dbp}
+  water@chbr2cl = corrected_dbp_2%>%filter(ID=="chbr2cl")%>%{.$modeled_dbp}
+  water@chbr3 = corrected_dbp_2%>%filter(ID=="chbr3")%>%{.$modeled_dbp}
+  water@haa5 = corrected_dbp_2%>%filter(ID=="haa5")%>%{.$modeled_dbp}
+  water@mcaa = corrected_dbp_2%>%filter(ID=="mcaa")%>%{.$modeled_dbp}
+  water@dcaa = corrected_dbp_2%>%filter(ID=="dcaa")%>%{.$modeled_dbp}
+  water@tcaa = corrected_dbp_2%>%filter(ID=="tcaa")%>%{.$modeled_dbp}
+  water@mbaa = corrected_dbp_2%>%filter(ID=="mbaa")%>%{.$modeled_dbp}
+  water@dbaa = corrected_dbp_2%>%filter(ID=="dbaa")%>%{.$modeled_dbp}
 
   return(water)
 }
