@@ -15,7 +15,7 @@ blend_waters(waters, ratios)
 This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
 }
 \examples{
-water1 <- define_water(7, 20, 50)
+ water1 <- define_water(7, 20, 50)
 water2 <- define_water(7.5, 20, 100)
 blend_waters(c(water1, water2), c(.4, .6))
 
