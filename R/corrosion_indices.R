@@ -126,6 +126,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   # Langelier, W. (1936) "The Analytical Control of Anti-Corrosion Water Treatment,"
       # J. AWWA, 28, 11, 1500–1522.
+  
+  water <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200, tds = 238)
   a_h = water@kw/water@oh #MWH eq 22-25
   K.2 = a_h*water@co3 /water@hco3   #MWH eq # 22-24
     
@@ -173,77 +175,53 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # if ("ccpp" %in% index) {
   #    Ca_est = (ca_hard-water@langelier*20)/100.869/1000 # cell A821
   #    IS = water@is - 4*(water@ca - Ca_est) # cell C821
-  #    
+  # 
   #    # these activities don't quite match what Chris calculates
   #    activity_1 =  calculate_activity(1, IS, tempa) # cell D821
   #    activity_2 =  calculate_activity(2, IS, tempa) # cell E821
   #    activity_3 =  calculate_activity(3, IS, tempa) # cell F821
   #    tot_co3 = water@tot_co3 - (water@ca - Ca_est) # cell G821, mol/L
   #    Cb_Ca = (water@hco3 + 2*water@co3 + water@oh - water@h) - 2 * (water@ca - Ca_est) #cell H821
-  #    
+  # 
   #    # I think I should use solve_pH here, but this fn uses calc_alphas. Chris's spreadsheet uses activities. how to incorporate?
   #    ph = 9.9 #solve_ph(water) #cell J821
   #    h_conc = 10^-ph #cell I821 - solve_H?
-  #    
+  # 
   #   a_1 = calculate_alpha1_carbonate(h_conc, k) #cell K821
   #   a_2 = calculate_alpha2_carbonate(h_conc, k) #cell L821
-  #   
-  #   
-  #   Ca_sol = (10^(-log_kso))/(activity_2^2)/a_2/tot_co3*(1+(10^-water@kw)/activity_1^2 * (10^-T48)*activity_2/h_conc +
-  #                                                      (10^-T49) *activity_2*a_1*tot_co3 +
-  #                                                      (10^-T50)*activity_2^2*a_2*tot_co3 +
-  #                                                      (10^-T51) * activity_2^2*0)  #cell M821
+  # #
+  # #
+  # ##   Ca_sol = (10^(-log_kso))/(activity_2^2)/a_2/tot_co3*(1+(10^-water@kw)/activity_1^2 * (10^-T48)*activity_2/h_conc +
+  # ##                                                      (10^-T49) *activity_2*a_1*tot_co3 +
+  # # #                                                     (10^-T50)*activity_2^2*a_2*tot_co3 +
+  # #  #                                                    (10^-T51) * activity_2^2*0)  #cell M821
+  # 
+  #   Ca_sol = (10^(-log_kso))/a_2/tot_co3  #cell M821
   #   C1_C2 = (Ca_est - Ca_sol) * 1000000 #cell N821
   #   LHS_RHS = Ca_sol/Ca_est#cell O821
   #   Ca = convert_units(Ca_sol, "ca", "M", "mg/L CaCO3") #cell P821
   #   CCPP = ca_hard - Ca #cell Q821
   # }
-  
-  
-  
+
   # using Trussell https://brwncald-my.sharepoint.com/personal/ccorwin_brwncald_com/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fccorwin%5Fbrwncald%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files%2FTrussell%201998%20JAWWA%2Epdf&parent=%2Fpersonal%2Fccorwin%5Fbrwncald%5Fcom%2FDocuments%2FMicrosoft%20Teams%20Chat%20Files&ga=1
-  water <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200)
+  water <- define_water(ph = 8, temp = 25, alk = 220, ca_hard = 200, tds = 238)
   
   if ("ccpp" %in% index) {
-    
-    solve_x <- function(x, tot_co3, sig_co2, delta, alk_meq) {
-      (tot_co3*sig_co2 -delta - alk_meq) / (sig_co2 - 2) -x
+
+    log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
+    K_so = 10^-log_kso
+
+    solve_x <- function(x, water) {
+     water2 <- chemdose_ph(water, caco3 = x)
+      K_so/water2@co3 - water2@ca
     }
-    
-    solve_kso <- function(kso, ca, x, tot_co3, a_2) {
-      (ca - x) * (tot_co3 -x) *a_2  - kso
-    }
-    
-    ph = 4 #initial guess
-    
-    # while(ph > 7) { #maybe ths should be some kind of uniroot instead
-      
-    # after precipitation
-    water_loop <- define_water(ph = ph, temp = water@temp, alk = water@alk, ca_hard = 200)
     
     root_x <- stats::uniroot(solve_x, interval = c(-100, 100),
-                             tot_co3 = water_loop@tot_co3 * 1000, # mmol/L
-                             #From Trussell eq S4. Charge coefficient for carbonate species in eq/mol.
-                             sig_co2 =  (water_loop@hco3 + 2 * water_loop@co3)/water_loop@tot_co3, #meq/mol
-                             #electroneutrality shift, equation S6
-                             delta = (water_loop@oh - water_loop@h) *1000,
-                             alk_meq = water_loop@alk_eq *1000)
+                  water = water, extendInt = "yes")
     x = root_x$root
-    k = correct_k(water_loop)
-
-    root_kso <- stats::uniroot(solve_kso, interval = c(-100, 100),
-                               ca = convert_units(water@ca, "ca", "M", "mM"),
-                               x =  x,
-                               tot_co3 =  water@tot_co3 * 1000,
-                               a_2 =calculate_alpha2_carbonate(water_loop@h, k))
-    K_so = root_kso$root
-    
-    ph = ph - 0.1
-    
+    x # not close to CHRIS
+    convert_units(x, "caco3", endunit = "mM") #pretty close to Trussel (0.45)
       
-    }
-    
-    
   }
   
 }
