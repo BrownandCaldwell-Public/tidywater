@@ -426,7 +426,7 @@ conv_chloramine <- data.frame(
 usethis::use_data(conv_chloramine, overwrite = TRUE)
 
 
-# Data frame of DBP correction factors
+# Data frame of DBP correction factors based on location
 
 dbp_correction <- data.frame(
   #tthms
