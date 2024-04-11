@@ -367,7 +367,7 @@ usethis::use_data(dbpcoeffs, overwrite = TRUE)
 
 # Data frame of DBP conversion factors for chloramines
 
-conv_chloramine <- data.frame(
+chloramine_conv <- data.frame(
     #tthms
     ID = "tthm",
     alias = "total trihalomethanes",
@@ -423,10 +423,12 @@ conv_chloramine <- data.frame(
           alias = "Nine haloacetic acids",
           percent = 0.20)
 
-usethis::use_data(conv_chloramine, overwrite = TRUE)
+usethis::use_data(chloramine_conv, overwrite = TRUE)
 
 
-# Data frame of DBP correction factors based on location
+# Data frame of DBP correction factors based on location from testing with ICR data
+# No correction factors developed for CDBAA, BDCAA, TBAA, and HAA9 since ICR plant data was used to develop these equations
+
 
 dbp_correction <- data.frame(
   #tthms

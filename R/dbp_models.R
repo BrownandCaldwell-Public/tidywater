@@ -185,7 +185,7 @@ corrected_dbp_2 <- individual_dbp%>%
 # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
 if (cl_type == "chloramine") {
   corrected_dbp_2 <- corrected_dbp_2%>%
-    left_join(conv_chloramine, by="ID")%>%
+    left_join(chloramine_conv, by="ID")%>%
     mutate(modeled_dbp = modeled_dbp * percent)
 }
 
