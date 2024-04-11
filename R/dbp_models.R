@@ -8,7 +8,7 @@
 #' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in \code{define_water}
 #' including bromide, TOC, UV254, temperature, and pH.
-#' The function will calculate haloacetic acids (HAA) as HAA5, HAA6, or HAA9, as well as
+#' The function will calculate haloacetic acids (HAA) as HAA5, and
 #' total trihalomethanes (TTHM).
 #' The function returns a new object of class "water" with predicted DBP concentrations.
 #' Use \code{summarise_dbp} to quickly tabulate the results.
@@ -23,9 +23,10 @@
 #' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
 #' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
-#' water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon.
+#' water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
 #' @examples
 #' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
 #' chemdose_dbp(cl2 = 2, time = 8)
@@ -151,7 +152,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       mutate(modeled_dbp = A * (doc*uv254)^a * cl2^b * br^c * d^(ph-ph_const) * e^(temp-20) * time^f)
   }
 
-# apply dbp correction factors for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
+# apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
   if (location == "plant" & location!="gac") {
     corrected_dbp_1 <- predicted_dbp%>%
       left_join(dbp_correction, by="ID")%>%
@@ -174,7 +175,7 @@ individual_dbp <- corrected_dbp_1%>%
   group_by(group)%>%
   mutate(sum_group = sum(modeled_dbp),
          proportion_group = modeled_dbp/sum_group)%>%
-  left_join(bulk_dbp[2:3], by="group", suffix=c("_ind", "_bulk"))%>%
+  left_join(bulk_dbp[group:modeled_dbp], by="group", suffix=c("_ind", "_bulk"))%>%
   mutate(modeled_dbp = proportion_group*modeled_dbp_bulk)
 
 corrected_dbp_2 <- individual_dbp%>%
