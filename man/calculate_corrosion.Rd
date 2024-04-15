@@ -36,4 +36,7 @@ indicates how much CaCO3 will precipitate from solution.
  @examples
 water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 450, cl = 150, so4 = 200) %>%
  calculate_corrosion()
+ 
+ water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50) %>%
+calculate_corrosion(index = c("aggressive", "ccpp"))
 }
