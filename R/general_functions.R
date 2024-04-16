@@ -495,7 +495,7 @@ plot_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
-  # Compile major ions to plot
+   # Compile major ions to plot
   ions = data.frame(Na = water@na,
     Ca = water@ca * 2,
     Mg = water@mg * 2,
@@ -510,30 +510,32 @@ plot_ions <- function(water) {
     OCl = water@ocl,
     H = water@h,
     OH = water@oh)
-
-  ions %>%
+ 
+  ions %>% 
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations",
-                            TRUE ~ "Anions")) %>% 
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%  
+    arrange(type, concentration) %>%
+    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type, 
+           label_y = case_when(type == "Cations" ~ 2-.2, TRUE ~ 1-.2)) %>%
     
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
     geom_bar(stat = "identity",
              width = 0.5,
              alpha = 0.5,
              color = "black") +
-    geom_text(aes(label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-              size = 3.5,
-              position = position_stack(vjust = 0.5)) +
-    geom_text(aes(x = concentration - 0.0001, label = ifelse(concentration < 10e-5, ion, "")),
-              size = 3.5,
-              position = position_dodge(width = .5),
-              vjust =5) +
-    
+    geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
+              size = 3.5) +
+    ggrepel::geom_text_repel(aes(x = label_pos, y = label_y,
+                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""), 
+                                 fontface = "bold"),
+                             size = 3.5,
+                             nudge_y = -.2,
+                             seed = 555) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold")) +
     labs(x = "Concentration (eq/L)",
          y = "Major cations and anions",
-         subtitle = paste0("pH=", water@ph)) +
+         subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)) +
     guides(fill = "none")
 }
 
