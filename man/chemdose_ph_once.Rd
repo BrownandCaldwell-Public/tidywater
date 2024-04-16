@@ -76,12 +76,19 @@ The column names must match the chemical names as displayed in \code{\link{chemd
 To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 
 tidywater functions cannot be added after this function because they require a water class input.
+
+ For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
 
-library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
@@ -94,6 +101,16 @@ example_df <- water_df \%>\%
   mutate(hcl = seq(1,12, 1),
          naoh = 20) \%>\%
   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+ 
+# Initialize parallel processing   
+plan(multisession)   
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_chain() \%>\%
+chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{
