@@ -21,7 +21,18 @@ balance_ions_chain(
 This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
 }
+\details{
+For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
+}
 \examples{
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
@@ -31,7 +42,17 @@ chemdose_ph_chain(naoh = 5)
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
 balance_ions_chain(output_water = "balanced ions, balanced life") \%>\%
-chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh =5)
+chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
+
+# Initialize parallel processing
+plan(multisession)
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_chain() \%>\%
+chemdose_ph_chain(naoh = 5)
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{
