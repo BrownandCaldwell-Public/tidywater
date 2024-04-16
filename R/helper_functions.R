@@ -10,6 +10,7 @@
 #' This converts a water class to a dataframe with individual columns for each slot (water quality parameter) in the water.
 #' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
 #' there may be a `fn_once` tidywater function that provides a more efficient solution.
+#' 
 #'
 #' @param water A "water" class object
 #'
@@ -18,7 +19,6 @@
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
 #' library(tidyr)
 #'
 #' # Generates 1 row dataframe
@@ -44,14 +44,31 @@ convert_water <- function(water) {
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' It outputs all carbonate calculations and other parameters in a data frame.
 #' tidywater functions cannot be added after this function because they require a water class input.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>% define_water_once()
+#'
+#'# Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>% define_water_once()
+#' 
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -59,7 +76,7 @@ define_water_once <- function(df) {
 
   df %>%
     define_water_chain() %>%
-    mutate(defined_df = purrr::map(defined_water, convert_water)) %>%
+    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
     as.data.frame()
@@ -70,6 +87,12 @@ define_water_once <- function(df) {
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "defined_water".
@@ -78,13 +101,27 @@ define_water_once <- function(df) {
 #'
 #' @examples
 #'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
-#'
+#' 
 #' example_df <- water_df %>%
 #' define_water_chain(output_water = "This is a column of water") %>%
 #' balance_ions_once(input_water ="This is a column of water")
+#'
+#'# Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_once()
+#' 
+#' #' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -96,9 +133,9 @@ define_water_chain <- function(df, output_water = "defined_water") {
   extras <- df %>%
     select(!any_of(define_water_args))
 
-  output<- df %>%
+  output <- df %>%
     select(any_of(define_water_args)) %>%
-    mutate(!!output_water := purrr::pmap(., define_water)) %>%
+    mutate(!!output_water := furrr::future_pmap(., define_water)) %>%
     select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
@@ -108,6 +145,12 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a dataframe with updated ions depending on starting concentrations
 #' tidywater functions cannot be added after this function because they require a water class input.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -115,6 +158,10 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -124,13 +171,22 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' define_water_chain(output_water = "Different_defined_water_column") %>%
 #' balance_ions_once(input_water = "Different_defined_water_column")
 #'
+#'# Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_once()
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
+#' 
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
 
   output<- df %>%
-    mutate(balanced_water = purrr::pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = purrr::map(balanced_water, convert_water)) %>%
+    mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
+    mutate(balance_df = furrr:: future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
 
@@ -140,6 +196,12 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
@@ -148,6 +210,10 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -157,14 +223,24 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
-#' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh =5)
+#' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
+#' 
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_chain() %>%
+#' chemdose_ph_chain(naoh = 5)
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
 
   output<- df %>%
-    mutate(!!output_water := purrr::pmap(list(water = !!as.name(input_water)), balance_ions))
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
 
 }
 
@@ -181,6 +257,12 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 #'
 #' tidywater functions cannot be added after this function because they require a water class input.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
@@ -206,9 +288,10 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -221,6 +304,16 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'   mutate(hcl = seq(1,12, 1),
 #'          naoh = 20) %>%
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#'  
+#'# Initialize parallel processing   
+#' plan(multisession)   
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_chain() %>%
+#' chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -240,7 +333,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
                       na2co3, nahco3, caoh2, mgoh2,
                       cl2, naocl, caocl2, co2,
                       alum, fecl3, fe2so43, caco3) %>%
-    mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
 }
@@ -257,6 +350,12 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' ones specified in the function's arguments.
 #' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
@@ -283,9 +382,10 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
@@ -299,6 +399,16 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #'          naoh = 20) %>%
 #'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 #'
+#'# Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#' define_water_chain() %>%
+#' balance_ions_chain() %>%
+#' chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#' 
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
+#' 
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
@@ -306,7 +416,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
-
+ 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
                             cl2, naocl, caocl2, co2,
@@ -353,7 +463,7 @@ if(nrow(chem_inputs_arg) == 1) {
     mutate(ID = row_number()) %>%
     left_join(chem2, by = "ID") %>%
     select(-ID) %>%
-    mutate(!!output_water := purrr::pmap(list(water= !!as.name(input_water),
+    mutate(!!output_water := furrr::future_pmap(list(water= !!as.name(input_water),
                                         hcl = hcl,
                                         h2so4 = h2so4,
                                         h3po4 = h3po4,
@@ -387,6 +497,12 @@ if(nrow(chem_inputs_arg) == 1) {
 #' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
 #' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
 #' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
+#' 
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
@@ -398,9 +514,10 @@ if(nrow(chem_inputs_arg) == 1) {
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -420,11 +537,20 @@ if(nrow(chem_inputs_arg) == 1) {
 #'mutate(target_ph = seq(9, 10.1, .1)) %>%
 #'solvedose_ph_once(chemical = "naoh")
 #'
+#'# Initialize parallel processing
+#' plan (multisession)
+#' example_df <- water_df %>%
+#'define_water_chain() %>%
+#'mutate(target_ph = seq(9, 10.1, .1)) %>%
+#'solvedose_ph_once(chemical = "naoh")
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
-
+ 
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
                            co2 = 0,
@@ -453,7 +579,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
   output<- chem %>%
     mutate(target_ph = target_ph,
            chemical = chemical) %>%
-    mutate(dose = purrr::pmap(list(water= !!as.name(input_water),
+    mutate(dose = furrr::future_pmap(list(water= !!as.name(input_water),
                                      chemical = chemical,
                                      target_ph = target_ph),
                                 solvedose_ph)) %>%
@@ -473,6 +599,11 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'
 #' tidywater functions cannot be added after this function because they require a water class input.
 #'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
@@ -483,9 +614,10 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -495,19 +627,29 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'       ratios2 = .6) %>%
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"))
 #'
-#'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
 #'balance_ions_chain() %>%
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#'# Initialize parallel processing
+#' plan(multisession)
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22) %>%
+#'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
 #' @export
 
 
 blend_waters_once <- function(df, waters, ratios) {
 
-df_subset <- df %>% select(all_of(waters))
+ df_subset <- df %>% select(all_of(waters))
 
 for(row in 1:length(df_subset[[1]])) {
 
@@ -530,11 +672,11 @@ for(row in 1:length(df_subset[[1]])) {
 
   }
 
- df$blended[row] <- list(blend_waters(water_vectors, blend_ratios))
+  suppressWarnings(df$blended[row] <- list(blend_waters(water_vectors, blend_ratios)))
 }
 
   output <- df %>%
-    mutate(blend_df = purrr::map(blended, convert_water)) %>%
+    mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 
@@ -549,6 +691,11 @@ for(row in 1:length(df_subset[[1]])) {
 #' The Water class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
@@ -560,9 +707,10 @@ for(row in 1:length(df_subset[[1]])) {
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #'example_df <- water_df %>%
 #'define_water_chain() %>%
@@ -580,6 +728,17 @@ for(row in 1:length(df_subset[[1]])) {
 #'chemdose_ph_chain(naoh = 22) %>%
 #'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#'# Initialize parallel processing
+#'plan(multisession)
+#'example_df <- water_df %>%
+#'define_water_chain() %>%
+#'balance_ions_chain() %>%
+#'chemdose_ph_chain(naoh = 22) %>%
+#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
 #' @export
 
 
@@ -587,14 +746,14 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 
   output <- df %>%
     rowwise() %>%
-    mutate(waters = purrr::pmap(across(all_of(waters)), list),
+    mutate(waters = furrr::future_pmap(across(all_of(waters)), list),
            ratios = ifelse(
              is.numeric(ratios),
              list(ratios),
              (list(c_across(all_of(ratios))))
            )) %>%
     ungroup() %>%
-    mutate(!!output_water := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
+    mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
 }
 
