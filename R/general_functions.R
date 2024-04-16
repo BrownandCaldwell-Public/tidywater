@@ -573,11 +573,9 @@ summarise_dbp <- function(water) {
                     Dibromoacetic_acid = ifelse(length(water@dbaa)==0, NA, water@dbaa),
                     Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5),
                     Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-                    Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
                     Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
                     Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-                    Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa))
 
   thms = thms %>%
     pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result")%>%
