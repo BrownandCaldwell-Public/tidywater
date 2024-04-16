@@ -24,12 +24,19 @@ Its output is a "water" class with updated ions and pH.
 The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 The Water class columns to use in the function are specified as function arguments. Ratios may be input
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
+
+ For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use 
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
 
-library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
@@ -46,6 +53,17 @@ define_water_chain() \%>\%
 balance_ions_chain() \%>\%
 chemdose_ph_chain(naoh = 22) \%>\%
 blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+
+# Initialize parallel processing
+plan(multisession)
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+balance_ions_chain() \%>\%
+chemdose_ph_chain(naoh = 22) \%>\%
+blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{
