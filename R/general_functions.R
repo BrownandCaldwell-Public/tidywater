@@ -582,7 +582,7 @@ summarise_dbp <- function(water) {
     mutate(result = round(result, 2))
 
   haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_9_haloacetic_acids), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroacetic_acid:Tribromoacetic_acid), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   thms = knitr::kable(thms,
