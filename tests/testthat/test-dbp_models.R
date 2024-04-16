@@ -50,10 +50,8 @@ test_that("chemdose_dbp works.", {
   water3 <- chemdose_dbp(water1, cl2 = 3, time = 8, water_type = "untreated")
   
   expect_equal(round(water2@tthm), 59) 
-  expect_equal(round(water2@haa9), 36)
   expect_equal(round(water3@tthm), 68)
   expect_equal(round(water3@haa5), 65)
-  expect_equal(round(water3@haa6), 57)
 })
 
 

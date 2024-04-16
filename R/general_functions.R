@@ -294,13 +294,14 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tds = ifelse(missing(tds), NA_real_, tds)
 
   cond = ifelse(missing(cond), NA_real_, cond)
+  br = ifelse(missing(br), 0, br)
 
-  if (missing(na) | missing(k) | missing(cl) | missing(so4)| missing(br)) {
+  if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
-    br = ifelse(missing(br), 0, br)
+  
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
