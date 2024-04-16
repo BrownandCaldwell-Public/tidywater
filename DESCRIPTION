@@ -19,7 +19,7 @@ Imports:
     tidyr,
     knitr,
     ggplot2,
-ggrepel,
+    ggrepel,
     magrittr,
     purrr,
     furrr,

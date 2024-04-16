@@ -483,7 +483,6 @@ summarize_wq <- function(water) {
 #'
 #' @param water Source water vector created by link function here
 #' @import ggplot2
-#' @import ggrepel
 #'
 #' @examples
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
