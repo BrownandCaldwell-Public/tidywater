@@ -91,18 +91,16 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   # Langelier, W. (1936) "The Analytical Control of Anti-Corrosion Water Treatment,"
   # J. AWWA, 28, 11, 1500–1522.
-  
+
   a_h = water@kw/water@oh #MWH eq 22-25
   K.2 = a_h*water@co3 /water@hco3   #MWH eq # 22-24
   log_k2 = -log10(K.2)
-  
   tempa = water@temp + 273.15
-  active_1 = calculate_activity(1, water@is, tempa) 
-  active_2 = calculate_activity(2, water@is, tempa)
-  alk_mol = convert_units(water@alk, "caco3", startunit = "mg/L CaCO3")
   #mixed solubility constant for CaCO3
   log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
-  
+  active_1 = calculate_activity(1, water@is, water@temp) 
+  active_2 = calculate_activity(2, water@is, water@temp)
+  alk_mol = convert_units(water@alk, "caco3", startunit = "mg/L CaCO3")
   ph_s = log_k2 - log_kso - log10(water@ca) - log10(alk_mol) - log10(active_1) - log10(active_2) # from MWH eq 22-30, doesn't include activity adjustments shown here (that's from chris)
 
   ###########################################################################################*
@@ -140,7 +138,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     
     solve_x <- function(x, water) {
       water2 <- chemdose_ph(water, caco3 = x)
-      K_so/(water2@co3) - water2@ca
+     K_so/(water2@co3*active_2) - water2@ca*active_2
     }
     
     root_x <- stats::uniroot(solve_x, 
@@ -155,4 +153,3 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   return(water)
 }
-
