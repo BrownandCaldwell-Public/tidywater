@@ -49,6 +49,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("aggressive" %in% index) {
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
     water@aggressive <- water@ph + log10(water@alk * ca_hard)
+    
+    if(water@aggressive == -Inf | water@aggressive == Inf){
+     water@aggressive <- NA_real_
+    }
+    
   }
   
   ###########################################################################################*
@@ -58,13 +63,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("csmr" %in% index) {
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-    
     water@csmr <- cl/so4
     
-    #keep this warning?
-    # if (water@alk > 50) {
-    #   warning("Alkalinity is greater than 50 mg/L as CaCO3. CSMR less applicable to this water.")
-    # }
+    if(is.nan(water@csmr) | water@csmr == Inf){
+      water@csmr <- NA_real_
+    }
   }
 
   ###########################################################################################*
@@ -93,8 +96,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # J. AWWA, 28, 11, 1500–1522.
 
   a_h = water@kw/water@oh #MWH eq 22-25
-  K.2 = a_h*water@co3 /water@hco3   #MWH eq # 22-24
-  log_k2 = -log10(K.2)
+  k2co3 = a_h*water@co3 /water@hco3   #MWH eq # 22-24
+  log_k2 = -log10(k2co3)
   tempa = water@temp + 273.15
   #mixed solubility constant for CaCO3
   log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
@@ -109,6 +112,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   if ("langelier" %in% index) {
     water@langelier <- water@ph - ph_s
+    
+    if(water@langelier == -Inf | water@langelier == Inf){
+      water@langelier <- NA_real_
+    }
   }
   
   ###########################################################################################*
@@ -118,6 +125,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
  
    if ("ryznar" %in% index) {
      water@ryznar <- 2*ph_s - water@ph
+     
+     if(water@ryznar == -Inf | water@ryznar == Inf){
+       water@ryznar <- NA_real_
+     }
   }
   
   ###########################################################################################*

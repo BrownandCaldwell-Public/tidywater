@@ -4,12 +4,12 @@ test_that("most indices won't work without ca, cl, so4", {
     calculate_corrosion()
   
   
-  expect_equal(water@aggressive, -Inf)
-  expect_equal(water@ryznar, Inf)
-  expect_equal(water@langelier, -Inf)
+  expect_equal(water@aggressive, NA_real_)
+  expect_equal(water@ryznar, NA_real_)
+  expect_equal(water@langelier, NA_real_)
   expect_equal(round(water@ccpp), 9)
   expect_equal(water@larsonskold, 0)
-  expect_equal(water@csmr, NaN)
+  expect_equal(water@csmr, NA_real_)
   
 })
 
@@ -135,3 +135,4 @@ test_that("ccpp works", {
   expect_equal(round(water4@ccpp), 7) #low ca
   expect_equal(round(water5@ccpp), 33) #low pH
 })
+
