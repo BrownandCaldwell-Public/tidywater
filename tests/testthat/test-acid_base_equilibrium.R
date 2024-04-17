@@ -38,6 +38,19 @@ test_that("Dose chemical returns the same pH/alkalinity when no chemical is adde
 
 })
 
+test_that("Dose chemical corrects ph when softening", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
+  water2 <- chemdose_ph(water1, caco3 = -100)  
+  water3 <- chemdose_ph(water1, caco3 = -100, softening_correction = TRUE)
+  water4 <- chemdose_ph(water1, caco3 = 10, softening_correction = TRUE)
+  water5 <- chemdose_ph(water1, caco3 = 10)
+  
+  expect_equal(round(water3@ph, 2), 3.86) # softening correction works
+  expect_error(expect_equal(water2@ph, water3@ph)) # ph with/without softening correction are different
+  expect_equal(water4@ph, water5@ph) # softening_correction should not affect pH without caco3 <0
+
+})
+
 
 # To do: subdivide for each chemical?
 test_that("Dose chemical works", {
