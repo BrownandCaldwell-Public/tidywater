@@ -21,7 +21,8 @@ chemdose_ph(
   co2 = 0,
   alum = 0,
   fecl3 = 0,
-  fe2so43 = 0
+  fe2so43 = 0,
+  softening_correction = FALSE
 )
 }
 \arguments{
@@ -58,6 +59,8 @@ chemdose_ph(
 \item{fecl3}{Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
 \item{fe2so43}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+
+\item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 }
 \description{
 \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
@@ -85,6 +88,13 @@ dosed_water@ph
 dosed_water1 <- chemdose_ph(water, hcl = 1)
 dosed_water1@ph
 dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
+dosed_water2@ph
+
+# Softening:
+water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
+dosed_water1 <- chemdose_ph(water2, caco3 = -100)
+dosed_water1@ph
+dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 dosed_water2@ph
 
 }
