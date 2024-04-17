@@ -41,11 +41,16 @@
 #'
 #' @export
 
+# water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
 
-  if (is.na(water@is) | is.na(water@alk)) {
-    warning("Water is missing ionic strength or alkalinity. Output dataframe will be empty.")
+  if (is.na(water@alk)) {
+    warning("Water is missing alkalinity. Output dataframe will be empty.")
   }
+  if (is.na(water@is)) {
+    warning("Water is missing ionic strength. Output dataframe will be empty.")
+  }
+  
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
@@ -130,7 +135,7 @@ dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "
         PbHCO3_plus + PbCO3 + PbCO32_2_minus +
         PbHPO4 + PbH2PO4_plus)
 
-  alllead_simple <- alllead %>%
+   alllead_simple <- alllead %>%
     select(species_name, Pb_2_plus, tot_dissolved_pb, source) %>%
     mutate(keep = case_when(species_name == "Hydroxypyromorphite" & grepl(hydroxypyromorphite, source) ~ "keep",
                             species_name == "Pyromorphite" & grepl(pyromorphite, source) ~ "keep",
@@ -138,7 +143,8 @@ dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "
                             !grepl("Hydroxyp|Pyro|Lauri", species_name) ~ "keep"
                              )) %>%
     drop_na(keep, tot_dissolved_pb) %>%
-    mutate(controlling_solid = case_when(tot_dissolved_pb == min(tot_dissolved_pb) ~ species_name)) %>%
+     #use suppressWarnnings here for when min() fn can't find minimum (ie when alk or IS not provided and all values are NA)
+    mutate(controlling_solid = case_when(tot_dissolved_pb ==  suppressWarnings(min(tot_dissolved_pb)) ~ species_name)) %>%
     drop_na(controlling_solid) %>%
     select(controlling_solid, tot_dissolved_pb)
 

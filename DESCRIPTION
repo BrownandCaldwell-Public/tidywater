@@ -19,8 +19,10 @@ Imports:
     tidyr,
     knitr,
     ggplot2,
+    ggrepel,
     magrittr,
     purrr,
+    furrr,
     methods
 RoxygenNote: 7.3.1
 Depends: 
