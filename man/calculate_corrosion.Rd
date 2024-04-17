@@ -27,16 +27,16 @@ Langelier Saturation Index (LSI) - describes the potential for calcium carbonate
 Larson-skold Index (LI) - describes the corrosivity towards mild steel
 Chloride-to-sulfate mass ratio (CSMR) - indicator of galvanic corrosion for lead solder pipe joints
 Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium
-A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that can be dissolved in the water. A negative CCPP
-indicates how much CaCO3 will precipitate from solution.
+A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP
+indicates how much CaCO3 can be dissolved in the water.
 }
 \seealso{
 \code{\link{define_water}}
 
  @examples
-water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 450, cl = 150, so4 = 200) %>%
+water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
  calculate_corrosion()
- 
- water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50) %>%
+
+ water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
 calculate_corrosion(index = c("aggressive", "ccpp"))
 }

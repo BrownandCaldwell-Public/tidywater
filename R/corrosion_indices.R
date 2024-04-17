@@ -12,8 +12,8 @@
 #' Larson-skold Index (LI) - describes the corrosivity towards mild steel
 #' Chloride-to-sulfate mass ratio (CSMR) - indicator of galvanic corrosion for lead solder pipe joints
 #' Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium
-#' A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that can be dissolved in the water. A negative CCPP
-#' indicates how much CaCO3 will precipitate from solution.
+#' A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP
+#' indicates how much CaCO3 can be dissolved in the water.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param index The indices to be calculated. 
@@ -23,10 +23,10 @@
 #' @seealso \code{\link{define_water}}
 #'
 #'  @examples
-#' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 450, cl = 150, so4 = 200) %>%
+#' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
 #'  calculate_corrosion()
-#'  
-#'  water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50) %>%
+#' 
+#'  water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
 #' calculate_corrosion(index = c("aggressive", "ccpp"))
 #'
 #' @export
@@ -91,7 +91,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Vaterite in CO2-H2O Solutions between 0 and 90 Degrees C, and an Evaluation
   # of the Aqueous Model for the System CaCO3-CO2-H2O," Geochim. Cosmochim.
   # Acta, 46, 1, 1011–1023.
-  
+
   # Langelier, W. (1936) "The Analytical Control of Anti-Corrosion Water Treatment,"
   # J. AWWA, 28, 11, 1500–1522.
 
@@ -101,10 +101,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   tempa = water@temp + 273.15
   #mixed solubility constant for CaCO3
   log_kso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #From Plummer and Busenberg (1982), MWH table 22-9
-  active_1 = calculate_activity(1, water@is, water@temp) 
-  active_2 = calculate_activity(2, water@is, water@temp)
+
   alk_mol = convert_units(water@alk, "caco3", startunit = "mg/L CaCO3")
-  ph_s = log_k2 - log_kso - log10(water@ca) - log10(alk_mol) - log10(active_1) - log10(active_2) # from MWH eq 22-30, doesn't include activity adjustments shown here (that's from chris)
+  ph_s = log_k2 - log_kso - log10(water@ca) - log10(alk_mol) # from MWH eq 22-30
 
   ###########################################################################################*
   # LANGELIER ------------------------------
@@ -159,7 +158,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
                              upper = 1,
                              extendInt = "yes")
     
-    water@ccpp <- root_x$root
+    water@ccpp <- -root_x$root
   }
   
   return(water)

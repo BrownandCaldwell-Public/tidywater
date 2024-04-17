@@ -7,7 +7,7 @@ test_that("most indices won't work without ca, cl, so4", {
   expect_equal(water@aggressive, NA_real_)
   expect_equal(water@ryznar, NA_real_)
   expect_equal(water@langelier, NA_real_)
-  expect_equal(round(water@ccpp), 9)
+  expect_equal(round(water@ccpp), -9)
   expect_equal(water@larsonskold, 0)
   expect_equal(water@csmr, NA_real_)
   
@@ -84,10 +84,10 @@ test_that("langelier works", {
   water4 <- suppressWarnings(define_water(ph =6.9, temp = 25, alk = 5, ca_hard = 50, tds = 30)) %>%
     calculate_corrosion(index = "langelier")
   
-  expect_equal(round(water1@langelier, 1), 0.4) #high alk
-  expect_equal(round(water2@langelier, 1), -1.2) #low alk
-  expect_equal(round(water3@langelier, 1), 0.4) #use tot_hard to get ca
-  expect_equal(round(water4@langelier), -3) #low ph, alk, and hard to simulte highly corrosive water
+  expect_equal(round(water1@langelier, 1), 0.6) #high alk
+  expect_equal(round(water2@langelier, 1), -1.1) #low alk
+  expect_equal(round(water3@langelier, 1), 0.6) #use tot_hard to get ca
+  expect_equal(round(water4@langelier), -2) #low ph, alk, and hard to simulte highly corrosive water
 })
 
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
@@ -129,10 +129,10 @@ test_that("ccpp works", {
   water5 <- suppressWarnings(define_water(ph = 6.85, temp = 25, alk = 80, ca_hard = 80, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")
   
-  expect_equal(round(water1@ccpp), -17) #high alk
-  expect_equal(round(water2@ccpp, 1), 1.2) #low alk
-  expect_equal(round(water3@ccpp), -16) #use tot_hard to get ca
-  expect_equal(round(water4@ccpp), 4) #low ca
-  expect_equal(round(water5@ccpp), 33) #low pH
+  expect_equal(round(water1@ccpp), 17) #high alk
+  expect_equal(round(water2@ccpp, 1), -1.5) #low alk
+  expect_equal(round(water3@ccpp), 16) #use tot_hard to get ca
+  expect_equal(round(water4@ccpp), -5) #low ca
+  expect_equal(round(water5@ccpp), -34) #low pH
 })
 
