@@ -28,10 +28,10 @@
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
 #' @examples
-#' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
 #' chemdose_dbp(cl2 = 2, time = 8)
-#' example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2, br = 50)) %>%
-#' chemdose_dbp(cl2 = 2, time = 8, water_type = "untreated")
+#' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 #'
 #' @export
 #'
@@ -171,15 +171,15 @@ bulk_dbp <- corrected_dbp_1%>%
 
 individual_dbp <- corrected_dbp_1%>%
   filter(!(ID %in% c("tthm", "haa5")),
-         !(group %in% c("haa6", "haa9")))%>%
-  group_by(group)%>%
+         !(group %in% c("haa6", "haa9"))) %>%
+  group_by(group) %>%
   mutate(sum_group = sum(modeled_dbp),
-         proportion_group = modeled_dbp/sum_group)%>%
-  left_join(bulk_dbp[group:modeled_dbp], by="group", suffix=c("_ind", "_bulk"))%>%
+         proportion_group = modeled_dbp/sum_group) %>%
+  left_join(bulk_dbp[, c("group", "modeled_dbp")], by="group", suffix=c("_ind", "_bulk")) %>%
   mutate(modeled_dbp = proportion_group*modeled_dbp_bulk)
 
-corrected_dbp_2 <- individual_dbp%>%
-  select(ID, group, modeled_dbp)%>%
+corrected_dbp_2 <- individual_dbp %>%
+  select(ID, group, modeled_dbp) %>%
   rbind(bulk_dbp)
 
 # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10

@@ -21,10 +21,12 @@ chemdose_dbp(
 \item{time}{Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.}
 
 \item{treatment}{Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
-water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon.
+water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
 GAC treatment has also been used for estimating formation after membrane treatment with good results.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
+
+\item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
 }
 \description{
 \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
@@ -32,7 +34,7 @@ Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an obje
 created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 The function also requires additional water quality parameters defined in \code{define_water}
 including bromide, TOC, UV254, temperature, and pH.
-The function will calculate haloacetic acids (HAA) as HAA5, HAA6, or HAA9, as well as
+The function will calculate haloacetic acids (HAA) as HAA5, and
 total trihalomethanes (TTHM).
 The function returns a new object of class "water" with predicted DBP concentrations.
 Use \code{summarise_dbp} to quickly tabulate the results.
@@ -45,9 +47,9 @@ TTHMs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-139
 HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142
 }
 \examples{
-example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
 chemdose_dbp(cl2 = 2, time = 8)
-example_dbp <- suppressWarnings(define_water(8, 25, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
-chemdose_dbp(cl2 = 2, time = 8, water_type = "untreated")
+example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 
 }

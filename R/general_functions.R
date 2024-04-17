@@ -268,7 +268,7 @@ methods::setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br = NA_real_) {
+                         toc, doc, uv254, br) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -299,6 +299,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tds = ifelse(missing(tds), NA_real_, tds)
 
   cond = ifelse(missing(cond), NA_real_, cond)
+  br = ifelse(missing(br), 0, br)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
