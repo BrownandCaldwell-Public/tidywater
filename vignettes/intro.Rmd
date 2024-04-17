@@ -22,8 +22,7 @@ knitr::opts_chunk$set(
 The tidywater package allows you to quickly model complex water quality and treatment processes using the R programming language. First, install the tidywater package from ____ and load the library. 
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-#install.packages("tidywater") #placeholder
-devtools::load_all()
+
 library(tidywater)
 
 ```
