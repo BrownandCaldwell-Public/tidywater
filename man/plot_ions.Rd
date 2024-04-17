@@ -4,12 +4,10 @@
 \alias{plot_ions}
 \title{Create summary plot of ions from water class}
 \usage{
-plot_ions(water, title = "")
+plot_ions(water)
 }
 \arguments{
 \item{water}{Source water vector created by link function here}
-
-\item{title}{Optional plot title}
 }
 \description{
 This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
