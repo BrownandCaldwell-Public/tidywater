@@ -1,0 +1,56 @@
+---
+title: "Intro to tidywater: Basic functions"
+author: "R. Mulhern"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Getting started
+
+The tidywater package allows you to quickly model complex water quality and treatment processes using the R programming language. First, install the tidywater package from ____ and load the library. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#install.packages("tidywater") #placeholder
+devtools::load_all()
+library(tidywater)
+
+```
+
+## Define water
+
+The first step for any modelling project using tidywater is to define your starting water quality. This can be done using the `define_water` function. This function allows you to input everything you know about your water and creates a unique object of class "water". The "water" class is the building block of tidywater and allows you to keep track of all the changes in your water through various water treatment processes in a tidy way. Think of the "water" class as a snapshot of everything that is known about a water at each step. 
+
+To start, let's create an empty water class. 
+
+```{r, echo=TRUE}
+empty_water <- define_water()
+```
+
+Notice that several warnings are generated about the water class. `define_water` will provide warnings noting the assumptions and limitations of the water class depending on how much information you provided. For example, since we did not provide any information about the water's pH or alkalinity, the carbonate balance cannot be calculated. Similarly, since we did not provide any information about major ions in the water, information about the water's hardness and ionic strength are missing. 
+
+Even so, we successfully created our first water class! You can view all the information that a water class can contain--including general parameters, carbon content, corrosivity indicators, major cations and anions, and disinfection byproducts (DBPs)--by printing our empty water. Different functions within tidywater will allow you to model all these parameters and more. 
+
+```{r, echo=TRUE}
+print(empty_water)
+```
+So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and a few of the ions. `define_water` accepts alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L. 
+
+```{r, echo=TRUE}
+water <- define_water(ph=7.5, alk=100, temp=20, na=5, ca=20, cl=8)
+```
+See that the ions aren't balanced...
+
+```{r, echo=TRUE}
+plot_ions(water)
+```
+
+Let's see what happens when we use `balance_ions` to estimate the missing ion concentrations. 
+
+```{r, echo=TRUE}
+water_balanced <- balance_ions(water)
+plot_ions(water_balanced)
+```
