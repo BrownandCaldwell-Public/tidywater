@@ -286,14 +286,19 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  if (missing(tot_hard)) {
+  if (missing(tot_hard) & missing(ca_hard)) {
     tot_hard = 0
-    warning("Missing value for total hardness. Default value of 0 will be used.")
+    ca_hard = 0
   }
+  
+  if (missing(tot_hard)) {
+    tot_hard = ca_hard / 0.65
+    warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
+  } 
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
-    warning("Missing value for calcium hardness. Default value of 65% of total will be used.")
+    warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)

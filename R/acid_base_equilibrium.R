@@ -67,6 +67,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
 #'
@@ -86,11 +87,19 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
 #' dosed_water2@ph
 #'
+#' # Softening:
+#' water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
+#' dosed_water1 <- chemdose_ph(water2, caco3 = -100)
+#' dosed_water1@ph
+#' dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
+#' dosed_water2@ph
+#'
 #' @export
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 =0, caoh2 = 0, mgoh2 = 0,
-                          cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                          alum = 0, fecl3 = 0, fe2so43 = 0) {
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 = 0, caoh2 = 0, mgoh2 = 0,
+                        cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                        alum = 0, fecl3 = 0, fe2so43 = 0,
+                        softening_correction = FALSE) {
 
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
@@ -191,6 +200,12 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Calculate new pH, H+ and OH- concentrations
   ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
+  
+  if (softening_correction == TRUE & caco3 < 0) {
+    ph_corrected = (ph - 1.86) / 0.71 #WTP Model eq 5-62
+    ph = ph_corrected
+  }
+  
   h = 10^-ph
   oh = dosed_water@kw / h
 
@@ -222,6 +237,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@h = h
   dosed_water@oh = oh
   dosed_water@treatment <- paste(dosed_water@treatment, "_chemdosed", sep = "")
+  
+  # update total hardness
+  dosed_water@tot_hard = convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
 
   return(dosed_water)
 }
