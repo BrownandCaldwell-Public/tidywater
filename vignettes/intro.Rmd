@@ -1,0 +1,134 @@
+---
+title: "Introduction to tidywater: Basic functions"
+author: "R. Mulhern, Libby McKenna"
+description: "This vignette will detail how to use the tidywater base functions for basic water quality analysis."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Getting started
+
+The tidywater package allows you to quickly model complex water quality and treatment processes using the R programming language. First, install the tidywater package from ____ and load the library. 
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#install.packages("tidywater") #placeholder
+devtools::load_all()
+library(tidywater)
+
+```
+
+## Define water
+
+The first step for any modelling project using tidywater is to define your starting water quality. This can be done using the `define_water` function. This function allows you to input everything you know about your water (pH, alkalinity, temperature etc) and creates a unique object of class "water" (for more details, look up <a href = "https://adv-r.hadley.nz/s4.html"> R's S4 class</a>). The "water" class is the building block of tidywater and allows you to keep track of all the changes in your water through various water treatment processes in a tidy way. Think of the "water" class as a snapshot of everything that is known about a water at each step.
+
+Why does tidywater depend on this special class instead of just using a dataframe? The developers wanted to standardize inputs and set up a data structure that would reduce user error. Funneling users through `define_water` reduces naming errors in downstream functions. It also ensures that all slots have the proper data class. For example, `ph` must always be a number, and `treatment` is always a character.
+
+To start, let's create an empty water class. 
+
+```{r, echo=TRUE}
+empty_water <- define_water()
+```
+
+Notice that several warnings are generated about the water class. `define_water` will provide warnings noting the assumptions and limitations of the water class depending on how much information you provided. For example, since we did not provide any information about the water's pH or alkalinity, the carbonate balance cannot be calculated. Similarly, since we did not provide any information about major ions in the water, information about the water's hardness and ionic strength are missing. 
+
+Even so, we successfully created our first water class! You can view all the information that a water class can contain--including general parameters, carbon content, corrosivity indicators, major cations and anions, and disinfection byproducts (DBPs)--by printing `empty_water`. Different functions within tidywater will allow you to model all these parameters and more. 
+
+```{r, echo=TRUE}
+print(empty_water)
+```
+So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and sodium. `define_water` accepts alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L. 
+
+Notice that the slots for `ph`, `alk`, `temp`,and `na` are now populated when we print out the resulting `water`. The `na` slot is output as mol/L (M). 
+```{r, warning=FALSE}
+water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 5)
+water
+```
+
+If you have a huge data frame where you need to apply `define_water` and subsequent modeling functions, it won't be possible to manually enter your pH, alkalinity etc for 5,000 rows. Instead, you'll name your columns as `ph`, `alk`, `temp` etc, then use tidywater's helper functions. Please see the `helper_functions` vignette for large data processing (paste this in the console: `vignette("helper_functions", package = "tidywater")`). 
+
+Back to our single use case, you'll notice one of the warnings alerts the user to missing cations and/or anions, and that you should use `balance_ions` to correct this. `balance_ions` automatically adds in sodium, potassium, chloride, or sulfate until anions + cations = 0. To see how this works we'll use the `plot_ions` function on our `water` object to see what the current ion balance looks like. Notice that the cation and anion bars are not equal.
+
+```{r, echo=TRUE}
+plot_ions(water)
+```
+
+Let's see what happens when we use `balance_ions` to estimate the missing ion concentrations. 
+
+```{r, , warning=FALSE}
+balanced_water <- water %>% balance_ions()
+plot_ions(balanced_water)
+```
+
+Now that `water` is balanced, you can see that the potassium concentration was increased. Use the "@" symbol to index a water slot.
+```{r}
+water@k
+balanced_water@k
+```
+
+The potassium units are in M. What if you want to know what that is in mg/L? Use the `convert_units` function.
+```{r}
+convert_units(value = balanced_water@k, formula = "k", startunit = "M", endunit = "mg/L")
+convert_units(value = 0.001780775, formula = "k", startunit = "M", endunit = "mg/L")
+```
+
+So,`define_water` standardizes user inputs and sets up the data for downstream tidywater functions (as shown with `plot_ions` and `balance_ions`). But it does more than organize your data! Given the correct inputs, it can calculate the carbonate balance, ionic strength, hardness, and TOC/DOC. 
+
+Above, you'll see that the bicarbonate, carbonate, total carbonate, H+ and OH- ion slots were populated because pH and alkalinity were included in `define_water`. We're still missing hardness, TOC or DOC, and ionic strength. Here are some examples of how `define_water` can calculate these with the correct inputs.
+
+When only `tot_hard` is provided, calcium hardness is assumed to be 65% of total, and magnesium hardness is total - calcium hardness. When only `ca_hard` is provided, `tot_hard` is assumed to be 1/0.65 of calcium hardness. 
+
+```{r, warning=FALSE}
+# Calculate hardness or calcium hardness
+hard_water <- define_water(8, 20, 100, tot_hard = 150)
+hard_water@ca # ca output is in M
+hard_water@mg # mg output is in M
+
+hard_water_2 <-  define_water(8, 20, 100, ca_hard = 50)
+hard_water_2@tot_hard # tot_hard output is mg/L as CaCO3
+hard_water_2@mg
+
+```
+
+
+TOC and DOC inputs operate similar to hardness. If `toc` is provided, `doc` is assumed to be 95% of the TOC. If only `doc` is provided, `toc` is assumed to be DOC * 1/0.95.
+
+```{r, warning=FALSE}
+# Calculate TOC and DOC
+toc_water <- define_water(8, 20, 100, toc = 3)
+toc_water@toc # mg/L
+toc_water@doc # mg/L
+
+doc_water <-  define_water(8, 20, 100, doc = 1.3)
+doc_water@toc # mg/L
+doc_water@doc # mg/L
+```
+
+Finally, let's see how `define_water` handles ionic strength (`is`). The `is` calculation requires total dissolved solids (`tds`), conductivity (`cond`), `ca` or `na`, `cl` or `so4`, and `alk`.
+
+```{r, warning=FALSE}
+# Calculate ionic strength (is)
+tds_water <- define_water(8, 20, 100, tds = 200)
+tds_water@is # unitless
+
+cond_water <-  define_water(8, 20, 100, cond = 1000)
+cond_water@is 
+
+ion_water <-  define_water(8, 20, 100, tot_hard = 100, so4 = 30)
+ion_water@is 
+```
+
+Don't worry, `define_water` will warn the user when a calculation assumption is made. If you're tired of the warnings, you can use `suppressWarnings()` to clean up your console.
+```{r}
+so_clean <- suppressWarnings(define_water(8, 20, 100, tds = 200))
+```
