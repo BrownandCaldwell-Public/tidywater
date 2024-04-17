@@ -58,13 +58,13 @@ If you have a huge data frame where you need to apply `define_water` and subsequ
 
 Back to our single use case, you'll notice one of the warnings alerts the user to missing cations and/or anions, and that you should use `balance_ions` to correct this. `balance_ions` automatically adds in sodium, potassium, chloride, or sulfate until anions + cations = 0. To see how this works we'll use the `plot_ions` function on our `water` object to see what the current ion balance looks like. Notice that the cation and anion bars are not equal.
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, fig.width=7}
 plot_ions(water)
 ```
 
 Let's see what happens when we use `balance_ions` to estimate the missing ion concentrations. 
 
-```{r, , warning=FALSE}
+```{r, , warning=FALSE, fig.width=7}
 balanced_water <- water %>% balance_ions()
 plot_ions(balanced_water)
 ```
