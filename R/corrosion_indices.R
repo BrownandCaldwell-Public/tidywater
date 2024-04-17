@@ -145,6 +145,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   if ("ccpp" %in% index) {
     K_so = 10^-log_kso
+    active_2 = calculate_activity(2, water@is, water@temp)
     
     solve_x <- function(x, water) {
       water2 <- chemdose_ph(water, caco3 = x)
