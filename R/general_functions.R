@@ -285,11 +285,11 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     tot_hard = 0
     ca_hard = 0
   }
-  
+
   if (missing(tot_hard)) {
     tot_hard = ca_hard / 0.65
     warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-  } 
+  }
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
@@ -306,8 +306,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
-  
-    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
+
+    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use plot_ions to visualize ion balance and balance_ions to correct.")
   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
@@ -517,14 +517,14 @@ plot_ions <- function(water) {
     OCl = water@ocl,
     H = water@h,
     OH = water@oh)
- 
-  ions %>% 
+
+  ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%  
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
-    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type, 
+    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
            label_y = case_when(type == "Cations" ~ 2-.2, TRUE ~ 1-.2)) %>%
-    
+
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
     geom_bar(stat = "identity",
              width = 0.5,
@@ -533,7 +533,7 @@ plot_ions <- function(water) {
     geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
               size = 3.5) +
     ggrepel::geom_text_repel(aes(x = label_pos, y = label_y,
-                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""), 
+                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
                                  fontface = "bold"),
                              size = 3.5,
                              nudge_y = -.2,
@@ -828,8 +828,11 @@ balance_ions <- function(water) {
   water@so4 <- so4_new
   water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
-  return(water)
+  if (is.na(water@tds) & is.na(water@cond)) {
+    water@is = calculate_ionicstrength(water)
+  }
 
+  return(water)
 }
 
 
