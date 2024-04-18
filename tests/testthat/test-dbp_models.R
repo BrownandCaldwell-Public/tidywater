@@ -56,7 +56,7 @@ test_that("chemdose_dbp works.", {
   expect_equal(round(water3@tthm), 59)
   expect_equal(round(water3@haa5), 48)
   expect_equal(round(water4@haa5), 69)
-  expect_equal(round(water6@haa5), 11)
+  expect_equal(round(water6@haa5), 12)
 })
 
 
