@@ -95,18 +95,14 @@ NULL
 #' @keywords datasets
 #' @name leadsol_constants
 #' @format A dataframe with 38 rows and 3 columns
-
 #' @format Solids:
 #' \describe{
 #' \item{species_name}{Name of lead solid or complex with possible _letter to cite different references}
 #' \item{constant_name}{Reference ID for constants}
 #' \item{log_value}{Equilibrium constant log value}
 #' \item{source}{Source for equilibrium constant value}
-
 #' }
 #'
-
-
 #' @source Benjamin, M. M. (2002) Water Chemistry, 1st Edition, McGraw-Hill, New York, NY.
 #' @source Lothenbach, B., Ochs, M., Wanner, H. & Yui, M. (1999) Thermodynamic Data for the Speciation and Solubility of Pd, Pb, Sn, Sb, Nb and Bi in Aqueous Solution. Japan Nuclear Cycle Development Institute, Ibaraki, Japan.
 #' @source Nasanen, R. & Lindell, E. (1976) Studies on Lead(II) Hydroxide Salts. Part I. The Solubility Product of Pb(OH)Cl, Finnish Chemical Letters, 95.
@@ -117,7 +113,6 @@ NULL
 #' @source Xie, L. & Giammar, D.E. (2007) Equilibrium Solubility and Dissolution Rate of the Lead Phosphate Chloropyromorphite. Environmental Science & Technology, 41:23:8050.
 #' @source Zhu, Y.N., Zhu, Z.Q., Zhao, X., Liang, Y.P. & Huang, Y.H. (2015) Characterization, Dissolution, and Solubility of Lead Hydroxypyromorphite [Pb5(PO4)3OH] at 25-45 °C. Journal of Chemistry, 2015:269387:1.
 #' @source Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships. AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
-
 "leadsol_constants"
 
 #' Data frame of DBP coefficients for predicting DBP formation
@@ -141,7 +136,38 @@ NULL
 #' \item{f}{Seventh coefficient in DBP model, associated with reaction time}
 #' }
 #'
-
-
 #' @source Amy et al. (1998)
 "dbpcoeffs"
+
+#' Data frame of conversion factors for estimating DBP formation from chloramines
+#'
+#' A dataset containing conversion factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name conv_chloramine
+#' @format A dataframe with 17 rows and 3 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{percent}{specifies the percent of DBP formation predicted from chloramines compared to chlorine, assuming the same chlorine dose applied}
+#' }
+#' @source U.S. EPA (2001), Table 5-10
+"conv_chloramine"
+
+#' Data frame of correction factors for estimating DBP formation as a function of location
+#'
+#' A dataset containing correction factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbp_correction
+#' @format A dataframe with 17 rows and 4 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{plant}{specifies the correction factor for modelling DBP formation within a treatment plant}
+#' \item{ds}{specifies the correction factor for modelling DBP formation within the distribution system}
+#' }
+#' @source U.S. EPA (2001), Table 5-7
+"dbp_correction"
