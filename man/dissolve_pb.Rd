@@ -22,7 +22,7 @@ dissolve_pb(
 }
 \description{
 This function takes a water data frame defined by \code{\link{define_water}}
-and outputs a dataframe of the controlling lead solid and total lead solubility. 
+and outputs a dataframe of the controlling lead solid and total lead solubility.
 Lead solid solubility is calculated based on controlling solid.
 Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
 Some lead solids have two k-constant options. The function will default to the EPA's default constants.
@@ -36,23 +36,23 @@ ca, na, cl, so4 are used in define_water so that an ionic strength is calculated
 
 Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
 which is licensed under MIT License:
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
-associated documentation files (the "Software"), to deal in the Software without restriction, 
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the 
-following conditions: The above copyright notice and this permission notice shall be included in all copies or 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions: The above copyright notice and this permission notice shall be included in all copies or
 substantial portions of the Software.
 
-Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). 
+Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021).
 Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
 AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 }
 \examples{
 
 example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) \%>\%
- dissolve_pb()
+  dissolve_pb()
 example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) \%>\%
- dissolve_pb(pyromorphite = "Xie")
+  dissolve_pb(pyromorphite = "Xie")
 
 }
 \seealso{
