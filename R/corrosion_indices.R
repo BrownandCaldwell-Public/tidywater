@@ -125,7 +125,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
    if ("ryznar" %in% index) {
      water@ryznar <- 2*ph_s - water@ph
      
-     if(water@ryznar == -Inf | water@ryznar == Inf){
+     if(is.infinite(water@ryznar)){
        water@ryznar <- NA_real_
      }
   }
