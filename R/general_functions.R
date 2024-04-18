@@ -54,9 +54,6 @@ methods::setClass("water",
     larsonskold = "numeric",
     csmr = "numeric",
 
-    # Miscellaneous
-    treatment = "character",
-
     # DBPs
     chcl3 = "numeric", #chloroform
     chcl2br = "numeric", #bromodichloromethane
@@ -77,7 +74,10 @@ methods::setClass("water",
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
     tbaa = "numeric", #tribromoacetic acid
-    haa9 = "numeric"
+    haa9 = "numeric",
+
+    # Miscellaneous
+    treatment = "character"
   ),
 
   prototype(
@@ -129,9 +129,6 @@ methods::setClass("water",
     larsonskold = NA_real_,
     csmr = NA_real_,
 
-    # Miscellaneous
-    treatment = "defined",
-
     # DBPs
     chcl3 = NA_real_, #chloroform
     chcl2br = NA_real_, #bromodichloromethane
@@ -152,7 +149,10 @@ methods::setClass("water",
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
     tbaa = NA_real_, #tribromoacetic acid
-    haa9 = NA_real_
+    haa9 = NA_real_,
+
+    # Miscellaneous
+    treatment = "defined"
   ))
 
 methods::setMethod("show",
@@ -206,9 +206,6 @@ methods::setMethod("show",
     cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
     cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
 
-    # Miscellaneous
-    cat("Treatment applied to water class:", object@treatment, "\n")
-
     # DBPs
     cat("Chloroform (ug/L): ", object@chcl3, "\n")
     cat("Bromodichloromethane (ug/L): ", object@chcl2br, "\n")
@@ -230,6 +227,9 @@ methods::setMethod("show",
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
     cat("Sum of 9 haloacetic acids (ug/L): ", object@haa9, "\n")
+
+    # Miscellaneous
+    cat("Treatment applied to water class:", object@treatment, "\n")
 })
 
 
@@ -268,7 +268,7 @@ methods::setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br = NA_real_) {
+                         toc, doc, uv254, br) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -299,6 +299,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tds = ifelse(missing(tds), NA_real_, tds)
 
   cond = ifelse(missing(cond), NA_real_, cond)
+  br = ifelse(missing(br), NA_real_, br)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
@@ -515,14 +516,14 @@ plot_ions <- function(water) {
     OCl = water@ocl,
     H = water@h,
     OH = water@oh)
- 
-  ions %>% 
+
+  ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%  
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
-    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type, 
+    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
            label_y = case_when(type == "Cations" ~ 2-.2, TRUE ~ 1-.2)) %>%
-    
+
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
     geom_bar(stat = "identity",
              width = 0.5,
@@ -531,7 +532,7 @@ plot_ions <- function(water) {
     geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
               size = 3.5) +
     ggrepel::geom_text_repel(aes(x = label_pos, y = label_y,
-                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""), 
+                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
                                  fontface = "bold"),
                              size = 3.5,
                              nudge_y = -.2,

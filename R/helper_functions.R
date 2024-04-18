@@ -10,7 +10,7 @@
 #' This converts a water class to a dataframe with individual columns for each slot (water quality parameter) in the water.
 #' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
 #' there may be a `fn_once` tidywater function that provides a more efficient solution.
-#' 
+#'
 #'
 #' @param water A "water" class object
 #'
@@ -44,10 +44,10 @@ convert_water <- function(water) {
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' It outputs all carbonate calculations and other parameters in a data frame.
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -66,7 +66,7 @@ convert_water <- function(water) {
 #'# Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>% define_water_once()
-#' 
+#'
 #' #Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
@@ -87,10 +87,10 @@ define_water_once <- function(df) {
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -109,7 +109,7 @@ define_water_once <- function(df) {
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
-#' 
+#'
 #' example_df <- water_df %>%
 #' define_water_chain(output_water = "This is a column of water") %>%
 #' balance_ions_once(input_water ="This is a column of water")
@@ -119,7 +119,7 @@ define_water_once <- function(df) {
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_once()
-#' 
+#'
 #' #' #Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
@@ -127,8 +127,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4", "tds", "cond",
-                         "toc", "doc", "uv254")
+  define_water_args <- c(slotNames("water"), "ca_hard", "tot_hard")
 
   extras <- df %>%
     select(!any_of(define_water_args))
@@ -145,10 +144,10 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a dataframe with updated ions depending on starting concentrations
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -179,7 +178,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #'
 #' #Optional: explicitly close multisession processing
 #' plan(sequential)
-#' 
+#'
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
@@ -196,10 +195,10 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -224,7 +223,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' define_water_chain() %>%
 #' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
 #' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
-#' 
+#'
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
@@ -257,10 +256,10 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 #'
 #' tidywater functions cannot be added after this function because they require a water class input.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -304,9 +303,9 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'   mutate(hcl = seq(1,12, 1),
 #'          naoh = 20) %>%
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
-#'  
-#'# Initialize parallel processing   
-#' plan(multisession)   
+#'
+#'# Initialize parallel processing
+#' plan(multisession)
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
@@ -352,8 +351,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -405,10 +404,10 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' define_water_chain() %>%
 #' balance_ions_chain() %>%
 #' chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
-#' 
+#'
 #' #Optional: explicitly close multisession processing
 #' plan(sequential)
-#' 
+#'
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
@@ -416,7 +415,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                                na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                                cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                                alum = 0, fecl3 = 0, fe2so43 = 0, caco3 =0) {
- 
+
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
                             na2co3, nahco3, caoh2, mgoh2,
                             cl2, naocl, caocl2, co2,
@@ -497,10 +496,10 @@ if(nrow(chem_inputs_arg) == 1) {
 #' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
 #' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
 #' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
-#' 
+#'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -550,7 +549,7 @@ if(nrow(chem_inputs_arg) == 1) {
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
- 
+
   dosable_chems <-  tibble(
     # hcl = 0, h2so4 = 0, h3po4 = 0,
                            co2 = 0,
@@ -600,8 +599,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #' tidywater functions cannot be added after this function because they require a water class input.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -692,8 +691,8 @@ for(row in 1:length(df_subset[[1]])) {
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use 
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
@@ -718,7 +717,7 @@ for(row in 1:length(df_subset[[1]])) {
 #'chemdose_ph_chain(naoh = 22) %>%
 #'mutate(ratios1 = .4,
 #'       ratios2 = .6) %>%
-#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), 
+#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"),
 #'ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 #'
 #'
