@@ -181,7 +181,7 @@ individual_dbp <- corrected_dbp_1%>%
   left_join(bulk_dbp, by="group", suffix=c("_ind", "_bulk")) %>%
   mutate(modeled_dbp = proportion_group*modeled_dbp_bulk)
 
-corrected_dbp_2.1 <- individual_dbp %>%
+corrected_dbp_2 <- individual_dbp %>%
   select(ID_ind, group, modeled_dbp) %>%
   rename(ID = ID_ind) %>% 
   rbind(bulk_dbp)
