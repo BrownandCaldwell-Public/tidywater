@@ -69,7 +69,7 @@ balanced_water <- water %>% balance_ions()
 plot_ions(balanced_water)
 ```
 
-Now that `water` is balanced, you can see that the potassium concentration was increased. Use the "@" symbol to index a water slot.
+Now that `water` is balanced, you can see that the potassium concentration was increased. Use the "@" symbol to access a slot in a water class object.
 ```{r}
 water@k
 balanced_water@k
