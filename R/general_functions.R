@@ -72,12 +72,10 @@ methods::setClass("water",
     haa5 = "numeric",
 
     bcaa = "numeric", #bromochloroacetic acid
-    haa6 = "numeric",
 
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
-    tbaa = "numeric", #tribromoacetic acid
-    haa9 = "numeric"
+    tbaa = "numeric" #tribromoacetic acid
   ),
 
   prototype(
@@ -147,12 +145,11 @@ methods::setClass("water",
     haa5 = NA_real_,
 
     bcaa = NA_real_, #bromochloroacetic acid
-    haa6 = NA_real_,
 
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
-    tbaa = NA_real_, #tribromoacetic acid
-    haa9 = NA_real_
+    tbaa = NA_real_ #tribromoacetic acid
+
   ))
 
 methods::setMethod("show",
@@ -224,12 +221,10 @@ methods::setMethod("show",
     cat("Sum of 5 haloacetic acids (ug/L): ", object@haa5, "\n")
 
     cat("Bromochloroacetic acid (ug/L): ", object@bcaa, "\n")
-    cat("Sum of 6 haloacetic acids (ug/L): ", object@haa6, "\n")
 
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-    cat("Sum of 9 haloacetic acids (ug/L): ", object@haa9, "\n")
 })
 
 
@@ -268,7 +263,7 @@ methods::setMethod("show",
 #' @export
 #'
 define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br = NA_real_) {
+                         toc, doc, uv254, br) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
@@ -304,12 +299,14 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tds = ifelse(missing(tds), NA_real_, tds)
 
   cond = ifelse(missing(cond), NA_real_, cond)
+  br = ifelse(missing(br), 0, br)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
+  
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
@@ -581,18 +578,16 @@ summarise_dbp <- function(water) {
                     Dibromoacetic_acid = ifelse(length(water@dbaa)==0, NA, water@dbaa),
                     Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5),
                     Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-                    Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
                     Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
                     Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-                    Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa))
 
   thms = thms %>%
     pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_9_haloacetic_acids), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroacetic_acid:Tribromoacetic_acid), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   thms = knitr::kable(thms,
