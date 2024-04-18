@@ -54,6 +54,9 @@ methods::setClass("water",
     larsonskold = "numeric",
     csmr = "numeric",
 
+    # Miscellaneous
+    treatment = "character",
+
     # DBPs
     chcl3 = "numeric", #chloroform
     chcl2br = "numeric", #bromodichloromethane
@@ -73,10 +76,7 @@ methods::setClass("water",
 
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
-    tbaa = "numeric", #tribromoacetic acid
-
-    # Miscellaneous
-    treatment = "character"
+    tbaa = "numeric" #tribromoacetic acid
   ),
 
   prototype(
@@ -128,6 +128,9 @@ methods::setClass("water",
     larsonskold = NA_real_,
     csmr = NA_real_,
 
+    # Miscellaneous
+    treatment = "defined",
+
     # DBPs
     chcl3 = NA_real_, #chloroform
     chcl2br = NA_real_, #bromodichloromethane
@@ -147,10 +150,7 @@ methods::setClass("water",
 
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
-    tbaa = NA_real_, #tribromoacetic acid
-
-    # Miscellaneous
-    treatment = "defined"
+    tbaa = NA_real_ #tribromoacetic acid
   ))
 
 methods::setMethod("show",
@@ -204,6 +204,9 @@ methods::setMethod("show",
     cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
     cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
 
+    # Miscellaneous
+    cat("Treatment applied to water class:", object@treatment, "\n")
+
     # DBPs
     cat("Chloroform (ug/L): ", object@chcl3, "\n")
     cat("Bromodichloromethane (ug/L): ", object@chcl2br, "\n")
@@ -224,9 +227,6 @@ methods::setMethod("show",
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-
-    # Miscellaneous
-    cat("Treatment applied to water class:", object@treatment, "\n")
 })
 
 
@@ -296,7 +296,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   tds = ifelse(missing(tds), NA_real_, tds)
 
   cond = ifelse(missing(cond), NA_real_, cond)
-  br = ifelse(missing(br), NA_real_, br)
+  br = ifelse(missing(br), 0, br)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
     na = ifelse(missing(na), 0, na)
