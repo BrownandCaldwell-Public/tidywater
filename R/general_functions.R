@@ -72,7 +72,6 @@ methods::setClass("water",
     haa5 = "numeric",
 
     bcaa = "numeric", #bromochloroacetic acid
-    haa6 = "numeric",
 
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
@@ -146,7 +145,6 @@ methods::setClass("water",
     haa5 = NA_real_,
 
     bcaa = NA_real_, #bromochloroacetic acid
-    haa6 = NA_real_,
 
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
@@ -223,7 +221,6 @@ methods::setMethod("show",
     cat("Sum of 5 haloacetic acids (ug/L): ", object@haa5, "\n")
 
     cat("Bromochloroacetic acid (ug/L): ", object@bcaa, "\n")
-    cat("Sum of 6 haloacetic acids (ug/L): ", object@haa6, "\n")
 
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
@@ -284,14 +281,19 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  if (missing(tot_hard)) {
+  if (missing(tot_hard) & missing(ca_hard)) {
     tot_hard = 0
-    warning("Missing value for total hardness. Default value of 0 will be used.")
+    ca_hard = 0
   }
+  
+  if (missing(tot_hard)) {
+    tot_hard = ca_hard / 0.65
+    warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
+  } 
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
-    warning("Missing value for calcium hardness. Default value of 65% of total will be used.")
+    warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
@@ -304,6 +306,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
+  
     warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
   }
 
@@ -573,20 +576,22 @@ summarise_dbp <- function(water) {
                     Trichloroacetic_acid = ifelse(length(water@tcaa)==0, NA, water@tcaa),
                     Bromoacetic_acid = ifelse(length(water@mbaa)==0, NA, water@mbaa),
                     Dibromoacetic_acid = ifelse(length(water@dbaa)==0, NA, water@dbaa),
-                    Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5),
-                    Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-                    Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
-                    Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
-                    Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-                    Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-                    Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+                    Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5))
+                    # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
+                    # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
+                    # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
+                    # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
+                    # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
+                    # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+
 
   thms = thms %>%
     pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result")%>%
     mutate(result = round(result, 2))
 
   haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_9_haloacetic_acids), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result")%>%
+
     mutate(result = round(result, 2))
 
   thms = knitr::kable(thms,
