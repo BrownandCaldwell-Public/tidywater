@@ -21,7 +21,7 @@ define_water(
   toc,
   doc,
   uv254,
-  br = NA_real_
+  br
 )
 }
 \arguments{
