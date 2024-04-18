@@ -112,7 +112,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("langelier" %in% index) {
     water@langelier <- water@ph - ph_s
     
-    if(water@langelier == -Inf | water@langelier == Inf){
+    if(is.infinite(water@langelier)){
       water@langelier <- NA_real_
     }
   }
