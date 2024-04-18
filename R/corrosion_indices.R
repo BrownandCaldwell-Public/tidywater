@@ -65,7 +65,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
     water@csmr <- cl/so4
     
-    if(is.nan(water@csmr) | water@csmr == Inf){
+    if(is.nan(water@csmr) | is.infinite(water@csmr)){
       water@csmr <- NA_real_
     }
   }
