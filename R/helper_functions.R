@@ -761,7 +761,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' Pluck out a single parameter from a water class object
 #'
 #' This function plucks a selected parameter from a column of water class objects.
-#' To view multiple parameters, please use one of the "fn_once" functions. 
+#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}. 
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}
