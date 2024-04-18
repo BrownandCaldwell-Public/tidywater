@@ -50,7 +50,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
     water@aggressive <- water@ph + log10(water@alk * ca_hard)
     
-    if(water@aggressive == -Inf | water@aggressive == Inf){
+    if(is.infinite(water@aggressive)){
      water@aggressive <- NA_real_
     }
     
