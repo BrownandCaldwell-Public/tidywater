@@ -127,7 +127,8 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c(slotNames("water"), "ca_hard", "tot_hard")
+  define_water_args <- c("ph", "temp", "alk", "tot_hard", "ca_hard", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
+                         "toc", "doc", "uv254", "br")
 
   extras <- df %>%
     select(!any_of(define_water_args))
@@ -760,7 +761,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' Pluck out a single parameter from a water class object
 #'
 #' This function plucks a selected parameter from a column of water class objects.
-#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}. 
+#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
 #'
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}
@@ -779,14 +780,14 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #'
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
-#'   pluck_water(parameter = "tot_co3") 
-#'   
+#'   pluck_water(parameter = "tot_co3")
+#'
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   pluck_water(parameter = "na", output_column = "defined_na") %>%
 #'  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
-#'  
+#'
 #' plan(multisession)
 #' pluck_example <- water_df %>%
 #'  define_water_chain() %>%
@@ -804,9 +805,9 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
   }
   if(is.null(output_column)) {
     output_column = parameter
-  } 
+  }
 
-  df %>% 
+  df %>%
     mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
-  
+
 }

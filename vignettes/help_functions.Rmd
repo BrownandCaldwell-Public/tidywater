@@ -1,5 +1,9 @@
 ---
-title: "help_functions"
+title: "Helper Functions: Blending Multiple Waters"
+# Blending water analysis using tidywater's helper functions
+# Intro to Helper Functions Through a Blending Analysis
+author: "Libby McKenna"
+description: "This vignette will show how to use some of tidywater's helper functions through a water blending analysis."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{help_functions}
@@ -10,11 +14,147 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = ">#"
 )
 ```
 
-```{r setup}
+Let's load our packages. We'll need many `tidyverse` funcitons in addtion to our `tidywater` functions for this analysis.
+
+```{r setup, warning=FALSE}
 library(tidywater)
+library(tidyverse)
 ```
 
+##Blending Analysis Setup
+In this analysis, a drinking water utility sources their water from a river and a lake, which both have high hardness. They are investigating whether blending up to 5 MGD from two groundwater wells will reduce their hardness to a reasonable level, below 200 mg/L as CaCO3. 
+
+## `define_water_chain`
+First, let's take a look at the available groundwater data from Well A and Well B. Notice the use of `define_water_once`.
+
+```{r, warning=FALSE, echo=TRUE}
+
+# Example of how to use a tidywater "_once" function
+data <- tibble(Well = c("A", "B"),
+                ph = c(8, 9),
+                alk = c(100, 150),
+                temp = c(18, 19),
+                ca_hard = c(5, 10),
+                cond = c(500, 900),
+                tds = c(300, 500),
+                na = c(100, 200),
+                k = c(0, 20),
+                cl = c(0, 30),
+                so4 = c(0,0)) %>%
+  define_water_once()
+
+data
+```
+`define_water_once` is the first helper function we'll cover. This function does exactly what `define_water` does, but applies it to a dataframe input. This means once your data has the proper column names, `define_water_once` can add the parameters to each `water` slot, calculate the carbonate balance (and other relevent calculations), and outputs all parameters in the `water` class as a dataframe. Any function with the `_once` suffix in `tidywater` can be used in a piped code block. However, `tidywater` functions cannot be used directly downstream of these types of functions because the data is no longer in a `water` class format. 
+
+So what if you want to chain more tidywater functions together? In that case, you can use `define_water_chain`. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all `tidywater` functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many `tidywater` functions, such as `chemdose_ph`, `solvedose_alk`, etc. Most `tidywater` functions have a `_chain` or `_once` option.
+
+```{r, warning=FALSE, echo=TRUE}
+
+# Read in data from Wells A and B
+raw_wells <- tibble(Well = c("A", "B"),
+                    ph = c(8, 9),
+                    alk = c(100, 150),
+                    temp = c(18, 19),
+                    ca_hard = c(5, 10),
+                    cond = c(500, 900),
+                    tds = c(300, 500),
+                    na = c(100, 200),
+                    k = c(0, 20),
+                    cl = c(0, 30),
+                    so4 = c(0,0)) %>%
+  define_water_chain() %>% 
+  balance_ions_chain()
+
+raw_wells
+```
+
+Sometimes it's a good idea to verify our code is working properly. To make sure that our data was balanced using `balance_ions_chain`, we can plot our `water` class using `plot_ions`. The below example shows how to index a `water` class column: dataframe$water_class_column[[row_number]]
+
+
+```{r, fig.width=7}
+# Ion plot before balance_ions_chain was applied
+raw_wells$defined_water[[1]] %>%
+  plot_ions()
+# Plot of balanced ions
+raw_wells$balanced_water[[1]] %>%
+  plot_ions()
+```
+
+Let's continue with our blending analysis. We're going to treat our two wells as a singular groundwater source. Blending can be calculated as Well_A_ratio * Well_A concentration + Well_B_ratio * Well_B_concentration
+```{r, warning=FALSE}
+# 
+# #blend "vertically". requires a lot of manual
+# 
+# def_wells <- raw_wells %>%
+#   balance_ions_chain()
+# 
+# blended_wells <- blend_waters(waters = c(pluck(def_wells, "balanced_water", 1),
+#                                          pluck(def_wells, 3, 2)),
+#                               ratios = c(.5, .5))
+# 
+# groundwater <-   tibble(Wells_flow = c(0, 2.5, 5))
+# scenarios <- tibble(surface_flow = seq(.1, 20, 0.1),
+#                     River_flow = c(seq(.1, 10, 0.1), rep(10, 100)),
+#                     Lake_flow = c(rep(0, 100), seq(.1, 10, .1)),
+#                     group = seq(1, 200, 1)) %>%
+# cross_join(groundwater) %>%
+#   mutate(total_flow = River_flow + Lake_flow + Wells_flow,
+#          River_ratio = River_flow/total_flow,
+#          Lake_ratio = Lake_flow/total_flow,
+#          Wells_ratio = Wells_flow/total_flow)
+# 
+# Wells <- raw_wells %>%
+#   balance_ions_once() %>%
+#   select(-c(defined_water, treatment)) %>%
+#   pivot_longer(ph:tbaa, names_to = "Parameter", values_to = "Result") %>%
+# 
+#   pivot_wider(names_from = "Well", values_from = "Result") %>%
+#   # blend wells assuming equal contributions
+#   mutate(blended_result = A*.5 + B*0.5,
+#          blended_result = case_when(Parameter == "ph" ~ blended_wells@ph,
+#                                     Parameter == "alk"   ~ blended_wells@alk,
+#                                     TRUE ~ blended_result)) %>%
+#   select(Parameter, blended_result) %>%
+#   drop_na() %>%
+#   pivot_wider(names_from = Parameter, values_from = blended_result) %>%
+#   define_water_chain(output_water = "wells") %>%
+#   select(-c(kw:is)) %>%
+#   cross_join(scenarios)
+# 
+# 
+# River <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
+#                 tot_hard = 400, na = 100, ca_hard = 250, cl = 150, so4 = 200) %>%
+#   define_water_chain() %>%
+#   balance_ions_chain(output_water = "river") %>%
+#   cross_join(scenarios) %>%
+#   select(-defined_water)
+# 
+# Lake <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
+#                tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150) %>%
+#   define_water_chain() %>%
+#   balance_ions_chain(output_water = "lake") %>%
+#   cross_join(scenarios) %>%
+#   select(-defined_water)
+# 
+# blend <- full_join(Wells, River) %>%
+#   full_join(Lake) %>%
+#   mutate(Wells = case_when(Wells_flow == 0 ~ "N", TRUE ~ "Y")) %>%
+#   mutate(group = paste(group, " Wells: ", Wells)) %>%
+#   select(-Wells) %>%
+# 
+#   blend_waters_chain(waters = c("wells", "river", "lake"), ratios = c("Wells_ratio", "River_ratio", "Lake_ratio")) %>%
+#   pluck_water(input_water = "blended_water", "tot_hard") %>%
+#   mutate(Flagged = case_when(tot_hard> 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
+# 
+# ggplot(blend, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged))+
+#   geom_point()+
+#   scale_shape_manual(values = c(1, 16)) +
+#   labs(y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
+#        shape = "Scenario Flags", x= "Total Plant Flow (MGD)") +
+#   theme_bw()
+```
