@@ -74,7 +74,6 @@ methods::setClass("water",
     cdbaa = "numeric", #chlorodibromoacetic acid
     dcbaa = "numeric", #dichlorobromoacetic acid
     tbaa = "numeric", #tribromoacetic acid
-    haa9 = "numeric",
 
     # Miscellaneous
     treatment = "character"
@@ -149,7 +148,6 @@ methods::setClass("water",
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
     tbaa = NA_real_, #tribromoacetic acid
-    haa9 = NA_real_,
 
     # Miscellaneous
     treatment = "defined"
@@ -226,7 +224,6 @@ methods::setMethod("show",
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-    cat("Sum of 9 haloacetic acids (ug/L): ", object@haa9, "\n")
 
     # Miscellaneous
     cat("Treatment applied to water class:", object@treatment, "\n")
