@@ -120,8 +120,6 @@ chemdose_dbp <- function(water, cl2, time, water_type = "treated") {
   water@chbr2cl = predicted_dbp%>%filter(ID=="chbr2cl")%>%{.$modeled_dbp_ug.L}
   water@chbr3 = predicted_dbp%>%filter(ID=="chbr3")%>%{.$modeled_dbp_ug.L}
   water@haa5 = predicted_dbp%>%filter(ID=="haa5")%>%{.$modeled_dbp_ug.L}
-  water@haa6 = predicted_dbp%>%filter(ID=="haa6")%>%{.$modeled_dbp_ug.L}
-  water@haa9 = predicted_dbp%>%filter(ID=="haa9")%>%{.$modeled_dbp_ug.L}
   water@mcaa = predicted_dbp%>%filter(ID=="mcaa")%>%{.$modeled_dbp_ug.L}
   water@dcaa = predicted_dbp%>%filter(ID=="dcaa")%>%{.$modeled_dbp_ug.L}
   water@tcaa = predicted_dbp%>%filter(ID=="tcaa")%>%{.$modeled_dbp_ug.L}
