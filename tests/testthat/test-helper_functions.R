@@ -452,3 +452,25 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
   expect_equal(blend2, blend3) # test different ways to input ratios
 })
 
+
+test_that("pluck_water works", {
+  
+water1 <- water_df %>%
+    define_water_chain() %>%
+    pluck_water(parameter = "tot_co3") 
+
+tot_co3_water <- purrr::pluck(water1,1, 4)
+tot_co3_pluck <- water1 %>% slice(4)
+
+water2 <- water_df %>%
+  define_water_chain() %>%
+  balance_ions_chain() %>%
+  pluck_water(parameter = "na", output_column = "defined_na") %>%
+  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+
+  expect_equal(ncol(water1), 2)
+  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$tot_co3)
+  expect_equal(ncol(water2), 4)
+  expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
+  
+})
