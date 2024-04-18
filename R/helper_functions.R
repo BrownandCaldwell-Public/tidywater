@@ -769,7 +769,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' @param parameter water class attribute to view outside the water column
 #' @param output_column name of output column storing the plucked variable's values
 #'
-#' @seealso \code{\link{blend_waters}}
+#' @seealso \code{\link{convert_water}}
 #'
 #' @examples
 #'
