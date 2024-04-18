@@ -153,16 +153,19 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   }
 
 # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
-  if (location == "plant" & location!="gac") {
+  if (location == "plant" & treatment!="gac") {
     corrected_dbp_1 <- predicted_dbp%>%
       left_join(dbp_correction, by="ID")%>%
       mutate(modeled_dbp = modeled_dbp/plant)%>%
       select(ID, group, modeled_dbp)
-  } else if(location == "ds" & location!="gac") {
+  } else if(location == "ds" & treatment!="gac") {
     corrected_dbp_1 <- predicted_dbp%>%
       left_join(dbp_correction, by="ID")%>%
       mutate(modeled_dbp = modeled_dbp/ds)%>%
       select(ID, group, modeled_dbp)
+  } else {
+    corrected_dbp_1 <- predicted_dbp%>%
+    select(ID, group, modeled_dbp)
   }
 
 # proportional corrections following U.S. EPA (2001), section 5.7.3
