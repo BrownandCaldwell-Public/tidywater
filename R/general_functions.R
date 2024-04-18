@@ -151,6 +151,7 @@ methods::setClass("water",
     cdbaa = NA_real_, #chlorodibromoacetic acid
     dcbaa = NA_real_, #dichlorobromoacetic acid
     tbaa = NA_real_ #tribromoacetic acid
+
   ))
 
 methods::setMethod("show",
