@@ -787,6 +787,11 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #'   balance_ions_chain() %>%
 #'   pluck_water(parameter = "na", output_column = "defined_na") %>%
 #'  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+#'  
+#' plan(multisession)
+#' pluck_example <- water_df %>%
+#'  define_water_chain() %>%
+#'  pluck_water(parameter = "ph")
 #'
 #' @export
 
@@ -795,10 +800,13 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
     stop("Parameter not specified to pluck.")
   }
 
+  if (!parameter %in% slotNames("water")) {
+    stop("Parameter doesn't exist in water class.")
+  }
   if(is.null(output_column)) {
     output_column = parameter
   } 
-  
+
   df %>% 
     mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
   

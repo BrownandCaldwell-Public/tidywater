@@ -18,7 +18,7 @@ been computed using \code{\link{define_water}}}
 }
 \description{
 This function plucks a selected parameter from a column of water class objects.
-To view multiple parameters, please use one of the "fn_once" functions.
+To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
 }
 \examples{
 
@@ -39,5 +39,5 @@ pluck_example <- water_df \%>\%
 
 }
 \seealso{
-\code{\link{blend_waters}}
+\code{\link{convert_water}}
 }
