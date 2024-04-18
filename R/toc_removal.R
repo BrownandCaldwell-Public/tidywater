@@ -107,7 +107,7 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
     water@doc = nonadsorb + adsorb
     water@uv254 = 5.716 * water@uv254 ^ 1.0894 * coag2 ^ 0.306 * water@ph ^ -.9513
   }
-  
+
   water@treatment <- paste(water@treatment, "_tocremoved", sep = "")
 
   return(water)
@@ -118,3 +118,7 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
 calc_suva <- function(doc, uv254) {
   uv254 / doc * 100
 }
+
+
+# GAC TOC breakthrough
+# to be added
