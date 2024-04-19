@@ -2,7 +2,6 @@
 title: "Helper Functions: Blending Multiple Waters"
 # Blending water analysis using tidywater's helper functions
 # Intro to Helper Functions Through a Blending Analysis
-author: "Libby McKenna"
 description: "This vignette will show how to use some of tidywater's helper functions through a water blending analysis."
 output: rmarkdown::html_vignette
 vignette: >
