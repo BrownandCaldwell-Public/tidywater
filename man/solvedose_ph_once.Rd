@@ -50,31 +50,31 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-mutate(target_ph = 10,
-      chemical = rep(c("naoh", "mgoh2"), 6)) \%>\%
-solvedose_ph_once()
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(target_ph = 10,
+    chemical = rep(c("naoh", "mgoh2"), 6)) \%>\%
+  solvedose_ph_once()
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
 
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-mutate(target_ph = seq(9, 10.1, .1)) \%>\%
-solvedose_ph_once(chemical = "naoh")
+  define_water_chain() \%>\%
+  mutate(target_ph = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh")
 
 # Initialize parallel processing
-plan (multisession)
+plan(multisession)
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-mutate(target_ph = seq(9, 10.1, .1)) \%>\%
-solvedose_ph_once(chemical = "naoh")
+  define_water_chain() \%>\%
+  mutate(target_ph = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh")
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }

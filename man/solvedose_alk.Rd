@@ -20,7 +20,7 @@ Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function
 }
 \examples{
 dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) \%>\%
- solvedose_alk(target_alk = 150, "naoh")
+  solvedose_alk(target_alk = 150, "naoh")
 }
 \seealso{
 \code{\link{define_water}}

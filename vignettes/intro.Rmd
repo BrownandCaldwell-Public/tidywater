@@ -83,7 +83,7 @@ Great! `balance_ions` added potassium to `my_water` so it is now electrically ne
 ```{r}
 my_water@k # We did not input any potassium in the original water
 
-balanced_water@k # The balanced water now contains 0.00178 M of potassium 
+balanced_water@k # The balanced water now contains 0.00178 M of potassium
 ```
 
 ## Converting units
@@ -130,7 +130,7 @@ toc_water <- define_water(8, 20, 100, toc = 3)
 toc_water@toc # mg/L
 toc_water@doc # mg/L
 
-doc_water <-  define_water(8, 20, 100, doc = 1.3)
+doc_water <- define_water(8, 20, 100, doc = 1.3)
 doc_water@toc # mg/L
 doc_water@doc # mg/L
 ```
