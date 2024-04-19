@@ -83,7 +83,7 @@ Great! `balance_ions` added potassium to `my_water` so it is now electrically ne
 ```{r}
 my_water@k # We did not input any potassium in the original water
 
-balanced_water@k # The balanced water now contains 0.00178 M of potassium 
+balanced_water@k # The balanced water now contains 0.00178 M of potassium
 ```
 
 ## Converting units
