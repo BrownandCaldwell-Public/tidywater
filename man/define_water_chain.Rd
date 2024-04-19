@@ -37,10 +37,6 @@ example_df <- water_df \%>\%
   define_water_chain(output_water = "This is a column of water") \%>\%
   balance_ions_once(input_water = "This is a column of water")
 
-example_df <- water_df \%>\%
-  define_water_chain(output_water = "This is a column of water") \%>\%
-  balance_ions_once(input_water = "This is a column of water")
-
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
