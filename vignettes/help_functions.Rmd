@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
   comment = ">#"
 )
 library(tidywater)
-library(tidyverse)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
 ```
 
 This vignette assumes a basic undertanding of `define_water` and the S4 `water` class. We'll need many `tidyverse` functions in addition to our `tidywater` functions for this analysis.
