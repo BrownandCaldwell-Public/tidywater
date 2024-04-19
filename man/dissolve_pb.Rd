@@ -49,12 +49,10 @@ AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 }
 \examples{
 
-example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
-tot_po4 = 0, so4 = 150, tds = 200) \%>\%
- dissolve_pb()
-example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
-tot_po4 = 0, so4 = 150, tds = 200) \%>\%
- dissolve_pb(pyromorphite = "Xie")
+example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) \%>\%
+  dissolve_pb()
+example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) \%>\%
+  dissolve_pb(pyromorphite = "Xie")
 
 }
 \seealso{

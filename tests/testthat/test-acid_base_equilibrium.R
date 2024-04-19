@@ -1,7 +1,7 @@
 # Solve pH ----
 
 test_that("Solve pH returns correct pH with no chemical dosing.", {
-  suppressWarnings( {
+  suppressWarnings({
     water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
     water2 <- define_water(ph = 5, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
     water3 <- define_water(ph = 10, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
@@ -40,11 +40,11 @@ test_that("Dose chemical returns the same pH/alkalinity when no chemical is adde
 
 test_that("Dose chemical corrects ph when softening", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
-  water2 <- chemdose_ph(water1, caco3 = -100)  
+  water2 <- chemdose_ph(water1, caco3 = -100)
   water3 <- chemdose_ph(water1, caco3 = -100, softening_correction = TRUE)
   water4 <- chemdose_ph(water1, caco3 = 10, softening_correction = TRUE)
   water5 <- chemdose_ph(water1, caco3 = 10)
-  
+
   expect_equal(round(water3@ph, 2), 3.86) # softening correction works
   expect_error(expect_equal(water2@ph, water3@ph)) # ph with/without softening correction are different
   expect_equal(water4@ph, water5@ph) # softening_correction should not affect pH without caco3 <0
@@ -147,9 +147,9 @@ test_that("Blend waters outputs same water when ratio is 1 or the blending water
   water3 <- define_water(ph = 10, temp = 10, alk = 200, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
-  blend1@treatment <- "defined" #set treatments to be the same to avoid an error
+  blend1@treatment <- "defined" # set treatments to be the same to avoid an error
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
-  blend2@treatment <- "defined" #set treatments to be the same to avoid an error
+  blend2@treatment <- "defined" # set treatments to be the same to avoid an error
   expect_equal(water1, blend1)
   expect_equal(water3, blend2)
 
@@ -175,4 +175,3 @@ test_that("Blend waters conserves DOC.", {
   blend1 <- blend_waters(c(water2, water3), c(.5, .5))
   expect_equal(blend1@doc, 4)
 })
-
