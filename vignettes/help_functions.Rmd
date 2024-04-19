@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = ">#"
 )
-devtools::load_all()
+library(tidywater)
+library(tidyverse)
 ```
 
 This vignette assumes a basic undertanding of `define_water` and the S4 `water` class. We'll need many `tidyverse` functions in addition to our `tidywater` functions for this analysis.
