@@ -1,6 +1,5 @@
 ---
 title: "Introduction to tidywater: Basic functions"
-author: "R. Mulhern, Libby McKenna"
 description: "This vignette will detail how to use the tidywater base functions for basic water quality analysis."
 output: rmarkdown::html_vignette
 vignette: >
