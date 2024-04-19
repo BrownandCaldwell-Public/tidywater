@@ -186,4 +186,7 @@ plan(multisession)
 
 #rest of script
 
+# At the end of the script, here's an option to explicitly close the multisession processing
+plan(sequential)
+
 ```
