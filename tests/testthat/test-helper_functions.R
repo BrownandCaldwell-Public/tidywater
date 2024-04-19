@@ -114,10 +114,10 @@ test_that("balance_ions_chain outputs are the same as base function, balance_ion
 
   water3 <- define_water_chain(slice(water_df, 1)) %>%
     balance_ions_chain()
+
   water4 <- purrr::pluck(water3, 2, 1)
 
   expect_equal(water2, water4) # check against base
-
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
@@ -319,6 +319,54 @@ test_that("solvedose_ph_once can handle different input formats", {
   expect_equal(water2$dose_required, water3$caustic_dose)
 })
 
+
+# solvedose_alk helper ----
+# Check solvedose_alk_once outputs are the same as base function, solvedose_alk_once
+
+test_that("solvedose_alk_once outputs are the same as base function, solvedose_alk", {
+  water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
+    balance_ions() %>%
+    solvedose_alk(target_alk = 100,  chemical = "naoh")
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "naoh")
+
+  expect_equal(water1, water2$dose_required)
+})
+
+# Check that output is a data frame
+
+test_that("solvedose_alk_once outputs data frame", {
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "naoh")
+
+  expect_true(is.data.frame(water2))
+})
+
+# test different ways to input chemical
+test_that("solvedose_alk_once can handle different input formats", {
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(target_alk = 100,
+           chemical = "na2co3") %>%
+    balance_ions_chain() %>%
+    solvedose_alk_once(input_water = "balanced_water", output_water = "soda_ash")
+
+  expect_equal(water2$dose_required, water3$soda_ash)
+})
 
 
 # blend_waters helpers ----
