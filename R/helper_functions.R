@@ -574,7 +574,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
     stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")}
 
   if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemcial was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
+    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
 
   output<- chem %>%
     mutate(target_ph = target_ph,
@@ -673,10 +673,10 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_water =
     stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")}
 
   if ("target_alk" %in% names(df) & length(target_alk) >0) {
-    stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")}
+    stop("Target alkalinity was set as both a function argument and a data frame column. Remove your target alkalinity from one of these inputs.")}
 
   if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemcial was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
+    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
 
   output<- chem %>%
     mutate(target_alk = target_alk,
