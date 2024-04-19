@@ -129,12 +129,14 @@ This time though, once we have the required caustic and soda ash doses, we're go
 
 finished_water <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed") %>% 
-  solvedose_ph_once(input_water = "alum_dosed", chemical = "naoh", target_ph = 8, output_water = "naoh") %>% 
-  solvedose_alk_once(input_water = "alum_dosed", chemical = "na2co3", target_alk = 100, output_water = "na2co3") %>% 
   rename(coagulant = alum) %>% #rename alum column so it doesn't get dosed twice
+  solvedose_ph_once(input_water = "alum_dosed", chemical = "naoh", target_ph = 8, output_water = "naoh") %>% 
+  select(-chemical) %>% 
+  solvedose_alk_once(input_water = "alum_dosed", chemical = "na2co3", target_alk = 100, output_water = "na2co3") %>% 
+  mutate(na2co3 = case_when(is.na(na2co3) ~ 0, TRUE ~ na2co3)) %>% 
   chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_alk_adjusted") %>% 
   pluck_water(input_water = "ph_alk_adjusted", "ph") %>% 
-    pluck_water(input_water = "ph_alk_adjusted", "alk") %>% 
+  pluck_water(input_water = "ph_alk_adjusted", "alk") %>% 
   select(-c(defined_water:chemical)) 
 
 head(finished_water)
