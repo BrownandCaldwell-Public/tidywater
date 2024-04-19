@@ -116,7 +116,7 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
 
 # SUVA calc
 calc_suva <- function(doc, uv254) {
-  uv254/doc * 100
+  uv254 / doc * 100
 }
 
 
