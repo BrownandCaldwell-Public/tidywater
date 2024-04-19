@@ -30,20 +30,20 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_once()
+  define_water_chain() \%>\%
+  balance_ions_once()
 
 example_df <- water_df \%>\%
-define_water_chain(output_water = "Different_defined_water_column") \%>\%
-balance_ions_once(input_water = "Different_defined_water_column")
+  define_water_chain(output_water = "Different_defined_water_column") \%>\%
+  balance_ions_once(input_water = "Different_defined_water_column")
 
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_once()
+  define_water_chain() \%>\%
+  balance_ions_once()
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }
