@@ -35,12 +35,19 @@ If the input data frame has column(s) named "target_ph" or "chemical", the funct
 as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
 The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
 To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
+
+ For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
 
-library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
@@ -60,6 +67,15 @@ define_water_chain() \%>\%
 mutate(target_ph = seq(9, 10.1, .1)) \%>\%
 solvedose_ph_once(chemical = "naoh")
 
+# Initialize parallel processing
+plan (multisession)
+example_df <- water_df \%>\%
+define_water_chain() \%>\%
+mutate(target_ph = seq(9, 10.1, .1)) \%>\%
+solvedose_ph_once(chemical = "naoh")
+
+#Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{

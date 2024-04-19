@@ -19,12 +19,16 @@ Imports:
     tidyr,
     knitr,
     ggplot2,
+    ggrepel,
     magrittr,
     purrr,
+    furrr,
     methods
 RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 Suggests: 
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

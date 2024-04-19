@@ -2,7 +2,7 @@
 #' Simulate contributions of various lead solids to total soluble lead
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}}
-#' and outputs a dataframe of the controlling lead solid and total lead solubility. 
+#' and outputs a dataframe of the controlling lead solid and total lead solubility.
 #' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
 #' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
@@ -15,14 +15,14 @@
 #'
 #' Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
 #' which is licensed under MIT License:
-#' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
-#' associated documentation files (the "Software"), to deal in the Software without restriction, 
-#' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
-#' copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the 
-#' following conditions: The above copyright notice and this permission notice shall be included in all copies or 
+#' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+#' associated documentation files (the "Software"), to deal in the Software without restriction,
+#' including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#' copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+#' following conditions: The above copyright notice and this permission notice shall be included in all copies or
 #' substantial portions of the Software.
-#' 
-#' Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021). 
+#'
+#' Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021).
 #' Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
 #' AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 #'
@@ -34,18 +34,25 @@
 #'
 #' @examples
 #'
-#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
+#'tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'  dissolve_pb()
-#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#'example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
+#' tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'  dissolve_pb(pyromorphite = "Xie")
 #'
 #' @export
 
+# water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
 
-  if (is.na(water@is) | is.na(water@alk)) {
-    warning("Water is missing ionic strength or alkalinity. Output dataframe will be empty.")
+  if (is.na(water@alk)) {
+    warning("Water is missing alkalinity. Output dataframe will be empty.")
   }
+  if (is.na(water@is)) {
+    warning("Water is missing ionic strength. Output dataframe will be empty.")
+  }
+
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
@@ -130,7 +137,7 @@ dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "
         PbHCO3_plus + PbCO3 + PbCO32_2_minus +
         PbHPO4 + PbH2PO4_plus)
 
-  alllead_simple <- alllead %>%
+   alllead_simple <- alllead %>%
     select(species_name, Pb_2_plus, tot_dissolved_pb, source) %>%
     mutate(keep = case_when(species_name == "Hydroxypyromorphite" & grepl(hydroxypyromorphite, source) ~ "keep",
                             species_name == "Pyromorphite" & grepl(pyromorphite, source) ~ "keep",
@@ -138,7 +145,8 @@ dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "
                             !grepl("Hydroxyp|Pyro|Lauri", species_name) ~ "keep"
                              )) %>%
     drop_na(keep, tot_dissolved_pb) %>%
-    mutate(controlling_solid = case_when(tot_dissolved_pb == min(tot_dissolved_pb) ~ species_name)) %>%
+     #use suppressWarnnings here for when min() fn can't find minimum (ie when alk or IS not provided and all values are NA)
+    mutate(controlling_solid = case_when(tot_dissolved_pb ==  suppressWarnings(min(tot_dissolved_pb)) ~ species_name)) %>%
     drop_na(controlling_solid) %>%
     select(controlling_solid, tot_dissolved_pb)
 
@@ -167,6 +175,6 @@ dissolve_pb <- function(water, hydroxypyromorphite  = "Schock", pyromorphite = "
 calculate_dic <- function(water) {
 
   dic <- water@tot_co3 * mweights$dic * 1000
-  
+
   return(dic)
 }

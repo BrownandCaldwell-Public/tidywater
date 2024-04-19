@@ -25,7 +25,8 @@
 #' chemdose_toc(fe2so43 = 30, coeff = "Ferric")
 #'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
-#' chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9, "x3" = 4.96, "k1" = -0.028, "k2" = 0.23, "b" = 0.068))
+#' chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9,
+#' "x3" = 4.96, "k1" = -0.028, "k2" = 0.23, "b" = 0.068))
 #'
 #' @export
 #'
@@ -107,7 +108,7 @@ chemdose_toc <- function(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum"
     water@doc = nonadsorb + adsorb
     water@uv254 = 5.716 * water@uv254 ^ 1.0894 * coag2 ^ 0.306 * water@ph ^ -.9513
   }
-  
+
   water@treatment <- paste(water@treatment, "_tocremoved", sep = "")
 
   return(water)
