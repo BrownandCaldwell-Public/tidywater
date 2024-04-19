@@ -37,8 +37,8 @@ The chemical names must match the chemical names as displayed in \code{\link{sol
 To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
- for the option to use parallel processing and speed things up. To initialize parallel processing, use 
- `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
  shorter run times will not benefit from parallel processing.
 }

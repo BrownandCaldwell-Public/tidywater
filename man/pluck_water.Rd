@@ -29,19 +29,21 @@ library(tidyr)
 
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
-  pluck_water(parameter = "tot_co3") 
-  
+  pluck_water(parameter = "tot_co3")
+
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   pluck_water(parameter = "na", output_column = "defined_na") \%>\%
  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
- 
+
 plan(multisession)
 pluck_example <- water_df \%>\%
  define_water_chain() \%>\%
  pluck_water(parameter = "ph")
 
+#Optional: explicitly close multisession processing
+plan(sequential)
 }
 \seealso{
 \code{\link{convert_water}}
