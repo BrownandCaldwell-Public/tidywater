@@ -42,6 +42,8 @@ pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   pluck_water(parameter = "ph")
 
+#Optional: explicitly close multisession processing
+plan(sequential)
 }
 \seealso{
 \code{\link{convert_water}}
