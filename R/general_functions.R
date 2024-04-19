@@ -285,11 +285,11 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     tot_hard = 0
     ca_hard = 0
   }
-  
+
   if (missing(tot_hard)) {
     tot_hard = ca_hard / 0.65
     warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-  } 
+  }
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
@@ -306,8 +306,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
-  
-    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
+
+    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use plot_ions to visualize ion balance and balance_ions to correct.")
   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
@@ -828,8 +828,11 @@ balance_ions <- function(water) {
   water@so4 <- so4_new
   water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
-  return(water)
+  if (is.na(water@tds) & is.na(water@cond)) {
+    water@is = calculate_ionicstrength(water)
+  }
 
+  return(water)
 }
 
 
