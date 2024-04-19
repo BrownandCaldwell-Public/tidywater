@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = ">#"
 )
+devtools::load_all()
 ```
 
 This vignette assumes a basic undertanding of `define_water` and the S4 `water` class. We'll need many `tidyverse` functions in addition to our `tidywater` functions for this analysis.
@@ -27,9 +28,6 @@ In this analysis, a hypothetical drinking water utility sources their water from
 First, let's take a look at the available groundwater data from Well A and Well B. Notice the use of `define_water_once`.
 
 ```{r setup, warning=FALSE}
-library(tidywater)
-library(tidyverse)
-
 # Example of how to use a tidywater "_once" function
 data <- tibble(Well = c("A", "B"),
                 ph = c(8, 9),
