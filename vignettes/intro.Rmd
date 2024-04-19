@@ -1,6 +1,5 @@
 ---
 title: "Introduction to tidywater: Basic functions"
-author: "R. Mulhern, Libby McKenna"
 description: "This vignette will detail how to use the tidywater base functions for basic water quality analysis."
 output: rmarkdown::html_vignette
 vignette: >
@@ -54,7 +53,7 @@ water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 5)
 water
 ```
 
-If you have a huge data frame where you need to apply `define_water` and subsequent modeling functions, it won't be possible to manually enter your pH, alkalinity etc for 5,000 rows. Instead, you'll name your columns as `ph`, `alk`, `temp` etc, then use tidywater's helper functions. Please see the `helper_functions` vignette for large data processing (paste this in the console: `vignette("helper_functions", package = "tidywater")`). 
+If you have a huge data frame where you need to apply `define_water` and subsequent modeling functions, it won't be possible to manually enter your pH, alkalinity etc for 5,000 rows. Instead, you'll name your columns as `ph`, `alk`, `temp` etc, then use tidywater's helper functions. Please see the `helper_functions` vignette for large data processing (paste this in the console: `vignette("helper_functions_blend_waters", package = "tidywater")`). 
 
 Back to our single use case, you'll notice one of the warnings alerts the user to missing cations and/or anions, and that you should use `balance_ions` to correct this. `balance_ions` automatically adds in sodium, potassium, chloride, or sulfate until anions + cations = 0. To see how this works we'll use the `plot_ions` function on our `water` object to see what the current ion balance looks like. Notice that the cation and anion bars are not equal.
 

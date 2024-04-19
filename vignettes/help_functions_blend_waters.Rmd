@@ -21,7 +21,7 @@ library(dplyr)
 library(ggplot2)
 ```
 
-This vignette assumes a basic undertanding of `define_water` and the S4 `water` class. We'll need many `tidyverse` functions in addition to our `tidywater` functions for this analysis.
+This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information.
 
 ## Blending Analysis Setup
 In this analysis, a hypothetical drinking water utility sources their water from a river and a lake, which both have high hardness. They are investigating whether blending up to 5 MGD from two groundwater wells will reduce the total hardness below 200 mg/L as CaCO3. 
