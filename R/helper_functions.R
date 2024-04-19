@@ -552,13 +552,13 @@ if(nrow(chem_inputs_arg) == 1) {
 solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
 
   dosable_chems <-  tibble(
-    # hcl = 0, h2so4 = 0, h3po4 = 0,
-                           co2 = 0,
-                           naoh = 0, caoh2 = 0, mgoh2 = 0,
-                           # na2co3 = 0, nahco3 = 0,
-                           # cl2 = 0, naocl = 0, caocl2 = 0,
-                           # alum = 0, fecl3 = 0, fe2so43 = 0
-    )
+    hcl = 0, h2so4 = 0, h3po4 = 0,
+    co2 = 0,
+    naoh = 0, caoh2 = 0, mgoh2 = 0,
+    na2co3 = 0, nahco3 = 0,
+    cl2 = 0, naocl = 0, caocl2 = 0,
+    alum = 0, fecl3 = 0, fe2so43 = 0
+  )
 
   chem <- df %>%
     filter(chemical %in% names(dosable_chems))
