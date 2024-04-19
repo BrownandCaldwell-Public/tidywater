@@ -793,6 +793,8 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #'  define_water_chain() %>%
 #'  pluck_water(parameter = "ph")
 #'
+#' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #' @export
 
 pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL){
