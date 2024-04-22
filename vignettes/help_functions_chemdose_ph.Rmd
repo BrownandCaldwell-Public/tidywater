@@ -3,7 +3,7 @@ title: "Helper Functions: Dose chemicals"
 description: "This vignette will show how to use some of tidywater's helper functions through chemical additions"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{help_functions}
+  %\VignetteIndexEntry{help_functions_chemdose}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
