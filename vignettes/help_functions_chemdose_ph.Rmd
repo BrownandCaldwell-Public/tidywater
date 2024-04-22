@@ -144,6 +144,3 @@ head(finished_water)
 
 ```
 
-```{r, include = FALSE}
-plan(sequential)
-```
