@@ -58,24 +58,24 @@ methods::setClass("water",
     treatment = "character",
 
     # DBPs
-    chcl3 = "numeric", #chloroform
-    chcl2br = "numeric", #bromodichloromethane
-    chbr2cl = "numeric", #dibromochloromethane
-    chbr3 = "numeric", #bromoform
+    chcl3 = "numeric", # chloroform
+    chcl2br = "numeric", # bromodichloromethane
+    chbr2cl = "numeric", # dibromochloromethane
+    chbr3 = "numeric", # bromoform
     tthm = "numeric",
 
-    mcaa = "numeric", #chloroacetic acid
-    dcaa = "numeric", #dichloroacetic acid
-    tcaa = "numeric", #trichloroeacetic acid
-    mbaa = "numeric", #bromoacetic acid
-    dbaa = "numeric", #dibromoacetic acid
+    mcaa = "numeric", # chloroacetic acid
+    dcaa = "numeric", # dichloroacetic acid
+    tcaa = "numeric", # trichloroeacetic acid
+    mbaa = "numeric", # bromoacetic acid
+    dbaa = "numeric", # dibromoacetic acid
     haa5 = "numeric",
 
-    bcaa = "numeric", #bromochloroacetic acid
+    bcaa = "numeric", # bromochloroacetic acid
 
-    cdbaa = "numeric", #chlorodibromoacetic acid
-    dcbaa = "numeric", #dichlorobromoacetic acid
-    tbaa = "numeric" #tribromoacetic acid
+    cdbaa = "numeric", # chlorodibromoacetic acid
+    dcbaa = "numeric", # dichlorobromoacetic acid
+    tbaa = "numeric" # tribromoacetic acid
   ),
 
   prototype(
@@ -131,26 +131,26 @@ methods::setClass("water",
     treatment = "defined",
 
     # DBPs
-    chcl3 = NA_real_, #chloroform
-    chcl2br = NA_real_, #bromodichloromethane
-    chbr2cl = NA_real_, #dibromochloromethane
-    chbr3 = NA_real_, #bromoform
+    chcl3 = NA_real_, # chloroform
+    chcl2br = NA_real_, # bromodichloromethane
+    chbr2cl = NA_real_, # dibromochloromethane
+    chbr3 = NA_real_, # bromoform
     tthm = NA_real_,
 
-    mcaa = NA_real_, #chloroacetic acid
-    dcaa = NA_real_, #dichloroacetic acid
-    tcaa = NA_real_, #trichloroeacetic acid
-    mbaa = NA_real_, #bromoacetic acid
-    dbaa = NA_real_, #dibromoacetic acid
+    mcaa = NA_real_, # chloroacetic acid
+    dcaa = NA_real_, # dichloroacetic acid
+    tcaa = NA_real_, # trichloroeacetic acid
+    mbaa = NA_real_, # bromoacetic acid
+    dbaa = NA_real_, # dibromoacetic acid
     haa5 = NA_real_,
 
-    bcaa = NA_real_, #bromochloroacetic acid
+    bcaa = NA_real_, # bromochloroacetic acid
 
-    cdbaa = NA_real_, #chlorodibromoacetic acid
-    dcbaa = NA_real_, #dichlorobromoacetic acid
-    tbaa = NA_real_ #tribromoacetic acid
+    cdbaa = NA_real_, # chlorodibromoacetic acid
+    dcbaa = NA_real_, # dichlorobromoacetic acid
+    tbaa = NA_real_ # tribromoacetic acid
 
-  ))
+))
 
 methods::setMethod("show",
   "water",
@@ -225,7 +225,7 @@ methods::setMethod("show",
     cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
     cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-})
+  })
 
 
 #' Create a water class object given water quality parameters
@@ -285,11 +285,11 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     tot_hard = 0
     ca_hard = 0
   }
-  
+
   if (missing(tot_hard)) {
     tot_hard = ca_hard / 0.65
     warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-  } 
+  }
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
@@ -306,8 +306,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     k = ifelse(missing(k), 0, k)
     cl = ifelse(missing(cl), 0, cl)
     so4 = ifelse(missing(so4), 0, so4)
-  
-    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use balance_ions to correct.")
+
+    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use plot_ions to visualize ion balance and balance_ions to correct.")
   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
@@ -359,19 +359,19 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
-                        ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
-                        na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
-                        hco3 = carb_alk_eq, co3 = 0, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
-                        h = h, oh = oh,
-                        tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
-                        kw = kw, is = 0, alk_eq = carb_alk_eq,
-                        doc = doc, toc = toc, uv254 = uv254, br = br)
+    ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
+    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
+    hco3 = carb_alk_eq, co3 = 0, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
+    h = h, oh = oh,
+    tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
+    kw = kw, is = 0, alk_eq = carb_alk_eq,
+    doc = doc, toc = toc, uv254 = uv254, br = br)
 
 
   # Use loop to determine IS
   oldis = water@is
   newis = 1
-  n =0
+  n = 0
   while (abs(oldis / newis - 1) > .0001 && n <= 5) { # continues for 5 iterations or while % difference > 0.01.
     # Determine ionic strength
     oldis = water@is
@@ -412,20 +412,20 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     water@hpo4 = tot_po4 * alpha2p
     water@po4 = tot_po4 * alpha3p
 
-    water@ocl =  tot_ocl * calculate_alpha1_hypochlorite(h, k)
+    water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
     # Calculate total alkalinity (set equal to carbonate alkalinity for now)
     water@alk_eq = carb_alk_eq
 
-    if(noloop) {
+    if (noloop) {
       break
-    } else if(nois) {
+    } else if (nois) {
       water@is = NA_real_
       break
     }
     water@is = calculate_ionicstrength(water)
     newis = water@is
-    n=n+1
+    n = n + 1
   }
 
   return(water)
@@ -502,7 +502,7 @@ plot_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
-   # Compile major ions to plot
+  # Compile major ions to plot
   ions = data.frame(Na = water@na,
     Ca = water@ca * 2,
     Mg = water@mg * 2,
@@ -517,32 +517,32 @@ plot_ions <- function(water) {
     OCl = water@ocl,
     H = water@h,
     OH = water@oh)
- 
-  ions %>% 
+
+  ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%  
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
-    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type, 
-           label_y = case_when(type == "Cations" ~ 2-.2, TRUE ~ 1-.2)) %>%
-    
+    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
+      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)) %>%
+
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
     geom_bar(stat = "identity",
-             width = 0.5,
-             alpha = 0.5,
-             color = "black") +
+      width = 0.5,
+      alpha = 0.5,
+      color = "black") +
     geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-              size = 3.5) +
+      size = 3.5) +
     ggrepel::geom_text_repel(aes(x = label_pos, y = label_y,
-                                 label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""), 
-                                 fontface = "bold"),
-                             size = 3.5,
-                             nudge_y = -.2,
-                             seed = 555) +
+      label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
+      fontface = "bold"),
+    size = 3.5,
+    nudge_y = -.2,
+    seed = 555) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold")) +
     labs(x = "Concentration (eq/L)",
-         y = "Major cations and anions",
-         subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)) +
+      y = "Major cations and anions",
+      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)) +
     guides(fill = "none")
 }
 
@@ -564,43 +564,43 @@ summarise_dbp <- function(water) {
     stop("Input water must be of class 'water'. Create a water using define_water. Model DBP formation using chemdose_dbp")
   }
   # Compile main WQ parameters to print
-  thms = data.frame(Chloroform = ifelse(length(water@chcl3)==0, NA, water@chcl3),
-                    Bromodichloromethane = ifelse(length(water@chcl2br)==0, NA, water@chcl2br),
-                    Dibromochloromethane = ifelse(length(water@chbr2cl)==0, NA, water@chbr2cl),
-                    Bromoform = ifelse(length(water@chbr3)==0, NA, water@chbr3),
-                    Total_trihalomethanes = ifelse(length(water@tthm)==0, NA, water@tthm))
+  thms = data.frame(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
+    Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
+    Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
+    Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
+    Total_trihalomethanes = ifelse(length(water@tthm) == 0, NA, water@tthm))
 
 
-  haas = data.frame(Chloroacetic_acid = ifelse(length(water@mcaa)==0, NA, water@mcaa),
-                    Dichloroacetic_acid = ifelse(length(water@dcaa)==0, NA, water@dcaa),
-                    Trichloroacetic_acid = ifelse(length(water@tcaa)==0, NA, water@tcaa),
-                    Bromoacetic_acid = ifelse(length(water@mbaa)==0, NA, water@mbaa),
-                    Dibromoacetic_acid = ifelse(length(water@dbaa)==0, NA, water@dbaa),
-                    Sum_5_haloacetic_acids = ifelse(length(water@haa5)==0, NA, water@haa5))
-                    # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-                    # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
-                    # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
-                    # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-                    # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-                    # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+  haas = data.frame(Chloroacetic_acid = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
+    Dichloroacetic_acid = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
+    Trichloroacetic_acid = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
+    Bromoacetic_acid = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
+    Dibromoacetic_acid = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
+    Sum_5_haloacetic_acids = ifelse(length(water@haa5) == 0, NA, water@haa5))
+  # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
+  # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
+  # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
+  # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
+  # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
+  # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
 
   thms = thms %>%
-    pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result")%>%
+    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result") %>%
 
     mutate(result = round(result, 2))
 
   thms = knitr::kable(thms,
-                      format = "simple",
-                      col.names = c("THMs", "Modeled concentration (ug/L)"))
+    format = "simple",
+    col.names = c("THMs", "Modeled concentration (ug/L)"))
 
   haas = knitr::kable(haas,
-                      format = "simple",
-                      col.names = c("HAAs", "Modeled concentration (ug/L)"))
+    format = "simple",
+    col.names = c("HAAs", "Modeled concentration (ug/L)"))
 
   return(knitr::kables(list(thms, haas)))
 }
@@ -776,8 +776,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #'
 #' @examples
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
-#' balance_ions()
-#'
+#'   balance_ions()
 #'
 #' @export
 #'
@@ -828,8 +827,11 @@ balance_ions <- function(water) {
   water@so4 <- so4_new
   water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
-  return(water)
+  if (is.na(water@tds) & is.na(water@cond)) {
+    water@is = calculate_ionicstrength(water)
+  }
 
+  return(water)
 }
 
 
@@ -924,13 +926,13 @@ correlate_ionicstrength <- function(water, from = "cond") {
 # Activity coefficients: Davies equation (1967), MWH equation 5-43
 # Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), MWH equation 5-44
 
-calculate_activity <- function(z, is, temp){
+calculate_activity <- function(z, is, temp) {
   tempa = temp + 273.15 # absolute temperature (K)
   # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958) [MWH equation 5-45]
-  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa-298)^3)
+  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
   # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998) [MWH equation 5-44]
-  a = 1.29E6 * (sqrt(2)/((de*tempa)^1.5))
-  #Davies equation (1967) [MWH equation 5-43]
+  a = 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+  # Davies equation (1967) [MWH equation 5-43]
   10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
 }
 
@@ -942,7 +944,7 @@ calculate_activity <- function(z, is, temp){
 correct_k <- function(water) {
 
   # Determine activity coefficients
-    if (is.na(water@is)) {
+  if (is.na(water@is)) {
     activity_z1 = 1
     activity_z2 = 1
     activity_z3 = 1
@@ -971,7 +973,7 @@ correct_k <- function(water) {
     K_temp_adjust(deltah, k, water@temp) / activity_z2
 
   return(data.frame("k1co3" = k1co3, "k2co3" = k2co3,
-           "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-           "kocl" = kocl, "kso4" = kso4))
+    "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
+    "kocl" = kocl, "kso4" = kso4))
 
 }

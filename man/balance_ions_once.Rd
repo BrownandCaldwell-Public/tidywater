@@ -18,8 +18,8 @@ tidywater functions cannot be added after this function because they require a w
 }
 \details{
 For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
- for the option to use parallel processing and speed things up. To initialize parallel processing, use 
- `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the 
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
  shorter run times will not benefit from parallel processing.
 }
@@ -30,20 +30,20 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_once()
+  define_water_chain() \%>\%
+  balance_ions_once()
 
 example_df <- water_df \%>\%
-define_water_chain(output_water = "Different_defined_water_column") \%>\%
-balance_ions_once(input_water = "Different_defined_water_column")
+  define_water_chain(output_water = "Different_defined_water_column") \%>\%
+  balance_ions_once(input_water = "Different_defined_water_column")
 
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_once()
+  define_water_chain() \%>\%
+  balance_ions_once()
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }

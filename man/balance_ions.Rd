@@ -18,7 +18,6 @@ User should always check the outputs to make sure values are reasonable for the 
 }
 \examples{
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) \%>\%
-balance_ions()
-
+  balance_ions()
 
 }

@@ -21,13 +21,13 @@ library(tidyr)
 
 # Generates 1 row dataframe
 example_df <- define_water(ph = 7, temp = 20, alk = 100) \%>\%
-convert_water()
+  convert_water()
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-mutate(to_dataframe  = map(defined_water, convert_water)) \%>\%
-unnest(to_dataframe) \%>\%
-select(-defined_water)
+  define_water_chain() \%>\%
+  mutate(to_dataframe = map(defined_water, convert_water)) \%>\%
+  unnest(to_dataframe) \%>\%
+  select(-defined_water)
 
 }
 \seealso{
