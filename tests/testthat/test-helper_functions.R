@@ -500,7 +500,7 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
   expect_equal(blend2, blend3) # test different ways to input ratios
 })
 
-# pluck_aters----
+# pluck_waters----
 test_that("pluck_water works", {
 
   water1 <- water_df %>%
