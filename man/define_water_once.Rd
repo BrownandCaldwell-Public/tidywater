@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{define_water_once}
 \alias{define_water_once}
-\title{Apply define_water and output a dataframe}
+\title{Apply `define_water` and output a dataframe}
 \usage{
 define_water_once(df)
 }
@@ -12,7 +12,7 @@ define_water_once(df)
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
 It outputs all carbonate calculations and other parameters in a data frame.
-tidywater functions cannot be added after this function because they require a water class input.
+tidywater functions cannot be added after this function because they require a `water` class input.
 }
 \details{
 For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
