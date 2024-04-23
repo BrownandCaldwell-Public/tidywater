@@ -38,16 +38,14 @@ no_alum <- define_water(ph = 8.3, temp = 18, alk = 150)
 alum_30 <- no_alum %>% 
   chemdose_ph(alum = 30) %>% 
   solvedose_ph(target_ph = 8, chemical = "naoh")
-# Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
-alum_30 
 
+alum_30 # Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
 
 alum_20 <- no_alum %>% 
   chemdose_ph(alum = 20) %>% 
   solvedose_ph(target_ph = 8, chemical = "naoh")
 
-# Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
-alum_20 
+alum_20 # Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
 
 ```
 
@@ -69,16 +67,19 @@ raw <- water_df %>%
   cross_join(alum_doses)
 ```
 ## `chemdose_ph_chain`
-Now that we're set up, let's dose some alum! To do this, we'll use `chemdose_ph_chain`, a function whose tidywater base is `chemdose_ph`. `chemdose_ph_chain` requires dosed chemicals to match the argument's notation. In this case, our chemical is already properly named. Other chemicals, such as caustic, ferric sulfate, soda ash and more would need to be named `naoh`, `fe2so43`, and `na2co3`, respectively.  Most tidywater chemicals are named with their chemical formula, all lowercase and no special characters.
+Now that we're set up, let's dose some alum! To do this, we'll use `chemdose_ph_chain`, a function whose tidywater base is `chemdose_ph`. The `chemdose_ph_chain` function requires dosed chemicals to match the argument's notation. In this case, our chemical is already properly named. Other chemicals, such as caustic, ferric sulfate, soda ash and more would need to be named `naoh`, `fe2so43`, and `na2co3`, respectively.  Most tidywater chemicals are named with their chemical formula, all lowercase and no special characters.
 
 There are two ways to dose chemicals. 
-1. You can pass an appropriately named column into the function, or 
-2. You can specify the chemical in the function. 
+
+1. You can pass an appropriately named column into the function, or
+
+1. You can specify the chemical in the function. 
 
 Let's look at both options.
 ```{r, warning=FALSE}
 
-# 1. Use an existing column in your dataframe to dose a chemical. Here, we use the alum column as the dosed chemical.
+# 1. Use an existing column in your dataframe to dose a chemical. 
+#    Here, we use the alum column as the dosed chemical.
 dose_column <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water") %>% 
   pluck_water(input_water = "dosed_chem_water", parameter = "ph") %>% 
@@ -92,7 +93,6 @@ dose_argument <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water", alum = 30) %>% 
   pluck_water(input_water = "dosed_chem_water", parameter = "ph") %>% 
   select(-c(defined_water, balanced_water))
-
 
 head(dose_argument)
 
@@ -149,7 +149,7 @@ head(dosed_caustic)
 You can see the resulting pH from dosing caustic has raised the pH to 8 +/- 0.02 SU. 
 
 ## Multiple chemicals
-`chemdose_ph` is powerful because it can handle multiple chemical inputs. To demonstrate this, we will assume the utility regularly operates under enhanced coagulation. Assuming their alum dose is always 30 mg/L and their acid dose is always 
+`chemdose_ph` is powerful because it can handle multiple chemical inputs. To demonstrate this, we will assume the utility regularly operates under enhanced coagulation. Assuming their alum dose is always 30 mg/L and their acid (HCl) dose is always 10 mg/L.
 
 ```{r, warning=FALSE}
 
@@ -158,8 +158,9 @@ enahnced_coag <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed", hcl = 10) %>%
   pluck_water("alum_dosed", "ph") %>% 
   solvedose_ph_once(input_water = "alum_dosed", target_ph = 8, chemical = "naoh", output_water = "naoh") %>% 
-  select(-c(alum, hcl)) %>% 
-  chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted")
+  select(-c(alum, hcl)) %>% # remove chemical columns so they don't get dosed again in the next line.
+  chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>% 
+  select(-c(defined_water:alum_dosed, target_ph, chemical))
 
 head(enahnced_coag)
 
