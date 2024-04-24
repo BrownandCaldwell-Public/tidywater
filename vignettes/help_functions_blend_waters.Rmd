@@ -32,16 +32,16 @@ First, let's take a look at the available groundwater data from Well A and Well 
 ```{r setup, warning=FALSE}
 # Example of how to use a tidywater "_once" function
 data <- tibble(Well = c("A", "B"),
-                ph = c(8, 9),
-                alk = c(100, 150),
-                temp = c(18, 19),
-                ca_hard = c(5, 10),
-                cond = c(500, 900),
-                tds = c(300, 500),
-                na = c(100, 200),
-                k = c(0, 20),
-                cl = c(0, 30),
-                so4 = c(0,0)) %>%
+  ph = c(8, 9),
+  alk = c(100, 150),
+  temp = c(18, 19),
+  ca_hard = c(5, 10),
+  cond = c(500, 900),
+  tds = c(300, 500),
+  na = c(100, 200),
+  k = c(0, 20),
+  cl = c(0, 30),
+  so4 = c(0, 0)) %>%
   define_water_once()
 
 data
@@ -52,20 +52,19 @@ data
 So what if you want to chain more tidywater functions together? In that case, you can use `define_water_chain`. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all `tidywater` functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many `tidywater` functions, such as `chemdose_ph`, `solvedose_alk`, etc. Most `tidywater` functions have a `_chain` or `_once` option.
 
 ```{r, warning=FALSE, echo=TRUE}
-
 # Read in data from Wells A and B
 raw_wells <- tibble(Well = c("A", "B"),
-                    ph = c(8, 9),
-                    alk = c(100, 150),
-                    temp = c(18, 19),
-                    ca_hard = c(5, 10),
-                    cond = c(500, 900),
-                    tds = c(300, 500),
-                    na = c(100, 200),
-                    k = c(0, 20),
-                    cl = c(0, 30),
-                    so4 = c(0,0)) %>%
-  define_water_chain() %>% 
+  ph = c(8, 9),
+  alk = c(100, 150),
+  temp = c(18, 19),
+  ca_hard = c(5, 10),
+  cond = c(500, 900),
+  tds = c(300, 500),
+  na = c(100, 200),
+  k = c(0, 20),
+  cl = c(0, 30),
+  so4 = c(0, 0)) %>%
+  define_water_chain() %>%
   balance_ions_chain()
 
 raw_wells
@@ -90,15 +89,14 @@ To blend our two wells, we will blend row 1 of `balanced_water` with row 2 of `b
 The `balanced_water` function takes 2 or more waters (must be of the `water` class), and corresponding ratios for each water. 
 
 ```{r, warning=FALSE}
- 
-# Blend "vertically": blends the data in well A's row with that of well B's. 
+# Blend "vertically": blends the data in well A's row with that of well B's.
 # The pluck function from the purrr package is useful for indexing a water class column
 ### First, index the water column using the name or number of the column (ie "balanced_water" or 3 (column number))
 ### Next, index the row
 
 blended_wells <- blend_waters(waters = c(pluck(raw_wells, "balanced_water", 1),
-                                         pluck(raw_wells, 3, 2)),
-                              ratios = c(.5, .5))
+  pluck(raw_wells, 3, 2)),
+ratios = c(.5, .5))
 # outputs a water class object.
 blended_wells
 ```
@@ -109,36 +107,35 @@ In addition to tidying the well water, we will also join all of the blend scenar
 
 ```{r, warning=FALSE}
 # Assume wells can contribute 2.5 MGD each
-groundwater <-   tibble(Wells_flow = c(0, 2.5, 5))
+groundwater <- tibble(Wells_flow = c(0, 2.5, 5))
 # Blending scenarios and the resulting source water ratios
 scenarios <- tibble(surface_flow = seq(.1, 20, 0.1),
-                    River_flow = c(seq(.1, 10, 0.1), rep(10, 100)),
-                    Lake_flow = c(rep(0, 100), seq(.1, 10, .1)),
-                    group = seq(1, 200, 1)) %>%
-cross_join(groundwater) %>%
+  River_flow = c(seq(.1, 10, 0.1), rep(10, 100)),
+  Lake_flow = c(rep(0, 100), seq(.1, 10, .1)),
+  group = seq(1, 200, 1)) %>%
+  cross_join(groundwater) %>%
   mutate(total_flow = River_flow + Lake_flow + Wells_flow,
-         River_ratio = River_flow/total_flow,
-         Lake_ratio = Lake_flow/total_flow,
-         Wells_ratio = Wells_flow/total_flow)
+    River_ratio = River_flow / total_flow,
+    Lake_ratio = Lake_flow / total_flow,
+    Wells_ratio = Wells_flow / total_flow)
 
-Wells <- convert_water(blended_wells) %>% 
-  define_water_chain(output_water = "wells") %>% 
-  select(-c(kw:tbaa)) %>% 
+Wells <- convert_water(blended_wells) %>%
+  define_water_chain(output_water = "wells") %>%
+  select(-c(kw:tbaa)) %>%
   cross_join(scenarios)
 ```
 
 The river and lake sources don't require any mixing. We'll set up their raw data, balance the ions, and join in the blending scenarios.
 ```{r, warning=FALSE}
-
 River <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
-                tot_hard = 300, na = 100, cl = 150, so4 = 200) %>%
+  tot_hard = 300, na = 100, cl = 150, so4 = 200) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "river") %>%
   cross_join(scenarios) %>%
   select(-defined_water)
 
 Lake <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
-               tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150) %>%
+  tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "lake") %>%
   cross_join(scenarios) %>%
@@ -157,21 +154,21 @@ blend <- full_join(Wells, River) %>%
 ## `pluck_water`
 With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to pluck out more than one parameter, it is better to use a `_once` function instead of `_chain` (ie we could have used `blend_water_once` above).
 ```{r, fig.width= 7}
-plotting <- blend %>% 
+plotting <- blend %>%
   pluck_water(input_water = "blended_water", "tot_hard") %>%
-# Flag scenarios for plotting
-    mutate(Flagged = case_when(tot_hard> 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
+  # Flag scenarios for plotting
+  mutate(Flagged = case_when(tot_hard > 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
 
 # Plot the results!
-ggplot(plotting, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged))+
-  geom_point()+
+ggplot(plotting, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
+  geom_point() +
   scale_shape_manual(values = c(4, 16)) +
   labs(y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
-       shape = "Scenario Flags", x = "Total Plant Flow (MGD)") +
+    shape = "Scenario Flags", x = "Total Plant Flow (MGD)") +
   theme_bw() +
   theme(legend.position = "bottom",
-        legend.box = "vertical",
-        legend.margin = margin(-5,0,0,0))
+    legend.box = "vertical",
+    legend.margin = margin(-5, 0, 0, 0))
 ```
 
 ## Speed it up
@@ -183,9 +180,8 @@ library(furrr)
 # For most operating systems, especially Windows, use this at the beginning of your script
 plan(multisession)
 
-#rest of script
+# rest of script
 
 # At the end of the script, here's an option to explicitly close the multisession processing
 plan(sequential)
-
 ```

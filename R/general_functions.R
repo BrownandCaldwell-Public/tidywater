@@ -304,7 +304,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
     k = ifelse(missing(k), NA_real_, k)
     cl = ifelse(missing(cl), NA_real_, cl)
     so4 = ifelse(missing(so4), NA_real_, so4)
-   }
+  }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc = NA_real_

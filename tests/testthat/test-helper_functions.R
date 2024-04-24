@@ -326,7 +326,7 @@ test_that("solvedose_ph_once can handle different input formats", {
 test_that("solvedose_alk_once outputs are the same as base function, solvedose_alk", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
     balance_ions() %>%
-    solvedose_alk(target_alk = 100,  chemical = "naoh")
+    solvedose_alk(target_alk = 100, chemical = "naoh")
 
   water2 <- water_df %>%
     slice(1) %>%
@@ -361,7 +361,7 @@ test_that("solvedose_alk_once can handle different input formats", {
     slice(1) %>%
     define_water_chain() %>%
     mutate(target_alk = 100,
-           chemical = "na2co3") %>%
+      chemical = "na2co3") %>%
     balance_ions_chain() %>%
     solvedose_alk_once(input_water = "balanced_water", output_water = "soda_ash")
 
