@@ -273,7 +273,6 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
 
   if (missing(temp)) {
     temp = 20
-    warning("Missing value for temperature. Default of 20 degrees C will be used.")
   }
 
   if (missing(alk)) {
@@ -282,8 +281,8 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   }
 
   if (missing(tot_hard) & missing(ca_hard)) {
-    tot_hard = 0
-    ca_hard = 0
+    tot_hard = NA_real_
+    ca_hard = NA_real_
   }
 
   if (missing(tot_hard)) {
@@ -297,18 +296,15 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
-
   cond = ifelse(missing(cond), NA_real_, cond)
-  br = ifelse(missing(br), 0, br)
+  br = ifelse(missing(br), NA_real_, br)
 
   if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
-    na = ifelse(missing(na), 0, na)
-    k = ifelse(missing(k), 0, k)
-    cl = ifelse(missing(cl), 0, cl)
-    so4 = ifelse(missing(so4), 0, so4)
-
-    warning("Missing value for cations and/or anions. Default values of 0 will be used. Use plot_ions to visualize ion balance and balance_ions to correct.")
-  }
+    na = ifelse(missing(na), NA_real_, na)
+    k = ifelse(missing(k), NA_real_, k)
+    cl = ifelse(missing(cl), NA_real_, cl)
+    so4 = ifelse(missing(so4), NA_real_, so4)
+   }
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc = NA_real_
