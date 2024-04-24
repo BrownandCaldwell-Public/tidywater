@@ -3,6 +3,20 @@
 \name{dissolve_pb}
 \alias{dissolve_pb}
 \title{Simulate contributions of various lead solids to total soluble lead}
+\source{
+Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS/blob/main/app.R}
+which is licensed under MIT License:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions: The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+Wahman et al. (2021)
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+}
 \usage{
 dissolve_pb(
   water,
@@ -33,19 +47,6 @@ The solid with lowest solubility will form the lead scale (controlling lead soli
 
 Make sure that total dissolved solids, conductivity, or
 ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
-
-Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
-which is licensed under MIT License:
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without restriction,
-including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
-following conditions: The above copyright notice and this permission notice shall be included in all copies or
-substantial portions of the Software.
-
-Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021).
-Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
-AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 }
 \examples{
 

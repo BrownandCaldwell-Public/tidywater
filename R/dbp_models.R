@@ -3,21 +3,20 @@
 
 #' Calculate DBP formation
 #'
-#' \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
+#' @description \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in \code{define_water}
 #' including bromide, TOC, UV254, temperature, and pH.
-#' The function will calculate haloacetic acids (HAA) as HAA5, and
-#' total trihalomethanes (TTHM).
+#' The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 #' The function returns a new object of class "water" with predicted DBP concentrations.
 #' Use \code{summarise_dbp} to quickly tabulate the results.
 #'
-#' TTHMs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-131
-#' HAAs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-134
-#'
-#' TTHMs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-139
-#' HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142
+#' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
+#' @source HAAs, raw: U.S. EPA (2001) equation 5-134
+#' @source TTHMs, treated: U.S. EPA (2001) equation 5-139
+#' @source HAAs, treated: U.S. EPA (2001) equation 5-142
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
@@ -183,7 +182,7 @@ individual_dbp <- corrected_dbp_1%>%
 
 corrected_dbp_2 <- individual_dbp %>%
   select(ID_ind, group, modeled_dbp) %>%
-  rename(ID = ID_ind) %>% 
+  rename(ID = ID_ind) %>%
   rbind(bulk_dbp)
 
 # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10

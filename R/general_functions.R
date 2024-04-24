@@ -834,10 +834,10 @@ balance_ions <- function(water) {
   return(water)
 }
 
-
+# Non-exported functions
+# View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
-# Not exported
 calculate_alpha1_carbonate <- function(h, k) {
   k1 = k$k1co3
   k2 = k$k2co3
@@ -850,7 +850,7 @@ calculate_alpha2_carbonate <- function(h, k) {
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
 
-# Equations from Benjamin 2e Table 5.3b
+# Equations from Benjamin (2014) Table 5.3b
 calculate_alpha0_phosphate <- function(h, k) {
   k1 = k$k1po4
   k2 = k$k2po4

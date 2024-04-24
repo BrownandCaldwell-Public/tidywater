@@ -3,6 +3,17 @@
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
 \title{Calculate DBP formation}
+\source{
+TTHMs, untreated: U.S. EPA (2001) equation 5-131
+
+HAAs, untreated: U.S. EPA (2001) equation 5-134
+
+TTHMs, treated: U.S. EPA (2001) equation 5-139
+
+HAAs, treated: U.S. EPA (2001) equation 5-142
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+}
 \usage{
 chemdose_dbp(
   water,
@@ -34,17 +45,9 @@ Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an obje
 created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 The function also requires additional water quality parameters defined in \code{define_water}
 including bromide, TOC, UV254, temperature, and pH.
-The function will calculate haloacetic acids (HAA) as HAA5, and
-total trihalomethanes (TTHM).
+The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 The function returns a new object of class "water" with predicted DBP concentrations.
 Use \code{summarise_dbp} to quickly tabulate the results.
-}
-\details{
-TTHMs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-131
-HAAs, untreated: Amy et al. (1998), WTP Model v. 2.0, equation 5-134
-
-TTHMs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-139
-HAAs, treated: Amy et al. (1998), WTP Model v. 2.0, equation 5-142
 }
 \examples{
 example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
