@@ -16,7 +16,7 @@ and outputs a DIC (mg/L).
 \examples{
 
 example_dic <- define_water(8, 15, 200) \%>\%
- calculate_dic()
+  calculate_dic()
 
 }
 \seealso{

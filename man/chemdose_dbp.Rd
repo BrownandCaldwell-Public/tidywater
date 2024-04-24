@@ -51,8 +51,8 @@ Use \code{summarise_dbp} to quickly tabulate the results.
 }
 \examples{
 example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
-chemdose_dbp(cl2 = 2, time = 8)
+  chemdose_dbp(cl2 = 2, time = 8)
 example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
-chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
+  chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 
 }

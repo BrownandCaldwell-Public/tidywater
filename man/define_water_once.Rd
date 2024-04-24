@@ -33,7 +33,7 @@ example_df <- water_df \%>\% define_water_once()
 plan(multisession)
 example_df <- water_df \%>\% define_water_once()
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }

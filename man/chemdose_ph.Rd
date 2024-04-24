@@ -80,11 +80,11 @@ water <- define_water(ph = 7, temp = 25, alk = 10)
 dosed_water <- chemdose_ph(water, hcl = 1)
 dosed_water@ph
 
-#Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
+# Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
 dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
 dosed_water@ph
 
-#Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
+# Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
 dosed_water1 <- chemdose_ph(water, hcl = 1)
 dosed_water1@ph
 dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
