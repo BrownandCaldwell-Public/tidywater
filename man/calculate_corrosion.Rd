@@ -3,40 +3,72 @@
 \name{calculate_corrosion}
 \alias{calculate_corrosion}
 \title{Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR, CCPP)}
+\source{
+AWWA (1977)
+
+Crittenden et al. (2012)
+
+Langelier (1936)
+
+Plummer and Busenberg (1982)
+
+U.S. EPA (1980)
+
+Schock (1984)
+
+Merrill and Sanks (1977a)
+
+Merrill and Sanks (1977b)
+
+Merrill and Sanks (1978)
+
+Trussell (1998)
+
+Ryznar (1946)
+
+See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+}
 \usage{
 calculate_corrosion(
   water,
-  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr")
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
 )
 }
 \arguments{
 \item{water}{Source water of class "water" created by \code{\link{define_water}}}
 
-\item{index}{The indices to be calculated. 
+\item{index}{The indices to be calculated.
 Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
 CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors}
+
+\item{form}{Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"}
 }
 \description{
-\code{calculate_corrosion} takes an object of class "water" created by \code{\link{define_water}} and calculates 
+\code{calculate_corrosion} takes an object of class "water" created by \code{\link{define_water}} and calculates
 corrosion and scaling indices.
 }
 \details{
 Aggressive Index (AI) - the corrosive tendency of water and its effect on asbestos cement pipe
+
 Ryznar Index(RI) - a measure of scaling potential
-Langelier Saturation Index (LSI) - describes the potential for calcium carbonate scale formation
+
+Langelier Saturation Index (LSI) - describes the potential for calcium carbonate scale formation. Equations use empirical calcium carbonate solubilities from Plummer and Busenberg (1982) and Crittenden et al. (2012) rather than calculated from the concentrations of calcium and carbonate in the water.
+
 Larson-skold Index (LI) - describes the corrosivity towards mild steel
+
 Chloride-to-sulfate mass ratio (CSMR) - indicator of galvanic corrosion for lead solder pipe joints
-Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium
-A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP
-indicates how much CaCO3 can be dissolved in the water.
+
+Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium. A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP indicates how much CaCO3 can be dissolved in the water.
+}
+\examples{
+water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) \%>\%
+ calculate_corrosion()
+
+ water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) \%>\%
+calculate_corrosion(index = c("aggressive", "ccpp"))
+
 }
 \seealso{
 \code{\link{define_water}}
-
- @examples
-water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
- calculate_corrosion()
-
- water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
-calculate_corrosion(index = c("aggressive", "ccpp"))
 }
