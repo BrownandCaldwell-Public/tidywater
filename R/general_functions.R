@@ -379,7 +379,7 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
       water@is = correlate_ionicstrength(water, from = "cond")
       noloop = TRUE
       nois = FALSE
-    } else if (is.na(tds) & is.na(cond) & ((ca > 0 | na > 0) & (cl > 0 | so4 > 0) & alk > 0) & !is.na(ph)) {
+    } else if (is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl)| !is.na(so4)) & alk > 0) & !is.na(ph)) {
       water@is = calculate_ionicstrength(water)
       noloop = FALSE
       nois = FALSE
@@ -787,9 +787,9 @@ balance_ions <- function(water) {
   so4_new <- water@so4
 
   # calculate charge
-  cations <- water@na + 2 * water@ca + 2 * water@mg + water@k + water@h
-  anions <- water@cl + 2 * water@so4 + water@hco3 + 2 * water@co3 + water@h2po4 + 2 * water@hpo4 + 3 * water@po4 +
-    water@oh + water@ocl
+  cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
+  anions <- sum(water@cl, 2 * water@so4, water@hco3, 2 * water@co3, water@h2po4, 2 * water@hpo4, 3 * water@po4,
+    water@oh, water@ocl, na.rm = TRUE)
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
@@ -798,9 +798,9 @@ balance_ions <- function(water) {
   # Add either sodium or potassium if cations are needed
   if (cations < anions) {
     add_cat <- anions - cations
-    if (water@na == 0) {
+    if (is.na(water@na) | water@na == 0) {
       na_new <- add_cat
-    } else if (water@k == 0) {
+    } else if (is.na(water@k) | water@k == 0) {
       k_new <- add_cat
     } else {
       na_new <- water@na + add_cat
@@ -808,9 +808,9 @@ balance_ions <- function(water) {
     # add chloride or sulfate if anions are needed
   } else if (anions < cations) {
     add_ani <- cations - anions
-    if (water@cl == 0) {
+    if (is.na(water@cl) | water@cl == 0) {
       cl_new <- add_ani
-    } else if (water@so4 == 0) {
+    } else if (is.na(water@so4) | water@so4 == 0) {
       so4_new <- add_ani / 2
     } else {
       cl_new <- water@cl + add_ani
@@ -897,11 +897,10 @@ K_temp_adjust <- function(deltah, ka, temp) {
 # MWH 2012 (5-37)
 
 calculate_ionicstrength <- function(water) {
-
   # From all ions: IS = 0.5 * sum(M * z^2)
-  0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
-    (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
-    (water@po4) * 3^2)
+  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@tot_ocl, na.rm = TRUE) * 1^2 +
+           sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, na.rm = TRUE) * 2^2 +
+           (water@po4) * 3^2)
 
 }
 

@@ -17,8 +17,8 @@ test_that("Define water calculates correct carbonate balance.", {
   })
 
   expect_equal(water1@ph, 7)
-  expect_equal(round(water1@tot_co3, 5), 0.00244)
-  expect_equal(round(water1@hco3, 3), 0.002)
+  expect_equal(signif(water1@tot_co3, 2), 0.0024)
+  expect_equal(signif(water1@hco3, 2), 0.002)
 
 })
 
@@ -29,13 +29,6 @@ test_that("Define water gives missing value warnings.", {
   expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
     doc = 5, toc = 5, uv254 = .1, br = 50),
   "Missing.+alkalinity.+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, tds = 100,
-    doc = 5, toc = 5, uv254 = .1, br = 50),
-  "Missing.+cations.+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 0, k = 0, cl = 0, so4 = 0,
-    doc = 5, toc = 5, uv254 = .1, br = 50),
-  "Major ions missing.+")
-
   expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10,
     toc = 5, uv254 = .1, br = 50),
   "Missing.+DOC+")

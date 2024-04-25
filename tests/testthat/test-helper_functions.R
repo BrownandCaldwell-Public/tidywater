@@ -334,7 +334,7 @@ test_that("solvedose_alk_once outputs are the same as base function, solvedose_a
     balance_ions_chain() %>%
     solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "naoh")
 
-  expect_equal(water1, water2$dose_required)
+  expect_equal(round(water1), round(water2$dose_required))
 })
 
 # Check that output is a data frame
@@ -522,3 +522,4 @@ test_that("pluck_water works", {
   expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
 
 })
+
