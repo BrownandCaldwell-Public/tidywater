@@ -507,7 +507,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
-#' @param output_water name of the output column storing doses in mg/L. Default is "dose_required".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
 #' @seealso \code{\link{solvedose_ph}}
@@ -608,7 +608,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
-#' @param output_water name of the output column storing doses in mg/L. Default is "dose_required".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_alk set a goal for alkalinity using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired alkalinity using function argument or data frame column
 #' @seealso \code{\link{solvedose_alk}}
@@ -935,7 +935,10 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #' @param df a data frame containing a column, defined_water, which has already
 #' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
-#' @param output_water name of the output column storing dissolved lead in M. Default is "tot_dissolved_pb".
+#' @param output_col_solid name of the output column storing the controlling lead solid. Default is "controlling_solid".
+#' @param output_col_result name of the output column storing dissolved lead in M. Default is "pb".
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Chenge to FALSE to remove the water prefix from output column names.
 #' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
 #' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
 #' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".

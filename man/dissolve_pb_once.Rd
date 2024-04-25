@@ -21,13 +21,18 @@ been computed using \code{\link{define_water}}, and a column named for each of t
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
+\item{output_col_solid}{name of the output column storing the controlling lead solid. Default is "controlling_solid".}
+
+\item{output_col_result}{name of the output column storing dissolved lead in M. Default is "pb".}
+
 \item{hydroxypyromorphite}{defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".}
 
 \item{pyromorphite}{defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".}
 
 \item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".}
 
-\item{output_water}{name of the output column storing dissolved lead in M. Default is "tot_dissolved_pb".}
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Chenge to FALSE to remove the water prefix from output column names.}
 }
 \description{
 This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
