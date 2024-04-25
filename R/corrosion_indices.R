@@ -42,10 +42,10 @@
 #'
 #' @examples
 #' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
-#'  calculate_corrosion()
+#'   calculate_corrosion()
 #'
-#'  water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
-#' calculate_corrosion(index = c("aggressive", "ccpp"))
+#' water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
+#'   calculate_corrosion(index = c("aggressive", "ccpp"))
 #'
 #' @export
 #'
@@ -66,8 +66,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
     water@aggressive <- water@ph + log10(water@alk * ca_hard)
 
-    if(is.infinite(water@aggressive)){
-     water@aggressive <- NA_real_
+    if (is.infinite(water@aggressive)) {
+      water@aggressive <- NA_real_
     }
 
   }
@@ -79,9 +79,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("csmr" %in% index) {
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-    water@csmr <- cl/so4
+    water@csmr <- cl / so4
 
-    if(is.nan(water@csmr) | is.infinite(water@csmr)){
+    if (is.nan(water@csmr) | is.infinite(water@csmr)) {
       water@csmr <- NA_real_
     }
   }
@@ -95,7 +95,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     # (epm Cl + epm SO4)/ (epm HCO3 + epm CO3)
     cl_meq <- convert_units(water@cl, "cl", "M", "meq/L")
     so4_meq <- convert_units(water@so4, "so4", "M", "meq/L")
-    alk_meq <- water@alk_eq*1000
+    alk_meq <- water@alk_eq * 1000
 
     water@larsonskold <- (cl_meq + so4_meq) / (alk_meq)
   }
@@ -107,56 +107,56 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Langelier (1936)
   # Schock (1984), equation 9
   # U.S. EPA (1980), equation 4a
-if ("langelier" %in% index | "ryznar" %in% index) {
-  k <- correct_k(water)
-  pk2co3 = -log10(k$k2co3)
-  gamma1 <- calculate_activity(1, water@is, water@temp)
-  gamma2 <- calculate_activity(2, water@is, water@temp)
-  tempa = water@temp + 273.15
+  if ("langelier" %in% index | "ryznar" %in% index) {
+    k <- correct_k(water)
+    pk2co3 = -log10(k$k2co3)
+    gamma1 <- calculate_activity(1, water@is, water@temp)
+    gamma2 <- calculate_activity(2, water@is, water@temp)
+    tempa = water@temp + 273.15
 
-  # Empirical calcium carbonate solubilities From Plummer and Busenberg (1982)
-  if (form=="calcite") {
-    pkso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #calcite
-  } else if (form=="aragonite") {
-    pkso = 171.9773 + 0.077993*tempa - 2903.293/tempa - 71.595*log10(tempa) #aragonite
-  } else if (form=="vaterite"){
-    pkso = 172.1295 + 0.077993*tempa - 3074.688/tempa - 71.595*log10(tempa) #vaterite
-  }
-
-  # pH of saturation
-  ph_s =  pk2co3 - pkso - log10(gamma2*water@ca) - log10(water@alk_eq) # Crittenden et al. (2012), eqn. 22-30
-
-  if (ph_s <= 9.3) {
-    ph_s = ph_s
-  } else if (ph_s > 9.3){
-    ph_s =  pk2co3 - pkso - log10(gamma2*water@ca) - log10(gamma1*water@hco3) # Use bicarbonate alkalinity only if initial pH_s > 9.3 (U.S. EPA, 1980)
-  }
-
-  ###########################################################################################*
-  # LANGELIER ------------------------------
-  ###########################################################################################*
-
-  if ("langelier" %in% index) {
-    water@langelier <- water@ph - ph_s
-
-    if(is.infinite(water@langelier)){
-      water@langelier <- NA_real_
+    # Empirical calcium carbonate solubilities From Plummer and Busenberg (1982)
+    if (form == "calcite") {
+      pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
+    } else if (form == "aragonite") {
+      pkso = 171.9773 + 0.077993 * tempa - 2903.293 / tempa - 71.595 * log10(tempa) # aragonite
+    } else if (form == "vaterite") {
+      pkso = 172.1295 + 0.077993 * tempa - 3074.688 / tempa - 71.595 * log10(tempa) # vaterite
     }
-  }
 
-}
+    # pH of saturation
+    ph_s = pk2co3 - pkso - log10(gamma2 * water@ca) - log10(water@alk_eq) # Crittenden et al. (2012), eqn. 22-30
+
+    if (ph_s <= 9.3) {
+      ph_s = ph_s
+    } else if (ph_s > 9.3) {
+      ph_s = pk2co3 - pkso - log10(gamma2 * water@ca) - log10(gamma1 * water@hco3) # Use bicarbonate alkalinity only if initial pH_s > 9.3 (U.S. EPA, 1980)
+    }
+
+    ###########################################################################################*
+    # LANGELIER ------------------------------
+    ###########################################################################################*
+
+    if ("langelier" %in% index) {
+      water@langelier <- water@ph - ph_s
+
+      if (is.infinite(water@langelier)) {
+        water@langelier <- NA_real_
+      }
+    }
+
+  }
 
   ###########################################################################################*
   # RYZNAR ------------------------------
   ###########################################################################################*
   # Ryznar (1944)
 
-   if ("ryznar" %in% index) {
-     water@ryznar <- 2*ph_s - water@ph
+  if ("ryznar" %in% index) {
+    water@ryznar <- 2 * ph_s - water@ph
 
-     if(is.infinite(water@ryznar)){
-       water@ryznar <- NA_real_
-     }
+    if (is.infinite(water@ryznar)) {
+      water@ryznar <- NA_real_
+    }
   }
 
   ###########################################################################################*
@@ -168,21 +168,21 @@ if ("langelier" %in% index | "ryznar" %in% index) {
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
-    pkso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #calcite
+    pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     K_so = 10^-pkso
     active_2 = calculate_activity(2, water@is, water@temp)
 
     solve_x <- function(x, water) {
       water2 <- chemdose_ph(water, caco3 = x)
-     K_so/(water2@co3*active_2) - water2@ca*active_2
+      K_so / (water2@co3 * active_2) - water2@ca * active_2
     }
 
     root_x <- stats::uniroot(solve_x,
-                             water = water,
-                             interval = c(-1000, 1000),
-                             lower = -1,
-                             upper = 1,
-                             extendInt = "yes")
+      water = water,
+      interval = c(-1000, 1000),
+      lower = -1,
+      upper = 1,
+      extendInt = "yes")
 
     water@ccpp <- -root_x$root
   }
@@ -198,8 +198,8 @@ if ("langelier" %in% index | "ryznar" %in% index) {
 #' @param water Source water vector created by \code{\link{define_water}}.
 #'
 #' @examples
-#' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576)%>%
-#' calculate_corrosion()
+#' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576) %>%
+#'   calculate_corrosion()
 #' summarise_corrosion(water)
 #'
 #' @export
@@ -210,21 +210,20 @@ summarise_corrosion <- function(water) {
   }
   # Compile main WQ parameters to print AI, RI, LSI, LI, CSMR, CCPP)
   params = data.frame(`Aggressive Index` = water@aggressive,
-                      `Ryznar Stability Index` = water@ryznar,
-                      `Langelier Saturation Index` = water@langelier,
-                      `Larson Skold Index` = water@larsonskold,
-                      `Chloride to Sulfate Mass Ratio` = water@csmr,
-                      `Calcium carbonate precipitation potential` = water@ccpp)
+    `Ryznar Stability Index` = water@ryznar,
+    `Langelier Saturation Index` = water@langelier,
+    `Larson Skold Index` = water@larsonskold,
+    `Chloride to Sulfate Mass Ratio` = water@csmr,
+    `Calcium carbonate precipitation potential` = water@ccpp)
 
   params = params %>%
     pivot_longer(c(Aggressive.Index:Calcium.carbonate.precipitation.potential), names_to = "param", values_to = "result") %>%
-    mutate(units = c(rep("unitless",5), "mg/L CaCO3"),
-           Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
+    mutate(units = c(rep("unitless", 5), "mg/L CaCO3"),
+      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
 
   tab = knitr::kable(params,
-                      format = "simple",
-                      col.names = c("Index", "Result", "Units","Recommended"))
+    format = "simple",
+    col.names = c("Index", "Result", "Units", "Recommended"))
 
   return(tab)
 }
-
