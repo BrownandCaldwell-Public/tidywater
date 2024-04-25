@@ -919,7 +919,7 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #' Apply `dissolve_pb` to a dataframe and create a new column with numeric dose
 #'
 #' This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
-#' Its output is a the name of the controlling lead solid, and total dissolved lead (M).
+#' Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
@@ -971,13 +971,13 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_water = "
 
 
   if ( !(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
-      stop("Hydroxypyromorphite must be 'Schock' or 'Zhu'.")}
+      stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
 
   if ( !(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
-    stop("Pyromorphite must be 'Topolska' or 'Xie'.")}
+    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
 
   if ( !(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
-    stop("Laurionite must be 'Nasanen' or 'Lothenbach'.")}
+    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
 
 
   output<- df %>%
