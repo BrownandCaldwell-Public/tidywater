@@ -686,6 +686,7 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
       target_alk = target_alk),
     solvedose_alk)) %>%
     mutate(!!output_column := as.numeric(dose)) %>%
+
     select(-dose)
 }
 
