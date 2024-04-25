@@ -63,10 +63,10 @@ Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of c
 }
 \examples{
 water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) \%>\%
- calculate_corrosion()
+  calculate_corrosion()
 
- water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) \%>\%
-calculate_corrosion(index = c("aggressive", "ccpp"))
+water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) \%>\%
+  calculate_corrosion(index = c("aggressive", "ccpp"))
 
 }
 \seealso{

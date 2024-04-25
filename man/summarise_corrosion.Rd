@@ -14,8 +14,8 @@ This function takes a water data frame defined by \code{\link{define_water}} and
 corrosion indices calculated by \code{\link{calculate_corrosion}}.
 }
 \examples{
-water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576)\%>\%
-calculate_corrosion()
+water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576) \%>\%
+  calculate_corrosion()
 summarise_corrosion(water)
 
 }
