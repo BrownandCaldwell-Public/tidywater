@@ -3,14 +3,14 @@
 #' @description This function takes a water data frame defined by \code{\link{define_water}}
 #' and outputs a dataframe of the controlling lead solid and total lead solubility.
 #' Lead solid solubility is calculated based on controlling solid.
-#' Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
+#' Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
 #' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
 #' The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite = "Xie" or laurionite = "Lothenbach"
 #'
 #' @details The solid with lowest solubility will form the lead scale (controlling lead solid).
 #'
 #' Make sure that total dissolved solids, conductivity, or
-#' ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
+#' ca, na, cl, so4 are used in `define_water` so that an ionic strength is calculated.
 #'
 #' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
 #' which is licensed under MIT License:
@@ -27,7 +27,7 @@
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
 #' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
-#' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasane & Lindell (1976). Can also use "Lothenbach".
+#' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
@@ -48,6 +48,15 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   if (is.na(water@is)) {
     warning("Water is missing ionic strength. Output dataframe will be empty.")
   }
+
+  if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
+    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
+
+  if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
+    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
+
+  if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
+    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
 
 
   leadsol_K <- leadsol_constants %>%

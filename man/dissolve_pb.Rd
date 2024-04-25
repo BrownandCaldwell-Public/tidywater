@@ -32,13 +32,13 @@ dissolve_pb(
 
 \item{pyromorphite}{defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".}
 
-\item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasane & Lindell (1976). Can also use "Lothenbach".}
+\item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".}
 }
 \description{
 This function takes a water data frame defined by \code{\link{define_water}}
-and outputs a dataframe of the controlling lead solid and total lead solubility.
+and outputs a dataframe of the controlling lead solid and total lead solubility (M).
 Lead solid solubility is calculated based on controlling solid.
-Total dissolved lead species (tot_dissolved_pbm, M) are calculated based on lead complex calculations.
+Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
 Some lead solids have two k-constant options. The function will default to the EPA's default constants.
 The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite = "Xie" or laurionite = "Lothenbach"
 }
@@ -46,7 +46,20 @@ The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite
 The solid with lowest solubility will form the lead scale (controlling lead solid).
 
 Make sure that total dissolved solids, conductivity, or
-ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
+ca, na, cl, so4 are used in `define_water` so that an ionic strength is calculated.
+
+Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
+which is licensed under MIT License:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+associated documentation files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+following conditions: The above copyright notice and this permission notice shall be included in all copies or
+substantial portions of the Software.
+
+Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021).
+Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
+AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 }
 \examples{
 
