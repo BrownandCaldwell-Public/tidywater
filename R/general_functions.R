@@ -913,7 +913,7 @@ correlate_ionicstrength <- function(water, from = "cond") {
     # Snoeyink & Jenkins (1980)
     1.6 * 10^-5 * water@cond
   } else if (from == "tds") {
-    # Crittenden et al. (2012) eqn. 5-38
+    # Crittenden et al. (2012) equation 5-38
     2.5 * 10^-5 * water@tds
   } else {
     stop("Specify correlation from 'cond' or 'tds'.")
