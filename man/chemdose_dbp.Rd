@@ -4,9 +4,9 @@
 \alias{chemdose_dbp}
 \title{Calculate DBP formation}
 \source{
-TTHMs, untreated: U.S. EPA (2001) equation 5-131
+TTHMs, raw: U.S. EPA (2001) equation 5-131
 
-HAAs, untreated: U.S. EPA (2001) equation 5-134
+HAAs, raw: U.S. EPA (2001) equation 5-134
 
 TTHMs, treated: U.S. EPA (2001) equation 5-139
 

@@ -163,8 +163,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       mutate(modeled_dbp = modeled_dbp / ds) %>%
       select(ID, group, modeled_dbp)
   } else {
-    corrected_dbp_1 <- predicted_dbp%>%
-    select(ID, group, modeled_dbp)
+    corrected_dbp_1 <- predicted_dbp %>%
+      select(ID, group, modeled_dbp)
   }
 
   # proportional corrections following U.S. EPA (2001), section 5.7.3

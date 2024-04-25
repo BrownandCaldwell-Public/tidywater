@@ -3,6 +3,13 @@
 \name{chemdose_toc}
 \alias{chemdose_toc}
 \title{Determine TOC removal from coagulation}
+\source{
+Edwards (1997)
+
+U.S. EPA (2001)
+
+See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+}
 \usage{
 chemdose_toc(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum")
 }
