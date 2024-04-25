@@ -149,7 +149,7 @@ enahnced_coag <- raw %>%
   mutate(alum = 30) %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed", hcl = 10) %>%
   pluck_water("alum_dosed", "ph") %>%
-  solvedose_ph_once(input_water = "alum_dosed", target_ph = 8, chemical = "naoh", output_water = "naoh") %>%
+  solvedose_ph_once(input_water = "alum_dosed", target_ph = 8, chemical = "naoh", output_column = "naoh") %>%
   select(-c(alum, hcl)) %>% # remove chemical columns so they don't get dosed again in the next line.
   chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>%
   select(-c(defined_water:alum_dosed, target_ph, chemical))
