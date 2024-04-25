@@ -168,6 +168,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
+    tempa = water@temp + 273.15
     pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     K_so = 10^-pkso
     active_2 = calculate_activity(2, water@is, water@temp)
