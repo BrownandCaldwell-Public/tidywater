@@ -549,7 +549,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @export
 
-solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
+solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
 
   dosable_chems <-  tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
@@ -583,7 +583,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
       chemical = chemical,
       target_ph = target_ph),
     solvedose_ph)) %>%
-    mutate(!!output_water := as.numeric(dose)) %>%
+    mutate(!!output_column := as.numeric(dose)) %>%
     select(-dose)
 }
 
@@ -653,7 +653,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @export
 
-solvedose_alk_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_alk = NULL, chemical = NULL) {
+solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
 
   dosable_chems <-  tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
@@ -685,7 +685,7 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_water =
                                    chemical = chemical,
                                    target_alk = target_alk),
                               solvedose_alk)) %>%
-    mutate(!!output_water := as.numeric(dose)) %>%
+    mutate(!!output_column := as.numeric(dose)) %>%
     select(-dose)
 }
 
@@ -922,7 +922,9 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #' Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
+#' Use the `output_col_solid` and `output_col_result` arguments to name the ouput columns for the controlling lead solid
+#' and total dissolved lead, respectively. The input `water` used for the calculation will be appended to the
+#' start of these output columns. Omit the input `water` in the output columns, set `water_prefix` to FALSE (default is TRUE).
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -953,21 +955,22 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #'
 #' example_df <- water_df %>%
 #' define_water_chain() %>%
-#' dissolve_pb_once(output_water = "Dissolved Lead", pyromorphite = "Xie")
+#' dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
 #' # Initialize parallel processing
 #' plan (multisession)
 #' example_df <- water_df %>%
 #' define_water_chain()  %>%
-#' dissolve_pb_once(output_water = "Dissolved Lead", laurionite = "Lothenbach")
+#' dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 #'
 #' #Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
 #' @export
 
-dissolve_pb_once <- function(df, input_water = "defined_water", output_water = "tot_dissolved_pb",
-                             hydroxypyromorphite = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
+dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
+                             output_col_result = "pb", hydroxypyromorphite = "Schock",
+                             pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
 
 
   if ( !(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
@@ -979,13 +982,21 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_water = "
   if ( !(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
     stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
 
-
   output<- df %>%
     mutate(calc = furrr::future_pmap(list(water= !!as.name(input_water),
                                           hydroxypyromorphite = hydroxypyromorphite,
                                           pyromorphite = pyromorphite,
                                           laurionite = laurionite),
                                      dissolve_pb)) %>%
-    unnest_wider(calc) %>%
-    rename(!!output_water := tot_dissolved_pb)
+    unnest_wider(calc)
+
+  if (water_prefix) {
+    output <- output %>%
+    rename(!!paste(input_water, output_col_result, sep = "_") := tot_dissolved_pb,
+           !!paste(input_water, output_col_solid, sep = "_") := controlling_solid)
+  } else {
+    output <- output %>%
+      rename(!!output_col_result := tot_dissolved_pb,
+             !!output_col_solid := controlling_solid)
+  }
 }

@@ -50,6 +50,15 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     warning("Water is missing ionic strength. Output dataframe will be empty.")
   }
 
+  if ( !(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
+    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
+
+  if ( !(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
+    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
+
+  if ( !(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
+    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
+
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)

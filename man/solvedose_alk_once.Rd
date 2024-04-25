@@ -7,7 +7,7 @@
 solvedose_alk_once(
   df,
   input_water = "defined_water",
-  output_water = "dose_required",
+  output_column = "dose_required",
   target_alk = NULL,
   chemical = NULL
 )
@@ -18,11 +18,11 @@ been computed using \code{\link{define_water}}, and a column named for each of t
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
-\item{output_water}{name of the output column storing doses in mg/L. Default is "dose_required".}
-
 \item{target_alk}{set a goal for alkalinity using the function argument or a data frame column}
 
 \item{chemical}{select the chemical to be used to reach the desired alkalinity using function argument or data frame column}
+
+\item{output_water}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \description{
 This function allows \code{\link{solvedose_alk}} to be added to a piped data frame.

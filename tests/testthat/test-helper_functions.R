@@ -539,7 +539,8 @@ test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb",
     balance_ions_chain() %>%
     dissolve_pb_once(input_water = "balanced_water")
 
-  expect_equal(water1$tot_dissolved_pb, water2$tot_dissolved_pb)
+  expect_equal(water1$tot_dissolved_pb, water2$balanced_water_pb)
+  expect_equal(water1$controlling_solid, water2$balanced_water_controlling_solid)
 })
 
 # Check that output column is numeric
@@ -550,7 +551,8 @@ test_that("dissolve_pb_once outputs data frame", {
     balance_ions_chain() %>%
     dissolve_pb_once(input_water = "balanced_water")
 
-  expect_true(is.numeric(water2$tot_dissolved_pb))
+  expect_true(is.numeric(water2$balanced_water_pb))
+  expect_true(is.character(water2$balanced_water_controlling_solid))
 })
 
 # Check that outputs are different depending on selected source
@@ -567,8 +569,8 @@ test_that("dissolve_pb_once processes different input constants", {
     balance_ions_chain() %>%
     dissolve_pb_once(input_water = "balanced_water", pyromorphite = "Xie")
 
-  expect_equal(water2$controlling_solid, water3$controlling_solid)
-  expect_error(expect_equal(water2$tot_dissolved_pb, water3$tot_dissolved_pb))
+  expect_equal(water2$balanced_water_controlling_solid, water3$balanced_water_controlling_solid)
+  expect_error(expect_equal(water2$balanced_water_pb, water3$balanced_water_pb))
 })
 
 # Check that the function stops due to errors in selected source

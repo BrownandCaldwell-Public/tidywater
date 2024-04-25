@@ -7,10 +7,12 @@
 dissolve_pb_once(
   df,
   input_water = "defined_water",
-  output_water = "tot_dissolved_pb",
+  output_col_solid = "controlling_solid",
+  output_col_result = "pb",
   hydroxypyromorphite = "Schock",
   pyromorphite = "Topolska",
-  laurionite = "Nasanen"
+  laurionite = "Nasanen",
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -19,21 +21,23 @@ been computed using \code{\link{define_water}}, and a column named for each of t
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
-\item{output_water}{name of the output column storing dissolved lead in M. Default is "tot_dissolved_pb".}
-
 \item{hydroxypyromorphite}{defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".}
 
 \item{pyromorphite}{defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".}
 
 \item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".}
+
+\item{output_water}{name of the output column storing dissolved lead in M. Default is "tot_dissolved_pb".}
 }
 \description{
 This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
-Its output is a the name of the controlling lead solid, and total dissolved lead (M).
+Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).
 }
 \details{
 The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-
+Use the `output_col_solid` and `output_col_result` arguments to name the ouput columns for the controlling lead solid
+and total dissolved lead, respectively. The input `water` used for the calculation will be appended to the
+start of these output columns. Omit the input `water` in the output columns, set `water_prefix` to FALSE (default is TRUE).
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -55,13 +59,13 @@ dissolve_pb_once(input_water = "balanced_water")
 
 example_df <- water_df \%>\%
 define_water_chain() \%>\%
-dissolve_pb_once(output_water = "Dissolved Lead", pyromorphite = "Xie")
+dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 
 # Initialize parallel processing
 plan (multisession)
 example_df <- water_df \%>\%
 define_water_chain()  \%>\%
-dissolve_pb_once(output_water = "Dissolved Lead", laurionite = "Lothenbach")
+dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 
 #Optional: explicitly close multisession processing
 plan(sequential)
