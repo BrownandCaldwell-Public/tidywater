@@ -314,7 +314,7 @@ test_that("solvedose_ph_once can handle different input formats", {
     mutate(target_ph = 9.2,
       chemical = "naoh") %>%
     balance_ions_chain() %>%
-    solvedose_ph_once(input_water = "balanced_water", output_water = "caustic_dose")
+    solvedose_ph_once(input_water = "balanced_water", output_column = "caustic_dose")
 
   expect_equal(water2$dose_required, water3$caustic_dose)
 })
@@ -363,7 +363,7 @@ test_that("solvedose_alk_once can handle different input formats", {
     mutate(target_alk = 100,
       chemical = "na2co3") %>%
     balance_ions_chain() %>%
-    solvedose_alk_once(input_water = "balanced_water", output_water = "soda_ash")
+    solvedose_alk_once(input_water = "balanced_water", output_column = "soda_ash")
 
   expect_equal(water2$dose_required, water3$soda_ash)
 })
