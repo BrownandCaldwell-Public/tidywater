@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_chain}
 \alias{chemdose_ph_chain}
-\title{Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions}
+\title{Apply `chemdose_ph` within a dataframe and output a column of `water` class to be chained to other tidywater functions}
 \usage{
 chemdose_ph_chain(
   df,
@@ -30,9 +30,9 @@ chemdose_ph_chain(
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "dosed_chem_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
 
 \item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 
@@ -68,11 +68,11 @@ been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. Th
 }
 \description{
 This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
+Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
 Ions and pH will be updated based on input chemical doses.
 }
 \details{
-The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
 If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 ones specified in the function's arguments.

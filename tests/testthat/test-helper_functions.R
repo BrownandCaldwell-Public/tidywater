@@ -314,19 +314,19 @@ test_that("solvedose_ph_once can handle different input formats", {
     mutate(target_ph = 9.2,
       chemical = "naoh") %>%
     balance_ions_chain() %>%
-    solvedose_ph_once(input_water = "balanced_water", output_water = "caustic_dose")
+    solvedose_ph_once(input_water = "balanced_water", output_column = "caustic_dose")
 
   expect_equal(water2$dose_required, water3$caustic_dose)
 })
 
 
 # solvedose_alk helper ----
-# Check solvedose_alk_once outputs are the same as base function, solvedose_alk_once
+# Check solvedose_alk_once outputs are the same as base function, solvedose_alk
 
 test_that("solvedose_alk_once outputs are the same as base function, solvedose_alk", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
     balance_ions() %>%
-    solvedose_alk(target_alk = 100,  chemical = "naoh")
+    solvedose_alk(target_alk = 100, chemical = "naoh")
 
   water2 <- water_df %>%
     slice(1) %>%
@@ -361,9 +361,9 @@ test_that("solvedose_alk_once can handle different input formats", {
     slice(1) %>%
     define_water_chain() %>%
     mutate(target_alk = 100,
-           chemical = "na2co3") %>%
+      chemical = "na2co3") %>%
     balance_ions_chain() %>%
-    solvedose_alk_once(input_water = "balanced_water", output_water = "soda_ash")
+    solvedose_alk_once(input_water = "balanced_water", output_column = "soda_ash")
 
   expect_equal(water2$dose_required, water3$soda_ash)
 })
@@ -500,7 +500,7 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
   expect_equal(blend2, blend3) # test different ways to input ratios
 })
 
-
+# pluck_waters----
 test_that("pluck_water works", {
 
   water1 <- water_df %>%
@@ -521,4 +521,65 @@ test_that("pluck_water works", {
   expect_equal(ncol(water2), 4)
   expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
 
+})
+
+# dissolve_pb helper ----
+# Check dissolve_pb_once outputs are the same as base function, dissolve_pb
+
+test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb", {
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca_hard = 50,
+    na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05)) %>%
+    balance_ions() %>%
+    dissolve_pb()
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water")
+
+  expect_equal(water1$tot_dissolved_pb, water2$balanced_water_pb)
+  expect_equal(water1$controlling_solid, water2$balanced_water_controlling_solid)
+})
+
+# Check that output column is numeric
+
+test_that("dissolve_pb_once outputs data frame", {
+  water2 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water")
+
+  expect_true(is.numeric(water2$balanced_water_pb))
+  expect_true(is.character(water2$balanced_water_controlling_solid))
+})
+
+# Check that outputs are different depending on selected source
+test_that("dissolve_pb_once processes different input constants", {
+  water2 <- water_df %>%
+    slice(3) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water")
+
+  water3 <- water_df %>%
+    slice(3) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water", pyromorphite = "Xie")
+
+  expect_equal(water2$balanced_water_controlling_solid, water3$balanced_water_controlling_solid)
+  expect_error(expect_equal(water2$balanced_water_pb, water3$balanced_water_pb))
+})
+
+# Check that the function stops due to errors in selected source
+test_that("dissolve_pb_once errors work", {
+  water1 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain()
+
+  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", hydroxypyromorphite = "schock"))
+  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", pyromorphite = "Schock"))
+  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", laurionite = "Lothebach"))
 })

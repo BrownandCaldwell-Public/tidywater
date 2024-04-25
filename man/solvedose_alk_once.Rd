@@ -2,12 +2,12 @@
 % Please edit documentation in R/helper_functions.R
 \name{solvedose_alk_once}
 \alias{solvedose_alk_once}
-\title{Apply solvedose_alk to a dataframe and create a new column with numeric dose}
+\title{Apply `solvedose_alk` to a dataframe and create a new column with numeric dose}
 \usage{
 solvedose_alk_once(
   df,
   input_water = "defined_water",
-  output_water = "dose_required",
+  output_column = "dose_required",
   target_alk = NULL,
   chemical = NULL
 )
@@ -16,9 +16,9 @@ solvedose_alk_once(
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
 
-\item{input_water}{name of the column of Water class data to be used as the input. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
-\item{output_water}{name of the output column storing doses in mg/L. Default is "dose_required".}
+\item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 
 \item{target_alk}{set a goal for alkalinity using the function argument or a data frame column}
 
@@ -29,7 +29,7 @@ This function allows \code{\link{solvedose_alk}} to be added to a piped data fra
 Its output is a chemical dose in mg/L.
 }
 \details{
-The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
 If the input data frame has column(s) named "target_alk" or "chemical", the function will use the column(s)
 as function argument(s). If these columns aren't present, specify "target_alk" or "chemical" as function arguments.
@@ -50,34 +50,34 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-mutate(target_alk = 300,
-      chemical = rep(c("naoh", "na2co3"), 6)) \%>\%
-solvedose_alk_once()
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(target_alk = 300,
+    chemical = rep(c("naoh", "na2co3"), 6)) \%>\%
+  solvedose_alk_once()
 
 # When the selected chemical can't raise the alkalinity, the dose_required will be NA
 # For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
 
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-mutate(target_alk = seq(100, 210, 10)) \%>\%
-solvedose_alk_once(chemical = "na2co3")
+  define_water_chain() \%>\%
+  mutate(target_alk = seq(100, 210, 10)) \%>\%
+  solvedose_alk_once(chemical = "na2co3")
 
 # Initialize parallel processing
-plan (multisession)
+plan(multisession)
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-mutate(target_alk = seq(100, 210, 10)) \%>\%
-solvedose_alk_once(chemical = "na2co3")
+  define_water_chain() \%>\%
+  mutate(target_alk = seq(100, 210, 10)) \%>\%
+  solvedose_alk_once(chemical = "na2co3")
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }

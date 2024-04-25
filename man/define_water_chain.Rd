@@ -2,18 +2,18 @@
 % Please edit documentation in R/helper_functions.R
 \name{define_water_chain}
 \alias{define_water_chain}
-\title{Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions}
+\title{Apply `define_water` within a dataframe and output a column of `water` class to be chained to other tidywater functions}
 \usage{
 define_water_chain(df, output_water = "defined_water")
 }
 \arguments{
 \item{df}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
 
-\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "defined_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined_water".}
 }
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
-Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
+Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
 }
 \details{
 For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
