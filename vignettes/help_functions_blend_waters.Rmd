@@ -151,8 +151,8 @@ Now that we have our 3 sources defined, balanced, and cleaned up, we can blend t
 ```{r, warning=FALSE}
 blend <- full_join(Wells, River) %>%
   full_join(Lake) %>%
-  blend_waters_chain(waters = c("wells", "river", "lake"), 
-                     ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
+  blend_waters_chain(waters = c("wells", "river", "lake"),
+    ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
 ```
 
 ## `pluck_water`

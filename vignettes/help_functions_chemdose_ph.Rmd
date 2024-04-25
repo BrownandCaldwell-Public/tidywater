@@ -50,7 +50,6 @@ alum_20 <- no_alum %>%
 
 # Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
 alum_20
-
 ```
 
 As expected, a lower alum dose requires a lower caustic dose to reach the target pH. But what if the utility wants to test a variety of alum doses on a range of their water quality? We'll use the power of tidywater's `_chain` functions to extend this analysis to a full dataframe. For more information on tidywater's `_chain` functions, please see the `vignette("help_functions_blend_waters", package = "tidywater")`.
@@ -81,8 +80,7 @@ There are two ways to dose chemicals.
 
 Let's look at both options.
 ```{r, warning=FALSE}
-
-# 1. Use an existing column in your dataframe to dose a chemical. 
+# 1. Use an existing column in your dataframe to dose a chemical.
 #    Here, we use the alum column as the dosed chemical.
 dose_column <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water") %>%
@@ -154,10 +152,10 @@ You can see the resulting pH from dosing caustic has raised the pH to 8 +/- 0.02
 enahnced_coag <- raw %>%
   mutate(alum = 30) %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed", hcl = 10) %>%
-  pluck_water("alum_dosed", "ph") %>% 
-  solvedose_ph_once(input_water = "alum_dosed", target_ph = 8, chemical = "naoh", output_water = "naoh") %>% 
+  pluck_water("alum_dosed", "ph") %>%
+  solvedose_ph_once(input_water = "alum_dosed", target_ph = 8, chemical = "naoh", output_water = "naoh") %>%
   select(-c(alum, hcl)) %>% # remove chemical columns so they don't get dosed again in the next line.
-  chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>% 
+  chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>%
   select(-c(defined_water:alum_dosed, target_ph, chemical))
 
 

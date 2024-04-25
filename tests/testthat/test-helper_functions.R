@@ -522,4 +522,3 @@ test_that("pluck_water works", {
   expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
 
 })
-

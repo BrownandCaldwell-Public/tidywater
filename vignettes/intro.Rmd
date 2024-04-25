@@ -99,9 +99,9 @@ convert_units(value = balanced_water@k, formula = "k", startunit = "M", endunit 
 Obviously, "adding" 69.6 mg/L of potassium to `my_water` is an assumption. There could be other cations in the water besides potassium that we don't know about. But having a balanced `water` is important because it affects the ionic strength, which in turn affects how different species interact when we dose chemicals into the `water`. You can see more detail on ionic strength and chemical dosing in the `chemdose_ph` vignette, but for now let's take a look at the ionic strength of `my_water` before and after balancing the ions. 
 
 ```{r}
-# The ionic strength slot was NA in the original water because we did not 
+# The ionic strength slot was NA in the original water because we did not
 # provide enough information to calculate it
-my_water@is 
+my_water@is
 balanced_water@is # Now the ionic strength is 0.002 M
 ```
 
@@ -124,7 +124,7 @@ hard_water@tot_hard
 convert_units(value = hard_water@ca, formula = "ca", startunit = "M", endunit = "mg/L CaCO3")
 
 # magnesium hardness
-convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3") 
+convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3")
 ```
 ### Total and dissolved organic carbon
 

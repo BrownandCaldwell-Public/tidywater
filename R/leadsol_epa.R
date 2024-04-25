@@ -50,9 +50,9 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     warning("Water is missing ionic strength. Output dataframe will be empty.")
   }
 
-  water@po4 <-   ifelse(is.na(water@po4), 0, water@po4)
+  water@po4 <- ifelse(is.na(water@po4), 0, water@po4)
   water@cl <- ifelse(is.na(water@cl), 0, water@cl)
-  water@so4 <-  ifelse(is.na(water@so4), 0, water@so4)
+  water@so4 <- ifelse(is.na(water@so4), 0, water@so4)
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
