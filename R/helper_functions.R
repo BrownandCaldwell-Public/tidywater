@@ -128,7 +128,7 @@ define_water_once <- function(df) {
 define_water_chain <- function(df, output_water = "defined_water") {
 
   define_water_args <- c("ph", "temp", "alk", "tot_hard", "ca_hard", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
-                         "toc", "doc", "uv254", "br")
+    "toc", "doc", "uv254", "br")
 
   extras <- df %>%
     select(!any_of(define_water_args))
@@ -551,7 +551,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
 
-  dosable_chems <-  tibble(
+  dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
     naoh = 0, caoh2 = 0, mgoh2 = 0,
@@ -621,41 +621,41 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' mutate(target_alk = 300,
-#'       chemical = rep(c("naoh", "na2co3"), 6)) %>%
-#' solvedose_alk_once()
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(target_alk = 300,
+#'     chemical = rep(c("naoh", "na2co3"), 6)) %>%
+#'   solvedose_alk_once()
 #'
 #' # When the selected chemical can't raise the alkalinity, the dose_required will be NA
 #' # For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
 #'
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' mutate(target_alk = seq(100, 210, 10)) %>%
-#' solvedose_alk_once(chemical = "na2co3")
+#'   define_water_chain() %>%
+#'   mutate(target_alk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3")
 #'
 #' # Initialize parallel processing
-#' plan (multisession)
+#' plan(multisession)
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' mutate(target_alk = seq(100, 210, 10)) %>%
-#' solvedose_alk_once(chemical = "na2co3")
+#'   define_water_chain() %>%
+#'   mutate(target_alk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3")
 #'
-#' #Optional: explicitly close multisession processing
+#' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
 #' @export
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
 
-  dosable_chems <-  tibble(
+  dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
     naoh = 0, caoh2 = 0, mgoh2 = 0,
@@ -672,19 +672,19 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
   if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
     stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")}
 
-  if ("target_alk" %in% names(df) & length(target_alk) >0) {
+  if ("target_alk" %in% names(df) & length(target_alk) > 0) {
     stop("Target alkalinity was set as both a function argument and a data frame column. Remove your target alkalinity from one of these inputs.")}
 
   if ("chemical" %in% names(df) & length(chemical) > 0) {
     stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
 
-  output<- chem %>%
+  output <- chem %>%
     mutate(target_alk = target_alk,
-           chemical = chemical) %>%
-    mutate(dose = furrr::future_pmap(list(water= !!as.name(input_water),
-                                   chemical = chemical,
-                                   target_alk = target_alk),
-                              solvedose_alk)) %>%
+      chemical = chemical) %>%
+    mutate(dose = furrr::future_pmap(list(water = !!as.name(input_water),
+      chemical = chemical,
+      target_alk = target_alk),
+    solvedose_alk)) %>%
     mutate(!!output_column := as.numeric(dose)) %>%
     select(-dose)
 }
@@ -949,21 +949,21 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' dissolve_pb_once(input_water = "balanced_water")
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   dissolve_pb_once(input_water = "balanced_water")
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
+#'   define_water_chain() %>%
+#'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
 #' # Initialize parallel processing
-#' plan (multisession)
+#' plan(multisession)
 #' example_df <- water_df %>%
-#' define_water_chain()  %>%
-#' dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
+#'   define_water_chain() %>%
+#'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 #'
-#' #Optional: explicitly close multisession processing
+#' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
 #' @export
@@ -973,30 +973,30 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
 
 
-  if ( !(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
-      stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
+  if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
+    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
 
-  if ( !(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
+  if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
     stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
 
-  if ( !(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
+  if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
     stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
 
-  output<- df %>%
-    mutate(calc = furrr::future_pmap(list(water= !!as.name(input_water),
-                                          hydroxypyromorphite = hydroxypyromorphite,
-                                          pyromorphite = pyromorphite,
-                                          laurionite = laurionite),
-                                     dissolve_pb)) %>%
+  output <- df %>%
+    mutate(calc = furrr::future_pmap(list(water = !!as.name(input_water),
+      hydroxypyromorphite = hydroxypyromorphite,
+      pyromorphite = pyromorphite,
+      laurionite = laurionite),
+    dissolve_pb)) %>%
     unnest_wider(calc)
 
   if (water_prefix) {
     output <- output %>%
-    rename(!!paste(input_water, output_col_result, sep = "_") := tot_dissolved_pb,
-           !!paste(input_water, output_col_solid, sep = "_") := controlling_solid)
+      rename(!!paste(input_water, output_col_result, sep = "_") := tot_dissolved_pb,
+        !!paste(input_water, output_col_solid, sep = "_") := controlling_solid)
   } else {
     output <- output %>%
       rename(!!output_col_result := tot_dissolved_pb,
-             !!output_col_solid := controlling_solid)
+        !!output_col_solid := controlling_solid)
   }
 }
