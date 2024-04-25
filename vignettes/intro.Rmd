@@ -60,7 +60,7 @@ You can easily summarise your water quality using the `summarise_wq` function, w
 summarise_wq(my_water)
 ```
 
-This is a great way to get started with `tidywater` for users who only need to model a single water quality. If you have a large data set with multiple water qualities that you want to model, though,  this might sound tedious. It wouldn't be possible to manually enter your pH, alkalinity, temperature etc. for, let's say, 5,000 rows. Instead, `tidywater` has helper functions to generate many water classes simultaneously from an imported data set. See the `helper_functions` vignette for large data processing (paste this in the console: `vignette("helper_functions", package = "tidywater")`). 
+This is a great way to get started with `tidywater` for users who only need to model a single water quality. If you have a large data set with multiple water qualities that you want to model, though,  this might sound tedious. It wouldn't be possible to manually enter your pH, alkalinity, temperature etc. for, let's say, 5,000 rows. Instead, `tidywater` has helper functions to generate many water classes simultaneously from an imported data set. See the `help_functions_blend` vignette for large data processing (paste this in the console: `vignette("help_functions_blend", package = "tidywater")`). 
 
 ## Plotting and balancing ions
 
@@ -99,8 +99,9 @@ convert_units(value = balanced_water@k, formula = "k", startunit = "M", endunit 
 Obviously, "adding" 69.6 mg/L of potassium to `my_water` is an assumption. There could be other cations in the water besides potassium that we don't know about. But having a balanced `water` is important because it affects the ionic strength, which in turn affects how different species interact when we dose chemicals into the `water`. You can see more detail on ionic strength and chemical dosing in the `chemdose_ph` vignette, but for now let's take a look at the ionic strength of `my_water` before and after balancing the ions. 
 
 ```{r}
-my_water@is # The ionic strength slot was NA in the original water because we did not provide enough information to calculate it
-
+# The ionic strength slot was NA in the original water because we did not 
+# provide enough information to calculate it
+my_water@is 
 balanced_water@is # Now the ionic strength is 0.002 M
 ```
 
@@ -115,9 +116,15 @@ Let's look at this using `define_water`. We can use `convert_units` to get the o
 ```{r, warning=FALSE}
 # Calculate hardness or calcium hardness
 hard_water <- define_water(8, 20, 100, tot_hard = 150)
-hard_water@tot_hard # total hardness in mg/L CaCO3
-convert_units(value = hard_water@ca, formula = "ca", startunit = "M", endunit = "mg/L CaCO3") # calcium hardness
-convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3") # magnesium hardness
+
+# total hardness in mg/L CaCO3
+hard_water@tot_hard
+
+# calcium hardness
+convert_units(value = hard_water@ca, formula = "ca", startunit = "M", endunit = "mg/L CaCO3")
+
+# magnesium hardness
+convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3") 
 ```
 ### Total and dissolved organic carbon
 

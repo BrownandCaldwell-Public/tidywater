@@ -5,7 +5,7 @@ title: "Helper Functions: Blending Multiple Waters"
 description: "This vignette will show how to use some of tidywater's helper functions through a water blending analysis."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{help_functions}
+  %\VignetteIndexEntry{help_functions_blend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,6 +19,9 @@ library(tidywater)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(furrr)
+library(purrr)
+plan(multisession)
 ```
 
 This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information.
@@ -46,10 +49,10 @@ data <- tibble(Well = c("A", "B"),
 
 data
 ```
-`define_water_once` is the first helper function we'll cover. This function does exactly what `define_water` does, but applies it to a dataframe input. This means once your data has the proper column names, `define_water_once` can add the parameters to each `water` slot, calculate the carbonate balance (and other relevant calculations), and outputs all parameters in the `water` class as a dataframe. Any function with the `_once` suffix in `tidywater` can be used in a piped code block. However, `tidywater` functions cannot be used directly downstream of these types of functions because the data is no longer in a `water` class format. 
+`define_water_once` is the first helper function we'll cover. This function does exactly what `define_water` does, but applies it to a dataframe input. This means once your data has the proper column names, `define_water_once` can add the parameters to each `water` slot, calculate the carbonate balance (and other relevant calculations), and outputs all parameters in the `water` class as a dataframe. Any function with the `_once` suffix in tidywater can be used in a piped code block. However, tidywater functions cannot be used directly downstream of these types of functions because the data is no longer in a `water` class format. 
 
 ## `define_water_chain`
-So what if you want to chain more tidywater functions together? In that case, you can use `define_water_chain`. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all `tidywater` functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many `tidywater` functions, such as `chemdose_ph`, `solvedose_alk`, etc. Most `tidywater` functions have a `_chain` or `_once` option.
+So what if you want to chain more tidywater functions together? In that case, you can use `define_water_chain`. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all tidywater functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many tidywater functions, such as `chemdose_ph`, `solvedose_alk`, etc. Most tidywater functions have a `_chain` or `_once` option.
 
 ```{r, warning=FALSE, echo=TRUE}
 # Read in data from Wells A and B
@@ -101,7 +104,7 @@ ratios = c(.5, .5))
 blended_wells
 ```
 
-To finish blending our wells, we will transform the `blended_wells` water object into a dataframe containing a `water` column. First, we'll use the `convert_water` function to to take the input `water` object and convert it to a dataframe. Then we'll run `define_water_chain` to make a dataframe with water column, named "wells". Most of `tidywater`'s `_chain` functions have the option to name the output column. Defaults vary depending on the `_chain` function. 
+To finish blending our wells, we will transform the `blended_wells` `water` object into a dataframe containing a `water` column. First, we'll use the `convert_water` function to to take the input `water` object and convert it to a dataframe. Then we'll run `define_water_chain` to make a dataframe with water column, named "wells". Most of tidywater's `_chain` functions have the option to name the output column. Defaults vary depending on the `_chain` function. 
 
 In addition to tidying the well water, we will also join all of the blend scenarios we will be modeling.
 
@@ -143,12 +146,13 @@ Lake <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
 ```
 
 ## `blend_waters_chain`
-Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This  next code chunk showcases the power of `tidywater.` We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` dataframe. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
+Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This  next code chunk showcases the power of tidywater. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` dataframe. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
 
 ```{r, warning=FALSE}
 blend <- full_join(Wells, River) %>%
   full_join(Lake) %>%
-  blend_waters_chain(waters = c("wells", "river", "lake"), ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
+  blend_waters_chain(waters = c("wells", "river", "lake"), 
+                     ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
 ```
 
 ## `pluck_water`
@@ -172,11 +176,9 @@ ggplot(plotting, aes(x = total_flow, y = tot_hard, color = as.character(Wells_fl
 ```
 
 ## Speed it up
-As you use more `tidywater` helper functions with larger data sets, you'll notice the code can take a few minutes to run. All helper functions use functions from the <a href = "https://furrr.futureverse.org/"> furrr package</a>. To reduce processing time, you can activate the `furrr`'s parallel processing power by using `plan()` at the beginning of your script. `plan()` depends on what type of operating system you have, more info on that in the <a href = "https://furrr.futureverse.org/"> Controlling How Futures are Resolved</a> table. 
+As you use more tidywater helper functions with larger data sets, you'll notice the code can take a few minutes to run. All helper functions use functions from the <a href = "https://furrr.futureverse.org/"> furrr package</a>. To reduce processing time, you can activate the `furrr`'s parallel processing power by using `plan()` at the beginning of your script. `plan()` depends on what type of operating system you have, more info on that in the <a href = "https://furrr.futureverse.org/"> Controlling How Futures are Resolved</a> table. 
 
 ```{r, warning=FALSE}
-library(furrr)
-
 # For most operating systems, especially Windows, use this at the beginning of your script
 plan(multisession)
 
