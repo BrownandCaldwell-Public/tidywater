@@ -6,7 +6,7 @@ description: "This vignette will show how to use some of tidywater's helper func
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{help_functions_blend}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
