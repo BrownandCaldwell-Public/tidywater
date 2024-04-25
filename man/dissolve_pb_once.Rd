@@ -53,21 +53,21 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-dissolve_pb_once(input_water = "balanced_water")
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  dissolve_pb_once(input_water = "balanced_water")
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
+  define_water_chain() \%>\%
+  dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 
 # Initialize parallel processing
-plan (multisession)
+plan(multisession)
 example_df <- water_df \%>\%
-define_water_chain()  \%>\%
-dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
+  define_water_chain() \%>\%
+  dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 
-#Optional: explicitly close multisession processing
+# Optional: explicitly close multisession processing
 plan(sequential)
 
 }
