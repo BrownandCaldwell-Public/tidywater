@@ -107,7 +107,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Langelier (1936)
   # Schock (1984), equation 9
   # U.S. EPA (1980), equation 4a
-
+if ("langelier" %in% index | "ryznar" %in% index) {
   k <- correct_k(water)
   pk2co3 = -log10(k$k2co3)
   gamma1 <- calculate_activity(1, water@is, water@temp)
@@ -144,6 +144,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     }
   }
 
+}
+
   ###########################################################################################*
   # RYZNAR ------------------------------
   ###########################################################################################*
@@ -166,7 +168,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
-    K_so = 10^-log_kso
+    pkso = 171.9065 + 0.077993*tempa - 2839.319/tempa - 71.595*log10(tempa) #calcite
+    K_so = 10^-pkso
     active_2 = calculate_activity(2, water@is, water@temp)
 
     solve_x <- function(x, water) {
