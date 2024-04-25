@@ -12,7 +12,7 @@
 #' Make sure that total dissolved solids, conductivity, or
 #' ca, na, cl, so4 are used in define_water so that an ionic strength is calculated.
 #'
-#' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS/blob/main/app.R}
+#' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
 #' which is licensed under MIT License:
 #' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 #' associated documentation files (the "Software"), to deal in the Software without restriction,
