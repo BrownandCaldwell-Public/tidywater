@@ -89,5 +89,5 @@ plan(sequential)
 
 }
 \seealso{
-\code{\link{chemdose_ph}}
+\code{\link{chemdose_toc}}
 }

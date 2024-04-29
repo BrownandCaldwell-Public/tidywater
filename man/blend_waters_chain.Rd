@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{blend_waters_chain}
 \alias{blend_waters_chain}
-\title{Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions}
+\title{Apply `blend_waters` within a dataframe and output a column of `water` class to be chained to other tidywater functions}
 \usage{
 blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }
@@ -10,19 +10,19 @@ blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
 
-\item{waters}{List of column names containing a Water class to be blended}
+\item{waters}{List of column names containing a water class to be blended}
 
 \item{ratios}{List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)}
 
-\item{output_water}{name of output column storing updated parameters with the class, Water. Default is "blended_water".}
+\item{output_water}{name of output column storing updated parameters with the class, water. Default is "blended_water".}
 }
 \description{
 This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-Its output is a "water" class with updated ions and pH.
+Its output is a `water` class with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-The Water class columns to use in the function are specified as function arguments. Ratios may be input
+The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The `water` class columns to use in the function are specified as function arguments. Ratios may be input
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package

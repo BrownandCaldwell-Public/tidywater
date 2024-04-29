@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{blend_waters_once}
 \alias{blend_waters_once}
-\title{Apply blend_waters to a dataframe and output water as a dataframe}
+\title{Apply `blend_waters` to a dataframe and output `water` slots as a dataframe}
 \usage{
 blend_waters_once(df, waters, ratios)
 }
@@ -10,7 +10,7 @@ blend_waters_once(df, waters, ratios)
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
 
-\item{waters}{List of column names containing a Water class to be blended}
+\item{waters}{List of column names containing a water class to be blended}
 
 \item{ratios}{List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)}
 }
@@ -19,11 +19,11 @@ This function allows \code{\link{blend_waters}} to be added to a piped data fram
 Its output is a data frame with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-The Water class columns to use in the function are specified as function arguments. Ratios may be input
+The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The `water` class columns to use in the function are specified as function arguments. Ratios may be input
 as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 
-tidywater functions cannot be added after this function because they require a water class input.
+tidywater functions cannot be added after this function because they require a `water` class input.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use
