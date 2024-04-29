@@ -46,7 +46,6 @@ alum_20 <- no_alum %>%
   solvedose_ph(target_ph = 8, chemical = "naoh")
 
 alum_20 # Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
-
 ```
 
 As expected, a lower alum dose requires a lower caustic dose to reach the target pH. But what if the utility wants to test a variety of alum doses on a range of their water quality? We'll use the power of tidywater's `_chain` functions to extend this analysis to a full dataframe. For more information on tidywater's `_chain` functions, please see the `vignette("help_functions_blend_waters", package = "tidywater")`.
@@ -77,7 +76,6 @@ There are two ways to dose chemicals.
 
 Let's look at both options.
 ```{r, warning=FALSE}
-
 # 1. Use an existing column in your dataframe to dose a chemical.
 #    Here, we use the alum column as the dosed chemical.
 

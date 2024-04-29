@@ -1063,7 +1063,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     chemdose_toc_chain(input_water = input_water, output_water = "dosed_chem_water",
-                       alum, fecl3, fe2so43, coeff) %>%
+      alum, fecl3, fe2so43, coeff) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water) %>%
@@ -1185,10 +1185,10 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
     left_join(chem2, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
-                                                     alum = alum,
-                                                     fecl3 = fecl3,
-                                                     fe2so43 = fe2so43,
-                                                     coeff = coeff),
-                                                chemdose_toc)) %>%
+      alum = alum,
+      fecl3 = fecl3,
+      fe2so43 = fe2so43,
+      coeff = coeff),
+    chemdose_toc)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
 }
