@@ -849,11 +849,11 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
   output <- df %>%
     rowwise() %>%
     mutate(waters = furrr::future_pmap(across(all_of(waters)), list),
-           ratios = ifelse(
-             is.numeric(ratios),
-             list(ratios),
-             (list(c_across(all_of(ratios))))
-           )) %>%
+      ratios = ifelse(
+        is.numeric(ratios),
+        list(ratios),
+        (list(c_across(all_of(ratios))))
+    )) %>%
     ungroup() %>%
     mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
@@ -1041,14 +1041,14 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #'   calculate_corrosion_once()
 #'
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -1056,7 +1056,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' @export
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                             form = "calcite") {
+                                     form = "calcite") {
 
   output <- df %>%
     calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
@@ -1106,8 +1106,8 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #'   calculate_corrosion_chain()
 #'
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 
 #' # Initialize parallel processing
 #' plan(multisession)
@@ -1122,12 +1122,12 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
                                       index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                     form = "calcite") {
+                                      form = "calcite") {
   index = list(index)
 
   output <- df %>%
     mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
-                                          index = index,
-                                          form = form),
-                                     calculate_corrosion))
+      index = index,
+      form = form),
+    calculate_corrosion))
 }

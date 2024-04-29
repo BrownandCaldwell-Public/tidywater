@@ -77,5 +77,5 @@ plan(sequential)
 
 }
 \seealso{
-\code{\link{solvedose_alk}}
+\code{\link{dissolve_pb}}
 }
