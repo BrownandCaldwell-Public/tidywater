@@ -19,7 +19,8 @@ test_that("convert water works", {
 test_that("define_water_once output is the same as define_water", {
 
   water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
-  water2 <- convert_water(water1)
+  water2 <- convert_water(water1) %>%
+    select_if(~ any(!is.na(.)))
 
   water3 <- define_water_once(slice(water_df, 1))
 
@@ -521,4 +522,144 @@ test_that("pluck_water works", {
   expect_equal(ncol(water2), 4)
   expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
 
+})
+
+# chemdose_toc helpers ----
+test_that("chemdose_toc_once outputs are the same as base function, chemdose_toc", {
+  water1 <- define_water(7.9, 20, 50, tot_hard = 50, ca_hard = 50, na = 20, k = 20, cl=30,
+                         so4 = 20, tds =200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
+    chemdose_toc(alum = 40)
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_toc_once(alum = 40)
+
+  expect_equal(water1@toc, water2$toc)
+  expect_equal(water1@doc, water2$doc)
+  expect_equal(water1@uv254, water2$uv254)
+})
+
+# Check that output is a data frame
+
+test_that("chemdose_toc_once is a data frame", {
+
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water", alum = 5)
+
+  expect_true(is.data.frame(water1))
+})
+
+# Check chemdose_toc_once can use a column or function argument for chemical dose
+
+test_that("chemdose_toc_once can use a column or function argument for chemical dose", {
+
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water", fe2so43 = 40, coeff = "Ferric")
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(fe2so43 = 40,
+           coeff = "Ferric") %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water")
+
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(fe2so43 = 40) %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
+
+  expect_equal(water1$toc, water2$toc) # test different ways to input chemical
+  expect_equal(water1$doc, water2$doc)
+  expect_equal(water1$uv254, water2$uv254)
+
+  #Test that inputting chemical and coeffs separately (in column and as an argument)  gives save results
+  expect_equal(water1$toc, water3$toc)
+  expect_equal(water2$doc, water3$doc)
+  expect_equal(water2$uv254, water3$uv254)
+})
+
+
+test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
+  water1 <- suppressWarnings(define_water(7.9, 20, 50, tot_hard = 50, ca_hard = 50, na = 20, k = 20, cl=30,
+                         so4 = 20, tds =200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
+    chemdose_toc(fecl3 = 40, coeff = "Ferric"))
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric") %>%
+    pluck_water("coagulated_water", "toc") %>%
+    pluck_water("coagulated_water", "doc") %>%
+    pluck_water("coagulated_water", "uv254")
+
+  expect_equal(water1@toc, water2$toc)
+  expect_equal(water1@doc, water2$doc)
+  expect_equal(water1@uv254, water2$uv254)
+})
+
+# Test that output is a column of water class lists, and changing the output column name works
+
+test_that("chemdose_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_toc_chain(input_water = "balanced_water", fe2so43 = 30, coeff = "Ferric")
+
+  water2 <- purrr::pluck(water1, 4, 1)
+
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    mutate(naoh = 10) %>%
+    balance_ions_chain() %>%
+    chemdose_toc_chain(output_water = "diff_name")
+
+  expect_s4_class(water2, "water") # check class
+  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
+})
+
+# Check chemdose_toc_chain can use a column or function argument for chemical dose
+
+test_that("chemdose_toc_chain can use a column or function argument for chemical dose", {
+
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water", fecl3 = 40, coeff = "Ferric")
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(fecl3 = 40,
+           coeff = "Ferric") %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water")
+
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(fecl3 = 40) %>%
+    balance_ions_chain() %>%
+    chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
+
+  expect_equal(water1$toc, water2$toc) # test different ways to input chemical
+  expect_equal(water1$doc, water2$doc)
+  expect_equal(water1$uv254, water2$uv254)
+
+  #Test that inputting chemical and coeffs separately (in column and as an argument)  gives save results
+  expect_equal(water1$toc, water3$toc)
+  expect_equal(water2$doc, water3$doc)
+  expect_equal(water2$uv254, water3$uv254)
 })
