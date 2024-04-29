@@ -66,7 +66,7 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   mutate(fecl3 = seq(1, 12, 1),
-         coeff = "Ferric") \%>\%
+    coeff = "Ferric") \%>\%
   chemdose_toc_once(input_water = "balanced_water")
 
 example_df <- water_df \%>\%
