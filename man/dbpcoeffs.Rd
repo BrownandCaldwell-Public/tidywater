@@ -20,7 +20,9 @@ A dataframe with 30 rows and 10 columns
 }
 }
 \source{
-Amy et al. (1998)
+U.S. EPA (2001)
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
 dbpcoeffs

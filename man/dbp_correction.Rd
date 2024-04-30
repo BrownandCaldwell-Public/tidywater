@@ -15,6 +15,8 @@ A dataframe with 17 rows and 4 columns
 }
 \source{
 U.S. EPA (2001), Table 5-7
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
 dbp_correction

@@ -1,18 +1,18 @@
 #' Simulate contributions of various lead solids to total soluble lead
 #'
-#' This function takes a water data frame defined by \code{\link{define_water}}
-#' and outputs a dataframe of the controlling lead solid and total lead solubility (M).
+#' @description This function takes a water data frame defined by \code{\link{define_water}}
+#' and outputs a dataframe of the controlling lead solid and total lead solubility.
 #' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
 #' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
 #' The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite = "Xie" or laurionite = "Lothenbach"
 #'
-#' The solid with lowest solubility will form the lead scale (controlling lead solid).
+#' @details The solid with lowest solubility will form the lead scale (controlling lead solid).
 #'
 #' Make sure that total dissolved solids, conductivity, or
 #' ca, na, cl, so4 are used in `define_water` so that an ionic strength is calculated.
 #'
-#' Code is from EPA's TELSS lead solubility dashboard https://github.com/USEPA/TELSS/blob/main/app.R
+#' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
 #' which is licensed under MIT License:
 #' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
 #' associated documentation files (the "Software"), to deal in the Software without restriction,
@@ -20,10 +20,9 @@
 #' copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
 #' following conditions: The above copyright notice and this permission notice shall be included in all copies or
 #' substantial portions of the Software.
+#' @source Wahman et al. (2021)
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
-#' Wahman, D. G., Pinelli, M. D., Schock, M. R., & Lytle, D. A. (2021).
-#' Theoretical equilibrium lead(II) solubility revisited: Open source code and practical relationships.
-#' AWWA Water Science, e1250. https://doi.org/10.1002/aws2.1250
 #'
 #' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
