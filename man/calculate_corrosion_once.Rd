@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{calculate_corrosion_once}
 \alias{calculate_corrosion_once}
-\title{Apply `calculate_corrosion` to a dataframe and create a new column with numeric dose}
+\title{Apply `calculate_corrosion` to a dataframe and create new columns with up to 6 corrosion indices}
 \usage{
 calculate_corrosion_once(
   df,
@@ -12,13 +12,12 @@ calculate_corrosion_once(
 )
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
+\item{df}{a data frame containing a water class column, created using \code{\link{define_water}}}
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
 \item{index}{The indices to be calculated.
-Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
+Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr".
 CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors}
 
 \item{form}{Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"}

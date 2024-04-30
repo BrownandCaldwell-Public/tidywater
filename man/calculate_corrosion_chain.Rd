@@ -28,13 +28,14 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 }
 \description{
 This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
-Up to six additional columns will be added to output is a `water` class column depending on what corrosion/scaling
+Up to six additional columns will be added to the output `water` class column depending on what corrosion/scaling
 indices are selected: Aggressive index (AI), Ryznar index (RI), Langelier saturation index (LSI),
 Larson-Skold index (LI), chloride-to-sulfate mass ratio (CSMR) & calcium carbonate precipitation potential (CCPP).
 }
 \details{
 The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-The `water` class columns to use in the function are specified as function arguments.
+The `water` class column to use in the function is specified in the `input_water` argument (default input `water` is "defined_water".
+The name of the output `water` class column defaults to  "corrosion_indices", but may be altered using the `output_water` argument.
 
 For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 for the option to use parallel processing and speed things up. To initialize parallel processing, use
