@@ -588,7 +588,6 @@ test_that("dissolve_pb_once errors work", {
 
 # calculate_corrosion helpers ----
 # Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
-# Check that output is a data frame
 
 test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
   water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100) %>%
@@ -652,7 +651,7 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
 
 # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
-test_that("chemdose_ph_chain outputs the same as base, calculate_corrosion", {
+test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
   water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     calculate_corrosion()
