@@ -640,9 +640,9 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
     balance_ions_chain() %>%
     calculate_corrosion_once(input_water = "balanced_water")
 
-  water3 <-  water1 %>%
+  water3 <- water1 %>%
     select_if(names(water1) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
-  water4 <-  water2 %>%
+  water4 <- water2 %>%
     select_if(names(water2) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
 
   expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
@@ -713,8 +713,7 @@ test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
   pluck2 <- purrr::pluck(water2, 3)
   pluck3 <- purrr::pluck(water3, 3)
 
- expect_error(expect_equal(pluck1, pluck2))
- expect_error(expect_equal(pluck2, pluck3))
- expect_error(expect_equal(pluck1, pluck3))
+  expect_error(expect_equal(pluck1, pluck2))
+  expect_error(expect_equal(pluck2, pluck3))
+  expect_error(expect_equal(pluck1, pluck3))
 })
-
