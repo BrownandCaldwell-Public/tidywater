@@ -39,13 +39,17 @@ alum_30 <- no_alum %>%
   chemdose_ph(alum = 30) %>%
   solvedose_ph(target_ph = 8, chemical = "naoh")
 
+# Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
+alum_30
+
 alum_30 # Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
 
 alum_20 <- no_alum %>%
   chemdose_ph(alum = 20) %>%
   solvedose_ph(target_ph = 8, chemical = "naoh")
 
-alum_20 # Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
+# Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
+alum_20
 ```
 
 As expected, a lower alum dose requires a lower caustic dose to reach the target pH. But what if the utility wants to test a variety of alum doses on a range of their water quality? We'll use the power of tidywater's `_chain` functions to extend this analysis to a full dataframe. For more information on tidywater's `_chain` functions, please see the `vignette("help_functions_blend_waters", package = "tidywater")`.
