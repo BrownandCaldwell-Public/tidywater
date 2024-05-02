@@ -36,7 +36,8 @@
 convert_water <- function(water) {
   nms <- slotNames(water)
   lst <- lapply(nms, function(nm) slot(water, nm))
-  as.data.frame(setNames(lst, nms))
+  as.data.frame(setNames(lst, nms)) %>%
+    select(where(~ any(!is.na(.))))
 }
 
 #' Apply `define_water` and output a dataframe
@@ -79,8 +80,7 @@ define_water_once <- function(df) {
     mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
-    as.data.frame() %>%
-    select_if(~ any(!is.na(.)))
+    as.data.frame()
 
 }
 
@@ -153,7 +153,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @seealso \code{\link{balance_ions}}
@@ -189,8 +189,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
     mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
-    select(-balanced_water) %>%
-    select_if(~ any(!is.na(.)))
+    select(-balanced_water)
 
 }
 
@@ -205,7 +204,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "balanced_water".
 #'
@@ -266,8 +265,8 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
@@ -355,8 +354,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
@@ -435,13 +434,24 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
     if (any(names(chem_inputs_arg) %in% names(chem_inputs_col))) {
       stop("At least one chemical was dosed as both a function argument and a data frame column. Remove your chemical(s) from one of these inputs.")}}
 
-  chem_doses <- chem_inputs_col %>%
-    cross_join(chem_inputs_arg)
-  # Add missing chemical columns
-  chem2 <- dosable_chems %>%
-    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-    cross_join(chem_doses) %>%
-    mutate(ID = row_number())
+  if (nrow(chem_inputs_arg) == 1) {
+    chem_doses <- chem_inputs_col %>%
+      cross_join(chem_inputs_arg)
+    # Add missing chemical columns
+    chem2 <- dosable_chems %>%
+      subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
+      cross_join(chem_doses) %>%
+      mutate(ID = row_number())
+
+  } else if (nrow(chem_inputs_arg) > 1) {
+
+    chem_doses <- chem_inputs_col %>%
+      cross_join(chem_inputs_arg)
+    chem2 <- dosable_chems %>%
+      subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
+      unique() %>%
+      cross_join(chem_doses)
+  }
 
   output <- df %>%
     subset(select = !names(df) %in% names(chem_inputs_col)) %>%
@@ -488,8 +498,8 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
@@ -589,8 +599,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_alk set a goal for alkalinity using the function argument or a data frame column
@@ -690,8 +700,8 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}
 #' @param waters List of column names containing a water class to be blended
 #' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
 #'
@@ -763,8 +773,7 @@ blend_waters_once <- function(df, waters, ratios) {
   output <- df %>%
     mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
-    select(-blended) %>%
-    select_if(~ any(!is.na(.)))
+    select(-blended)
 
 }
 
@@ -783,8 +792,8 @@ blend_waters_once <- function(df, waters, ratios) {
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param df a data frame containing a water class column, which has already
+#' been computed using \code{\link{define_water_chain}},
 #' @param waters List of column names containing a water class to be blended
 #' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
 #' @param output_water name of output column storing updated parameters with the class, water. Default is "blended_water".
@@ -849,7 +858,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' This function plucks a selected parameter from a column of `water` class objects.
 #' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
+#' @param df a data frame containing a water class column, which has already
 #' been computed using \code{\link{define_water}}
 #' @param input_water name of the column of water class data to be used as the input for this function.
 #' @param parameter water class attribute to view outside the water column
@@ -916,8 +925,8 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_col_solid name of the output column storing the controlling lead solid. Default is "controlling_solid".
 #' @param output_col_result name of the output column storing dissolved lead in M. Default is "pb".
@@ -995,8 +1004,8 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #'
 #' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
-#' If the input data frame has a column(s) name matching a valid coagulant(s), the function will dose that coagulant(s).Note:
-#' The function can only dose a coagulant either a column or from the function arguments, not both.
+#' If the input data frame has a column(s) name matching a valid coagulant(s), the function will dose that coagulant(s). Note:
+#' The function can only dose a coagulant as either a column or from the function arguments, not both.
 #'
 #' The column names must match the coagulant names as displayed in \code{\link{chemdose_toc}}.
 #' To see which coagulants can be passed into the function, see \code{\link{chemdose_toc}}.
@@ -1009,8 +1018,9 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+#' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
@@ -1066,8 +1076,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
       alum, fecl3, fe2so43, coeff) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-dosed_chem_water) %>%
-    select_if(~ any(!is.na(.)))
+    select(-dosed_chem_water)
 }
 
 #' Apply `chemdose_toc` within a dataframe and output a column of `water` class to be chained to other tidywater functions
@@ -1090,8 +1099,9 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+#' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2

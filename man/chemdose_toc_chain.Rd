@@ -15,8 +15,9 @@ chemdose_toc_chain(
 )
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.}
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+and a column named for the set of coefficients to use.}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 

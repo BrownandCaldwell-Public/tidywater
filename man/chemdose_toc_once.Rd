@@ -14,8 +14,9 @@ chemdose_toc_once(
 )
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.}
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+and a column named for the set of coefficients to use.}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -35,8 +36,8 @@ Its output is a data frame with updated TOC, DOC, and UV254.
 \details{
 The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
-If the input data frame has a column(s) name matching a valid coagulant(s), the function will dose that coagulant(s).Note:
-The function can only dose a coagulant either a column or from the function arguments, not both.
+If the input data frame has a column(s) name matching a valid coagulant(s), the function will dose that coagulant(s). Note:
+The function can only dose a coagulant as either a column or from the function arguments, not both.
 
 The column names must match the coagulant names as displayed in \code{\link{chemdose_toc}}.
 To see which coagulants can be passed into the function, see \code{\link{chemdose_toc}}.

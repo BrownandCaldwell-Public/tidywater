@@ -179,22 +179,34 @@ test_that("chemdose_ph_once is a data frame", {
 
 # Check chemdose_ph_once can use a column or function argument for chemical dose
 
-test_that("chemdose_ph_once can use a column or function argument for chemical dose", {
+test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
 
   water1 <- water_df %>%
-    slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
     chemdose_ph_once(input_water = "balanced_water", naoh = 5)
 
   water2 <- water_df %>%
-    slice(1) %>%
     define_water_chain() %>%
     mutate(naoh = 5) %>%
     balance_ions_chain() %>%
     chemdose_ph_once(input_water = "balanced_water")
 
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    mutate(naoh = seq(0,11,1)) %>%
+    chemdose_ph_once(hcl = c(5,8))
+
+  water4 <- water3 %>%
+    slice(11) # same starting wq as water 5
+
+  water5 <- water1 %>%
+    slice(6) # same starting wq as water 4
+
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
+  expect_equal(ncol(water3), 35) # both naoh and hcl dosed
+  expect_equal(nrow(water3), 24) # joined correctly
+  expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
 })
 
 
@@ -253,22 +265,36 @@ test_that("chemdose_ph_chain works", {
 test_that("chemdose_ph_chain can handle different ways to input chem doses", {
 
 
-  water4 <- water_df %>%
+  water1 <- water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 10, output_water = "dosed_chem") %>% # check out put water changes
-    solvedose_ph_once(input_water = "dosed_chem", target_ph = 10.5, chemical = "naoh")
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 10, output_water = "dosed_chem")
 
-  water5 <- water_df %>%
+  water2 <- water_df %>%
     define_water_chain() %>%
     mutate(naoh = 10) %>%
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water")
 
-  pluck4 <- purrr::pluck(water4, 3)
-  pluck5 <- purrr::pluck(water5, 3)
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    mutate(naoh = seq(0,11,1)) %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(hcl = c(5,8))
 
-  expect_equal(pluck4, pluck5) # test different ways to input chemical
+  water4 <- water3 %>%
+    slice(21) # same starting wq as water 5
+
+  water5 <- water1 %>%
+    slice(11) # same starting wq as water 4
+
+  expect_equal(pluck_water(water1, "dosed_chem", "toc")$toc,
+               pluck_water(water2, "dosed_chem_water", "toc")$toc) # test different ways to input chemical
+  expect_equal(ncol(water3), 5) # both naoh and hcl dosed
+  expect_equal(nrow(water3), 24) # joined correctly
+  expect_error(expect_equal(pluck_water(water4, "dosed_chem", "toc")$toc,
+                            pluck_water(water5, "dosed_chem", "toc")$toc)) # since HCl added to water3, pH should be different
+
 })
 
 
