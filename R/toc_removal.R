@@ -1,10 +1,10 @@
 # TOC models
 
 
-#' Determine TOC removal from coagulation
+#' @title Determine TOC removal from coagulation
 #'
-#' This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated
-#' DOC. Coagulated UVA is from the Water Treatment Plant Model 2.0, equation 5-80. Note that the models rely on pH of coagulation. If
+#' @description This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated
+#' DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize \code{\link{chemdose_ph}} first.
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254
@@ -15,6 +15,10 @@
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
 #' @seealso \code{\link{chemdose_ph}}
+#'
+#' @source Edwards (1997)
+#' @source U.S. EPA (2001)
+#' @source See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)

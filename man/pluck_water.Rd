@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{pluck_water}
 \alias{pluck_water}
-\title{Pluck out a single parameter from a water class object}
+\title{Pluck out a single parameter from a `water` class object}
 \usage{
 pluck_water(df, input_water = "defined_water", parameter, output_column = NULL)
 }
@@ -10,14 +10,14 @@ pluck_water(df, input_water = "defined_water", parameter, output_column = NULL)
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}}}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function.}
+\item{input_water}{name of the column of water class data to be used as the input for this function.}
 
 \item{parameter}{water class attribute to view outside the water column}
 
 \item{output_column}{name of output column storing the plucked variable's values}
 }
 \description{
-This function plucks a selected parameter from a column of water class objects.
+This function plucks a selected parameter from a column of `water` class objects.
 To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
 }
 \examples{

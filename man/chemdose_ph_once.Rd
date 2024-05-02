@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_once}
 \alias{chemdose_ph_once}
-\title{Apply chemdose_ph function and output a dataframe}
+\title{Apply `chemdose_ph` function and output a dataframe}
 \usage{
 chemdose_ph_once(
   df,
@@ -29,7 +29,7 @@ chemdose_ph_once(
 \item{df}{a data frame containing a column, defined_water, which has already
 been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 
@@ -68,14 +68,14 @@ This function allows \code{\link{chemdose_ph}} to be added to a piped data frame
 Its output is a data frame with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
 If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 ones specified in the function's arguments.
 The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 
-tidywater functions cannot be added after this function because they require a water class input.
+tidywater functions cannot be added after this function because they require a `water` class input.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use

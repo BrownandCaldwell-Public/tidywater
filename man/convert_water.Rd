@@ -2,15 +2,15 @@
 % Please edit documentation in R/helper_functions.R
 \name{convert_water}
 \alias{convert_water}
-\title{Convert water class object to a dataframe}
+\title{Convert `water` class object to a dataframe}
 \usage{
 convert_water(water)
 }
 \arguments{
-\item{water}{A "water" class object}
+\item{water}{A water class object}
 }
 \description{
-This converts a water class to a dataframe with individual columns for each slot (water quality parameter) in the water.
+This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
 This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
 there may be a `fn_once` tidywater function that provides a more efficient solution.
 }
