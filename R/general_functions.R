@@ -262,17 +262,13 @@ methods::setMethod("show",
 #'
 #' @export
 #'
-define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
+define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
                          toc, doc, uv254, br) {
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
     ph = NA_real_
     warning("Missing value for pH. Carbonate balance will not be calculated.")
-  }
-
-  if (missing(temp)) {
-    temp = 20
   }
 
   if (missing(alk)) {
@@ -299,12 +295,10 @@ define_water <- function(ph, temp, alk, tot_hard, ca_hard, na, k, cl, so4, tot_o
   cond = ifelse(missing(cond), NA_real_, cond)
   br = ifelse(missing(br), NA_real_, br)
 
-  if (missing(na) | missing(k) | missing(cl) | missing(so4)) {
-    na = ifelse(missing(na), NA_real_, na)
-    k = ifelse(missing(k), NA_real_, k)
-    cl = ifelse(missing(cl), NA_real_, cl)
-    so4 = ifelse(missing(so4), NA_real_, so4)
-  }
+  na = ifelse(missing(na), NA_real_, na)
+  k = ifelse(missing(k), NA_real_, k)
+  cl = ifelse(missing(cl), NA_real_, cl)
+  so4 = ifelse(missing(so4), NA_real_, so4)
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc = NA_real_
@@ -798,9 +792,9 @@ balance_ions <- function(water) {
   # Add either sodium or potassium if cations are needed
   if (cations < anions) {
     add_cat <- anions - cations
-    if (is.na(water@na) | water@na == 0) {
+    if (is.na(water@na)) {
       na_new <- add_cat
-    } else if (is.na(water@k) | water@k == 0) {
+    } else if (is.na(water@k)) {
       k_new <- add_cat
     } else {
       na_new <- water@na + add_cat
@@ -808,9 +802,9 @@ balance_ions <- function(water) {
     # add chloride or sulfate if anions are needed
   } else if (anions < cations) {
     add_ani <- cations - anions
-    if (is.na(water@cl) | water@cl == 0) {
+    if (is.na(water@cl)) {
       cl_new <- add_ani
-    } else if (is.na(water@so4) | water@so4 == 0) {
+    } else if (is.na(water@so4)) {
       so4_new <- add_ani / 2
     } else {
       cl_new <- water@cl + add_ani
