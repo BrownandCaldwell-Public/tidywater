@@ -6,7 +6,7 @@
 \usage{
 define_water(
   ph,
-  temp,
+  temp = 20,
   alk,
   tot_hard,
   ca_hard,
