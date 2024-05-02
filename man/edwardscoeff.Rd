@@ -18,6 +18,8 @@ A dataframe with 5 rows and 7 columns:
 }
 \source{
 Edwards (1997) Table 2.
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
 edwardscoeff
