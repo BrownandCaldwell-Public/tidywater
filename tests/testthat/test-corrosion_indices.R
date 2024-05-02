@@ -1,15 +1,15 @@
 test_that("most indices won't work without ca, cl, so4", {
 
-  water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238)) %>%
-    calculate_corrosion()
+  water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
 
-  expect_equal(water@aggressive, NA_real_)
-  expect_equal(water@ryznar, NA_real_)
-  expect_equal(water@langelier, NA_real_)
-  expect_equal(round(water@ccpp), -9)
-  expect_equal(water@larsonskold, 0)
-  expect_equal(water@csmr, NA_real_)
+
+  expect_equal(suppressWarnings(calculate_corrosion(water,index = "aggressive"))@aggressive, NA_real_)
+  expect_error(suppressWarnings(calculate_corrosion(water,index = "ryznar")))
+  expect_error(suppressWarnings(calculate_corrosion(water,index = "langelier")))
+  expect_error(suppressWarnings(calculate_corrosion(water,index = "ccpp")))
+  expect_equal(suppressWarnings(calculate_corrosion(water,index = "larsonskold"))@larsonskold, NA_real_)
+  expect_equal(suppressWarnings(calculate_corrosion(water,index = "csmr"))@csmr, NA_real_)
 
 })
 
@@ -55,7 +55,7 @@ test_that("larsonskold works", {
   water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 2, so4 = 150)) %>%
     calculate_corrosion(index = "larsonskold")
 
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, so4 = 5)) %>%
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, cl = 50, so4 = 30)) %>%
     balance_ions() %>%
     calculate_corrosion(index = "larsonskold")
 
@@ -64,7 +64,7 @@ test_that("larsonskold works", {
 
   expect_equal(round(water1@larsonskold, 1), 0.7) # high cl, low so4
   expect_equal(round(water2@larsonskold, 1), 0.8) # low cl high so4
-  expect_equal(round(water3@larsonskold, 2), 0.03) # use balance ions to get chloride
+  expect_equal(round(water3@larsonskold, 2), 0.51) # use balance ions to get chloride
   expect_equal(round(water4@larsonskold), 74) # low alk
 })
 
