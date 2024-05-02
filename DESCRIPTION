@@ -23,7 +23,6 @@ Imports:
     magrittr,
     purrr,
     furrr,
-    rmarkdown,
     methods
 RoxygenNote: 7.3.1
 Depends: 
