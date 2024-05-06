@@ -124,7 +124,7 @@ scenarios <- tibble(surface_flow = seq(.1, 20, 0.1),
 
 Wells <- convert_water(blended_wells) %>%
   define_water_chain(output_water = "wells") %>%
-  select(-c(kw:tbaa)) %>%
+  select(-c(kw:treatment)) %>%
   cross_join(scenarios)
 ```
 

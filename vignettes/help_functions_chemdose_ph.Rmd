@@ -82,6 +82,7 @@ Let's look at both options.
 ```{r, warning=FALSE}
 # 1. Use an existing column in your dataframe to dose a chemical.
 #    Here, we use the alum column as the dosed chemical.
+
 dose_column <- raw %>%
   chemdose_ph_chain(input_water = "balanced_water") %>%
   pluck_water(input_water = "dosed_chem_water", parameter = "ph") %>%
@@ -157,6 +158,7 @@ enahnced_coag <- raw %>%
   select(-c(alum, hcl)) %>% # remove chemical columns so they don't get dosed again in the next line.
   chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>%
   select(-c(defined_water:alum_dosed, target_ph, chemical))
+
 
 head(enahnced_coag)
 ```
