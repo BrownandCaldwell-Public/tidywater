@@ -149,7 +149,7 @@ You can see the resulting pH from dosing caustic has raised the pH to 8 +/- 0.02
 `chemdose_ph` is powerful because it can handle multiple chemical inputs. To demonstrate this, we will assume the utility regularly operates under enhanced coagulation. Assuming their alum dose is always 30 mg/L and their acid (HCl) dose is always 10 mg/L.
 
 ```{r, warning=FALSE}
-enahnced_coag <- raw %>%
+enhanced_coag <- raw %>%
   mutate(alum = 30) %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed", hcl = 10) %>%
   pluck_water("alum_dosed", "ph") %>%
@@ -158,6 +158,6 @@ enahnced_coag <- raw %>%
   chemdose_ph_chain(input_water = "alum_dosed", output_water = "ph_adjusted") %>%
   select(-c(defined_water:alum_dosed, target_ph, chemical))
 
-head(enahnced_coag)
+head(enhanced_coag)
 ```
 
