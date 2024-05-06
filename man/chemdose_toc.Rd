@@ -3,6 +3,13 @@
 \name{chemdose_toc}
 \alias{chemdose_toc}
 \title{Determine TOC removal from coagulation}
+\source{
+Edwards (1997)
+
+U.S. EPA (2001)
+
+See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+}
 \usage{
 chemdose_toc(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum")
 }
@@ -20,7 +27,7 @@ named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated
-DOC. Coagulated UVA is from the Water Treatment Plant Model 2.0, equation 5-80. Note that the models rely on pH of coagulation. If
+DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \code{\link{chemdose_ph}} first.
 }
 \examples{
