@@ -1123,6 +1123,14 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
                                       index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                       form = "calcite") {
+  if(!any(index %in% "aggressive") |
+     !any(index %in% "ryznar") |
+     !any(index %in% "langelier") |
+     !any(index %in% "ccpp") |
+     !any(index %in% "larsonskold") |
+     !any(index %in% "csmr")) {
+    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
+
   index = list(index)
 
   output <- df %>%

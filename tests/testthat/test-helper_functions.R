@@ -608,6 +608,17 @@ test_that("calculate_corrosion_once outputs are the same as base function, calcu
   expect_equal(water1@larsonskold, water2$larsonskold)
 })
 
+test_that("function catches index typos", {
+
+  water <-water_df %>%
+    define_water_chain()
+
+  expect_error(calculate_corrosion_chain(water, index = "csr"))
+  expect_error(calculate_corrosion_chain(water, index = c("aggressive", "ccccp")))
+  expect_error(calculate_corrosion_once(water, index = "langlier"))
+  expect_error(calculate_corrosion_once(water, index = c("ai", "ccccp")))
+})
+
 # Check that output is a data frame
 
 test_that("calculate_corrosion_once is a data frame", {

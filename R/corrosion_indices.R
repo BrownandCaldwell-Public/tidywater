@@ -56,6 +56,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")}
   if (is.na(water@cl) | is.na(water@so4)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")}
+  if(!any(index %in% "aggressive") |
+     !any(index %in% "ryznar") |
+     !any(index %in% "langelier") |
+     !any(index %in% "ccpp") |
+     !any(index %in% "larsonskold") |
+     !any(index %in% "csmr")) {
+    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
