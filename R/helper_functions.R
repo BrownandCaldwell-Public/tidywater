@@ -904,15 +904,24 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
     stop("Parameter not specified to pluck.")
   }
 
-  if (!parameter %in% slotNames("water")) {
+  if (!any(parameter %in% slotNames("water"))) {
     stop("Parameter doesn't exist in water class.")
   }
   if (is.null(output_column)) {
     output_column = parameter
   }
+  if (length(parameter) != length(output_column)) {
+    stop("One output column per parameter must be specified, or use NULL to name columns the same as parameters.")
+  }
 
-  df %>%
-    mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
+  plucked <- map2(parameter, output_column, ~ {
+    df %>%
+      mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(input_water), pluck, .x)) %>%
+      select(!!as.name(.y))
+  }) %>%
+    purrr::list_cbind()
+
+  bind_cols(df, plucked)
 
 }
 
