@@ -19,8 +19,7 @@ test_that("convert water works", {
 test_that("define_water_once output is the same as define_water", {
 
   water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
-  water2 <- convert_water(water1) %>%
-    select_if(~ any(!is.na(.)))
+  water2 <- convert_water(water1)
 
   water3 <- define_water_once(slice(water_df, 1))
 
