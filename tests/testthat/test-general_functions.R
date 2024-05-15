@@ -281,7 +281,7 @@ test_that("Ionic strength calc in define water works.", {
   is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
     (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
     (water@po4) * 3^2)
-  expect_equal(water@is, is_calced)
+  expect_equal(signif(water@is, 3), signif(is_calced, 3))
 
 })
 

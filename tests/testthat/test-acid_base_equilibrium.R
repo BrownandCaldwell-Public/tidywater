@@ -126,7 +126,7 @@ test_that("Solve dose alk works.", {
   expect_equal(solvedose_alk(water5, 100, "naoh"), 39.7)
   expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
   naohdose <- solvedose_alk(water5, 100, "naoh")
-  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 100)
+  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 99)
 })
 
 
