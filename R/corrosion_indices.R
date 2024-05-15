@@ -54,9 +54,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     stop("No source water defined. Create a water using the 'define_water' function.")}
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
     warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")}
-  if ((is.na(water@cl) | is.na(water@so4))& ("larsonskold" %in% index | "csmr" %in% index)) {
+  if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")}
-  if(any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
+  if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
 
   ###########################################################################################*

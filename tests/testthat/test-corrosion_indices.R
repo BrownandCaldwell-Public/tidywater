@@ -4,24 +4,24 @@ test_that("most indices won't work without ca, cl, so4", {
 
 
 
-  expect_equal(suppressWarnings(calculate_corrosion(water,index = "aggressive"))@aggressive, NA_real_)
-  expect_error(suppressWarnings(calculate_corrosion(water,index = "ryznar")))
-  expect_error(suppressWarnings(calculate_corrosion(water,index = "langelier")))
-  expect_error(suppressWarnings(calculate_corrosion(water,index = "ccpp")))
-  expect_equal(suppressWarnings(calculate_corrosion(water,index = "larsonskold"))@larsonskold, NA_real_)
-  expect_equal(suppressWarnings(calculate_corrosion(water,index = "csmr"))@csmr, NA_real_)
+  expect_equal(suppressWarnings(calculate_corrosion(water, index = "aggressive"))@aggressive, NA_real_)
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "ryznar")))
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "langelier")))
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "ccpp")))
+  expect_equal(suppressWarnings(calculate_corrosion(water, index = "larsonskold"))@larsonskold, NA_real_)
+  expect_equal(suppressWarnings(calculate_corrosion(water, index = "csmr"))@csmr, NA_real_)
 
 })
 
 test_that("function catches index typos", {
 
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238,
-                                         tot_hard = 100, cl = 40, so4 = 40))
+    tot_hard = 100, cl = 40, so4 = 40))
 
-    expect_error(calculate_corrosion(water, index = "csr"))
-    expect_error(calculate_corrosion(water, index = c("aggressive", "ccccp")))
-    expect_error(calculate_corrosion(water, index = c("ai", "ryznar", "ccpp", "csmr", "langelier")))
-    expect_no_error(calculate_corrosion(water, index = c("ryznar", "csmr", "larsonskold"))) #no error
+  expect_error(calculate_corrosion(water, index = "csr"))
+  expect_error(calculate_corrosion(water, index = c("aggressive", "ccccp")))
+  expect_error(calculate_corrosion(water, index = c("ai", "ryznar", "ccpp", "csmr", "langelier")))
+  expect_no_error(calculate_corrosion(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
 })
 
 test_that("aggressive index works", {

@@ -193,8 +193,8 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
 
   water3 <- water_df %>%
     define_water_chain() %>%
-    mutate(naoh = seq(0,11,1)) %>%
-    chemdose_ph_once(hcl = c(5,8))
+    mutate(naoh = seq(0, 11, 1)) %>%
+    chemdose_ph_once(hcl = c(5, 8))
 
   water4 <- water3 %>%
     slice(11) # same starting wq as water 5
@@ -277,9 +277,9 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
 
   water3 <- water_df %>%
     define_water_chain() %>%
-    mutate(naoh = seq(0,11,1)) %>%
+    mutate(naoh = seq(0, 11, 1)) %>%
     balance_ions_chain() %>%
-    chemdose_ph_chain(hcl = c(5,8))
+    chemdose_ph_chain(hcl = c(5, 8))
 
   water4 <- water3 %>%
     slice(21) # same starting wq as water 5
@@ -288,11 +288,11 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
     slice(11) # same starting wq as water 4
 
   expect_equal(pluck_water(water1, "dosed_chem", "toc")$toc,
-               pluck_water(water2, "dosed_chem_water", "toc")$toc) # test different ways to input chemical
+    pluck_water(water2, "dosed_chem_water", "toc")$toc) # test different ways to input chemical
   expect_equal(ncol(water3), 5) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(pluck_water(water4, "dosed_chem", "toc")$toc,
-                            pluck_water(water5, "dosed_chem", "toc")$toc)) # since HCl added to water3, pH should be different
+    pluck_water(water5, "dosed_chem", "toc")$toc)) # since HCl added to water3, pH should be different
 
 })
 
@@ -647,13 +647,13 @@ test_that("chemdose_toc_once can use a column or function argument for chemical 
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-   chemdose_toc_once(input_water = "balanced_water", fe2so43 = 40, coeff = "Ferric")
+    chemdose_toc_once(input_water = "balanced_water", fe2so43 = 40, coeff = "Ferric")
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     mutate(fe2so43 = 40,
-           coeff = "Ferric") %>%
+      coeff = "Ferric") %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water")
 
@@ -700,7 +700,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-   chemdose_toc_chain(input_water = "balanced_water", fe2so43 = 30, coeff = "Ferric")
+    chemdose_toc_chain(input_water = "balanced_water", fe2so43 = 30, coeff = "Ferric")
 
   water2 <- purrr::pluck(water1, 4, 1)
 
@@ -728,7 +728,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
     slice(1) %>%
     define_water_chain() %>%
     mutate(fecl3 = 40,
-           coeff = "Ferric") %>%
+      coeff = "Ferric") %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water")
 
@@ -759,139 +759,139 @@ test_that("calculate_corrosion_once outputs are the same as base function, calcu
     balance_ions() %>%
     calculate_corrosion()
 
-    water2 <- water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_once(input_water = "balanced_water")
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water")
 
-    expect_equal(water1@langelier, water2$langelier)
-    expect_equal(water1@ryznar, water2$ryznar)
-    expect_equal(water1@aggressive, water2$aggressive)
-    expect_equal(water1@csmr, water2$csmr)
-    expect_equal(water1@ccpp, water2$ccpp)
-    expect_equal(water1@larsonskold, water2$larsonskold)
-  })
+  expect_equal(water1@langelier, water2$langelier)
+  expect_equal(water1@ryznar, water2$ryznar)
+  expect_equal(water1@aggressive, water2$aggressive)
+  expect_equal(water1@csmr, water2$csmr)
+  expect_equal(water1@ccpp, water2$ccpp)
+  expect_equal(water1@larsonskold, water2$larsonskold)
+})
 
-  test_that("function catches index typos", {
+test_that("function catches index typos", {
 
-    water <-water_df %>%
-      define_water_chain()
+  water <- water_df %>%
+    define_water_chain()
 
-    expect_error(calculate_corrosion_chain(water, index = "csr"))
-    expect_error(calculate_corrosion_chain(water, index = c("aggressive", "ccccp")))
-    expect_no_error(calculate_corrosion_chain(water, index = c("aggressive", "ccpp"))) #no error
-    expect_error(calculate_corrosion_once(water, index = "langlier"))
-    expect_error(calculate_corrosion_once(water, index = c("ai", "ccccp")))
-    expect_no_error(calculate_corrosion_chain(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
-  })
+  expect_error(calculate_corrosion_chain(water, index = "csr"))
+  expect_error(calculate_corrosion_chain(water, index = c("aggressive", "ccccp")))
+  expect_no_error(calculate_corrosion_chain(water, index = c("aggressive", "ccpp"))) # no error
+  expect_error(calculate_corrosion_once(water, index = "langlier"))
+  expect_error(calculate_corrosion_once(water, index = c("ai", "ccccp")))
+  expect_no_error(calculate_corrosion_chain(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
+})
 
-  # Check that output is a data frame
+# Check that output is a data frame
 
-   test_that("calculate_corrosion_once is a data frame", {
+test_that("calculate_corrosion_once is a data frame", {
 
-        water1 <- water_df %>%
-          slice(1) %>%
-          define_water_chain() %>%
-          balance_ions_chain() %>%
-          calculate_corrosion_once(input_water = "balanced_water")
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water")
 
-        expect_true(is.data.frame(water1))
-      })
+  expect_true(is.data.frame(water1))
+})
 
-   # Check calculate_corrosion_once outputs an appropriate number of indices
+# Check calculate_corrosion_once outputs an appropriate number of indices
 
-    test_that("calculate_corrosion_once outputs an appropriate number of indices", {
+test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
-          water1 <- water_df %>%
-            slice(1) %>%
-            define_water_chain() %>%
-            balance_ions_chain() %>%
-            calculate_corrosion_once(input_water = "balanced_water", index = c("aggressive", "csmr"))
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water", index = c("aggressive", "csmr"))
 
-          water2 <- water_df %>%
-            slice(1) %>%
-            define_water_chain() %>%
-            mutate(naoh = 5) %>%
-            balance_ions_chain() %>%
-            calculate_corrosion_once(input_water = "balanced_water")
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(naoh = 5) %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water")
 
-          water3 <- water1 %>%
-            select_if(names(water1) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
-          water4 <- water2 %>%
-            select_if(names(water2) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
+  water3 <- water1 %>%
+    select_if(names(water1) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
+  water4 <- water2 %>%
+    select_if(names(water2) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
 
-          expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
-          expect_equal(length(water3), 2) # indices selected in fn should match # of output index columns
-          expect_equal(length(water4), 6)
-        })
-
-
-      # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
-      test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
-        water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
-          balance_ions() %>%
-          calculate_corrosion()
-
-        water2 <- water_df %>%
-          slice(1) %>%
-          define_water_chain() %>%
-          balance_ions_chain() %>%
-          calculate_corrosion_chain(input_water = "balanced_water")
-
-        water3 <- purrr::pluck(water2, 3, 1)
-
-        expect_equal(water1, water3) # check against base
-
-      })
-
-      # Test that output is a column of water class lists, and changing the output column name works
-
-      test_that("calculate_corrosion_chain output is list of water class objects, and can handle an ouput_water arg", {
-
-            water1 <- water_df %>%
-              slice(1) %>%
-              define_water_chain() %>%
-              balance_ions_chain() %>%
-              calculate_corrosion_chain(input_water = "balanced_water")
-
-            water2 <- purrr::pluck(water1, 3, 1)
-
-            water3 <- water_df %>%
-              define_water_chain() %>%
-              mutate(naoh = 10) %>%
-              balance_ions_chain() %>%
-              calculate_corrosion_chain(output_water = "diff_name")
-
-            expect_s4_class(water2, "water") # check class
-            expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
-          })
+  expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
+  expect_equal(length(water3), 2) # indices selected in fn should match # of output index columns
+  expect_equal(length(water4), 6)
+})
 
 
-        # Check that variety of ways to input chemicals work
-        test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
+# Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
+test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
+  water1 <- define_water(7.9, 20, 50, 50, 50, 20, 20, 30, 20, 0, 0, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
+    balance_ions() %>%
+    calculate_corrosion()
 
-          water1 <- water_df %>%
-            define_water_chain() %>%
-            balance_ions_chain() %>%
-            calculate_corrosion_chain(input_water = "balanced_water")
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water")
 
-          water2 <- water_df %>%
-            define_water_chain() %>%
-            balance_ions_chain() %>%
-            calculate_corrosion_chain(input_water = "balanced_water", form = "aragonite")
+  water3 <- purrr::pluck(water2, 3, 1)
 
-          water3 <- water_df %>%
-            define_water_chain() %>%
-            balance_ions_chain() %>%
-            calculate_corrosion_chain(input_water = "balanced_water", form = "vaterite")
+  expect_equal(water1, water3) # check against base
 
-          pluck1 <- purrr::pluck(water1, 3)
-          pluck2 <- purrr::pluck(water2, 3)
-          pluck3 <- purrr::pluck(water3, 3)
+})
 
-          expect_error(expect_equal(pluck1, pluck2))
-          expect_error(expect_equal(pluck2, pluck3))
-          expect_error(expect_equal(pluck1, pluck3))
+# Test that output is a column of water class lists, and changing the output column name works
 
-        })
+test_that("calculate_corrosion_chain output is list of water class objects, and can handle an ouput_water arg", {
+
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water")
+
+  water2 <- purrr::pluck(water1, 3, 1)
+
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    mutate(naoh = 10) %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(output_water = "diff_name")
+
+  expect_s4_class(water2, "water") # check class
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
+})
+
+
+# Check that variety of ways to input chemicals work
+test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
+
+  water1 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water")
+
+  water2 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water", form = "aragonite")
+
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water", form = "vaterite")
+
+  pluck1 <- purrr::pluck(water1, 3)
+  pluck2 <- purrr::pluck(water2, 3)
+  pluck3 <- purrr::pluck(water3, 3)
+
+  expect_error(expect_equal(pluck1, pluck2))
+  expect_error(expect_equal(pluck2, pluck3))
+  expect_error(expect_equal(pluck1, pluck3))
+
+})

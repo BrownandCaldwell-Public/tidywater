@@ -84,7 +84,7 @@ test_that("define_water correctly specifies when estimates are used.", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
   water2 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
   water3 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100, toc = 3.5, doc = 3.5,
-                                          ca = 40, tds = 100))
+    ca = 40, tds = 100))
 
   expect_true(grepl("tds", water1@estimated))
   expect_true(grepl("cond", water1@estimated))
