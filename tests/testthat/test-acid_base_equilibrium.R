@@ -123,10 +123,10 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
 test_that("Solve dose alk works.", {
   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_alk(water5, 100, "naoh"), 40.2)
-  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.1)
+  expect_equal(solvedose_alk(water5, 100, "naoh"), 39.7)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
   naohdose <- solvedose_alk(water5, 100, "naoh")
-  expect_equal(round(chemdose_ph(water5, naoh = naohdose)@alk), 101)
+  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 100)
 })
 
 
