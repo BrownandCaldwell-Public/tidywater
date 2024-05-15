@@ -56,6 +56,7 @@ methods::setClass("water",
 
     # Miscellaneous
     treatment = "character",
+    estimated = "character",
 
     # DBPs
     chcl3 = "numeric", # chloroform
@@ -129,6 +130,7 @@ methods::setClass("water",
 
     # Miscellaneous
     treatment = "defined",
+    estimated = "",
 
     # DBPs
     chcl3 = NA_real_, # chloroform
@@ -205,6 +207,7 @@ methods::setMethod("show",
 
     # Miscellaneous
     cat("Treatment applied to water class:", object@treatment, "\n")
+    cat("List of parameters estimated by tidywater:", object@estimated, "\n")
 
     # DBPs
     cat("Chloroform (ug/L): ", object@chcl3, "\n")
@@ -264,6 +267,9 @@ methods::setMethod("show",
 define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
                          toc, doc, uv254, br) {
 
+  # Initialize string for tracking which parameters were estimated
+  estimated <- ""
+
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
     ph = NA_real_
@@ -283,11 +289,13 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
   if (missing(tot_hard)) {
     tot_hard = ca_hard / 0.65
     warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
+    estimated <- paste(estimated, "tot_hard", sep = "_")
   }
 
   if (missing(ca_hard)) {
     ca_hard = tot_hard * .65
     warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
+    estimated <- paste(estimated, "ca", sep = "_")
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
@@ -309,9 +317,11 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
   } else if (missing(toc) & !missing(doc)) {
     warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
     toc = doc / 0.95
+    estimated <- paste(estimated, "toc", sep = "_")
   } else if (missing(doc) & !missing(toc)) {
     warning("Missing value for DOC. Default value of 95% of TOC will be used.")
     doc = toc * 0.95
+    estimated <- paste(estimated, "doc", sep = "_")
   }
 
   uv254 = ifelse(missing(uv254), NA_real_, uv254)
@@ -350,72 +360,59 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
-    hco3 = carb_alk_eq, co3 = 0, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
+    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
     h = h, oh = oh,
     tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254, br = br)
 
 
-  # Use loop to determine IS
-  oldis = water@is
-  newis = 1
-  n = 0
-  while (abs(oldis / newis - 1) > .0001 && n <= 5) { # continues for 5 iterations or while % difference > 0.01.
-    # Determine ionic strength
-    oldis = water@is
-    if (!is.na(tds)) {
-      water@is = correlate_ionicstrength(water, from = "tds")
-      noloop = TRUE
-      nois = FALSE
-    } else if (!is.na(cond)) {
-      water@is = correlate_ionicstrength(water, from = "cond")
-      noloop = TRUE
-      nois = FALSE
-    } else if (is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl) | !is.na(so4)) & alk > 0) & !is.na(ph)) {
-      water@is = calculate_ionicstrength(water)
-      noloop = FALSE
-      nois = FALSE
-    } else {
-      warning("Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
-      water@is = NA_real_
-      noloop = FALSE
-      nois = TRUE
-    }
+  # Determine ionic strength
 
-    # Eq constants
-    k <- correct_k(water)
-
-    # Carbonate and phosphate ions and ocl ions
-    alpha1 = calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
-    alpha2 = calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
-    water@tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
-    water@hco3 = water@tot_co3 * alpha1
-    water@co3 = water@tot_co3 * alpha2
-
-    alpha1p = calculate_alpha1_phosphate(h, k)
-    alpha2p = calculate_alpha2_phosphate(h, k)
-    alpha3p = calculate_alpha3_phosphate(h, k)
-
-    water@h2po4 = tot_po4 * alpha1p
-    water@hpo4 = tot_po4 * alpha2p
-    water@po4 = tot_po4 * alpha3p
-
-    water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, k)
-
-    # Calculate total alkalinity (set equal to carbonate alkalinity for now)
-    water@alk_eq = carb_alk_eq
-
-    if (noloop) {
-      break
-    } else if (nois) {
-      water@is = NA_real_
-      break
-    }
+  if (!is.na(tds)) {
+    water@is = correlate_ionicstrength(tds, from = "tds")
+    water@cond = correlate_ionicstrength(tds, from = "tds", to = "cond")
+    estimated <- paste(estimated, "cond", sep = "_")
+  } else if (!is.na(cond)) {
+    water@is = correlate_ionicstrength(cond, from = "cond")
+    water@tds = correlate_ionicstrength(cond, from = "cond", to = "tds")
+    estimated <- paste(estimated, "tds", sep = "_")
+  } else if (is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl) | !is.na(so4)) & alk > 0) & !is.na(ph)) {
     water@is = calculate_ionicstrength(water)
-    newis = water@is
-    n = n + 1
+    water@tds = correlate_ionicstrength(water@is, from = "is", to = "tds")
+    estimated <- paste(estimated, "tds", sep = "_")
+    water@cond = correlate_ionicstrength(water@is, from = "is", to = "cond")
+    estimated <- paste(estimated, "cond", sep = "_")
+  } else {
+    warning("Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
+    water@is = NA_real_
   }
+
+  # Eq constants
+  ks <- correct_k(water)
+
+  # Carbonate and phosphate ions and ocl ions
+  alpha1 = calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
+  alpha2 = calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  water@tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  water@hco3 = water@tot_co3 * alpha1
+  water@co3 = water@tot_co3 * alpha2
+
+  alpha1p = calculate_alpha1_phosphate(h, ks)
+  alpha2p = calculate_alpha2_phosphate(h, ks)
+  alpha3p = calculate_alpha3_phosphate(h, ks)
+
+  water@h2po4 = tot_po4 * alpha1p
+  water@hpo4 = tot_po4 * alpha2p
+  water@po4 = tot_po4 * alpha3p
+
+  water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, ks)
+
+  # Calculate total alkalinity (set equal to carbonate alkalinity for now)
+  water@alk_eq = carb_alk_eq
+
+  # Add all estimated values to water slot
+  water@estimated = estimated
 
   return(water)
 }
@@ -788,25 +785,42 @@ balance_ions <- function(water) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
   }
 
+  # Initialize these objects so they can be used later.
+  add_na <- 0
+  add_k <- 0
+  add_cl <- 0
+  add_so4 <- 0
   # Add either sodium or potassium if cations are needed
   if (cations < anions) {
     add_cat <- anions - cations
     if (is.na(water@na)) {
-      na_new <- add_cat
+      add_na <- add_cat
+      na_new <- add_na
+      water@estimated <- paste(water@estimated, "na", sep = "_")
     } else if (is.na(water@k)) {
-      k_new <- add_cat
+      add_k <- add_cat
+      k_new <- add_k
+      water@estimated <- paste(water@estimated, "k", sep = "_")
     } else {
-      na_new <- water@na + add_cat
+      add_na <- add_cat
+      na_new <- water@na + add_na
+      water@estimated <- paste(water@estimated, "na", sep = "_")
     }
     # add chloride or sulfate if anions are needed
   } else if (anions < cations) {
     add_ani <- cations - anions
     if (is.na(water@cl)) {
-      cl_new <- add_ani
+      add_cl <- add_ani
+      cl_new <- add_cl
+      water@estimated <- paste(water@estimated, "cl", sep = "_")
     } else if (is.na(water@so4)) {
-      so4_new <- add_ani / 2
+      add_so4 <- add_ani / 2
+      so4_new <- add_so4
+      water@estimated <- paste(water@estimated, "so4", sep = "_")
     } else {
-      cl_new <- water@cl + add_ani
+      add_cl <- add_ani
+      cl_new <- water@cl + add_cl
+      water@estimated <- paste(water@estimated, "cl", sep = "_")
     }
   }
 
@@ -816,8 +830,15 @@ balance_ions <- function(water) {
   water@so4 <- so4_new
   water@treatment <- paste(water@treatment, "_balanced", sep = "")
 
-  if (is.na(water@tds) & is.na(water@cond)) {
+  # Update TDS/cond/IS if needed.
+  if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
+    # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
+    water@tds = water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
+      convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
+    water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
+    # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
     water@is = calculate_ionicstrength(water)
+
   }
 
   return(water)
@@ -897,15 +918,23 @@ calculate_ionicstrength <- function(water) {
 
 }
 
-correlate_ionicstrength <- function(water, from = "cond") {
-  if (from == "cond") {
+correlate_ionicstrength <- function(result, from = "cond", to = "is") {
+  if (from == "cond" & to == "is") {
     # Snoeyink & Jenkins (1980)
-    1.6 * 10^-5 * water@cond
-  } else if (from == "tds") {
+    1.6 * 10^-5 * result
+  } else if (from == "tds" & to == "is") {
     # Crittenden et al. (2012) equation 5-38
-    2.5 * 10^-5 * water@tds
+    2.5 * 10^-5 * result
+  } else if (from == "is" & to == "tds") {
+    result / (2.5 * 10^-5)
+  } else if (from == "is" & to == "cond") {
+    result / (1.6 * 10^-5)
+  } else if (from == "tds" & to == "cond") {
+    result * (2.5 * 10^-5) / (1.6 * 10^-5)
+  } else if (from == "cond" & to == "tds") {
+    result * (1.6 * 10^-5) / (2.5 * 10^-5)
   } else {
-    stop("Specify correlation from 'cond' or 'tds'.")
+    stop("from and to arguments must be one of 'is', 'tds', or 'cond'.")
   }
 
 }

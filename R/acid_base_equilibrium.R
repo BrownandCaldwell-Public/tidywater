@@ -6,18 +6,18 @@
 solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
 
   # Correct eq constants
-  k <- correct_k(water)
+  ks <- correct_k(water)
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
-      (2 + h / k$kso4) * (so4_dose / (h / k$kso4 + 1)) +
-      tot_po4 * (calculate_alpha1_phosphate(h, k) +
-        2 * calculate_alpha2_phosphate(h, k) +
-        3 * calculate_alpha3_phosphate(h, k)) +
-      tot_co3 * (calculate_alpha1_carbonate(h, k) +
-        2 * calculate_alpha2_carbonate(h, k)) +
-      tot_ocl * calculate_alpha1_hypochlorite(h, k) +
+      (2 + h / ks$kso4) * (so4_dose / (h / ks$kso4 + 1)) +
+      tot_po4 * (calculate_alpha1_phosphate(h, ks) +
+        2 * calculate_alpha2_phosphate(h, ks) +
+        3 * calculate_alpha3_phosphate(h, ks)) +
+      tot_co3 * (calculate_alpha1_carbonate(h, ks) +
+        2 * calculate_alpha2_carbonate(h, ks)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
       alk_eq
@@ -193,10 +193,15 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   co3_dose = na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 = water@tot_co3 + co3_dose
 
-  # Calculate dosed IS
-  # Assume all dosed CO3 is HCO3 and PO4 is H2PO4. This eliminates the need to loop and should be close enough.
-  dosed_water@is = water@is + 0.5 * (na_dose + cl_dose + k_dose + co3_dose + po4_dose) * 1^2 +
-    (ca_dose + mg_dose + so4_dose) * 2^2
+  # Calculate dosed TDS/IS/conductivity
+  # Assume that all parameters can be determined by calculating new TDS.
+  dosed_water@tds <- water@tds + convert_units(na_dose, "na", "M", "mg/L") +
+    convert_units(cl_dose, "cl", "M", "mg/L") + convert_units(k_dose, "k", "M", "mg/L") +
+    convert_units(ca_dose, "ca", "M", "mg/L") + convert_units(mg_dose, "mg", "M", "mg/L") +
+    convert_units(co3_dose, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
+    convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L")
+  dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
+  dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
   # Calculate new pH, H+ and OH- concentrations
   ph = solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose)
@@ -424,7 +429,7 @@ blend_waters <- function(waters, ratios) {
   # Initialize empty blended water
   blended_water <- methods::new("water")
   parameters <- methods::slotNames(blended_water)
-  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment")
+  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated")
   parameters <- setdiff(parameters, not_averaged)
 
   for (param in parameters) {
@@ -442,6 +447,23 @@ blend_waters <- function(waters, ratios) {
       }
     }
   }
+
+  # Track treatments and estimated params
+  treatment <- c()
+  estimated <- c()
+
+  for (i in 1:length(waters)) {
+    # Create character vectors that just add the values from all the waters together
+    temp_water <- waters[[i]]
+    new_treat <- unlist(strsplit(temp_water@treatment, "_"))
+    treatment <- c(treatment, new_treat)
+    new_est <- unlist(strsplit(temp_water@estimated, "_"))
+    estimated <- c(estimated, new_est)
+  }
+
+  # Keep only one of each treatment and estimated and paste back into string for the water.
+  blended_water@treatment <- paste(unique(treatment), collapse = "_")
+  blended_water@estimated <- paste(unique(estimated), collapse = "_")
 
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
@@ -476,6 +498,7 @@ blend_waters <- function(waters, ratios) {
 
   blended_water@ocl = blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
   blended_water@treatment = paste(blended_water@treatment, "_blended", sep = "")
+
 
   return(blended_water)
 
