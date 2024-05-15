@@ -899,7 +899,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' plan(sequential)
 #' @export
 
-pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL) {
+pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL, output_prefix = TRUE) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
@@ -907,14 +907,34 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
   if (!any(parameter %in% slotNames("water"))) {
     stop("Parameter doesn't exist in water class.")
   }
-  if (is.null(output_column)) {
-    output_column = parameter
-  }
-  if (length(parameter) != length(output_column)) {
-    stop("One output column per parameter must be specified, or use NULL to name columns the same as parameters.")
+  # if(!is.null(output_column)) {
+  #   if(length(parameter) != length(output_column)) {
+  #     stop("One output column per parameter must be specified, or set 'output_prefix' to name columns based on parameters.")
+  #   }
+  #   if(is.character(output_prefix)) {
+  #     warning("Both 'output_column' and 'output_prefix' were specified. Output prefix will be ignored.")
+  #   }
+  #   if(length(parameter) != length(output_column))
+  #
+  # }
+  # if (length(parameter) != length(output_column) & output_prefix != TRUE)
+  #
+  #
+  # if (length(parameter) != length(output_column) & output_prefix != TRUE) {
+  #   stop()
+  # }
+  # if (is.null(output_column) & is.null(output_prefix)) {
+  #   output_column <- parameter
+  # }
+
+
+  if (is.character(output_prefix)) {
+    output_column <- paste(output_prefix, parameter, sep = "_")
+  } else if (output_prefix == TRUE) {
+    output_column <- paste(input_water, parameter, "_")
   }
 
-  plucked <- map2(parameter, output_column, ~ {
+  plucked <- furrr::future_map2(parameter, output_column, ~ {
     df %>%
       mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(input_water), pluck, .x)) %>%
       select(!!as.name(.y))
