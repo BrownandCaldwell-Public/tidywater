@@ -32,14 +32,14 @@ We can create a quick model by manually inputting the utility's typical water qu
 
 ```{r setup, warning=FALSE}
 # Use define_water to prepare for tidywater analysis
-no_alum <- define_water(ph = 8.3, temp = 18, alk = 150)
+no_alum_water <- define_water(ph = 8.3, temp = 18, alk = 150)
 
 # Dose 30 mg/L of alum
-alum_30 <- no_alum %>%
+alum_30_water <- no_alum_water %>%
   chemdose_ph(alum = 30) %>%
   solvedose_ph(target_ph = 8, chemical = "naoh")
 
-alum_30 # Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
+alum_30_water # Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
 
 # Dose 20 mg/L of alum
 alum_20 <- no_alum %>%
