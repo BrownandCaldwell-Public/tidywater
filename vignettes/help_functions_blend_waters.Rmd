@@ -125,7 +125,7 @@ scenarios <- tibble(surface_flow = seq(1, 20, 1),
 
 To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. 
 The river and lake sources don't require any mixing. We'll set up their raw data and balance the ions using `define_water_chain` 
-to make a data frame with a water column. In `balance_ions_chain`, we are specifying the name of the output columns so
+to make a data frame with a `water` column. In `balance_ions_chain`, we are specifying the name of the output columns so
 we can use the different water sources later. Most of tidywater's `_chain` functions have the option to name the output column. 
 Defaults vary depending on the `_chain` function. 
 
@@ -160,7 +160,7 @@ blend_water <- scenarios %>%
 ```
 
 ## `pluck_water`
-With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to all the parameters as separate columns, it is better to use a `_once` function instead of `_chain` (i.e., we could have used `blend_water_once` above).
+With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next, select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to view all the parameters as separate columns, it is better to use a `_once` function instead of `_chain` (i.e., we could have used `blend_water_once` above).
 ```{r, fig.width= 7}
 plotting_data <- blend_water %>%
   pluck_water(input_water = "blended_water", "tot_hard") %>%
