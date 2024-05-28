@@ -82,6 +82,7 @@ Let's look at both options.
 ```{r, warning=FALSE}
 # 1. Use an existing column in your data frame to dose a chemical.
 #    Here, we use the alum column as the dosed chemical.
+dose_column_water <- raw_water %>% 
   chemdose_ph_chain(input_water = "balanced_water") %>% # The function recognizes the 'alum' column as the chemical dose
   pluck_water(input_water = "dosed_chem_water", parameter = "ph") %>%
   select(-c(defined_water, balanced_water))
