@@ -65,7 +65,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # AWWA (1977)
 
   if ("aggressive" %in% index) {
-    if(grepl("ca", water@estimated)) {
+    if (grepl("ca", water@estimated)) {
       warning("Calcium estimated by previous tidywater function, aggressive index calcuation approximate.")
       water@estimated <- paste0(water@estimated, "_aggressive")
     }
@@ -83,7 +83,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
 
   if ("csmr" %in% index) {
-    if(grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
+    if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
       warning("Chloride or sulfate estimated by previous tidywater function, CSMR calcuation approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
@@ -101,7 +101,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
 
   if ("larsonskold" %in% index) {
-    if(grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
+    if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
       warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calcuation approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
