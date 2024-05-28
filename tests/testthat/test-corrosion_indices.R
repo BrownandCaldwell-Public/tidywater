@@ -24,6 +24,17 @@ test_that("function catches index typos", {
   expect_no_error(calculate_corrosion(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
 })
 
+test_that("warnings are present when parameters used in calculations are estimated by tidywater.", {
+
+  water1 <- suppressWarnings(define_water(8, 25, 200, 200))
+  water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions()
+
+  expect_warning(calculate_corrosion(water1, index = "aggressive"))
+  expect_warning(calculate_corrosion(water2, index = "csmr"))
+  expect_warning(calculate_corrosion(water2, index = "larsonskold"))
+
+})
+
 test_that("aggressive index works", {
 
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200)) %>%
@@ -33,7 +44,7 @@ test_that("aggressive index works", {
     calculate_corrosion(index = "aggressive")
 
   water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150)) %>%
-    calculate_corrosion(index = "aggressive")
+    suppressWarnings(calculate_corrosion(index = "aggressive"))
 
   expect_equal(round(water1@aggressive), 13) # high alk
   expect_equal(round(water2@aggressive), 11) # low alk
@@ -51,7 +62,7 @@ test_that("csmr works", {
 
   water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5)) %>%
     balance_ions() %>%
-    calculate_corrosion(index = "csmr")
+    suppressWarnings(calculate_corrosion(index = "csmr"))
 
   expect_equal(round(water1@csmr), 100) # high cl, low so4
   expect_equal(round(water2@csmr, 2), 0.01) # low cl high so4
@@ -77,6 +88,13 @@ test_that("larsonskold works", {
   expect_equal(round(water2@larsonskold, 1), 0.8) # low cl high so4
   expect_equal(round(water3@larsonskold, 2), 0.51) # use balance ions to get chloride
   expect_equal(round(water4@larsonskold), 74) # low alk
+})
+
+test_that("Corrosion index calculations work when IS is NA.", {
+  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200))
+
+  expect_no_error(calculate_corrosion(water1, index = c("langelier", "ryznar", "ccpp")))
+
 })
 
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
