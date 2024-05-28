@@ -36,15 +36,16 @@ test_that("warnings are present when parameters used in calculations are estimat
 })
 
 test_that("aggressive index works", {
+  suppressWarnings( {
+    water1 <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200) %>%
+      calculate_corrosion(index = "aggressive")
 
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200)) %>%
-    calculate_corrosion(index = "aggressive")
+    water2 <- define_water(ph = 8, temp = 25, alk = 15, ca_hard = 200) %>%
+      calculate_corrosion(index = "aggressive")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 15, ca_hard = 200)) %>%
-    calculate_corrosion(index = "aggressive")
-
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150)) %>%
-    suppressWarnings(calculate_corrosion(index = "aggressive"))
+    water3 <- define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150) %>%
+      calculate_corrosion(index = "aggressive")
+  })
 
   expect_equal(round(water1@aggressive), 13) # high alk
   expect_equal(round(water2@aggressive), 11) # low alk
@@ -53,16 +54,17 @@ test_that("aggressive index works", {
 })
 
 test_that("csmr works", {
-
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1)) %>%
+  suppressWarnings( {
+  water1 <- define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1) %>%
     calculate_corrosion(index = "csmr")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, cl = 2, so4 = 150)) %>%
+  water2 <- define_water(ph = 8, temp = 25, cl = 2, so4 = 150) %>%
     calculate_corrosion(index = "csmr")
 
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5)) %>%
+  water3 <- define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5) %>%
     balance_ions() %>%
-    suppressWarnings(calculate_corrosion(index = "csmr"))
+    calculate_corrosion(index = "csmr")
+  })
 
   expect_equal(round(water1@csmr), 100) # high cl, low so4
   expect_equal(round(water2@csmr, 2), 0.01) # low cl high so4
