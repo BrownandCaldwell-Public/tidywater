@@ -13,6 +13,17 @@ test_that("most indices won't work without ca, cl, so4", {
 
 })
 
+test_that("function catches index typos", {
+
+  water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238,
+                                         tot_hard = 100, cl = 40, so4 = 40))
+
+    expect_error(calculate_corrosion(water, index = "csr"))
+    expect_error(calculate_corrosion(water, index = c("aggressive", "ccccp")))
+    expect_error(calculate_corrosion(water, index = c("ai", "ryznar", "ccpp", "csmr", "langelier")))
+    expect_no_error(calculate_corrosion(water, index = c("ryznar", "csmr", "larsonskold"))) #no error
+})
+
 test_that("aggressive index works", {
 
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200)) %>%

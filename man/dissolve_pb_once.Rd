@@ -16,8 +16,8 @@ dissolve_pb_once(
 )
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}}
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
@@ -77,5 +77,5 @@ plan(sequential)
 
 }
 \seealso{
-\code{\link{solvedose_alk}}
+\code{\link{dissolve_pb}}
 }

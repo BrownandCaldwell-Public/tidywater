@@ -7,8 +7,8 @@
 blend_waters_once(df, waters, ratios)
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed}
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}}
 
 \item{waters}{List of column names containing a water class to be blended}
 

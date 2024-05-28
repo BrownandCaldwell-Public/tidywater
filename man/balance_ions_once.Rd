@@ -7,7 +7,7 @@
 balance_ions_once(df, input_water = "defined_water")
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}}
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 }
