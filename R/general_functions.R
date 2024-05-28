@@ -791,6 +791,9 @@ balance_ions <- function(water) {
   add_cl <- 0
   add_so4 <- 0
   # Add either sodium or potassium if cations are needed
+  # Sodium is preferred because it's often present and not measured.
+  # Potassium is usually low, but if it's the only cation not measured, it can be added.
+  # No defaut behavior to add Ca or Mg because those are frequently measured.
   if (cations < anions) {
     add_cat <- anions - cations
     if (is.na(water@na)) {
@@ -807,6 +810,8 @@ balance_ions <- function(water) {
       water@estimated <- paste(water@estimated, "na", sep = "_")
     }
     # add chloride or sulfate if anions are needed
+    # Similar logic to cations, although sulfate is typically at higher concentrations than potassium.
+    # Pretty standard to add Na and Cl because those are just regular salt. It does affect CSMR, but almost nothing else.
   } else if (anions < cations) {
     add_ani <- cations - anions
     if (is.na(water@cl)) {
