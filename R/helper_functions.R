@@ -907,6 +907,18 @@ pluck_water <- function(df, input_water = "defined_water", parameter, output_col
   if (!any(parameter %in% slotNames("water"))) {
     stop("Parameter doesn't exist in water class.")
   }
+
+  if (is.null(output_column) & output_prefix == FALSE) {
+    output_column <- parameter
+  }else if (!is.null(output_column) & output_prefix == TRUE) {
+    output_column <- output_column
+  } else if (!is.null(output_column) & length(output_column) == length(parameter) & is.character(output_prefix)) {
+    warning("Both 'output_column' and 'output_prefix' were specified. Output prefix will be ignored.")
+    output_column <- output_column
+  } else if (!is.null(output_column) & length(output_column) != length(parameter) & output_prefix != FALSE) {
+    warning("Both 'output_column' and 'output_prefix' were specified. Output column will be ignored.")
+    output_column <- ifelse(is.character(output_prefix), paste(output_prefix, parameter, sep = "_"), paste(input_water, parameter, sep = "_")
+  }
   # if(!is.null(output_column)) {
   #   if(length(parameter) != length(output_column)) {
   #     stop("One output column per parameter must be specified, or set 'output_prefix' to name columns based on parameters.")
