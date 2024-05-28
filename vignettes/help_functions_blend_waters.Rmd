@@ -56,7 +56,7 @@ So what if you want to chain more tidywater functions together? In that case, yo
 
 ```{r, warning=FALSE, echo=TRUE}
 # Read in data from Wells A and B
-raw_wells <- tibble(Well = c("A", "B"),
+raw_wells_water <- tibble(Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
@@ -70,7 +70,7 @@ raw_wells <- tibble(Well = c("A", "B"),
   define_water_chain() %>%
   balance_ions_chain()
 
-raw_wells
+raw_wells_water
 ```
 
 It's always a good idea to verify our code is working properly. To make sure that our data was balanced using `balance_ions_chain`, we can plot our `water` class using `plot_ions`. The below example shows how to index a `water` class column: dataframe$water_class_column[[row_number]]
@@ -78,10 +78,10 @@ It's always a good idea to verify our code is working properly. To make sure tha
 
 ```{r, fig.width=7}
 # Ion plot before balance_ions_chain was applied
-raw_wells$defined_water[[1]] %>%
+raw_wells_water$defined_water[[1]] %>%
   plot_ions()
 # Plot of balanced ions
-raw_wells$balanced_water[[1]] %>%
+raw_wells_water$balanced_water[[1]] %>%
   plot_ions()
 ```
 
@@ -98,74 +98,77 @@ The `balanced_water` function takes 2 or more waters (must be of the `water` cla
 ### First, index the water column using the name or number of the column (ie "balanced_water" or 3 (column number))
 ### Next, index the row
 
-blended_wells <- blend_waters(waters = c(pluck(raw_wells, "balanced_water", 1),
-  pluck(raw_wells, 3, 2)),
+blended_wells_water <- blend_waters(waters = c(pluck(raw_wells_water, "balanced_water", 1),
+  pluck(raw_wells_water, 3, 2)),
   ratios = c(.5, .5))
 # outputs a water class object.
-blended_wells
+blended_wells_water
 ```
 
-To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. First, we'll use the `convert_water` function to to take the input `water` object and convert it to a data frame. Then we'll run `define_water_chain` to make a data frame with water column, named "wells". Most of tidywater's `_chain` functions have the option to name the output column. Defaults vary depending on the `_chain` function. 
-
-In addition to tidying the well water, we will also join all of the blend scenarios we will be modeling.
+We will create a data frame of the blend scenarios we will be modeling, in this case, we are varying flow rates from the different sources.
 
 ```{r, warning=FALSE}
 # Assume wells can contribute 2.5 MGD each
 groundwater <- tibble(Wells_flow = c(0, 2.5, 5))
 # Blending scenarios and the resulting source water ratios
-scenarios <- tibble(surface_flow = seq(.1, 20, 0.1),
-  River_flow = c(seq(.1, 10, 0.1), rep(10, 100)),
-  Lake_flow = c(rep(0, 100), seq(.1, 10, .1)),
-  group = seq(1, 200, 1)) %>%
+scenarios <- tibble(surface_flow = seq(1, 20, 1),
+  River_flow = c(seq(1, 10, 1), rep(10, 10)),
+  Lake_flow = c(rep(0, 10), seq(1, 10, 1)),
+  group = seq(1, 20, 1)) %>%
   cross_join(groundwater) %>%
   mutate(total_flow = River_flow + Lake_flow + Wells_flow,
     River_ratio = River_flow / total_flow,
     Lake_ratio = Lake_flow / total_flow,
     Wells_ratio = Wells_flow / total_flow)
 
-Wells <- convert_water(blended_wells) %>%
-  define_water_chain(output_water = "wells") %>%
-  select(-c(kw:tbaa)) %>%
-  cross_join(scenarios)
 ```
 
-The river and lake sources don't require any mixing. We'll set up their raw data, balance the ions, and join in the blending scenarios.
+To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. 
+The river and lake sources don't require any mixing. We'll set up their raw data and balance the ions using `define_water_chain` 
+to make a data frame with a water column. In `balance_ions_chain`, we are specifying the name of the output columns so
+we can use the different water sources later. Most of tidywater's `_chain` functions have the option to name the output column. 
+Defaults vary depending on the `_chain` function. 
+
+
 ```{r, warning=FALSE}
-River <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
+
+Wells_water <- tibble(wells = c(blended_wells_water))
+
+River_water <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
   tot_hard = 300, na = 100, cl = 150, so4 = 200) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "river") %>%
-  cross_join(scenarios) %>%
   select(-defined_water)
 
-Lake <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
+Lake_water <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
   tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "lake") %>%
-  cross_join(scenarios) %>%
   select(-defined_water)
 ```
 
 ## `blend_waters_chain`
-Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This  next code chunk showcases the power of tidywater. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
+Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This next code chunk showcases the power of tidywater. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
 
 ```{r, warning=FALSE}
-blend <- full_join(Wells, River) %>%
-  full_join(Lake) %>%
+blend_water <- scenarios %>%
+  cross_join(Wells_water) %>%
+  cross_join(River_water) %>%
+  cross_join(Lake_water) %>%
   blend_waters_chain(waters = c("wells", "river", "lake"),
     ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
 ```
 
 ## `pluck_water`
-With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to pluck out more than one parameter, it is better to use a `_once` function instead of `_chain` (i.e., we could have used `blend_water_once` above).
+With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to all the parameters as separate columns, it is better to use a `_once` function instead of `_chain` (i.e., we could have used `blend_water_once` above).
 ```{r, fig.width= 7}
-plotting <- blend %>%
+plotting_data <- blend_water %>%
   pluck_water(input_water = "blended_water", "tot_hard") %>%
   # Flag scenarios for plotting
   mutate(Flagged = case_when(tot_hard > 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
 
 # Plot the results!
-ggplot(plotting, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
+ggplot(plotting_data, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
   geom_point() +
   scale_shape_manual(values = c(4, 16)) +
   labs(y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
