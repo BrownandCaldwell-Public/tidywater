@@ -1,6 +1,6 @@
 # tidywater 0.2.0
 ## New features
-* TOC removal through coagulation, `chemdose_toc` and matching `_chain` and `once` helper functions.
+* TOC removal through coagulation, `chemdose_toc` and matching `_chain` and `_once` helper functions.
 * DBP formation from coagulation, `chemdose_dbp`. No helper functions yet except `summarise_dbp`
 * Calculation of corrosion indices, `calculate_corrosion` and `summarise_corrosion` with helper functions.
 * Theoretical lead solubility `dissolve_pb` with helper functions.
