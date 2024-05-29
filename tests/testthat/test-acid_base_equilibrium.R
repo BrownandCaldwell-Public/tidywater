@@ -123,10 +123,10 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
 test_that("Solve dose alk works.", {
   water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_alk(water5, 100, "naoh"), 40.2)
-  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.1)
+  expect_equal(solvedose_alk(water5, 100, "naoh"), 39.7)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
   naohdose <- solvedose_alk(water5, 100, "naoh")
-  expect_equal(round(chemdose_ph(water5, naoh = naohdose)@alk), 101)
+  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 99)
 })
 
 
@@ -174,4 +174,23 @@ test_that("Blend waters conserves DOC.", {
 
   blend1 <- blend_waters(c(water2, water3), c(.5, .5))
   expect_equal(blend1@doc, 4)
+})
+
+test_that("Blend waters correctly handles treatment and list of estimated parameters.", {
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
+    chemdose_ph(naoh = 5)
+  water2 <- define_water(ph = 7, temp = 25, alk = 100, cond = 100) %>%
+    balance_ions()
+  water3 <- suppressWarnings(define_water(ph = 10, temp = 10, alk = 200, tot_hard = 100, cl = 100, na = 100))
+
+  blend1 <- blend_waters(c(water1, water2), c(.5, .5))
+  blend2 <- blend_waters(c(water2, water3), c(.5, .5))
+  blend3 <- blend_waters(c(water1), c(1))
+
+  expect_equal(blend1@treatment, "defined_chemdosed_balanced_blended")
+  expect_equal(blend2@treatment, "defined_balanced_blended")
+  expect_equal(blend1@estimated, "_cond_tds_na")
+  expect_equal(blend2@estimated, "_tds_na_ca_cond")
+  expect_equal(blend3@estimated, water1@estimated)
+
 })

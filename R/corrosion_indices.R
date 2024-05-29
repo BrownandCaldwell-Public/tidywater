@@ -54,9 +54,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     stop("No source water defined. Create a water using the 'define_water' function.")}
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
     warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")}
-  if ((is.na(water@cl) | is.na(water@so4))& ("larsonskold" %in% index | "csmr" %in% index)) {
+  if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")}
-  if(any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
+  if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
 
   ###########################################################################################*
@@ -65,6 +65,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # AWWA (1977)
 
   if ("aggressive" %in% index) {
+    if (grepl("ca", water@estimated)) {
+      warning("Calcium estimated by previous tidywater function, aggressive index calcuation approximate.")
+      water@estimated <- paste0(water@estimated, "_aggressive")
+    }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
     water@aggressive <- water@ph + log10(water@alk * ca_hard)
 
@@ -79,6 +83,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
 
   if ("csmr" %in% index) {
+    if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
+      warning("Chloride or sulfate estimated by previous tidywater function, CSMR calcuation approximate.")
+      water@estimated <- paste0(water@estimated, "_csmr")
+    }
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
     water@csmr <- cl / so4
@@ -93,6 +101,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
 
   if ("larsonskold" %in% index) {
+    if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
+      warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calcuation approximate.")
+      water@estimated <- paste0(water@estimated, "_csmr")
+    }
     # epm = equivalents per million
     # (epm Cl + epm SO4)/ (epm HCO3 + epm CO3)
     cl_meq <- convert_units(water@cl, "cl", "M", "meq/L")
@@ -110,10 +122,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Schock (1984), equation 9
   # U.S. EPA (1980), equation 4a
   if ("langelier" %in% index | "ryznar" %in% index) {
-    k <- correct_k(water)
-    pk2co3 = -log10(k$k2co3)
-    gamma1 <- calculate_activity(1, water@is, water@temp)
-    gamma2 <- calculate_activity(2, water@is, water@temp)
+    ks <- correct_k(water)
+    pk2co3 = -log10(ks$k2co3)
+    gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
+    gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
     tempa = water@temp + 273.15
 
     # Empirical calcium carbonate solubilities From Plummer and Busenberg (1982)
@@ -173,11 +185,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     tempa = water@temp + 273.15
     pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     K_so = 10^-pkso
-    active_2 = calculate_activity(2, water@is, water@temp)
+    gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
 
     solve_x <- function(x, water) {
       water2 <- chemdose_ph(water, caco3 = x)
-      K_so / (water2@co3 * active_2) - water2@ca * active_2
+      K_so / (water2@co3 * gamma2) - water2@ca * gamma2
     }
 
     root_x <- stats::uniroot(solve_x,
