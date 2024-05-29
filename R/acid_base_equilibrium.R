@@ -421,6 +421,14 @@ blend_waters <- function(waters, ratios) {
     stop("Length of waters vector must equal length of ratios vector.")
   }
 
+  if (!is.list(waters)) {
+    stop("Waters must be provided as a vector.")
+  }
+
+  if (!is.numeric(ratios)) {
+    stop("Ratios must provided as a numeric vector.")
+  }
+
   if (round(sum(ratios), 5) != 1.0) {
     stop("Blend ratios do not sum up to 1")
     # print(sum(ratios)) # this is for checking why the function is breaking
