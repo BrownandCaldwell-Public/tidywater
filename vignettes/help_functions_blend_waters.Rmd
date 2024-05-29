@@ -100,7 +100,7 @@ The `balanced_water` function takes 2 or more waters (must be of the `water` cla
 
 blended_wells_water <- blend_waters(waters = c(pluck(raw_wells_water, "balanced_water", 1),
   pluck(raw_wells_water, 3, 2)),
-  ratios = c(.5, .5))
+ratios = c(.5, .5))
 # outputs a water class object.
 blended_wells_water
 ```
@@ -120,7 +120,6 @@ scenarios <- tibble(surface_flow = seq(1, 20, 1),
     River_ratio = River_flow / total_flow,
     Lake_ratio = Lake_flow / total_flow,
     Wells_ratio = Wells_flow / total_flow)
-
 ```
 
 To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. 
@@ -131,7 +130,6 @@ Defaults vary depending on the `_chain` function.
 
 
 ```{r, warning=FALSE}
-
 Wells_water <- tibble(wells = c(blended_wells_water))
 
 River_water <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
