@@ -36,7 +36,7 @@ test_that("warnings are present when parameters used in calculations are estimat
 })
 
 test_that("aggressive index works", {
-  suppressWarnings( {
+  suppressWarnings({
     water1 <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200) %>%
       calculate_corrosion(index = "aggressive")
 
@@ -54,16 +54,16 @@ test_that("aggressive index works", {
 })
 
 test_that("csmr works", {
-  suppressWarnings( {
-  water1 <- define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1) %>%
-    calculate_corrosion(index = "csmr")
+  suppressWarnings({
+    water1 <- define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1) %>%
+      calculate_corrosion(index = "csmr")
 
-  water2 <- define_water(ph = 8, temp = 25, cl = 2, so4 = 150) %>%
-    calculate_corrosion(index = "csmr")
+    water2 <- define_water(ph = 8, temp = 25, cl = 2, so4 = 150) %>%
+      calculate_corrosion(index = "csmr")
 
-  water3 <- define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5) %>%
-    balance_ions() %>%
-    calculate_corrosion(index = "csmr")
+    water3 <- define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5) %>%
+      balance_ions() %>%
+      calculate_corrosion(index = "csmr")
   })
 
   expect_equal(round(water1@csmr), 100) # high cl, low so4
