@@ -21,7 +21,7 @@ library(dplyr)
 library(ggplot2)
 library(furrr)
 library(purrr)
-plan(multisession)
+# plan(multisession)
 ```
 
 This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information.

@@ -1,3 +1,8 @@
+# tidywater 0.2.1
+## Bug fixes
+* Small vignette changes to fix package build.
+
+
 # tidywater 0.2.0
 ## New features
 * TOC removal through coagulation, `chemdose_toc` and matching `_chain` and `_once` helper functions.
