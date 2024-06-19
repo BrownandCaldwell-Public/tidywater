@@ -6,7 +6,7 @@
 \usage{
 define_water(
   ph,
-  temp = 20,
+  temp = 25,
   alk,
   tot_hard,
   ca_hard,
@@ -57,7 +57,7 @@ define_water(
 
 \item{uv254}{UV absorbance at 254 nm (cm-1)}
 
-\item{br}{Bromide in mg/L Br-}
+\item{br}{Bromide in ug/L Br-}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
