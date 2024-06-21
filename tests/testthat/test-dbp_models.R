@@ -45,11 +45,11 @@ test_that("chemdose_dbp stops working when inputs are missing", {
 
 
 test_that("chemdose_dbp works.", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1, br = 50))
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   water2 <- chemdose_dbp(water1, cl2 = 3, time = 8)
   water3 <- chemdose_dbp(water1, cl2 = 3, time = 8, treatment = "coag")
   water4 <- chemdose_dbp(water1, cl2 = 3, time = 72, treatment = "coag", location = "ds")
-  water5 <- suppressWarnings(define_water(ph = 7.5, toc = 1, uv254 = 0.04, br = 50))
+  water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
   water6 <- chemdose_dbp(water5, cl2 = 3, time = 8, treatment = "gac")
 
   expect_equal(round(water2@tthm), 68)
