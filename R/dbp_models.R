@@ -1,16 +1,17 @@
 # DBP Modeling functions
 # These functions predict total trihalomethane (TTHM) and haloacetic acid (HAA) formation
 
-#' Calculate DBP formation
+#' @title Calculate DBP formation
 #'
 #' @description \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in \code{define_water}
 #' including bromide, TOC, UV254, temperature, and pH.
-#' The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
+#'
+#' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 #' The function returns a new object of class "water" with predicted DBP concentrations.
-#' Use \code{summarise_dbp} to quickly tabulate the results.
+#' Use \code{summarise_wq} to quickly tabulate the results.
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134

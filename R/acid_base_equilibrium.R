@@ -38,10 +38,12 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   return(round(phfinal, 2))
 }
 
-#' Add chemicals to water and apply acid/base equilibrium and ion mass balance
+#' @title Calculate new pH and ion balance after chemical addition
 #'
-#' \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
-#' additions. The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
+#' @description \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+#' additions.
+#'
+#' @details The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
 #' chemical additions and returns a new object of class "water" with updated water quality.
 #' Units of all chemical additions are in mg/L as chemical (not as product).
 #'
@@ -251,9 +253,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
 
 
-#' Calculate a desired chemical dose for a target pH
+#' @title Calculate a desired chemical dose for a target pH
 #'
-#' \code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+#' @description \code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
 #' The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
 #' and returns a numeric value for the required dose in mg/L.
 #'
@@ -331,9 +333,9 @@ solvedose_ph <- function(water, target_ph, chemical) {
 }
 
 
-#' Calculate a desired chemical dose for a target alkalinity
+#' @title Calculate a desired chemical dose for a target alkalinity
 #'
-#' This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
+#' @description This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
 #' Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
@@ -399,9 +401,9 @@ solvedose_alk <- function(water, target_alk, chemical) {
 }
 
 
-#' Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium
+#' @title Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium
 #'
-#' This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
+#' @description This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
 #'
 #' @param waters Vector of source waters created by \code{\link{define_water}}
 #' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1)

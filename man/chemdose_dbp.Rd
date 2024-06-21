@@ -45,9 +45,11 @@ Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an obje
 created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 The function also requires additional water quality parameters defined in \code{define_water}
 including bromide, TOC, UV254, temperature, and pH.
+}
+\details{
 The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 The function returns a new object of class "water" with predicted DBP concentrations.
-Use \code{summarise_dbp} to quickly tabulate the results.
+Use \code{summarise_wq} to quickly tabulate the results.
 }
 \examples{
 example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
