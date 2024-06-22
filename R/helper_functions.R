@@ -855,14 +855,14 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 
 #' Pluck out a single parameter from a `water` class object
 #'
-#' This function plucks a selected parameter from a column of `water` class objects.
-#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
+#' This function plucks one or more selected parameters from selected columns of `water` class objects.
+#' The names of the output columns will follow the form `water_parameter`
+#' To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
 #'
 #' @param df a data frame containing a water class column, which has already
 #' been computed using \code{\link{define_water}}
-#' @param input_water name of the column of water class data to be used as the input for this function.
-#' @param parameter water class attribute to view outside the water column
-#' @param output_column name of output column storing the plucked variable's values
+#' @param input_waters vector of names of the columns of water class data to be used as the input for this function.
+#' @param parameter vector of water class parameters to view outside the water column
 #'
 #' @seealso \code{\link{convert_water}}
 #'
@@ -880,71 +880,40 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   pluck_water(parameter = "na", output_column = "defined_na") %>%
-#'   pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+#'   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 #'
 #' plan(multisession)
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
-#'   pluck_water(parameter = "ph")
+#'   pluck_water(parameter = c("ph", "alk"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #' @export
 
-pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL, output_prefix = TRUE) {
+pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
-
   if (!any(parameter %in% slotNames("water"))) {
-    stop("Parameter doesn't exist in water class.")
+    stop("One or more parameters doesn't exist in water class.")
+  }
+  if (!any(input_waters %in% colnames(df))) {
+    stop("One or more specified waters doesn't exist in dataframe. Check column names.")
   }
 
-  if (is.null(output_column) & output_prefix == FALSE) {
-    output_column <- parameter
-  } else if (!is.null(output_column) & output_prefix == TRUE) {
-    output_column <- output_column
-  } else if (!is.null(output_column) & length(output_column) == length(parameter) & is.character(output_prefix)) {
-    warning("Both 'output_column' and 'output_prefix' were specified. Output prefix will be ignored.")
-    output_column <- output_column
-  } else if (!is.null(output_column) & length(output_column) != length(parameter) & output_prefix != FALSE) {
-    warning("Both 'output_column' and 'output_prefix' were specified. Output column will be ignored.")
-    output_column <- ifelse(is.character(output_prefix), paste(output_prefix, parameter, sep = "_"), paste(input_water, parameter, sep = "_"))
+  plucked <- data.frame(row.names = seq(1, nrow(df)))
+  for (water in input_waters) {
+    output_column <- paste0(water, "_", parameter)
+    temp <- furrr::future_map2(parameter, output_column, ~ {
+      df %>%
+        mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
+        select(!!as.name(.y))
+    }) %>%
+      purrr::list_cbind()
+
+    plucked <- bind_cols(plucked, temp)
   }
-  # if(!is.null(output_column)) {
-  #   if(length(parameter) != length(output_column)) {
-  #     stop("One output column per parameter must be specified, or set 'output_prefix' to name columns based on parameters.")
-  #   }
-  #   if(is.character(output_prefix)) {
-  #     warning("Both 'output_column' and 'output_prefix' were specified. Output prefix will be ignored.")
-  #   }
-  #   if(length(parameter) != length(output_column))
-  #
-  # }
-  # if (length(parameter) != length(output_column) & output_prefix != TRUE)
-  #
-  #
-  # if (length(parameter) != length(output_column) & output_prefix != TRUE) {
-  #   stop()
-  # }
-  # if (is.null(output_column) & is.null(output_prefix)) {
-  #   output_column <- parameter
-  # }
-
-
-  if (is.character(output_prefix)) {
-    output_column <- paste(output_prefix, parameter, sep = "_")
-  } else if (output_prefix == TRUE) {
-    output_column <- paste(input_water, parameter, "_")
-  }
-
-  plucked <- furrr::future_map2(parameter, output_column, ~ {
-    df %>%
-      mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(input_water), pluck, .x)) %>%
-      select(!!as.name(.y))
-  }) %>%
-    purrr::list_cbind()
 
   bind_cols(df, plucked)
 

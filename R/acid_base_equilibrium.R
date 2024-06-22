@@ -317,10 +317,10 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
   # Target pH can't be met
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
-    target_ph <= water@ph) |
+    round(target_ph, 1) <= round(water@ph, 1)) |
     (chemical == "co2" & (target_ph < 6.5)) |
     (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
-      target_ph >= water@ph) |
+      round(target_ph, 1) >= round(water@ph, 1)) |
     is.na(target_ph)) {
     warning("Target pH cannot be reached with selected chemical. NA returned.")
     return(NA)
