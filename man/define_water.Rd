@@ -6,7 +6,7 @@
 \usage{
 define_water(
   ph,
-  temp,
+  temp = 20,
   alk,
   tot_hard,
   ca_hard,
@@ -64,10 +64,10 @@ This function takes user-defined water quality parameters and creates an S4 "wat
 Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
 NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
 manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
-Ionic strength (if TDS provided): MWH equation 5-38
-Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins 1980
-Ionic strength (from ion concentrations): Lewis and Randall (1921), MWH equation 5-37
-Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), MWH equation 5-45.
+Ionic strength (if TDS provided): Crittenden et al. (2012) equation 5-38
+Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins (1980)
+Ionic strength (from ion concentrations): Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37
+Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), Crittenden et al. (2012) equation 5-45.
 }
 \examples{
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
