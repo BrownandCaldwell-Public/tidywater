@@ -278,12 +278,12 @@ solvedose_ph <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if (target_ph > 14 | target_ph < 1) {
+  if ((target_ph > 14 | target_ph < 1) & !is.na(target_ph)) {
     stop("Target pH should be between 1-14.")
   }
 
-  if ((chemical %in% c("hcl", "h2so4", "h3po4", "co2",
-    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) == FALSE) {
+  if (!(chemical %in% c("hcl", "h2so4", "h3po4", "co2",
+    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"))) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -315,7 +315,8 @@ solvedose_ph <- function(water, target_ph, chemical) {
     target_ph <= water@ph) |
     (chemical == "co2" & (target_ph < 6.5)) |
     (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
-      target_ph >= water@ph)) {
+      target_ph >= water@ph) |
+    is.na(target_ph)) {
     warning("Target pH cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
@@ -383,7 +384,8 @@ solvedose_alk <- function(water, target_alk, chemical) {
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
     target_alk <= water@alk) |
     (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
-      target_alk >= water@alk)) {
+      target_alk >= water@alk) |
+    is.na(target_alk)) {
     warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
