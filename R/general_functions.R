@@ -423,13 +423,13 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca_hard, na, k, cl, so4, 
 #' @description This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table of
 #' specified water quality parameters.
 #'
+#' \code{summarise_wq()} and \code{summarize_wq()} are synonyms.
+#'
 #' @details Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.
 #'
 #' @param water Source water vector created by \code{\link{define_water}}.
 #' @param params List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.
 #'
-#' @aliases summarise_wq
-
 #' @examples
 #' # Summarize general parameters
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
@@ -440,9 +440,12 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca_hard, na, k, cl, so4, 
 #'
 #' @export
 #'
-summarize_wq <- summarise_wq <- function(water, params = list("general")) {
+summarize_wq <- function(water, params = c("general")) {
   if (!methods::is(water, "water")) {
     stop("Input must be of class 'water'. Create a water using define_water.")
+  }
+  if (any(!params %in% c("general", "ions", "corrosion", "dbps"))) {
+    stop("params must be one or more of c('general', 'ions', 'corrosion', 'dbps')")
   }
 
   # Compile general WQ parameters
@@ -488,15 +491,16 @@ summarize_wq <- summarise_wq <- function(water, params = list("general")) {
     digits = 2)
 
   # Compile corrosion indices
-  corrosion = data.frame(`Aggressive Index` = water@aggressive,
+  corrosion = tibble(`Aggressive Index` = water@aggressive,
                       `Ryznar Stability Index` = water@ryznar,
-                      `Langelier Saturation Index` = water@langelier,
+                      `Langelier Saturation Index (LSI)` = water@langelier,
                       `Larson Skold Index` = water@larsonskold,
-                      `Chloride to Sulfate Mass Ratio` = water@csmr,
-                      `Calcium carbonate precipitation potential` = water@ccpp)
+                      `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
+                      `Calcium carbonate precipitation potential (CCPP)` = water@ccpp)
 
   corrosion = corrosion %>%
-    pivot_longer(c(Aggressive.Index:Calcium.carbonate.precipitation.potential), names_to = "param", values_to = "result") %>%
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    mutate(result = round(result, 2)) %>%
     mutate(units = c(rep("unitless", 5), "mg/L CaCO3"),
            Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
 
@@ -505,19 +509,19 @@ summarize_wq <- summarise_wq <- function(water, params = list("general")) {
                      col.names = c("Corrosion Indices", "Result", "Units", "Recommended"))
 
   # Compile DBPs
-  tthm = data.frame(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
+  tthm = tibble(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
                     Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
                     Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
                     Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
-                    Total_trihalomethanes = ifelse(length(water@tthm) == 0, NA, water@tthm))
+                    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm))
 
 
-  haa5 = data.frame(Chloroacetic_acid = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
-                    Dichloroacetic_acid = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
-                    Trichloroacetic_acid = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
-                    Bromoacetic_acid = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
-                    Dibromoacetic_acid = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
-                    Sum_5_haloacetic_acids = ifelse(length(water@haa5) == 0, NA, water@haa5))
+  haa5 = tibble(`Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
+                    `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
+                    `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
+                    `Bromoacetic acid` = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
+                    `Dibromoacetic acid` = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
+                    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5))
   # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
   # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
   # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
@@ -526,12 +530,11 @@ summarize_wq <- summarise_wq <- function(water, params = list("general")) {
   # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
   tthm = tthm %>%
-    pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result") %>%
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   haa5 = haa5 %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result") %>%
-
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   thm_tab = knitr::kable(tthm,
@@ -554,6 +557,10 @@ summarize_wq <- summarise_wq <- function(water, params = list("general")) {
 
   return(knitr::kables(tables_list))
 }
+
+#' @rdname summarize_wq
+#' @export
+summarise_wq <- summarize_wq
 
 #' Create summary plot of ions from water class
 #'
