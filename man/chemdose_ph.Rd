@@ -15,6 +15,7 @@ chemdose_ph(
   caco3 = 0,
   caoh2 = 0,
   mgoh2 = 0,
+  cacl2 = 0,
   cl2 = 0,
   naocl = 0,
   caocl2 = 0,
@@ -45,6 +46,8 @@ chemdose_ph(
 \item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 
 \item{mgoh2}{Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
+
+\item{cacl2}{Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-}
 
 \item{cl2}{Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl}
 
