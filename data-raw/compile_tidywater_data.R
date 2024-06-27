@@ -55,7 +55,6 @@ water_df <- data.frame(
   temp = rep(c(20, 25, 19), 4),
   alk = rep(c(50, 80, 100, 200), 3),
   tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
-  ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
   na = rep(c(20, 90), 6),
   k = rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
