@@ -5,7 +5,9 @@
 \alias{summarise_wq}
 \title{Create summary table from water class}
 \usage{
-summarize_wq(water, params = list("general"))
+summarize_wq(water, params = c("general"))
+
+summarise_wq(water, params = c("general"))
 }
 \arguments{
 \item{water}{Source water vector created by \code{\link{define_water}}.}
@@ -15,6 +17,8 @@ summarize_wq(water, params = list("general"))
 \description{
 This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table of
 specified water quality parameters.
+
+\code{summarise_wq()} and \code{summarize_wq()} are synonyms.
 }
 \details{
 Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.

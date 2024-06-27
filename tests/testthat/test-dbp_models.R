@@ -15,10 +15,10 @@ test_that("chemdose_dbp does not run when water_type isn't supplied correctly.",
 })
 
 test_that("chemdose_dbp warns when inputs are out of model range", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1, br = 30))
-  water2 <- suppressWarnings(define_water(ph = 7.5, toc = .1, uv254 = 0.01, br = 30))
-  water3 <- suppressWarnings(define_water(ph = 8, toc = 3, uv254 = 0.1, br = 30))
-  water4 <- suppressWarnings(define_water(ph = 7.5, toc = 3, uv254 = 0.1, br = 2))
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 30))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = .1, uv254 = 0.01, br = 30))
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 20, toc = 3, uv254 = 0.1, br = 30))
+  water4 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3, uv254 = 0.1, br = 2))
 
   expect_warning(chemdose_dbp(water1, cl2 = 1, time = 8)) # chlorine out of bounds
   expect_warning(chemdose_dbp(water1, cl2 = 4, time = 1)) # time out of bounds
@@ -36,7 +36,8 @@ test_that("chemdose_dbp stops working when inputs are missing", {
 
   expect_error(chemdose_dbp(water1, cl2 = 4, time = 8)) # missing ph
   expect_error(chemdose_dbp(water2, cl2 = 4, time = 8)) # missing toc
-  expect_error(chemdose_dbp(water3, cl2 = 4, time = 1)) # missing uv
+  expect_error(chemdose_dbp(water3, cl2 = 4, time = 1, treatment = "coag")) # missing uv
+  expect_no_error(suppressWarnings(chemdose_dbp(water3, cl2 = 4, time = 1, treatment = "raw"))) # raw doesn't require uv
   expect_error(chemdose_dbp(water4, cl2 = 4, time = 8)) # missing br
   expect_error(chemdose_dbp(water5, time = 8)) # missing cl2
   expect_error(chemdose_dbp(water5, cl2 = 4)) # missing time
