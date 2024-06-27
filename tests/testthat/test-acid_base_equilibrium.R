@@ -2,15 +2,15 @@
 
 test_that("Solve pH returns correct pH with no chemical dosing.", {
   suppressWarnings({
-    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
-    water2 <- define_water(ph = 5, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
-    water3 <- define_water(ph = 10, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+    water2 <- define_water(ph = 5, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+    water3 <- define_water(ph = 10, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
   })
 
-  water4 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water5 <- define_water(7.5, 20, 100, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water6 <- define_water(7.5, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water7 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(6.7, 20, 20, 70, 10, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water5 <- define_water(7.5, 20, 100, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water6 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water7 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
   water8 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
   water9 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
@@ -30,7 +30,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
 # Dose chemical ----
 
 test_that("Dose chemical returns the same pH/alkalinity when no chemical is added.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- chemdose_ph(water1, h2so4 = 0, h3po4 = 0)
 
   expect_equal(water1@ph, water2@ph)
@@ -54,10 +54,10 @@ test_that("Dose chemical corrects ph when softening", {
 
 # To do: subdivide for each chemical?
 test_that("Dose chemical works", {
-  water1 <- define_water(6.7, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water2 <- define_water(7.5, 20, 100, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water3 <- define_water(7.5, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water1 <- define_water(6.7, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water2 <- define_water(7.5, 20, 100, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water3 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
   test1 <- chemdose_ph(water1, alum = 30)
   test2 <- chemdose_ph(water2, alum = 30)
@@ -84,7 +84,7 @@ test_that("Dose chemical works", {
 # Solve Dose pH ----
 
 test_that("Solve dose pH produces a warning and returns NA when target pH is unreachable but runs otherwise.", {
-  water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
   expect_warning(solvedose_ph(water4, 6, "naoh"))
   expect_warning(solvedose_ph(water4, 6, "co2"))
@@ -94,13 +94,13 @@ test_that("Solve dose pH produces a warning and returns NA when target pH is unr
 })
 
 test_that("Solve dose pH doesn't run when target pH is out of range.", {
-  water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
   expect_error(solvedose_ph(water4, 20, "naoh"))
 })
 
 test_that("Solve dose pH returns the correct values.", {
-  water4 <- define_water(8, 20, 20, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
   expect_equal(solvedose_ph(water4, 11, "naoh"), 39.2)
   expect_equal(solvedose_ph(water4, 7, "co2"), 3.5)
@@ -112,7 +112,7 @@ test_that("Solve dose pH returns the correct values.", {
 # Solve Dose Alkalinity ----
 
 test_that("Solve dose alk produces a warning and returns NA when target alk is unreachable but runs otherwise.", {
-  water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water5 <- define_water(8, 20, 50, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
   expect_warning(solvedose_alk(water5, 20, "naoh"))
   expect_equal(suppressWarnings(solvedose_alk(water5, 100, "h2so4")), NA)
@@ -121,12 +121,12 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
 })
 
 test_that("Solve dose alk works.", {
-  water5 <- define_water(8, 20, 50, 50, 40, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water5 <- define_water(8, 20, 50, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_alk(water5, 100, "naoh"), 39.7)
+  expect_equal(solvedose_alk(water5, 100, "naoh"), 39.8)
   expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
   naohdose <- solvedose_alk(water5, 100, "naoh")
-  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 99)
+  expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 100)
 })
 
 
@@ -190,7 +190,7 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
   expect_equal(blend1@treatment, "defined_chemdosed_balanced_blended")
   expect_equal(blend2@treatment, "defined_balanced_blended")
   expect_equal(blend1@estimated, "_cond_tds_na")
-  expect_equal(blend2@estimated, "_tds_na_ca_cond")
+  expect_equal(blend2@estimated, "_tds_na_ca_mg_cond")
   expect_equal(blend3@estimated, water1@estimated)
 
 })
