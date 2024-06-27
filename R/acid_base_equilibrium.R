@@ -60,6 +60,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
 #' @param mgoh2  Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
+#' @param cacl2 Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-
 #' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
 #' @param caocl2 Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl
@@ -97,7 +98,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @export
 #'
 chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 = 0, caoh2 = 0, mgoh2 = 0,
-                        cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                        cacl2 = 0, cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
                         alum = 0, fecl3 = 0, fe2so43 = 0,
                         softening_correction = FALSE) {
 
@@ -133,6 +134,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   # Magnesium hydroxide (Mg(OH)2) dose
   mgoh2 = convert_units(mgoh2, "mgoh2")
 
+  # Calcium chloride (CaCl2) dose
+  cacl2 = convert_units(cacl2, "cacl2")
+
   # Chlorine gas (Cl2)
   cl2 = convert_units(cl2, "cl2")
 
@@ -162,7 +166,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@na = water@na + na_dose
 
   # Total calcium
-  ca_dose = caoh2 + caocl2 / 2 + caco3
+  ca_dose = caoh2 + cacl2 + caocl2 / 2 + caco3
   dosed_water@ca = water@ca + ca_dose
 
   # Total magnesium
@@ -174,7 +178,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@k = water@k + k_dose
 
   # Total chloride
-  cl_dose = hcl + cl2 + 3 * fecl3
+  cl_dose = hcl + cl2 + 2 * cacl2 + 3 * fecl3
   dosed_water@cl = water@cl + cl_dose
 
   # Total sulfate
