@@ -33,8 +33,6 @@ define_water(
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
-\item{ca_hard}{Calcium hardness in mg/L as CaCO3}
-
 \item{na}{Sodium in mg/L Na+}
 
 \item{k}{Potassium in mg/L K+}
@@ -58,6 +56,10 @@ define_water(
 \item{uv254}{UV absorbance at 254 nm (cm-1)}
 
 \item{br}{Bromide in mg/L Br-}
+
+\item{ca}{Calcium in mg/L Ca+2}
+
+\item{mg}{Magnesium in mg/L Mg2+}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.

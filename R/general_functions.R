@@ -245,7 +245,8 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca_hard Calcium hardness in mg/L as CaCO3
+#' @param ca Calcium in mg/L Ca+2
+#' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
@@ -281,21 +282,28 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  if (missing(tot_hard) & missing(ca_hard)) {
-    tot_hard = NA_real_
-    ca_hard = NA_real_
-  }
-
-  if (missing(tot_hard)) {
-    tot_hard = ca_hard / 0.65
-    warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-    estimated <- paste(estimated, "tot_hard", sep = "_")
-  }
-
-  if (missing(ca_hard)) {
-    ca_hard = tot_hard * .65
-    warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
+  if (!is.na(tot_hard) & missing(ca) & !is.na(mg)) {
+    ca = convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L as CaCO3"), "ca", "mg/L as CaCO3", "mg/L")
+    warning("Missing value for calcium. Value estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & missing(mg) & !is.na(ca)) {
+    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L as CaCO3"), "mg", "mg/L as CaCO3", "mg/L")
+    warning("Missing value for magnesium. Value estimated from total hardness and calcium.")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & missing(mg) & missing(ca)) {
+    ca = convert_units(tot_hard * 0.65, "ca", "mg/L as CaCO3", "mg/L")
+    mg = convert_units(tot_hard * 0.35, "mg", "mg/L as CaCO3", "mg/L")
+    warning("Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
+    estimated <- paste(estimated, "ca", sep = "_")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (missing(tot_hard) & !is.na(ca) & !is.na(mg)) {
+    tot_hard = calculate_hardness(ca, mg)
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
