@@ -6,7 +6,7 @@
 \usage{
 define_water(
   ph,
-  temp = 20,
+  temp = 25,
   alk,
   tot_hard,
   ca_hard,
@@ -57,10 +57,12 @@ define_water(
 
 \item{uv254}{UV absorbance at 254 nm (cm-1)}
 
-\item{br}{Bromide in mg/L Br-}
+\item{br}{Bromide in ug/L Br-}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+}
+\details{
 Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
 NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
 manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:

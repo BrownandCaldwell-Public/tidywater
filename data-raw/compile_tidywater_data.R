@@ -221,7 +221,7 @@ dbpcoeffs <- data.frame(
   add_row(ID = "tthm",
     alias = "total trihalomethanes", group = "tthm",
     treatment = "coag",
-    A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.0263, e = 1.1560, f = 0.264, ph_const = 7.5) %>%
+    A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.1560, e = 1.0263, f = 0.264, ph_const = 7.5) %>%
   add_row(ID = "chcl3",
     alias = "chloroform", group = "tthm",
     treatment = "coag",
@@ -242,7 +242,7 @@ dbpcoeffs <- data.frame(
   add_row(ID = "haa5",
     alias = "Five haloacetic acids", group = "haa5",
     treatment = "coag",
-    A = 30.7, a = 0.302, b = 0.541, c = -0.012, d = 1.021, e = 0.932, f = 0.161, ph_const = 7.5) %>%
+    A = 30.7, a = 0.302, b = 0.541, c = -0.012, d = 0.932, e = 1.021, f = 0.161, ph_const = 7.5) %>%
   add_row(ID = "haa6",
     alias = "Six haloacetic acids", group = "haa6",
     treatment = "coag",
