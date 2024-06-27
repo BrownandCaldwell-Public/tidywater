@@ -2,7 +2,9 @@
 test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
-    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 0,
+                           ca = 0, mg = 0, na = 0, k = 0, cl = 0, so4 = 0,
+                           toc = 5, doc = 4.8, uv254 = .1)
     water2 <- define_water(temp = 25, tot_hard = 50)
     water3 <- define_water(ph = 7, temp = 25, alk = 100)
   })
@@ -43,16 +45,15 @@ test_that("Define water calculates correct TDS/IS/cond.", {
 
 
 test_that("Define water gives missing value warnings.", {
-  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
+  expect_warning(define_water(alk = 100, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
     doc = 5, toc = 5, uv254 = .1, br = 50),
   "Missing.+pH.+")
-  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
+  expect_warning(define_water(ph = 7, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
     doc = 5, toc = 5, uv254 = .1, br = 50),
   "Missing.+alkalinity.+")
-  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 50, ca_hard = 50, na = 10, k = 10, cl = 10, so4 = 10,
+  expect_warning(define_water(ph = 7, alk = 100, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10,
     toc = 5, uv254 = .1, br = 50),
   "Missing.+DOC+")
-
 })
 
 test_that("Define water doesn't output carbonate when pH or alk aren't provided.", {
@@ -203,14 +204,14 @@ test_that("Balance ions doesn't alter organics.", {
 })
 
 test_that("Balance ions results in neutral charge.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
+  water1 <- define_water(ph = 7, temp = 25, alk = 100, 70, 10, 10, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
   water2 <- balance_ions(water1)
 
   expect_equal(water2@na + water2@ca * 2 + water2@mg * 2 + water2@k -
     (water2@cl + 2 * water2@so4 + water2@hco3 + 2 * water2@co3 + water2@h2po4 + 2 * water2@hpo4 + 3 * water2@po4) +
     water2@h - water2@oh - water2@ocl, 0)
 
-  water3 <- define_water(ph = 7, temp = 25, alk = 100, 10, 10, 10, 10, 10, 10, tot_ocl = 2, tot_po4 = 1, toc = 5, doc = 4.8, uv254 = .1, br = 50)
+  water3 <- define_water(ph = 7, temp = 25, alk = 100, 70, 10, 10, 10, 10, 10, 10, tot_ocl = 2, tot_po4 = 1, toc = 5, doc = 4.8, uv254 = .1, br = 50)
   water4 <- balance_ions(water3)
 
 
@@ -276,7 +277,7 @@ test_that("K temp correction returns a value close to K.", {
 # Ionic Strength ----
 
 test_that("Ionic strength calc in define water works.", {
-  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
+  water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
 
   is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
     (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
@@ -286,7 +287,7 @@ test_that("Ionic strength calc in define water works.", {
 })
 
 test_that("Ionic strength correlation in define water works.", {
-  water <- define_water(7, 25, 100, 100, 70, 10, 10, 10, 10, tds = 200, doc = 5, toc = 5, uv254 = .1, br = 50)
+  water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, tds = 200, doc = 5, toc = 5, uv254 = .1, br = 50)
   is_calced <- 2.5 * 10^-5 * water@tds
   expect_equal(water@is, is_calced)
 
@@ -302,3 +303,4 @@ test_that("Activity coefficient calculation works.", {
   expect_equal(round(calculate_activity(1, .001, 25), 2), .97)
   expect_equal(round(calculate_activity(2, .01, 25), 2), .66)
 })
+
