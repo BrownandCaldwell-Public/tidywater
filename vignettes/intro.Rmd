@@ -54,10 +54,10 @@ my_water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 5)
 my_water
 ```
 
-You can easily summarise your water quality using the `summarise_wq` function, which takes a water class object and exports an easy-to-read table of the water quality into the console. 
+You can easily summarize your water quality using the `summarize_wq` function, which takes a water class object and exports an easy-to-read table of the water quality into the console. 
 
 ```{r}
-summarise_wq(my_water)
+summarize_wq(my_water)
 ```
 
 This is a great way to get started with `tidywater` for users who only need to model a single water quality. If you have a large data set with multiple water qualities that you want to model, though,  this might sound tedious. It wouldn't be possible to manually enter your pH, alkalinity, temperature etc. for, let's say, 5,000 rows. Instead, `tidywater` has helper functions to generate many water classes simultaneously from an imported data set. See the `help_functions_blend` vignette for large data processing (paste this in the console: `vignette("help_functions_blend", package = "tidywater")`). 
@@ -86,7 +86,7 @@ balanced_water@k # The balanced water now contains 0.00178 M of potassium
 ```
 
 ## Converting units
-The potassium units are in M. What if you want to know what that is in mg/L? There are two ways to do this in tidywater. The easiest way is to use the `summarise_wq` function shown above, which converts the ion concentrations back to mg/L. 
+The potassium units are in M. What if you want to know what that is in mg/L? There are two ways to do this in tidywater. The easiest way is to use the `summarize_wq` function shown above, which converts the ion concentrations back to mg/L. 
 
 Another option is to use the `convert_units` function, which allows you to specify the chemical and the starting and ending units. In this case, we want to convert the potassium concentration in `balanced_water` from M to mg/L.
 ```{r}
