@@ -2,7 +2,7 @@
 % Please edit documentation in R/acid_base_equilibrium.R
 \name{chemdose_ph}
 \alias{chemdose_ph}
-\title{Add chemicals to water and apply acid/base equilibrium and ion mass balance}
+\title{Calculate new pH and ion balance after chemical addition}
 \usage{
 chemdose_ph(
   water,
@@ -67,11 +67,13 @@ chemdose_ph(
 }
 \description{
 \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
-additions. The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
-chemical additions and returns a new object of class "water" with updated water quality.
-Units of all chemical additions are in mg/L as chemical (not as product).
+additions.
 }
 \details{
+The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
+chemical additions and returns a new object of class "water" with updated water quality.
+Units of all chemical additions are in mg/L as chemical (not as product).
+
 \code{chemdose_ph} works by evaluating all the user-specified chemical additions and solving for what the new pH
 must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
 of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
