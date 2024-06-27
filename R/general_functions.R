@@ -450,22 +450,22 @@ summarize_wq <- function(water, params = c("general")) {
 
   # Compile general WQ parameters
   general = data.frame(pH = water@ph,
-                       Temp = water@temp,
-                       Alkalinity = water@alk,
-                       Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"),
-                       TDS = water@tds,
-                       Conductivity = water@cond,
-                       TOC = water@toc)
+    Temp = water@temp,
+    Alkalinity = water@alk,
+    Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"),
+    TDS = water@tds,
+    Conductivity = water@cond,
+    TOC = water@toc)
 
   general = general %>%
     pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c("-",
-                     "deg C",
-                     "mg/L as CaCO3",
-                     "mg/L as CaCO3",
-                     "mg/L",
-                     "uS/cm",
-                     "mg/L"))
+      "deg C",
+      "mg/L as CaCO3",
+      "mg/L as CaCO3",
+      "mg/L",
+      "uS/cm",
+      "mg/L"))
 
   gen_tab = knitr::kable(general,
     format = "simple",
@@ -492,36 +492,36 @@ summarize_wq <- function(water, params = c("general")) {
 
   # Compile corrosion indices
   corrosion = tibble(`Aggressive Index` = water@aggressive,
-                      `Ryznar Stability Index` = water@ryznar,
-                      `Langelier Saturation Index (LSI)` = water@langelier,
-                      `Larson Skold Index` = water@larsonskold,
-                      `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
-                      `Calcium carbonate precipitation potential (CCPP)` = water@ccpp)
+    `Ryznar Stability Index` = water@ryznar,
+    `Langelier Saturation Index (LSI)` = water@langelier,
+    `Larson Skold Index` = water@larsonskold,
+    `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
+    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp)
 
   corrosion = corrosion %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2)) %>%
     mutate(units = c(rep("unitless", 5), "mg/L CaCO3"),
-           Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
+      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
 
   corr_tab = knitr::kable(corrosion,
-                     format = "simple",
-                     col.names = c("Corrosion Indices", "Result", "Units", "Recommended"))
+    format = "simple",
+    col.names = c("Corrosion Indices", "Result", "Units", "Recommended"))
 
   # Compile DBPs
   tthm = tibble(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
-                    Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
-                    Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
-                    Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
-                    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm))
+    Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
+    Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
+    Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
+    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm))
 
 
   haa5 = tibble(`Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
-                    `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
-                    `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
-                    `Bromoacetic acid` = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
-                    `Dibromoacetic acid` = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
-                    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5))
+    `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
+    `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
+    `Bromoacetic acid` = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
+    `Dibromoacetic acid` = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
+    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5))
   # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
   # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
   # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
@@ -538,22 +538,22 @@ summarize_wq <- function(water, params = c("general")) {
     mutate(result = round(result, 2))
 
   thm_tab = knitr::kable(tthm,
-                      format = "simple",
-                      col.names = c("THMs", "Modeled concentration (ug/L)"))
+    format = "simple",
+    col.names = c("THMs", "Modeled concentration (ug/L)"))
 
   haa_tab = knitr::kable(haa5,
-                      format = "simple",
-                      col.names = c("HAAs", "Modeled concentration (ug/L)"))
+    format = "simple",
+    col.names = c("HAAs", "Modeled concentration (ug/L)"))
 
   # Print tables
   tables_list <- list()
-  if ("general" %in% params) {tables_list[[length(tables_list)+1]] = gen_tab}
-  if ("ions" %in% params) {tables_list[[length(tables_list)+1]] = ions_tab}
-  if ("corrosion" %in% params) {tables_list[[length(tables_list)+1]] = corr_tab}
+  if ("general" %in% params) {tables_list[[length(tables_list) + 1]] = gen_tab}
+  if ("ions" %in% params) {tables_list[[length(tables_list) + 1]] = ions_tab}
+  if ("corrosion" %in% params) {tables_list[[length(tables_list) + 1]] = corr_tab}
   if ("dbps" %in% params) {
-    tables_list[[length(tables_list)+1]] = thm_tab
-    tables_list[[length(tables_list)+1]] = haa_tab
-    }
+    tables_list[[length(tables_list) + 1]] = thm_tab
+    tables_list[[length(tables_list) + 1]] = haa_tab
+  }
 
   return(knitr::kables(tables_list))
 }
