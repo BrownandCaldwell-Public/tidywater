@@ -20,7 +20,7 @@ test_that("convert water works", {
 
 test_that("define_water_once output is the same as define_water", {
 
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                          cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05))
   water2 <- convert_water(water1)
 
@@ -42,7 +42,7 @@ test_that("define_water_once outputs a data frame", {
 # Test that define_water_chain outputs are the same as base function, define_water.
 
 test_that("define_water_chain output is the same as define_water", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05))
   # water2 <- convert_Water(water1)
 
@@ -88,7 +88,7 @@ test_that("define_water_chain can be piped", {
 # Check balance_ions_once outputs are the same as base function, balance_ions
 
 test_that("balance_ions_once output is the same as balance_ions", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05))
   water2 <- balance_ions(water1)
 
@@ -114,7 +114,7 @@ test_that("balance_ions_once outputs a data frame", {
 # Test that balance_ions_chain outputs are the same as base function, balance_ions.
 
 test_that("balance_ions_chain outputs are the same as base function, balance_ions", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05))
   water2 <- balance_ions(water1)
 
@@ -218,7 +218,7 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05))%>%
     balance_ions() %>%
     chemdose_ph(naoh = 10)
@@ -473,11 +473,11 @@ test_that("blend_waters_once can handle different ways to input ratios", {
 
 # Test that blend_waters_chain outputs are the same as base function, blend_waters
 test_that("blend_waters_chain outputs are the same as base function, blend_waters", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)) %>%
     balance_ions()
 
-  water2 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water2 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)) %>%
     balance_ions() %>%
     chemdose_ph(naoh = 20)
@@ -567,7 +567,7 @@ test_that("pluck_water works", {
 
 test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb", {
   water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
-    na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
+    ca = 13, mg = 4, na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05)) %>%
     balance_ions() %>%
     dissolve_pb()
@@ -768,7 +768,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
 # Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
 
 test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)%>%
     balance_ions() %>%
     calculate_corrosion())
@@ -843,7 +843,7 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
 # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
 test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
-  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na =  20, k = 20,
+  water1 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na =  20, k = 20,
                                           cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
     balance_ions() %>%
     calculate_corrosion())
