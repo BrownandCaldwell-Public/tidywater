@@ -14,6 +14,7 @@ mweights <- data.frame(na = 22.98977,
   nahco3 = 84.00661,
   caoh2 = 74.09268,
   mgoh2 = 58.31968,
+  cacl2 = 110.98,
   cl2 = 70.906,
   co2 = 44.009,
   al = 26.981539,
@@ -54,7 +55,8 @@ water_df <- data.frame(
   temp = rep(c(20, 25, 19), 4),
   alk = rep(c(50, 80, 100, 200), 3),
   tot_hard = rep(c(50, 75, 100, 30, 400, 110), 2),
-  ca_hard = rep(c(50, 70, 65, 20, 350, 100), 2),
+  ca = rep(c(13, 20, 26, 8, 104, 28), 2),
+  mg = rep(c(4, 6, 8, 3, 34, 9), 2),
   na = rep(c(20, 90), 6),
   k = rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
@@ -221,7 +223,7 @@ dbpcoeffs <- data.frame(
   add_row(ID = "tthm",
     alias = "total trihalomethanes", group = "tthm",
     treatment = "coag",
-    A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.0263, e = 1.1560, f = 0.264, ph_const = 7.5) %>%
+    A = 23.9, a = 0.403, b = 0.225, c = 0.141, d = 1.1560, e = 1.0263, f = 0.264, ph_const = 7.5) %>%
   add_row(ID = "chcl3",
     alias = "chloroform", group = "tthm",
     treatment = "coag",
@@ -242,7 +244,7 @@ dbpcoeffs <- data.frame(
   add_row(ID = "haa5",
     alias = "Five haloacetic acids", group = "haa5",
     treatment = "coag",
-    A = 30.7, a = 0.302, b = 0.541, c = -0.012, d = 1.021, e = 0.932, f = 0.161, ph_const = 7.5) %>%
+    A = 30.7, a = 0.302, b = 0.541, c = -0.012, d = 0.932, e = 1.021, f = 0.161, ph_const = 7.5) %>%
   add_row(ID = "haa6",
     alias = "Six haloacetic acids", group = "haa6",
     treatment = "coag",

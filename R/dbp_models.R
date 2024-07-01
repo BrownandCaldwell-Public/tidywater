@@ -1,16 +1,17 @@
 # DBP Modeling functions
 # These functions predict total trihalomethane (TTHM) and haloacetic acid (HAA) formation
 
-#' Calculate DBP formation
+#' @title Calculate DBP formation
 #'
 #' @description \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in \code{define_water}
 #' including bromide, TOC, UV254, temperature, and pH.
-#' The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
+#'
+#' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 #' The function returns a new object of class "water" with predicted DBP concentrations.
-#' Use \code{summarise_dbp} to quickly tabulate the results.
+#' Use \code{summarise_wq} to quickly tabulate the results.
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
@@ -43,12 +44,14 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   br = water@br
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
-  if (is.na(toc) | is.na(uv254) | is.na(temp) | is.na(ph) | is.na(br)) {
-    stop("Missing value for toc, uv254, temp, ph, or br. Please add them to define_water.")
+  if (treatment == "raw" & (is.na(toc) | is.na(temp) | is.na(ph) | is.na(br))) {
+    stop("Missing value for toc, temp, ph, or br. Please add missing parameters to define_water.")
   }
-  if (is.na(doc) & (treatment == "coag" | treatment == "gac")) {
-    stop("Missing value for doc. Please add doc to define_water.")
+
+  if ((treatment == "coag" | treatment == "gac") & (is.na(doc) | is.na(uv254) | is.na(temp) | is.na(ph) | is.na(br))) {
+    stop("Missing value for doc, uv254, temp, ph, or br. Please add missing parameters to define_water.")
   }
+
   if (missing(cl2) | missing(time)) {
     stop("Missing value for cl2 or time. Please check the function inputs required to calculate DBP formation.")
   }
@@ -67,10 +70,6 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   }
 
   # uv254 warnings
-  if (treatment == "raw" & (uv254 < 0.01 | uv254 > 0.318)) {
-    warning("UV254 is outside the model bounds of 0.01 <= UV254 <= 0.318 cm-1 for raw water.")
-  }
-
   if (treatment == "coag" & (uv254 < 0.016 | uv254 > 0.215)) {
     warning("UV254 is outside the model bounds of 0.016 <= UV254 <= 0.215 cm-1 for coagulated water.")
   }
