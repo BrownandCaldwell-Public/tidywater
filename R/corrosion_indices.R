@@ -41,10 +41,10 @@
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' water <- define_water(ph = 8, temp = 25, alk = 200, ca_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
+#' water <- define_water(ph = 8, temp = 25, alk = 200, tot_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
 #'   calculate_corrosion()
 #'
-#' water <- define_water(ph = 8, temp = 25, alk = 100, ca_hard = 50, tds = 200) %>%
+#' water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) %>%
 #'   calculate_corrosion(index = c("aggressive", "ccpp"))
 #'
 #' @export

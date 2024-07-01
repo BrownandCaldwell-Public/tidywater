@@ -246,7 +246,8 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca_hard Calcium hardness in mg/L as CaCO3
+#' @param ca Calcium in mg/L Ca+2
+#' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
@@ -259,13 +260,15 @@ methods::setMethod("show",
 #' @param doc Dissolved organic carbon (DOC) in mg/L
 #' @param uv254 UV absorbance at 254 nm (cm-1)
 #' @param br Bromide in ug/L Br-
+#'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 #'
 #' @export
 #'
-define_water <- function(ph, temp = 25, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
+
+define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
                          toc, doc, uv254, br) {
 
   # Initialize string for tracking which parameters were estimated
@@ -282,21 +285,39 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca_hard, na, k, cl, so4, 
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  if (missing(tot_hard) & missing(ca_hard)) {
-    tot_hard = NA_real_
-    ca_hard = NA_real_
+  tot_hard = ifelse(missing(tot_hard), NA_real_, tot_hard)
+  ca = ifelse(missing(ca), NA_real_, ca)
+  mg = ifelse(missing(mg), NA_real_, mg)
+
+  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard!=0 & ca!=0 & mg!=0)) {
+    check_tot_hard = abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
+    if (check_tot_hard > 0.10) {
+      warning("User entered total hardness is >10% different than calculated hardness.")
+    }
   }
 
-  if (missing(tot_hard)) {
-    tot_hard = ca_hard / 0.65
-    warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-    estimated <- paste(estimated, "tot_hard", sep = "_")
-  }
-
-  if (missing(ca_hard)) {
-    ca_hard = tot_hard * .65
-    warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
+  if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
+    ca = convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
+    warning("Missing value for calcium. Value estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & is.na(mg) & !is.na(ca)) {
+    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
+    warning("Missing value for magnesium. Value estimated from total hardness and calcium.")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
+    ca = convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
+    mg = convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
+    warning("Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
+    estimated <- paste(estimated, "ca", sep = "_")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
+    tot_hard = calculate_hardness(ca, mg)
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
@@ -334,9 +355,9 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca_hard, na, k, cl, so4, 
   kw = 10^-pkw
 
   # Convert major ion concentration inputs to mol/L
+  ca = convert_units(ca, "ca")
+  mg = convert_units(mg, "mg")
   na = convert_units(na, "na")
-  ca = convert_units(ca_hard, "caco3")
-  mg = convert_units(tot_hard - ca_hard, "caco3")
   k = convert_units(k, "k")
   cl = convert_units(cl, "cl")
   so4 = convert_units(so4, "so4")
@@ -705,7 +726,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # Determine charge for equivalents
   if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na")) {
     charge <- 1
-  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb")) {
+  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2")) {
     charge <- 2
   } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
     charge <- 3

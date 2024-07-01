@@ -6,10 +6,11 @@
 \usage{
 define_water(
   ph,
-  temp = 25,
+  temp = 20,
   alk,
   tot_hard,
-  ca_hard,
+  ca,
+  mg,
   na,
   k,
   cl,
@@ -33,7 +34,9 @@ define_water(
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
-\item{ca_hard}{Calcium hardness in mg/L as CaCO3}
+\item{ca}{Calcium in mg/L Ca+2}
+
+\item{mg}{Magnesium in mg/L Mg2+}
 
 \item{na}{Sodium in mg/L Na+}
 
