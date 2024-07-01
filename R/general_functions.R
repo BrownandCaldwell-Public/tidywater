@@ -289,7 +289,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   ca = ifelse(missing(ca), NA_real_, ca)
   mg = ifelse(missing(mg), NA_real_, mg)
 
-  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard!=0 & ca!=0 & mg!=0)) {
+  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
     check_tot_hard = abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
     if (check_tot_hard > 0.10) {
       warning("User entered total hardness is >10% different than calculated hardness.")
