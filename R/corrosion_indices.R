@@ -52,6 +52,9 @@
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")}
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+  }
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
     warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")}
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
