@@ -905,7 +905,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
 
   plucked <- data.frame(row.names = seq(1, nrow(df)))
   for (water in input_waters) {
-    if (!methods::is(df$water[[1]], "water")) {
+    if (!methods::is(df[[water]][[1]], "water")) {
       stop("All waters must be of class 'water'.")
     }
     output_column <- paste0(water, "_", parameter)
