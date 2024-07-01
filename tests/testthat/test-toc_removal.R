@@ -45,4 +45,3 @@ test_that("chemdose_toc works.", {
   expect_equal(round(water4@doc, 1), 2.2)
 
 })
-
