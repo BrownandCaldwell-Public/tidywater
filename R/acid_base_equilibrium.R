@@ -444,7 +444,7 @@ blend_waters <- function(waters, ratios) {
 
   # Identify slots that are not NA for blending
   s4todata <- function(water) {
-    names <- slotNames (water)
+    names <- slotNames(water)
     lt <- lapply(names, function(names) slot(water, names))
     as.list(setNames(lt, names))
   }
