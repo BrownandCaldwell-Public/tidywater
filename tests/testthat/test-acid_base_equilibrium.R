@@ -2,18 +2,23 @@
 
 test_that("Solve pH returns correct pH with no chemical dosing.", {
   suppressWarnings({
-    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
-    water2 <- define_water(ph = 5, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
-    water3 <- define_water(ph = 10, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, toc = 5, doc = 4.8, uv254 = .1)
+    water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0)
+    water2 <- define_water(ph = 5, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0)
+    water3 <- define_water(ph = 10, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0)
   })
 
-  water4 <- define_water(6.7, 20, 20, 70, 10, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water5 <- define_water(7.5, 20, 100, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water6 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
-  water7 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
+  water4 <- define_water(6.7, 20, 20, 70, 10, 10, 10, 10, 10, 10)
+  water5 <- define_water(7.5, 20, 100, 70, 10, 10, 10, 10, 10)
+  water6 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10)
+  water7 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10)
 
   water8 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
   water9 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
+
+  water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
+  solve_ph(water10)
+  water10@ph
+  expect_equal(solve_ph(water10), water10@ph)
 
   expect_equal(solve_ph(water1), water1@ph)
   expect_equal(solve_ph(water2), water2@ph)
@@ -24,6 +29,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
   expect_equal(solve_ph(water7), water7@ph)
   expect_equal(solve_ph(water8), water8@ph)
   expect_equal(solve_ph(water9), water9@ph)
+
 
 })
 
@@ -107,6 +113,16 @@ test_that("Solve dose pH returns the correct values.", {
   co2dose <- solvedose_ph(water4, 7, "co2")
   expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
 })
+
+test_that("Solve dose pH doesn't error when target pH is close to starting.") {
+  water1 <- define_water(ph = 8.1, temp = 19, alk = 100, tot_hard = 100,
+                         ca = 26, mg = 8, na = 20, k = 20, cl = 30, so4 = 60,
+                         tot_po4 = 1, toc = 4, doc = 3.5)
+  water2 <- chemdose_ph(water1, alum = 30)
+
+  solvedose_ph(water2, 7, "h2so4")
+
+}
 
 
 # Solve Dose Alkalinity ----

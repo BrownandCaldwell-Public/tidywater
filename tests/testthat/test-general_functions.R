@@ -3,8 +3,8 @@ test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
     water1 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 0,
-                           ca = 0, mg = 0, na = 0, k = 0, cl = 0, so4 = 0,
-                           toc = 5, doc = 4.8, uv254 = .1)
+      ca = 0, mg = 0, na = 0, k = 0, cl = 0, so4 = 0,
+      toc = 5, doc = 4.8, uv254 = .1)
     water2 <- define_water(temp = 25, tot_hard = 50)
     water3 <- define_water(ph = 7, temp = 25, alk = 100)
   })
@@ -303,4 +303,3 @@ test_that("Activity coefficient calculation works.", {
   expect_equal(round(calculate_activity(1, .001, 25), 2), .97)
   expect_equal(round(calculate_activity(2, .01, 25), 2), .66)
 })
-

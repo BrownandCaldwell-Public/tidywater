@@ -67,4 +67,3 @@ test_that("calculate _dic works.", {
   expect_equal(round(water1), 59)
   expect_equal(round(water2), 2)
 })
-
