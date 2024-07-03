@@ -442,12 +442,22 @@ blend_waters <- function(waters, ratios) {
     # print(sum(ratios)) # this is for checking why the function is breaking
   }
 
-  # Initialize empty blended water
-  blended_water <- methods::new("water")
-  parameters <- methods::slotNames(blended_water)
+  # Identify slots that are not NA for blending
+  s4todata <- function(water) {
+    names <- slotNames (water)
+    lt <- lapply(names, function(names) slot(water, names))
+    as.list(setNames(lt, names))
+  }
+
+  parameters <- s4todata(waters[[1]])
+  parameters <- names(parameters[!is.na(parameters)])
+
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated")
   parameters <- setdiff(parameters, not_averaged)
 
+  # Initialize empty blended water
+  blended_water <- methods::new("water")
+  # Loop through all slots that have a number and blend.
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
