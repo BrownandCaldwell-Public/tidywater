@@ -555,7 +555,7 @@ test_that("pluck_water works", {
     pluck_water(input_water = c("defined_water", "balanced_water"), parameter = "na"))
 
   expect_equal(ncol(water1), 2)
-  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$tot_co3)
+  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)
   expect_equal(ncol(water2), 4)
   expect_failure(expect_equal(water2$defined_water_na, water2$balanced_water_na)) # check that Na is being plucked from 2 different waters
 
