@@ -210,7 +210,7 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     slice(6) # same starting wq as water 4
 
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
-  expect_equal(ncol(water3), 36) # both naoh and hcl dosed
+  expect_equal(ncol(water3), 34) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
 })
