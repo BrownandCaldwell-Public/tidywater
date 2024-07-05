@@ -707,14 +707,12 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric") %>%
-    pluck_water("coagulated_water", "toc") %>%
-    pluck_water("coagulated_water", "doc") %>%
-    pluck_water("coagulated_water", "uv254"))
+    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric", output_water = "coag") %>%
+    pluck_water("coag", c("toc", "doc", "uv254")))
 
-  expect_equal(water1@toc, water2$toc)
-  expect_equal(water1@doc, water2$doc)
-  expect_equal(water1@uv254, water2$uv254)
+  expect_equal(water1@toc, water2$coag_toc)
+  expect_equal(water1@doc, water2$coag_doc)
+  expect_equal(water1@uv254, water2$coag_uv254)
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
