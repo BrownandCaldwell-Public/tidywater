@@ -98,24 +98,24 @@ methods::setClass("water",
     uv254 = NA_real_,
 
     # Ions
-    na = 0,
-    ca = 0,
-    mg = 0,
-    k = 0,
-    cl = 0,
-    so4 = 0,
-    no3 = 0,
-    nh3 = 0,
+    na = NA_real_,
+    ca = NA_real_,
+    mg = NA_real_,
+    k = NA_real_,
+    cl = NA_real_,
+    so4 = NA_real_,
+    no3 = NA_real_,
+    nh3 = NA_real_,
     hco3 = NA_real_,
     co3 = NA_real_,
-    h2po4 = 0,
-    hpo4 = 0,
-    po4 = 0,
-    ocl = 0,
+    h2po4 = NA_real_,
+    hpo4 = NA_real_,
+    po4 = NA_real_,
+    ocl = NA_real_,
     h = NA_real_,
     oh = NA_real_,
-    tot_po4 = 0,
-    tot_ocl = 0,
+    tot_po4 = NA_real_,
+    tot_ocl = NA_real_,
     tot_co3 = NA_real_,
     is = NA_real_,
     br = NA_real_,
@@ -316,7 +316,14 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
-  if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
+  if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
+    tot_hard = calculate_hardness(ca, 0) / .65
+    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
+    warning("Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
+    estimated <- paste(estimated, "tothard", sep = "_")
+    estimated <- paste(estimated, "mg", sep = "_")
+
+  } else if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
     tot_hard = calculate_hardness(ca, mg)
   }
 
