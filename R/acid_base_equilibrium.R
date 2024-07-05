@@ -452,7 +452,7 @@ blend_waters <- function(waters, ratios) {
   parameters <- s4todata(waters[[1]])
   parameters <- names(parameters[!is.na(parameters)])
   otherparams <- c()
-  if(length(waters) > 1) {
+  if (length(waters) > 1) {
     for (i in 2:length(waters)) {
       tempparams <- s4todata(waters[[i]])
       tempparams <- names(tempparams[!is.na(tempparams)])
@@ -460,10 +460,10 @@ blend_waters <- function(waters, ratios) {
     }
     missingn <- setdiff(parameters, otherparams)
     missing1 <- setdiff(otherparams, parameters)
-    if (!is_empty(missingn) | !is_empty(missing1)) {
+    if (!purrr::is_empty(missingn) | !purrr::is_empty(missing1)) {
       missing <- paste0(c(missingn, missing1), collapse = ", ")
       warning(paste0("The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ", missing,
-                     "\nTo fix this, make sure all waters provided have the same parameters specified."))
+        "\nTo fix this, make sure all waters provided have the same parameters specified."))
     }
   }
 
