@@ -316,7 +316,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
-  if(is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
+  if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
     tot_hard = calculate_hardness(ca, 0) / .65
     mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
     warning("Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")

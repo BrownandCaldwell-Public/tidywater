@@ -204,8 +204,8 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
     balance_ions()
   water3 <- suppressWarnings(define_water(ph = 10, temp = 10, alk = 200, tot_hard = 100, cl = 100, na = 100))
 
-  blend1 <- blend_waters(c(water1, water2), c(.5, .5))
-  blend2 <- blend_waters(c(water2, water3), c(.5, .5))
+  blend1 <- suppressWarnings(blend_waters(c(water1, water2), c(.5, .5)))
+  blend2 <- suppressWarnings(blend_waters(c(water2, water3), c(.5, .5)))
   blend3 <- blend_waters(c(water1), c(1))
 
   expect_equal(blend1@treatment, "defined_chemdosed_balanced_blended")
@@ -213,5 +213,13 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
   expect_equal(blend1@estimated, "_cond_tds_na")
   expect_equal(blend2@estimated, "_tds_na_ca_mg_cond")
   expect_equal(blend3@estimated, water1@estimated)
+
+})
+
+test_that("Blend waters warns when some slots are NA.", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 100, tot_hard = 100))
+  water2 <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 100, na = 100))
+
+  expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "ca.+na")
 
 })
