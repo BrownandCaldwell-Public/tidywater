@@ -198,10 +198,10 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     balance_ions_chain() %>%
     chemdose_ph_once(input_water = "balanced_water"))
 
-  water3 <- suppressWarnings(water_df %>%
+  water3 <- water_df %>%
     define_water_chain() %>%
     mutate(naoh = seq(0, 11, 1)) %>%
-    chemdose_ph_once(hcl = c(5, 8)))
+    chemdose_ph_once(hcl = c(5, 8))
 
   water4 <- water3 %>%
     slice(11) # same starting wq as water 5
