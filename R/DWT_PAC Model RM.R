@@ -2,7 +2,6 @@
 
 #PAC modeling
 #Used for predicting DOC concentration
-install.packages("tidywater")
 
 #' @title Calculate DOC Concentration in PAC system
 #'
