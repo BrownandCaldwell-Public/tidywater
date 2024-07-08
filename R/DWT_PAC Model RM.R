@@ -1,6 +1,3 @@
-git remote add origin https://github.com/rmerrifield1/PAC-model.git
-git branch -M main
-git push -u origin main
 
 
 #PAC modeling
