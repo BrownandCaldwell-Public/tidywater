@@ -75,12 +75,6 @@ if (dose<= 0) {
 }
 
 
-#set default PAC type if not specified
-if (PAC_type == "") {
-  PAC_type <- "bituminous"
-}
-
-
 #more warnings
 if (!is.na(water@toc) & water@toc < water@doc) {
   warning("TOC of input water less than DOC. TOC will be set equal to DOC.") }
