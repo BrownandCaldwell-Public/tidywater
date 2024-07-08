@@ -41,7 +41,8 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 uv254 = water@uv254
 toc=water@toc
 
-if (missing(PAC_amount)) {
+if (missing(dose)) {
+
   stop("PAC Dose not specified")
 }
 
