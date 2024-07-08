@@ -101,9 +101,6 @@ if (PAC_type== "bituminous") {
   stop("Invalid PAC type. Choose either 'Bituminous', 'Wood' or 'Lignite' ")
 }
 
-result <- doc_final(water, PAC_amount, time, PAC_type, doc_0) 
-print(paste("result for DOC given inputted PAC type", material, "is",result))
-
 # Predict DOC concentration via UV absorbance
 
 #UVA can be a good indicator to predict DOC concentration by PAC adsorption
