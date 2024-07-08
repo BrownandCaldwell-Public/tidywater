@@ -31,7 +31,8 @@
 
 #define function based on input PAC type 
 #'
-PACdose_toc <- function(water, PAC_amount, time, PAC_type, doc_0,toc) {
+pac_toc <- function(water, dose, time, type = "bituminous") {
+
   #make case insensitive
   PAC_type <- tolower(PAC_type)
   
