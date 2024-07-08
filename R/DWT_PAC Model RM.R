@@ -10,26 +10,23 @@
 #' Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
 #' 
-#' The function also requires additional water quality parameters defined in \code{define_water}
-#' including  DOC, TOC, UV254 
+#' water must contain DOC or TOC value.
 #'
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment
-#' The function returns a new object of class "water" with predicted DOC concentrations.
-#' Use \code{summarise_wq} to quickly tabulate the results.
+#' The function returns a new object of class "water" with predicted DOC concentrations. UV254 concentrations are predicted based on a linear relationship with DOC.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #' @source CHO(2007)
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
-#' @param PAC_amount Applied PAC (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
+#' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
-#' @param PAC_type Type of PAC applied, either "bituminous", "lignite", "wood".
+#' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
 #' 
-#define input water ---- !!DOC input is preferred !! -----
-# @example
-#water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
-#PACdose_toc( time=50, PAC_type="wood",PAC_amount=15)
-
-#define function based on input PAC type 
+#' @example
+#' water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
+#' pac_toc(dose = 15, time=50, type="wood")
+#'
+#' @export
 #'
 pac_toc <- function(water, dose, time, type = "bituminous") {
 
