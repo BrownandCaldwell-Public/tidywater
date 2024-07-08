@@ -34,7 +34,8 @@
 pac_toc <- function(water, dose, time, type = "bituminous") {
 
   #make case insensitive
-  PAC_type <- tolower(PAC_type)
+  PAC_type <- tolower(type)
+
   
   doc_0 = water@doc
 uv254 = water@uv254
