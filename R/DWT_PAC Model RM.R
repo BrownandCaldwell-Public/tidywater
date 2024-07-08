@@ -89,14 +89,15 @@ org_carbon_undissolved <- toc-doc_0
 
 
 if (PAC_type== "bituminous") {
-  result <- .1561+.9114*doc_0 - .0263*PAC_amount - .002*time
+  result <- .1561+.9114*doc_0 - .0263*dose - .002*time
 } else if (PAC_type== "lignite") {
-  result <- .4078+.8516*doc_0 - .0225*PAC_amount - .002*time
+  result <- .4078+.8516*doc_0 - .0225*dose - .002*time
 } else if (PAC_type== "wood") {
-  result <- .3653+.8692*doc_0 - .0151*PAC_amount - .0025*time
+  result <- .3653+.8692*doc_0 - .0151*dose - .0025*time
 } else {
   stop("Invalid PAC type. Choose either 'Bituminous', 'Wood' or 'Lignite' ")
 }
+
 
 # Predict DOC concentration via UV absorbance
 
