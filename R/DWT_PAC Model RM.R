@@ -52,14 +52,15 @@ if (missing(time)) {
 
 
 #warnings for bounds of PAC dose, time, defined doc in tidywater etc. 
-if (PAC_amount < 5 || PAC_amount > 30) {
-  stop("PAC Dose is outside the model bounds of 5 to 30 mg/L")
+if (dose< 5 | dose> 30) {
+  warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
 }
 
 
-if (time < 10 || time > 1440) {
-  stop("Duration is outside the model bounds of 10 to 1440 mg/L")
+if (time < 10 | time > 1440) {
+  warning("Duration is outside the model bounds of 10 to 1440 min")
 }
+
 
 
 if (missing(water)) {
