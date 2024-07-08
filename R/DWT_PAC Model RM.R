@@ -107,7 +107,6 @@ if (PAC_type== "bituminous") {
 #can be predicted through relationship of DOC and UVA removal --> dimensionless unit (C/C0) 
 
 UVA <-.0376*result-.041
-print(paste("UV Absorbance via estimated doc:", UVA))
 
 toc_new <- result + org_carbon_undissolved
 
