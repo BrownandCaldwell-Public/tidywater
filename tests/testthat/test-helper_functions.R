@@ -198,10 +198,10 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     balance_ions_chain() %>%
     chemdose_ph_once(input_water = "balanced_water"))
 
-  water3 <- suppressWarnings(water_df %>%
+  water3 <- water_df %>%
     define_water_chain() %>%
     mutate(naoh = seq(0, 11, 1)) %>%
-    chemdose_ph_once(hcl = c(5, 8)))
+    chemdose_ph_once(hcl = c(5, 8))
 
   water4 <- water3 %>%
     slice(11) # same starting wq as water 5
@@ -210,7 +210,7 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     slice(6) # same starting wq as water 4
 
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
-  expect_equal(ncol(water3), 36) # both naoh and hcl dosed
+  expect_equal(ncol(water3), 34) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
 })
@@ -552,13 +552,24 @@ test_that("pluck_water works", {
   water2 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    pluck_water(parameter = "na", output_column = "defined_na") %>%
-    pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na"))
+    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = "na"))
 
   expect_equal(ncol(water1), 2)
-  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$tot_co3)
+  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)
   expect_equal(ncol(water2), 4)
-  expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
+  expect_failure(expect_equal(water2$defined_water_na, water2$balanced_water_na)) # check that Na is being plucked from 2 different waters
+
+})
+
+test_that("pluck_water inputs must be waters and water slots", {
+  water1 <- water_df %>%
+    define_water_chain("raw") %>%
+    mutate(ohno = "not a water")
+  water2 <- water_df
+
+  expect_error(water1 %>% pluck_water("raw", c("oops", "ca")))
+  expect_error(water2 %>% pluck_water("na", c("na", "ca")))
+  expect_error(water1 %>% pluck_water(c("raw", "ohno"), c("na", "ca")))
 
 })
 
@@ -696,14 +707,12 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric") %>%
-    pluck_water("coagulated_water", "toc") %>%
-    pluck_water("coagulated_water", "doc") %>%
-    pluck_water("coagulated_water", "uv254"))
+    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric", output_water = "coag") %>%
+    pluck_water("coag", c("toc", "doc", "uv254")))
 
-  expect_equal(water1@toc, water2$toc)
-  expect_equal(water1@doc, water2$doc)
-  expect_equal(water1@uv254, water2$uv254)
+  expect_equal(water1@toc, water2$coag_toc)
+  expect_equal(water1@doc, water2$coag_doc)
+  expect_equal(water1@uv254, water2$coag_uv254)
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
