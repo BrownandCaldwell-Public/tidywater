@@ -69,7 +69,8 @@ if (!methods::is(water, "water")) {
   stop("Input water must be of class 'water'. Create a water using 'define_water'.")
 }
 
-if (PAC_amount<= 0 & time <= 0 & water@doc <= 0) {
+if (dose<= 0) {
+
   warning("No PAC added. Final water will equal input water.")
 }
 
