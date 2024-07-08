@@ -31,10 +31,10 @@
 pac_toc <- function(water, dose, time, type = "bituminous") {
 
   #make case insensitive
-  PAC_type <- tolower(type)
+  type <- tolower(type)
 
   
-  doc_0 = water@doc
+  doc = water@doc
 uv254 = water@uv254
 toc=water@toc
 
@@ -79,21 +79,21 @@ if (is.na(water@toc)) {
   warning("Input water TOC not specified. Output water TOC will be NA.")
 }
 
-if (doc_0 < 1 || doc_0 > 5) {
+if (doc < 1 || doc > 5) {
   stop("DOC concentration is outside the model bounds of 1 to 5 mg/L")
 }
 
 
 #Calculate toc
-org_carbon_undissolved <- toc-doc_0
+org_carbon_undissolved <- toc-doc
 
 
-if (PAC_type== "bituminous") {
-  result <- .1561+.9114*doc_0 - .0263*dose - .002*time
-} else if (PAC_type== "lignite") {
-  result <- .4078+.8516*doc_0 - .0225*dose - .002*time
-} else if (PAC_type== "wood") {
-  result <- .3653+.8692*doc_0 - .0151*dose - .0025*time
+if (type== "bituminous") {
+  result <- .1561+.9114*doc - .0263*dose - .002*time
+} else if (type== "lignite") {
+  result <- .4078+.8516*doc - .0225*dose - .002*time
+} else if (type== "wood") {
+  result <- .3653+.8692*doc - .0151*dose - .0025*time
 } else {
   stop("Invalid PAC type. Choose either 'Bituminous', 'Wood' or 'Lignite' ")
 }
@@ -109,7 +109,7 @@ UVA <-.0376*result-.041
 toc_new <- result + org_carbon_undissolved
 
 water@doc=result
-water@uva=UVA
+water@uv254=UVA
 water@toc= toc_new
 
 return(water)
