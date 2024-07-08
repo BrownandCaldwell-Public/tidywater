@@ -80,7 +80,8 @@ if (!is.na(water@toc) & water@toc < water@doc) {
   warning("TOC of input water less than DOC. TOC will be set equal to DOC.") }
 if (is.na(water@toc)) {
   warning("Input water TOC not specified. Output water TOC will be NA.")
-  water@toc = NA}
+}
+
 if (doc_0 < 1 || doc_0 > 5) {
   stop("DOC concentration is outside the model bounds of 1 to 5 mg/L")
 }
