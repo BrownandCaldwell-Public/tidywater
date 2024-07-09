@@ -431,7 +431,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, ks)
 
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
-  water@alk_eq = carb_alk_eq
+  water@alk_eq = carb_alk_eq + water@hpo4 + 2*water@po4 - water@h2po4
 
   # Add all estimated values to water slot
   water@estimated = estimated

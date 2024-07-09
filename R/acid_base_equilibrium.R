@@ -12,14 +12,13 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
       (2 + h / ks$kso4) * (so4_dose / (h / ks$kso4 + 1)) +
-      tot_po4 * (calculate_alpha1_phosphate(h, ks) +
-        2 * calculate_alpha2_phosphate(h, ks) +
-        3 * calculate_alpha3_phosphate(h, ks)) +
+      tot_po4 * (1 * calculate_alpha2_phosphate(h, ks) +
+        2 * calculate_alpha3_phosphate(h, ks)) +
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       cl_dose -
-      (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose + (tot_po4 * calculate_alpha1_phosphate(h, ks))) -
       alk_eq
   }
   root_h <- stats::uniroot(solve_h, interval = c(1e-14, 1),
@@ -113,6 +112,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Hydrochloric acid (HCl) dose
   hcl = convert_units(hcl, "hcl")
+
   # Sulfuric acid (H2SO4) dose
   h2so4 = convert_units(h2so4, "h2so4")
 
@@ -127,6 +127,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
 
   # Sodium bicarbonate (NaHCO3) dose
   nahco3 = convert_units(nahco3, "nahco3")
+
   # CaCO3
   caco3 = convert_units(caco3, "caco3")
 
