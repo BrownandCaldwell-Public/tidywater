@@ -11,16 +11,22 @@ U.S. EPA (2001)
 See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
-chemdose_toc(water, alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum")
+chemdose_toc(
+  water,
+  alum = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
+  coeff = "Alum"
+)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254}
 
 \item{alum}{Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{ferricchloride}{Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{fe2so43}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+\item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
@@ -35,8 +41,8 @@ water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 
 dosed_water <- chemdose_ph(water, alum = 30) \%>\%
   chemdose_toc(alum = 30, coeff = "Alum")
 
-dosed_water <- chemdose_ph(water, fe2so43 = 30) \%>\%
-  chemdose_toc(fe2so43 = 30, coeff = "Ferric")
+dosed_water <- chemdose_ph(water, ferricsulfate = 30) \%>\%
+  chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
 
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9, "x3" = 4.96, "k1" = -0.028, "k2" = 0.23, "b" = 0.068))

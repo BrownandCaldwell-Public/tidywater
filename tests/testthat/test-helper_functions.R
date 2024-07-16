@@ -647,12 +647,12 @@ test_that("chemdose_toc_once can use a column or function argument for chemical 
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", fe2so43 = 40, coeff = "Ferric")
+    chemdose_toc_once(input_water = "balanced_water", ferricsulfate = 40, coeff = "Ferric")
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    mutate(fe2so43 = 40,
+    mutate(ferricsulfate = 40,
       coeff = "Ferric") %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water")
@@ -660,7 +660,7 @@ test_that("chemdose_toc_once can use a column or function argument for chemical 
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    mutate(fe2so43 = 40) %>%
+    mutate(ferricsulfate = 40) %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
 
@@ -678,12 +678,12 @@ test_that("chemdose_toc_once can use a column or function argument for chemical 
 test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50, tot_hard = 50, ca_hard = 50, na = 20, k = 20, cl = 30,
     so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
-    chemdose_toc(fecl3 = 40, coeff = "Ferric"))
+    chemdose_toc(ferricchloride = 40, coeff = "Ferric"))
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    chemdose_toc_chain(fecl3 = 40, coeff = "Ferric") %>%
+    chemdose_toc_chain(ferricchloride = 40, coeff = "Ferric") %>%
     pluck_water("coagulated_water", "toc") %>%
     pluck_water("coagulated_water", "doc") %>%
     pluck_water("coagulated_water", "uv254")
@@ -700,7 +700,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water", fe2so43 = 30, coeff = "Ferric")
+    chemdose_toc_chain(input_water = "balanced_water", ferricsulfate = 30, coeff = "Ferric")
 
   water2 <- purrr::pluck(water1, 4, 1)
 
@@ -722,12 +722,12 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", fecl3 = 40, coeff = "Ferric")
+    chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric")
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    mutate(fecl3 = 40,
+    mutate(ferricchloride = 40,
       coeff = "Ferric") %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water")
@@ -735,7 +735,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    mutate(fecl3 = 40) %>%
+    mutate(ferricchloride = 40) %>%
     balance_ions_chain() %>%
     chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
 

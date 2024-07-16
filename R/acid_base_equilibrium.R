@@ -65,8 +65,8 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #' @param caocl2 Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param fecl3 Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param fe2so43 Amount of ferric sulfate added in mg/L: Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param ferricchloride Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
@@ -98,7 +98,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 #'
 chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 = 0, nahco3 = 0, caco3 = 0, caoh2 = 0, mgoh2 = 0,
                         cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                        alum = 0, fecl3 = 0, fe2so43 = 0,
+                        alum = 0, ferricchloride = 0, ferricsulfate = 0,
                         softening_correction = FALSE) {
 
   if (missing(water)) {
@@ -149,10 +149,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   alum = convert_units(alum, "alum")
 
   # Ferric chloride
-  fecl3 = convert_units(fecl3, "fecl3")
+  ferricchloride = convert_units(ferricchloride, "ferricchloride")
 
   # Ferric sulfate
-  fe2so43 = convert_units(fe2so43, "fe2so43")
+  ferricsulfate = convert_units(ferricsulfate, "ferricsulfate")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
   dosed_water <- water
@@ -174,11 +174,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   dosed_water@k = water@k + k_dose
 
   # Total chloride
-  cl_dose = hcl + cl2 + 3 * fecl3
+  cl_dose = hcl + cl2 + 3 * ferricchloride
   dosed_water@cl = water@cl + cl_dose
 
   # Total sulfate
-  so4_dose = h2so4 + 3 * alum + 3 * fe2so43
+  so4_dose = h2so4 + 3 * alum + 3 * ferricsulfate
   dosed_water@so4 = water@so4 + so4_dose
 
   # Total phosphate
