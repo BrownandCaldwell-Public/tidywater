@@ -128,7 +128,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c("ph", "temp", "alk", "tot_hard", "ca_hard", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
+  define_water_args <- c("ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
     "toc", "doc", "uv254", "br")
 
   extras <- df %>%
@@ -855,14 +855,14 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 
 #' Pluck out a single parameter from a `water` class object
 #'
-#' This function plucks a selected parameter from a column of `water` class objects.
-#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
+#' This function plucks one or more selected parameters from selected columns of `water` class objects.
+#' The names of the output columns will follow the form `water_parameter`
+#' To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
 #'
 #' @param df a data frame containing a water class column, which has already
 #' been computed using \code{\link{define_water}}
-#' @param input_water name of the column of water class data to be used as the input for this function.
-#' @param parameter water class attribute to view outside the water column
-#' @param output_column name of output column storing the plucked variable's values
+#' @param input_waters vector of names of the columns of water class data to be used as the input for this function.
+#' @param parameter vector of water class parameters to view outside the water column
 #'
 #' @seealso \code{\link{convert_water}}
 #'
@@ -880,32 +880,46 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   pluck_water(parameter = "na", output_column = "defined_na") %>%
-#'   pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+#'   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 #'
 #' plan(multisession)
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
-#'   pluck_water(parameter = "ph")
+#'   pluck_water(parameter = c("ph", "alk"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #' @export
 
-pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL) {
+pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
-
-  if (!parameter %in% slotNames("water")) {
-    stop("Parameter doesn't exist in water class.")
+  if (!any(parameter %in% slotNames("water"))) {
+    stop("One or more parameters doesn't exist in water class.")
   }
-  if (is.null(output_column)) {
-    output_column = parameter
+  if (!any(input_waters %in% colnames(df))) {
+    stop("One or more specified waters doesn't exist in dataframe. Check column names.")
   }
 
-  df %>%
-    mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
+
+  plucked <- data.frame(row.names = seq(1, nrow(df)))
+  for (water in input_waters) {
+    if (!methods::is(df[[water]][[1]], "water")) {
+      stop("All waters must be of class 'water'.")
+    }
+    output_column <- paste0(water, "_", parameter)
+    temp <- furrr::future_map2(parameter, output_column, ~ {
+      df %>%
+        mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
+        select(!!as.name(.y))
+    }) %>%
+      purrr::list_cbind()
+
+    plucked <- bind_cols(plucked, temp)
+  }
+
+  bind_cols(df, plucked)
 
 }
 

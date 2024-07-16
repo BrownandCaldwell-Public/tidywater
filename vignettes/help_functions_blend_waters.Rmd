@@ -38,7 +38,7 @@ data <- tibble(Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
-  ca_hard = c(5, 10),
+  ca = c(5, 10),
   cond = c(500, 900),
   tds = c(300, 500),
   na = c(100, 200),
@@ -60,7 +60,7 @@ raw_wells_water <- tibble(Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
-  ca_hard = c(5, 10),
+  ca = c(5, 10),
   cond = c(500, 900),
   tds = c(300, 500),
   na = c(100, 200),
@@ -163,10 +163,10 @@ With all three source waters blended for each tested scenario, we can pull out a
 plotting_data <- blend_water %>%
   pluck_water(input_water = "blended_water", "tot_hard") %>%
   # Flag scenarios for plotting
-  mutate(Flagged = case_when(tot_hard > 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
+  mutate(Flagged = case_when(blended_water_tot_hard > 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
 
 # Plot the results!
-ggplot(plotting_data, aes(x = total_flow, y = tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
+ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
   geom_point() +
   scale_shape_manual(values = c(4, 16)) +
   labs(y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
