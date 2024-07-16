@@ -32,7 +32,7 @@ The function will calculate DOC concentration by PAC adsorption in drinking wate
 The function returns a new object of class "water" with predicted DOC concentrations. UV254 concentrations are predicted based on a linear relationship with DOC.
 }
 \examples{
-water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) \%>\%
-pac_toc(dose = 15, time=50, type="wood")
+water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) \%>\%
+  pac_toc(dose = 15, time = 50, type = "wood")
 
 }

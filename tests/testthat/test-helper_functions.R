@@ -722,7 +722,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water", ferricsulfate = 30, coeff = "Ferric")
+    chemdose_toc_chain(input_water = "balanced_water", ferricsulfate = 30, coeff = "Ferric"))
 
   water2 <- purrr::pluck(water1, 4, 1)
 
@@ -744,7 +744,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric")
+    chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric"))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%

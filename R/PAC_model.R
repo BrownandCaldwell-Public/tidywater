@@ -21,8 +21,8 @@
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
 #'
 #' @examples
-#' water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
-#' pac_toc(dose = 15, time=50, type="wood")
+#' water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) %>%
+#'   pac_toc(dose = 15, time = 50, type = "wood")
 #'
 #' @export
 #'
