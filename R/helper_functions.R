@@ -281,8 +281,8 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
 #' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
@@ -322,14 +322,14 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                              cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                             alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
+                             alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
 
   output <- df %>%
     chemdose_ph_chain(input_water = input_water, output_water = "dosed_chem_water",
       hcl, h2so4, h3po4, naoh,
       na2co3, nahco3, caoh2, mgoh2,
       cl2, naocl, caocl2, co2,
-      alum, fecl3, fe2so43, caco3) %>%
+      alum, ferricchloride, ferricsulfate, caco3) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
@@ -371,8 +371,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
 #' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
@@ -412,12 +412,12 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                               cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                              alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
+                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
     na2co3, nahco3, caoh2, mgoh2,
     cl2, naocl, caocl2, co2,
-    alum, fecl3, fe2so43, caco3)
+    alum, ferricchloride, ferricsulfate, caco3)
 
   chem_inputs_arg <- dosable_chems %>%
     select_if(~ any(. > 0))
@@ -472,8 +472,8 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
       caocl2 = caocl2,
       co2 = co2,
       alum = alum,
-      fecl3 = fecl3,
-      fe2so43 = fe2so43,
+      ferricchloride = ferricchloride,
+      ferricsulfate = ferricsulfate,
       caco3 = caco3),
     chemdose_ph)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
@@ -551,7 +551,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
     naoh = 0, caoh2 = 0, mgoh2 = 0,
     na2co3 = 0, nahco3 = 0,
     cl2 = 0, naocl = 0, caocl2 = 0,
-    alum = 0, fecl3 = 0, fe2so43 = 0
+    alum = 0, ferricchloride = 0, ferricsulfate = 0
   )
 
   chem <- df %>%
@@ -1037,8 +1037,8 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
@@ -1060,7 +1060,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   mutate(fecl3 = seq(1, 12, 1),
+#'   mutate(ferricchloride = seq(1, 12, 1),
 #'     coeff = "Ferric") %>%
 #'   chemdose_toc_once(input_water = "balanced_water")
 #'
@@ -1074,7 +1074,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   mutate(fecl3 = seq(1, 12, 1)) %>%
+#'   mutate(ferricchloride = seq(1, 12, 1)) %>%
 #'   chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
 #'
 #' # Optional: explicitly close multisession processing
@@ -1083,11 +1083,11 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' @export
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
-                              alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum") {
+                              alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
 
   output <- df %>%
     chemdose_toc_chain(input_water = input_water, output_water = "dosed_chem_water",
-      alum, fecl3, fe2so43, coeff) %>%
+      alum, ferricchloride, ferricsulfate, coeff) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
@@ -1119,8 +1119,8 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
@@ -1142,7 +1142,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   mutate(fecl3 = seq(1, 12, 1),
+#'   mutate(ferricchloride = seq(1, 12, 1),
 #'     coeff = "Ferric") %>%
 #'   chemdose_toc_chain(input_water = "balanced_water")
 #'
@@ -1156,7 +1156,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   mutate(fecl3 = seq(1, 12, 1)) %>%
+#'   mutate(ferricchloride = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
 #'
 #' # Optional: explicitly close multisession processing
@@ -1165,9 +1165,9 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' @export
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                               alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum") {
+                               alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
 
-  dosable_chems <- tibble(alum, fecl3, fe2so43)
+  dosable_chems <- tibble(alum, ferricchloride, ferricsulfate)
 
   chem_inputs_arg <- dosable_chems %>%
     select_if(~ any(. > 0))
@@ -1204,14 +1204,14 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
     fill(coeff, .direction = "updown")
 
   output <- df %>%
-    subset(select = !names(df) %in% c("alum", "fecl3", "fe2so43", "coeff")) %>%
+    subset(select = !names(df) %in% c("alum", "ferricchloride", "ferricsulfate", "coeff")) %>%
     mutate(ID = row_number()) %>%
     left_join(chem2, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
       alum = alum,
-      fecl3 = fecl3,
-      fe2so43 = fe2so43,
+      ferricchloride = ferricchloride,
+      ferricsulfate = ferricsulfate,
       coeff = coeff),
     chemdose_toc)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))

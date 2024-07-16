@@ -21,8 +21,8 @@ chemdose_ph_chain(
   caocl2 = 0,
   co2 = 0,
   alum = 0,
-  fecl3 = 0,
-  fe2so43 = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
   caco3 = 0
 )
 }
@@ -60,9 +60,9 @@ chemdose_ph_chain(
 
 \item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{ferricchloride}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+\item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 }
