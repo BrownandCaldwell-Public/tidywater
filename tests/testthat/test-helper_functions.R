@@ -671,7 +671,7 @@ test_that("chemdose_toc_once can use a column or function argument for chemical 
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", ferricsulfate = 40, coeff = "Ferric")
+    chemdose_toc_once(input_water = "balanced_water", ferricsulfate = 40, coeff = "Ferric"))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
