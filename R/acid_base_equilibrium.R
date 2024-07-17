@@ -9,24 +9,31 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   ks <- correct_k(water)
 
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, tot_po4, tot_co3, tot_ocl, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
+  solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, ocl_i, alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
-      (2 + h / ks$kso4) * (so4_dose / (h / ks$kso4 + 1)) +
-      tot_po4 * (1 * calculate_alpha2_phosphate(h, ks) +
-        2 * calculate_alpha3_phosphate(h, ks)) +
+      2 * so4_dose +
+      tot_po4 * (calculate_alpha1_phosphate(h, ks) +
+                 2 * calculate_alpha2_phosphate(h, ks) +
+                 3 * calculate_alpha3_phosphate(h, ks)) +
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
-        2 * calculate_alpha2_carbonate(h, ks)) +
+                 2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       cl_dose -
-      (h + na_dose + 2 * ca_dose + 2 * mg_dose + (tot_po4 * calculate_alpha1_phosphate(h, ks))) -
-      alk_eq
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
+      alk_eq -
+      3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i
   }
+
   root_h <- stats::uniroot(solve_h, interval = c(1e-14, 1),
     kw = water@kw,
     so4_dose = so4_dose,
     tot_po4 = water@tot_po4,
+    po4_i = water@po4,
+    hpo4_i = water@hpo4,
+    h2po4_i = water@h2po4,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
+    ocl_i = water@ocl,
     alk_eq = water@alk_eq,
     na_dose = na_dose,
     ca_dose = ca_dose,
@@ -234,11 +241,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   alpha2p = calculate_alpha2_phosphate(h, k)
   alpha3p = calculate_alpha3_phosphate(h, k)
 
-  dosed_water@h2po4 = water@tot_po4 * alpha1p
-  dosed_water@hpo4 = water@tot_po4 * alpha2p
-  dosed_water@po4 = water@tot_po4 * alpha3p
+  dosed_water@h2po4 = dosed_water@tot_po4 * alpha1p
+  dosed_water@hpo4 = dosed_water@tot_po4 * alpha2p
+  dosed_water@po4 = dosed_water@tot_po4 * alpha3p
 
-  dosed_water@ocl = water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
+  dosed_water@ocl = dosed_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
 
   # Calculate new alkalinity
   dosed_water@alk_eq = (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)

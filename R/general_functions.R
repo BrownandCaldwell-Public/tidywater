@@ -246,7 +246,7 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca Calcium in mg/L Ca+2
+#' @param ca Calcium in mg/L Ca2+
 #' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
@@ -431,7 +431,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, ks)
 
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
-  water@alk_eq = carb_alk_eq + water@hpo4 + 2*water@po4 - water@h2po4
+  water@alk_eq = carb_alk_eq
 
   # Add all estimated values to water slot
   water@estimated = estimated
