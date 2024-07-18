@@ -97,10 +97,10 @@ test_that("Starting phosphate residual does not affect starting pH.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_po4 = 5) %>%
     chemdose_ph())
 
-  water2 <- water1%>%
+  water2 <- water1 %>%
     chemdose_ph()
 
-  water3 <- water2%>%
+  water3 <- water2 %>%
     chemdose_ph()
 
   expect_equal(water1@ph, 7)
@@ -124,10 +124,10 @@ test_that("Starting chlorine residual does not affect starting pH.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_ocl = 1) %>%
     chemdose_ph())
 
-  water2 <- water1%>%
+  water2 <- water1 %>%
     chemdose_ph()
 
-  water3 <- water2%>%
+  water3 <- water2 %>%
     chemdose_ph()
 
   expect_equal(water1@ph, 7)

@@ -303,4 +303,3 @@ test_that("Activity coefficient calculation works.", {
   expect_equal(round(calculate_activity(1, .001, 25), 2), .97)
   expect_equal(round(calculate_activity(2, .01, 25), 2), .66)
 })
-

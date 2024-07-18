@@ -13,10 +13,10 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     kw / h +
       2 * so4_dose +
       tot_po4 * (calculate_alpha1_phosphate(h, ks) +
-                 2 * calculate_alpha2_phosphate(h, ks) +
-                 3 * calculate_alpha3_phosphate(h, ks)) +
+        2 * calculate_alpha2_phosphate(h, ks) +
+        3 * calculate_alpha3_phosphate(h, ks)) +
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
-                 2 * calculate_alpha2_carbonate(h, ks)) +
+        2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose) -
