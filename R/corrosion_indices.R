@@ -51,16 +51,20 @@
 #'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")}
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")}
+    warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")
+  }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
-    warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")}
+    warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
+  }
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
-    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
+    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
+  }
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
@@ -78,7 +82,6 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     if (is.infinite(water@aggressive)) {
       water@aggressive <- NA_real_
     }
-
   }
 
   ###########################################################################################*
@@ -126,27 +129,27 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # U.S. EPA (1980), equation 4a
   if ("langelier" %in% index | "ryznar" %in% index) {
     ks <- correct_k(water)
-    pk2co3 = -log10(ks$k2co3)
+    pk2co3 <- -log10(ks$k2co3)
     gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
-    tempa = water@temp + 273.15
+    tempa <- water@temp + 273.15
 
     # Empirical calcium carbonate solubilities From Plummer and Busenberg (1982)
     if (form == "calcite") {
-      pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
+      pkso <- 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     } else if (form == "aragonite") {
-      pkso = 171.9773 + 0.077993 * tempa - 2903.293 / tempa - 71.595 * log10(tempa) # aragonite
+      pkso <- 171.9773 + 0.077993 * tempa - 2903.293 / tempa - 71.595 * log10(tempa) # aragonite
     } else if (form == "vaterite") {
-      pkso = 172.1295 + 0.077993 * tempa - 3074.688 / tempa - 71.595 * log10(tempa) # vaterite
+      pkso <- 172.1295 + 0.077993 * tempa - 3074.688 / tempa - 71.595 * log10(tempa) # vaterite
     }
 
     # pH of saturation
-    ph_s = pk2co3 - pkso - log10(gamma2 * water@ca) - log10(water@alk_eq) # Crittenden et al. (2012), eqn. 22-30
+    ph_s <- pk2co3 - pkso - log10(gamma2 * water@ca) - log10(water@alk_eq) # Crittenden et al. (2012), eqn. 22-30
 
     if (ph_s <= 9.3) {
-      ph_s = ph_s
+      ph_s <- ph_s
     } else if (ph_s > 9.3) {
-      ph_s = pk2co3 - pkso - log10(gamma2 * water@ca) - log10(gamma1 * water@hco3) # Use bicarbonate alkalinity only if initial pH_s > 9.3 (U.S. EPA, 1980)
+      ph_s <- pk2co3 - pkso - log10(gamma2 * water@ca) - log10(gamma1 * water@hco3) # Use bicarbonate alkalinity only if initial pH_s > 9.3 (U.S. EPA, 1980)
     }
 
     ###########################################################################################*
@@ -160,7 +163,6 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
         water@langelier <- NA_real_
       }
     }
-
   }
 
   ###########################################################################################*
@@ -185,9 +187,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
-    tempa = water@temp + 273.15
-    pkso = 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
-    K_so = 10^-pkso
+    tempa <- water@temp + 273.15
+    pkso <- 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
+    K_so <- 10^-pkso
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
 
     solve_x <- function(x, water) {
@@ -200,7 +202,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       interval = c(-1000, 1000),
       lower = -1,
       upper = 1,
-      extendInt = "yes")
+      extendInt = "yes"
+    )
 
     water@ccpp <- -root_x$root
   }

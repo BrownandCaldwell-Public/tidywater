@@ -27,17 +27,15 @@
 #' @export
 #'
 pac_toc <- function(water, dose, time, type = "bituminous") {
-
   # make case insensitive
   type <- tolower(type)
 
 
-  doc = water@doc
-  uv254 = water@uv254
-  toc = water@toc
+  doc <- water@doc
+  uv254 <- water@uv254
+  toc <- water@toc
 
   if (missing(dose)) {
-
     stop("PAC Dose not specified")
   }
 
@@ -59,20 +57,21 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
 
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")}
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
 
   if (dose <= 0) {
-
     warning("No PAC added. Final water will equal input water.")
   }
 
 
   # more warnings
   if (!is.na(water@toc) & water@toc < water@doc) {
-    warning("TOC of input water less than DOC. TOC will be set equal to DOC.") }
+    warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
+  }
   if (is.na(water@toc)) {
     warning("Input water TOC not specified. Output water TOC will be NA.")
   }
@@ -106,10 +105,9 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   toc_new <- result + org_carbon_undissolved
 
-  water@doc = result
-  water@uv254 = UVA
-  water@toc = toc_new
+  water@doc <- result
+  water@uv254 <- UVA
+  water@toc <- toc_new
 
   return(water)
-
 }
