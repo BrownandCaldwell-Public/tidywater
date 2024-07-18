@@ -932,7 +932,7 @@ K_temp_adjust <- function(deltah, ka, temp) {
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
   0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
-             water@f, water@br, water@bro3, na.rm = TRUE) * 1^2 +
+    water@f, water@br, water@bro3, na.rm = TRUE) * 1^2 +
     sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
     sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
 
