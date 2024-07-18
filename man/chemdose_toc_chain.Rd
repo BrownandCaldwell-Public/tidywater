@@ -9,8 +9,8 @@ chemdose_toc_chain(
   input_water = "defined_water",
   output_water = "coagulated_water",
   alum = 0,
-  fecl3 = 0,
-  fe2so43 = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
   coeff = "Alum"
 )
 }
@@ -25,9 +25,9 @@ and a column named for the set of coefficients to use.}
 
 \item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{ferricchloride}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+\item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
@@ -68,7 +68,7 @@ example_df <- water_df \%>\%
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  mutate(fecl3 = seq(1, 12, 1),
+  mutate(ferricchloride = seq(1, 12, 1),
     coeff = "Ferric") \%>\%
   chemdose_toc_chain(input_water = "balanced_water")
 
@@ -82,7 +82,7 @@ plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  mutate(fecl3 = seq(1, 12, 1)) \%>\%
+  mutate(ferricchloride = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
 
 # Optional: explicitly close multisession processing

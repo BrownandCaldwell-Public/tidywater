@@ -20,9 +20,9 @@
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
 #'
-#' @example
-#' water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
-#' pac_toc(dose = 15, time=50, type="wood")
+#' @examples
+#' water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) %>%
+#'   pac_toc(dose = 15, time = 50, type = "wood")
 #'
 #' @export
 #'
