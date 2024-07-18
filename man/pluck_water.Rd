@@ -4,21 +4,20 @@
 \alias{pluck_water}
 \title{Pluck out a single parameter from a `water` class object}
 \usage{
-pluck_water(df, input_water = "defined_water", parameter, output_column = NULL)
+pluck_water(df, input_waters = c("defined_water"), parameter)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already
 been computed using \code{\link{define_water}}}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function.}
+\item{input_waters}{vector of names of the columns of water class data to be used as the input for this function.}
 
-\item{parameter}{water class attribute to view outside the water column}
-
-\item{output_column}{name of output column storing the plucked variable's values}
+\item{parameter}{vector of water class parameters to view outside the water column}
 }
 \description{
-This function plucks a selected parameter from a column of `water` class objects.
-To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
+This function plucks one or more selected parameters from selected columns of `water` class objects.
+The names of the output columns will follow the form `water_parameter`
+To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
 }
 \examples{
 
@@ -34,13 +33,12 @@ pluck_example <- water_df \%>\%
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  pluck_water(parameter = "na", output_column = "defined_na") \%>\%
-  pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+  pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 
 plan(multisession)
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
-  pluck_water(parameter = "ph")
+  pluck_water(parameter = c("ph", "alk"))
 
 # Optional: explicitly close multisession processing
 plan(sequential)

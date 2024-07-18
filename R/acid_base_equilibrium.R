@@ -297,12 +297,12 @@ solvedose_ph <- function(water, target_ph, chemical) {
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")}
 
-  if (target_ph > 14 | target_ph < 1) {
+  if ((target_ph > 14 | target_ph < 1) & !is.na(target_ph)) {
     stop("Target pH should be between 1-14.")
   }
 
-  if ((chemical %in% c("hcl", "h2so4", "h3po4", "co2",
-    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) == FALSE) {
+  if (!(chemical %in% c("hcl", "h2so4", "h3po4", "co2",
+    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"))) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -331,10 +331,11 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
   # Target pH can't be met
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
-    target_ph <= water@ph) |
+    target_ph < water@ph) |
     (chemical == "co2" & (target_ph < 6.5)) |
     (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
-      target_ph >= water@ph)) {
+      target_ph > water@ph) |
+    is.na(target_ph)) {
     warning("Target pH cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
@@ -402,7 +403,8 @@ solvedose_alk <- function(water, target_alk, chemical) {
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
     target_alk <= water@alk) |
     (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
-      target_alk >= water@alk)) {
+      target_alk >= water@alk) |
+    is.na(target_alk)) {
     warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
@@ -448,12 +450,37 @@ blend_waters <- function(waters, ratios) {
     # print(sum(ratios)) # this is for checking why the function is breaking
   }
 
-  # Initialize empty blended water
-  blended_water <- methods::new("water")
-  parameters <- methods::slotNames(blended_water)
+  # Identify slots that are not NA for blending
+  s4todata <- function(water) {
+    names <- slotNames(water)
+    lt <- lapply(names, function(names) slot(water, names))
+    as.list(setNames(lt, names))
+  }
+
+  parameters <- s4todata(waters[[1]])
+  parameters <- names(parameters[!is.na(parameters)])
+  otherparams <- c()
+  if (length(waters) > 1) {
+    for (i in 2:length(waters)) {
+      tempparams <- s4todata(waters[[i]])
+      tempparams <- names(tempparams[!is.na(tempparams)])
+      otherparams <- c(otherparams, tempparams)
+    }
+    missingn <- setdiff(parameters, otherparams)
+    missing1 <- setdiff(otherparams, parameters)
+    if (!purrr::is_empty(missingn) | !purrr::is_empty(missing1)) {
+      missing <- paste0(c(missingn, missing1), collapse = ", ")
+      warning(paste0("The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ", missing,
+        "\nTo fix this, make sure all waters provided have the same parameters specified."))
+    }
+  }
+
   not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated")
   parameters <- setdiff(parameters, not_averaged)
 
+  # Initialize empty blended water
+  blended_water <- methods::new("water")
+  # Loop through all slots that have a number and blend.
   for (param in parameters) {
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
