@@ -44,7 +44,13 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     is = "numeric",
+    # Additional ions
     br = "numeric",
+    bro3 = "numeric",
+    f = "numeric",
+    fe = "numeric",
+    al = "numeric",
+    mn = "numeric",
 
     # Corrosion indices
     aggressive = "numeric",
@@ -118,7 +124,13 @@ methods::setClass("water",
     tot_ocl = NA_real_,
     tot_co3 = NA_real_,
     is = NA_real_,
+    # Additional ions
     br = NA_real_,
+    bro3 = NA_real_,
+    f = NA_real_,
+    fe = NA_real_,
+    al = NA_real_,
+    mn = NA_real_,
 
     # Corrosion indices
     aggressive = NA_real_,
@@ -160,74 +172,8 @@ methods::setMethod("show",
     # General parameters
     cat("pH: ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
-    cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
-    cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
-    cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
-    cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
-    cat("Kw: ", object@kw, "\n")
-    cat("Alkalinity (eq/L): ", object@alk_eq, "\n")
+    cat("Alkalinity (mg/L CaCO3): ", object@alk, "\nUse summary functions or slot names to view other parameters.\n")
 
-    # Carbon
-    cat("Total organic carbon (mg/L): ", object@toc, "\n")
-    cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
-    cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
-    cat("Dissolved inorganic carbon:", object@dic, "\n")
-    cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
-
-    # Ions
-    cat("Sodium (M): ", object@na, "\n")
-    cat("Calcium (M): ", object@ca, "\n")
-    cat("Magnesium (M): ", object@mg, "\n")
-    cat("Potassium (M): ", object@k, "\n")
-    cat("Chloride (M): ", object@cl, "\n")
-    cat("Sulfate (M): ", object@so4, "\n")
-    cat("Nitrate (M): ", object@no3, "\n")
-    cat("Ammonia (M): ", object@nh3, "\n")
-    cat("Bicarbonate ion (M): ", object@hco3, "\n")
-    cat("Carbonate ion (M): ", object@co3, "\n")
-    cat("Dihydrogen phosphate ion - H2PO4 (M): ", object@h2po4, "\n")
-    cat("Hydrogen phosphate ion - HPO4 (M): ", object@hpo4, "\n")
-    cat("Phosphate ion (M): ", object@po4, "\n")
-    cat("Hypochlorite ion (M): ", object@ocl, "\n")
-    cat("H+ ion (M): ", object@h, "\n")
-    cat("OH- ion (M): ", object@oh, "\n")
-    cat("Total phosphate (M)", object@tot_po4, "\n")
-    cat("Total OCl (M): ", object@tot_ocl, "\n")
-    cat("Total carbonate (M): ", object@tot_co3, "\n")
-    cat("Ionic Strength:", object@is, "\n")
-    cat("Bromide (ug/L): ", object@br, "\n")
-
-    # Corrosion indices
-    cat("Aggressive Index (unitless):", object@aggressive, "\n")
-    cat("Ryznar Stability Index (unitless):", object@ryznar, "\n")
-    cat("Langelier Saturation Index (unitless):", object@langelier, "\n")
-    cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
-    cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
-    cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
-
-    # Miscellaneous
-    cat("Treatment applied to water class:", object@treatment, "\n")
-    cat("List of parameters estimated by tidywater:", object@estimated, "\n")
-
-    # DBPs
-    cat("Chloroform (ug/L): ", object@chcl3, "\n")
-    cat("Bromodichloromethane (ug/L): ", object@chcl2br, "\n")
-    cat("Dibromochloromethane (ug/L): ", object@chbr2cl, "\n")
-    cat("Bromoform (ug/L): ", object@chbr3, "\n")
-    cat("Total trihalomethanes (ug/L): ", object@tthm, "\n")
-
-    cat("Chloroacetic acid (ug/L): ", object@mcaa, "\n")
-    cat("Dichloroacetic acid (ug/L): ", object@dcaa, "\n")
-    cat("Trichloroacetic acid (ug/L): ", object@tcaa, "\n")
-    cat("Bromoacetic acid (ug/L): ", object@mbaa, "\n")
-    cat("Dibromoacetic acid (ug/L): ", object@dbaa, "\n")
-    cat("Sum of 5 haloacetic acids (ug/L): ", object@haa5, "\n")
-
-    cat("Bromochloroacetic acid (ug/L): ", object@bcaa, "\n")
-
-    cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
-    cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
-    cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
   })
 
 #' @title Create a water class object given water quality parameters
@@ -260,6 +206,10 @@ methods::setMethod("show",
 #' @param doc Dissolved organic carbon (DOC) in mg/L
 #' @param uv254 UV absorbance at 254 nm (cm-1)
 #' @param br Bromide in ug/L Br-
+#' @param f Fluoride in mg/L F-
+#' @param fe Iron in mg/L Fe3+
+#' @param al Aluminum in mg/L Al3+
+#' @param mn Manganese in ug/L Mn2+
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -269,7 +219,7 @@ methods::setMethod("show",
 #'
 
 define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br) {
+                         toc, doc, uv254, br, f, fe, al, mn) {
 
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
@@ -329,12 +279,22 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
 
   tds = ifelse(missing(tds), NA_real_, tds)
   cond = ifelse(missing(cond), NA_real_, cond)
-  br = ifelse(missing(br), NA_real_, br)
 
-  na = ifelse(missing(na), NA_real_, na)
-  k = ifelse(missing(k), NA_real_, k)
-  cl = ifelse(missing(cl), NA_real_, cl)
-  so4 = ifelse(missing(so4), NA_real_, so4)
+  # Convert ion concentration inputs to mol/L and fill missing arguments with NA
+  ca = convert_units(ca, "ca")
+  mg = convert_units(mg, "mg")
+  na = ifelse(missing(na), NA_real_, convert_units(na, "na"))
+  k = ifelse(missing(k), NA_real_, convert_units(k, "k"))
+  cl = ifelse(missing(cl), NA_real_, convert_units(cl, "cl"))
+  so4 = ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
+  tot_po4 = convert_units(tot_po4, "po4")
+  tot_ocl = convert_units(tot_ocl, "cl2")
+
+  br = ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
+  f = ifelse(missing(f), NA_real_, convert_units(f, "f"))
+  fe = ifelse(missing(fe), NA_real_, convert_units(fe, "fe"))
+  al = ifelse(missing(al), NA_real_, convert_units(al, "al"))
+  mn = ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc = NA_real_
@@ -361,17 +321,9 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
   kw = 10^-pkw
 
-  # Convert major ion concentration inputs to mol/L
-  ca = convert_units(ca, "ca")
-  mg = convert_units(mg, "mg")
-  na = convert_units(na, "na")
-  k = convert_units(k, "k")
-  cl = convert_units(cl, "cl")
-  so4 = convert_units(so4, "so4")
-  tot_po4 = convert_units(tot_po4, "po4")
-  tot_ocl = convert_units(tot_ocl, "cl2")
   h = 10^-ph
   oh = kw / h
+
   # convert alkalinity input to equivalents/L
   carb_alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
@@ -393,8 +345,8 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
     h = h, oh = oh,
     tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
-    doc = doc, toc = toc, uv254 = uv254, br = br)
-
+    doc = doc, toc = toc, uv254 = uv254,
+    br = br, f = f, fe = fe, al = al, mn = mn)
 
   # Determine ionic strength
 
@@ -979,9 +931,10 @@ K_temp_adjust <- function(deltah, ka, temp) {
 
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
-  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@tot_ocl, na.rm = TRUE) * 1^2 +
-    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, na.rm = TRUE) * 2^2 +
-    (water@po4) * 3^2)
+  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
+             water@f, water@br, water@bro3, na.rm = TRUE) * 1^2 +
+    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
+    sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
 
 }
 

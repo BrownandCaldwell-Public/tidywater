@@ -41,7 +41,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   uv254 = water@uv254
   temp = water@temp
   ph = water@ph
-  br = water@br
+  # Bromide should be in ug/L for these models
+  br = convert_units(water@br, "br", "M", "ug/L")
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (treatment == "raw" & (is.na(toc) | is.na(temp) | is.na(ph) | is.na(br))) {

@@ -30,6 +30,9 @@ mweights <- data.frame(na = 22.98977,
   co3 = 60.0089,
   ocl = 16 + 35.453,
   pb = 207.2,
+  br = 79.904,
+  f = 18.9984,
+  mn = 54.938,
   dic = 12.011)
 
 usethis::use_data(mweights, overwrite = TRUE)
