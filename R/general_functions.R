@@ -246,7 +246,7 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca Calcium in mg/L Ca+2
+#' @param ca Calcium in mg/L Ca2+
 #' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+

@@ -93,6 +93,48 @@ test_that("Dose chemical works", {
 
 })
 
+test_that("Starting phosphate residual does not affect starting pH.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_po4 = 5) %>%
+    chemdose_ph())
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water2@ph, 7)
+  expect_equal(water3@ph, 7)
+})
+
+test_that("Phosphate dose works as expected.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tot_po4 = 0, temp = 25))
+
+  water2 <- chemdose_ph(water1, h3po4 = 1) # 0.969 as PO4
+  water3 <- chemdose_ph(water1, h3po4 = 5) # 4.84 as PO4
+  water4 <- chemdose_ph(water1, h3po4 = 10) # 9.69 as PO4
+
+  expect_equal(round(water2@ph, 1), 7.0)
+  expect_equal(round(water3@ph, 1), 6.9)
+  expect_equal(round(water4@ph, 1), 6.7)
+})
+
+test_that("Starting chlorine residual does not affect starting pH.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_ocl = 1) %>%
+    chemdose_ph())
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water2@ph, 7)
+  expect_equal(water3@ph, 7)
+})
+
 # Solve Dose pH ----
 
 test_that("Solve dose pH produces a warning and returns NA when target pH is unreachable but runs otherwise.", {
@@ -120,14 +162,18 @@ test_that("Solve dose pH returns the correct values.", {
   expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
 })
 
-# This isn't passing because of tot_po4
-# test_that("Solve dose pH doesn't error when target pH is close to starting.") {
-#   water1 <- define_water(ph = 7.01, temp = 19, alk = 100, tot_hard = 100,
-#                          ca = 26, mg = 8, tot_po4 = 1, tds = 200)
-#
-#   solvedose_ph(water2, 7, "h2so4")
-#
-# }
+test_that("Solve dose pH doesn't error when target pH is close to starting.",{
+  water1 <- define_water(ph = 7.01, temp = 19, alk = 100, tot_hard = 100,
+                         ca = 26, mg = 8, tot_po4 = 1, tds = 200)
+
+  expect_no_error(solvedose_ph(water1, 7, "h2so4"))
+
+  water2 <- define_water(ph = 7.99, temp = 19, alk = 150, tot_hard = 100,
+                         ca = 26, mg = 8, tot_ocl = 1, tds = 200)
+
+  expect_no_error(solvedose_ph(water2, 8, "naoh"))
+
+})
 
 
 # Solve Dose Alkalinity ----

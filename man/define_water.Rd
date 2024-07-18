@@ -34,7 +34,7 @@ define_water(
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
-\item{ca}{Calcium in mg/L Ca+2}
+\item{ca}{Calcium in mg/L Ca2+}
 
 \item{mg}{Magnesium in mg/L Mg2+}
 
