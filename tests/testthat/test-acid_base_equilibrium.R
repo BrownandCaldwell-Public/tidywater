@@ -139,7 +139,7 @@ test_that("Starting chlorine residual does not affect starting pH.", {
 
 test_that("Starting ammonia does not affect starting pH.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh4 = 1) %>%
-                               chemdose_ph())
+    chemdose_ph())
 
   water2 <- water1 %>%
     chemdose_ph()
