@@ -66,7 +66,7 @@ ozonate_bromate <- function(water, dose, time, model) {
   uv254 <- ifelse(is.na(water@uv254), 0, water@uv254)
   ph <- water@ph
   alk <- ifelse(is.na(water@alk), 0, water@alk)
-  nh4 <- 5 # TODO, add to water ***************************************************************************************
+  nh4 <- ifelse(is.na(water@nh4), 0, convert_units(water@nh4, "nh4", "M", "mg/L N"))
   temp <- water@temp
   # TODO add warnings for parameters outside model ranges *****************************************************************
   mod <- model

@@ -36,7 +36,7 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @name discons
-#' @format A dataframe with 7 rows and 3 columns
+#' @format A dataframe with 8 rows and 3 columns
 #' \describe{
 #' \item{ID}{Coefficient type}
 #' \item{k}{Equilibrium constant}

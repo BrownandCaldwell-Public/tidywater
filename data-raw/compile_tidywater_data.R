@@ -34,6 +34,11 @@ mweights <- data.frame(
   br = 79.904,
   f = 18.9984,
   mn = 54.938,
+  nh4 = 18.04,
+  n = 14.0067,
+  nh4oh = 18.04 + 17.008,
+  nh42so4 = 18.04 * 2 + 96.0626,
+  oh = 17.008,
   dic = 12.011
 )
 
@@ -44,15 +49,17 @@ usethis::use_data(mweights, overwrite = TRUE)
 discons <- data.frame(
   ID = c("k1co3", "k2co3"), # H2CO3<-->HCO3- + H+; HCO3<-->CO32- + H+
   k = c(10^-6.35, 10^-10.33),
-  deltah = c(7700, 14900)
-) %>% # J/mol
+  deltah = c(7700, 14900) # J/mol
+) %>%
   # Sulfate
   add_row(ID = "kso4", k = 10^-1.99, deltah = -21900) %>%
   # Phosphate
   # H3PO4<-->H+ + H2PO4-; H2PO4-<-->H+ + HPO42-; HPO42--<-->H+ + PO43-
   add_row(ID = c("k1po4", "k2po4", "k3po4"), k = c(10^-2.16, 10^-7.20, 10^-12.35), deltah = c(-8000, 4200, 14700)) %>%
   # Hypochlorite
-  add_row(ID = "kocl", k = 10^-7.6, deltah = 13800) # HOCl<-->H+ + OCl-
+  add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
+  # Ammonia
+  add_row(ID = "knh4", k = 10^-9.244, deltah = -52210) # NH3 + H+ <--> NH4+
 
 usethis::use_data(discons, overwrite = TRUE)
 
