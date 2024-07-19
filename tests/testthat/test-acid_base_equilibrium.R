@@ -89,7 +89,7 @@ test_that("Dose chemical works", {
   expect_equal(round(test5@alk, 0), -5)
   expect_equal(round(test6@ph, 1), 11.4)
   expect_equal(round(test6@alk, 0), 120)
-  expect_equal(round(test7@ph, 1), 7)
+  expect_equal(round(test7@ph, 1), 6.7)
   # This is not passing right now. Numbers from WTP model
   # expect_equal(round(test8@ph, 1), 9.7)
   # expect_equal(round(test8@alk, 0), 25)

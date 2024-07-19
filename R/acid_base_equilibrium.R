@@ -505,7 +505,8 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated")
+  not_averaged <- c("ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
+                    "h", "oh", "kw", "treatment", "estimated")
   parameters <- setdiff(parameters, not_averaged)
 
   # Initialize empty blended water
@@ -561,7 +562,7 @@ blend_waters <- function(waters, ratios) {
   # Correct eq constants
   k <- correct_k(blended_water)
 
-  # Carbonate and phosphate ions and ocl ions
+  # Carbonate, phosphate, ocl, and nh4 ions
   alpha1 <- calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
@@ -576,8 +577,8 @@ blend_waters <- function(waters, ratios) {
   blended_water@po4 <- blended_water@tot_po4 * alpha3p
 
   blended_water@ocl <- blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
+  blended_water@nh4 <- blended_water@tot_nh4 * calculate_alpha1_ammonia(h, k)
   blended_water@treatment <- paste(blended_water@treatment, "_blended", sep = "")
-
 
   return(blended_water)
 }
