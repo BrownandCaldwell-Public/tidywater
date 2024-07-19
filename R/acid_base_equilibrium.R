@@ -505,8 +505,10 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  not_averaged <- c("ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
-                    "h", "oh", "kw", "treatment", "estimated")
+  not_averaged <- c(
+    "ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
+    "h", "oh", "kw", "treatment", "estimated"
+  )
   parameters <- setdiff(parameters, not_averaged)
 
   # Initialize empty blended water

@@ -194,7 +194,6 @@ test_that("chemdose_ph_once is a data frame", {
 # Check chemdose_ph_once can use a column or function argument for chemical dose
 
 test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
-
   water0 <- water_df %>%
     define_water_once()
 
