@@ -21,14 +21,16 @@
 #' @source AWWA (1977)
 #' @source Crittenden et al. (2012)
 #' @source Langelier (1936)
-#' @source Plummer and Busenberg (1982)
-#' @source U.S. EPA (1980)
-#' @source Schock (1984)
+#' @source Larson and Skold (1958)
 #' @source Merrill and Sanks (1977a)
 #' @source Merrill and Sanks (1977b)
 #' @source Merrill and Sanks (1978)
-#' @source Trussell (1998)
+#' @source Nguyen et al. (2011)
+#' @source Plummer and Busenberg (1982)
 #' @source Ryznar (1946)
+#' @source Schock (1984)
+#' @source Trussell (1998)
+#' @source U.S. EPA (1980)
 #' @source See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
 #'
@@ -84,6 +86,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
   # CSMR ------------------------------
   ###########################################################################################*
+  # Nguyen et al. (2011)
 
   if ("csmr" %in% index) {
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
@@ -102,6 +105,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   ###########################################################################################*
   # LARSONSKOLD ------------------------------
   ###########################################################################################*
+  # Larson and Skold (1958)
 
   if ("larsonskold" %in% index) {
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
@@ -121,9 +125,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # CALCULATE pH OF SATURATION (ph_s) ----
   # Crittenden et al. (2012), equation 22-30
   # Plummer and Busenberg (1982)
-  # Langelier (1936)
   # Schock (1984), equation 9
   # U.S. EPA (1980), equation 4a
+
   if ("langelier" %in% index | "ryznar" %in% index) {
     ks <- correct_k(water)
     pk2co3 = -log10(ks$k2co3)
@@ -152,6 +156,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     ###########################################################################################*
     # LANGELIER ------------------------------
     ###########################################################################################*
+    # Langelier (1936)
 
     if ("langelier" %in% index) {
       water@langelier <- water@ph - ph_s
