@@ -98,8 +98,10 @@ example_df <- water_df \%>\%
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  mutate(hcl = seq(1, 12, 1),
-    naoh = 20) \%>\%
+  mutate(
+    hcl = seq(1, 12, 1),
+    naoh = 20
+  ) \%>\%
   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 # Initialize parallel processing

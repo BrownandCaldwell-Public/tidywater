@@ -34,9 +34,9 @@
 #' @export
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
-
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")}
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
@@ -71,23 +71,23 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
 
   # Alum - hydration included
-  alum = convert_units(alum, "alum", endunit = "mM")
+  alum <- convert_units(alum, "alum", endunit = "mM")
   # Ferric chloride
-  ferricchloride = convert_units(ferricchloride, "ferricchloride", endunit = "mM")
+  ferricchloride <- convert_units(ferricchloride, "ferricchloride", endunit = "mM")
   # Ferric sulfate
-  ferricsulfate = convert_units(ferricsulfate, "ferricsulfate", endunit = "mM")
+  ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate", endunit = "mM")
 
   # Convert coagulant units to mMol/L as Al3+ or Fe3+ for DOC model
-  coag = alum * 2 + ferricchloride * 1 + ferricsulfate * 2
+  coag <- alum * 2 + ferricchloride * 1 + ferricsulfate * 2
   # Convert to meq/L for UV model
-  coag2 = alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3
+  coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3
 
   # Edwards calculations
   nonadsorb <- water@doc * (coeffs$k1 * calc_suva(water@doc, water@uv254) + coeffs$k2)
 
-  sterm = (1 - calc_suva(water@doc, water@uv254) * coeffs$k1 - coeffs$k2)
-  xterm = (coeffs$x1 * water@ph + coeffs$x2 * water@ph^2 + coeffs$x3 * water@ph^3)
-  b = coeffs$b
+  sterm <- (1 - calc_suva(water@doc, water@uv254) * coeffs$k1 - coeffs$k2)
+  xterm <- (coeffs$x1 * water@ph + coeffs$x2 * water@ph^2 + coeffs$x3 * water@ph^3)
+  b <- coeffs$b
 
   # Rearrangement of equation from wolfram alpha
   adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
@@ -95,27 +95,26 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     (2 * b)
 
   if (coag == 0) {
-    water@doc = water@doc
-    water@uv254 = water@uv254
+    water@doc <- water@doc
+    water@uv254 <- water@uv254
   } else {
     if (!is.na(water@toc) & water@toc >= water@doc) {
-      water@toc = water@toc - water@doc + nonadsorb + adsorb
+      water@toc <- water@toc - water@doc + nonadsorb + adsorb
     } else if (!is.na(water@toc) & water@toc < water@doc) {
       warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
-      water@toc = nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
     } else if (is.na(water@toc)) {
       warning("Input water TOC not specified. Output water TOC will be NA.")
-      water@toc = NA_real_
+      water@toc <- NA_real_
     }
 
-    water@doc = nonadsorb + adsorb
-    water@uv254 = 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    water@doc <- nonadsorb + adsorb
+    water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
   }
 
   water@treatment <- paste(water@treatment, "_tocremoved", sep = "")
 
   return(water)
-
 }
 
 # SUVA calc
