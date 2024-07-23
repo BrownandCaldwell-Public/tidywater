@@ -1239,27 +1239,31 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
     stop("Multiple coagulants dosed. Choose one coagulant.")
   }
 
+  chem_doses <- chem_inputs_col %>%
+    cross_join(chem_inputs_arg)
+  chem2 <- dosable_chems %>%
+    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
+    cross_join(chem_doses)
+
   if (length(df$coeff) > 0) {
     coeff <- tibble(coeff = df$coeff) %>%
       mutate(ID = row_number())
+    chem3 <- chem2 %>%
+      left_join(coeff, by = "ID")
+  } else if (length(coeff) == 1) {
+    chem3 <- chem2 %>%
+      mutate(coeff = list(coeff))
+  } else if (class(coeff) == "numeric" & length(coeff) == 6) {
+    chem3 <- chem2 %>%
+      mutate(coeff = list(coeff))
   } else {
-    coeff <- tibble(coeff = coeff) %>%
-      mutate(ID = row_number())
+    stop("coeffs must be specified with a string or named vector. See documentation for acceptable formats.")
   }
-
-  chem_doses <- chem_inputs_col %>%
-    cross_join(chem_inputs_arg)
-  # Add missing chemical columns
-  chem2 <- dosable_chems %>%
-    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-    cross_join(chem_doses) %>%
-    left_join(coeff, by = "ID") %>%
-    fill(coeff, .direction = "updown")
 
   output <- df %>%
     subset(select = !names(df) %in% c("alum", "ferricchloride", "ferricsulfate", "coeff")) %>%
     mutate(ID = row_number()) %>%
-    left_join(chem2, by = "ID") %>%
+    left_join(chem3, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
