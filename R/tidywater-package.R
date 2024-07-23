@@ -152,7 +152,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
-#' @name conv_chloramine
+#' @name chloramine_conv
 #' @format A dataframe with 17 rows and 3 columns
 #' \describe{
 #' \item{ID}{abbreviation of dbp species}
@@ -161,7 +161,7 @@ NULL
 #' }
 #' @source U.S. EPA (2001), Table 5-10
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
-"conv_chloramine"
+"chloramine_conv"
 
 #' Data frame of correction factors for estimating DBP formation as a function of location
 #'
