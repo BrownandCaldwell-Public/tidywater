@@ -14,7 +14,10 @@ test_that("pac_toc returns no modeled DOC value when PAC dose is 0.", {
   expect_equal(water2@doc, 2.5)
 })
 
-
+test_that("No water defined, no default listed",{
+expect_error(pac_toc(dose=15, time=50, type="wood")) #argument water is missing, with no default
+})
+  
 test_that("pac_toc defaults to bituminous when type isn't specified.", {
   water1 <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=3.5))
   expect_error(pac_toc(water1, dose=15, time=50))
