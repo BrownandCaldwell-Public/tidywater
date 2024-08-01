@@ -26,11 +26,6 @@ created by \code{\link{define_water}} ozone dose, reaction time, and desired mod
 The function also requires additional water quality parameters defined in \code{define_water}
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model).
 }
-\details{
-The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-The function returns a new object of class "water" with predicted DBP concentrations.
-Use \code{summarise_wq} to quickly tabulate the results.
-}
 \examples{
 example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
   ozonate_bromate(dose = 1.5, time = 5, model = "Ozekin")

@@ -10,11 +10,7 @@ Crittenden et al. (2012)
 
 Langelier (1936)
 
-Plummer and Busenberg (1982)
-
-U.S. EPA (1980)
-
-Schock (1984)
+Larson and Skold (1958)
 
 Merrill and Sanks (1977a)
 
@@ -22,9 +18,17 @@ Merrill and Sanks (1977b)
 
 Merrill and Sanks (1978)
 
-Trussell (1998)
+Nguyen et al. (2011)
+
+Plummer and Busenberg (1982)
 
 Ryznar (1946)
+
+Schock (1984)
+
+Trussell (1998)
+
+U.S. EPA (1980)
 
 See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
