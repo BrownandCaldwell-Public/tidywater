@@ -1057,7 +1057,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
   }
 }
 
-#' Apply `chemdose_toc` function and output a dataframe
+#' Apply `chemdose_toc` function and output a data frame
 #'
 #' This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
 #' Its output is a data frame with updated TOC, DOC, and UV254.
@@ -1412,38 +1412,40 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
     ))
 }
 
-#' Apply `chemdose_dbp` function and output a dataframe
+#' Apply `chemdose_dbp`function within a data frame and output a data frame
+#'
+#' DBP = disinfection byproduct
 #'
 #' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
-#' Its output is a data frame with updated TTHMs, HAA5, and individual species.
+#' Its output is a data frame containing columns for TTHM, HAA5, and individual DBP species.
+#' DBPs are estimated based on the applied chlorine dose, the reaction time, treatment type, chlorine type, and DBP formation location.
 #'
 #' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
-#' If the input data frame has a column(s) name matching a valid disinfectant(s), the function will dose that disinfectant(s). Note:
-#' The function can only dose a disinfectant as either a column or from the function arguments, not both.
-#'
-#' The column names must match the disinfectant names as displayed in \code{\link{chemdose_dbp}}.
-#' To see which coagulants can be passed into the function, see \code{\link{chemdose_dbp}}.
+#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
+#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
 #'
 #' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#' shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column named for the disinfectant being dosed,
-#' and a column named for the set of coefficients to use.
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
-#' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
+#' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
+#' and a column for time.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
+#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
+#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
+#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
+#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
+#' @param type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
 #'
-#' @seealso \code{\link{chemdose_toc}}
+#' @seealso \code{\link{chemdose_dbp}}
 #'
 #' @examples
 #'
@@ -1453,57 +1455,62 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   mutate(br =50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_dbp_once(input_water = "defined_water")
+#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
+#'   mutate(br =50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
-#'     ferricchloride = seq(1, 12, 1),
-#'     coeff = "Ferric"
+#'     cl2 = seq(2, 24, 2),
+#'     time = 30
 #'   ) %>%
 #'   chemdose_dbp_once(input_water = "balanced_water")
 #'
 #' example_df <- water_df %>%
+#'   mutate(br = 80) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+#'   mutate(time = 8) %>%
+#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
+#'   mutate(br =50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   mutate(ferricchloride = seq(1, 12, 1)) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", coeff = "Ferric")
+#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
 #' @export
 
-chemdose_dbp_once <- function(df, input_water = "defined_water",
-                              alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
+                              treatment = "raw", cl_type = "chlorine", location = "plant") {
   output <- df %>%
-    chemdose_toc_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
-      alum, ferricchloride, ferricsulfate, coeff
+    chemdose_dbp_chain(
+      input_water = input_water, output_water = "temp_dbp",
+      cl2, time, treatment, cl_type, location
     ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
-    unnest(dose_chem) %>%
-    select(-dosed_chem_water)
+    mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
+    rename(trtmnt = treatment) %>%
+    unnest(dbps) %>%
+    select(-temp_dbp)
 }
 
-#' Apply `chemdose_dbp` within a dataframe and output a column of `water` class to be chained to other tidywater functions
+#' Apply `chemdose_dbp` within a data frame and output a column of `water` class to be chained to other tidywater functions
 #'
 #' DBP = disinfection byproduct
 #'
 #' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' TTHM, HAA5, and individual species will be updated based on the applied chlorine dose,
-#' the reaction time in hours, treatment type, chlorine type, and DBP formation location.
+#' TTHM, HAA5, and individual DBP species will be updated based on the applied chlorine dose,
+#' the reaction time, treatment type, chlorine type, and DBP formation location.
 #'
 #' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
@@ -1523,13 +1530,13 @@ chemdose_dbp_once <- function(df, input_water = "defined_water",
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
 #' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
-#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC). GAC treatment has also been used for estimating formation after membrane treatment with good results.
-#' @param type String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
-#' @param location String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
+#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
+#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
+#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
+#' @param type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
 #'
-#' @seealso \code{\link{chemdose_toc}}
+#' @seealso \code{\link{chemdose_dbp}}
 #'
 #' @examples
 #'
@@ -1544,15 +1551,15 @@ chemdose_dbp_once <- function(df, input_water = "defined_water",
 #'   balance_ions_chain() %>%
 #'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
 #'
-# example_df <- water_df %>%
-#   mutate(br =50) %>%
-#   define_water_chain() %>%
-#   balance_ions_chain() %>%
-#   mutate(
-#     cl2 = seq(1, 12, 1),
-#     time = 30)
-#   ) %>%
-#   chemdose_dbp_chain(input_water = "balanced_water")
+#' example_df <- water_df %>%
+#'   mutate(br =50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(
+#'     cl2 = seq(2, 24, 2),
+#'     time = 30
+#'   ) %>%
+#'   chemdose_dbp_chain(input_water = "balanced_water")
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 80) %>%
@@ -1575,7 +1582,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water",
 #' @export
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                               cl2 =0, time=0, treatment = "raw", cl_type = "chlorine", location = "plant") {
+                               cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
 
   inputs_arg <- tibble(cl2, time)%>%
     select_if(~ any(. > 0))
