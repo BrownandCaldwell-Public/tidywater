@@ -8,9 +8,6 @@
 #' The function also requires additional water quality parameters defined in \code{define_water}
 #' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model).
 #'
-#' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' The function returns a new object of class "water" with predicted DBP concentrations.
-#' Use \code{summarise_wq} to quickly tabulate the results.
 #'
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
