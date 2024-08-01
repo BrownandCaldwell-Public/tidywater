@@ -276,7 +276,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@ph <- ph
   dosed_water@h <- h
   dosed_water@oh <- oh
-  dosed_water@treatment <- paste(dosed_water@treatment, "_chemdosed", sep = "")
+  dosed_water@applied_treatment <- paste(dosed_water@applied_treatment, "_chemdosed", sep = "")
 
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
@@ -507,7 +507,7 @@ blend_waters <- function(waters, ratios) {
 
   not_averaged <- c(
     "ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
-    "h", "oh", "kw", "treatment", "estimated"
+    "h", "oh", "kw", "applied_treatment", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -531,20 +531,20 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Track treatments and estimated params
-  treatment <- c()
+  applied_treatment <- c()
   estimated <- c()
 
   for (i in 1:length(waters)) {
     # Create character vectors that just add the values from all the waters together
     temp_water <- waters[[i]]
-    new_treat <- unlist(strsplit(temp_water@treatment, "_"))
-    treatment <- c(treatment, new_treat)
+    new_treat <- unlist(strsplit(temp_water@applied_treatment, "_"))
+    applied_treatment <- c(applied_treatment, new_treat)
     new_est <- unlist(strsplit(temp_water@estimated, "_"))
     estimated <- c(estimated, new_est)
   }
 
   # Keep only one of each treatment and estimated and paste back into string for the water.
-  blended_water@treatment <- paste(unique(treatment), collapse = "_")
+  blended_water@applied_treatment <- paste(unique(applied_treatment), collapse = "_")
   blended_water@estimated <- paste(unique(estimated), collapse = "_")
 
   # Calculate new pH, H+ and OH- concentrations
@@ -580,7 +580,7 @@ blend_waters <- function(waters, ratios) {
 
   blended_water@ocl <- blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh4 * calculate_alpha1_ammonia(h, k)
-  blended_water@treatment <- paste(blended_water@treatment, "_blended", sep = "")
+  blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
   return(blended_water)
 }

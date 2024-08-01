@@ -1498,7 +1498,6 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
       cl2, time, treatment, cl_type, location
     ) %>%
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
-    rename(trtmnt = treatment) %>%
     unnest(dbps) %>%
     select(-temp_dbp)
 }
