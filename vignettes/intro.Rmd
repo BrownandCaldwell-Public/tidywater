@@ -26,7 +26,7 @@ library(tidywater)
 
 ## Defining a water
 
-The first step for any modelling project using tidywater is to define your starting water quality. This can be done using the `define_water` function. This function allows you to input everything you know about your water (pH, alkalinity, temperature etc.). It also standardizes units for subsequent modelling steps, calculates the carbonate balance from the alkalinity and pH (if provided), and estimates the ionic strength of the water from your inputs. The function then takes all this information and creates a unique object of class "water" (for more details, see <a href = "https://adv-r.hadley.nz/s4.html"> R's S4 class</a>). 
+The first step for any modelling project using tidywater is to define your starting water quality. This can be done using the `define_water` function. This function allows you to input everything you know about your water (pH, alkalinity, temperature, etc.). It also standardizes units for subsequent modelling steps, calculates the carbonate balance from the alkalinity and pH (if provided), and estimates the ionic strength of the water from your inputs. The function then takes all this information and creates a unique object of class "water" (for more details, see <a href = "https://adv-r.hadley.nz/s4.html"> R's S4 class</a>). 
 
 The "water" class is the building block of tidywater and allows you to keep track of all the changes in your water through various water treatment processes in a tidy way. Think of the "water" class as a snapshot of everything that is known about a water at each step in a modelling process.
 
@@ -45,7 +45,7 @@ Even so, we successfully created our first water class! You can view all the slo
 ```{r, echo=TRUE}
 print(empty_water)
 ```
-So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and the  sodium concentration. We can define each of these parameters as arguments in `define_water`, which accepts alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L. The function also refers to all chemical compounds by their chemical symbol or formula. Let's call the new water class `my_water.`
+So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and the  sodium concentration. We can define each of these parameters as arguments in `define_water`, which accepts pH (unitless), alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L (with the exception of bromide and manganese, reported as ug/L). The function also refers to all chemical compounds by their chemical symbol or formula. Let's call the new water class `my_water.`
 
 Notice that the slots for `ph`, `alk`, `temp`,and `na` are now populated when we print out the resulting water. The sodium slot (`na`) is output in units of mol/L (M).  We can also see that `define_water` automatically calculated the amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based on the alkalinity and pH. 
 
@@ -60,7 +60,7 @@ You can easily summarize your water quality using the `summarize_wq` function, w
 summarize_wq(my_water)
 ```
 
-This is a great way to get started with `tidywater` for users who only need to model a single water quality. If you have a large data set with multiple water qualities that you want to model, though,  this might sound tedious. It wouldn't be possible to manually enter your pH, alkalinity, temperature etc. for, let's say, 5,000 rows. Instead, `tidywater` has helper functions to generate many water classes simultaneously from an imported data set. See the `help_functions_blend` vignette for large data processing (paste this in the console: `vignette("help_functions_blend", package = "tidywater")`). 
+This is a great way to get started with `tidywater` for users who only need to model a single water quality. If you have a large data set with multiple water qualities that you want to model, though,  this might sound tedious. It wouldn't be possible to manually enter your pH, alkalinity, temperature, etc. for, let's say, 5,000 rows. Instead, `tidywater` has helper functions to generate many water classes simultaneously from an imported data set. See the `help_functions_blend` vignette for large data processing (paste this in the console: `vignette("help_functions_blend", package = "tidywater")`). 
 
 ## Plotting and balancing ions
 
