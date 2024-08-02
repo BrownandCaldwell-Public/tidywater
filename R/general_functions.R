@@ -63,6 +63,7 @@ methods::setClass(
     # Miscellaneous
     treatment = "character",
     estimated = "character",
+    primary_units = "character",
 
     # DBPs
     chcl3 = "numeric", # chloroform
@@ -140,6 +141,7 @@ methods::setClass(
     # Miscellaneous
     treatment = "defined",
     estimated = "",
+    primary_units = "M"
 
     # DBPs
     chcl3 = NA_real_, # chloroform
@@ -1045,3 +1047,34 @@ correct_k <- function(water) {
     "kocl" = kocl, "kso4" = kso4
   ))
 }
+
+
+
+
+water_tomg <- function(water) {
+  if (water@primary_unit == "mg") {
+    stop("Water already in mg/L")
+  }
+
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
+  water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
+  water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
+  water@k <- convert_units(water@k, "k", "M", "mg/L")
+  water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
+  water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
+  water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
+  water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
+  water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
+  water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
+  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
+  water@f <- convert_units(water@f, "f", "M", "mg/L")
+  water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
+  water@al <- convert_units(water@al, "al", "M", "mg/L")
+  #water@br <- convert_units(water@br, "br", "M", "mg/L")
+  #water@mn <- convert_units(water@mn, "mn", "M", "mg/L")
+
+}
+)
