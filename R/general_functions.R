@@ -953,7 +953,6 @@ water_tomg <- function(water) {
   water@primary_unit <- "mg/L"
 
   return(water)
-
 }
 
 #' @title Convert primary units in a water from mg/L to M
@@ -1001,7 +1000,6 @@ water_tomol <- function(water) {
   water@primary_unit <- "M"
 
   return(water)
-
 }
 
 # Non-exported functions
@@ -1157,4 +1155,3 @@ correct_k <- function(water) {
     "kocl" = kocl, "kso4" = kso4
   ))
 }
-
