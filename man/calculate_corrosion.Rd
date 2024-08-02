@@ -10,11 +10,7 @@ Crittenden et al. (2012)
 
 Langelier (1936)
 
-Plummer and Busenberg (1982)
-
-U.S. EPA (1980)
-
-Schock (1984)
+Larson and Skold (1958)
 
 Merrill and Sanks (1977a)
 
@@ -22,9 +18,17 @@ Merrill and Sanks (1977b)
 
 Merrill and Sanks (1978)
 
-Trussell (1998)
+Nguyen et al. (2011)
+
+Plummer and Busenberg (1982)
 
 Ryznar (1946)
+
+Schock (1984)
+
+Trussell (1998)
+
+U.S. EPA (1980)
 
 See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
@@ -49,17 +53,21 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 corrosion and scaling indices.
 }
 \details{
-Aggressive Index (AI) - the corrosive tendency of water and its effect on asbestos cement pipe
+Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
 
-Ryznar Index(RI) - a measure of scaling potential
+Ryznar Index (RI), unitless - a measure of scaling potential.
 
-Langelier Saturation Index (LSI) - describes the potential for calcium carbonate scale formation. Equations use empirical calcium carbonate solubilities from Plummer and Busenberg (1982) and Crittenden et al. (2012) rather than calculated from the concentrations of calcium and carbonate in the water.
+Langelier Saturation Index (LSI), unitless - describes the potential for calcium carbonate scale formation.
+Equations use empirical calcium carbonate solubilities from Plummer and Busenberg (1982) and Crittenden et al. (2012)
+rather than calculated from the concentrations of calcium and carbonate in the water.
 
-Larson-skold Index (LI) - describes the corrosivity towards mild steel
+Larson-skold Index (LI), unitless - describes the corrosivity towards mild steel.
 
-Chloride-to-sulfate mass ratio (CSMR) - indicator of galvanic corrosion for lead solder pipe joints
+Chloride-to-sulfate mass ratio (CSMR), mg Cl/mg SO4 - indicator of galvanic corrosion for lead solder pipe joints.
 
-Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium. A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP indicates how much CaCO3 can be dissolved in the water.
+Calcium carbonate precipitation potential (CCPP), mg/L as CaCO3 - a prediction of the mass of calcium carbonate that will precipitate at equilibrium.
+A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate.
+A negative CCPP indicates how much CaCO3 can be dissolved in the water.
 }
 \examples{
 water <- define_water(ph = 8, temp = 25, alk = 200, tot_hard = 200, tds = 576, cl = 150, so4 = 200) \%>\%

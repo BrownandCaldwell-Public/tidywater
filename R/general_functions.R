@@ -3,8 +3,8 @@
 
 
 # Create water class
-methods::setClass("water",
-
+methods::setClass(
+  "water",
   representation(
     # General parameters
     ph = "numeric",
@@ -44,7 +44,13 @@ methods::setClass("water",
     tot_ocl = "numeric",
     tot_co3 = "numeric",
     is = "numeric",
+    # Additional ions
     br = "numeric",
+    bro3 = "numeric",
+    f = "numeric",
+    fe = "numeric",
+    al = "numeric",
+    mn = "numeric",
 
     # Corrosion indices
     aggressive = "numeric",
@@ -64,21 +70,18 @@ methods::setClass("water",
     chbr2cl = "numeric", # dibromochloromethane
     chbr3 = "numeric", # bromoform
     tthm = "numeric",
-
     mcaa = "numeric", # chloroacetic acid
     dcaa = "numeric", # dichloroacetic acid
     tcaa = "numeric", # trichloroeacetic acid
     mbaa = "numeric", # bromoacetic acid
     dbaa = "numeric", # dibromoacetic acid
     haa5 = "numeric",
-
     bcaa = "numeric", # bromochloroacetic acid
 
     cdbaa = "numeric", # chlorodibromoacetic acid
     dcbaa = "numeric", # dichlorobromoacetic acid
     tbaa = "numeric" # tribromoacetic acid
   ),
-
   prototype(
     # General parameters
     ph = NA_real_,
@@ -118,7 +121,13 @@ methods::setClass("water",
     tot_ocl = NA_real_,
     tot_co3 = NA_real_,
     is = NA_real_,
+    # Additional ions
     br = NA_real_,
+    bro3 = NA_real_,
+    f = NA_real_,
+    fe = NA_real_,
+    al = NA_real_,
+    mn = NA_real_,
 
     # Corrosion indices
     aggressive = NA_real_,
@@ -138,97 +147,30 @@ methods::setClass("water",
     chbr2cl = NA_real_, # dibromochloromethane
     chbr3 = NA_real_, # bromoform
     tthm = NA_real_,
-
     mcaa = NA_real_, # chloroacetic acid
     dcaa = NA_real_, # dichloroacetic acid
     tcaa = NA_real_, # trichloroeacetic acid
     mbaa = NA_real_, # bromoacetic acid
     dbaa = NA_real_, # dibromoacetic acid
     haa5 = NA_real_,
-
     bcaa = NA_real_, # bromochloroacetic acid
 
     cdbaa = NA_real_, # chlorodibromoacetic acid
     dcbaa = NA_real_, # dichlorobromoacetic acid
     tbaa = NA_real_ # tribromoacetic acid
+  )
+)
 
-))
-
-methods::setMethod("show",
+methods::setMethod(
+  "show",
   "water",
   function(object) {
     # General parameters
-    cat("pH: ", object@ph, "\n")
+    cat("pH (unitless): ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
-    cat("Alkalinity (mg/L CaCO3): ", object@alk, "\n")
-    cat("Total Dissolved Solids (mg/L): ", object@tds, "\n")
-    cat("Electrical conductivity (uS/cm): ", object@cond, "\n")
-    cat("Total Hardness (mg/L CaCO3): ", object@tot_hard, "\n")
-    cat("Kw: ", object@kw, "\n")
-    cat("Alkalinity (eq/L): ", object@alk_eq, "\n")
-
-    # Carbon
-    cat("Total organic carbon (mg/L): ", object@toc, "\n")
-    cat("Dissolved organic carbon (mg/L): ", object@doc, "\n")
-    cat("Biodegradable dissolved organic carbon (mg/L): ", object@bdoc, "\n")
-    cat("Dissolved inorganic carbon:", object@dic, "\n")
-    cat("UV Absorbance at 254 nm (cm-1): ", object@uv254, "\n")
-
-    # Ions
-    cat("Sodium (M): ", object@na, "\n")
-    cat("Calcium (M): ", object@ca, "\n")
-    cat("Magnesium (M): ", object@mg, "\n")
-    cat("Potassium (M): ", object@k, "\n")
-    cat("Chloride (M): ", object@cl, "\n")
-    cat("Sulfate (M): ", object@so4, "\n")
-    cat("Nitrate (M): ", object@no3, "\n")
-    cat("Ammonia (M): ", object@nh3, "\n")
-    cat("Bicarbonate ion (M): ", object@hco3, "\n")
-    cat("Carbonate ion (M): ", object@co3, "\n")
-    cat("Dihydrogen phosphate ion - H2PO4 (M): ", object@h2po4, "\n")
-    cat("Hydrogen phosphate ion - HPO4 (M): ", object@hpo4, "\n")
-    cat("Phosphate ion (M): ", object@po4, "\n")
-    cat("Hypochlorite ion (M): ", object@ocl, "\n")
-    cat("H+ ion (M): ", object@h, "\n")
-    cat("OH- ion (M): ", object@oh, "\n")
-    cat("Total phosphate (M)", object@tot_po4, "\n")
-    cat("Total OCl (M): ", object@tot_ocl, "\n")
-    cat("Total carbonate (M): ", object@tot_co3, "\n")
-    cat("Ionic Strength:", object@is, "\n")
-    cat("Bromide (ug/L): ", object@br, "\n")
-
-    # Corrosion indices
-    cat("Aggressive Index (unitless):", object@aggressive, "\n")
-    cat("Ryznar Stability Index (unitless):", object@ryznar, "\n")
-    cat("Langelier Saturation Index (unitless):", object@langelier, "\n")
-    cat("Calcium carbonate precipitation potential (mg/L CaCO3):", object@ccpp, "\n")
-    cat("Larson-Skold Index (unitless):", object@larsonskold, "\n")
-    cat("Chloride to sulfate mass ratio (unitless):", object@csmr, "\n")
-
-    # Miscellaneous
-    cat("Treatment applied to water class:", object@treatment, "\n")
-    cat("List of parameters estimated by tidywater:", object@estimated, "\n")
-
-    # DBPs
-    cat("Chloroform (ug/L): ", object@chcl3, "\n")
-    cat("Bromodichloromethane (ug/L): ", object@chcl2br, "\n")
-    cat("Dibromochloromethane (ug/L): ", object@chbr2cl, "\n")
-    cat("Bromoform (ug/L): ", object@chbr3, "\n")
-    cat("Total trihalomethanes (ug/L): ", object@tthm, "\n")
-
-    cat("Chloroacetic acid (ug/L): ", object@mcaa, "\n")
-    cat("Dichloroacetic acid (ug/L): ", object@dcaa, "\n")
-    cat("Trichloroacetic acid (ug/L): ", object@tcaa, "\n")
-    cat("Bromoacetic acid (ug/L): ", object@mbaa, "\n")
-    cat("Dibromoacetic acid (ug/L): ", object@dbaa, "\n")
-    cat("Sum of 5 haloacetic acids (ug/L): ", object@haa5, "\n")
-
-    cat("Bromochloroacetic acid (ug/L): ", object@bcaa, "\n")
-
-    cat("Chlorodibromoacetic acid (ug/L): ", object@cdbaa, "\n")
-    cat("Dichlorobromoacetic acid (ug/L): ", object@dcbaa, "\n")
-    cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
-  })
+    cat("Alkalinity (mg/L CaCO3): ", object@alk, "\nUse summary functions or slot names to view other parameters.\n")
+  }
+)
 
 #' @title Create a water class object given water quality parameters
 #'
@@ -246,7 +188,7 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca Calcium in mg/L Ca+2
+#' @param ca Calcium in mg/L Ca2+
 #' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
@@ -260,6 +202,10 @@ methods::setMethod("show",
 #' @param doc Dissolved organic carbon (DOC) in mg/L
 #' @param uv254 UV absorbance at 254 nm (cm-1)
 #' @param br Bromide in ug/L Br-
+#' @param f Fluoride in mg/L F-
+#' @param fe Iron in mg/L Fe3+
+#' @param al Aluminum in mg/L Al3+
+#' @param mn Manganese in ug/L Mn2+
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -269,121 +215,121 @@ methods::setMethod("show",
 #'
 
 define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
-                         toc, doc, uv254, br) {
-
+                         toc, doc, uv254, br, f, fe, al, mn) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
-    ph = NA_real_
+    ph <- NA_real_
     warning("Missing value for pH. Carbonate balance will not be calculated.")
   }
 
   if (missing(alk)) {
-    alk = NA_real_
+    alk <- NA_real_
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  tot_hard = ifelse(missing(tot_hard), NA_real_, tot_hard)
-  ca = ifelse(missing(ca), NA_real_, ca)
-  mg = ifelse(missing(mg), NA_real_, mg)
+  tot_hard <- ifelse(missing(tot_hard), NA_real_, tot_hard)
+  ca <- ifelse(missing(ca), NA_real_, ca)
+  mg <- ifelse(missing(mg), NA_real_, mg)
 
   if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
-    check_tot_hard = abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
+    check_tot_hard <- abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
     if (check_tot_hard > 0.10) {
       warning("User entered total hardness is >10% different than calculated hardness.")
     }
   }
 
   if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
-    ca = convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
+    ca <- convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
     warning("Missing value for calcium. Value estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & !is.na(ca)) {
-    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
+    mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
     warning("Missing value for magnesium. Value estimated from total hardness and calcium.")
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
-    ca = convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
-    mg = convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
+    ca <- convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
+    mg <- convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
     warning("Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
     estimated <- paste(estimated, "ca", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
   if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
-    tot_hard = calculate_hardness(ca, 0) / .65
-    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
+    tot_hard <- calculate_hardness(ca, 0) / .65
+    mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
     warning("Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
     estimated <- paste(estimated, "tothard", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
-
   } else if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
-    tot_hard = calculate_hardness(ca, mg)
+    tot_hard <- calculate_hardness(ca, mg)
   }
 
-  tds = ifelse(missing(tds), NA_real_, tds)
-  cond = ifelse(missing(cond), NA_real_, cond)
-  br = ifelse(missing(br), NA_real_, br)
+  tds <- ifelse(missing(tds), NA_real_, tds)
+  cond <- ifelse(missing(cond), NA_real_, cond)
 
-  na = ifelse(missing(na), NA_real_, na)
-  k = ifelse(missing(k), NA_real_, k)
-  cl = ifelse(missing(cl), NA_real_, cl)
-  so4 = ifelse(missing(so4), NA_real_, so4)
+  # Convert ion concentration inputs to mol/L and fill missing arguments with NA
+  ca <- convert_units(ca, "ca")
+  mg <- convert_units(mg, "mg")
+  na <- ifelse(missing(na), NA_real_, convert_units(na, "na"))
+  k <- ifelse(missing(k), NA_real_, convert_units(k, "k"))
+  cl <- ifelse(missing(cl), NA_real_, convert_units(cl, "cl"))
+  so4 <- ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
+  tot_po4 <- convert_units(tot_po4, "po4")
+  tot_ocl <- convert_units(tot_ocl, "cl2")
+
+  br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
+  f <- ifelse(missing(f), NA_real_, convert_units(f, "f"))
+  fe <- ifelse(missing(fe), NA_real_, convert_units(fe, "fe"))
+  al <- ifelse(missing(al), NA_real_, convert_units(al, "al"))
+  mn <- ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
-    toc = NA_real_
-    doc = NA_real_
-    uv254 = NA_real_
+    toc <- NA_real_
+    doc <- NA_real_
+    uv254 <- NA_real_
   } else if (missing(toc) & missing(doc)) {
-    toc = NA_real_
-    doc = NA_real_
+    toc <- NA_real_
+    doc <- NA_real_
   } else if (missing(toc) & !missing(doc)) {
     warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
-    toc = doc / 0.95
+    toc <- doc / 0.95
     estimated <- paste(estimated, "toc", sep = "_")
   } else if (missing(doc) & !missing(toc)) {
     warning("Missing value for DOC. Default value of 95% of TOC will be used.")
-    doc = toc * 0.95
+    doc <- toc * 0.95
     estimated <- paste(estimated, "doc", sep = "_")
   }
 
-  uv254 = ifelse(missing(uv254), NA_real_, uv254)
+  uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
-  tempa = temp + 273.15 # absolute temperature (K)
+  tempa <- temp + 273.15 # absolute temperature (K)
   # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
-  pkw = round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
-  kw = 10^-pkw
+  pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
+  kw <- 10^-pkw
 
-  # Convert major ion concentration inputs to mol/L
-  ca = convert_units(ca, "ca")
-  mg = convert_units(mg, "mg")
-  na = convert_units(na, "na")
-  k = convert_units(k, "k")
-  cl = convert_units(cl, "cl")
-  so4 = convert_units(so4, "so4")
-  tot_po4 = convert_units(tot_po4, "po4")
-  tot_ocl = convert_units(tot_ocl, "cl2")
-  h = 10^-ph
-  oh = kw / h
+  h <- 10^-ph
+  oh <- kw / h
+
   # convert alkalinity input to equivalents/L
-  carb_alk_eq = convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
+  carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
-  k1co3 = filter(discons, ID == "k1co3") %$%
+  k1co3 <- filter(discons, ID == "k1co3") %$%
     K_temp_adjust(deltah, k, temp)
-  k2co3 = filter(discons, ID == "k2co3") %$%
+  k2co3 <- filter(discons, ID == "k2co3") %$%
     K_temp_adjust(deltah, k, temp)
 
-  alpha1 = calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-  tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
+  tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
@@ -393,55 +339,56 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
     h = h, oh = oh,
     tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
-    doc = doc, toc = toc, uv254 = uv254, br = br)
-
+    doc = doc, toc = toc, uv254 = uv254,
+    br = br, f = f, fe = fe, al = al, mn = mn
+  )
 
   # Determine ionic strength
 
   if (!is.na(tds)) {
-    water@is = correlate_ionicstrength(tds, from = "tds")
-    water@cond = correlate_ionicstrength(tds, from = "tds", to = "cond")
+    water@is <- correlate_ionicstrength(tds, from = "tds")
+    water@cond <- correlate_ionicstrength(tds, from = "tds", to = "cond")
     estimated <- paste(estimated, "cond", sep = "_")
   } else if (!is.na(cond)) {
-    water@is = correlate_ionicstrength(cond, from = "cond")
-    water@tds = correlate_ionicstrength(cond, from = "cond", to = "tds")
+    water@is <- correlate_ionicstrength(cond, from = "cond")
+    water@tds <- correlate_ionicstrength(cond, from = "cond", to = "tds")
     estimated <- paste(estimated, "tds", sep = "_")
   } else if (is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl) | !is.na(so4)) & alk > 0) & !is.na(ph)) {
-    water@is = calculate_ionicstrength(water)
-    water@tds = correlate_ionicstrength(water@is, from = "is", to = "tds")
+    water@is <- calculate_ionicstrength(water)
+    water@tds <- correlate_ionicstrength(water@is, from = "is", to = "tds")
     estimated <- paste(estimated, "tds", sep = "_")
-    water@cond = correlate_ionicstrength(water@is, from = "is", to = "cond")
+    water@cond <- correlate_ionicstrength(water@is, from = "is", to = "cond")
     estimated <- paste(estimated, "cond", sep = "_")
   } else {
     warning("Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
-    water@is = NA_real_
+    water@is <- NA_real_
   }
 
   # Eq constants
   ks <- correct_k(water)
 
   # Carbonate and phosphate ions and ocl ions
-  alpha1 = calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
-  alpha2 = calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
-  water@tot_co3 = (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
-  water@hco3 = water@tot_co3 * alpha1
-  water@co3 = water@tot_co3 * alpha2
+  alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  water@hco3 <- water@tot_co3 * alpha1
+  water@co3 <- water@tot_co3 * alpha2
 
-  alpha1p = calculate_alpha1_phosphate(h, ks)
-  alpha2p = calculate_alpha2_phosphate(h, ks)
-  alpha3p = calculate_alpha3_phosphate(h, ks)
+  alpha1p <- calculate_alpha1_phosphate(h, ks)
+  alpha2p <- calculate_alpha2_phosphate(h, ks)
+  alpha3p <- calculate_alpha3_phosphate(h, ks)
 
-  water@h2po4 = tot_po4 * alpha1p
-  water@hpo4 = tot_po4 * alpha2p
-  water@po4 = tot_po4 * alpha3p
+  water@h2po4 <- tot_po4 * alpha1p
+  water@hpo4 <- tot_po4 * alpha2p
+  water@po4 <- tot_po4 * alpha3p
 
-  water@ocl = tot_ocl * calculate_alpha1_hypochlorite(h, ks)
+  water@ocl <- tot_ocl * calculate_alpha1_hypochlorite(h, ks)
 
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
-  water@alk_eq = carb_alk_eq
+  water@alk_eq <- carb_alk_eq
 
   # Add all estimated values to water slot
-  water@estimated = estimated
+  water@estimated <- estimated
 
   return(water)
 }
@@ -477,79 +424,96 @@ summarize_wq <- function(water, params = c("general")) {
   }
 
   # Compile general WQ parameters
-  general = data.frame(pH = water@ph,
+  general <- data.frame(
+    pH = water@ph,
     Temp = water@temp,
     Alkalinity = water@alk,
     Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"),
     TDS = water@tds,
     Conductivity = water@cond,
-    TOC = water@toc)
+    TOC = water@toc
+  )
 
-  general = general %>%
+  general <- general %>%
     pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
-    mutate(units = c("-",
+    mutate(units = c(
+      "-",
       "deg C",
       "mg/L as CaCO3",
       "mg/L as CaCO3",
       "mg/L",
       "uS/cm",
-      "mg/L"))
+      "mg/L"
+    ))
 
-  gen_tab = knitr::kable(general,
+  gen_tab <- knitr::kable(general,
     format = "simple",
-    col.names = c("General water quality parameters", "Result", "Units"))
+    col.names = c("General water quality parameters", "Result", "Units")
+  )
 
   # Compile major ions
-  ions = data.frame(Na = convert_units(water@na, "na", "M", "mg/L"),
+  ions <- data.frame(
+    Na = convert_units(water@na, "na", "M", "mg/L"),
     Ca = convert_units(water@ca, "ca", "M", "mg/L"),
     Mg = convert_units(water@mg, "mg", "M", "mg/L"),
     K = convert_units(water@k, "k", "M", "mg/L"),
     Cl = convert_units(water@cl, "cl", "M", "mg/L"),
     SO4 = convert_units(water@so4, "so4", "M", "mg/L"),
     HCO3 = convert_units(water@hco3, "hco3", "M", "mg/L"),
-    CO3 = convert_units(water@co3, "co3", "M", "mg/L"))
+    CO3 = convert_units(water@co3, "co3", "M", "mg/L")
+  )
 
-  ions = ions %>%
+  ions <- ions %>%
     pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
-  ions_tab = knitr::kable(ions,
+  ions_tab <- knitr::kable(ions,
     format = "simple",
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
-    digits = 2)
+    digits = 2
+  )
 
   # Compile corrosion indices
-  corrosion = tibble(`Aggressive Index` = water@aggressive,
+  corrosion <- tibble(
+    `Aggressive Index` = water@aggressive,
     `Ryznar Stability Index` = water@ryznar,
     `Langelier Saturation Index (LSI)` = water@langelier,
     `Larson Skold Index` = water@larsonskold,
     `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
-    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp)
+    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp
+  )
 
-  corrosion = corrosion %>%
+  corrosion <- corrosion %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2)) %>%
-    mutate(units = c(rep("unitless", 5), "mg/L CaCO3"),
-      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
+    mutate(
+      units = c(rep("unitless", 5), "mg/L CaCO3"),
+      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
+    )
 
-  corr_tab = knitr::kable(corrosion,
+  corr_tab <- knitr::kable(corrosion,
     format = "simple",
-    col.names = c("Corrosion Indices", "Result", "Units", "Recommended"))
+    col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
+  )
 
   # Compile DBPs
-  tthm = tibble(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
+  tthm <- tibble(
+    Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
     Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
     Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
     Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
-    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm))
+    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm)
+  )
 
 
-  haa5 = tibble(`Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
+  haa5 <- tibble(
+    `Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
     `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
     `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
     `Bromoacetic acid` = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
     `Dibromoacetic acid` = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
-    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5))
+    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5)
+  )
   # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
   # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
   # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
@@ -557,30 +521,38 @@ summarize_wq <- function(water, params = c("general")) {
   # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
   # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
-  tthm = tthm %>%
+  tthm <- tthm %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
-  haa5 = haa5 %>%
+  haa5 <- haa5 %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
-  thm_tab = knitr::kable(tthm,
+  thm_tab <- knitr::kable(tthm,
     format = "simple",
-    col.names = c("THMs", "Modeled concentration (ug/L)"))
+    col.names = c("THMs", "Modeled concentration (ug/L)")
+  )
 
-  haa_tab = knitr::kable(haa5,
+  haa_tab <- knitr::kable(haa5,
     format = "simple",
-    col.names = c("HAAs", "Modeled concentration (ug/L)"))
+    col.names = c("HAAs", "Modeled concentration (ug/L)")
+  )
 
   # Print tables
   tables_list <- list()
-  if ("general" %in% params) {tables_list[[length(tables_list) + 1]] = gen_tab}
-  if ("ions" %in% params) {tables_list[[length(tables_list) + 1]] = ions_tab}
-  if ("corrosion" %in% params) {tables_list[[length(tables_list) + 1]] = corr_tab}
+  if ("general" %in% params) {
+    tables_list[[length(tables_list) + 1]] <- gen_tab
+  }
+  if ("ions" %in% params) {
+    tables_list[[length(tables_list) + 1]] <- ions_tab
+  }
+  if ("corrosion" %in% params) {
+    tables_list[[length(tables_list) + 1]] <- corr_tab
+  }
   if ("dbps" %in% params) {
-    tables_list[[length(tables_list) + 1]] = thm_tab
-    tables_list[[length(tables_list) + 1]] = haa_tab
+    tables_list[[length(tables_list) + 1]] <- thm_tab
+    tables_list[[length(tables_list) + 1]] <- haa_tab
   }
 
   return(knitr::kables(tables_list))
@@ -608,7 +580,8 @@ plot_ions <- function(water) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
   # Compile major ions to plot
-  ions = data.frame(Na = water@na,
+  ions <- data.frame(
+    Na = water@na,
     Ca = water@ca * 2,
     Mg = water@mg * 2,
     K = water@k,
@@ -621,33 +594,44 @@ plot_ions <- function(water) {
     PO4 = water@po4 * 3,
     OCl = water@ocl,
     H = water@h,
-    OH = water@oh)
+    OH = water@oh
+  )
 
   ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
-    mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)) %>%
-
+    mutate(
+      label_pos = cumsum(concentration) - concentration / 2, .by = type,
+      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+    ) %>%
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
-    geom_bar(stat = "identity",
+    geom_bar(
+      stat = "identity",
       width = 0.5,
       alpha = 0.5,
-      color = "black") +
+      color = "black"
+    ) +
     geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-      size = 3.5) +
-    ggrepel::geom_text_repel(aes(x = label_pos, y = label_y,
-      label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
-      fontface = "bold"),
-    size = 3.5,
-    nudge_y = -.2,
-    seed = 555) +
+      size = 3.5
+    ) +
+    ggrepel::geom_text_repel(
+      aes(
+        x = label_pos, y = label_y,
+        label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
+        fontface = "bold"
+      ),
+      size = 3.5,
+      nudge_y = -.2,
+      seed = 555
+    ) +
     theme_bw() +
     theme(axis.title = element_text(face = "bold")) +
-    labs(x = "Concentration (eq/L)",
-      y = "Major cations and anions",
-      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)) +
+    labs(
+      x = "Concentration (eq/L)",
+      y = "Major Cations and Anions",
+      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
+    ) +
     guides(fill = "none")
 }
 
@@ -669,7 +653,6 @@ plot_ions <- function(water) {
 #' @export
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-
   milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
   mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
   nano_list <- c("ng/L", "ng/L CaCO3", "nM", "neq/L")
@@ -773,8 +756,6 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else {
     stop("Units not supported")
   }
-
-
 }
 
 
@@ -808,7 +789,6 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   } else {
     stop("Unsupported type. Specify 'total' or 'ca'")
   }
-
 }
 
 #' @title Add Na, K, Cl, or SO4 to balance overall charge in a water
@@ -841,7 +821,9 @@ balance_ions <- function(water) {
   # calculate charge
   cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
   anions <- sum(water@cl, 2 * water@so4, water@hco3, 2 * water@co3, water@h2po4, 2 * water@hpo4, 3 * water@po4,
-    water@oh, water@ocl, na.rm = TRUE)
+    water@oh, water@ocl,
+    na.rm = TRUE
+  )
 
   if (is.na(cations) | is.na(anions)) {
     stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
@@ -900,12 +882,11 @@ balance_ions <- function(water) {
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
-    water@tds = water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
+    water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
       convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
-    water@is = calculate_ionicstrength(water)
-
+    water@is <- calculate_ionicstrength(water)
   }
 
   return(water)
@@ -916,48 +897,48 @@ balance_ions <- function(water) {
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
 calculate_alpha1_carbonate <- function(h, k) {
-  k1 = k$k1co3
-  k2 = k$k2co3
+  k1 <- k$k1co3
+  k2 <- k$k2co3
   (k1 * h) / (h^2 + k1 * h + k1 * k2)
 }
 
 calculate_alpha2_carbonate <- function(h, k) {
-  k1 = k$k1co3
-  k2 = k$k2co3
+  k1 <- k$k1co3
+  k2 <- k$k2co3
   (k1 * k2) / (h^2 + k1 * h + k1 * k2)
 }
 
 # Equations from Benjamin (2014) Table 5.3b
 calculate_alpha0_phosphate <- function(h, k) {
-  k1 = k$k1po4
-  k2 = k$k2po4
-  k3 = k$k3po4
+  k1 <- k$k1po4
+  k2 <- k$k2po4
+  k3 <- k$k3po4
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 
 calculate_alpha1_phosphate <- function(h, k) { # H2PO4
-  k1 = k$k1po4
-  k2 = k$k2po4
-  k3 = k$k3po4
+  k1 <- k$k1po4
+  k2 <- k$k2po4
+  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * k1 / h
 }
 
 calculate_alpha2_phosphate <- function(h, k) { # HPO4
-  k1 = k$k1po4
-  k2 = k$k2po4
-  k3 = k$k3po4
+  k1 <- k$k1po4
+  k2 <- k$k2po4
+  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
 calculate_alpha3_phosphate <- function(h, k) { # PO4
-  k1 = k$k1po4
-  k2 = k$k2po4
-  k3 = k$k3po4
+  k1 <- k$k1po4
+  k2 <- k$k2po4
+  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 * k3 / h^3)
 }
 
 calculate_alpha1_hypochlorite <- function(h, k) { # OCl
-  k1 = k$kocl
+  k1 <- k$kocl
   1 / (1 + h / k1)
 }
 
@@ -979,10 +960,12 @@ K_temp_adjust <- function(deltah, ka, temp) {
 
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
-  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@tot_ocl, na.rm = TRUE) * 1^2 +
-    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, na.rm = TRUE) * 2^2 +
-    (water@po4) * 3^2)
-
+  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
+    water@f, water@br, water@bro3,
+    na.rm = TRUE
+  ) * 1^2 +
+    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
+    sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
 }
 
 correlate_ionicstrength <- function(result, from = "cond", to = "is") {
@@ -1003,7 +986,6 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
   } else {
     stop("from and to arguments must be one of 'is', 'tds', or 'cond'.")
   }
-
 }
 
 # Calculate activity coefficients
@@ -1011,13 +993,13 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
 
 calculate_activity <- function(z, is, temp) {
-  tempa = temp + 273.15 # absolute temperature (K)
+  tempa <- temp + 273.15 # absolute temperature (K)
 
   # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
-  de = 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
+  de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
 
   # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
-  a = 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+  a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
 
   # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
   10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
@@ -1028,38 +1010,38 @@ calculate_activity <- function(z, is, temp) {
 # Dissociation constants corrected for non-ideal solutions following Benjamin (2010) example 3.14.
 # See k_temp_adjust for temperature correction equation.
 correct_k <- function(water) {
-
   # Determine activity coefficients
   if (is.na(water@is)) {
-    activity_z1 = 1
-    activity_z2 = 1
-    activity_z3 = 1
+    activity_z1 <- 1
+    activity_z2 <- 1
+    activity_z3 <- 1
   } else {
-    activity_z1 = calculate_activity(1, water@is, water@temp)
-    activity_z2 = calculate_activity(2, water@is, water@temp)
-    activity_z3 = calculate_activity(3, water@is, water@temp)
+    activity_z1 <- calculate_activity(1, water@is, water@temp)
+    activity_z2 <- calculate_activity(2, water@is, water@temp)
+    activity_z3 <- calculate_activity(3, water@is, water@temp)
   }
 
-  temp = water@temp
+  temp <- water@temp
 
   # Eq constants
-  k1co3 = filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
+  k1co3 <- filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2co3 = filter(discons, ID == "k2co3") %$% # k2co3 = {h+}{co32-}/{hco3-}
+  k2co3 <- filter(discons, ID == "k2co3") %$% # k2co3 = {h+}{co32-}/{hco3-}
     K_temp_adjust(deltah, k, temp) / activity_z2
-  k1po4 = filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
+  k1po4 <- filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2po4 = filter(discons, ID == "k2po4") %$% # k2po4 = {h+}{hpo42-}/{h2po4-}
+  k2po4 <- filter(discons, ID == "k2po4") %$% # k2po4 = {h+}{hpo42-}/{h2po4-}
     K_temp_adjust(deltah, k, temp) / activity_z2
-  k3po4 = filter(discons, ID == "k3po4") %$% # k3po4 = {h+}{po43-}/{hpo42-}
+  k3po4 <- filter(discons, ID == "k3po4") %$% # k3po4 = {h+}{po43-}/{hpo42-}
     K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl = filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
+  kocl <- filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
-  kso4 = filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
+  kso4 <- filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
     K_temp_adjust(deltah, k, water@temp) / activity_z2
 
-  return(data.frame("k1co3" = k1co3, "k2co3" = k2co3,
+  return(data.frame(
+    "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "kso4" = kso4))
-
+    "kocl" = kocl, "kso4" = kso4
+  ))
 }

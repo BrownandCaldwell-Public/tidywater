@@ -1,5 +1,4 @@
 test_that("most indices won't work without ca, cl, so4", {
-
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
 
@@ -10,13 +9,13 @@ test_that("most indices won't work without ca, cl, so4", {
   expect_error(suppressWarnings(calculate_corrosion(water, index = "ccpp")))
   expect_equal(suppressWarnings(calculate_corrosion(water, index = "larsonskold"))@larsonskold, NA_real_)
   expect_equal(suppressWarnings(calculate_corrosion(water, index = "csmr"))@csmr, NA_real_)
-
 })
 
 test_that("function catches index typos", {
-
-  water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238,
-    tot_hard = 100, cl = 40, so4 = 40))
+  water <- suppressWarnings(define_water(
+    ph = 8, temp = 25, alk = 200, tds = 238,
+    tot_hard = 100, cl = 40, so4 = 40
+  ))
 
   expect_error(calculate_corrosion(water, index = "csr"))
   expect_error(calculate_corrosion(water, index = c("aggressive", "ccccp")))
@@ -25,14 +24,12 @@ test_that("function catches index typos", {
 })
 
 test_that("warnings are present when parameters used in calculations are estimated by tidywater.", {
-
   water1 <- suppressWarnings(define_water(8, 25, 200, 200))
   water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions()
 
   expect_warning(calculate_corrosion(water1, index = "aggressive"))
   expect_warning(calculate_corrosion(water2, index = "csmr"))
   expect_warning(calculate_corrosion(water2, index = "larsonskold"))
-
 })
 
 test_that("aggressive index works", {
@@ -50,7 +47,6 @@ test_that("aggressive index works", {
   expect_equal(round(water1@aggressive), 13) # high alk
   expect_equal(round(water2@aggressive), 11) # low alk
   expect_equal(round(water3@aggressive), 11) # use tot_hard instead of ca_hard
-
 })
 
 test_that("csmr works", {
@@ -72,7 +68,6 @@ test_that("csmr works", {
 })
 
 test_that("larsonskold works", {
-
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1)) %>%
     calculate_corrosion(index = "larsonskold")
 
@@ -96,13 +91,11 @@ test_that("Corrosion index calculations work when IS is NA.", {
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 200))
 
   expect_no_error(calculate_corrosion(water1, index = c("langelier", "ryznar", "ccpp")))
-
 })
 
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
 # tests will stay the same though
 test_that("langelier works", {
-
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
     calculate_corrosion(index = "langelier")
 
@@ -124,7 +117,6 @@ test_that("langelier works", {
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
 # tests will stay the same though
 test_that("ryznar works", {
-
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
     calculate_corrosion(index = "ryznar")
 
@@ -144,7 +136,6 @@ test_that("ryznar works", {
 })
 
 test_that("ccpp works", {
-
   water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
     calculate_corrosion(index = "ccpp")
 
