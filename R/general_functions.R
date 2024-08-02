@@ -63,7 +63,7 @@ methods::setClass(
     # Miscellaneous
     treatment = "character",
     estimated = "character",
-    primary_units = "character",
+    primary_unit = "character",
 
     # DBPs
     chcl3 = "numeric", # chloroform
@@ -141,7 +141,7 @@ methods::setClass(
     # Miscellaneous
     treatment = "defined",
     estimated = "",
-    primary_units = "M"
+    primary_unit = "M",
 
     # DBPs
     chcl3 = NA_real_, # chloroform
@@ -167,6 +167,7 @@ methods::setMethod(
   "show",
   "water",
   function(object) {
+    cat("Water with ions in", object@primary_unit, "\n")
     # General parameters
     cat("pH: ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
