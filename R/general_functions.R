@@ -431,7 +431,7 @@ summarize_wq <- function(water, params = c("general")) {
     pH = water@ph,
     Temp = water@temp,
     Alkalinity = water@alk,
-    Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"),
+    Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = water@primary_unit),
     TDS = water@tds,
     Conductivity = water@cond,
     TOC = water@toc
@@ -456,14 +456,14 @@ summarize_wq <- function(water, params = c("general")) {
 
   # Compile major ions
   ions <- data.frame(
-    Na = convert_units(water@na, "na", "M", "mg/L"),
-    Ca = convert_units(water@ca, "ca", "M", "mg/L"),
-    Mg = convert_units(water@mg, "mg", "M", "mg/L"),
-    K = convert_units(water@k, "k", "M", "mg/L"),
-    Cl = convert_units(water@cl, "cl", "M", "mg/L"),
-    SO4 = convert_units(water@so4, "so4", "M", "mg/L"),
-    HCO3 = convert_units(water@hco3, "hco3", "M", "mg/L"),
-    CO3 = convert_units(water@co3, "co3", "M", "mg/L")
+    Na = convert_units(water@na, "na", water@primary_unit, "mg/L"),
+    Ca = convert_units(water@ca, "ca", water@primary_unit, "mg/L"),
+    Mg = convert_units(water@mg, "mg", water@primary_unit, "mg/L"),
+    K = convert_units(water@k, "k", water@primary_unit, "mg/L"),
+    Cl = convert_units(water@cl, "cl", water@primary_unit, "mg/L"),
+    SO4 = convert_units(water@so4, "so4", water@primary_unit, "mg/L"),
+    HCO3 = convert_units(water@hco3, "hco3", water@primary_unit, "mg/L"),
+    CO3 = convert_units(water@co3, "co3", water@primary_unit, "mg/L")
   )
 
   ions <- ions %>%
@@ -582,6 +582,11 @@ plot_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+
+  if (water@primary_unit == "mg/L") {
+    water <- water_tomol(water)
+  }
+
   # Compile major ions to plot
   ions <- data.frame(
     Na = water@na,
@@ -815,6 +820,12 @@ balance_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+  if (water@primary_unit == "mg/L") {
+    water <- water_tomol(water)
+    convert <- TRUE
+  } else {
+    convert <- FALSE
+  }
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
@@ -891,8 +902,106 @@ balance_ions <- function(water) {
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
     water@is <- calculate_ionicstrength(water)
   }
+  if (convert) {
+    water <- water_tomg(water)
+  }
 
   return(water)
+}
+
+#' @title Convert primary units in a water from M to mg/L
+#'
+#' @description This function takes a water defined by \code{\link{define_water}} and converts the following slots from
+#' M to mg/L: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.  These slots are converted to
+#' ug/L: br, mn.  All other values remain unchanged.
+#'
+#' @param water Water created with define_water, which currently has primary_unit == "M"
+#'
+#' @examples
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#'   water_tomg()
+#'
+#' @export
+#'
+water_tomg <- function(water) {
+  if (water@primary_unit == "mg/L") {
+    stop("Water already in mg/L")
+  }
+
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
+  water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
+  water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
+  water@k <- convert_units(water@k, "k", "M", "mg/L")
+  water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
+  water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
+  water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
+  water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
+  water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
+  water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
+  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
+  water@f <- convert_units(water@f, "f", "M", "mg/L")
+  water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
+  water@al <- convert_units(water@al, "al", "M", "mg/L")
+
+  # These get converted to ug/L instead.
+  water@br <- convert_units(water@br, "br", "M", "ug/L")
+  water@mn <- convert_units(water@mn, "mn", "M", "ug/L")
+
+  water@primary_unit <- "mg/L"
+
+  return(water)
+
+}
+
+#' @title Convert primary units in a water from mg/L to M
+#'
+#' @description This function takes a water defined by \code{\link{define_water}} and converted to mg/L by
+#' \code{\link{water_tomg}} and converts the following slots back to M: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4,
+#' po4, ocl, bro3, f, fe, al, br, mn.  All other values remain unchanged.
+#'
+#' @param water Water created with define_water and converted with water_tomg, which currently has primary_unit == "mg/L"
+#'
+#' @examples
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#'   water_tomg() %>%
+#'   water_tomol()
+#'
+#' @export
+#'
+water_tomol <- function(water) {
+  if (water@primary_unit == "M") {
+    stop("Water already in M")
+  }
+
+  water@na <- convert_units(water@na, "na")
+  water@ca <- convert_units(water@ca, "ca")
+  water@mg <- convert_units(water@mg, "mg")
+  water@k <- convert_units(water@k, "k")
+  water@cl <- convert_units(water@cl, "cl")
+  water@so4 <- convert_units(water@so4, "so4")
+  water@hco3 <- convert_units(water@hco3, "hco3")
+  water@co3 <- convert_units(water@co3, "co3")
+  water@h2po4 <- convert_units(water@h2po4, "h2po4")
+  water@hpo4 <- convert_units(water@hpo4, "hpo4")
+  water@po4 <- convert_units(water@po4, "po4")
+  water@ocl <- convert_units(water@ocl, "ocl")
+
+  water@bro3 <- convert_units(water@bro3, "bro3")
+  water@f <- convert_units(water@f, "f")
+  water@fe <- convert_units(water@fe, "fe")
+  water@al <- convert_units(water@al, "al")
+
+  # These are in ug/L
+  water@br <- convert_units(water@br, "br", "ug/L", "M")
+  water@mn <- convert_units(water@mn, "mn", "ug/L", "M")
+
+  water@primary_unit <- "M"
+
+  return(water)
+
 }
 
 # Non-exported functions
@@ -1049,33 +1158,3 @@ correct_k <- function(water) {
   ))
 }
 
-
-
-
-water_tomg <- function(water) {
-  if (water@primary_unit == "mg") {
-    stop("Water already in mg/L")
-  }
-
-  water@na <- convert_units(water@na, "na", "M", "mg/L")
-  water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
-  water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
-  water@k <- convert_units(water@k, "k", "M", "mg/L")
-  water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
-  water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-  water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
-  water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
-  water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
-  water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
-  water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
-  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
-
-  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
-  water@f <- convert_units(water@f, "f", "M", "mg/L")
-  water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
-  water@al <- convert_units(water@al, "al", "M", "mg/L")
-  #water@br <- convert_units(water@br, "br", "M", "mg/L")
-  #water@mn <- convert_units(water@mn, "mn", "M", "mg/L")
-
-}
-)
