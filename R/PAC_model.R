@@ -61,15 +61,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
     }
 
   if (time < 10 | time > 1440) {
-    warning("Duration is outside the model bounds of 10 to 1440 min")
-  }
-
-  #warnings for bounds of PAC dose, time, defined doc in tidywater etc.
-  if (dose< 5 | dose> 30) {
-    warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
-    }
-
-  if (time < 10 | time > 1440) {
     warning("Time is outside the model bounds of 10 to 1440 min.")
     }
 
@@ -132,6 +123,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   water@doc=result
   water@uv254=UVA
   water@toc= toc_new
-  
+
   return(water)
 }

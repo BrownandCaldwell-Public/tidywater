@@ -16,10 +16,8 @@ test_that("pac_toc defaults to bituminous when type isn't specified.", {
 
 test_that("pac_toc warns when inputs are out of model range", {
   water1 <- suppressWarnings(define_water(doc=2.5, uv254=0.05, toc=50))
-
   expect_warning(pac_toc(water1, dose=31, time = 50)) # dose is out of bounds
   expect_warning(pac_toc(water1, dose=15, time = 1441)) # duration is out of bounds
-
 })
 
 test_that("pac_toc stops working when inputs are missing", {
