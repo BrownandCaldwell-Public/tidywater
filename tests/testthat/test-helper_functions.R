@@ -194,6 +194,8 @@ test_that("chemdose_ph_once is a data frame", {
 # Check chemdose_ph_once can use a column or function argument for chemical dose
 
 test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
+  water0 <- water_df %>%
+    define_water_once()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
@@ -217,7 +219,7 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     slice(6) # same starting wq as water 4
 
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
-  expect_equal(ncol(water3), 34) # both naoh and hcl dosed
+  expect_equal(ncol(water3), ncol(water0) + 3) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
 })
