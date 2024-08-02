@@ -166,7 +166,7 @@ methods::setMethod(
   "water",
   function(object) {
     # General parameters
-    cat("pH: ", object@ph, "\n")
+    cat("pH (unitless): ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\nUse summary functions or slot names to view other parameters.\n")
   }
@@ -629,7 +629,7 @@ plot_ions <- function(water) {
     theme(axis.title = element_text(face = "bold")) +
     labs(
       x = "Concentration (eq/L)",
-      y = "Major cations and anions",
+      y = "Major Cations and Anions",
       subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
     ) +
     guides(fill = "none")
