@@ -34,7 +34,8 @@ First, let's take a look at the available groundwater data from Well A and Well 
 
 ```{r setup, warning=FALSE}
 # Example of how to use a tidywater "_once" function to define multiple waters in a single data frame
-data <- tibble(Well = c("A", "B"),
+data <- tibble(
+  Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
@@ -44,7 +45,8 @@ data <- tibble(Well = c("A", "B"),
   na = c(100, 200),
   k = c(0, 20),
   cl = c(0, 30),
-  so4 = c(0, 0)) %>%
+  so4 = c(0, 0)
+) %>%
   define_water_once()
 
 data
@@ -56,7 +58,8 @@ So what if you want to chain more tidywater functions together? In that case, yo
 
 ```{r, warning=FALSE, echo=TRUE}
 # Read in data from Wells A and B
-raw_wells_water <- tibble(Well = c("A", "B"),
+raw_wells_water <- tibble(
+  Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
@@ -66,7 +69,8 @@ raw_wells_water <- tibble(Well = c("A", "B"),
   na = c(100, 200),
   k = c(0, 20),
   cl = c(0, 30),
-  so4 = c(0, 0)) %>%
+  so4 = c(0, 0)
+) %>%
   define_water_chain() %>%
   balance_ions_chain()
 
@@ -98,9 +102,13 @@ The `balanced_water` function takes 2 or more waters (must be of the `water` cla
 ### First, index the water column using the name or number of the column (ie "balanced_water" or 3 (column number))
 ### Next, index the row
 
-blended_wells_water <- blend_waters(waters = c(pluck(raw_wells_water, "balanced_water", 1),
-  pluck(raw_wells_water, 3, 2)),
-ratios = c(.5, .5))
+blended_wells_water <- blend_waters(
+  waters = c(
+    pluck(raw_wells_water, "balanced_water", 1),
+    pluck(raw_wells_water, 3, 2)
+  ),
+  ratios = c(.5, .5)
+)
 # outputs a water class object.
 blended_wells_water
 ```
@@ -111,15 +119,19 @@ We will create a data frame of the blend scenarios we will be modeling, in this 
 # Assume wells can contribute 2.5 MGD each
 groundwater <- tibble(Wells_flow = c(0, 2.5, 5))
 # Blending scenarios and the resulting source water ratios
-scenarios <- tibble(surface_flow = seq(1, 20, 1),
+scenarios <- tibble(
+  surface_flow = seq(1, 20, 1),
   River_flow = c(seq(1, 10, 1), rep(10, 10)),
   Lake_flow = c(rep(0, 10), seq(1, 10, 1)),
-  group = seq(1, 20, 1)) %>%
+  group = seq(1, 20, 1)
+) %>%
   cross_join(groundwater) %>%
-  mutate(total_flow = River_flow + Lake_flow + Wells_flow,
+  mutate(
+    total_flow = River_flow + Lake_flow + Wells_flow,
     River_ratio = River_flow / total_flow,
     Lake_ratio = Lake_flow / total_flow,
-    Wells_ratio = Wells_flow / total_flow)
+    Wells_ratio = Wells_flow / total_flow
+  )
 ```
 
 To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. 
@@ -132,14 +144,18 @@ Defaults vary depending on the `_chain` function.
 ```{r, warning=FALSE}
 Wells_water <- tibble(wells = c(blended_wells_water))
 
-River_water <- tibble(ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
-  tot_hard = 300, na = 100, cl = 150, so4 = 200) %>%
+River_water <- tibble(
+  ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
+  tot_hard = 300, na = 100, cl = 150, so4 = 200
+) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "river") %>%
   select(-defined_water)
 
-Lake_water <- tibble(ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
-  tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150) %>%
+Lake_water <- tibble(
+  ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
+  tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150
+) %>%
   define_water_chain() %>%
   balance_ions_chain(output_water = "lake") %>%
   select(-defined_water)
@@ -153,8 +169,10 @@ blend_water <- scenarios %>%
   cross_join(Wells_water) %>%
   cross_join(River_water) %>%
   cross_join(Lake_water) %>%
-  blend_waters_chain(waters = c("wells", "river", "lake"),
-    ratios = c("Wells_ratio", "River_ratio", "Lake_ratio"))
+  blend_waters_chain(
+    waters = c("wells", "river", "lake"),
+    ratios = c("Wells_ratio", "River_ratio", "Lake_ratio")
+  )
 ```
 
 ## `pluck_water`
@@ -169,12 +187,16 @@ plotting_data <- blend_water %>%
 ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
   geom_point() +
   scale_shape_manual(values = c(4, 16)) +
-  labs(y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
-    shape = "Scenario Flags", x = "Total Plant Flow (MGD)") +
+  labs(
+    y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
+    shape = "Scenario Flags", x = "Total Plant Flow (MGD)"
+  ) +
   theme_bw() +
-  theme(legend.position = "bottom",
+  theme(
+    legend.position = "bottom",
     legend.box = "vertical",
-    legend.margin = margin(-5, 0, 0, 0))
+    legend.margin = margin(-5, 0, 0, 0)
+  )
 ```
 
 ## Speed it up

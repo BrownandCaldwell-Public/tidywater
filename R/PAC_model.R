@@ -1,4 +1,3 @@
-
 #PAC modeling
 #Used for predicting change in DOC concentration with powdered activated carbon (PAC) dose
 
@@ -29,10 +28,20 @@
 #' @export
 
 pac_toc <- function(water, dose, time, type = "bituminous") {
-
-  #make case insensitive
+  # make case insensitive
   type <- tolower(type)
 
+  doc <- water@doc
+  uv254 <- water@uv254
+  toc <- water@toc
+
+  if (missing(dose)) {
+    stop("PAC Dose not specified")
+  }
+
+  if (missing(time)) {
+    stop("Time not specified")
+  }
 
   doc = water@doc
   uv254 = water@uv254
@@ -42,10 +51,18 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
     stop("PAC dose not specified.")
     }
 
+  # warnings for bounds of PAC dose, time, defined doc in tidywater etc.
+  if (dose < 5 | dose > 30) {
+    warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
+  }
+
   if (missing(time)) {
     stop("Time not specified.")
     }
 
+  if (time < 10 | time > 1440) {
+    warning("Duration is outside the model bounds of 10 to 1440 min")
+  }
 
   #warnings for bounds of PAC dose, time, defined doc in tidywater etc.
   if (dose< 5 | dose> 30) {
@@ -115,7 +132,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   water@doc=result
   water@uv254=UVA
   water@toc= toc_new
-
+  
   return(water)
 }
-

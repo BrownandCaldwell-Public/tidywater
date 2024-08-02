@@ -12,8 +12,11 @@ NULL
 
 #' Molar weights of relevant compounds
 #'
-#' A dataset containing the molar weights of several compounds in g/mol
-#'
+#' A dataset containing the molar weights of several compounds in g/mol. Column names are lowercase chemical formulas (with no charge),
+#' with the exception of the following coagulants:
+#' alum = Al2(SO4)3*14H2O,
+#' ferricchloride = FeCl3,
+#' ferricsulfate = Fe2(SO4)3*8.8H2O,
 #' @docType data
 #' @keywords datasets
 #' @name mweights
@@ -149,7 +152,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
-#' @name conv_chloramine
+#' @name chloramine_conv
 #' @format A dataframe with 17 rows and 3 columns
 #' \describe{
 #' \item{ID}{abbreviation of dbp species}
@@ -158,7 +161,7 @@ NULL
 #' }
 #' @source U.S. EPA (2001), Table 5-10
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
-"conv_chloramine"
+"chloramine_conv"
 
 #' Data frame of correction factors for estimating DBP formation as a function of location
 #'

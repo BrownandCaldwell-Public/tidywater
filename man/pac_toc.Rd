@@ -5,7 +5,6 @@
 \title{Calculate DOC Concentration in PAC system}
 \source{
 CHO(2007)
-
 See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
@@ -35,5 +34,4 @@ amount of PAC added to system, contact time with PAC, and type of PAC. Input wat
 water <- suppressWarnings(define_water(doc=1.5, uv254=.05, toc=2))
 dosed_water <- pac_toc(water, dose = 15, time=50, type="wood")
 dosed_water@toc
-
 }
