@@ -7,7 +7,6 @@ test_that("pac_toc returns no modeled DOC value when PAC dose is 0.", {
   expect_equal(water2@doc, water1@doc)
 })
 
-
 test_that("pac_toc defaults to bituminous when type isn't specified.", {
   water1 <- suppressWarnings(define_water(doc=2.5, uv254=0.05, toc=3.5))
   dosed1 <- pac_toc(water1, time = 18, dose = 5)
@@ -22,7 +21,6 @@ test_that("pac_toc warns when inputs are out of model range", {
   expect_warning(pac_toc(water1, dose=15, time = 1441)) # duration is out of bounds
 
 })
-
 
 test_that("pac_toc stops working when inputs are missing", {
   water1 <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=3.5))
@@ -51,6 +49,11 @@ test_that("pac_toc works", {
 
   water4 <- pac_toc(water1, dose=15, time=50, type="lignite")
   expect_equal(round(water4@doc,2), 2.10)
+})
+
+test_that("Error when an unaccepted PAC type is entered.", {
+  water1 <- suppressWarnings(define_water(doc=2.5, uv254=.05))
+  expect_error(pac_toc(water1, dose=15, time=50, type="invalid type"))
 })
 
 
