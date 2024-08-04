@@ -116,12 +116,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
-  if (water@primary_unit == "mg/L") {
-    water <- water_tomol(water)
-    convert <- TRUE
-  } else {
-    convert <- FALSE
-  }
+
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
   # Hydrochloric acid (HCl) dose
@@ -267,11 +262,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0, na2co3 =
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
 
-  # Convert back to mg/L if needed.
-  if (convert) {
-    dosed_water <- water_tomg(dosed_water)
-  }
-
   return(dosed_water)
 }
 
@@ -306,9 +296,6 @@ solvedose_ph <- function(water, target_ph, chemical) {
   }
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
-  if (water@primary_unit == "mg/L") {
-    water <- water_tomol(water)
   }
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")
@@ -388,9 +375,6 @@ solvedose_alk <- function(water, target_alk, chemical) {
   }
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
-  if (water@primary_unit == "mg/L") {
-    water <- water_tomol(water)
   }
   if (missing(target_alk)) {
     stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")
@@ -502,7 +486,7 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated", "primary_unit")
+  not_averaged <- c("ph", "hco3", "co3", "h", "oh", "kw", "treatment", "estimated")
   parameters <- setdiff(parameters, not_averaged)
 
   # Initialize empty blended water
@@ -513,10 +497,6 @@ blend_waters <- function(waters, ratios) {
       temp_water <- waters[[i]]
       if (!methods::is(temp_water, "water")) {
         stop("All input waters must be of class 'water'. Create a water using define_water.")
-      }
-      if (temp_water@primary_unit == "mg/L") {
-        temp_water <- water_tomol(temp_water)
-        warning("At least one water has primary units of mg/L. Output will be in M. To speed up calculations, use water_tomol before blending.")
       }
       ratio <- ratios[i]
 

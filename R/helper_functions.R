@@ -40,6 +40,54 @@ convert_water <- function(water) {
     select(where(~ any(!is.na(.))))
 }
 
+#' @title Convert a `water` class object to a dataframe with ions in mg/L or ug/L
+#'
+#' @description This function is the same as \code{\link{convert_water}} except it converts the units of following slots from
+#' M to mg/L: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.  These slots are converted to
+#' ug/L: br, mn.  All other values remain unchanged.
+#'
+#' @param water A water class object
+#'
+#' @examples
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#'   convert_watermg()
+#'
+#' @export
+#'
+convert_watermg <- function(water) {
+  if (missing(water)) {
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+  }
+
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
+  water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
+  water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
+  water@k <- convert_units(water@k, "k", "M", "mg/L")
+  water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
+  water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
+  water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
+  water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
+  water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
+  water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
+  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
+  water@f <- convert_units(water@f, "f", "M", "mg/L")
+  water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
+  water@al <- convert_units(water@al, "al", "M", "mg/L")
+
+  # These get converted to ug/L instead.
+  water@br <- convert_units(water@br, "br", "M", "ug/L")
+  water@mn <- convert_units(water@mn, "mn", "M", "ug/L")
+
+  convert_water(water)
+
+}
+
 #' Apply `define_water` and output a dataframe
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
