@@ -85,7 +85,6 @@ convert_watermg <- function(water) {
   water@mn <- convert_units(water@mn, "mn", "M", "ug/L")
 
   convert_water(water)
-
 }
 
 #' Apply `define_water` and output a dataframe
