@@ -10,6 +10,7 @@ chemdose_ph_once(
   hcl = 0,
   h2so4 = 0,
   h3po4 = 0,
+  co2 = 0,
   naoh = 0,
   na2co3 = 0,
   nahco3 = 0,
@@ -18,7 +19,8 @@ chemdose_ph_once(
   cl2 = 0,
   naocl = 0,
   caocl2 = 0,
-  co2 = 0,
+  nh4oh = 0,
+  nh42so4 = 0,
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
@@ -37,6 +39,8 @@ chemdose_ph_once(
 
 \item{h3po4}{Phosphoric acid: H3PO4 -> 3H + PO4}
 
+\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
+
 \item{naoh}{Caustic: NaOH -> Na + OH}
 
 \item{na2co3}{Soda ash: Na2CO3 -> 2Na + CO3}
@@ -53,7 +57,9 @@ chemdose_ph_once(
 
 \item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
 
-\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
+\item{nh4oh}{Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH}
+
+\item{nh42so4}{Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4}
 
 \item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 

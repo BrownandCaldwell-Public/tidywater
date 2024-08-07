@@ -37,6 +37,11 @@ mweights <- data.frame(
   bro3 = 79.904 + 3 * 15.999,
   f = 18.9984,
   mn = 54.938,
+  nh4 = 18.04,
+  n = 14.0067,
+  nh4oh = 18.04 + 17.008,
+  nh42so4 = 18.04 * 2 + 96.0626,
+  oh = 17.008,
   dic = 12.011
 )
 
@@ -47,15 +52,17 @@ usethis::use_data(mweights, overwrite = TRUE)
 discons <- data.frame(
   ID = c("k1co3", "k2co3"), # H2CO3<-->HCO3- + H+; HCO3<-->CO32- + H+
   k = c(10^-6.35, 10^-10.33),
-  deltah = c(7700, 14900)
-) %>% # J/mol
+  deltah = c(7700, 14900) # J/mol
+) %>%
   # Sulfate
   add_row(ID = "kso4", k = 10^-1.99, deltah = -21900) %>%
   # Phosphate
   # H3PO4<-->H+ + H2PO4-; H2PO4-<-->H+ + HPO42-; HPO42--<-->H+ + PO43-
   add_row(ID = c("k1po4", "k2po4", "k3po4"), k = c(10^-2.16, 10^-7.20, 10^-12.35), deltah = c(-8000, 4200, 14700)) %>%
   # Hypochlorite
-  add_row(ID = "kocl", k = 10^-7.6, deltah = 13800) # HOCl<-->H+ + OCl-
+  add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
+  # Ammonia
+  add_row(ID = "knh4", k = 10^-9.244, deltah = -52210) # NH3 + H+ <--> NH4+
 
 usethis::use_data(discons, overwrite = TRUE)
 
@@ -691,3 +698,83 @@ dbp_correction <- data.frame(
   )
 
 usethis::use_data(dbp_correction, overwrite = TRUE)
+
+
+# Dataframe of bromate formation coefficients
+
+bromatecoeffs <- data.frame(
+  model = rep("Ozekin", 2),
+  ammonia = c(F, T),
+  A = c(1.55E-6, 1.63E-6),
+  a = c(0.73, 0.73),
+  b = c(-1.26, -1.3),
+  c = c(0, 0), # No UV in this model
+  d = c(5.82, 5.79),
+  e = c(0, 0), # No alk in this model
+  f = c(1.57, 1.59),
+  g = c(0.28, 0.27),
+  h = c(0, -0.033),
+  i = c(0, 0), # no temp in this model
+  I = c(1, 1) # no temp in this model
+) %>%
+  add_row(
+    model = rep("Sohn", 2),
+    ammonia = c(F, T),
+    A = c(1.19E-7, 8.71E-8),
+    a = c(0.96, 0.944),
+    b = c(0, 0), # No DOC in this model
+    c = c(-0.623, -0.593),
+    d = c(5.68, 5.81),
+    e = c(-0.201, -0.167),
+    f = c(1.307, 1.279),
+    g = c(0.336, 0.337),
+    h = c(0, -0.051),
+    i = c(0, 0), # temp in exponent
+    I = c(1.035, 1.035)
+  ) %>%
+  add_row(
+    model = "Song",
+    ammonia = T, # Only applies when ammonia > .005
+    A = 7.76E-7,
+    a = 0.88,
+    b = -1.88,
+    c = 0, # No UV in this model
+    d = 5.11,
+    e = 0.18,
+    f = 1.42,
+    g = 0.27,
+    h = -0.18,
+    i = 0, # no temp in this model
+    I = 1 # no temp in this model
+  ) %>%
+  add_row(
+    model = "Galey",
+    ammonia = F, # Only applies when ammonia = 0
+    A = 5.41E-5,
+    a = .04,
+    b = -1.08,
+    c = 0, # No UV in this model
+    d = 4.7,
+    e = 0, # No alk in this model
+    f = 1.12,
+    g = 0.304,
+    h = 0,
+    i = 0.58,
+    I = 1 # temp not in exponent
+  ) %>%
+  add_row(
+    model = "Siddiqui",
+    ammonia = F, # Only applies when ammonia = 0
+    A = 1.5E-3,
+    a = 0.61,
+    b = 0.61,
+    c = 0, # No UV in this model
+    d = 2.26,
+    e = 0, # No alk in this model
+    f = 0.64,
+    g = 0, # No time in this model
+    h = 0,
+    i = 2.03,
+    I = 1 # temp not in exponent
+  )
+usethis::use_data(bromatecoeffs, overwrite = TRUE)

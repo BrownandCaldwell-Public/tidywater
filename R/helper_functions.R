@@ -173,7 +173,8 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tot_nh4",
+    "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
 
@@ -313,6 +314,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
+#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Caustic: NaOH -> Na + OH
 #' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
@@ -321,7 +323,8 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
+#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
+#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
@@ -363,16 +366,16 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @export
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
-                             hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                             hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                             cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                             cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",
-      hcl, h2so4, h3po4, naoh,
+      hcl, h2so4, h3po4, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
-      cl2, naocl, caocl2, co2,
+      cl2, naocl, caocl2, nh4oh, nh42so4,
       alum, ferricchloride, ferricsulfate, caco3
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
@@ -406,6 +409,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
+#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Caustic: NaOH -> Na + OH
 #' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
@@ -414,7 +418,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
+#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
+#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
@@ -456,14 +461,14 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                              hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                              hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                              cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
   dosable_chems <- tibble(
-    hcl, h2so4, h3po4, naoh,
+    hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
-    cl2, naocl, caocl2, co2,
+    cl2, naocl, caocl2, nh4oh, nh42so4,
     alum, ferricchloride, ferricsulfate, caco3
   )
 
@@ -513,6 +518,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         hcl = hcl,
         h2so4 = h2so4,
         h3po4 = h3po4,
+        co2 = co2,
         naoh = naoh,
         na2co3 = na2co3,
         nahco3 = nahco3,
@@ -521,7 +527,8 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         cl2 = cl2,
         naocl = naocl,
         caocl2 = caocl2,
-        co2 = co2,
+        nh4oh = nh4oh,
+        nh42so4 = nh4oh,
         alum = alum,
         ferricchloride = ferricchloride,
         ferricsulfate = ferricsulfate,
