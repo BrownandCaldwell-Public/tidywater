@@ -1,5 +1,36 @@
 # CT Calculations
 
+#' Determine disinfection credit from chlorine.
+#'
+#' @description This function takes a water defined by \code{\link{define_water}} and other disinfection parameters
+#' and outputs a dataframe of the actual CT, required CT, and log removal.
+#'
+#' @details CT actual is a function of time, chlorine residual, and baffle factor, whereas CT required is a function of
+#' pH, temperature, chlorine residual, and the standard 0.5 log removal of giardia requirement.  CT required is an
+#' empirical regression equation developed by Smith et al. (1995) to provide conservative estimates for CT tables
+#' in USEPA Disinfection Profiling Guidance.
+#' Log removal is a rearrangement of the CT equations.
+#'
+#' @source Smith et al. (1995)
+#' @source USEPA (2020)
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#'
+#'
+#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp
+#' @param time Retention time of disinfection segment in minutes.
+#' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
+#' @param baffle Baffle factor - unitless value between 0 and 1.
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#'
+#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
+#'   chemdose_ct()
+#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
+#'   chemdose_ct()
+#'
+#' @export
+
 chemdose_ct <- function(water, time, residual, baffle, volume, flow) {
   ph <- water@ph
   temp <- water@temp
@@ -12,13 +43,13 @@ chemdose_ct <- function(water, time, residual, baffle, volume, flow) {
 
   if (temp < 12.5) {
     ct_required <- (.353 * .5) * (12.006 + exp(2.46 - .073 * temp + .125 * residual + .389 * ph))
-    log_removal <- ct_actual / (12.006 + exp(2.46 - .073 * temp + .125 * residual + .389 * ph)) * 1 / .353
+    giardia_log_removal <- ct_actual / (12.006 + exp(2.46 - .073 * temp + .125 * residual + .389 * ph)) * 1 / .353
   } else {
     ct_required <- (.361 * 0.5) * (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph))
-    log_removal <- ct_actual / (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph)) / .361
+    giardia_log_removal <- ct_actual / (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph)) / .361
   }
 
-  log_removal
+  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)
 }
 
 ozonate_ct <- function(water, time, A, k) {
