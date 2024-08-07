@@ -31,7 +31,6 @@ methods::setClass(
     cl = "numeric",
     so4 = "numeric",
     no3 = "numeric",
-    nh3 = "numeric",
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",
@@ -42,6 +41,7 @@ methods::setClass(
     oh = "numeric",
     tot_po4 = "numeric",
     tot_ocl = "numeric",
+    tot_nh4 = "numeric",
     tot_co3 = "numeric",
     is = "numeric",
     # Additional ions
@@ -51,6 +51,7 @@ methods::setClass(
     fe = "numeric",
     al = "numeric",
     mn = "numeric",
+    nh4 = "numeric",
 
     # Corrosion indices
     aggressive = "numeric",
@@ -108,7 +109,6 @@ methods::setClass(
     cl = NA_real_,
     so4 = NA_real_,
     no3 = NA_real_,
-    nh3 = NA_real_,
     hco3 = NA_real_,
     co3 = NA_real_,
     h2po4 = NA_real_,
@@ -119,6 +119,7 @@ methods::setClass(
     oh = NA_real_,
     tot_po4 = NA_real_,
     tot_ocl = NA_real_,
+    tot_nh4 = NA_real_,
     tot_co3 = NA_real_,
     is = NA_real_,
     # Additional ions
@@ -128,6 +129,7 @@ methods::setClass(
     fe = NA_real_,
     al = NA_real_,
     mn = NA_real_,
+    nh4 = NA_real_,
 
     # Corrosion indices
     aggressive = NA_real_,
@@ -196,6 +198,7 @@ methods::setMethod(
 #' @param so4 Sulfate in mg/L SO42-
 #' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
+#' @param tot_nh4 Total ammonia in mg/L as N
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #' @param toc Total organic carbon (TOC) in mg/L
@@ -214,7 +217,8 @@ methods::setMethod(
 #' @export
 #'
 
-define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
+define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4,
+                         tot_ocl = 0, tot_po4 = 0, tot_nh4 = 0, tds, cond,
                          toc, doc, uv254, br, f, fe, al, mn) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
@@ -283,6 +287,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   so4 <- ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
   tot_po4 <- convert_units(tot_po4, "po4")
   tot_ocl <- convert_units(tot_ocl, "cl2")
+  tot_nh4 <- convert_units(tot_nh4, "n")
 
   br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
   f <- ifelse(missing(f), NA_real_, convert_units(f, "f"))
@@ -335,9 +340,9 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
-    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0,
+    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
     h = h, oh = oh,
-    tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_co3 = tot_co3,
+    tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_nh4 = tot_nh4, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn
@@ -383,6 +388,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, t
   water@po4 <- tot_po4 * alpha3p
 
   water@ocl <- tot_ocl * calculate_alpha1_hypochlorite(h, ks)
+  water@nh4 <- tot_nh4 * calculate_alpha1_ammonia(h, ks)
 
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
   water@alk_eq <- carb_alk_eq
@@ -593,13 +599,14 @@ plot_ions <- function(water) {
     HPO4 = water@hpo4 * 2,
     PO4 = water@po4 * 3,
     OCl = water@ocl,
+    NH4 = water@nh4,
     H = water@h,
     OH = water@oh
   )
 
   ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "H") ~ "Cations", TRUE ~ "Anions")) %>%
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
     mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
@@ -642,7 +649,8 @@ plot_ions <- function(water) {
 #'
 #' @param value Value to be converted
 #' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
 #'
 #' @examples
@@ -653,16 +661,21 @@ plot_ions <- function(water) {
 #' @export
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  milli_list <- c("mg/L", "mg/L CaCO3", "mM", "meq/L")
-  mcro_list <- c("ug/L", "ug/L CaCO3", "uM", "ueq/L")
-  nano_list <- c("ng/L", "ng/L CaCO3", "nM", "neq/L")
-  stand_list <- c("g/L", "g/L CaCO3", "M", "eq/L")
+  milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
+  mcro_list <- c("ug/L", "ug/L CaCO3", "ug/L N", "uM", "ueq/L")
+  nano_list <- c("ng/L", "ng/L CaCO3", "ng/L N", "nM", "neq/L")
+  stand_list <- c("g/L", "g/L CaCO3", "g/L N", "M", "eq/L")
 
-  gram_list <- c("ng/L", "ug/L", "mg/L", "g/L", "mg/L CaCO3", "g/L CaCO3")
+  gram_list <- c(
+    "ng/L", "ug/L", "mg/L", "g/L",
+    "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
+    "ng/L N", "ug/L N", "mg/L N", "g/L N"
+  )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
 
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
+  n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
 
   # Determine multiplier for order of magnitude conversion
   # In the same list, no multiplier needed
@@ -696,14 +709,18 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     stop("Units not supported")
   }
 
-  # Need molar mass of CaCO3
+  # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(mweights["caco3"])
+  n_mw <- as.numeric(mweights["n"])
 
   # Determine relevant molar weight
   if (formula %in% colnames(mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
       (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
-      molar_weight <- as.numeric(mweights["caco3"])
+      molar_weight <- caco3_mw
+    } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
+      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
+      molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(mweights[formula])
     }
@@ -714,9 +731,9 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na")) {
+  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "f", "br", "bro3")) {
     charge <- 1
-  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2")) {
+  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
     charge <- 2
   } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
     charge <- 3
@@ -748,6 +765,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     value / caco3_mw * molar_weight
   } else if (endunit %in% caco_list & startunit %in% gram_list & !(startunit %in% caco_list)) {
     value / molar_weight * caco3_mw
+    # g N - g
+  } else if (startunit %in% n_list & endunit %in% gram_list & !(endunit %in% n_list)) {
+    value / n_mw * molar_weight
+  } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
+    value / molar_weight * n_mw
     # same lists
   } else if ((startunit %in% gram_list & endunit %in% gram_list) |
     (startunit %in% mole_list & endunit %in% mole_list) |
@@ -942,6 +964,11 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl
   1 / (1 + h / k1)
 }
 
+calculate_alpha1_ammonia <- function(h, k) { # NH4
+  k1 <- k$knh4
+  1 / (1 + k1 / h) # different form because we're adding an H+
+}
+
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17
@@ -961,7 +988,7 @@ K_temp_adjust <- function(deltah, ka, temp) {
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
   0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
-    water@f, water@br, water@bro3,
+    water@f, water@br, water@bro3, water@nh4,
     na.rm = TRUE
   ) * 1^2 +
     sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
@@ -1036,12 +1063,14 @@ correct_k <- function(water) {
     K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
   kocl <- filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
     K_temp_adjust(deltah, k, temp) / activity_z1^2
+  knh4 <- filter(discons, ID == "knh4") %$% # knh4 = {nh4}/{h}{nh3}
+    K_temp_adjust(deltah, k, temp) / activity_z1^2
   kso4 <- filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
     K_temp_adjust(deltah, k, water@temp) / activity_z2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "kso4" = kso4
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
   ))
 }
