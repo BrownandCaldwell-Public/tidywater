@@ -22,7 +22,6 @@ chemdose_ct <- function(water, time, residual, baffle, volume, flow) {
 }
 
 ozonate_ct <- function(water, time, A, k) {
-
   ph <- water@ph
   temp <- water@temp
 
@@ -33,17 +32,15 @@ ozonate_ct <- function(water, time, A, k) {
   ct_tot <- A * (exp(k * time) - 1) / k
   ct_inst <- A * (exp(k * .5) - 1) / k
   ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
-  log_removal <- 1.038 * 1.0741 ^ temp * ct_actual
+  log_removal <- 1.038 * 1.0741^temp * ct_actual
 
   log_removal
-
 }
 
 
 
 
 solveresid_o3 <- function(water, dose, time) {
-
   doc <- water@doc
   ph <- water@ph
   temp <- water@temp
@@ -66,10 +63,4 @@ solveresid_o3 <- function(water, dose, time) {
   # k <- -1.3 * dose ^ 1.8 * .12 * doc ^ .23 * 2E-6 * ph ^ 5.8
 
   # residual <- A * exp(k * time)
-
 }
-
-
-
-
-
