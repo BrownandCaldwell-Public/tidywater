@@ -64,13 +64,13 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-  mutate(br =50) \%>\%
+  mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
 
 example_df <- water_df \%>\%
-  mutate(br =50) \%>\%
+  mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   mutate(
@@ -89,7 +89,7 @@ example_df <- water_df \%>\%
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
-  mutate(br =50) \%>\%
+  mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
