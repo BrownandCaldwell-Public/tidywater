@@ -16,7 +16,7 @@ This function takes a vector of waters defined by \code{\link{define_water}} and
 }
 \examples{
 water1 <- define_water(7, 20, 50)
-water2 <- define_water(7.5, 20, 100)
+water2 <- define_water(7.5, 20, 100, tot_nh4 = 2)
 blend_waters(c(water1, water2), c(.4, .6))
 
 }
