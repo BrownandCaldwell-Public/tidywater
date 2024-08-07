@@ -17,6 +17,7 @@ define_water(
   so4,
   tot_ocl = 0,
   tot_po4 = 0,
+  tot_nh4 = 0,
   tds,
   cond,
   toc,
@@ -53,6 +54,8 @@ define_water(
 \item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
+
+\item{tot_nh4}{Total ammonia in mg/L as N}
 
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
