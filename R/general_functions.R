@@ -62,7 +62,7 @@ methods::setClass(
     csmr = "numeric",
 
     # Miscellaneous
-    treatment = "character",
+    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -140,7 +140,7 @@ methods::setClass(
     csmr = NA_real_,
 
     # Miscellaneous
-    treatment = "defined",
+    applied_treatment = "defined",
     estimated = "",
 
     # DBPs
@@ -901,7 +901,7 @@ balance_ions <- function(water) {
   water@k <- k_new
   water@cl <- cl_new
   water@so4 <- so4_new
-  water@treatment <- paste(water@treatment, "_balanced", sep = "")
+  water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
 
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
