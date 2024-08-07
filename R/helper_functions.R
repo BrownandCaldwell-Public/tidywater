@@ -1442,7 +1442,7 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
 #' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
-#' @param type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
 #'
 #' @seealso \code{\link{chemdose_dbp}}
@@ -1532,7 +1532,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
 #' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
-#' @param type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
 #'
 #' @seealso \code{\link{chemdose_dbp}}

@@ -32,9 +32,9 @@ and a column for time.}
 "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
 GAC treatment has also been used for estimating formation after membrane treatment with good results.}
 
-\item{location}{Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".}
+\item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
 
-\item{type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
+\item{location}{Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".}
 }
 \description{
 DBP = disinfection byproduct
