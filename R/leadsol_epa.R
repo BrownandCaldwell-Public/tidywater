@@ -41,7 +41,6 @@
 
 # water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
-
   if (is.na(water@alk)) {
     warning("Water is missing alkalinity. Output dataframe will be empty.")
   }
@@ -54,13 +53,16 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   water@so4 <- ifelse(is.na(water@so4), 0, water@so4)
 
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
-    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
+    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
+  }
 
   if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
-    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
+    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")
+  }
 
   if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
-    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
+    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
+  }
 
   leadsol_K <- leadsol_constants %>%
     mutate(K_num = 10^log_value)
@@ -81,7 +83,8 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   solids <- leadsol_K %>%
     filter(grepl("solid", constant_name)) %>%
     # Lead Hydroxide: Pb(OH)2(s) + 2H+ --> Pb2+ + 2H2O
-    mutate(Pb_2_plus = case_when(constant_name == "K_solid_lead_hydroxide" ~ K_num * h^2 / gamma_2,
+    mutate(Pb_2_plus = case_when(
+      constant_name == "K_solid_lead_hydroxide" ~ K_num * h^2 / gamma_2,
       # Cerussite: PbCO3(s) --> Pb2+ + CO32-
       constant_name == "K_solid_cerussite" ~ K_num / (gamma_2^2 * water@co3),
       # Hydrocerussite: Pb3(CO3)2(OH)2(s) + 2H+ --> 3Pb2+ + 2CO32- + 2H2O
@@ -136,18 +139,21 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
       PbCO32_2_minus = (K_3_CO3) * gamma_2^2 * Pb_2_plus * water@co3^2,
       # Calculate lead-phosphate complex concentrations
       PbHPO4 = (K_1_PO4) * h * gamma_2 * gamma_3 * Pb_2_plus * water@po4,
-      PbH2PO4_plus = (K_2_PO4) * h^2 * gamma_2 * gamma_3 * Pb_2_plus * water@po4 / gamma_1) %>%
+      PbH2PO4_plus = (K_2_PO4) * h^2 * gamma_2 * gamma_3 * Pb_2_plus * water@po4 / gamma_1
+    ) %>%
     mutate( # Calculate total dissolved lead molar concentration
       tot_dissolved_pb = Pb_2_plus +
         PbOH_plus + PbOH2 + PbOH3_minus + PbOH4_2_minus + 2 * Pb2OH_3_plus + 3 * Pb3OH4_2_plus + 4 * Pb4OH4_4_plus + 6 * Pb6OH8_4_plus +
         PbCl_plus + PbCl2 + PbCl3_minus + PbCl4_2_minus +
         PbSO4 + PbSO42_2_minus +
         PbHCO3_plus + PbCO3 + PbCO32_2_minus +
-        PbHPO4 + PbH2PO4_plus)
+        PbHPO4 + PbH2PO4_plus
+    )
 
   alllead_simple <- alllead %>%
     select(species_name, Pb_2_plus, tot_dissolved_pb, source) %>%
-    mutate(keep = case_when(species_name == "Hydroxypyromorphite" & grepl(hydroxypyromorphite, source) ~ "keep",
+    mutate(keep = case_when(
+      species_name == "Hydroxypyromorphite" & grepl(hydroxypyromorphite, source) ~ "keep",
       species_name == "Pyromorphite" & grepl(pyromorphite, source) ~ "keep",
       species_name == "Laurionite" & grepl(laurionite, source) ~ "keep",
       !grepl("Hydroxyp|Pyro|Lauri", species_name) ~ "keep"
@@ -159,7 +165,6 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     select(controlling_solid, tot_dissolved_pb)
 
   return(alllead_simple)
-
 }
 
 
@@ -181,7 +186,6 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #'
 
 calculate_dic <- function(water) {
-
   dic <- water@tot_co3 * mweights$dic * 1000
 
   return(dic)

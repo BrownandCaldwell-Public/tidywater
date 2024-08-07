@@ -42,8 +42,10 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
-  mutate(ratios1 = .4,
-    ratios2 = .6) \%>\%
+  mutate(
+    ratios1 = .4,
+    ratios2 = .6
+  ) \%>\%
   blend_waters_once(waters = c("defined_water", "dosed"), ratios = c("ratios1", "ratios2"))
 
 example_df <- water_df \%>\%

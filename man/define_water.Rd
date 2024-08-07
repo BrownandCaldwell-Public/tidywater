@@ -17,12 +17,17 @@ define_water(
   so4,
   tot_ocl = 0,
   tot_po4 = 0,
+  tot_nh4 = 0,
   tds,
   cond,
   toc,
   doc,
   uv254,
-  br
+  br,
+  f,
+  fe,
+  al,
+  mn
 )
 }
 \arguments{
@@ -34,7 +39,7 @@ define_water(
 
 \item{tot_hard}{Total hardness in mg/L as CaCO3}
 
-\item{ca}{Calcium in mg/L Ca+2}
+\item{ca}{Calcium in mg/L Ca2+}
 
 \item{mg}{Magnesium in mg/L Mg2+}
 
@@ -50,6 +55,8 @@ define_water(
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 
+\item{tot_nh4}{Total ammonia in mg/L as N}
+
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
 \item{cond}{Electrical conductivity in uS/cm (optional if ions are known)}
@@ -61,6 +68,14 @@ define_water(
 \item{uv254}{UV absorbance at 254 nm (cm-1)}
 
 \item{br}{Bromide in ug/L Br-}
+
+\item{f}{Fluoride in mg/L F-}
+
+\item{fe}{Iron in mg/L Fe3+}
+
+\item{al}{Aluminum in mg/L Al3+}
+
+\item{mn}{Manganese in ug/L Mn2+}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
