@@ -112,7 +112,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
   }
 
-  water@treatment <- paste(water@treatment, "_tocremoved", sep = "")
+  water@applied_treatment <- paste(water@applied_treatment, "_tocremoved", sep = "")
 
   return(water)
 }
