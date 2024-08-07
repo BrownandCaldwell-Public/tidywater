@@ -1455,13 +1455,13 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
@@ -1480,7 +1480,7 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
@@ -1545,13 +1545,13 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
@@ -1570,7 +1570,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
-#'   mutate(br =50) %>%
+#'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
@@ -1582,8 +1582,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
-
-  inputs_arg <- tibble(cl2, time)%>%
+  inputs_arg <- tibble(cl2, time) %>%
     select_if(~ any(. > 0))
 
   inputs_col <- df %>%
@@ -1599,15 +1598,17 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
     stop("Chlorine and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
   }
 
- cl_time <- inputs_col %>%
+  cl_time <- inputs_col %>%
     cross_join(inputs_arg)
 
   output <- df %>%
     subset(select = !names(df) %in% c("cl2", "time")) %>%
-    mutate(ID = row_number(),
-           treatment = treatment,
-           cl_type = cl_type,
-           location = location) %>%
+    mutate(
+      ID = row_number(),
+      treatment = treatment,
+      cl_type = cl_type,
+      location = location
+    ) %>%
     left_join(cl_time, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
