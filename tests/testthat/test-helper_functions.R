@@ -1,3 +1,5 @@
+# convert_water ----
+
 # Test convertWater converts a water class input to a dataframe
 test_that("convert water creates a dataframe", {
   water1 <- define_water(
@@ -18,8 +20,17 @@ test_that("convert water works", {
   expect_equal(water1@tot_co3, df_water$tot_co3)
 })
 
-################################################################################*
-################################################################################*
+test_that("convert water mg works", {
+  water1 <- define_water(
+    ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
+    cl = 10, so4 = 50
+  )
+  df_water <- convert_watermg(water1)
+  expect_equal(6.7, df_water$ph)
+  expect_equal(10, df_water$na)
+  expect_equal(50, df_water$so4)
+})
+
 # define_water helpers ----
 
 # Test that define_water_once outputs are the same as base function, define_water.
@@ -200,7 +211,6 @@ test_that("chemdose_ph_once is a data frame", {
 test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
   water0 <- water_df %>%
     define_water_once()
-
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%

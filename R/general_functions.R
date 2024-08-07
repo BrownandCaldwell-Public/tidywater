@@ -585,6 +585,7 @@ plot_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+
   # Compile major ions to plot
   ions <- data.frame(
     Na = water@na,
@@ -834,6 +835,7 @@ balance_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
