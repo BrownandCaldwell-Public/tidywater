@@ -24,7 +24,8 @@ ozonate_bromate(water, dose, time, model)
 Calculates bromate (BrO3-) formation based on selected model. Required arguments include an object of class "water"
 created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
 The function also requires additional water quality parameters defined in \code{define_water}
-including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model).
+including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
+optionally, ammonia (added when defining water using the `tot_nh3` argument.)
 }
 \examples{
 example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
