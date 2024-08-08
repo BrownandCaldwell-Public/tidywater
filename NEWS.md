@@ -8,6 +8,7 @@
 * bromate formation models
 * ammonia in pH chemistry
 * new water slots for F, Fe, Al, etc
+* helper functions for chemdose_dbp
 * PAC models (incomplete)
 
 ## Breaking changes
