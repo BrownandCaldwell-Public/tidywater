@@ -87,7 +87,7 @@ ozonate_ct <- function(water, time, dose, kd) {
   ct_inst <- dose * (exp(kd * .5) - 1) / kd
   ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
-  virus_log_removal <- 2.1744 & 1.0726^temp * ct_actual
+  virus_log_removal <- 2.1744 * 1.0726^temp * ct_actual
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
 
   tibble(
