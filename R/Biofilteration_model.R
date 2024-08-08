@@ -101,24 +101,24 @@ biofilter_toc <- function(water, ebct, temperature, media_type = "GAC", oxidatio
     water@toc <- water@toc - (water@toc * tocremoval / 100) * c_cinf_ratio
   } else if (!is.na(water@toc) & water@toc < water@doc) {
     warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
-    water$toc <- water$doc - (water$doc * tocremoval / 100) * c_cinf_ratio
-  } else if (is.na(water$toc)) {
+    water@toc <- water@doc - (water@doc * tocremoval / 100) * c_cinf_ratio
+  } else if (is.na(water@toc)) {
     warning("Input water TOC not specified. Output water TOC will be NA.")
-    water$toc <- NA_real_
+    water@toc <- NA_real_
   }
 
-  water$doc <- water$toc  # Assuming DOC is a subset of TOC in this simplified model
-  water$treatment <- paste(water$treatment, "_tocremoved", sep = "")
+  water@doc <- water@toc  # Assuming DOC is a subset of TOC in this simplified model
+  water@treatment <- paste(water@treatment, "_tocremoved", sep = "")
 
   # Convert to data frame
   water_df <- data.frame(
-    ph = water$ph,
-    temp = water$temp,
-    alk = water$alk,
-    toc = water$toc,
-    doc = water$doc,
-    uv254 = water$uv254,
-    treatment = water$treatment
+    ph = water@ph,
+    temp = water@temp,
+    alk = water@alk,
+    toc = water@toc,
+    doc = water@doc,
+    uv254 = water@uv254,
+    treatment = water@treatment
   )
 
   return(water_df)
@@ -126,13 +126,13 @@ biofilter_toc <- function(water, ebct, temperature, media_type = "GAC", oxidatio
 
 # Example usage
 # Define your water object with your specific values
-# water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
+water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
 #
 # # Run the biofilter_toc function with your values and print the results
 #
 # # For non-ozonated condition using GAC
-# filtered_water_non_ozonated_gac <- biofilter_toc(water, ebct = 20, temperature = 15, media_type = "GAC", oxidation_condition = "non-ozonated")
-# print(filtered_water_non_ozonated_gac)
+filtered_water_non_ozonated_gac <- biofilter_toc(water, ebct = 20, temperature = 15, media_type = "GAC", oxidation_condition = "non-ozonated")
+print(filtered_water_non_ozonated_gac)
 #
 # # For non-ozonated condition using sand
 # filtered_water_non_ozonated_sand <- biofilter_toc(water, ebct = 20, temperature = 15, media_type = "sand", oxidation_condition = "non-ozonated")
