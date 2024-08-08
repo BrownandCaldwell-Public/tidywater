@@ -25,13 +25,10 @@
 #' @examples
 #'
 #' example_ct <- define_water(ph = 7.5, temp = 25) %>%
-#'   chemdose_ct()
-#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
-#'   chemdose_ct()
-#'
+#'   chemdose_ct(time = 30, residual = 1, baffle = 0.7)
 #' @export
 
-chemdose_ct <- function(water, time, residual, baffle, volume, flow) {
+chemdose_ct <- function(water, time, residual, baffle) {
   ph <- water@ph
   temp <- water@temp
 
@@ -52,46 +49,49 @@ chemdose_ct <- function(water, time, residual, baffle, volume, flow) {
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)
 }
 
-ozonate_ct <- function(water, time, A, k) {
+#' Determine disinfection credit from chlorine.
+#'
+#' @description This function takes a water defined by \code{\link{define_water}} and the first order decay curve parameters
+#' from an ozone dose and outputs a dataframe of acutal CT, and log removal for giardia, virus, and crypto
+#'
+#' @details First order decay curve for ozone has the form: `residual = dose * exp(kd*time)`. kd should be a negative number.
+#' Actual CT is an integration of the first order curve. The first 30 seconds are removed from the integral to account for
+#' instantaneous demand.
+#'
+#' @source USEPA (2020) Equation 4-4 through 4-7
+#' https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_508.pdf
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#'
+#'
+#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp
+#' @param time Retention time of disinfection segment in minutes.
+#' @param dose Ozone dose in mg/L. This value can also be the y intercept of the decay curve (often slightly lower than ozone dose.)
+#' @param kd First order decay constant.
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#'
+#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
+#'   ozonate_ct(time = 10, dose = 2, kd = -0.5)
+#' @export
+#'
+ozonate_ct <- function(water, time, dose, kd) {
   ph <- water@ph
   temp <- water@temp
 
 
-  # First order decay curve: y = A * exp(k*t)
-  # Integral from 0 to t of curve above: A (exp(kt) - 1) / k
+  # First order decay curve: y = dose * exp(k*t)
+  # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
 
-  ct_tot <- A * (exp(k * time) - 1) / k
-  ct_inst <- A * (exp(k * .5) - 1) / k
+  ct_tot <- dose * (exp(kd * time) - 1) / kd
+  ct_inst <- dose * (exp(kd * .5) - 1) / kd
   ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
-  log_removal <- 1.038 * 1.0741^temp * ct_actual
+  giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
+  virus_log_removal <- 2.1744 & 1.0726^temp * ct_actual
+  crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
 
-  log_removal
-}
-
-
-
-
-solveresid_o3 <- function(water, dose, time) {
-  doc <- water@doc
-  ph <- water@ph
-  temp <- water@temp
-  uv254 <- water@uv254
-  suva <- water@uv254 / water@doc * 100
-  alk <- water@alk
-
-  # This is the model from the WTP manual, but I can't get it working for a decay curve.
-  o3demand <- 0.995 * dose^1.312 * (dose / uv254)^-.386 * suva^-.184 * (time)^.068 * alk^.023 * ph^.229 * temp^.087
-  o3residual <- dose - o3demand
-  o3residual
-  # From me fitting data:
-  # A = dose - 0.291 * doc ^ (0.656)
-  # A <- dose - .291 * doc ^ .656
-
-  # k = D*doc^d*E*doc^e*F^ph
-  # fit all data: -4.9, 1.3, 5.4, -1,.0001,2.2 value = 1.13
-  # fit tollefson: -1.3,1.8,.12,.23,.000002,5.8 value = .037
-
-  # k <- -1.3 * dose ^ 1.8 * .12 * doc ^ .23 * 2E-6 * ph ^ 5.8
-
-  # residual <- A * exp(k * time)
+  tibble(
+    "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = virus_log_removal,
+    "clog_removal" = crypto_log_removal
+  )
 }
