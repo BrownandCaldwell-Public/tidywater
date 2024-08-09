@@ -24,7 +24,7 @@ chemdose_ct(water, time, residual, baffle)
 }
 \description{
 This function takes a water defined by \code{\link{define_water}} and other disinfection parameters
-and outputs a dataframe of the actual CT, required CT, and log removal.
+and outputs a dataframe of the required CT (`ct_required`), actual CT (`ct_actual`), and giardia log removal (`glog_removal`).
 }
 \details{
 CT actual is a function of time, chlorine residual, and baffle factor, whereas CT required is a function of
