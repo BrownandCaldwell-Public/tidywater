@@ -75,13 +75,23 @@ ozonate_ct <- function(water, time, dose, kd) {
   ph <- water@ph
   temp <- water@temp
 
-
   # First order decay curve: y = dose * exp(k*t)
   # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
+  if (!missing(kd)) {
+    ct_tot <- dose * (exp(kd * time) - 1) / kd
+    ct_inst <- dose * (exp(kd * .5) - 1) / kd
+    ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
 
-  ct_tot <- dose * (exp(kd * time) - 1) / kd
-  ct_inst <- dose * (exp(kd * .5) - 1) / kd
-  ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
+  } else {
+    decaycurve <- data.frame(time = seq(0,time,.5)) %>%
+      mutate(defined_water = list(water),
+             dose = dose) %>%
+      solveresid_o3_chain() %>%
+      mutate(ct = o3resid * .5) %>%
+      filter(time != 0)
+    ct_actual <- sum(decaycurve$ct)
+
+  }
   giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
   virus_log_removal <- 2.1744 * 1.0726^temp * ct_actual
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
