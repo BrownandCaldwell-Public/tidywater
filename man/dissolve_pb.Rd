@@ -26,7 +26,8 @@ dissolve_pb(
 )
 }
 \arguments{
-\item{water}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
+\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.
+If po4, cl, and so4 are known, those should also be included.}
 
 \item{hydroxypyromorphite}{defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".}
 
