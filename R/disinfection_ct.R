@@ -45,7 +45,7 @@ chemdose_ct <- function(water, time, residual, baffle) {
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)
 }
 
-#' Determine disinfection credit from chlorine.
+#' Determine disinfection credit from ozone.
 #'
 #' @description This function takes a water defined by \code{\link{define_water}} and the first order decay curve parameters
 #' from an ozone dose and outputs a dataframe of acutal CT, and log removal for giardia, virus, and crypto
