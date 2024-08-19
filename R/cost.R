@@ -1,12 +1,11 @@
 # Cost calculations
-
 #' Convert mg/L of chemical to lb/day
 #'
 #' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
 #'
 #' @param dose Chemical dose in mg/L as chemical
 #' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100%.
+#' @param strength Chemical product strength in percent. Defaults to 100 percent.
 #'
 #' @examples
 #' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
@@ -23,7 +22,7 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #'
 #' @param dose Chemical dose in mg/L as chemical
 #' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100%.
+#' @param strength Chemical product strength in percent. Defaults to 100 percent.
 #' @param cost Chemical product cost in $/lb
 #' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #'
@@ -50,7 +49,7 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
 #' This function takes kW, % utilization, $/kWhr and determines power cost.
 #'
 #' @param power Power consumed in kW
-#' @param utilization Amount of time equipment is running in %. Defaults to continuous (100%).
+#' @param utilization Amount of time equipment is running in percent. Defaults to continuous.
 #' @param cost Power cost in $/kWhr
 #' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #'
