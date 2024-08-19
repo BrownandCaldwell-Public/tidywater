@@ -67,8 +67,13 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #'
 #' @examples
 #'
-#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
+#' # Use kd from experimental data (recommended):
+#' define_water(ph = 7.5, temp = 25) %>%
 #'   ozonate_ct(time = 10, dose = 2, kd = -0.5)
+#' # Use modeled decay curve:
+#' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
+#'   ozonate_ct(time = 10, dose = 2)
+#'
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd) {
@@ -82,6 +87,9 @@ ozonate_ct <- function(water, time, dose, kd) {
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   } else {
+    if (is.na(water@ph) | is.na(water@alk) | is.na(water@doc) | is.na(water@uv254) | is.na(water@br)) {
+      stop("Water must have the following parameters defined: ph, alk, doc, uv254, br")
+    }
     decaycurve <- data.frame(time = seq(0, time, .5)) %>%
       mutate(
         defined_water = list(water),

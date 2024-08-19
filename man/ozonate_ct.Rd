@@ -32,8 +32,13 @@ instantaneous demand.
 }
 \examples{
 
-example_ct <- define_water(ph = 7.5, temp = 25) \%>\%
+# Use kd from experimental data (recommended):
+define_water(ph = 7.5, temp = 25) \%>\%
   ozonate_ct(time = 10, dose = 2, kd = -0.5)
+# Use modeled decay curve:
+define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
+  ozonate_ct(time = 10, dose = 2)
+
 }
 \seealso{
 \code{\link{define_water}}
