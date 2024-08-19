@@ -7,11 +7,13 @@
 solveresid_o3_once(df, input_water = "defined_water", dose = 0, time = 0)
 }
 \arguments{
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
+
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
 \item{dose}{Applied ozone dose in mg/L}
 
 \item{time}{Ozone contact time in minutes}
-
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}.}
 }
 \description{
 This function allows \code{\link{solveresid_o3}} to be added to a piped data frame.

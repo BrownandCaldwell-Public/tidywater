@@ -47,7 +47,8 @@ solveresid_o3 <- function(water, dose, time) {
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}.
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
+#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param dose Applied ozone dose in mg/L
 #' @param time Ozone contact time in minutes
 #'

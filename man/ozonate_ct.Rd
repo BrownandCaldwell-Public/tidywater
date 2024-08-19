@@ -2,7 +2,7 @@
 % Please edit documentation in R/disinfection_ct.R
 \name{ozonate_ct}
 \alias{ozonate_ct}
-\title{Determine disinfection credit from chlorine.}
+\title{Determine disinfection credit from ozone.}
 \source{
 USEPA (2020) Equation 4-4 through 4-7
 https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_508.pdf
