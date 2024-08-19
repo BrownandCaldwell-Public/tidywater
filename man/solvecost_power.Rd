@@ -9,7 +9,7 @@ solvecost_power(power, utilization = 100, cost, time = "day")
 \arguments{
 \item{power}{Power consumed in kW}
 
-\item{utilization}{Amount of time equipment is running in %. Defaults to continuous (100%).}
+\item{utilization}{Amount of time equipment is running in percent. Defaults to continuous.}
 
 \item{cost}{Power cost in $/kWhr}
 

@@ -11,7 +11,7 @@ solvecost_chem(dose, flow, strength = 100, cost, time = "day")
 
 \item{flow}{Plant flow in MGD}
 
-\item{strength}{Chemical product strength in percent. Defaults to 100%.}
+\item{strength}{Chemical product strength in percent. Defaults to 100 percent.}
 
 \item{cost}{Chemical product cost in $/lb}
 
