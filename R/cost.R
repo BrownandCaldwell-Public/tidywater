@@ -25,7 +25,7 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #' @param flow Plant flow in MGD
 #' @param strength Chemical product strength in percent. Defaults to 100%.
 #' @param cost Chemical product cost in $/lb
-#' @param time Desired output units, one of c("day", "month", "year")
+#' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #'
 #' @examples
 #' alum_cost <- solvecost_chem(dose = 20, flow = 10, strength = 49, cost = .22)
@@ -50,9 +50,9 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
 #' @description This function takes kW, % utilization, $/kWhr and determines power cost.
 #'
 #' @param power Power consumed in kW
-#' @param utilization Amount of time equipment is running in %. Defaults to continuous.
+#' @param utilization Amount of time equipment is running in %. Defaults to continuous (100%).
 #' @param cost Power cost in $/kWhr
-#' @param time Desired output units, one of c("day", "month", "year")
+#' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #'
 #' @examples
 #' powercost <- solvecost_power(50, 100, .08)
@@ -83,11 +83,11 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @param flow Plant flow in MGD
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
-#'
+#' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #' @source https://water.mecc.edu/courses/ENV295Residuals/lesson3b.htm#:~:text=From%20the%20diagram%2C%20for%20example,million%20gallons%20of%20water%20produced.
 #'
 #' @examples
-#' powercost <- solvecost_power(50, 100, .08)
+#' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 5)
 #'
 #' @export
 #'
@@ -115,7 +115,7 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
 #'
 #' @param fte Number of FTEs. Can be decimal.
 #' @param cost $/year per FTE
-#' @param time Desired output units, one of c("day", "month", "year")
+#' @param time Desired output units, one of c("day", "month", "year"). Defaults to "day".
 #'
 #' @examples
 #' laborcost <- solvecost_labor(1.5, 50000)
