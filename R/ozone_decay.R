@@ -52,21 +52,23 @@ solveresid_o3 <- function(water, dose, time) {
 #' @param time Ozone contact time in minutes
 #'
 #' @examples
-#' ozone_resid <- water_df %>% 
-#'   mutate(br =50) %>% 
-#'   define_water_chain() %>% 
+#' ozone_resid <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
 #'   solveresid_o3_once(dose = 2, time = 10)
 #'
-#' ozone_resid <- water_df %>% 
-#'   mutate(br =50) %>% 
-#'   define_water_chain() %>% 
-#'   mutate(dose = seq(1,12, 1),
-#'          time = seq(2,24, 2)) %>% 
+#' ozone_resid <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   mutate(
+#'     dose = seq(1, 12, 1),
+#'     time = seq(2, 24, 2)
+#'   ) %>%
 #'   solveresid_o3_once()
 #' @export
 #'
 solveresid_o3_once <- function(df, input_water = "defined_water",
-                                dose = 0, time = 0) {
+                               dose = 0, time = 0) {
   inputs_arg <- tibble(dose, time) %>%
     select_if(~ any(. > 0))
 
