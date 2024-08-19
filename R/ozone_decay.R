@@ -34,7 +34,37 @@ solveresid_o3 <- function(water, dose, time) {
   # residual
 }
 
-
+#' Apply `solveresid_o3` to a data frame and create a new column with residual ozone dose
+#'
+#' This function allows \code{\link{solveresid_o3}} to be added to a piped data frame.
+#' Once additional column will be added to the data frame; the residual ozone dose (mg/L)
+#'
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param water Source water object of class "water" created by \code{\link{define_water}}.
+#' @param dose Applied ozone dose in mg/L
+#' @param time Ozone contact time in minutes
+#'
+#' @examples
+#' ozone_resid <- water_df %>% 
+#'   mutate(br =50) %>% 
+#'   define_water_chain() %>% 
+#'   solveresid_o3_once(dose = 2, time = 10)
+#'
+#' ozone_resid <- water_df %>% 
+#'   mutate(br =50) %>% 
+#'   define_water_chain() %>% 
+#'   mutate(dose = seq(1,12, 1),
+#'          time = seq(2,24, 2)) %>% 
+#'   solveresid_o3_once()
+#' @export
+#'
 solveresid_o3_chain <- function(df, input_water = "defined_water",
                                 dose = 0, time = 0) {
   inputs_arg <- tibble(dose, time) %>%
