@@ -43,7 +43,6 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
   } else {
     stop("time must be one of 'day', 'month', 'year'.")
   }
-
 }
 
 #' @title Determine power cost
@@ -71,7 +70,6 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
   } else {
     stop("time must be one of 'day', 'month', 'year'.")
   }
-
 }
 
 #' @title Determine solids disposal cost
@@ -94,7 +92,6 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @export
 #'
 solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5, cost, time = "day") {
-
   suspended <- turb * b
   fe <- ferricsulfate * (mweights$fe * 2 / mweights$ferricsulfate) # 2 mol of Fe added per mol of ferric sulfate
 
@@ -110,7 +107,6 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
   } else {
     stop("time must be one of 'day', 'month', 'year'.")
   }
-
 }
 
 #' @title Determine labor cost
@@ -137,5 +133,4 @@ solvecost_labor <- function(fte, cost, time = "day") {
   } else {
     stop("time must be one of 'day', 'month', 'year'.")
   }
-
 }
