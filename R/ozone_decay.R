@@ -65,7 +65,7 @@ solveresid_o3 <- function(water, dose, time) {
 #'   solveresid_o3_once()
 #' @export
 #'
-solveresid_o3_chain <- function(df, input_water = "defined_water",
+solveresid_o3_once <- function(df, input_water = "defined_water",
                                 dose = 0, time = 0) {
   inputs_arg <- tibble(dose, time) %>%
     select_if(~ any(. > 0))
