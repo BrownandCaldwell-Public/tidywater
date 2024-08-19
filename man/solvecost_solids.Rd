@@ -32,11 +32,13 @@ solvecost_solids(
 \item{b}{Correlation factor from turbidity to suspended solids. Defaults to 1.5.}
 
 \item{cost}{Disposal cost in $/lb}
+
+\item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \description{
 This function takes coagulant doses in mg/L as chemical, raw turbidity, % solids, and $/lb to determine disposal cost.
 }
 \examples{
-powercost <- solvecost_power(50, 100, .08)
+alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 5)
 
 }

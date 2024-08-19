@@ -15,7 +15,7 @@ solvecost_chem(dose, flow, strength = 100, cost, time = "day")
 
 \item{cost}{Chemical product cost in $/lb}
 
-\item{time}{Desired output units, one of c("day", "month", "year")}
+\item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \description{
 This function takes a chemical dose in mg/L, plant flow, chemical strength, and $/lb and calculates cost.

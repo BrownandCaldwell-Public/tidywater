@@ -9,11 +9,11 @@ solvecost_power(power, utilization = 100, cost, time = "day")
 \arguments{
 \item{power}{Power consumed in kW}
 
-\item{utilization}{Amount of time equipment is running in %. Defaults to continuous.}
+\item{utilization}{Amount of time equipment is running in %. Defaults to continuous (100%).}
 
 \item{cost}{Power cost in $/kWhr}
 
-\item{time}{Desired output units, one of c("day", "month", "year")}
+\item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \description{
 This function takes kW, % utilization, $/kWhr and determines power cost.
