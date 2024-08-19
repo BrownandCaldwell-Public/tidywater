@@ -14,7 +14,7 @@
 #' @export
 #'
 solvemass_chem <- function(dose, flow, strength = 100) {
-  dose * flow * 8.34 / (strength / 100)
+  dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
 }
 
 #' @title Determine chemical cost
