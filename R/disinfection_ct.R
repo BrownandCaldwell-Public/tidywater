@@ -87,7 +87,7 @@ ozonate_ct <- function(water, time, dose, kd) {
         defined_water = list(water),
         dose = dose
       ) %>%
-      solveresid_o3_chain() %>%
+      solveresid_o3_once() %>%
       mutate(ct = o3resid * .5) %>%
       filter(time != 0)
     ct_actual <- sum(decaycurve$ct)
