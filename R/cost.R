@@ -1,8 +1,8 @@
 # Cost calculations
 
-#' @title Convert mg/L of chemical to lb/day
+#' Convert mg/L of chemical to lb/day
 #'
-#' @description This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
+#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
 #'
 #' @param dose Chemical dose in mg/L as chemical
 #' @param flow Plant flow in MGD
@@ -17,9 +17,9 @@ solvemass_chem <- function(dose, flow, strength = 100) {
   dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
 }
 
-#' @title Determine chemical cost
+#' Determine chemical cost
 #'
-#' @description This function takes a chemical dose in mg/L, plant flow, chemical strength, and $/lb and calculates cost.
+#' This function takes a chemical dose in mg/L, plant flow, chemical strength, and $/lb and calculates cost.
 #'
 #' @param dose Chemical dose in mg/L as chemical
 #' @param flow Plant flow in MGD
@@ -45,9 +45,9 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
   }
 }
 
-#' @title Determine power cost
+#' Determine power cost
 #'
-#' @description This function takes kW, % utilization, $/kWhr and determines power cost.
+#' This function takes kW, % utilization, $/kWhr and determines power cost.
 #'
 #' @param power Power consumed in kW
 #' @param utilization Amount of time equipment is running in %. Defaults to continuous (100%).
@@ -72,9 +72,9 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
   }
 }
 
-#' @title Determine solids disposal cost
+#' Determine solids disposal cost
 #'
-#' @description This function takes coagulant doses in mg/L as chemical, raw turbidity, % solids, and $/lb to determine disposal cost.
+#' This function takes coagulant doses in mg/L as chemical, raw turbidity, % solids, and $/lb to determine disposal cost.
 #'
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
@@ -109,9 +109,9 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
   }
 }
 
-#' @title Determine labor cost
+#' Determine labor cost
 #'
-#' @description This function takes number of FTE and annual $/FTE and determines labor cost
+#' This function takes number of FTE and annual $/FTE and determines labor cost
 #'
 #' @param fte Number of FTEs. Can be decimal.
 #' @param cost $/year per FTE
