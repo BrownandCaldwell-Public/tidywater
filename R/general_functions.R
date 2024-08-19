@@ -62,7 +62,7 @@ methods::setClass(
     csmr = "numeric",
 
     # Miscellaneous
-    treatment = "character",
+    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -140,7 +140,7 @@ methods::setClass(
     csmr = NA_real_,
 
     # Miscellaneous
-    treatment = "defined",
+    applied_treatment = "defined",
     estimated = "",
 
     # DBPs
@@ -168,7 +168,7 @@ methods::setMethod(
   "water",
   function(object) {
     # General parameters
-    cat("pH: ", object@ph, "\n")
+    cat("pH (unitless): ", object@ph, "\n")
     cat("Temperature (deg C): ", object@temp, "\n")
     cat("Alkalinity (mg/L CaCO3): ", object@alk, "\nUse summary functions or slot names to view other parameters.\n")
   }
@@ -585,6 +585,7 @@ plot_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+
   # Compile major ions to plot
   ions <- data.frame(
     Na = water@na,
@@ -636,7 +637,7 @@ plot_ions <- function(water) {
     theme(axis.title = element_text(face = "bold")) +
     labs(
       x = "Concentration (eq/L)",
-      y = "Major cations and anions",
+      y = "Major Cations and Anions",
       subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
     ) +
     guides(fill = "none")
@@ -834,6 +835,7 @@ balance_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
+
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
@@ -899,7 +901,7 @@ balance_ions <- function(water) {
   water@k <- k_new
   water@cl <- cl_new
   water@so4 <- so4_new
-  water@treatment <- paste(water@treatment, "_balanced", sep = "")
+  water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
 
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {

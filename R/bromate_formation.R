@@ -6,11 +6,9 @@
 #' @description Calculates bromate (BrO3-) formation based on selected model. Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
 #' The function also requires additional water quality parameters defined in \code{define_water}
-#' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model).
+#' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
+#' optionally, ammonia (added when defining water using the `tot_nh3` argument.)
 #'
-#' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' The function returns a new object of class "water" with predicted DBP concentrations.
-#' Use \code{summarise_wq} to quickly tabulate the results.
 #'
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
