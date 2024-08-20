@@ -53,6 +53,7 @@ solveresid_o3 <- function(water, dose, time) {
 #' @param time Ozone contact time in minutes
 #'
 #' @examples
+#' library(dplyr)
 #' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%

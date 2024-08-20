@@ -29,6 +29,7 @@ The data input comes from a `water` class column, initialized in \code{\link{def
  shorter run times will not benefit from parallel processing.
 }
 \examples{
+library(dplyr)
 ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
