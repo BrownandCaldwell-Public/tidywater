@@ -1,6 +1,9 @@
 #' @keywords internal
 "_PACKAGE"
 
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+utils::globalVariables(".")
+
 # The following block is used by usethis to automatically manage
 # roxygen namespace tags. Modify with care!
 ## usethis namespace: start
