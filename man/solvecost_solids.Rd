@@ -36,9 +36,9 @@ solvecost_solids(
 \item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \description{
-This function takes coagulant doses in mg/L as chemical, raw turbidity, % solids, and $/lb to determine disposal cost.
+This function takes coagulant doses in mg/L as chemical, removed turbidity, and cost ($/lb) to determine disposal cost.
 }
 \examples{
-alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 5)
+alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 
 }
