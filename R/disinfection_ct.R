@@ -67,21 +67,40 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #'
 #' @examples
 #'
-#' example_ct <- define_water(ph = 7.5, temp = 25) %>%
+#' # Use kd from experimental data (recommended):
+#' define_water(ph = 7.5, temp = 25) %>%
 #'   ozonate_ct(time = 10, dose = 2, kd = -0.5)
+#' # Use modeled decay curve:
+#' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
+#'   ozonate_ct(time = 10, dose = 2)
+#'
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd) {
   ph <- water@ph
   temp <- water@temp
 
-
   # First order decay curve: y = dose * exp(k*t)
   # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
+  if (!missing(kd)) {
+    ct_tot <- dose * (exp(kd * time) - 1) / kd
+    ct_inst <- dose * (exp(kd * .5) - 1) / kd
+    ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
+  } else {
+    if (is.na(water@ph) | is.na(water@alk) | is.na(water@doc) | is.na(water@uv254) | is.na(water@br)) {
+      stop("Water must have the following parameters defined: ph, alk, doc, uv254, br")
+    }
+    decaycurve <- data.frame(time = seq(0, time, .5)) %>%
+      mutate(
+        defined_water = list(water),
+        dose = dose
+      ) %>%
+      solveresid_o3_once() %>%
+      mutate(ct = o3resid * .5) %>%
+      filter(time != 0)
+    ct_actual <- sum(decaycurve$ct)
+  }
 
-  ct_tot <- dose * (exp(kd * time) - 1) / kd
-  ct_inst <- dose * (exp(kd * .5) - 1) / kd
-  ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
   virus_log_removal <- 2.1744 * 1.0726^temp * ct_actual
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
