@@ -4,7 +4,7 @@
 \alias{biofilter_toc}
 \title{Determine TOC removal from biofiltration}
 \source{
-XXX
+Terry and Summers
 }
 \usage{
 biofilter_toc(water, ebct, o3_dose = 0, media_type = "GAC")
@@ -19,7 +19,7 @@ biofilter_toc(water, ebct, o3_dose = 0, media_type = "GAC")
 \item{media_type}{Biofilter media. Choose from c("GAC", "sand", "anthracite"). Defaults to GAC}
 }
 \description{
-This function applies the XX model to a water created by \code{\link{define_water}} to determine biofiltered
+This function applies the Terry model to a water created by \code{\link{define_water}} to determine biofiltered
 DOC (mg/L).
 }
 \examples{
