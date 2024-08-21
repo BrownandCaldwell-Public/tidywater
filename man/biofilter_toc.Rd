@@ -23,6 +23,7 @@ DOC (mg/L).
 \examples{
 example1 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) \%>\%
   biofilter_toc(ebct = 20)
+example1@toc
 
 example2 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) \%>\%
   biofilter_toc(ebct = 20, o3_dose = 3)
