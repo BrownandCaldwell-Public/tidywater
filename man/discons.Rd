@@ -5,7 +5,7 @@
 \alias{discons}
 \title{Dissociation constants and standard enthalpy for weak acids/bases}
 \format{
-A dataframe with 7 rows and 3 columns
+A dataframe with 8 rows and 3 columns
 \describe{
 \item{ID}{Coefficient type}
 \item{k}{Equilibrium constant}

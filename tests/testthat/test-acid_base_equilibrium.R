@@ -14,10 +14,9 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
 
   water8 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
   water9 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
-
-  # This is currently failing, but we need to get it passing.
-  # water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
-  # expect_equal(solve_ph(water10), water10@ph)
+  water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
+  water11 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_ocl = 3)
+  water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh4 = 3)
 
   expect_equal(solve_ph(water1), water1@ph)
   expect_equal(solve_ph(water2), water2@ph)
@@ -28,6 +27,9 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
   expect_equal(solve_ph(water7), water7@ph)
   expect_equal(solve_ph(water8), water8@ph)
   expect_equal(solve_ph(water9), water9@ph)
+  expect_equal(solve_ph(water10), water10@ph)
+  expect_equal(solve_ph(water11), water11@ph)
+  expect_equal(solve_ph(water12), water12@ph)
 })
 
 # Dose chemical ----
@@ -41,9 +43,8 @@ test_that("Dose chemical returns the same pH/alkalinity when no chemical is adde
 
   expect_equal(water1@ph, water2@ph)
   expect_equal(water1@alk, water2@alk)
-  # Not currently passing, but we need it to.
-  # expect_equal(water3@ph, water4@ph)
-  # expect_equal(water3@alk, water4@alk)
+  expect_equal(water3@ph, water4@ph)
+  expect_equal(water3@alk, water4@alk)
 })
 
 test_that("Dose chemical corrects ph when softening", {
@@ -72,6 +73,9 @@ test_that("Dose chemical works", {
   test4 <- chemdose_ph(water3, alum = 50, naoh = 10)
   test5 <- chemdose_ph(water4, alum = 50)
   test6 <- chemdose_ph(water4, naoh = 80)
+  test7 <- chemdose_ph(water1, nh42so4 = 5)
+  test8 <- chemdose_ph(water4, nh4oh = 5)
+
   # Rounded values from waterpro spot check (doesn't match with more decimals)
   expect_equal(round(test1@ph, 1), 5.7)
   expect_equal(round(test1@alk, 0), 5)
@@ -85,6 +89,10 @@ test_that("Dose chemical works", {
   expect_equal(round(test5@alk, 0), -5)
   expect_equal(round(test6@ph, 1), 11.4)
   expect_equal(round(test6@alk, 0), 120)
+  expect_equal(round(test7@ph, 1), 6.7)
+  # This is not passing right now. Numbers from WTP model
+  # expect_equal(round(test8@ph, 1), 9.7)
+  # expect_equal(round(test8@alk, 0), 25)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {
@@ -116,6 +124,21 @@ test_that("Phosphate dose works as expected.", {
 
 test_that("Starting chlorine residual does not affect starting pH.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_ocl = 1) %>%
+    chemdose_ph())
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water2@ph, 7)
+  expect_equal(water3@ph, 7)
+})
+
+test_that("Starting ammonia does not affect starting pH.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh4 = 1) %>%
     chemdose_ph())
 
   water2 <- water1 %>%
@@ -211,14 +234,14 @@ test_that("Blend waters outputs same water when ratio is 1 or the blending water
   water3 <- define_water(ph = 10, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
-  blend1@treatment <- "defined" # set treatments to be the same to avoid an error
+  blend1@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
-  blend2@treatment <- "defined" # set treatments to be the same to avoid an error
+  blend2@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   expect_equal(water1, blend1)
   expect_equal(water3, blend2)
 
   blend3 <- blend_waters(c(water1, water2), c(.5, .5))
-  blend3@treatment <- "defined"
+  blend3@applied_treatment <- "defined"
   expect_equal(water1, blend3)
 })
 
@@ -250,8 +273,8 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
   blend2 <- suppressWarnings(blend_waters(c(water2, water3), c(.5, .5)))
   blend3 <- blend_waters(c(water1), c(1))
 
-  expect_equal(blend1@treatment, "defined_chemdosed_balanced_blended")
-  expect_equal(blend2@treatment, "defined_balanced_blended")
+  expect_equal(blend1@applied_treatment, "defined_chemdosed_balanced_blended")
+  expect_equal(blend2@applied_treatment, "defined_balanced_blended")
   expect_equal(blend1@estimated, "_cond_tds_na")
   expect_equal(blend2@estimated, "_tds_na_ca_mg_cond")
   expect_equal(blend3@estimated, water1@estimated)

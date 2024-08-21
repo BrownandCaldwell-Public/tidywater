@@ -40,6 +40,53 @@ convert_water <- function(water) {
     select(where(~ any(!is.na(.))))
 }
 
+#' @title Convert a `water` class object to a dataframe with ions in mg/L or ug/L
+#'
+#' @description This function is the same as \code{\link{convert_water}} except it converts the units of following slots from
+#' M to mg/L: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.  These slots are converted to
+#' ug/L: br, mn.  All other values remain unchanged.
+#'
+#' @param water A water class object
+#'
+#' @examples
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#'   convert_watermg()
+#'
+#' @export
+#'
+convert_watermg <- function(water) {
+  if (missing(water)) {
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+  }
+
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
+  water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
+  water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
+  water@k <- convert_units(water@k, "k", "M", "mg/L")
+  water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
+  water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
+  water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
+  water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
+  water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
+  water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
+  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
+  water@f <- convert_units(water@f, "f", "M", "mg/L")
+  water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
+  water@al <- convert_units(water@al, "al", "M", "mg/L")
+
+  # These get converted to ug/L instead.
+  water@br <- convert_units(water@br, "br", "M", "ug/L")
+  water@mn <- convert_units(water@mn, "mn", "M", "ug/L")
+
+  convert_water(water)
+}
+
 #' Apply `define_water` and output a dataframe
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
@@ -126,7 +173,8 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tot_nh4",
+    "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
 
@@ -266,6 +314,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
+#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Caustic: NaOH -> Na + OH
 #' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
@@ -274,7 +323,8 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
+#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
+#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
@@ -316,16 +366,16 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @export
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
-                             hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                             hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                             cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                             cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",
-      hcl, h2so4, h3po4, naoh,
+      hcl, h2so4, h3po4, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
-      cl2, naocl, caocl2, co2,
+      cl2, naocl, caocl2, nh4oh, nh42so4,
       alum, ferricchloride, ferricsulfate, caco3
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
@@ -359,6 +409,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
+#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Caustic: NaOH -> Na + OH
 #' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
@@ -367,7 +418,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
 #' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
+#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
+#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
@@ -409,14 +461,14 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                              hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                              hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                              cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
   dosable_chems <- tibble(
-    hcl, h2so4, h3po4, naoh,
+    hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
-    cl2, naocl, caocl2, co2,
+    cl2, naocl, caocl2, nh4oh, nh42so4,
     alum, ferricchloride, ferricsulfate, caco3
   )
 
@@ -466,6 +518,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         hcl = hcl,
         h2so4 = h2so4,
         h3po4 = h3po4,
+        co2 = co2,
         naoh = naoh,
         na2co3 = na2co3,
         nahco3 = nahco3,
@@ -474,7 +527,8 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         cl2 = cl2,
         naocl = naocl,
         caocl2 = caocl2,
-        co2 = co2,
+        nh4oh = nh4oh,
+        nh42so4 = nh4oh,
         alum = alum,
         ferricchloride = ferricchloride,
         ferricsulfate = ferricsulfate,
@@ -1050,7 +1104,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
   }
 }
 
-#' Apply `chemdose_toc` function and output a dataframe
+#' Apply `chemdose_toc` function and output a data frame
 #'
 #' This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
 #' Its output is a data frame with updated TOC, DOC, and UV254.
@@ -1232,27 +1286,31 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
     stop("Multiple coagulants dosed. Choose one coagulant.")
   }
 
+  chem_doses <- chem_inputs_col %>%
+    cross_join(chem_inputs_arg)
+  chem2 <- dosable_chems %>%
+    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
+    cross_join(chem_doses)
+
   if (length(df$coeff) > 0) {
     coeff <- tibble(coeff = df$coeff) %>%
       mutate(ID = row_number())
+    chem3 <- chem2 %>%
+      left_join(coeff, by = "ID")
+  } else if (length(coeff) == 1) {
+    chem3 <- chem2 %>%
+      mutate(coeff = list(coeff))
+  } else if (class(coeff) == "numeric" & length(coeff) == 6) {
+    chem3 <- chem2 %>%
+      mutate(coeff = list(coeff))
   } else {
-    coeff <- tibble(coeff = coeff) %>%
-      mutate(ID = row_number())
+    stop("coeffs must be specified with a string or named vector. See documentation for acceptable formats.")
   }
-
-  chem_doses <- chem_inputs_col %>%
-    cross_join(chem_inputs_arg)
-  # Add missing chemical columns
-  chem2 <- dosable_chems %>%
-    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-    cross_join(chem_doses) %>%
-    left_join(coeff, by = "ID") %>%
-    fill(coeff, .direction = "updown")
 
   output <- df %>%
     subset(select = !names(df) %in% c("alum", "ferricchloride", "ferricsulfate", "coeff")) %>%
     mutate(ID = row_number()) %>%
-    left_join(chem2, by = "ID") %>%
+    left_join(chem3, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
@@ -1398,5 +1456,217 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
         form = form
       ),
       calculate_corrosion
+    ))
+}
+
+#' Apply `chemdose_dbp`function within a data frame and output a data frame
+#'
+#' DBP = disinfection byproduct
+#'
+#' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
+#' Its output is a data frame containing columns for TTHM, HAA5, and individual DBP species.
+#' DBPs are estimated based on the applied chlorine dose, the reaction time, treatment type, chlorine type, and DBP formation location.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
+#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+#'
+#' tidywater functions cannot be added after this function because they require a `water` class input.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#' shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
+#' and a column for time.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
+#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
+#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
+#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
+#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
+#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
+#'
+#' @seealso \code{\link{chemdose_dbp}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(
+#'     cl2 = seq(2, 24, 2),
+#'     time = 30
+#'   ) %>%
+#'   chemdose_dbp_once(input_water = "balanced_water")
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 80) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(time = 8) %>%
+#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
+                              treatment = "raw", cl_type = "chlorine", location = "plant") {
+  output <- df %>%
+    chemdose_dbp_chain(
+      input_water = input_water, output_water = "temp_dbp",
+      cl2, time, treatment, cl_type, location
+    ) %>%
+    mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
+    unnest(dbps) %>%
+    select(-temp_dbp)
+}
+
+#' Apply `chemdose_dbp` within a data frame and output a column of `water` class to be chained to other tidywater functions
+#'
+#' DBP = disinfection byproduct
+#'
+#' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
+#' TTHM, HAA5, and individual DBP species will be updated based on the applied chlorine dose,
+#' the reaction time, treatment type, chlorine type, and DBP formation location.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
+#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2),
+#' and a column for time.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
+#' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
+#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
+#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
+#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
+#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
+#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
+#'
+#' @seealso \code{\link{chemdose_dbp}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(
+#'     cl2 = seq(2, 24, 2),
+#'     time = 30
+#'   ) %>%
+#'   chemdose_dbp_chain(input_water = "balanced_water")
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 80) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(time = 8) %>%
+#'   chemdose_dbp_chain(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
+                               cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
+  inputs_arg <- tibble(cl2, time) %>%
+    select_if(~ any(. > 0))
+
+  inputs_col <- df %>%
+    subset(select = names(df) %in% c("cl2", "time")) %>%
+    # add row number for joining
+    mutate(ID = row_number())
+
+  if (length(inputs_col) < 2 & length(inputs_arg) == 0) {
+    warning("Cl2 and time arguments missing. Add them as a column or function argument.")
+  }
+
+  if (("cl2" %in% colnames(inputs_arg) & "cl2" %in% colnames(inputs_col)) | ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
+    stop("Chlorine and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
+  }
+
+  cl_time <- inputs_col %>%
+    cross_join(inputs_arg)
+
+  output <- df %>%
+    subset(select = !names(df) %in% c("cl2", "time")) %>%
+    mutate(
+      ID = row_number(),
+      treatment = treatment,
+      cl_type = cl_type,
+      location = location
+    ) %>%
+    left_join(cl_time, by = "ID") %>%
+    select(-ID) %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        cl2 = cl2,
+        time = time,
+        treatment = treatment,
+        cl_type = cl_type,
+        location = location
+      ),
+      chemdose_dbp
     ))
 }

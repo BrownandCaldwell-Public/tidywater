@@ -11,7 +11,8 @@ convert_units(value, formula, startunit = "mg/L", endunit = "M")
 
 \item{formula}{Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq}
 
-\item{startunit}{Units of current value, currently accepts g/L; g/L CaCO3; M; eq/L; and the same units with "m", "u", "n" prefixes}
+\item{startunit}{Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+and the same units with "m", "u", "n" prefixes}
 
 \item{endunit}{Desired units, currently accepts same as start units}
 }

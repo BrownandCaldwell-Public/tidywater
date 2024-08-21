@@ -6,17 +6,21 @@
 #' @description \code{calculate_corrosion} takes an object of class "water" created by \code{\link{define_water}} and calculates
 #' corrosion and scaling indices.
 #'
-#' @details Aggressive Index (AI) - the corrosive tendency of water and its effect on asbestos cement pipe
+#' @details Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
 #'
-#' Ryznar Index(RI) - a measure of scaling potential
+#' Ryznar Index (RI), unitless - a measure of scaling potential.
 #'
-#' Langelier Saturation Index (LSI) - describes the potential for calcium carbonate scale formation. Equations use empirical calcium carbonate solubilities from Plummer and Busenberg (1982) and Crittenden et al. (2012) rather than calculated from the concentrations of calcium and carbonate in the water.
+#' Langelier Saturation Index (LSI), unitless - describes the potential for calcium carbonate scale formation.
+#' Equations use empirical calcium carbonate solubilities from Plummer and Busenberg (1982) and Crittenden et al. (2012)
+#' rather than calculated from the concentrations of calcium and carbonate in the water.
 #'
-#' Larson-skold Index (LI) - describes the corrosivity towards mild steel
+#' Larson-skold Index (LI), unitless - describes the corrosivity towards mild steel.
 #'
-#' Chloride-to-sulfate mass ratio (CSMR) - indicator of galvanic corrosion for lead solder pipe joints
+#' Chloride-to-sulfate mass ratio (CSMR), mg Cl/mg SO4 - indicator of galvanic corrosion for lead solder pipe joints.
 #'
-#' Calcium carbonate precipitation potential (CCPP) - a prediction of the mass of calcium carbonate that will precipitate at equilibrium. A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate. A negative CCPP indicates how much CaCO3 can be dissolved in the water.
+#' Calcium carbonate precipitation potential (CCPP), mg/L as CaCO3 - a prediction of the mass of calcium carbonate that will precipitate at equilibrium.
+#' A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate.
+#' A negative CCPP indicates how much CaCO3 can be dissolved in the water.
 #'
 #' @source AWWA (1977)
 #' @source Crittenden et al. (2012)
@@ -59,7 +63,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    warning("Calcium or total hardness not specified. Aggressive, Ryznar, Langelier, and CCPP indices will not be calculated.")
+    warning("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
   }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
@@ -75,7 +79,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 
   if ("aggressive" %in% index) {
     if (grepl("ca", water@estimated)) {
-      warning("Calcium estimated by previous tidywater function, aggressive index calcuation approximate.")
+      warning("Calcium estimated by previous tidywater function, aggressiveness index calcuation approximate.")
       water@estimated <- paste0(water@estimated, "_aggressive")
     }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")

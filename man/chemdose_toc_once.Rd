@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_toc_once}
 \alias{chemdose_toc_once}
-\title{Apply `chemdose_toc` function and output a dataframe}
+\title{Apply `chemdose_toc` function and output a data frame}
 \usage{
 chemdose_toc_once(
   df,
