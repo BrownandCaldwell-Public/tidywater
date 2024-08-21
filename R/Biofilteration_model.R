@@ -1,4 +1,3 @@
-
 #' @title Determine TOC removal from biofiltration
 #'
 #' @description This function applies the Terry model to a water created by \code{\link{define_water}} to determine biofiltered
