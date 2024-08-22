@@ -10,7 +10,7 @@ https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_50
 See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
-ozonate_ct(water, time, dose, kd)
+ozonate_ct(water, time, dose, kd, baffle)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp}
@@ -19,7 +19,9 @@ ozonate_ct(water, time, dose, kd)
 
 \item{dose}{Ozone dose in mg/L. This value can also be the y intercept of the decay curve (often slightly lower than ozone dose.)}
 
-\item{kd}{First order decay constant.}
+\item{kd}{First order decay constant. This parameter is optional. If not specified, the default ozone decay equations will be used.}
+
+\item{baffle}{Baffle factor - unitless value between 0 and 1.}
 }
 \description{
 This function takes a water defined by \code{\link{define_water}} and the first order decay curve parameters
@@ -34,10 +36,9 @@ instantaneous demand.
 
 # Use kd from experimental data (recommended):
 define_water(ph = 7.5, temp = 25) \%>\%
-  ozonate_ct(time = 10, dose = 2, kd = -0.5)
-# Use modeled decay curve:
+  ozonate_ct(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
 define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
-  ozonate_ct(time = 10, dose = 2)
+  ozonate_ct(time = 10, dose = 2, baffle = 0.5)
 
 }
 \seealso{
