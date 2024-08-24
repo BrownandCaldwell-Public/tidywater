@@ -43,4 +43,5 @@ ozone_resid <- water_df \%>\%
     time = seq(2, 24, 2)
   ) \%>\%
   solveresid_o3_once()
+
 }

@@ -69,11 +69,13 @@ solveresid_o3 <- function(water, dose, time) {
 #'     time = seq(2, 24, 2)
 #'   ) %>%
 #'   solveresid_o3_once()
+#'
+#' @import dplyr
 #' @export
 #'
 solveresid_o3_once <- function(df, input_water = "defined_water",
                                dose = 0, time = 0) {
-  inputs_arg <- tibble(dose, time) %>%
+  inputs_arg <- data.frame(dose, time) %>%
     select_if(~ any(. > 0))
 
   inputs_col <- df %>%

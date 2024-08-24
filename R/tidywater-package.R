@@ -4,13 +4,6 @@
 ## quiets concerns of R CMD check re: the .'s that appear in pipelines
 utils::globalVariables(".")
 
-# The following block is used by usethis to automatically manage
-# roxygen namespace tags. Modify with care!
-## usethis namespace: start
-#' @import dplyr
-## usethis namespace: end
-NULL
-
 #' Molar weights of relevant compounds
 #'
 #' A dataset containing the molar weights of several compounds in g/mol. Column names are lowercase chemical formulas (with no charge),

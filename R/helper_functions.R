@@ -228,6 +228,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
@@ -281,6 +282,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
@@ -363,6 +365,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
@@ -458,6 +461,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
@@ -602,6 +606,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
@@ -718,6 +723,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
@@ -824,6 +830,7 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 
@@ -918,6 +925,7 @@ blend_waters_once <- function(df, waters, ratios) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 
@@ -974,6 +982,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' @import dplyr
 #' @export
 
 pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
@@ -1060,6 +1069,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
@@ -1175,6 +1185,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
@@ -1260,6 +1271,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
@@ -1372,6 +1384,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
@@ -1437,6 +1450,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
@@ -1535,6 +1549,7 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
@@ -1625,6 +1640,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
