@@ -327,8 +327,8 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4,
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
-  k1co3 <- K_temp_adjust(discons["k1co3",]$deltah, discons["k1co3",]$k, temp)
-  k2co3 <- K_temp_adjust(discons["k2co3",]$deltah, discons["k2co3",]$k, temp)
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
 
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
@@ -930,7 +930,8 @@ validate_water <- function(water, slots) {
     # Paste all missing slots together.
     missing <- gsub(" +", ", ", trimws(paste(
       sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
-      collapse = " ")))
+      collapse = " "
+    )))
 
     stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
   }

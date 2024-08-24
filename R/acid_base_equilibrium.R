@@ -118,12 +118,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0,
                         softening_correction = FALSE) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
+  validate_water(water, c("ph", "alk"))
 
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
@@ -298,12 +293,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @export
 #'
 solvedose_ph <- function(water, target_ph, chemical) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
+  validate_water(water, c("ph", "alk"))
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")
   }
@@ -377,12 +367,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' @export
 #'
 solvedose_alk <- function(water, target_alk, chemical) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
+  validate_water(water, c("ph", "alk"))
   if (missing(target_alk)) {
     stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")
   }

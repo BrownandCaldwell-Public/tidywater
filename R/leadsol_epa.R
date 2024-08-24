@@ -42,12 +42,7 @@
 
 # water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
-  if (is.na(water@alk)) {
-    warning("Water is missing alkalinity. Output dataframe will be empty.")
-  }
-  if (is.na(water@is)) {
-    warning("Water is missing ionic strength. Output dataframe will be empty.")
-  }
+  validate_water(water, c("ph", "alk", "is"))
 
   water@po4 <- ifelse(is.na(water@po4), 0, water@po4)
   water@cl <- ifelse(is.na(water@cl), 0, water@cl)

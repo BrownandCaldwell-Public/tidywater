@@ -25,13 +25,8 @@
 #'
 #' @export
 #'
-ozonate_bromate <- function(water, dose, time, model) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
+ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
+  validate_water(water, c("br", "ph"))
   if (missing(dose)) {
     stop("Ozone dose must be specified in mg/L.")
   }
@@ -42,10 +37,6 @@ ozonate_bromate <- function(water, dose, time, model) {
     stop("model must be one of 'Ozekin', 'Sohn', 'Song', 'Galey', 'Siddiqui'.")
   }
 
-  # Bromide and pH required for all models
-  if (is.na(water@br) | is.na(water@ph)) {
-    stop("Bromide and pH required for all models. Include both when defining water.")
-  }
   # Other parameters depend on model
   if (is.na(water@alk) & model %in% c("Sohn", "Song")) {
     stop("Alkalinity required for selected model. Use one of 'Ozekin', 'Galey', 'Siddiqui' instead or add alkalinity when defining water.")
@@ -69,9 +60,7 @@ ozonate_bromate <- function(water, dose, time, model) {
   # TODO add warnings for parameters outside model ranges *****************************************************************
   mod <- model
   # All models must match this form.
-  solve_bro3 <- bromatecoeffs %>%
-    filter(model == mod & ammonia == ifelse(nh4 == 0, F, T)) %>%
-    mutate(bro3 = A * br^a * doc^b * uv254^c * ph^d * alk^e * dose^f * time^g * nh4^h * temp^i * I^(temp - 20))
+  solve_bro3 <- subset(bromatecoeffs, model == mod & ammonia == ifelse(nh4 == 0, F, T))
 
   if (nrow(solve_bro3) == 0 & nh4 == 0) {
     stop("Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',
@@ -80,7 +69,9 @@ ozonate_bromate <- function(water, dose, time, model) {
     stop("Selected model not applicable to water with ammonia. Select one of 'Ozekin', 'Sohn', 'Song' or change nh4 to 0.")
   }
 
-  water@bro3 <- solve_bro3$bro3
+  # bro3 = A * br^a * doc^b * uv254^c * ph^d * alk^e * dose^f * time^g * nh4^h * temp^i * I^(temp - 20)
+  water@bro3 <- solve_bro3$A * br^solve_bro3$a * doc^solve_bro3$b * uv254^solve_bro3$c * ph^solve_bro3$d *
+    alk^solve_bro3$e * dose^solve_bro3$f * time^solve_bro3$g * nh4^solve_bro3$h * temp^solve_bro3$i * solve_bro3$I^(temp - 20)
 
   return(water)
 }

@@ -17,6 +17,8 @@
 #' @export
 #'
 solveresid_o3 <- function(water, dose, time) {
+  validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
+
   doc <- water@doc
   ph <- water@ph
   temp <- water@temp

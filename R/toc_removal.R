@@ -34,7 +34,6 @@
 #' @export
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
-
   validate_water(water, c("ph", "doc", "uv254"))
 
   if (class(coeff) == "character") {

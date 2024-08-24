@@ -29,6 +29,8 @@
 #' @export
 
 chemdose_ct <- function(water, time, residual, baffle) {
+  validate_water(water, c("ph", "temp"))
+
   ph <- water@ph
   temp <- water@temp
 
@@ -77,7 +79,8 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd) {
-  ph <- water@ph
+  validate_water(water, c("temp"))
+
   temp <- water@temp
 
   # First order decay curve: y = dose * exp(k*t)
@@ -87,9 +90,8 @@ ozonate_ct <- function(water, time, dose, kd) {
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   } else {
-    if (is.na(water@ph) | is.na(water@alk) | is.na(water@doc) | is.na(water@uv254) | is.na(water@br)) {
-      stop("Water must have the following parameters defined: ph, alk, doc, uv254, br")
-    }
+    validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
+
     decaycurve <- data.frame(time = seq(0, time, .5)) %>%
       mutate(
         defined_water = list(water),

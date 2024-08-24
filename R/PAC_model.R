@@ -27,42 +27,25 @@
 #' @export
 #'
 pac_toc <- function(water, dose, time, type = "bituminous") {
-  # make case insensitive
-  type <- tolower(type)
-
+  validate_water(water, c("doc"))
+  if (missing(dose) | !is.numeric(dose)) {
+    stop("PAC dose must be specified as a number.")
+  }
+  if (missing(time) | !is.numeric(time)) {
+    stop("Reaction time must be specified as a number.")
+  }
 
   doc <- water@doc
   uv254 <- water@uv254
   toc <- water@toc
 
-  if (missing(dose)) {
-    stop("PAC Dose not specified")
-  }
-
-  if (missing(time)) {
-    stop("Time not specified")
-  }
-
-
   # warnings for bounds of PAC dose, time, defined doc in tidywater etc.
   if (dose < 5 | dose > 30) {
     warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
   }
-
-
   if (time < 10 | time > 1440) {
     warning("Duration is outside the model bounds of 10 to 1440 min")
   }
-
-
-
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
-
   if (dose <= 0) {
     warning("No PAC added. Final water will equal input water.")
   }
@@ -77,14 +60,14 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   }
 
   if (doc < 1 || doc > 5) {
-    stop("DOC concentration is outside the model bounds of 1 to 5 mg/L")
+    warning("DOC concentration is outside the model bounds of 1 to 5 mg/L")
   }
 
 
   # Calculate toc
   org_carbon_undissolved <- toc - doc
-
-
+  # make case insensitive
+  type <- tolower(type)
   if (type == "bituminous") {
     result <- .1561 + .9114 * doc - .0263 * dose - .002 * time
   } else if (type == "lignite") {
