@@ -1053,22 +1053,22 @@ correct_k <- function(water) {
   temp <- water@temp
 
   # Eq constants
-  k1co3 <- filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2co3 <- filter(discons, ID == "k2co3") %$% # k2co3 = {h+}{co32-}/{hco3-}
-    K_temp_adjust(deltah, k, temp) / activity_z2
-  k1po4 <- filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2po4 <- filter(discons, ID == "k2po4") %$% # k2po4 = {h+}{hpo42-}/{h2po4-}
-    K_temp_adjust(deltah, k, temp) / activity_z2
-  k3po4 <- filter(discons, ID == "k3po4") %$% # k3po4 = {h+}{po43-}/{hpo42-}
-    K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl <- filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  knh4 <- filter(discons, ID == "knh4") %$% # knh4 = {nh4}/{h}{nh3}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  kso4 <- filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-    K_temp_adjust(deltah, k, water@temp) / activity_z2
+  # k1co3 = {h+}{hco3-}/{h2co3}
+  k1co3 <- K_temp_adjust(discons["k1co3",]$deltah, discons["k1co3",]$k, temp) / activity_z1^2
+  # k2co3 = {h+}{co32-}/{hco3-}
+  k2co3 <- K_temp_adjust(discons["k2co3",]$deltah, discons["k2co3",]$k, temp) / activity_z2
+  # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
+  kso4 <- K_temp_adjust(discons["kso4",]$deltah, discons["kso4",]$k, temp) / activity_z2
+  # k1po4 = {h+}{h2po4-}/{h3po4}
+  k1po4 <- K_temp_adjust(discons["k1po4",]$deltah, discons["k1po4",]$k, temp) / activity_z1^2
+  # k2po4 = {h+}{hpo42-}/{h2po4-}
+  k2po4 <- K_temp_adjust(discons["k2po4",]$deltah, discons["k2po4",]$k, temp) / activity_z2
+  # k3po4 = {h+}{po43-}/{hpo42-}
+  k3po4 <- K_temp_adjust(discons["k3po4",]$deltah, discons["k3po4",]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  # kocl = {h+}{ocl-}/{hocl}
+  kocl <- K_temp_adjust(discons["kocl",]$deltah, discons["kocl",]$k, temp) / activity_z1^2
+  # knh4 = {nh4}/{h}{nh3}
+  knh4 <- K_temp_adjust(discons["knh4",]$deltah, discons["knh4",]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
