@@ -706,11 +706,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Need molar mass of CaCO3 and N
-  caco3_mw <- as.numeric(mweights["caco3"])
-  n_mw <- as.numeric(mweights["n"])
+  caco3_mw <- as.numeric(tidywater::mweights["caco3"])
+  n_mw <- as.numeric(tidywater::mweights["n"])
 
   # Determine relevant molar weight
-  if (formula %in% colnames(mweights)) {
+  if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
       (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
@@ -718,7 +718,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
       (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
-      molar_weight <- as.numeric(mweights[formula])
+      molar_weight <- as.numeric(tidywater::mweights[formula])
     }
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
@@ -1068,7 +1068,7 @@ correct_k <- function(water) {
   }
 
   temp <- water@temp
-
+  discons <- tidywater::discons
   # Eq constants
   # k1co3 = {h+}{hco3-}/{h2co3}
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2

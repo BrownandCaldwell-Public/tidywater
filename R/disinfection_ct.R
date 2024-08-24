@@ -80,7 +80,6 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd, baffle) {
-
   validate_water(water, c("temp"))
 
   temp <- water@temp

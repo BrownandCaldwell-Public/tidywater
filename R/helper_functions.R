@@ -34,9 +34,9 @@
 #' @export
 
 convert_water <- function(water) {
-  nms <- slotNames(water)
-  lst <- lapply(nms, function(nm) slot(water, nm))
-  as.data.frame(setNames(lst, nms)) %>%
+  nms <- methods::slotNames(water)
+  lst <- lapply(nms, function(nm) methods::slot(water, nm))
+  as.data.frame(stats::setNames(lst, nms)) %>%
     select(where(~ any(!is.na(.))))
 }
 

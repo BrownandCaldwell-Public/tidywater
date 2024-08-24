@@ -40,7 +40,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
   validate_water(water, c("ph", "doc", "uv254"))
 
   if (is.character(coeff)) {
-    coeffs <- subset(edwardscoeff, edwardscoeff$coeff == coeff)
+    coeffs <- subset(edwardscoeff, edwardscoeff$ID == coeff)
     if (nrow(coeffs) != 1) {
       stop("coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector.")
     }

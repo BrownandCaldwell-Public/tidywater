@@ -129,13 +129,13 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
-    predicted_dbp <- subset(dbpcoeffs, treatment == "raw")
+    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
       temp^predicted_dbp$d * ph^predicted_dbp$e * time^predicted_dbp$f
   } else {
     treat <- treatment
-    predicted_dbp <- subset(dbpcoeffs, treatment == treat)
+    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
       br^predicted_dbp$c * predicted_dbp$d^(ph - predicted_dbp$ph_const) * predicted_dbp$e^(temp - 20) * time^predicted_dbp$f
@@ -144,12 +144,12 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
   if (location == "plant" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
-      dplyr::left_join(dbp_correction, by = "ID") %>%
+      dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
       dplyr::mutate(modeled_dbp = modeled_dbp / plant) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else if (location == "ds" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
-      dplyr::left_join(dbp_correction, by = "ID") %>%
+      dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
       dplyr::mutate(modeled_dbp = modeled_dbp / ds) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else {
@@ -181,7 +181,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
   if (cl_type == "chloramine") {
     corrected_dbp_2 <- corrected_dbp_2 %>%
-      dplyr::left_join(chloramine_conv, by = "ID") %>%
+      dplyr::left_join(tidywater::chloramine_conv, by = "ID") %>%
       dplyr::mutate(modeled_dbp = modeled_dbp * percent)
   }
   corrected_dbp_2 <- as.data.frame(corrected_dbp_2)

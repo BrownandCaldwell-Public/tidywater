@@ -2,4 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+Rprof.out
 inst/doc

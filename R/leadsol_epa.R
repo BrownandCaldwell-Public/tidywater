@@ -66,7 +66,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
   }
 
-  leadsol_K <- leadsol_constants
+  leadsol_K <- tidywater::leadsol_constants
   leadsol_K$K_num <- 10^leadsol_K$log_value
 
   h <- 10^-water@ph
