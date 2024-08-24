@@ -1,0 +1,33 @@
+---
+title: "Getting started with tidywater"
+output: rmarkdown::html_vignette
+description: >
+  Start here if this is your first time using tidywater. You'll learn how to set 
+  up a `water` and how to apply different models to that water.
+vignette: >
+  %\VignetteIndexEntry{Getting started with tidywater}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tidywater)
+```
+
+Most tidywater functions required a `water` object. Start by creating a water with `define_water`. There are a lot of optional arguments that correspond to different water quality parameters. Start by specifying everything you know, or at least all the parameters relevant to the modeling you want to do. Parameters are all lowercase and use common abbreviations or chemical formulas. If you aren't sure what the correct argument name is, check the `define_water` documentation. Concentrations are specified in the most common units - usually mg/L or ug/L depending on the parameter. Units are also in the documentation, so make sure to check carefully until you are familiar with the system.
+
+```{r}
+mywater <- define_water(ph = 7, temp = 15, alk = 100, tot_hard = 100, na = 100, cl = 80,
+                        cond = 100,
+                        toc = 3, uv254 = .02, br = 50)
+
+```
+
+Etc.
