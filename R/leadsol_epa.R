@@ -109,7 +109,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 
   # * Calculation of complex concentrations ----
   complexes <- subset(leadsol_K, !grepl("solid", constant_name), select = -c(log_value, species_name, source)) %>%
-    tidyr::pivot_wider(names_from = .data$constant_name, values_from = .data$K_num)
+    tidyr::pivot_wider(names_from = constant_name, values_from = K_num)
 
   alllead <- solids %>%
     dplyr::cross_join(complexes)

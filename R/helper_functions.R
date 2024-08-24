@@ -995,7 +995,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
-  if (!any(parameter %in% slotNames("water"))) {
+  if (!any(parameter %in% methods::slotNames("water"))) {
     stop("One or more parameters doesn't exist in water class.")
   }
   if (!any(input_waters %in% colnames(df))) {

@@ -3,3 +3,4 @@
 ^\.github$
 ^LICENSE\.md$
 ^CODE_OF_CONDUCT\.md$
+^data-raw$
