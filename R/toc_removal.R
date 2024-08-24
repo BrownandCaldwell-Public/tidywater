@@ -34,16 +34,8 @@
 #' @export
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
 
-  if (is.na(water@doc) | is.na(water@ph) | is.na(water@uv254)) {
-    stop("Water is missing a modeling parameter. Make sure ph, doc, and uv254 are all specified.")
-  }
+  validate_water(water, c("ph", "doc", "uv254"))
 
   if (class(coeff) == "character") {
     coeffs <- filter(edwardscoeff, ID == coeff)

@@ -327,10 +327,8 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4,
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
-  k1co3 <- filter(discons, ID == "k1co3") %$%
-    K_temp_adjust(deltah, k, temp)
-  k2co3 <- filter(discons, ID == "k2co3") %$%
-    K_temp_adjust(deltah, k, temp)
+  k1co3 <- K_temp_adjust(discons["k1co3",]$deltah, discons["k1co3",]$k, temp)
+  k2co3 <- K_temp_adjust(discons["k2co3",]$deltah, discons["k2co3",]$k, temp)
 
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
@@ -916,7 +914,28 @@ balance_ions <- function(water) {
   return(water)
 }
 
-# Non-exported functions
+# Non-exported functions -----
+
+validate_water <- function(water, slots) {
+  # Make sure a water is present.
+  if (missing(water)) {
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
+
+  # Check if any slots are NA
+  if (any(sapply(slots, function(sl) is.na(methods::slot(water, sl))))) {
+    # Paste all missing slots together.
+    missing <- gsub(" +", ", ", trimws(paste(
+      sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
+      collapse = " ")))
+
+    stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
+  }
+}
+
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
@@ -1054,21 +1073,21 @@ correct_k <- function(water) {
 
   # Eq constants
   # k1co3 = {h+}{hco3-}/{h2co3}
-  k1co3 <- K_temp_adjust(discons["k1co3",]$deltah, discons["k1co3",]$k, temp) / activity_z1^2
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
   # k2co3 = {h+}{co32-}/{hco3-}
-  k2co3 <- K_temp_adjust(discons["k2co3",]$deltah, discons["k2co3",]$k, temp) / activity_z2
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
   # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-  kso4 <- K_temp_adjust(discons["kso4",]$deltah, discons["kso4",]$k, temp) / activity_z2
+  kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
   # k1po4 = {h+}{h2po4-}/{h3po4}
-  k1po4 <- K_temp_adjust(discons["k1po4",]$deltah, discons["k1po4",]$k, temp) / activity_z1^2
+  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
   # k2po4 = {h+}{hpo42-}/{h2po4-}
-  k2po4 <- K_temp_adjust(discons["k2po4",]$deltah, discons["k2po4",]$k, temp) / activity_z2
+  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
   # k3po4 = {h+}{po43-}/{hpo42-}
-  k3po4 <- K_temp_adjust(discons["k3po4",]$deltah, discons["k3po4",]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
   # kocl = {h+}{ocl-}/{hocl}
-  kocl <- K_temp_adjust(discons["kocl",]$deltah, discons["kocl",]$k, temp) / activity_z1^2
+  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {nh4}/{h}{nh3}
-  knh4 <- K_temp_adjust(discons["knh4",]$deltah, discons["knh4",]$k, temp) / activity_z1^2
+  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
