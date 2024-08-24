@@ -443,13 +443,8 @@ summarize_wq <- function(water, params = c("general")) {
   general <- general %>%
     pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
-      "-",
-      "deg C",
-      "mg/L as CaCO3",
-      "mg/L as CaCO3",
-      "mg/L",
-      "uS/cm",
-      "mg/L"
+      "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
+      "mg/L", "uS/cm", "mg/L"
     ))
 
   gen_tab <- knitr::kable(general,
@@ -491,7 +486,7 @@ summarize_wq <- function(water, params = c("general")) {
 
   corrosion <- corrosion %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2)) %>%
+    mutate(result = round(.data$result, 2)) %>%
     mutate(
       units = c(rep("unitless", 5), "mg/L CaCO3"),
       Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
@@ -529,11 +524,11 @@ summarize_wq <- function(water, params = c("general")) {
 
   tthm <- tthm %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2))
+    mutate(result = round(.data$result, 2))
 
   haa5 <- haa5 %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2))
+    mutate(result = round(.data$result, 2))
 
   thm_tab <- knitr::kable(tthm,
     format = "simple",
@@ -607,11 +602,11 @@ plot_ions <- function(water) {
 
   ions %>%
     pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
+    mutate(type = case_when(.data$ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
     mutate(
-      label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+      label_pos = cumsum(.data$concentration) - .data$concentration / 2, .by = type,
+      label_y = case_when(.data$type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
     ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
     geom_bar(

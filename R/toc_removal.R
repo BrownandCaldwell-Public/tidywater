@@ -29,20 +29,22 @@
 #'   chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
 #'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
-#'   chemdose_toc(alum = 10, coeff = c("x1" = 280, "x2" = -73.9, "x3" = 4.96,
-#'   "k1" = -0.028, "k2" = 0.23, "b" = 0.068))
+#'   chemdose_toc(alum = 10, coeff = c(
+#'     "x1" = 280, "x2" = -73.9, "x3" = 4.96,
+#'     "k1" = -0.028, "k2" = 0.23, "b" = 0.068
+#'   ))
 #'
 #' @export
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   validate_water(water, c("ph", "doc", "uv254"))
 
-  if (class(coeff) == "character") {
-    coeffs <- filter(edwardscoeff, ID == coeff)
+  if (is.character(coeff)) {
+    coeffs <- edwardscoeff[coeff, ]
     if (nrow(coeffs) != 1) {
       stop("coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector.")
     }
-  } else if (class(coeff) == "numeric") {
+  } else if (is.numeric(coeff)) {
     coeffs <- data.frame(k1 = coeff["k1"], k2 = coeff["k2"], x1 = coeff["x1"], x2 = coeff["x2"], x3 = coeff["x3"], b = coeff["b"])
     if (any(is.na(coeffs))) {
       stop("coeff must be specified as a named vector and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")

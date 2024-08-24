@@ -167,11 +167,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     ) %>%
     dplyr::group_by(group) %>%
     dplyr::mutate(
-      sum_group = sum(modeled_dbp),
-      proportion_group = modeled_dbp / sum_group
+      sum_group = sum(.data$modeled_dbp),
+      proportion_group = .data$modeled_dbp / .data$sum_group
     ) %>%
     dplyr::left_join(bulk_dbp, by = "group", suffix = c("_ind", "_bulk")) %>%
-    dplyr::mutate(modeled_dbp = proportion_group * modeled_dbp_bulk)
+    dplyr::mutate(modeled_dbp = .data$proportion_group * .data$modeled_dbp_bulk)
 
   corrected_dbp_2 <- individual_dbp %>%
     dplyr::select(ID_ind, group, modeled_dbp) %>%

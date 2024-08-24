@@ -33,11 +33,15 @@
 #'
 #' @examples
 #'
-#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
-#'  tot_po4 = 0, so4 = 150, tds = 200) %>%
+#' example_pb <- define_water(
+#'   ph = 7.5, temp = 25, alk = 93, cl = 240,
+#'   tot_po4 = 0, so4 = 150, tds = 200
+#' ) %>%
 #'   dissolve_pb()
-#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
-#' tot_po4 = 0, so4 = 150, tds = 200) %>%
+#' example_pb <- define_water(
+#'   ph = 7.5, temp = 25, alk = 93, cl = 240,
+#'   tot_po4 = 0, so4 = 150, tds = 200
+#' ) %>%
 #'   dissolve_pb(pyromorphite = "Xie")
 #'
 #' @export
@@ -105,37 +109,37 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 
   # * Calculation of complex concentrations ----
   complexes <- subset(leadsol_K, !grepl("solid", constant_name), select = -c(log_value, species_name, source)) %>%
-    tidyr::pivot_wider(names_from = constant_name, values_from = K_num)
+    tidyr::pivot_wider(names_from = .data$constant_name, values_from = .data$K_num)
 
   alllead <- solids %>%
     dplyr::cross_join(complexes)
   # Calculate lead-hydroxide complex concentrations
-  alllead$PbOH_plus = (alllead$B_1_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h)
-  alllead$PbOH2 = (alllead$B_2_OH) * gamma_2 * alllead$Pb_2_plus / h^2
-  alllead$PbOH3_minus = (alllead$B_3_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h^3)
-  alllead$PbOH4_2_minus = (alllead$B_4_OH) * alllead$Pb_2_plus / h^4
-  alllead$Pb2OH_3_plus = (alllead$B_2_1_OH) * gamma_2^2 * alllead$Pb_2_plus^2 / (gamma_3 * h)
-  alllead$Pb3OH4_2_plus = (alllead$B_3_4_OH) * gamma_2^2 * alllead$Pb_2_plus^3 / h^4
-  alllead$Pb4OH4_4_plus = (alllead$B_4_4_OH) * gamma_2^4 * alllead$Pb_2_plus^4 / (gamma_4 * h^4)
-  alllead$Pb6OH8_4_plus = (alllead$B_6_8_OH) * gamma_2^6 * alllead$Pb_2_plus^6 / (gamma_4 * h^8)
+  alllead$PbOH_plus <- (alllead$B_1_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h)
+  alllead$PbOH2 <- (alllead$B_2_OH) * gamma_2 * alllead$Pb_2_plus / h^2
+  alllead$PbOH3_minus <- (alllead$B_3_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h^3)
+  alllead$PbOH4_2_minus <- (alllead$B_4_OH) * alllead$Pb_2_plus / h^4
+  alllead$Pb2OH_3_plus <- (alllead$B_2_1_OH) * gamma_2^2 * alllead$Pb_2_plus^2 / (gamma_3 * h)
+  alllead$Pb3OH4_2_plus <- (alllead$B_3_4_OH) * gamma_2^2 * alllead$Pb_2_plus^3 / h^4
+  alllead$Pb4OH4_4_plus <- (alllead$B_4_4_OH) * gamma_2^4 * alllead$Pb_2_plus^4 / (gamma_4 * h^4)
+  alllead$Pb6OH8_4_plus <- (alllead$B_6_8_OH) * gamma_2^6 * alllead$Pb_2_plus^6 / (gamma_4 * h^8)
   # Calculate lead-chloride complex concentrations
-  alllead$PbCl_plus = (alllead$K_1_Cl) * gamma_2 * alllead$Pb_2_plus * water@cl
-  alllead$PbCl2 = (alllead$B_2_Cl) * gamma_2 * alllead$Pb_2_plus * gamma_1^2 * water@cl^2
-  alllead$PbCl3_minus = (alllead$B_3_Cl) * gamma_2 * alllead$Pb_2_plus * gamma_1^2 * water@cl^3
-  alllead$PbCl4_2_minus = (alllead$B_4_Cl) * alllead$Pb_2_plus * gamma_1^4 * water@cl^4
+  alllead$PbCl_plus <- (alllead$K_1_Cl) * gamma_2 * alllead$Pb_2_plus * water@cl
+  alllead$PbCl2 <- (alllead$B_2_Cl) * gamma_2 * alllead$Pb_2_plus * gamma_1^2 * water@cl^2
+  alllead$PbCl3_minus <- (alllead$B_3_Cl) * gamma_2 * alllead$Pb_2_plus * gamma_1^2 * water@cl^3
+  alllead$PbCl4_2_minus <- (alllead$B_4_Cl) * alllead$Pb_2_plus * gamma_1^4 * water@cl^4
   # Calculate lead-sulfate complex concentrations
-  alllead$PbSO4 = (alllead$K_1_SO4) * gamma_2^2 * alllead$Pb_2_plus * water@so4
-  alllead$PbSO42_2_minus = (alllead$B_2_SO4) * gamma_2^2 * alllead$Pb_2_plus * water@so4^2
+  alllead$PbSO4 <- (alllead$K_1_SO4) * gamma_2^2 * alllead$Pb_2_plus * water@so4
+  alllead$PbSO42_2_minus <- (alllead$B_2_SO4) * gamma_2^2 * alllead$Pb_2_plus * water@so4^2
   # Calculate lead-carbonate complex concentrations
-  alllead$PbHCO3_plus = ((alllead$K_1_CO3) * h * gamma_2^2 * alllead$Pb_2_plus * water@co3) / gamma_1
-  alllead$PbCO3 = (alllead$K_2_CO3) * gamma_2^2 * alllead$Pb_2_plus * water@co3
-  alllead$PbCO32_2_minus = (alllead$K_3_CO3) * gamma_2^2 * alllead$Pb_2_plus * water@co3^2
+  alllead$PbHCO3_plus <- ((alllead$K_1_CO3) * h * gamma_2^2 * alllead$Pb_2_plus * water@co3) / gamma_1
+  alllead$PbCO3 <- (alllead$K_2_CO3) * gamma_2^2 * alllead$Pb_2_plus * water@co3
+  alllead$PbCO32_2_minus <- (alllead$K_3_CO3) * gamma_2^2 * alllead$Pb_2_plus * water@co3^2
   # Calculate lead-phosphate complex concentrations
-  alllead$PbHPO4 = (alllead$K_1_PO4) * h * gamma_2 * gamma_3 * alllead$Pb_2_plus * water@po4
-  alllead$PbH2PO4_plus = (alllead$K_2_PO4) * h^2 * gamma_2 * gamma_3 * alllead$Pb_2_plus * water@po4 / gamma_1
+  alllead$PbHPO4 <- (alllead$K_1_PO4) * h * gamma_2 * gamma_3 * alllead$Pb_2_plus * water@po4
+  alllead$PbH2PO4_plus <- (alllead$K_2_PO4) * h^2 * gamma_2 * gamma_3 * alllead$Pb_2_plus * water@po4 / gamma_1
 
   # Calculate total dissolved lead molar concentration
-  alllead$tot_dissolved_pb = alllead$Pb_2_plus +
+  alllead$tot_dissolved_pb <- alllead$Pb_2_plus +
     alllead$PbOH_plus + alllead$PbOH2 + alllead$PbOH3_minus + alllead$PbOH4_2_minus +
     2 * alllead$Pb2OH_3_plus + 3 * alllead$Pb3OH4_2_plus + 4 * alllead$Pb4OH4_4_plus + 6 * alllead$Pb6OH8_4_plus +
 

@@ -125,7 +125,7 @@ convert_watermg <- function(water) {
 define_water_once <- function(df) {
   df %>%
     define_water_chain() %>%
-    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
+    mutate(defined_df = furrr::future_map(.data$defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
     as.data.frame()
@@ -238,7 +238,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 balance_ions_once <- function(df, input_water = "defined_water") {
   output <- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
+    mutate(balance_df = furrr::future_map(.data$balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
 }
@@ -386,7 +386,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       cl2, naocl, caocl2, nh4oh, nh42so4,
       alum, ferricchloride, ferricsulfate, caco3
     ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(.data$dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
 }
@@ -865,7 +865,7 @@ blend_waters_once <- function(df, waters, ratios) {
   }
 
   output <- df %>%
-    mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
+    mutate(blend_df = furrr::future_map(.data$blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 }
@@ -1320,7 +1320,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
   } else if (length(coeff) == 1) {
     chem3 <- chem2 %>%
       mutate(coeff = list(coeff))
-  } else if (class(coeff) == "numeric" & length(coeff) == 6) {
+  } else if (is.numeric(coeff) & length(coeff) == 6) {
     chem3 <- chem2 %>%
       mutate(coeff = list(coeff))
   } else {
@@ -1545,8 +1545,10 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag",
-#'   location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_once(
+#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     location = "ds", cl_type = "chloramine"
+#'   )
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
@@ -1638,8 +1640,10 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water", cl = 6, treatment = "coag",
-#'   location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_chain(
+#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     location = "ds", cl_type = "chloramine"
+#'   )
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
