@@ -36,7 +36,7 @@
 #' @export
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
-  ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
+  modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
   toc <- water@toc
@@ -146,12 +146,12 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   if (location == "plant" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
       dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = .data$modeled_dbp / .data$plant) %>%
+      dplyr::mutate(modeled_dbp = modeled_dbp / .data$plant) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else if (location == "ds" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
       dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = .data$modeled_dbp / .data$ds) %>%
+      dplyr::mutate(modeled_dbp = modeled_dbp / .data$ds) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else {
     corrected_dbp_1 <- predicted_dbp %>%
@@ -168,8 +168,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     ) %>%
     dplyr::group_by(group) %>%
     dplyr::mutate(
-      sum_group = sum(.data$modeled_dbp),
-      proportion_group = .data$modeled_dbp / .data$sum_group
+      sum_group = sum(modeled_dbp),
+      proportion_group = modeled_dbp / .data$sum_group
     ) %>%
     dplyr::left_join(bulk_dbp, by = "group", suffix = c("_ind", "_bulk")) %>%
     dplyr::mutate(modeled_dbp = .data$proportion_group * .data$modeled_dbp_bulk)

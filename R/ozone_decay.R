@@ -75,6 +75,7 @@ solveresid_o3 <- function(water, dose, time) {
 #'
 solveresid_o3_once <- function(df, input_water = "defined_water",
                                dose = 0, time = 0) {
+  ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- data.frame(dose, time) %>%
     select_if(~ any(. > 0))
 

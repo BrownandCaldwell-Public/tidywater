@@ -619,6 +619,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
+  dose <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
@@ -736,6 +737,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @export
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
+  dose <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
@@ -1406,9 +1408,10 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
+  corrosion_indices <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
-    mutate(index = furrr::future_map(.data$corrosion_indices, convert_water)) %>%
+    mutate(index = furrr::future_map(corrosion_indices, convert_water)) %>%
     unnest(index) %>%
     select(-corrosion_indices) %>%
     select_if(~ any(!is.na(.)))

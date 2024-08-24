@@ -578,6 +578,7 @@ summarise_wq <- summarize_wq
 #' @export
 #'
 plot_ions <- function(water) {
+  type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
@@ -603,13 +604,13 @@ plot_ions <- function(water) {
 
   ions %>%
     pivot_longer(c(.data$Na:.data$OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(.data$ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    arrange(.data$type, .data$concentration) %>%
+    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
+    arrange(type, concentration) %>%
     mutate(
-      label_pos = cumsum(.data$concentration) - .data$concentration / 2, .by = type,
-      label_y = case_when(.data$type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+      label_pos = cumsum(concentration) - concentration / 2, .by = type,
+      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    ggplot(aes(x = concentration, y = type, fill = stats::reorder(.data$ion, -.data$concentration))) +
+    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
     geom_bar(
       stat = "identity",
       width = 0.5,
