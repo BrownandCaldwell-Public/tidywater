@@ -92,7 +92,8 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #'
 solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5, cost, time = "day") {
   suspended <- turb * b
-  fe <- ferricsulfate * (mweights$fe * 2 / mweights$ferricsulfate) # 2 mol of Fe added per mol of ferric sulfate
+  # 2 mol of Fe added per mol of ferric sulfate
+  fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
 
   lb_day <- 8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended)
   cost_day <- cost * lb_day # $/lb * lb/day

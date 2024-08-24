@@ -327,6 +327,7 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4,
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
+  discons <- tidywater::discons
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
   k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
 
@@ -441,7 +442,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
+    pivot_longer(c(.data$pH:.data$TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
       "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
       "mg/L", "uS/cm", "mg/L"
@@ -465,7 +466,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
+    pivot_longer(c(.data$Na:.data$CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
@@ -601,14 +602,14 @@ plot_ions <- function(water) {
   )
 
   ions %>%
-    pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
+    pivot_longer(c(.data$Na:.data$OH), names_to = "ion", values_to = "concentration") %>%
     mutate(type = case_when(.data$ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    arrange(type, concentration) %>%
+    arrange(.data$type, .data$concentration) %>%
     mutate(
       label_pos = cumsum(.data$concentration) - .data$concentration / 2, .by = type,
       label_y = case_when(.data$type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
+    ggplot(aes(x = concentration, y = type, fill = stats::reorder(.data$ion, -.data$concentration))) +
     geom_bar(
       stat = "identity",
       width = 0.5,

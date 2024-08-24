@@ -36,6 +36,7 @@
 #' @export
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
+  ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
   toc <- water@toc
@@ -145,12 +146,12 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   if (location == "plant" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
       dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = modeled_dbp / plant) %>%
+      dplyr::mutate(modeled_dbp = .data$modeled_dbp / .data$plant) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else if (location == "ds" & treatment != "gac") {
     corrected_dbp_1 <- predicted_dbp %>%
       dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = modeled_dbp / ds) %>%
+      dplyr::mutate(modeled_dbp = .data$modeled_dbp / .data$ds) %>%
       dplyr::select(ID, group, modeled_dbp)
   } else {
     corrected_dbp_1 <- predicted_dbp %>%

@@ -26,6 +26,7 @@
 #' @export
 #'
 ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
+  ammonia <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("br", "ph"))
   if (missing(dose)) {
     stop("Ozone dose must be specified in mg/L.")
@@ -60,7 +61,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   # TODO add warnings for parameters outside model ranges *****************************************************************
   mod <- model
   # All models must match this form.
-  solve_bro3 <- subset(bromatecoeffs, model == mod & ammonia == ifelse(nh4 == 0, F, T))
+  solve_bro3 <- subset(tidywater::bromatecoeffs, model == mod & ammonia == ifelse(nh4 == 0, F, T))
 
   if (nrow(solve_bro3) == 0 & nh4 == 0) {
     stop("Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',

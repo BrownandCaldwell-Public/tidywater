@@ -48,6 +48,7 @@
 
 # water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
+  constant_name <- log_value <- species_name <- K_num <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "alk", "is"))
 
   water@po4 <- ifelse(is.na(water@po4), 0, water@po4)
@@ -148,12 +149,12 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     alllead$PbHCO3_plus + alllead$PbCO3 + alllead$PbCO32_2_minus +
     alllead$PbHPO4 + alllead$PbH2PO4_plus
 
-  alllead_simple <- subset(alllead,
+  alllead_simple <- subset(
+    alllead,
     !(alllead$species_name == "Hydroxypyromorphite" & !grepl(hydroxypyromorphite, alllead$source)) &
       !(alllead$species_name == "Pyromorphite" & !grepl(pyromorphite, alllead$source)) &
       !(alllead$species_name == "Laurionite" & !grepl(laurionite, alllead$source)) &
-      !is.na(alllead$tot_dissolved_pb),
-    select = c(species_name, Pb_2_plus, tot_dissolved_pb)
+      !is.na(alllead$tot_dissolved_pb)
   )
   controlling_solid <- alllead_simple$species_name[min(alllead_simple$tot_dissolved_pb) == alllead_simple$tot_dissolved_pb]
   tot_dissolved_pb <- min(alllead_simple$tot_dissolved_pb)
@@ -180,7 +181,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #'
 
 calculate_dic <- function(water) {
-  dic <- water@tot_co3 * mweights$dic * 1000
+  dic <- water@tot_co3 * tidywater::mweights$dic * 1000
 
   return(dic)
 }

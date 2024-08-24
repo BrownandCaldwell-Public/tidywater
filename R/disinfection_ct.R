@@ -77,6 +77,7 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
 #'   ozonate_ct(time = 10, dose = 2, baffle = 0.5)
 #'
+#' @import dplyr
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd, baffle) {
@@ -99,7 +100,7 @@ ozonate_ct <- function(water, time, dose, kd, baffle) {
         dose = dose
       ) %>%
       solveresid_o3_once() %>%
-      mutate(ct = o3resid * .5) %>%
+      mutate(ct = .data$o3resid * .5) %>%
       filter(time != 0)
     ct_tot <- sum(decaycurve$ct)
   }

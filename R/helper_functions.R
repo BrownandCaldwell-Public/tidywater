@@ -123,9 +123,10 @@ convert_watermg <- function(water) {
 #' @export
 
 define_water_once <- function(df) {
+  defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
   df %>%
     define_water_chain() %>%
-    mutate(defined_df = furrr::future_map(.data$defined_water, convert_water)) %>%
+    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
     as.data.frame()
@@ -236,6 +237,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
+  balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
     mutate(balance_df = furrr::future_map(.data$balanced_water, convert_water)) %>%
@@ -378,6 +380,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+  dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",
@@ -386,7 +389,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       cl2, naocl, caocl2, nh4oh, nh42so4,
       alum, ferricchloride, ferricsulfate, caco3
     ) %>%
-    mutate(dose_chem = furrr::future_map(.data$dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
 }
@@ -474,6 +477,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                               cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+  ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
@@ -841,6 +845,7 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
 
 
 blend_waters_once <- function(df, waters, ratios) {
+  blend_df <- blended <- NULL # Quiet RCMD check global variable note
   df_subset <- df %>% select(all_of(waters))
 
   for (row in 1:length(df_subset[[1]])) {
@@ -1082,6 +1087,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
                              output_col_result = "pb", hydroxypyromorphite = "Schock",
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
+  calc <- tot_dissolved_pb <- controlling_solid <- NULL # Quiet RCMD check global variable note
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
     stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
   }
@@ -1198,6 +1204,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+  dosed_chem_water <- dose_chem <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "dosed_chem_water",
@@ -1284,6 +1291,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                                alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+  ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(alum, ferricchloride, ferricsulfate)
 
   chem_inputs_arg <- dosable_chems %>%
@@ -1400,7 +1408,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
                                      form = "calcite") {
   output <- df %>%
     calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
-    mutate(index = furrr::future_map(corrosion_indices, convert_water)) %>%
+    mutate(index = furrr::future_map(.data$corrosion_indices, convert_water)) %>%
     unnest(index) %>%
     select(-corrosion_indices) %>%
     select_if(~ any(!is.na(.)))
@@ -1567,6 +1575,7 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
                               treatment = "raw", cl_type = "chlorine", location = "plant") {
+  temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_dbp_chain(
       input_water = input_water, output_water = "temp_dbp",
@@ -1661,6 +1670,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
+  ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- tibble(cl2, time) %>%
     select_if(~ any(. > 0))
 
