@@ -240,7 +240,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
   balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = furrr::future_map(.data$balanced_water, convert_water)) %>%
+    mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
 }
@@ -872,7 +872,7 @@ blend_waters_once <- function(df, waters, ratios) {
   }
 
   output <- df %>%
-    mutate(blend_df = furrr::future_map(.data$blended, convert_water)) %>%
+    mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 }
