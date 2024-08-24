@@ -64,21 +64,23 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp
 #' @param time Retention time of disinfection segment in minutes.
 #' @param dose Ozone dose in mg/L. This value can also be the y intercept of the decay curve (often slightly lower than ozone dose.)
-#' @param kd First order decay constant.
+#' @param kd First order decay constant. This parameter is optional. If not specified, the default ozone decay equations will be used.
+#' @param baffle Baffle factor - unitless value between 0 and 1.
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
 #' # Use kd from experimental data (recommended):
 #' define_water(ph = 7.5, temp = 25) %>%
-#'   ozonate_ct(time = 10, dose = 2, kd = -0.5)
-#' # Use modeled decay curve:
+#'   ozonate_ct(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
+# Use modeled decay curve:
 #' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
-#'   ozonate_ct(time = 10, dose = 2)
+#'   ozonate_ct(time = 10, dose = 2, baffle = 0.5)
 #'
 #' @export
 #'
-ozonate_ct <- function(water, time, dose, kd) {
+ozonate_ct <- function(water, time, dose, kd, baffle) {
+
   validate_water(water, c("temp"))
 
   temp <- water@temp
@@ -88,7 +90,7 @@ ozonate_ct <- function(water, time, dose, kd) {
   if (!missing(kd)) {
     ct_tot <- dose * (exp(kd * time) - 1) / kd
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
-    ct_actual <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
+    ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   } else {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -100,9 +102,10 @@ ozonate_ct <- function(water, time, dose, kd) {
       solveresid_o3_once() %>%
       mutate(ct = o3resid * .5) %>%
       filter(time != 0)
-    ct_actual <- sum(decaycurve$ct)
+    ct_tot <- sum(decaycurve$ct)
   }
 
+  ct_actual <- ct_tot * baffle
   giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
   virus_log_removal <- 2.1744 * 1.0726^temp * ct_actual
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual

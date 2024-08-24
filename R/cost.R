@@ -73,7 +73,7 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 
 #' Determine solids disposal cost
 #'
-#' This function takes coagulant doses in mg/L as chemical, raw turbidity, % solids, and $/lb to determine disposal cost.
+#' This function takes coagulant doses in mg/L as chemical, removed turbidity, and cost ($/lb) to determine disposal cost.
 #'
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
@@ -86,7 +86,7 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @source https://water.mecc.edu/courses/ENV295Residuals/lesson3b.htm#:~:text=From%20the%20diagram%2C%20for%20example,million%20gallons%20of%20water%20produced.
 #'
 #' @examples
-#' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 5)
+#' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 #'
 #' @export
 #'
@@ -95,7 +95,7 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
   fe <- ferricsulfate * (mweights$fe * 2 / mweights$ferricsulfate) # 2 mol of Fe added per mol of ferric sulfate
 
   lb_day <- 8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended)
-  cost_day <- cost / lb_day
+  cost_day <- cost * lb_day # $/lb * lb/day
 
   if (time == "day") {
     cost_day
