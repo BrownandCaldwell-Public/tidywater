@@ -118,6 +118,8 @@ convert_watermg <- function(water) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 define_water_once <- function(df) {
@@ -169,6 +171,7 @@ define_water_once <- function(df) {
 #' #' #Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 define_water_chain <- function(df, output_water = "defined_water") {
@@ -229,6 +232,7 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
@@ -366,6 +370,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
@@ -700,7 +705,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'   solvedose_alk_once()
 #'
 #' # When the selected chemical can't raise the alkalinity, the dose_required will be NA
-#' # For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
+#' # Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -831,6 +836,7 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 
@@ -1070,6 +1076,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
@@ -1186,6 +1193,7 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
@@ -1385,6 +1393,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
@@ -1536,7 +1545,8 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag",
+#'   location = "ds", cl_type = "chloramine")
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
@@ -1550,6 +1560,7 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' plan(sequential)
 #'
 #' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
@@ -1627,7 +1638,8 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_chain(input_water = "balanced_water", cl = 6, treatment = "coag",
+#'   location = "ds", cl_type = "chloramine")
 #'
 #' # Initialize parallel processing
 #' plan(multisession)

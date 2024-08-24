@@ -417,6 +417,8 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' # Summarize major cations and anions
 #' summarize_wq(water_defined, params = list("ions"))
 #'
+#' @import dplyr
+#' @importFrom tidyr pivot_longer
 #' @export
 #'
 summarize_wq <- function(water, params = c("general")) {
@@ -478,7 +480,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   # Compile corrosion indices
-  corrosion <- tibble(
+  corrosion <- data.frame(
     `Aggressive Index` = water@aggressive,
     `Ryznar Stability Index` = water@ryznar,
     `Langelier Saturation Index (LSI)` = water@langelier,
@@ -501,7 +503,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   # Compile DBPs
-  tthm <- tibble(
+  tthm <- data.frame(
     Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
     Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
     Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
@@ -510,7 +512,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
 
-  haa5 <- tibble(
+  haa5 <- data.frame(
     `Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
     `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
     `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),

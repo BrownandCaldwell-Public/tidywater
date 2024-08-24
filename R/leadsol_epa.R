@@ -33,9 +33,11 @@
 #'
 #' @examples
 #'
-#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
+#'  tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'   dissolve_pb()
-#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240, tot_po4 = 0, so4 = 150, tds = 200) %>%
+#' example_pb <- define_water(ph = 7.5, temp = 25, alk = 93, cl = 240,
+#' tot_po4 = 0, so4 = 150, tds = 200) %>%
 #'   dissolve_pb(pyromorphite = "Xie")
 #'
 #' @export
@@ -78,28 +80,28 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   solids <- subset(leadsol_K, grepl("solid", constant_name))
   solids$Pb_2_plus <- NA
   # Lead Hydroxide: Pb(OH)2(s) + 2H+ --> Pb2+ + 2H2O
-  solids["K_solid_lead_hydroxide","Pb_2_plus"] <- solids["K_solid_lead_hydroxide","K_num"] * h^2 / gamma_2
+  solids["K_solid_lead_hydroxide", "Pb_2_plus"] <- solids["K_solid_lead_hydroxide", "K_num"] * h^2 / gamma_2
   # Cerussite: PbCO3(s) --> Pb2+ + CO32-
-  solids["K_solid_cerussite","Pb_2_plus"] <- solids["K_solid_cerussite","K_num"] / (gamma_2^2 * water@co3)
+  solids["K_solid_cerussite", "Pb_2_plus"] <- solids["K_solid_cerussite", "K_num"] / (gamma_2^2 * water@co3)
   # Hydrocerussite: Pb3(CO3)2(OH)2(s) + 2H+ --> 3Pb2+ + 2CO32- + 2H2O
-  solids["K_solid_hydrocerussite","Pb_2_plus"] ~ (solids["K_solid_hydrocerussite","K_num"] * h^2 / (gamma_2^5 * water@co3^2))^(1 / 3)
+  solids["K_solid_hydrocerussite", "Pb_2_plus"] ~ (solids["K_solid_hydrocerussite", "K_num"] * h^2 / (gamma_2^5 * water@co3^2))^(1 / 3)
   # Hydroxypyromorphite: Pb5(PO4)3OH(s) + H+ --> 5Pb2+ + 3PO43- + H2O
-  solids["K_solid_hydroxypyromorphite_s","Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_s","K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)
-  solids["K_solid_hydroxypyromorphite_z","Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_z","K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)
+  solids["K_solid_hydroxypyromorphite_s", "Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_s", "K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)
+  solids["K_solid_hydroxypyromorphite_z", "Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_z", "K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)
   # Pyromorphite: Pb5(PO4)3Cl(s) --> 5Pb2+ + 3PO43- + Cl-
-  solids["K_solid_pyromorphite_x","Pb_2_plus"] <-(solids["K_solid_pyromorphite_x","K_num"] / (gamma_1 * gamma_2^5 * gamma_3^3 * water@po4^3 * water@cl))^(1 / 5)
-  solids["K_solid_pyromorphite_t","Pb_2_plus"] <- (solids["K_solid_pyromorphite_t","K_num"] / (gamma_1 * gamma_2^5 * gamma_3^3 * water@po4^3 * water@cl))^(1 / 5)
+  solids["K_solid_pyromorphite_x", "Pb_2_plus"] <- (solids["K_solid_pyromorphite_x", "K_num"] / (gamma_1 * gamma_2^5 * gamma_3^3 * water@po4^3 * water@cl))^(1 / 5)
+  solids["K_solid_pyromorphite_t", "Pb_2_plus"] <- (solids["K_solid_pyromorphite_t", "K_num"] / (gamma_1 * gamma_2^5 * gamma_3^3 * water@po4^3 * water@cl))^(1 / 5)
   # Primary Lead Orthophosphate: Pb(H2PO4)2(s) --> Pb2+ + 2PO43- + 4H+
-  solids["K_solid_primary_lead_ortho","Pb_2_plus"] <- solids["K_solid_primary_lead_ortho","K_num"] / (gamma_2 * gamma_3^2 * water@po4^2 * h^4)
+  solids["K_solid_primary_lead_ortho", "Pb_2_plus"] <- solids["K_solid_primary_lead_ortho", "K_num"] / (gamma_2 * gamma_3^2 * water@po4^2 * h^4)
   # Secondary Lead Orthophosphate: PbHPO4(s) --> Pb2+ + PO43- + H+
-  solids["K_solid_secondary_lead_ortho","Pb_2_plus"] <-  solids["K_solid_secondary_lead_ortho","K_num"] / (gamma_2 * gamma_3 * water@po4 * h)
+  solids["K_solid_secondary_lead_ortho", "Pb_2_plus"] <- solids["K_solid_secondary_lead_ortho", "K_num"] / (gamma_2 * gamma_3 * water@po4 * h)
   # Tertiary Lead Orthophosphate: Pb3(PO4)2(s) --> 3Pb2+ + 2PO43- + H+
-  solids["K_solid_tertiary_lead_ortho","Pb_2_plus"] <- (solids["K_solid_tertiary_lead_ortho","K_num"] / (gamma_2^3 * gamma_3^2 * water@po4^2))^(1 / 3)
+  solids["K_solid_tertiary_lead_ortho", "Pb_2_plus"] <- (solids["K_solid_tertiary_lead_ortho", "K_num"] / (gamma_2^3 * gamma_3^2 * water@po4^2))^(1 / 3)
   # Anglesite: PbSO4(s) --> Pb2+ + SO42-
-  solids["K_solid_anglesite","Pb_2_plus"] <-  solids["K_solid_anglesite","K_num"] / (gamma_2^2 * water@so4)
+  solids["K_solid_anglesite", "Pb_2_plus"] <- solids["K_solid_anglesite", "K_num"] / (gamma_2^2 * water@so4)
   # Laurionite: PbClOH(s) + H+ --> Pb2+ + Cl- + H2O
-  solids["K_solid_laurionite_nl","Pb_2_plus"] <-  solids["K_solid_laurionite_nl","K_num"] * h / (gamma_2 * gamma_1 * water@cl)
-  solids["K_solid_laurionite_l","Pb_2_plus"] <-  solids["K_solid_laurionite_l","K_num"] * h / (gamma_2 * gamma_1 * water@cl)
+  solids["K_solid_laurionite_nl", "Pb_2_plus"] <- solids["K_solid_laurionite_nl", "K_num"] * h / (gamma_2 * gamma_1 * water@cl)
+  solids["K_solid_laurionite_l", "Pb_2_plus"] <- solids["K_solid_laurionite_l", "K_num"] * h / (gamma_2 * gamma_1 * water@cl)
 
   # * Calculation of complex concentrations ----
   complexes <- subset(leadsol_K, !grepl("solid", constant_name), select = -c(log_value, species_name, source)) %>%
@@ -143,11 +145,12 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
     alllead$PbHPO4 + alllead$PbH2PO4_plus
 
   alllead_simple <- subset(alllead,
-                           !(alllead$species_name == "Hydroxypyromorphite" & !grepl(hydroxypyromorphite, alllead$source)) &
-                             !(alllead$species_name == "Pyromorphite" & !grepl(pyromorphite, alllead$source)) &
-                             !(alllead$species_name == "Laurionite" & !grepl(laurionite, alllead$source)) &
-                             !is.na(alllead$tot_dissolved_pb),
-                           select = c(species_name, Pb_2_plus, tot_dissolved_pb))
+    !(alllead$species_name == "Hydroxypyromorphite" & !grepl(hydroxypyromorphite, alllead$source)) &
+      !(alllead$species_name == "Pyromorphite" & !grepl(pyromorphite, alllead$source)) &
+      !(alllead$species_name == "Laurionite" & !grepl(laurionite, alllead$source)) &
+      !is.na(alllead$tot_dissolved_pb),
+    select = c(species_name, Pb_2_plus, tot_dissolved_pb)
+  )
   controlling_solid <- alllead_simple$species_name[min(alllead_simple$tot_dissolved_pb) == alllead_simple$tot_dissolved_pb]
   tot_dissolved_pb <- min(alllead_simple$tot_dissolved_pb)
 

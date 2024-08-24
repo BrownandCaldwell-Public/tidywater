@@ -59,7 +59,7 @@ example_df <- water_df \%>\%
   solvedose_alk_once()
 
 # When the selected chemical can't raise the alkalinity, the dose_required will be NA
-# For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
+# Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

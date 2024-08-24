@@ -176,7 +176,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   corrected_dbp_2 <- individual_dbp %>%
     dplyr::select(ID_ind, group, modeled_dbp) %>%
     dplyr::rename(ID = ID_ind) %>%
-    dplyr::rbind(bulk_dbp)
+    rbind(bulk_dbp)
 
   # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
   if (cl_type == "chloramine") {

@@ -82,7 +82,8 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   mutate(time = 8) \%>\%
-  chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+  chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag",
+  location = "ds", cl_type = "chloramine")
 
 # Initialize parallel processing
 plan(multisession)
