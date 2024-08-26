@@ -37,7 +37,7 @@ test_that("ozonate_bromate works.", {
   water3 <- ozonate_bromate(water1, dose = 1, time = 10, model = "Sohn")
   water4 <- ozonate_bromate(water1, dose = 1, time = 10, model = "Galey")
 
-  water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, doc = 3.5, uv254 = 0.1, br = 50, tot_nh4 = 1))
+  water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, doc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 1))
   water6 <- ozonate_bromate(water5, dose = 1, time = 10, model = "Song")
   water7 <- ozonate_bromate(water5, dose = 1, time = 10, model = "Ozekin")
 
@@ -47,3 +47,4 @@ test_that("ozonate_bromate works.", {
   expect_equal(round(water6@bro3, 1), 0.3)
   expect_equal(round(water7@bro3, 1), 1.2)
 })
+
