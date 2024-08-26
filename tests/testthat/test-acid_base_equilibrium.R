@@ -16,7 +16,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
   water9 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
   water11 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_ocl = 3)
-  water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh4 = 3)
+  water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh3 = 3)
 
   expect_equal(solve_ph(water1), water1@ph)
   expect_equal(solve_ph(water2), water2@ph)
@@ -138,7 +138,7 @@ test_that("Starting chlorine residual does not affect starting pH.", {
 })
 
 test_that("Starting ammonia does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh4 = 1) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 1) %>%
     chemdose_ph())
 
   water2 <- water1 %>%
@@ -286,3 +286,4 @@ test_that("Blend waters warns when some slots are NA.", {
 
   expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "ca.+na")
 })
+
