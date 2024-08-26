@@ -62,7 +62,7 @@ discons <- data.frame(
   # Hypochlorite
   add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
   # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = -52210) # NH3 + H+ <--> NH4+
+  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
