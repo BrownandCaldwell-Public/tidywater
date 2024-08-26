@@ -6,7 +6,7 @@
 \usage{
 define_water(
   ph,
-  temp = 20,
+  temp = 25,
   alk,
   tot_hard,
   ca,
@@ -17,7 +17,7 @@ define_water(
   so4,
   tot_ocl = 0,
   tot_po4 = 0,
-  tot_nh4 = 0,
+  tot_nh3 = 0,
   tds,
   cond,
   toc,
@@ -55,7 +55,7 @@ define_water(
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 
-\item{tot_nh4}{Total ammonia in mg/L as N}
+\item{tot_nh3}{Total ammonia in mg/L as N}
 
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
