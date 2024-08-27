@@ -16,7 +16,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
   water9 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
   water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
   water11 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_ocl = 3)
-  water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh4 = 3)
+  water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh3 = 3)
 
   expect_equal(solve_ph(water1), water1@ph)
   expect_equal(solve_ph(water2), water2@ph)
@@ -138,7 +138,7 @@ test_that("Starting chlorine residual does not affect starting pH.", {
 })
 
 test_that("Starting ammonia does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh4 = 1) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 1) %>%
     chemdose_ph())
 
   water2 <- water1 %>%
@@ -234,14 +234,14 @@ test_that("Blend waters outputs same water when ratio is 1 or the blending water
   water3 <- define_water(ph = 10, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
-  blend1@treatment <- "defined" # set treatments to be the same to avoid an error
+  blend1@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
-  blend2@treatment <- "defined" # set treatments to be the same to avoid an error
+  blend2@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   expect_equal(water1, blend1)
   expect_equal(water3, blend2)
 
   blend3 <- blend_waters(c(water1, water2), c(.5, .5))
-  blend3@treatment <- "defined"
+  blend3@applied_treatment <- "defined"
   expect_equal(water1, blend3)
 })
 
@@ -273,8 +273,8 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
   blend2 <- suppressWarnings(blend_waters(c(water2, water3), c(.5, .5)))
   blend3 <- blend_waters(c(water1), c(1))
 
-  expect_equal(blend1@treatment, "defined_chemdosed_balanced_blended")
-  expect_equal(blend2@treatment, "defined_balanced_blended")
+  expect_equal(blend1@applied_treatment, "defined_chemdosed_balanced_blended")
+  expect_equal(blend2@applied_treatment, "defined_balanced_blended")
   expect_equal(blend1@estimated, "_cond_tds_na")
   expect_equal(blend2@estimated, "_tds_na_ca_mg_cond")
   expect_equal(blend3@estimated, water1@estimated)
@@ -286,3 +286,4 @@ test_that("Blend waters warns when some slots are NA.", {
 
   expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "ca.+na")
 })
+

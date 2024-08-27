@@ -27,6 +27,8 @@ mweights <- data.frame(
   mg = 24.305,
   ca = 40.078,
   po4 = 94.97,
+  hpo4 = 95.98,
+  h2po4 = 96.99,
   hco3 = 61.0168,
   co3 = 60.0089,
   ocl = 16 + 35.453,
@@ -60,7 +62,7 @@ discons <- data.frame(
   # Hypochlorite
   add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
   # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = -52210) # NH3 + H+ <--> NH4+
+  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
 
 usethis::use_data(discons, overwrite = TRUE)
 

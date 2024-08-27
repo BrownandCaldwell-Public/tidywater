@@ -24,7 +24,8 @@
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
 #'
-#' @param water a data frame containing columns with all the parameters listed in \code{\link{define_water}}
+#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.
+#' If po4, cl, and so4 are known, those should also be included.
 #' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
 #' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
 #' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".

@@ -8,7 +8,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   ks <- correct_k(water)
 
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh4, ocl_i, nh4_i,
+  solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
                       alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
     kw / h +
       2 * so4_dose +
@@ -20,7 +20,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       cl_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose +
-        tot_nh4 * calculate_alpha1_ammonia(h, ks)) -
+        tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
       alk_eq -
       3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i + nh4_i
   }
@@ -36,7 +36,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     tot_co3 = water@tot_co3,
     tot_ocl = water@tot_ocl,
     ocl_i = water@ocl,
-    tot_nh4 = water@tot_nh4,
+    tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
     alk_eq = water@alk_eq,
     na_dose = na_dose,
@@ -124,6 +124,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
+
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
   # Hydrochloric acid (HCl) dose
@@ -220,7 +221,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 
   # Total ammonia
   nh4_dose <- nh4oh + 2 * nh42so4
-  dosed_water@tot_nh4 <- water@tot_nh4 + nh4_dose
+  dosed_water@tot_nh3 <- water@tot_nh3 + nh4_dose
 
   # Total carbonate
   co3_dose <- na2co3 + nahco3 + co2 + caco3
@@ -266,7 +267,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
 
   dosed_water@ocl <- dosed_water@tot_ocl * calculate_alpha1_hypochlorite(h, ks)
-  dosed_water@nh4 <- dosed_water@tot_nh4 * calculate_alpha1_ammonia(h, ks)
+  dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
   # Calculate new alkalinity
   dosed_water@alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -276,7 +277,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@ph <- ph
   dosed_water@h <- h
   dosed_water@oh <- oh
-  dosed_water@treatment <- paste(dosed_water@treatment, "_chemdosed", sep = "")
+  dosed_water@applied_treatment <- paste(dosed_water@applied_treatment, "_chemdosed", sep = "")
 
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
@@ -455,7 +456,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' @examples
 #' water1 <- define_water(7, 20, 50)
-#' water2 <- define_water(7.5, 20, 100, tot_nh4 = 2)
+#' water2 <- define_water(7.5, 20, 100, tot_nh3 = 2)
 #' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
@@ -507,7 +508,7 @@ blend_waters <- function(waters, ratios) {
 
   not_averaged <- c(
     "ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
-    "h", "oh", "kw", "treatment", "estimated"
+    "h", "oh", "kw", "applied_treatment", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -531,20 +532,20 @@ blend_waters <- function(waters, ratios) {
   }
 
   # Track treatments and estimated params
-  treatment <- c()
+  applied_treatment <- c()
   estimated <- c()
 
   for (i in 1:length(waters)) {
     # Create character vectors that just add the values from all the waters together
     temp_water <- waters[[i]]
-    new_treat <- unlist(strsplit(temp_water@treatment, "_"))
-    treatment <- c(treatment, new_treat)
+    new_treat <- unlist(strsplit(temp_water@applied_treatment, "_"))
+    applied_treatment <- c(applied_treatment, new_treat)
     new_est <- unlist(strsplit(temp_water@estimated, "_"))
     estimated <- c(estimated, new_est)
   }
 
   # Keep only one of each treatment and estimated and paste back into string for the water.
-  blended_water@treatment <- paste(unique(treatment), collapse = "_")
+  blended_water@applied_treatment <- paste(unique(applied_treatment), collapse = "_")
   blended_water@estimated <- paste(unique(estimated), collapse = "_")
 
   # Calculate new pH, H+ and OH- concentrations
@@ -554,9 +555,9 @@ blend_waters <- function(waters, ratios) {
   blended_water@kw <- 10^-pkw
 
   # so4_dose, po4_dose, na_dose, ca_dose, mg_dose, cl_dose are all 0
-  # kw calculated above. tot_po4, tot_co3, tot_ocl, tot_nh4, alk_eq part of mass balance.
+  # kw calculated above. tot_po4, tot_co3, tot_ocl, tot_nh3, alk_eq part of mass balance.
   # need po4_i, hpo4_i, h2po4_i, ocl_i, nh4_i. Instead, use the total charge from each water for those ions.
-  if (blended_water@tot_po4 > 0 | blended_water@tot_ocl > 0 | blended_water@tot_nh4 > 0) {
+  if (blended_water@tot_po4 > 0 | blended_water@tot_ocl > 0 | blended_water@tot_nh3 > 0) {
     charge_delta <- 0
     for (i in 1:length(waters)) {
       temp_water <- waters[[i]]
@@ -601,8 +602,8 @@ blend_waters <- function(waters, ratios) {
   blended_water@po4 <- blended_water@tot_po4 * alpha3p
 
   blended_water@ocl <- blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
-  blended_water@nh4 <- blended_water@tot_nh4 * calculate_alpha1_ammonia(h, k)
-  blended_water@treatment <- paste(blended_water@treatment, "_blended", sep = "")
+  blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
+  blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
   return(blended_water)
 }
