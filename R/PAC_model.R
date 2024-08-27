@@ -8,7 +8,7 @@
 # ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
 #' Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
-#' 
+#'
 #' water must contain DOC or TOC value.
 #'
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment
@@ -20,7 +20,7 @@
 #' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
-#' 
+#'
 #' @examples
  #water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
   # pac_toc(dose = 15, time=50, type="wood")
@@ -45,7 +45,7 @@ if (missing(time)) {
 }
 
 
-#warnings for bounds of PAC dose, time, defined doc in tidywater etc. 
+#warnings for bounds of PAC dose, time, defined doc in tidywater etc.
 if (dose< 5 | dose> 30) {
   warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
 }
@@ -84,8 +84,10 @@ if (doc < 1 || doc > 5) {
 #Calculate toc
 org_carbon_undissolved <- toc-doc
 
-
-if (type== "bituminous") {
+if(dose == 0 | time == 0) {
+  warning("No PAC added. Final water will equal input water.")
+  result <- doc
+} else if (type== "bituminous") {
   result <- .1561+.9114*doc - .0263*dose - .002*time
 } else if (type== "lignite") {
   result <- .4078+.8516*doc - .0225*dose - .002*time
@@ -99,7 +101,7 @@ if (type== "bituminous") {
 # Predict DOC concentration via UV absorbance
 
 #UVA can be a good indicator to predict DOC concentration by PAC adsorption
-#can be predicted through relationship of DOC and UVA removal --> dimensionless unit (C/C0) 
+#can be predicted through relationship of DOC and UVA removal --> dimensionless unit (C/C0)
 
 UVA <-.0376*result-.041
 
