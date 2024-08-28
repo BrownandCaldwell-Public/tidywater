@@ -31,6 +31,7 @@
 #'   unnest(to_dataframe) %>%
 #'   select(-defined_water)
 #'
+#' @import dplyr
 #' @export
 
 convert_water <- function(water) {

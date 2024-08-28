@@ -95,13 +95,13 @@ ozonate_ct <- function(water, time, dose, kd, baffle) {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
     decaycurve <- data.frame(time = seq(0, time, .5)) %>%
-      mutate(
+      dplyr::mutate(
         defined_water = list(water),
         dose = dose
       ) %>%
       solveresid_o3_once() %>%
-      mutate(ct = .data$o3resid * .5) %>%
-      filter(time != 0)
+      dplyr::mutate(ct = .data$o3resid * .5) %>%
+      dplyr::filter(time != 0)
     ct_tot <- sum(decaycurve$ct)
   }
 
