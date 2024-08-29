@@ -4,9 +4,9 @@
 \alias{pac_toc}
 \title{Calculate DOC Concentration in PAC system}
 \source{
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
-
 CHO(2007)
+
+See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
 pac_toc(water, dose, time, type = "bituminous")
@@ -21,18 +21,19 @@ pac_toc(water, dose, time, type = "bituminous")
 \item{type}{Type of PAC applied, either "bituminous", "lignite", "wood".}
 }
 \description{
-\code{chemdose_PAC} calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-Required arguments include an object of class "water"
-created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
-
-water must contain DOC or TOC value.
+The function will calculate DOC concentration by PAC adsorption in drinking water treatment
+The function returns a new object of class "water" with predicted DOC concentrations. UV254 concentrations
+are predicted based on a linear relationship with DOC.
 }
 \details{
-The function will calculate DOC concentration by PAC adsorption in drinking water treatment
-The function returns a new object of class "water" with predicted DOC concentrations. UV254 concentrations are predicted based on a linear relationship with DOC.
+\code{chemdose_PAC} calculates DOC concentration using a multiple linear regression model found in
+2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+Required arguments include an object of class "water" created by \code{\link{define_water}}, initial DOC concentration,
+amount of PAC added to system, contact time with PAC, and type of PAC. Input water must contain DOC or TOC value.
 }
 \examples{
-water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) \%>\%
-  pac_toc(dose = 15, time = 50, type = "wood")
+water <- suppressWarnings(define_water(doc=1.5, uv254=.05, toc=2))
+dosed_water <- pac_toc(water, dose = 15, time=50, type="wood")
+dosed_water@toc
 
 }
