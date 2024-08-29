@@ -1,6 +1,6 @@
-# chemdose_ph ----
+# Dose chemical ----
 
-test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.", {
+test_that("Dose chemical returns the same pH/alkalinity when no chemical is added.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- chemdose_ph(water1, h2so4 = 0, h3po4 = 0)
 
@@ -13,7 +13,7 @@ test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.
   expect_equal(water3@alk, water4@alk)
 })
 
-test_that("chemdose ph corrects ph when softening", {
+test_that("Dose chemical corrects ph when softening", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
   water2 <- chemdose_ph(water1, caco3 = -100)
   water3 <- chemdose_ph(water1, caco3 = -100, softening_correction = TRUE)
@@ -27,7 +27,7 @@ test_that("chemdose ph corrects ph when softening", {
 
 
 # To do: subdivide for each chemical?
-test_that("chemdose ph works", {
+test_that("Dose chemical works", {
   water1 <- define_water(6.7, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   water2 <- define_water(7.5, 20, 100, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   water3 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
