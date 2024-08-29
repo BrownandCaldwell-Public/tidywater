@@ -1,5 +1,6 @@
-# PAC modeling
-# Used for predicting DOC concentration
+
+#PAC modeling
+#Used for predicting DOC concentration
 
 #' @title Calculate DOC Concentration in PAC system
 #'
@@ -21,12 +22,13 @@
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
 #'
 #' @examples
-#' water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) %>%
-#'   pac_toc(dose = 15, time = 50, type = "wood")
+#' water <- suppressWarnings(define_water(doc=2.5, uv254=.05,toc=1.5)) %>%
+#' pac_toc(dose = 15, time=50, type="wood")
 #'
 #' @export
 #'
 pac_toc <- function(water, dose, time, type = "bituminous") {
+
   validate_water(water, c("doc"))
   if (missing(dose) | !is.numeric(dose)) {
     stop("PAC dose must be specified as a number.")
@@ -96,4 +98,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   water@toc <- toc_new
 
   return(water)
+
 }
+
