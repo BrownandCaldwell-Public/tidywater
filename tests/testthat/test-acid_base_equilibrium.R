@@ -286,4 +286,3 @@ test_that("Blend waters warns when some slots are NA.", {
 
   expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "ca.+na")
 })
-
