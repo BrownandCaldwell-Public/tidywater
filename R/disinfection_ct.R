@@ -29,6 +29,8 @@
 #' @export
 
 chemdose_ct <- function(water, time, residual, baffle) {
+  validate_water(water, c("ph", "temp"))
+
   ph <- water@ph
   temp <- water@temp
 
@@ -75,10 +77,12 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
 #'   ozonate_ct(time = 10, dose = 2, baffle = 0.5)
 #'
+#' @import dplyr
 #' @export
 #'
 ozonate_ct <- function(water, time, dose, kd, baffle) {
-  ph <- water@ph
+  validate_water(water, c("temp"))
+
   temp <- water@temp
 
   # First order decay curve: y = dose * exp(k*t)
@@ -88,17 +92,16 @@ ozonate_ct <- function(water, time, dose, kd, baffle) {
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   } else {
-    if (is.na(water@ph) | is.na(water@alk) | is.na(water@doc) | is.na(water@uv254) | is.na(water@br)) {
-      stop("Water must have the following parameters defined: ph, alk, doc, uv254, br")
-    }
+    validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
+
     decaycurve <- data.frame(time = seq(0, time, .5)) %>%
-      mutate(
+      dplyr::mutate(
         defined_water = list(water),
         dose = dose
       ) %>%
       solveresid_o3_once() %>%
-      mutate(ct = o3resid * .5) %>%
-      filter(time != 0)
+      dplyr::mutate(ct = .data$o3resid * .5) %>%
+      dplyr::filter(time != 0)
     ct_tot <- sum(decaycurve$ct)
   }
 

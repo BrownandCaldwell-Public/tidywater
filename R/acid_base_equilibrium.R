@@ -118,70 +118,52 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0,
                         softening_correction = FALSE) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
+  validate_water(water, c("ph", "alk"))
 
   #### CONVERT INDIVIDUAL CHEMICAL ADDITIONS TO MOLAR ####
 
   # Hydrochloric acid (HCl) dose
   hcl <- convert_units(hcl, "hcl")
-
   # Sulfuric acid (H2SO4) dose
   h2so4 <- convert_units(h2so4, "h2so4")
-
   # Phosphoric acid (H3PO4) dose
   h3po4 <- convert_units(h3po4, "h3po4")
+  # Carbon dioxide
+  co2 <- convert_units(co2, "co2")
 
   # Caustic soda (NaOH) dose
   naoh <- convert_units(naoh, "naoh")
-
+  # Lime (Ca(OH)2) dose
+  caoh2 <- convert_units(caoh2, "caoh2")
+  # Magnesium hydroxide (Mg(OH)2) dose
+  mgoh2 <- convert_units(mgoh2, "mgoh2")
   # Soda ash (Na2CO3) dose
   na2co3 <- convert_units(na2co3, "na2co3")
-
   # Sodium bicarbonate (NaHCO3) dose
   nahco3 <- convert_units(nahco3, "nahco3")
+
+  # Calcium chloride (CaCl2) dose
+  cacl2 <- convert_units(cacl2, "cacl2")
+  # Chlorine gas (Cl2)
+  cl2 <- convert_units(cl2, "cl2")
+  # Sodium hypochlorite (NaOCl) as Cl2
+  naocl <- convert_units(naocl, "cl2")
+  # Calcium hypochlorite (Ca(OCl)2) as Cl2
+  caocl2 <- convert_units(caocl2, "cl2")
 
   # CaCO3
   caco3 <- convert_units(caco3, "caco3")
 
-  # Lime (Ca(OH)2) dose
-  caoh2 <- convert_units(caoh2, "caoh2")
-
-  # Magnesium hydroxide (Mg(OH)2) dose
-  mgoh2 <- convert_units(mgoh2, "mgoh2")
-
-  # Calcium chloride (CaCl2) dose
-  cacl2 <- convert_units(cacl2, "cacl2")
-
-  # Chlorine gas (Cl2)
-  cl2 <- convert_units(cl2, "cl2")
-
-  # Sodium hypochlorite (NaOCl) as Cl2
-  naocl <- convert_units(naocl, "cl2")
-
-  # Calcium hypochlorite (Ca(OCl)2) as Cl2
-  caocl2 <- convert_units(caocl2, "cl2")
-
-  # Carbon dioxide
-  co2 <- convert_units(co2, "co2")
-
   # Ammonium hydroxide
   nh4oh <- convert_units(nh4oh, "n")
-
   # Ammonium sulfate
   nh42so4 <- convert_units(nh42so4, "n")
 
   # Alum - hydration included
   alum <- convert_units(alum, "alum")
-
   # Ferric chloride
   ferricchloride <- convert_units(ferricchloride, "ferricchloride")
-
-  # Ferric sulfate
+  # Ferric sulfate - hydration included
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
@@ -311,12 +293,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @export
 #'
 solvedose_ph <- function(water, target_ph, chemical) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
+  validate_water(water, c("ph", "alk"))
   if (missing(target_ph)) {
     stop("No target pH defined. Enter a target pH for the chemical dose.")
   }
@@ -390,12 +367,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' @export
 #'
 solvedose_alk <- function(water, target_alk, chemical) {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
-  }
+  validate_water(water, c("ph", "alk"))
   if (missing(target_alk)) {
     stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")
   }
@@ -481,9 +453,9 @@ blend_waters <- function(waters, ratios) {
 
   # Identify slots that are not NA for blending
   s4todata <- function(water) {
-    names <- slotNames(water)
-    lt <- lapply(names, function(names) slot(water, names))
-    as.list(setNames(lt, names))
+    names <- methods::slotNames(water)
+    lt <- lapply(names, function(names) methods::slot(water, names))
+    as.list(stats::setNames(lt, names))
   }
 
   parameters <- s4todata(waters[[1]])

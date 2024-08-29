@@ -31,12 +31,13 @@
 #'   unnest(to_dataframe) %>%
 #'   select(-defined_water)
 #'
+#' @import dplyr
 #' @export
 
 convert_water <- function(water) {
-  nms <- slotNames(water)
-  lst <- lapply(nms, function(nm) slot(water, nm))
-  as.data.frame(setNames(lst, nms)) %>%
+  nms <- methods::slotNames(water)
+  lst <- lapply(nms, function(nm) methods::slot(water, nm))
+  as.data.frame(stats::setNames(lst, nms)) %>%
     select(where(~ any(!is.na(.))))
 }
 
@@ -118,9 +119,12 @@ convert_watermg <- function(water) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 define_water_once <- function(df) {
+  defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
   df %>%
     define_water_chain() %>%
     mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
@@ -169,6 +173,7 @@ define_water_once <- function(df) {
 #' #' #Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 define_water_chain <- function(df, output_water = "defined_water") {
@@ -228,9 +233,12 @@ define_water_chain <- function(df, output_water = "defined_water") {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
+  balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
     mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
@@ -281,6 +289,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
@@ -363,6 +372,8 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
@@ -370,6 +381,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+  dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",
@@ -458,6 +470,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
@@ -465,6 +478,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                               cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+  ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
@@ -602,9 +616,11 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
+  dose <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
@@ -695,7 +711,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'   solvedose_alk_once()
 #'
 #' # When the selected chemical can't raise the alkalinity, the dose_required will be NA
-#' # For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
+#' # Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -718,9 +734,11 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
+  dose <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
@@ -824,10 +842,13 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 
 blend_waters_once <- function(df, waters, ratios) {
+  blend_df <- blended <- NULL # Quiet RCMD check global variable note
   df_subset <- df %>% select(all_of(waters))
 
   for (row in 1:length(df_subset[[1]])) {
@@ -918,6 +939,7 @@ blend_waters_once <- function(df, waters, ratios) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 
@@ -974,13 +996,14 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' @import dplyr
 #' @export
 
 pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
-  if (!any(parameter %in% slotNames("water"))) {
+  if (!any(parameter %in% methods::slotNames("water"))) {
     stop("One or more parameters doesn't exist in water class.")
   }
   if (!any(input_waters %in% colnames(df))) {
@@ -1060,11 +1083,14 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest_wider
 #' @export
 
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
                              output_col_result = "pb", hydroxypyromorphite = "Schock",
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
+  calc <- tot_dissolved_pb <- controlling_solid <- NULL # Quiet RCMD check global variable note
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
     stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
   }
@@ -1175,10 +1201,13 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+  dosed_chem_water <- dose_chem <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "dosed_chem_water",
@@ -1260,10 +1289,12 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                                alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+  ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(alum, ferricchloride, ferricsulfate)
 
   chem_inputs_arg <- dosable_chems %>%
@@ -1300,7 +1331,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
   } else if (length(coeff) == 1) {
     chem3 <- chem2 %>%
       mutate(coeff = list(coeff))
-  } else if (class(coeff) == "numeric" & length(coeff) == 6) {
+  } else if (is.numeric(coeff) & length(coeff) == 6) {
     chem3 <- chem2 %>%
       mutate(coeff = list(coeff))
   } else {
@@ -1372,10 +1403,13 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
+  corrosion_indices <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
     mutate(index = furrr::future_map(corrosion_indices, convert_water)) %>%
@@ -1437,6 +1471,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
@@ -1522,7 +1557,10 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_once(
+#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     location = "ds", cl_type = "chloramine"
+#'   )
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
@@ -1535,10 +1573,13 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
+#' @importFrom tidyr unnest
 #' @export
 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
                               treatment = "raw", cl_type = "chlorine", location = "plant") {
+  temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_dbp_chain(
       input_water = input_water, output_water = "temp_dbp",
@@ -1612,7 +1653,10 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water", cl = 6, treatment = "coag", location = "ds", cl_type = "chloramine")
+#'   chemdose_dbp_chain(
+#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     location = "ds", cl_type = "chloramine"
+#'   )
 #'
 #' # Initialize parallel processing
 #' plan(multisession)
@@ -1625,10 +1669,12 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
 #'
+#' @import dplyr
 #' @export
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
+  ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- tibble(cl2, time) %>%
     select_if(~ any(. > 0))
 

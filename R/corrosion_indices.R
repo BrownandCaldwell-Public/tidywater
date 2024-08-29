@@ -47,7 +47,10 @@
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' water <- define_water(ph = 8, temp = 25, alk = 200, tot_hard = 200, tds = 576, cl = 150, so4 = 200) %>%
+#' water <- define_water(
+#'   ph = 8, temp = 25, alk = 200, tot_hard = 200,
+#'   tds = 576, cl = 150, so4 = 200
+#' ) %>%
 #'   calculate_corrosion()
 #'
 #' water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) %>%
@@ -56,12 +59,7 @@
 #' @export
 #'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
-  }
+  validate_water(water, c())
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
     warning("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
   }

@@ -1,12 +1,11 @@
 #' @keywords internal
 "_PACKAGE"
 
-# The following block is used by usethis to automatically manage
-# roxygen namespace tags. Modify with care!
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+utils::globalVariables(".")
+
 ## usethis namespace: start
-#' @import dplyr
-#' @import tidyr
-#' @importFrom magrittr %$%
+#' @importFrom rlang :=
 ## usethis namespace: end
 NULL
 

@@ -1,15 +1,11 @@
 # dissolve_pb----
 
-test_that("dissolve_pb doesn't output total lead without alkalinity.", {
+test_that("dissolve_pb doesn't work without alkalinity and IS.", {
   water1 <- suppressWarnings(define_water(ph = 7, tds = 200))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 90))
 
-  expect_warning(dissolve_pb(water1))
-})
-
-test_that("dissolve_pb doesn't output total lead without conditions for ionic strength", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 90))
-
-  expect_warning(dissolve_pb(water1))
+  expect_error(dissolve_pb(water1))
+  expect_error(dissolve_pb(water2))
 })
 
 test_that("dissolve_pb outputs total lead with various inputs for ionic strength", {

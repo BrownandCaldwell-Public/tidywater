@@ -70,7 +70,10 @@ A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will pr
 A negative CCPP indicates how much CaCO3 can be dissolved in the water.
 }
 \examples{
-water <- define_water(ph = 8, temp = 25, alk = 200, tot_hard = 200, tds = 576, cl = 150, so4 = 200) \%>\%
+water <- define_water(
+  ph = 8, temp = 25, alk = 200, tot_hard = 200,
+  tds = 576, cl = 150, so4 = 200
+) \%>\%
   calculate_corrosion()
 
 water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) \%>\%

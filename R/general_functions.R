@@ -327,10 +327,9 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # calculate total carbonate concentration
   # Initial alpha values (not corrected for IS)
-  k1co3 <- filter(discons, ID == "k1co3") %$%
-    K_temp_adjust(deltah, k, temp)
-  k2co3 <- filter(discons, ID == "k2co3") %$%
-    K_temp_adjust(deltah, k, temp)
+  discons <- tidywater::discons
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
 
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
@@ -419,6 +418,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' # Summarize major cations and anions
 #' summarize_wq(water_defined, params = list("ions"))
 #'
+#' @import dplyr
+#' @importFrom tidyr pivot_longer
 #' @export
 #'
 summarize_wq <- function(water, params = c("general")) {
@@ -441,15 +442,10 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
+    pivot_longer(c(.data$pH:.data$TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
-      "-",
-      "deg C",
-      "mg/L as CaCO3",
-      "mg/L as CaCO3",
-      "mg/L",
-      "uS/cm",
-      "mg/L"
+      "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
+      "mg/L", "uS/cm", "mg/L"
     ))
 
   gen_tab <- knitr::kable(general,
@@ -470,7 +466,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
+    pivot_longer(c(.data$Na:.data$CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
@@ -480,7 +476,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   # Compile corrosion indices
-  corrosion <- tibble(
+  corrosion <- data.frame(
     `Aggressive Index` = water@aggressive,
     `Ryznar Stability Index` = water@ryznar,
     `Langelier Saturation Index (LSI)` = water@langelier,
@@ -491,7 +487,7 @@ summarize_wq <- function(water, params = c("general")) {
 
   corrosion <- corrosion %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2)) %>%
+    mutate(result = round(.data$result, 2)) %>%
     mutate(
       units = c(rep("unitless", 5), "mg/L CaCO3"),
       Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
@@ -503,7 +499,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   # Compile DBPs
-  tthm <- tibble(
+  tthm <- data.frame(
     Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
     Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
     Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
@@ -512,7 +508,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
 
-  haa5 <- tibble(
+  haa5 <- data.frame(
     `Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
     `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
     `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
@@ -529,11 +525,11 @@ summarize_wq <- function(water, params = c("general")) {
 
   tthm <- tthm %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2))
+    mutate(result = round(.data$result, 2))
 
   haa5 <- haa5 %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2))
+    mutate(result = round(.data$result, 2))
 
   thm_tab <- knitr::kable(tthm,
     format = "simple",
@@ -582,6 +578,7 @@ summarise_wq <- summarize_wq
 #' @export
 #'
 plot_ions <- function(water) {
+  type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
@@ -606,14 +603,14 @@ plot_ions <- function(water) {
   )
 
   ions %>%
-    pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
+    pivot_longer(c(.data$Na:.data$OH), names_to = "ion", values_to = "concentration") %>%
     mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
     mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    ggplot(aes(x = concentration, y = type, fill = reorder(ion, -concentration))) +
+    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
     geom_bar(
       stat = "identity",
       width = 0.5,
@@ -711,11 +708,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Need molar mass of CaCO3 and N
-  caco3_mw <- as.numeric(mweights["caco3"])
-  n_mw <- as.numeric(mweights["n"])
+  caco3_mw <- as.numeric(tidywater::mweights["caco3"])
+  n_mw <- as.numeric(tidywater::mweights["n"])
 
   # Determine relevant molar weight
-  if (formula %in% colnames(mweights)) {
+  if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
       (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
@@ -723,7 +720,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
       (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
-      molar_weight <- as.numeric(mweights[formula])
+      molar_weight <- as.numeric(tidywater::mweights[formula])
     }
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
@@ -916,7 +913,29 @@ balance_ions <- function(water) {
   return(water)
 }
 
-# Non-exported functions
+# Non-exported functions -----
+
+validate_water <- function(water, slots) {
+  # Make sure a water is present.
+  if (missing(water)) {
+    stop("No source water defined. Create a water using the 'define_water' function.")
+  }
+  if (!methods::is(water, "water")) {
+    stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
+
+  # Check if any slots are NA
+  if (any(sapply(slots, function(sl) is.na(methods::slot(water, sl))))) {
+    # Paste all missing slots together.
+    missing <- gsub(" +", ", ", trimws(paste(
+      sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
+      collapse = " "
+    )))
+
+    stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
+  }
+}
+
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
@@ -1051,24 +1070,24 @@ correct_k <- function(water) {
   }
 
   temp <- water@temp
-
+  discons <- tidywater::discons
   # Eq constants
-  k1co3 <- filter(discons, ID == "k1co3") %$% # k1co3 = {h+}{hco3-}/{h2co3}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2co3 <- filter(discons, ID == "k2co3") %$% # k2co3 = {h+}{co32-}/{hco3-}
-    K_temp_adjust(deltah, k, temp) / activity_z2
-  k1po4 <- filter(discons, ID == "k1po4") %$% # k1po4 = {h+}{h2po4-}/{h3po4}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  k2po4 <- filter(discons, ID == "k2po4") %$% # k2po4 = {h+}{hpo42-}/{h2po4-}
-    K_temp_adjust(deltah, k, temp) / activity_z2
-  k3po4 <- filter(discons, ID == "k3po4") %$% # k3po4 = {h+}{po43-}/{hpo42-}
-    K_temp_adjust(deltah, k, temp) * activity_z2 / (activity_z1 * activity_z3)
-  kocl <- filter(discons, ID == "kocl") %$% # kocl = {h+}{ocl-}/{hocl}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  knh4 <- filter(discons, ID == "knh4") %$% # knh4 = {h+}{nh3}/{nh4+}
-    K_temp_adjust(deltah, k, temp) / activity_z1^2
-  kso4 <- filter(discons, ID == "kso4") %$% # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-    K_temp_adjust(deltah, k, water@temp) / activity_z2
+  # k1co3 = {h+}{hco3-}/{h2co3}
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
+  # k2co3 = {h+}{co32-}/{hco3-}
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
+  # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
+  kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
+  # k1po4 = {h+}{h2po4-}/{h3po4}
+  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
+  # k2po4 = {h+}{hpo42-}/{h2po4-}
+  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
+  # k3po4 = {h+}{po43-}/{hpo42-}
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  # kocl = {h+}{ocl-}/{hocl}
+  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
+  # knh4 = {h+}{nh3}/{nh4+}
+  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,

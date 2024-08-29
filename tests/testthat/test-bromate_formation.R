@@ -47,4 +47,3 @@ test_that("ozonate_bromate works.", {
   expect_equal(round(water6@bro3, 1), 0.3)
   expect_equal(round(water7@bro3, 1), 1.2)
 })
-

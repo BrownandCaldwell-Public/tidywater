@@ -9,7 +9,7 @@ Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqu
 See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
-ozonate_bromate(water, dose, time, model)
+ozonate_bromate(water, dose, time, model = "Ozekin")
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
