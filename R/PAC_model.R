@@ -68,7 +68,10 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   org_carbon_undissolved <- toc - doc
   # make case insensitive
   type <- tolower(type)
-  if (type == "bituminous") {
+  if(dose == 0 | time == 0) {
+    warning("No PAC added. Final water will equal input water.")
+    result <- doc
+  } else if (type == "bituminous") {
     result <- .1561 + .9114 * doc - .0263 * dose - .002 * time
   } else if (type == "lignite") {
     result <- .4078 + .8516 * doc - .0225 * dose - .002 * time
