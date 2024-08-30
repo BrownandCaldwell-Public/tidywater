@@ -141,29 +141,53 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
      
   }
   
-  root_Ct <- stats::uniroot(solve_decay, interval = c(1e-14, cl2_dose),
-     a = coeffs$a,
-     b = coeffs$b,
-     c = coeffs$c,
-     cl2_dose = cl2_dose,
-     uv254 = uv254,
-     toc = toc,
-     time = time)$root
-  
-  
-  if ((cl_type == "chlorine") & (chlorine_correction == TRUE)) {
-    warning("Be mindful about the corrected chlorine residual concentration, because the correction 
-    applies to the initial Chlorine residual concentration, while the model input cl2_dose is the initial dose")
-    Ct <-  cl2_dose + (root_Ct - cl2_dose) / 0.85
-    
-  } else {
-    Ct <- root_Ct
-  }
 
+  # if dose is 0, do not run uniroot function
+  if (cl2_dose == 0) {
+
+    Ct <- 0
+
+  } else {
+    
+      root_Ct <- stats::uniroot(solve_decay, interval = c(0, cl2_dose),
+       a = coeffs$a,
+       b = coeffs$b,
+       c = coeffs$c,
+       cl2_dose = cl2_dose,
+       uv254 = uv254,
+       toc = toc,
+       time = time, 
+       tol = 1e-14)$root
+    
+      if ((cl_type == "chlorine") & (chlorine_correction == TRUE)) {
+        warning("Be mindful about the corrected chlorine residual concentration, because the correction 
+        applies to the initial Chlorine residual concentration, while the model input cl2_dose is the initial dose")
+        Ct <-  cl2_dose + (root_Ct - cl2_dose) / 0.85
+        
+      } else {
+        Ct <- root_Ct
+  }
+    
+  }
+  
   water@tot_ocl <- Ct
   
   return(water)
   
 }  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

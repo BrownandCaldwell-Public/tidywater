@@ -1,94 +1,62 @@
 # Chemdose chlorine/chloramine ----
 
-test_that("chemdose_cl2 returns no modeled chlorine/chloramine residual when chlorine dose is 0.", {
+test_that("chemdose_cl2 returns modeled chlorine/chloramine residual = 0 when chlorine dose is 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
   Ct <- suppressWarnings(chemdose_cl2(water1, cl2_dose = 0, time = 8, treatment = 'raw', cl_type = 'chlorine'))
 
   expect_equal(water1@ocl, 0)
 })
 
-test_that("chemdose_cl2 does not run when water_type isn't supplied correctly.", {
+test_that("chemdose_cl2 does not run when treatment_type isn't supplied correctly.", {
   water1 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
 
-  expect_error(chemdose_cl2(water1, water_type = "raw"))
-  expect_error(chemdose_cl2(water1, water_type = treated))
+  expect_error(chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 1, time = 1, treatment = "rw"))
+  expect_error(chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 1, time = 1, treatment = treated))
 })
 
 test_that("chemdose_cl2 warns when inputs are out of model range", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1))
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = .1, uv254 = 0.01))
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 20, toc = 3, uv254 = 0.1))
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 20, toc = 3, uv254 = 0.01))
   water4 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3, uv254 = 0.1))
 
-  expect_warning(chemdose_cl2(water1, cl2 = 1, time = 8)) # chlorine out of bounds
-  expect_warning(chemdose_cl2(water1, cl2 = 4, time = 1)) # time out of bounds
-  expect_warning(chemdose_cl2(water2, cl2 = 2, time = 8, treatment = "gac")) # toc out of bounds
-  expect_warning(chemdose_cl2(water3, cl2 = 4, time = 8, treatment = "coag")) # ph not set to 7.5
-  expect_warning(chemdose_cl2(water4, cl2 = 4, time = 8)) # br out of bounds
+  expect_warning(chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 0.994, time = 1, treatment = "raw")) # chlorine out of bounds
+  expect_warning(chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 2, time = 121, treatment = "coag")) # time out of bounds
+  expect_warning(chemdose_cl2(water2, cl_type = 'chlorine', cl2_dose = 0.995, time = 100, treatment = "raw")) # toc out of bounds
+  expect_warning(chemdose_cl2(water3, cl_type = 'chlorine', cl2_dose = 2, time = 100, treatment = "coag")) # uv254 out of bounds
 })
 
 test_that("chemdose_cl2 stops working when inputs are missing", {
-  water1 <- suppressWarnings(define_water(toc = 3.5, uv254 = 0.1))
+  water1 <- suppressWarnings(define_water(toc = 3.5))
   water2 <- suppressWarnings(define_water(ph = 7.5, uv254 = 0.1))
-  water3 <- suppressWarnings(define_water(ph = 8, toc = 3, br = 50))
+  water3 <- suppressWarnings(define_water(ph = 8, toc = 3, br = 50, uv254 = 0.1))
   water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2))
   water5 <- suppressWarnings(define_water(ph = 8, temp = 25, toc = 3, uv = 0.2))
 
-  expect_error(chemdose_cl2(water1, cl2 = 4, time = 8)) # missing ph
-  expect_error(chemdose_cl2(water2, cl2 = 4, time = 8)) # missing toc
-  expect_error(chemdose_cl2(water3, cl2 = 4, time = 1, treatment = "coag")) # missing uv
-  expect_no_error(suppressWarnings(chemdose_cl2(water3, cl2 = 4, time = 1, treatment = "raw"))) # raw doesn't require uv
-  expect_error(chemdose_cl2(water4, cl2 = 4, time = 8)) # missing br
-  expect_error(chemdose_cl2(water5, time = 8)) # missing cl2
-  expect_error(chemdose_cl2(water5, cl2 = 4)) # missing time
+  expect_error(chemdose_cl2(water1,cl_type = 'chloramine', cl2_dose = 2, time = 1, treatment = "raw")) # missing uv254
+  expect_error(chemdose_cl2(water2,cl_type = 'chlorine', cl2_dose = 2, time = 1, treatment = "coag")) # missing toc
+  expect_error(chemdose_cl2(water3, cl2_dose = 2, time = 1, treatment = "coag")) # missing cl_type
+  expect_no_error(suppressWarnings(chemdose_cl2(water3, cl_type = 'chlorine', cl2_dose = 4, time = 0.22, treatment = "coag"))) # raw doesn't require uv
+  expect_error(chemdose_cl2(water4, cl_type = 'chlorine', cl2_dose = 4, time = 1)) # treatment 
+  expect_error(chemdose_cl2(water5, cl_type = 'chlorine', time = 1, treatment = "coag")) # missing cl2_dose
+  expect_error(chemdose_cl2(water5, cl_type = 'chlorine', cl2_dose = 4, treatment = "coag")) # missing time
 
 })
 
 
 test_that("chemdose_cl2 works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
-  water2 <- chemdose_cl2(water1, cl2 = 3, time = 8)
-  water3 <- chemdose_cl2(water1, cl2 = 3, time = 8, treatment = "coag")
-  water4 <- chemdose_cl2(water1, cl2 = 3, time = 72, treatment = "coag", location = "ds")
+  water2 <- chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 3, time = 8, treatment = "raw")
+  water3 <- chemdose_cl2(water1, cl_type = 'chlorine', cl2_dose = 4, time = 3, treatment = "coag")
+  water4 <- chemdose_cl2(water1, cl_type = 'chloramine', cl2_dose = 4, time = 5, treatment = "coag")
   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
-  water6 <- chemdose_cl2(water5, cl2 = 3, time = 8, treatment = "gac")
+  water6 <- chemdose_cl2(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10, treatment = "either")
 
-  expect_equal(round(water2@ocl), 68)
-  expect_equal(round(water3@ocl), 59)
-  expect_equal(round(water3@haa5), 48)
-  expect_equal(round(water4@haa5), 69)
-  expect_equal(round(water6@haa5), 12)
+  expect_equal(round(water2@tot_ocl,3), 0.941)
+  expect_equal(round(water3@tot_ocl,3), 2.328)
+  expect_equal(round(water4@tot_ocl,3), 3.718)
+  expect_equal(round(water6@tot_ocl,3), 5.671)
 })
-
-
-
-
-
-
-# refer to uniroot template (acid_base function)
-# only modify coeffs in if loops
-# cl2 -- cl2_dose
-# modeled_cl -- cl2_t / Ct
-# check with sierra for function naming convention 
-
-#-------------------------------------
-# setwd("C:/Users/PChen/Rscripts/tidywater/R")
-# library(tidywater,tidyverse)
-
-# devtools::load_all()
-# example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2)) %>%
-# chemdose_cl2(cl2 = 2, time = 8, treatment = "raw", cl_type = "chlorine")
-
-# water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
-# test <- suppressWarnings(chemdose_cl2(water1, cl2_dose = 1, time = 8, treatment = 'raw', cl_type = 'chlorine'))
-
-#-------------------------------------
-# time <- 0
-# for i = 1:10 {
-#   time <- time + i
-Ct <- chemdose_cl2(water1, cl2_dose = 20, time = 0, cl_type = 'chlorine', treatment = 'raw')
-Ct@tot_ocl
-# }
 
 
 
