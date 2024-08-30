@@ -3,7 +3,7 @@
 
 #' @title Calculate total OCL
 #'
-#' @description \code{chemdose_cl2} calculates the decay of chlorine based on the U.S. EPA's
+#' @description \code{chemdose_cl2} calculates the decay of chlorine/chloramine based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} chlorine/chloramine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in \code{define_water}
@@ -132,7 +132,7 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
     }
     
     # define function for chloramine decay
-    solve_decay <- function(CAt, a, b, cl2_dose, uv254, time) {
+    solve_decay <- function(CAt, a, b, cl2_dose, uv254, time, c, toc) {
       a * cl2_dose * log(cl2_dose/CAt) - b * uv254 * time + cl2_dose - CAt
     }
     
@@ -141,7 +141,6 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
      
   }
   
-  # results in ug/L
   root_Ct <- stats::uniroot(solve_decay, interval = c(1e-14, cl2_dose),
      a = coeffs$a,
      b = coeffs$b,
@@ -163,36 +162,8 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   water@tot_ocl <- Ct
   
-  # only impacts the tot_ocl, apply chemdose_ph if want ocl
-
-  
   return(water)
   
 }  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -83,3 +83,12 @@ test_that("chemdose_cl2 works.", {
 # test <- suppressWarnings(chemdose_cl2(water1, cl2_dose = 1, time = 8, treatment = 'raw', cl_type = 'chlorine'))
 
 #-------------------------------------
+# time <- 0
+# for i = 1:10 {
+#   time <- time + i
+Ct <- chemdose_cl2(water1, cl2_dose = 20, time = 0, cl_type = 'chlorine', treatment = 'raw')
+Ct@tot_ocl
+# }
+
+
+
