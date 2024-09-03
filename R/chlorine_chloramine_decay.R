@@ -41,7 +41,6 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
   toc = water@toc
   uv254 = water@uv254
   
-  
   # define table for decay coefficients
   clcoeffs <- tibble(
     treatment = c('raw','coag','either'),
@@ -59,17 +58,15 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
     stop("Missing value for cl2_dose or time. Please check the function inputs required to calculate chlorine/chloramine decay")
   }
 
-  if ((cl_type != "chlorine" & cl_type != "chloramine") | missing(cl_type)) {
-    stop("cl_type should be 'chlorine' or 'chloramine', or missing value for cl_type. Please check the spelling
-         or add missing function inputs to calculate chlorine/chloramine decay.")
+  if (cl_type != "chlorine" & cl_type != "chloramine") {
+    stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
   }
   
   # chlorine decay model 
   if (cl_type == "chlorine") {
     
-    if ((treatment != "raw" & treatment != "coag") | missing(treatment)) {
-      stop("For chlorine decay, the treatment type should be 'raw' or 'coag', or missing value for treatment. 
-         Please check the spelling or add missing function inputs to calculate chlorine decay.")
+    if (treatment != "raw" & treatment != "coag") {
+      stop("For chlorine decay, the treatment type should be 'raw' or 'coag'. Please check the spelling for treatment.")
      } 
     
     if (is.na(toc) | is.na(uv254)) {
@@ -118,7 +115,7 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
     }
     
     # define function for chlorine decay
-    solve_decay <- function(Ct, a, b, cl2_dose, uv254, c, toc, time) {
+    solve_decay <- function(Ct, a, b, cl2_dose, uv254, time, c, toc) {
       a * cl2_dose * log(cl2_dose/Ct) - b * (cl2_dose/uv254)^c *toc*time + cl2_dose - Ct
     }
     
@@ -132,8 +129,8 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
     }
     
     # define function for chloramine decay
-    solve_decay <- function(CAt, a, b, cl2_dose, uv254, time, c, toc) {
-      a * cl2_dose * log(cl2_dose/CAt) - b * uv254 * time + cl2_dose - CAt
+    solve_decay <- function(Ct, a, b, cl2_dose, uv254, time, c, toc) {
+      a * cl2_dose * log(cl2_dose/Ct) - b * uv254 * time + cl2_dose - Ct
     }
     
     coeffs <- clcoeffs %>%
@@ -159,10 +156,30 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
        time = time, 
        tol = 1e-14)$root
     
-      if ((cl_type == "chlorine") & (chlorine_correction == TRUE)) {
+      if (cl_type == "chlorine" & chlorine_correction == TRUE) {
         warning("Be mindful about the corrected chlorine residual concentration, because the correction 
         applies to the initial Chlorine residual concentration, while the model input cl2_dose is the initial dose")
-        Ct <-  cl2_dose + (root_Ct - cl2_dose) / 0.85
+
+        # cl2_resid <- stats::uniroot(solve_decay, interval = c(0, cl2_dose),
+        #  a = coeffs$a,
+        #  b = coeffs$b,
+        #  c = coeffs$c,
+        #  cl2_dose = cl2_dose,
+        #  uv254 = uv254,
+        #  toc = toc,
+        #  time = 1/100/60/60,
+        #  tol = 1e-14)$root
+        # 
+        # Ct <-  cl2_resid + (root_Ct - cl2_resid) / 0.85
+        # 
+        # if (Ct < 0) { # correct negative concentrations to 0
+        #   Ct <- 0
+        # } else if (Ct > cl2_dose) { # correct concentrations greater than initial dose
+        #   Ct <- cl2_dose
+        # }
+        
+        
+        Ct <- cl2_dose + (root_Ct - cl2_dose) / 0.85
         
       } else {
         Ct <- root_Ct
