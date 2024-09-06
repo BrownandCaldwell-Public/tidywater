@@ -13,9 +13,9 @@ Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](c
 ## Overview
 
 Tidywater incorporates published water chemistry and empirical models in
-a standard format with one centralized tool. Functions are built to be
-chained together to model a complete treatment process. Functions are
-designed to work in a [tidyverse](https://www.tidyverse.org/) workflow.
+a standard format. The modular functions allow for building custom,
+comprehensive drinking water treatment processes. Functions are designed
+to work in a [tidyverse](https://www.tidyverse.org/) workflow.
 
 ## Installation
 
@@ -28,10 +28,11 @@ install.packages("tidywater")
 devtools::install_github("BrownandCaldwell-Public/tidywater")
 ```
 
-## Example
+## Examples
 
-The following example employs acid-base chemistry and TOC removal
-models. This example models a single water quality scenario.
+In this first example, acid-base chemistry and TOC removal models are
+demonstrated. This example uses tidywater base functions to model a
+single water quality scenario.
 
 ``` r
 library(tidywater)
@@ -66,11 +67,10 @@ functions (x_chain or x_once) to apply the models to a dataframe.
 
 Note that these functions use a “water” class. The “water” class is the
 foundation of the package; it provides a mechanism for linking models in
-any order while maintaining water quality information. The define_water
-function takes water quality inputs, but define_water_chain may be used
-to convert a dataframe to a list of “waters”. After the water has been
-defined, you can apply other models linked together with the pipe
-operator `%>%` or in separate lines.
+any order while maintaining water quality information. The
+`define_water` function takes water quality inputs, but
+`define_water_chain` may be used to convert a dataframe to a list of
+“waters”.
 
 For more detailed examples on tidywater functions and how to use “water”
 class data, please see the tidywater vignettes:

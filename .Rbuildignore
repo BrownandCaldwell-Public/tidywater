@@ -6,3 +6,4 @@
 ^data-raw$
 ^.*\.toml
 ^README\.Rmd$
+^cran-comments\.md$
