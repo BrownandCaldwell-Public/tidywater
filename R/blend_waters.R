@@ -1,6 +1,7 @@
 #' @title Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium
 #'
-#' @description This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
+#' @description This function takes a vector of waters defined by \code{\link{define_water}}
+#' and a vector of ratios and outputs a new water object with updated ions and pH.
 #'
 #' @param waters Vector of source waters created by \code{\link{define_water}}
 #' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1)
@@ -13,6 +14,8 @@
 #' blend_waters(c(water1, water2), c(.4, .6))
 #'
 #' @export
+#'
+#' @returns A water class object with blended water quality parameters.
 #'
 blend_waters <- function(waters, ratios) {
   if (length(waters) != length(ratios)) {
@@ -164,7 +167,6 @@ blend_waters <- function(waters, ratios) {
 #' Apply `blend_waters` to a dataframe and output `water` slots as a dataframe
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#' Its output is a data frame with updated ions and pH.
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
@@ -222,6 +224,8 @@ blend_waters <- function(waters, ratios) {
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
+#'
+#' @returns A data frame with blended water quality parameters.
 
 
 blend_waters_once <- function(df, waters, ratios) {
@@ -258,7 +262,6 @@ blend_waters_once <- function(df, waters, ratios) {
 #' Apply `blend_waters` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#' Its output is a `water` class with updated ions and pH.
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
@@ -318,6 +321,8 @@ blend_waters_once <- function(df, waters, ratios) {
 #'
 #' @import dplyr
 #' @export
+#'
+#' @returns A data frame with a water class column containing updated ions and pH.
 
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
