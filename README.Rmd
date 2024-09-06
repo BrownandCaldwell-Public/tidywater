@@ -41,7 +41,7 @@ devtools::install_github("BrownandCaldwell-Public/tidywater")
 The following example employs acid-base chemistry and TOC removal models. This example models a 
 single water quality scenario.
 
-```{r example}
+```{r example, message = FALSE}
 library(tidywater)
 library(tidyverse)
 ## Use base tidywater functions to model water quality for a single scenario.
@@ -53,7 +53,7 @@ library(tidyverse)
 To model multiple water quality scenarios, use tidywater's helper functions (x_chain or x_once) to 
 apply the models to a dataframe.
 
-```{r, message = FALSE}
+```{r}
 ## x_chain functions apply models to a list of "waters", and output a list of "waters" so that 
 ## the data can be piped into the next tidywater model.
  coagulation <- water_df %>% 
