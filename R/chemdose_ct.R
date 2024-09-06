@@ -3,7 +3,7 @@
 #' Determine disinfection credit from chlorine.
 #'
 #' @description This function takes a water defined by \code{\link{define_water}} and other disinfection parameters
-#' and outputs a dataframe of the required CT (`ct_required`), actual CT (`ct_actual`), and giardia log removal (`glog_removal`).
+#' and outputs a data frame of the required CT (`ct_required`), actual CT (`ct_actual`), and giardia log removal (`glog_removal`).
 #'
 #' @details CT actual is a function of time, chlorine residual, and baffle factor, whereas CT required is a function of
 #' pH, temperature, chlorine residual, and the standard 0.5 log removal of giardia requirement.  CT required is an
@@ -27,6 +27,8 @@
 #' example_ct <- define_water(ph = 7.5, temp = 25) %>%
 #'   chemdose_ct(time = 30, residual = 1, baffle = 0.7)
 #' @export
+#'
+#' @returns A data frame of the required CT, actual CT, and giardia log removal.
 
 chemdose_ct <- function(water, time, residual, baffle) {
   validate_water(water, c("ph", "temp"))
