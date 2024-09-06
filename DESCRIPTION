@@ -19,7 +19,6 @@ Description: Provides multiple water chemistry-based models and published
     Principles and Design (Third). John Wiley & Sons Inc.
     USEPA. (2001). Water Treatment Plant Model, Version 2.0, User’s Manual.
     <https://www.epa.gov/sites/default/files/2017-03/documents/wtp_model_v._2.0_manual_508.pdf>
-  
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
