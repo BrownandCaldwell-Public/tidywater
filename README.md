@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# tidywater <img src="man/figures/tidywater logo.png" align="right" height = "140" />
+# tidywater <img src="man/figures/tidywater logo.png" align="right" height = "170" />
 
 <!-- badges: start -->
 
