@@ -164,6 +164,10 @@ summarize_wq <- function(water, params = c("general")) {
   return(knitr::kables(tables_list))
 }
 
+#' @rdname summarize_wq
+#' @export
+summarise_wq <- summarize_wq
+
 #' Create summary plot of ions from water class
 #'
 #' This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
@@ -176,6 +180,8 @@ summarize_wq <- function(water, params = c("general")) {
 #' plot_ions(water_defined)
 #'
 #' @export
+#'
+#' @returns A ggplot object showing the water's ion balance.
 #'
 plot_ions <- function(water) {
   type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
@@ -257,6 +263,8 @@ plot_ions <- function(water) {
 #' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
 #'
 #' @export
+#'
+#' @returns A numeric value
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
