@@ -1,5 +1,4 @@
 # Acid/Base Equilibrium Functions
-# These functions determine pH and alkalinity after blending and chemical addition.
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 

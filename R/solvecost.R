@@ -14,6 +14,7 @@
 #' alum_cost <- solvecost_chem(dose = 20, flow = 10, strength = 49, cost = .22)
 #'
 #' @export
+#' @returns A numeric value for chemical cost.
 #'
 solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
   cost_day <- solvemass_chem(dose, flow, strength) * cost
