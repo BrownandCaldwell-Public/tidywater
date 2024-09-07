@@ -24,6 +24,7 @@
 #' @import dplyr
 #' @importFrom tidyr pivot_longer
 #' @export
+#' @returns A knitr_kable table of specified water quality parameters.
 #'
 summarize_wq <- function(water, params = c("general")) {
   if (!methods::is(water, "water")) {
@@ -162,10 +163,6 @@ summarize_wq <- function(water, params = c("general")) {
 
   return(knitr::kables(tables_list))
 }
-
-#' @rdname summarize_wq
-#' @export
-summarise_wq <- summarize_wq
 
 #' Create summary plot of ions from water class
 #'
