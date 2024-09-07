@@ -24,6 +24,9 @@ solvedose_alk_once(
 
 \item{chemical}{select the chemical to be used to reach the desired alkalinity using function argument or data frame column}
 }
+\value{
+A data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
+}
 \description{
 This function allows \code{\link{solvedose_alk}} to be added to a piped data frame.
 Its output is a chemical dose in mg/L.

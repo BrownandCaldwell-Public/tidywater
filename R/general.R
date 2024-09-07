@@ -457,7 +457,7 @@ calculate_dic <- function(water) {
 #' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
 #'
 #' @export
-#'  @returns A numeric value for the chemical input in lb/day.
+#' @returns  A numeric value for the chemical mass in lb/day.
 #'
 solvemass_chem <- function(dose, flow, strength = 100) {
   dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG

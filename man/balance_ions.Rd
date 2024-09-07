@@ -9,6 +9,9 @@ balance_ions(water)
 \arguments{
 \item{water}{Water created with define_water, which may have some ions set to 0 when unknown}
 }
+\value{
+A water class object with updated ions to balance water charge.
+}
 \description{
 This function takes a water defined by \code{\link{define_water}} and balances charge.
 }

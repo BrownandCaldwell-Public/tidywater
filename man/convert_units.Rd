@@ -16,6 +16,9 @@ and the same units with "m", "u", "n" prefixes}
 
 \item{endunit}{Desired units, currently accepts same as start units}
 }
+\value{
+A numeric value for the converted parameter.
+}
 \description{
 This function takes a value and converts units based on compound name.
 }

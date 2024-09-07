@@ -18,6 +18,9 @@ solveresid_o3(water, dose, time)
 
 \item{time}{Ozone contact time in minutes}
 }
+\value{
+A numeric value for the resiudal ozone.
+}
 \description{
 This function applies the ozone decay model to a water created by \code{\link{define_water}}
 from U.S. EPA (2001) equation 5-128.

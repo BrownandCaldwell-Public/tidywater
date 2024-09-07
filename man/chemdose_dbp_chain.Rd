@@ -36,6 +36,9 @@ GAC treatment has also been used for estimating formation after membrane treatme
 
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".}
 }
+\value{
+A data frame containing a water class column with predicted DBP concentrations.
+}
 \description{
 DBP = disinfection byproduct
 }

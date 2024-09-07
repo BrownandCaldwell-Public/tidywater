@@ -42,7 +42,7 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
 #' powercost <- solvecost_power(50, 100, .08)
 #'
 #' @export
-#'
+#' @returns A numeric value for power, $/kWhr.
 solvecost_power <- function(power, utilization = 100, cost, time = "day") {
   cost_day <- power * cost * 24 * (utilization / 100)
   if (time == "day") {
@@ -74,6 +74,7 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 #'
 #' @export
+#' @returns A numeric value for disposal costs.
 #'
 solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5, cost, time = "day") {
   suspended <- turb * b
@@ -106,7 +107,7 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
 #' laborcost <- solvecost_labor(1.5, 50000)
 #'
 #' @export
-#'
+#' @returns A numeric value for labor.
 solvecost_labor <- function(fte, cost, time = "day") {
   cost_day <- fte * cost / 365.25
   if (time == "day") {

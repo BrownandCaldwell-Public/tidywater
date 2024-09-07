@@ -14,6 +14,9 @@ solvedose_alk(water, target_alk, chemical)
 \item{chemical}{The chemical to be added. Current supported chemicals include:
 acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 }
+\value{
+A numeric value for the required chemical dose.
+}
 \description{
 This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
 Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function.

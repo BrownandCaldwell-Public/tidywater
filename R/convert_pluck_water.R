@@ -102,8 +102,6 @@ convert_watermg <- function(water) {
 #'
 #' @examples
 #'
-#' @returns A data frame containing columns of selected parameters from a list of water class objects.
-#'
 #' library(dplyr)
 #' library(furrr)
 #' library(purrr)
@@ -127,6 +125,7 @@ convert_watermg <- function(water) {
 #' plan(sequential)
 #' @import dplyr
 #' @export
+#' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
 pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {

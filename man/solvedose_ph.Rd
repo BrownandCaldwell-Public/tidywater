@@ -14,6 +14,9 @@ solvedose_ph(water, target_ph, chemical)
 \item{chemical}{The chemical to be added. Current supported chemicals include:
 acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 }
+\value{
+A numeric value for the required chemical dose.
+}
 \description{
 \code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
 The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH

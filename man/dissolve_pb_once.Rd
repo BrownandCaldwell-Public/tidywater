@@ -34,6 +34,9 @@ dissolve_pb_once(
 \item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
 Chenge to FALSE to remove the water prefix from output column names.}
 }
+\value{
+A data frame containing the controlling lead solid and modeled dissolved lead concentration.
+}
 \description{
 This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
 Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).

@@ -72,6 +72,9 @@ chemdose_ph_chain(
 
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 }
+\value{
+A data frame containing a water class column with updated water quality post-chemical addition.
+}
 \description{
 This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.

@@ -32,6 +32,9 @@ and a column named for the set of coefficients to use.}
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
+\value{
+A data frame containing a water class column with updated DOC concentrations.
+}
 \description{
 This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.

@@ -11,9 +11,11 @@ balance_ions_once(df, input_water = "defined_water")
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 }
+\value{
+A dataframe with updated ions to balance water charge
+}
 \description{
 This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-Its output is a dataframe with updated ions depending on starting concentrations
 tidywater functions cannot be added after this function because they require a `water` class input.
 }
 \details{

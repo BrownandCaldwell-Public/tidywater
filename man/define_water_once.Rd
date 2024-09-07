@@ -9,6 +9,9 @@ define_water_once(df)
 \arguments{
 \item{df}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
 }
+\value{
+A data frame containing columns that were filled or calculated based on define_water.
+}
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
 It outputs all carbonate calculations and other parameters in a data frame.
