@@ -81,9 +81,5 @@ calc_suva <- function(doc, uv254) {
   uv254 / doc * 100
 }
 
-water <- define_water(ph = 7, temp = 15, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1)
 
-dosed_water <- chemdose_bdoc(water, EBCT = 10, temp = 15, ozonated = TRUE)
-
-print(dosed_water)
 
