@@ -1,7 +1,7 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Modeling for Drinking Water Treatment
-Version: 0.3.0
+Version: 0.4.0
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
@@ -23,12 +23,13 @@ Imports:
     magrittr,
     purrr,
     furrr,
-    rmarkdown,
-    methods
+    methods,
+    rlang
 RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 Suggests: 
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
