@@ -61,7 +61,7 @@
 #'
 #' @export
 #'
-#' @returns A water class object with updated water quality post-chemical addition.
+#' @returns A water class object with updated pH, alkalinity, and ions post-chemical addition.
 #'
 chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
@@ -297,7 +297,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with updated water quality post-chemical addition.
+#' @returns A data frame with updated pH, alkalinity, and ions post-chemical addition.
 #'
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
@@ -397,7 +397,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated water quality post-chemical addition.
+#' @returns A data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                               hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,

@@ -221,7 +221,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #' @importFrom tidyr unnest_wider
 #' @export
 #'
-#' @returns A data frame containing the controlling lead solid and modeled dissolved lead concentration.
+#' @returns A data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
 
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
                              output_col_result = "pb", hydroxypyromorphite = "Schock",

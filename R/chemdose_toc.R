@@ -33,7 +33,7 @@
 #'
 #' @export
 #'
-#'@returns A water class object with an updated DOC concentration.
+#'@returns A water class object with an updated DOC, TOC, and UV254 concentration.
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   validate_water(water, c("ph", "doc", "uv254"))
@@ -187,7 +187,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with an updated DOC concentration.
+#' @returns A data frame with an updated DOC, TOC, and UV254 concentration.
 
 chemdose_toc_once <- function(df, input_water = "defined_water",
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
@@ -276,7 +276,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated DOC concentrations.
+#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                                alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {

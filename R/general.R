@@ -404,7 +404,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 #'
 #' @export
 #'
-#' @returns A numeric value for the total calcium and magnesium input.
+#' @returns A numeric value for the total hardness in mg/L as CaCO3.
 #'
 calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   ca <- convert_units(ca, "ca", startunit, "mg/L CaCO3")
