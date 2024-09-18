@@ -15,6 +15,9 @@ solveresid_o3_once(df, input_water = "defined_water", dose = 0, time = 0)
 
 \item{time}{Ozone contact time in minutes}
 }
+\value{
+A data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
+}
 \description{
 This function allows \code{\link{solveresid_o3}} to be added to a piped data frame.
 Once additional column will be added to the data frame; the residual ozone dose (mg/L)

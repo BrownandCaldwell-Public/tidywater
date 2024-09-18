@@ -35,6 +35,9 @@ If po4, cl, and so4 are known, those should also be included.}
 
 \item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".}
 }
+\value{
+A data frame containing only the controlling lead solid and modeled dissolved lead concentration.
+}
 \description{
 This function takes a water data frame defined by \code{\link{define_water}}
 and outputs a dataframe of the controlling lead solid and total lead solubility.

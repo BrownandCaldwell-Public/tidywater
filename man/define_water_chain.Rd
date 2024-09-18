@@ -11,6 +11,9 @@ define_water_chain(df, output_water = "defined_water")
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined_water".}
 }
+\value{
+A data frame containing a water class column.
+}
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.

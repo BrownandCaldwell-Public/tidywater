@@ -24,6 +24,7 @@
 #' @import dplyr
 #' @importFrom tidyr pivot_longer
 #' @export
+#' @returns A knitr_kable table of specified water quality parameters.
 #'
 summarize_wq <- function(water, params = c("general")) {
   if (!methods::is(water, "water")) {
@@ -180,6 +181,8 @@ summarise_wq <- summarize_wq
 #'
 #' @export
 #'
+#' @returns A ggplot object displaying the water's ion balance.
+#'
 plot_ions <- function(water) {
   type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
@@ -260,6 +263,8 @@ plot_ions <- function(water) {
 #' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
 #'
 #' @export
+#'
+#' @returns A numeric value for the converted parameter.
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
@@ -399,6 +404,8 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 #'
 #' @export
 #'
+#' @returns A numeric value for the total hardness in mg/L as CaCO3.
+#'
 calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   ca <- convert_units(ca, "ca", startunit, "mg/L CaCO3")
   mg <- convert_units(mg, "mg", startunit, "mg/L CaCO3")
@@ -429,6 +436,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #'   calculate_dic()
 #'
 #' @export
+#'@returns A numeric value for the calculated DIC.
 #'
 
 calculate_dic <- function(water) {
@@ -449,6 +457,7 @@ calculate_dic <- function(water) {
 #' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
 #'
 #' @export
+#' @returns  A numeric value for the chemical mass in lb/day.
 #'
 solvemass_chem <- function(dose, flow, strength = 100) {
   dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG

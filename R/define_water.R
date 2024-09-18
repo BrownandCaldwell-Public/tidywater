@@ -40,6 +40,7 @@
 #'
 #' @export
 #'
+#'@returns A water class object where slots are filled or calculated based on input parameters.
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
                          tot_ocl = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
@@ -256,6 +257,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
+#' @returns A data frame containing columns that were filled or calculated based on define_water.
 
 define_water_once <- function(df) {
   defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
@@ -309,6 +311,7 @@ define_water_once <- function(df) {
 #'
 #' @import dplyr
 #' @export
+#' @returns A data frame containing a water class column.
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(

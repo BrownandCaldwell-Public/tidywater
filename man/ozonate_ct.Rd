@@ -23,6 +23,9 @@ ozonate_ct(water, time, dose, kd, baffle)
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 }
+\value{
+A data frame containing actual CT, giardia log removal, virus log removal, and crypto log removal.
+}
 \description{
 This function takes a water defined by \code{\link{define_water}} and the first order decay curve parameters
 from an ozone dose and outputs a dataframe of acutal CT, and log removal for giardia, virus, and crypto

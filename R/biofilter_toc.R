@@ -19,6 +19,8 @@
 #'
 #' @export
 #'
+#' @returns A water class object with modeled DOC removal from biofiltration.
+#'
 biofilter_toc <- function(water, ebct, o3_dose = 0) {
   temperature <- water@temp
 

@@ -14,9 +14,11 @@ blend_waters_once(df, waters, ratios)
 
 \item{ratios}{List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)}
 }
+\value{
+A data frame with blended water quality parameters.
+}
 \description{
 This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-Its output is a data frame with updated ions and pH.
 }
 \details{
 The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.

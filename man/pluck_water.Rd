@@ -14,6 +14,9 @@ been computed using \code{\link{define_water}}}
 
 \item{parameter}{vector of water class parameters to view outside the water column}
 }
+\value{
+A data frame containing columns of selected parameters from a list of water class objects.
+}
 \description{
 This function plucks one or more selected parameters from selected columns of `water` class objects.
 The names of the output columns will follow the form `water_parameter`

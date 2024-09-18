@@ -10,7 +10,6 @@
 #' including bromide, TOC, UV254, temperature, and pH.
 #'
 #' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' The function returns a new object of class "water" with predicted DBP concentrations.
 #' Use \code{summarise_wq} to quickly tabulate the results.
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
@@ -34,6 +33,8 @@
 #'   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 #'
 #' @export
+#'
+#' @returns A water class object with predicted DBP concentrations.
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
@@ -286,6 +287,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
+#'
+#' @returns A data frame with predicted DBP concentrations.
 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
                               treatment = "raw", cl_type = "chlorine", location = "plant") {
@@ -381,6 +384,8 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'
 #' @import dplyr
 #' @export
+#'
+#' @returns A data frame containing a water class column with predicted DBP concentrations.
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {

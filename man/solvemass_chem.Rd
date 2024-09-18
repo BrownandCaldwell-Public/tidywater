@@ -13,6 +13,9 @@ solvemass_chem(dose, flow, strength = 100)
 
 \item{strength}{Chemical product strength in percent. Defaults to 100 percent.}
 }
+\value{
+A numeric value for the chemical mass in lb/day.
+}
 \description{
 This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
 }

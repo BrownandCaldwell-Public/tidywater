@@ -4,14 +4,14 @@
 #' @title Calculate DOC Concentration in PAC system
 #'
 #' @description \code{chemdose_PAC} calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-# ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+#' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
 #' Required arguments include an object of class "water"
 #' created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
 #'
 #' water must contain DOC or TOC value.
 #'
-#' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment
-#' The function returns a new object of class "water" with predicted DOC concentrations. UV254 concentrations are predicted based on a linear relationship with DOC.
+#' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
+#' UV254 concentrations are predicted based on a linear relationship with DOC.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #' @source CHO(2007)
@@ -26,6 +26,7 @@
 #'
 #' @export
 #'
+#' @returns A water class object with post-PAC predicted DOC and UV254.
 pac_toc <- function(water, dose, time, type = "bituminous") {
   validate_water(water, c("doc"))
   if (missing(dose) | !is.numeric(dose)) {

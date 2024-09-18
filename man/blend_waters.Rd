@@ -11,8 +11,12 @@ blend_waters(waters, ratios)
 
 \item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1)}
 }
+\value{
+A water class object with blended water quality parameters.
+}
 \description{
-This function takes a vector of waters defined by \code{\link{define_water}} and a vector of ratios and outputs a new water object with updated ion balance and pH.
+This function takes a vector of waters defined by \code{\link{define_water}}
+and a vector of ratios and outputs a new water object with updated ions and pH.
 }
 \examples{
 water1 <- define_water(7, 20, 50)
