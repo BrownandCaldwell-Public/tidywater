@@ -16,9 +16,11 @@ been computed using \code{\link{define_water_chain}},}
 
 \item{output_water}{name of output column storing updated parameters with the class, water. Default is "blended_water".}
 }
+\value{
+A data frame with a water class column containing updated ions and pH.
+}
 \description{
 This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-Its output is a `water` class with updated ions and pH.
 }
 \details{
 The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.

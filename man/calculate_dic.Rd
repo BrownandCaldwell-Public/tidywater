@@ -9,6 +9,9 @@ calculate_dic(water)
 \arguments{
 \item{water}{a water class object containing columns with all the parameters listed in \code{\link{define_water}}}
 }
+\value{
+A numeric value for the calculated DIC.
+}
 \description{
 This function takes a water class object defined by \code{\link{define_water}}
 and outputs a DIC (mg/L).

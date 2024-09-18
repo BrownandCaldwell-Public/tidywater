@@ -29,6 +29,9 @@ and a column named for the set of coefficients to use.}
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
+\value{
+A data frame with an updated DOC, TOC, and UV254 concentration.
+}
 \description{
 This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
 Its output is a data frame with updated TOC, DOC, and UV254.

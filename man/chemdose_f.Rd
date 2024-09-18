@@ -13,11 +13,14 @@ chemdose_f(water, alum, coeff = c(1.11, 0.628, -2.07, 0.861))
 
 \item{coeff}{Model coefficients to use as vector of numbers.}
 }
+\value{
+A water class object with an updated fluoride concentration.
+}
 \description{
 Applies equation of the form: raw_f - A*alum^a*ph ^ b * raw_f^c. There is no published model, so it is
 recommended to fit the coefficients with experimental data. When fitting, the following units must be used:
 Alum in mg/L as chemical, Fluoride in mg/L, pH in SU. Default coefficients are fit from Sollo et al (1978). This function
-outputs a water class object with new fluoride concentration (which will be in M, per standard water units).
+outputs a water class object with an updated fluoride concentration (which will be in M, per standard water units).
 }
 \examples{
 dosed_water <- define_water(ph = 7, temp = 25, alk = 50, f = 4) \%>\%

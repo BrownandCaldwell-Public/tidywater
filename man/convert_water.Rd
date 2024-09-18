@@ -9,6 +9,9 @@ convert_water(water)
 \arguments{
 \item{water}{A water class object}
 }
+\value{
+A data frame containing columns for all non-NA water slots.
+}
 \description{
 This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
 This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,

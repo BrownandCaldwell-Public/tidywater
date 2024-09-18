@@ -2,10 +2,6 @@
 # These directly interact with a water class.
 # _chain and _once functions should be in the R script with their respective models.
 
-# Author: Libby McKenna
-# Reviewers: Sierra Johnson 2/27/24
-
-
 #' Convert `water` class object to a dataframe
 #'
 #' This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
@@ -34,6 +30,8 @@
 #'
 #' @import dplyr
 #' @export
+#'
+#' @returns A data frame containing columns for all non-NA water slots.
 
 convert_water <- function(water) {
   nms <- methods::slotNames(water)
@@ -127,6 +125,7 @@ convert_watermg <- function(water) {
 #' plan(sequential)
 #' @import dplyr
 #' @export
+#' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
 pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {

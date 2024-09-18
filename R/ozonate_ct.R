@@ -30,6 +30,7 @@
 #'
 #' @import dplyr
 #' @export
+#' @returns A data frame containing actual CT, giardia log removal, virus log removal, and crypto log removal.
 #'
 ozonate_ct <- function(water, time, dose, kd, baffle) {
   validate_water(water, c("temp"))

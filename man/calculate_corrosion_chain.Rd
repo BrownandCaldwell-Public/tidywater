@@ -26,6 +26,9 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 
 \item{form}{Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"}
 }
+\value{
+A data frame containing a water class column with updated corrosion and scaling index slots.
+}
 \description{
 This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
 Up to six additional columns will be added to the output `water` class column depending on what corrosion/scaling

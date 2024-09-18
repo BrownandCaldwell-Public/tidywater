@@ -14,6 +14,9 @@ summarise_wq(water, params = c("general"))
 
 \item{params}{List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.}
 }
+\value{
+A knitr_kable table of specified water quality parameters.
+}
 \description{
 This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table of
 specified water quality parameters.

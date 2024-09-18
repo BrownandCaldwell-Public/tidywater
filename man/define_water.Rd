@@ -77,6 +77,9 @@ define_water(
 
 \item{mn}{Manganese in ug/L Mn2+}
 }
+\value{
+A water class object where slots are filled or calculated based on input parameters.
+}
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 }

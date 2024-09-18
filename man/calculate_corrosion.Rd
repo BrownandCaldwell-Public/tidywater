@@ -48,6 +48,9 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 
 \item{form}{Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"}
 }
+\value{
+A water class object with updated corrosion and scaling index slots.
+}
 \description{
 \code{calculate_corrosion} takes an object of class "water" created by \code{\link{define_water}} and calculates
 corrosion and scaling indices.

@@ -20,6 +20,7 @@
 #' solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 #'
 #' @export
+#' @returns  A numeric value for the required chemical dose.
 #'
 solvedose_ph <- function(water, target_ph, chemical) {
   validate_water(water, c("ph", "alk"))
@@ -94,6 +95,8 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) %>%
 #'   solvedose_alk(target_alk = 150, "naoh")
 #' @export
+#'
+#' @returns  A numeric value for the required chemical dose.
 #'
 solvedose_alk <- function(water, target_alk, chemical) {
   validate_water(water, c("ph", "alk"))
@@ -210,6 +213,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' @import dplyr
 #' @export
+#' @returns A data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
   dose <- NULL # Quiet RCMD check global variable note
@@ -328,6 +332,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' @import dplyr
 #' @export
+#'
+#' @returns A data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
   dose <- NULL # Quiet RCMD check global variable note

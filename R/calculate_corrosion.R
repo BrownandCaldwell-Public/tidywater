@@ -58,6 +58,8 @@
 #'
 #' @export
 #'
+#' @returns A water class object with updated corrosion and scaling index slots.
+#'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
   validate_water(water, c())
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
@@ -268,6 +270,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
+#'
+#' @returns A data frame containing specified corrosion and scaling indices.
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
@@ -335,6 +339,8 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #'
 #' @import dplyr
 #' @export
+#'
+#' @returns A data frame containing a water class column with updated corrosion and scaling index slots.
 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
                                       index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),

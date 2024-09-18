@@ -16,6 +16,9 @@ biofilter_toc(water, ebct, o3_dose = 0)
 
 \item{o3_dose}{Applied ozone (O3) dose in mg/L. Defaults to 0 mg/L.}
 }
+\value{
+A water class object with modeled DOC removal from biofiltration.
+}
 \description{
 This function applies the Terry model to a water created by \code{\link{define_water}} to determine biofiltered
 DOC (mg/L).

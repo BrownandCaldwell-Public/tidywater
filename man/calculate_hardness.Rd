@@ -15,6 +15,9 @@ calculate_hardness(ca, mg, type = "total", startunit = "mg/L")
 
 \item{startunit}{Units of Ca and Mg. Defaults to mg/L}
 }
+\value{
+A numeric value for the total hardness in mg/L as CaCO3.
+}
 \description{
 This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 }

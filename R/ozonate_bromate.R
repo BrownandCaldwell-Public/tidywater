@@ -24,6 +24,7 @@
 #'   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
 #'
 #' @export
+#' @returns A water class object with calculated bromate (ug/L).
 #'
 ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   ammonia <- NULL # Quiet RCMD check global variable note

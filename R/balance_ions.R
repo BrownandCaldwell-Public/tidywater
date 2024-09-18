@@ -15,6 +15,8 @@
 #'
 #' @export
 #'
+#' @returns A water class object with updated ions to balance water charge.
+#'
 balance_ions <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
@@ -103,7 +105,6 @@ balance_ions <- function(water) {
 #' Apply `balance_ions` function and output a dataframe
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-#' Its output is a dataframe with updated ions depending on starting concentrations
 #' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
@@ -143,6 +144,7 @@ balance_ions <- function(water) {
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
+#' @returns A dataframe with updated ions to balance water charge
 
 balance_ions_once <- function(df, input_water = "defined_water") {
   balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note

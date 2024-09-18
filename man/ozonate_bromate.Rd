@@ -20,6 +20,9 @@ ozonate_bromate(water, dose, time, model = "Ozekin")
 
 \item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
 }
+\value{
+A water class object with calculated bromate (ug/L).
+}
 \description{
 Calculates bromate (BrO3-) formation based on selected model. Required arguments include an object of class "water"
 created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
