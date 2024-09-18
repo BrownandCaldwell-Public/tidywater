@@ -33,7 +33,7 @@ and a column named for the set of coefficients to use.}
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
 \value{
-A data frame containing a water class column with updated DOC concentrations.
+A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 }
 \description{
 This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.

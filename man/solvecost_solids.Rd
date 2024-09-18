@@ -36,7 +36,7 @@ solvecost_solids(
 \item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \value{
-A numeric value for disposal costs.
+A numeric value for disposal costs, $/time.
 }
 \description{
 This function takes coagulant doses in mg/L as chemical, removed turbidity, and cost ($/lb) to determine disposal cost.

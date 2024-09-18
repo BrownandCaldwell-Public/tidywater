@@ -18,7 +18,7 @@ solvecost_chem(dose, flow, strength = 100, cost, time = "day")
 \item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \value{
-A numeric value for chemical cost.
+A numeric value for chemical cost, $/time.
 }
 \description{
 This function takes a chemical dose in mg/L, plant flow, chemical strength, and $/lb and calculates cost.

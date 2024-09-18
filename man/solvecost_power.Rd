@@ -16,7 +16,7 @@ solvecost_power(power, utilization = 100, cost, time = "day")
 \item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \value{
-A numeric value for power, $/kWhr.
+A numeric value for power, $/time.
 }
 \description{
 This function takes kW, % utilization, $/kWhr and determines power cost.

@@ -14,7 +14,7 @@ solvecost_labor(fte, cost, time = "day")
 \item{time}{Desired output units, one of c("day", "month", "year"). Defaults to "day".}
 }
 \value{
-A numeric value for labor.
+A numeric value for labor $/time.
 }
 \description{
 This function takes number of FTE and annual $/FTE and determines labor cost

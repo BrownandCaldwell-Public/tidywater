@@ -32,7 +32,7 @@ chemdose_toc(
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 }
 \value{
-A water class object with an updated DOC concentration.
+A water class object with an updated DOC, TOC, and UV254 concentration.
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated

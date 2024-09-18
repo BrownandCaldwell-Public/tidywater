@@ -72,7 +72,7 @@ chemdose_ph(
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 }
 \value{
-A water class object with updated water quality post-chemical addition.
+A water class object with updated pH, alkalinity, and ions post-chemical addition.
 }
 \description{
 \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
