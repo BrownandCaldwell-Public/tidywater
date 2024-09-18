@@ -32,6 +32,7 @@
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
@@ -67,7 +68,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
                         na2co3 = 0, nahco3 = 0, caco3 = 0, cacl2 = 0,
                         cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
-                        alum = 0, ferricchloride = 0, ferricsulfate = 0,
+                        alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
                         softening_correction = FALSE) {
   validate_water(water, c("ph", "alk"))
 
@@ -116,6 +117,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   ferricchloride <- convert_units(ferricchloride, "ferricchloride")
   # Ferric sulfate - hydration included
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate")
+  # ACH
+  ach <- convert_units(ach, "ach")
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
   dosed_water <- water
@@ -137,7 +140,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@k <- water@k + k_dose
 
   # Total chloride
-  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride
+  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach
   dosed_water@cl <- water@cl + cl_dose
 
   # Total sulfate
@@ -258,6 +261,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
@@ -304,7 +308,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
-                             alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+                             alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
   dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_ph_chain(
@@ -312,7 +316,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       hcl, h2so4, h3po4, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
       cl2, naocl, caocl2, nh4oh, nh42so4,
-      alum, ferricchloride, ferricsulfate, caco3
+      alum, ferricchloride, ferricsulfate, ach, caco3
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
@@ -359,6 +363,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
@@ -403,13 +408,13 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
                               cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
-                              alum = 0, ferricchloride = 0, ferricsulfate = 0, caco3 = 0) {
+                              alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
   ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
     cl2, naocl, caocl2, nh4oh, nh42so4,
-    alum, ferricchloride, ferricsulfate, caco3
+    alum, ferricchloride, ferricsulfate, ach, caco3
   )
 
   chem_inputs_arg <- dosable_chems %>%
@@ -472,6 +477,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         alum = alum,
         ferricchloride = ferricchloride,
         ferricsulfate = ferricsulfate,
+        ach = ach,
         caco3 = caco3
       ),
       chemdose_ph
