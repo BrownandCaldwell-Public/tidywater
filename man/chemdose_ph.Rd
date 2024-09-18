@@ -25,6 +25,7 @@ chemdose_ph(
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
+  ach = 0,
   softening_correction = FALSE
 )
 }
@@ -68,6 +69,8 @@ chemdose_ph(
 \item{ferricchloride}{Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
 \item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
+
+\item{ach}{Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2}
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 }
