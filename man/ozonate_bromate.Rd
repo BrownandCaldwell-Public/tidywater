@@ -16,7 +16,7 @@ ozonate_bromate(water, dose, time, model = "Ozekin")
 
 \item{dose}{Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.}
 
-\item{time}{Reaction time (minutes). Results typically valid for 1-120 minuts, but varies depending on model.}
+\item{time}{Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.}
 
 \item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
 }
@@ -24,7 +24,7 @@ ozonate_bromate(water, dose, time, model = "Ozekin")
 A water class object with calculated bromate (ug/L).
 }
 \description{
-Calculates bromate (BrO3-) formation based on selected model. Required arguments include an object of class "water"
+Calculates bromate (BrO3-, ug/L) formation based on selected model. Required arguments include an object of class "water"
 created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
 The function also requires additional water quality parameters defined in \code{define_water}
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
