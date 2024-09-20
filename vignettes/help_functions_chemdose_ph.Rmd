@@ -111,8 +111,10 @@ Let's get back to our analysis. Similar to `chemdose_ph_chain`, `solvedose_ph_on
 
 ```{r, warning=FALSE}
 # 1. Use existing columns in your dataframe to set a target pH and the chemicals to dose
-raise_ph <- tibble(chemical = c("naoh", "mgoh2"),
-  target_ph = c(8, 8))
+raise_ph <- tibble(
+  chemical = c("naoh", "mgoh2"),
+  target_ph = c(8, 8)
+)
 solve_column <- raw_water %>%
   chemdose_ph_chain(input_water = "balanced_water") %>%
   cross_join(raise_ph) %>%
@@ -135,8 +137,10 @@ Now that we have the dose required to raise the pH to 8, let's dose caustic into
 dosed_caustic_water <- raw_water %>%
   chemdose_ph_chain(input_water = "balanced_water", output_water = "alum_dosed") %>%
   solvedose_ph_once(input_water = "alum_dosed", chemical = "naoh", target_ph = 8) %>%
-  rename(naoh = dose_required,
-    coagulant = alum) %>% # rename alum column so it doesn't get dosed twice
+  rename(
+    naoh = dose_required,
+    coagulant = alum
+  ) %>% # rename alum column so it doesn't get dosed twice
   chemdose_ph_chain(input_water = "alum_dosed", output_water = "caustic_dosed") %>%
   pluck_water(input_water = "caustic_dosed", "ph") %>%
   select(-c(defined_water:chemical))

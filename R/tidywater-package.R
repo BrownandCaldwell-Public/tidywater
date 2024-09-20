@@ -1,19 +1,21 @@
 #' @keywords internal
 "_PACKAGE"
 
-# The following block is used by usethis to automatically manage
-# roxygen namespace tags. Modify with care!
+## quiets concerns of R CMD check re: the .'s that appear in pipelines
+utils::globalVariables(".")
+
 ## usethis namespace: start
-#' @import dplyr
-#' @import tidyr
-#' @importFrom magrittr %$%
+#' @importFrom rlang :=
 ## usethis namespace: end
 NULL
 
 #' Molar weights of relevant compounds
 #'
-#' A dataset containing the molar weights of several compounds in g/mol
-#'
+#' A dataset containing the molar weights of several compounds in g/mol. Column names are lowercase chemical formulas (with no charge),
+#' with the exception of the following coagulants:
+#' alum = Al2(SO4)3*14H2O,
+#' ferricchloride = FeCl3,
+#' ferricsulfate = Fe2(SO4)3*8.8H2O,
 #' @docType data
 #' @keywords datasets
 #' @name mweights
@@ -33,7 +35,7 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @name discons
-#' @format A dataframe with 7 rows and 3 columns
+#' @format A dataframe with 8 rows and 3 columns
 #' \describe{
 #' \item{ID}{Coefficient type}
 #' \item{k}{Equilibrium constant}
@@ -149,7 +151,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
-#' @name conv_chloramine
+#' @name chloramine_conv
 #' @format A dataframe with 17 rows and 3 columns
 #' \describe{
 #' \item{ID}{abbreviation of dbp species}
@@ -158,7 +160,7 @@ NULL
 #' }
 #' @source U.S. EPA (2001), Table 5-10
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
-"conv_chloramine"
+"chloramine_conv"
 
 #' Data frame of correction factors for estimating DBP formation as a function of location
 #'
@@ -177,3 +179,33 @@ NULL
 #' @source U.S. EPA (2001), Table 5-7
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 "dbp_correction"
+
+
+
+#' Data frame of bromate coefficients for predicting bromate formation during ozonation
+#'
+#' A dataset containing coefficients for calculating ozone formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name bromatecoeffs
+#' @format A dataframe with 30 rows and 10 columns
+#' \describe{
+#' \item{model}{First author of source model}
+#' \item{ammonia}{Either T or F, depending on whether the model applies to waters with ammonia present.}
+#' \item{A}{First coefficient in bromate model}
+#' \item{a}{Exponent in bromate model, associated with Br-}
+#' \item{b}{Exponent in bromate model, associated with DOC}
+#' \item{c}{Exponent in bromate model, associated with UVA}
+#' \item{d}{Exponent in bromate model, associated with pH}
+#' \item{e}{Exponent in bromate model, associated with Alkalinity}
+#' \item{f}{Exponent in bromate model, associated with ozone dose}
+#' \item{g}{Exponent in bromate model, associated with reaction time}
+#' \item{h}{Exponent in bromate model, associated with ammonia (NH4+)}
+#' \item{i}{Exponent in bromate model, associated with temperature}
+#' \item{I}{Coefficient in bromate model, associated with temperature in the exponent. Either i or I are used, not both.}
+#' }
+#'
+#' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"bromatecoeffs"
