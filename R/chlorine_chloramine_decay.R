@@ -36,6 +36,7 @@
 #'   chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", location = "ds")
 #'
 #' @export
+#' @returns An updated disinfectant residual in the tot_ocl water slot.
 #'
 chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine", chlorine_correction = FALSE) {
   toc = water@toc

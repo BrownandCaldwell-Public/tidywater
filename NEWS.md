@@ -3,6 +3,19 @@
 * Initial CRAN submission.
 
 ## Fixes
+
+
+## New features
+* chlorine and chloramine decay
+
+## Breaking changes
+
+
+# tidywater 0.4.0
+
+* Initial CRAN submission.
+
+## Fixes
 * solve_ph code updated to handle starting po4 concentration
 
 ## New features

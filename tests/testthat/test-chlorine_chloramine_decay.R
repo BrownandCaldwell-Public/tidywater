@@ -50,10 +50,10 @@ test_that("chemdose_cl2 works.", {
   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
   water6 <- chemdose_cl2(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10, treatment = "either")
 
-  expect_equal(round(water2@tot_ocl,3), 0.941)
-  expect_equal(round(water3@tot_ocl,3), 2.328)
-  expect_equal(round(water4@tot_ocl,3), 3.718)
-  expect_equal(round(water6@tot_ocl,3), 5.671)
+  expect_equal(signif(water2@tot_ocl,3), 1.83E-5)
+  expect_equal(signif(water3@tot_ocl,3), 4.53E-5)
+  expect_equal(signif(water4@tot_ocl,3), 7.23E-5)
+  expect_equal(signif(water6@tot_ocl,3), 1.1E-4)
 })
 
 
