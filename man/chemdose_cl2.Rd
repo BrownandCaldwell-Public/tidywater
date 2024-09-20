@@ -37,6 +37,8 @@ does not have a time restriction.}
 water that has been coagulated or softened.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
+
+\item{chlorine_correction}{Defaults to FALSE. Corrects the initial chlorine residual concentration when the cl_type is also "chlorine".}
 }
 \value{
 An updated disinfectant residual in the tot_ocl water slot.

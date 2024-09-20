@@ -29,6 +29,7 @@
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 #' water that has been coagulated or softened.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param chlorine_correction Defaults to FALSE. Corrects the initial chlorine residual concentration when the cl_type is also "chlorine".
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
 #'   chemdose_cl2(cl2_dose = 2, time = 8)
