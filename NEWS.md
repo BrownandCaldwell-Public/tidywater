@@ -1,5 +1,7 @@
 # tidywater 0.4.0
 
+* Initial CRAN submission.
+
 ## Fixes
 * solve_ph code updated to handle starting po4 concentration
 
