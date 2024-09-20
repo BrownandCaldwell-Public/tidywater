@@ -61,6 +61,6 @@ Use \code{summarise_wq} to quickly tabulate the results.
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
   chemdose_cl2(cl2_dose = 2, time = 8)
 example_cl2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
-  chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", location = "ds")
+  chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", cl_type = "chloramine")
 
 }
