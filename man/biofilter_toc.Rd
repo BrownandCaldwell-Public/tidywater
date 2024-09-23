@@ -20,7 +20,7 @@ biofilter_toc(water, ebct, o3_dose = 0)
 
 \item{o3_dose}{Applied ozone (O3) dose in mg/L. Defaults to 0 mg/L.}
 
-\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise}
+\item{ozonated}{Logical; TRUE if the water is ozonated, FALSE otherwise}
 }
 \value{
 A water class object with modeled DOC removal from biofiltration.

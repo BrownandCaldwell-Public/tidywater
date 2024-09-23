@@ -60,18 +60,15 @@ test_that("biofilter_toc correctly handles temperatures and non-ozonated water."
 test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
   water <-suppressWarnings(define_water(ph = 7, temp = 45, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
 
-  # the Bad Place temperature, non-ozonated
-  dosed_water_high <- suppressWarnings(biofilter_toc(water, ebct = 10))
+  dosed_water_high <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE))
   expect_equal(round(dosed_water_high@toc, 2), 3.83)
 
-  # the Medium Place temperature, non-ozonated
   water@temp <- 19
-  dosed_water_med<- suppressWarnings(biofilter_toc(water, ebct = 10))
+  dosed_water_med<- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE))
   expect_equal(round(dosed_water_med@toc, 2), 4.32)
 
-  # the Good Place temperature, non-ozonated
   water@temp <- 5
-  dosed_water_low <- suppressWarnings(biofilter_toc(water, ebct = 10))
+  dosed_water_low <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE))
   expect_equal(round(dosed_water_low@toc, 2), 4.61)
 
 })

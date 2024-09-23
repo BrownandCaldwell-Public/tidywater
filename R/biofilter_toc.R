@@ -11,12 +11,12 @@
 #' @examples
 #' library(tidywater)
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) %>%
-#'   biofilter_toc(ebct = 10, ozonated = TRUE)
+#'   biofilter_toc(ebct = 10, ozonated = FALSE)
 #'
 #' @returns  A water class object with modeled DOC removal from biofiltration.
 #' @export
 #'
-biofilter_toc <- function(water, ebct, ozonated = TRUE) {
+biofilter_toc <- function(water, ebct, ozonated =TRUE) {
 
   if (!is.logical(ozonated)) {
     warning("Ozonated argument must be logical. Calculation will be skipped for this instance.")

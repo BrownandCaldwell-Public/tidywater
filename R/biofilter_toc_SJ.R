@@ -11,17 +11,17 @@
 #'
 #' @examples
 #' example1 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) %>%
-#'   biofilter_toc(ebct = 20)
+#'   biofilter_toc_SJ(ebct = 20)
 #' example1@toc
 #'
 #' example2 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) %>%
-#'   biofilter_toc(ebct = 20, o3_dose = 3)
+#'   biofilter_toc_SJ(ebct = 20, o3_dose = 3)
 #'
 #' @export
 #'
 #' @returns A water class object with modeled DOC removal from biofiltration.
 #'
-biofilter_toc <- function(water, ebct, o3_dose = 0) {
+biofilter_toc_SJ <- function(water, ebct, o3_dose = 0) {
   temperature <- water@temp
 
   # Check if water object is missing or not of class 'water'
