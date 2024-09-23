@@ -15,7 +15,7 @@
 #'   solveresid_o3(dose = 2, time = 10)
 #'
 #' @export
-#'@returns A numeric value for the resiudal ozone.
+#' @returns A numeric value for the resiudal ozone.
 solveresid_o3 <- function(water, dose, time) {
   validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -72,7 +72,7 @@ solveresid_o3 <- function(water, dose, time) {
 #'
 #' @import dplyr
 #' @export
-#'@returns A data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
+#' @returns A data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
 solveresid_o3_once <- function(df, input_water = "defined_water",
                                dose = 0, time = 0) {
