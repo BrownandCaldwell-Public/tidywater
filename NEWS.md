@@ -1,3 +1,11 @@
+# tidywater 0.6.0
+
+## New features
+* biofilter_toc updates the bdoc water slot
+
+## Breaking changes
+* biofilter_toc argument, o3_dose, was replaced with ozonated, which accepts TRUE or FALSE inputs
+
 # tidywater 0.5.0
 
 * Initial CRAN submission.
