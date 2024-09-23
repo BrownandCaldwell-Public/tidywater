@@ -1,0 +1,9 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+Rprof.out
+inst/doc
+# Excel and csv files are not allowed in this repo
+*.csv
+*.xlsx

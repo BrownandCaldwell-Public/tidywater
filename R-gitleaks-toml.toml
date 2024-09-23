@@ -1,0 +1,551 @@
+title = "R Project Gitleaks Configuration"
+description = "Custom configuration for scanning secrets in an R program, including Azure keys and organization-specific passwords"
+version = 3
+
+# Define global settings for the scan
+[[rules]]
+description = "AWS Access Key"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["key", "AWS"]
+
+[[rules]]
+description = "AWS Secret Key"
+regex = '''(?i)aws(.{0,20})?(?-i)["'][0-9a-zA-Z\/+]{40}["']'''
+tags = ["key", "AWS"]
+
+[[rules]]
+id = "AWS"
+description = "AWS Access Token"
+regex = '''\bAKIA[0-9A-Z]{16}\b'''
+tags = ["aws", "revocation_type", "gitlab_blocking"]
+keywords = [
+    "AKIA",
+]
+
+[[rules]]
+description = "Generic API Key"
+regex = '''(?i)(api_key|apiKey|apikey|api-key)["']?[=: ]["']?[a-zA-Z0-9]{16,45}["']?'''
+tags = ["key", "API"]
+
+[[rules]]
+description = "Generic Secret"
+regex = '''(?i)(secret|password|passwd|pwd)["']?[=: ]["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["key", "secret"]
+
+[[rules]]
+description = "Google Cloud API Key"
+regex = '''AIza[0-9A-Za-z\\-_]{35}'''
+tags = ["key", "Google"]
+
+[[rules]]
+description = "Heroku API Key"
+regex = '''(?i)heroku[a-z0-9]{25,40}'''
+tags = ["key", "Heroku"]
+
+[[rules]]
+description = "Slack Token"
+regex = '''xox[baprs]-[0-9a-zA-Z]{10,48}'''
+tags = ["token", "Slack"]
+
+[[rules]]
+description = "RSA Private Key"
+regex = '''-----BEGIN RSA PRIVATE KEY-----'''
+tags = ["key", "RSA"]
+
+[[rules]]
+description = "Database URI"
+regex = '''(?i)(jdbc|postgres|mysql|mongodb|db)([a-zA-Z]+:\/\/)([a-zA-Z0-9\-_]+:[a-zA-Z0-9\-_]+@)?[a-zA-Z0-9\-_\.]+:[0-9]{1,5}(\/[a-zA-Z0-9\-_\.]*)?'''
+tags = ["database", "credentials"]
+
+# Azure-specific rules
+[[rules]]
+description = "Azure Storage Account Key"
+regex = '''(?i)accountkey[=: ]{1,3}[a-zA-Z0-9\/+]{88}'''
+tags = ["key", "Azure", "Storage"]
+
+[[rules]]
+description = "Azure Connection String"
+regex = '''DefaultEndpointsProtocol=https;AccountName=[a-z0-9]{3,24};AccountKey=[a-zA-Z0-9\/+]{88};EndpointSuffix=core\.windows\.net'''
+tags = ["key", "Azure", "Storage"]
+
+[[rules]]
+description = "Azure Shared Access Signature (SAS) Token"
+regex = '''(?i)se=[0-9T]{10,32}&sig=[a-zA-Z0-9%]{43,64}&sp=[rwdl]{1,4}&spr=https&sv=[0-9]{4}-[0-9]{2}-[0-9]{2}'''
+tags = ["token", "Azure", "SAS"]
+
+[[rules]]
+description = "Azure Client ID"
+regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'''
+tags = ["Azure", "Client ID"]
+
+[[rules]]
+description = "Azure Tenant ID"
+regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'''
+tags = ["Azure", "Tenant ID"]
+
+[[rules]]
+description = "Azure Client Secret"
+regex = '''(?i)(client_secret|clientSecret)["']?[=: ]{1,3}["']?[a-zA-Z0-9\-_]{32,64}["']?'''
+tags = ["key", "Azure", "Client Secret"]
+
+# Organization-specific password rules
+[[rules]]
+description = "Internal Service Password"
+regex = '''(?i)internal_service_password["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["password", "internal","s-","ServiceAccount"]
+
+[[rules]]
+description = "Admin Password"
+regex = '''(?i)(admin_password|admin_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["password", "admin","-"]
+
+[[rules]]
+description = "Database Password"
+regex = '''(?i)(db_password|database_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["password", "database"]
+
+[[rules]]
+description = "FTP Password"
+regex = '''(?i)(ftp_pass|ftp_password)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["password", "FTP"]
+
+[[rules]]
+description = "API Service Password"
+regex = '''(?i)(api_service_password|service_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
+tags = ["password", "API", "service"]
+
+# Cryptographic keys
+[[rules]]
+id = "PKCS8 private key"
+description = "PKCS8 private key"
+regex = '''-----BEGIN PRIVATE KEY-----'''
+keywords = [
+    "-----BEGIN PRIVATE KEY-----",
+]
+
+[[rules]]
+id = "RSA private key"
+description = "RSA private key"
+regex = '''-----BEGIN RSA PRIVATE KEY-----'''
+keywords = [
+    "-----BEGIN RSA PRIVATE KEY-----",
+]
+
+[[rules]]
+id = "SSH private key"
+description = "SSH private key"
+regex = '''-----BEGIN OPENSSH PRIVATE KEY-----'''
+keywords = [
+    "-----BEGIN OPENSSH PRIVATE KEY-----",
+]
+
+[[rules]]
+id = "PGP private key"
+description = "PGP private key"
+regex = '''-----BEGIN PGP PRIVATE KEY BLOCK-----'''
+keywords = [
+    "-----BEGIN PGP PRIVATE KEY BLOCK-----",
+]
+
+[[rules]]
+description = "systemd machine-id"
+id = "systemd-machine-id"
+path = '''^machine-id$'''
+regex = '''^[0-9a-f]{32}\n$'''
+entropy = 3.5
+
+[[rules]]
+id = "Github Personal Access Token"
+description = "Github Personal Access Token"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+tags = ["gitlab_blocking"]
+keywords = [
+    "ghp_",
+]
+
+[[rules]]
+id = "Github OAuth Access Token"
+description = "Github OAuth Access Token"
+regex = '''gho_[0-9a-zA-Z]{36}'''
+tags = ["gitlab_blocking"]
+keywords = [
+    "gho_",
+]
+
+[[rules]]
+id = "SSH (DSA) private key"
+description = "SSH (DSA) private key"
+regex = '''-----BEGIN DSA PRIVATE KEY-----'''
+keywords = [
+    "-----BEGIN DSA PRIVATE KEY-----",
+]
+
+[[rules]]
+id = "SSH (EC) private key"
+description = "SSH (EC) private key"
+regex = '''-----BEGIN EC PRIVATE KEY-----'''
+keywords = [
+    "-----BEGIN EC PRIVATE KEY-----",
+]
+
+
+[[rules]]
+id = "Github App Token"
+description = "Github App Token"
+regex = '''(ghu|ghs)_[0-9a-zA-Z]{36}'''
+tags = ["gitlab_blocking"]
+keywords = [
+    "ghu_",
+    "ghs_"
+]
+
+[[rules]]
+id = "Github Refresh Token"
+description = "Github Refresh Token"
+regex = '''ghr_[0-9a-zA-Z]{76}'''
+tags = ["gitlab_blocking"]
+keywords = [
+    "ghr_"
+]
+
+[[rules]]
+id = "Slack token"
+description = "Slack token"
+regex = '''xox[baprs]-([0-9a-zA-Z]{10,48})'''
+tags = ["gitlab_blocking"]
+keywords = [
+    "xoxb",
+    "xoxa",
+    "xoxp",
+    "xoxr",
+    "xoxs",
+]
+
+[[rules]]
+id = "PyPI upload token"
+description = "PyPI upload token"
+regex = '''pypi-AgEIcHlwaS5vcmc[A-Za-z0-9-_]{50,1000}'''
+tags = ["pypi", "revocation_type", "gitlab_blocking"]
+keywords = [
+    "pypi-AgEIcHlwaS5vcmc",
+]
+
+[[rules]]
+id = "Google (GCP) Service-account"
+description = "Google (GCP) Service-account"
+tags = ["gitlab_partner_token", "revocation_type", "gitlab_blocking"]
+regex = '''\"private_key\":\s*\"-{5}BEGIN PRIVATE KEY-{5}[\s\S]*?",'''
+keywords = [
+    "service_account",
+]
+
+[[rules]]
+id = "GCP API key"
+description = "GCP API keys can be misused to gain API quota from billed projects"
+regex = '''(?i)\b(AIza[0-9A-Za-z-_]{35})(?:['|\"|\n|\r|\s|\x60|;]|$)'''
+secretGroup = 1
+tags = ["gitlab_partner_token", "revocation_type", "gitlab_blocking"]
+keywords = [
+    "AIza",
+]
+
+[[rules]]
+id = "GCP OAuth client secret"
+description = "GCP OAuth client secrets can be misused to spoof your application"
+tags = ["gitlab_partner_token", "revocation_type", "gitlab_blocking"]
+regex = '''GOCSPX-[a-zA-Z0-9_-]{28}'''
+keywords = [
+    "GOCSPX-",
+]
+
+[[rules]]
+# demo of this regex not matching passwords in urls that contain env vars:
+# https://regex101.com/r/rT9Lv9/6
+id = "Password in URL"
+description = "Password in URL"
+regex = '''[a-zA-Z]{3,10}:\/\/[^$][^:@\/\n]{3,20}:[^$][^:@\n\/]{3,40}@.{1,100}'''
+
+
+[[rules]]
+id = "Heroku API Key"
+description = "Heroku API Key"
+regex = '''(?i)(?:heroku)(?:[0-9a-z\-_\t .]{0,20})(?:[\s|']|[\s|"]){0,3}(?:=|>|:=|\|\|:|<=|=>|:)(?:'|\"|\s|=|\x60){0,5}([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})(?:['|\"|\n|\r|\s|\x60]|$)'''
+secretGroup = 1
+keywords = [
+    "heroku",
+]
+
+[[rules]]
+id = "Slack Webhook"
+description = "Slack Webhook"
+regex = '''https://hooks.slack.com/services/T[a-zA-Z0-9_]{8}/B[a-zA-Z0-9_]{8,12}/[a-zA-Z0-9_]{24}'''
+keywords = [
+    "https://hooks.slack.com/services",
+]
+
+[[rules]]
+id = "Twilio API Key"
+description = "Twilio API Key"
+regex = '''SK[0-9a-fA-F]{32}'''
+keywords = [
+    "SK",
+    "twilio"
+]
+
+[[rules]]
+id = "Age secret key"
+description = "Age secret key"
+regex = '''AGE-SECRET-KEY-1[QPZRY9X8GF2TVDW0S3JN54KHCE6MUA7L]{58}'''
+keywords = [
+    "AGE-SECRET-KEY-1",
+]
+
+[[rules]]
+id = "Facebook token"
+description = "Facebook token"
+regex = '''(?i)(facebook[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-f0-9]{32})['\"]'''
+secretGroup = 3
+keywords = [
+    "facebook",
+]
+
+[[rules]]
+id = "Twitter token"
+description = "Twitter token"
+regex = '''(?i)(twitter[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-f0-9]{35,44})['\"]'''
+secretGroup = 3
+keywords = [
+    "twitter",
+]
+
+[[rules]]
+id = "Adobe Client ID (Oauth Web)"
+description = "Adobe Client ID (Oauth Web)"
+regex = '''(?i)(adobe[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-f0-9]{32})['\"]'''
+secretGroup = 3
+keywords = [
+    "adobe",
+]
+
+[[rules]]
+id = "Adobe Client Secret"
+description = "Adobe Client Secret"
+regex = '''(p8e-)(?i)[a-z0-9]{32}'''
+keywords = [
+    "adobe",
+    "p8e-,"
+]
+
+[[rules]]
+id = "Atlassian API token"
+description = "Atlassian API token"
+regex = '''(?i)(atlassian[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9]{24})['\"]'''
+secretGroup = 3
+keywords = [
+    "atlassian",
+]
+
+[[rules]]
+id = "Bitbucket client ID"
+description = "Bitbucket client ID"
+regex = '''(?i)(bitbucket[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9]{32})['\"]'''
+secretGroup = 3
+keywords = [
+    "bitbucket",
+]
+
+[[rules]]
+id = "Bitbucket client secret"
+description = "Bitbucket client secret"
+regex = '''(?i)(bitbucket[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9_\-]{64})['\"]'''
+secretGroup = 3
+keywords = [
+    "bitbucket",
+]
+
+[[rules]]
+id = "Contentful preview API token"
+description = "Contentful preview API token"
+regex = '''(?i)(contentful[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9\-=_]{43})['\"]'''
+secretGroup = 3
+keywords = [
+    "contentful",
+]
+
+[[rules]]
+id = "Databricks API token"
+description = "Databricks API token"
+regex = '''dapi[a-h0-9]{32}'''
+keywords = [
+    "dapi",
+    "databricks"
+]
+
+[[rules]]
+description = "DigitalOcean OAuth Access Token"
+id = "digitalocean-access-token"
+regex = '''(?i)\b(doo_v1_[a-f0-9]{64})(?:['|\"|\n|\r|\s|\x60|;]|$)'''
+secretGroup = 1
+keywords = [
+    "doo_v1_",
+]
+
+[[rules]]
+description = "DigitalOcean Personal Access Token"
+id = "digitalocean-pat"
+regex = '''(?i)\b(dop_v1_[a-f0-9]{64})(?:['|\"|\n|\r|\s|\x60|;]|$)'''
+secretGroup = 1
+keywords = [
+    "dop_v1_",
+]
+
+[[rules]]
+description = "DigitalOcean OAuth Refresh Token"
+id = "digitalocean-refresh-token"
+regex = '''(?i)\b(dor_v1_[a-f0-9]{64})(?:['|\"|\n|\r|\s|\x60|;]|$)'''
+secretGroup = 1
+keywords = [
+    "dor_v1_",
+]
+
+[[rules]]
+id = "Discord API key"
+description = "Discord API key"
+regex = '''(?i)(discord[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-h0-9]{64})['\"]'''
+secretGroup = 3
+keywords = [
+    "discord",
+]
+
+[[rules]]
+id = "Discord client ID"
+description = "Discord client ID"
+regex = '''(?i)(discord[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([0-9]{18})['\"]'''
+secretGroup = 3
+keywords = [
+    "discord",
+]
+
+[[rules]]
+id = "Discord client secret"
+description = "Discord client secret"
+regex = '''(?i)(discord[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9=_\-]{32})['\"]'''
+secretGroup = 3
+keywords = [
+    "discord",
+]
+
+[[rules]]
+id = "Dropbox API secret/key"
+description = "Dropbox API secret/key"
+regex = '''(?i)(dropbox[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9]{15})['\"]'''
+keywords = [
+    "dropbox",
+]
+
+[[rules]]
+id = "Dropbox short lived API token"
+description = "Dropbox short lived API token"
+regex = '''(?i)(dropbox[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"](sl\.[a-z0-9\-=_]{135})['\"]'''
+keywords = [
+    "dropbox",
+]
+
+[[rules]]
+id = "Dropbox long lived API token"
+description = "Dropbox long lived API token"
+regex = '''(?i)(dropbox[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"][a-z0-9]{11}(AAAAAAAAAA)[a-z0-9\-_=]{43}['\"]'''
+keywords = [
+    "dropbox",
+]
+
+[[rules]]
+id = "Linkedin Client secret"
+description = "Linkedin Client secret"
+regex = '''(?i)(linkedin[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z]{16})['\"]'''
+secretGroup = 3
+keywords = [
+    "linkedin",
+]
+
+[[rules]]
+id = "Linkedin Client ID"
+description = "Linkedin Client ID"
+regex = '''(?i)(linkedin[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9]{14})['\"]'''
+secretGroup = 3
+keywords = [
+    "linkedin",
+]
+
+[[rules]]
+id = "Twitch API token"
+description = "Twitch API token"
+regex = '''(?i)(twitch[a-z0-9_ .\-,]{0,25})(=|>|:=|\|\|:|<=|=>|:).{0,5}['\"]([a-z0-9]{30})['\"]'''
+secretGroup = 3
+keywords = [
+    "twitch",
+]
+
+[[rules]]
+id = "Yandex.Cloud IAM Cookie v1 - 1"
+description = "Yandex.Cloud IAM Cookie v1"
+regex = '''\bc1\.[A-Z0-9a-z_-]+[=]{0,2}\.[A-Z0-9a-z_-]{86}[=]{0,2}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "yandex",
+]
+
+[[rules]]
+id = "Yandex.Cloud IAM Cookie v1 - 2"
+description = "Yandex.Cloud IAM Token v1"
+regex = '''\bt1\.[A-Z0-9a-z_-]+[=]{0,2}\.[A-Z0-9a-z_-]{86}[=]{0,2}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "yandex",
+]
+
+[[rules]]
+id = "Yandex.Cloud IAM Cookie v1 - 3"
+description = "Yandex.Cloud IAM API key v1"
+regex = '''\bAQVN[A-Za-z0-9_\-]{35,38}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "yandex",
+]
+
+[[rules]]
+id = "Yandex.Cloud AWS API compatible Access Secret"
+description = "Yandex.Cloud AWS API compatible Access Secret"
+regex = '''\bYC[a-zA-Z0-9_\-]{38}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "yandex",
+]
+
+[[rules]]
+id = "Meta access token"
+description = "Meta access token"
+regex = '''\bEA[a-zA-Z0-9]{90,400}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "EA",
+]
+
+[[rules]]
+id = "Instagram access token"
+description = "Instagram access token"
+regex = '''\bIG[a-zA-Z0-9]{90,400}['|\"|\n|\r|\s|\x60]'''
+keywords = [
+    "IG",
+]
+
+[[rules]]
+description = "Open AI API key"
+id = "open ai token"
+regex = '''\bsk-[a-zA-Z0-9]{48}\b'''
+keywords = [
+    "sk-",
+]
+
+[[rules]]
+id = "Tailscale key"
+description = "Tailscale keys"
+regex = '''\btskey-\w+-\w+-\w+\b'''
+keywords = [
+    "tskey-",
+]
