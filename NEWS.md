@@ -3,25 +3,27 @@
 * Initial CRAN submission.
 
 ## Fixes
-* update most functions to use base R, and only use dplyr functions where necessary
 * default temperature is not 25C
 * corrected enthalpy of reaction for ammonium ion
+* completed PAC models
 
 ## New features
-* CT calculations, including CT actual, CT required, and giardia log removal
-* cost calculations, including chemicals, power, solids, and labor
-* convert chemical doses from mg/L to lb/day
-* ozone decay model and corresponding helper function
-* ozone CT model
+* chemdose_ct: CT calculations, including CT actual, CT required, and giardia log removal
+* solvecost_ family: cost calculations, including chemicals, power, solids, and labor
+* solvemass_ :convert chemical doses from mg/L to lb/day
+* solveresid_o3: ozone decay model and corresponding helper function from WTP model
+* ozonate_ct: ozone CT model
 * validate water funcion, not exported but useful for function writing
-* fluoride model
-* biofiltration model (Terry & Summers)
+* chemdose_f: fluoride model for alum addition. Requires site specific fitting.
+* biofilter_toc: biofiltration model (Terry & Summers)
 * added ACH to chemdose_ph
 
 ## Breaking changes
 * total ammonia water slot changed from tot_nh4 to tot_nh3
-* renamed and rearranged R scripts to better find functions and associated helper functions
 
+## Code structure changes
+* renamed and rearranged R scripts to better find functions and associated helper functions
+* update most functions to use base R, and only use dplyr functions where necessary (increase speed)
 
 # tidywater 0.4.0
 
