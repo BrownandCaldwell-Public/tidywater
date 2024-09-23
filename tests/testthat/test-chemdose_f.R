@@ -4,7 +4,7 @@ test_that("chemdose_f returns raw fluoride or breaks when alum is 0 or missing."
   water1 <- suppressWarnings(define_water(7.5, 20, 66, f = 2))
   fluor <- chemdose_f(water1, alum = 0)
 
-  expect_equal(signif(convert_units(2, "f"), 2), 1.1E-4)
+  expect_equal(convert_units(2, "f"), fluor@f)
   expect_error(chemdose_f(water1))
 })
 
@@ -14,6 +14,7 @@ test_that("chemdose_f returns errors when the coefficients are input incorrectly
   expect_error(chemdose_f(water1, alum = 20, coeff = c(2, 3, -3)))
   expect_error(chemdose_f(water1, alum = 20, coeff = 2))
   expect_error(chemdose_f(water1, alum = 20, coeff = c("2", 1, "1", "5")))
+  expect_error(chemdose_f(water1, alum = 20, coeff = "Alum"))
 })
 
 test_that("chemdose_f fails without ph and f.", {

@@ -70,7 +70,7 @@ test_that("solveresid_o3_once is a data frame", {
   expect_true(is.data.frame(water1))
 })
 
-# Check chemdose_ph_once can use a column or function argument for chemical dose
+# Check solveresid_o3_once can use a column or function argument for chemical dose
 
 test_that("solveresid_o3_once can use a column and/or function argument for time and dose", {
   water0 <- water_df %>%
@@ -98,7 +98,7 @@ test_that("solveresid_o3_once can use a column and/or function argument for time
     cross_join(time) %>%
     solveresid_o3_once(dose = c(5, 8))
 
-  expect_equal(water1$o3resid, water2$o3resid) # test different ways to input chemical
+  expect_equal(water1$o3resid, water2$o3resid) # test different ways to input time
   expect_equal(ncol(water3), ncol(water0) + 3) # adds cols for time, dose, and o3resid
   expect_equal(nrow(water3), 288) # joined correctly
 })
