@@ -28,7 +28,7 @@ test_that("chemdose_ct returns 0's for ct_actual and giardia log when baffle is 
 })
 
 test_that("chemdose_ct fails without ph and temp.", {
-  water_temp <- suppressWarnings(define_water(ph =7.5, temp = NA_real_))
+  water_temp <- suppressWarnings(define_water(ph = 7.5, temp = NA_real_))
   water_ph <- suppressWarnings(define_water(temp = 30))
 
   expect_error(chemdose_ct(water_temp, time = 30, residual = 5, baffle = 0.2))
@@ -40,7 +40,7 @@ test_that("chemdose_ct works.", {
   ct <- chemdose_ct(water1, time = 30, residual = 5, baffle = 0.3)
 
 
-  expect_equal(round(ct$ct_required,2), 18.52)
+  expect_equal(round(ct$ct_required, 2), 18.52)
   expect_equal(round(ct$ct_actual), 45)
-  expect_equal(round(ct$glog_removal,2), 1.21)
+  expect_equal(round(ct$glog_removal, 2), 1.21)
 })
