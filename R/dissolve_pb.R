@@ -1,3 +1,37 @@
+# The original source for much of this came from USEPA's Theoretical Equilibrium Lead Solubility Simulator (TELSS)
+# code in https://github.com/USEPA/TELSS/app.R
+#
+# Below is the original license statement for the TELSS app.
+#
+# The MIT License (MIT)
+# =====================
+#
+#   Copyright © 2021 USEPA.
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the “Software”), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+#   The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
+# Substantial changes were made to adapt the app into a function, but the underlying calculations are generally from the
+# simulate_solubility function.
+
 #' Simulate contributions of various lead solids to total soluble lead
 #'
 #' @description This function takes a water data frame defined by \code{\link{define_water}}
