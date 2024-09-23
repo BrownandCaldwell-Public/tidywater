@@ -33,7 +33,7 @@
 #'
 #' @export
 #'
-#'@returns A water class object with an updated DOC, TOC, and UV254 concentration.
+#' @returns A water class object with an updated DOC, TOC, and UV254 concentration.
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   validate_water(water, c("ph", "doc", "uv254"))
