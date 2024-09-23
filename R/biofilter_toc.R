@@ -1,69 +1,74 @@
-#' @title Determine TOC removal from biofiltration
+#' @title Determine TOC removal using Terry & Summers BDOC model
 #'
 #' @description This function applies the Terry model to a water created by \code{\link{define_water}} to determine biofiltered
 #' DOC (mg/L).
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254
+#' @param water Source water object of class "water" created by \code{\link{define_water}}.
 #' @param ebct The empty bed contact time (min) used for the biofilter
-#' @param o3_dose Applied ozone (O3) dose in mg/L. Defaults to 0 mg/L.
+#' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise
 #'
 #' @source Terry and Summers 2018
-#'
 #' @examples
-#' example1 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) %>%
-#'   biofilter_toc(ebct = 20)
-#' example1@toc
+#' library(tidywater)
+#' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) %>%
+#'   dosed_water <- chemdose_bdoc(water, EBCT = 10, ozonated = TRUE)
 #'
-#' example2 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) %>%
-#'   biofilter_toc(ebct = 20, o3_dose = 3)
-#'
+#' @returns  A water class object with modeled DOC removal from biofiltration.
 #' @export
 #'
-#' @returns A water class object with modeled DOC removal from biofiltration.
-#'
-biofilter_toc <- function(water, ebct, o3_dose = 0) {
-  temperature <- water@temp
+biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 
-  # Check if water object is missing or not of class 'water'
-  if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
-  }
-  if (!inherits(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+  if (!is.logical(ozonated)) {
+    warning("Ozonated argument must be logical. Calculation will be skipped for this instance.")
   }
 
-  # Determine the median k' value based on temperature and oxidation condition
-  if (o3_dose == 0) {
-    bdoc <- 0.2 * water@doc
-    if (temperature < 10) {
-      k_prime <- 0.03
-    } else if (temperature <= 20) {
-      k_prime <- 0.09
+  temp = water@temp
+
+  validate_water(water, "toc")
+
+  # Define BDOC fractions
+  BDOC_fraction_nonozonated <- 0.2
+  BDOC_fraction_ozonated <- 0.3
+
+  # Determine BDOC fraction and rate constant k' based on temperature and ozonation
+  if (ozonated) {
+    if (temp <= 10) {
+      k <- 0.03
+      BDOC_fraction <- BDOC_fraction_ozonated
+    } else if (temp <= 20) {
+      k <- 0.06
+      BDOC_fraction <- BDOC_fraction_ozonated
     } else {
-      k_prime <- 0.11
+      k <- 0.15
+      BDOC_fraction <- BDOC_fraction_ozonated
     }
-  } else if (o3_dose > 0) {
-    bdoc <- 0.3 * water@doc
-    if (temperature < 10) {
-      k_prime <- 0.03
-    } else if (temperature <= 20) {
-      k_prime <- 0.06
+  } else {
+    if (temp <= 10) {
+      k <- 0.03
+      BDOC_fraction <- BDOC_fraction_nonozonated
+    } else if (temp <= 20) {
+      k <- 0.09
+      BDOC_fraction <- BDOC_fraction_nonozonated
     } else {
-      k_prime <- 0.15
+      k <- 0.11
+      BDOC_fraction <- BDOC_fraction_nonozonated
     }
   }
-  # Calculate the ratio c/c_inf using the pseudo-first-order model
-  c_cinf_ratio <- exp(-k_prime * ebct)
-  doc_removed <- bdoc - (bdoc * c_cinf_ratio)
 
-  # Adjust water TOC based on the calculated TOC removal and c/c_inf ratio
-  if (!is.na(water@toc)) {
-    water@toc <- water@toc - doc_removed
-  } else if (is.na(water@toc)) {
-    warning("Input water TOC not specified. Output water TOC will be NA.")
-  }
+  # Calculate BDOC influent concentration
+  BDOC_inf <- BDOC_fraction * water@toc
 
-  water@doc <- water@doc - doc_removed
+  # Calculate BDOC effluent concentration using the exponential decay model
+  BDOC_eff <- BDOC_inf * exp(-k * ebct)
+
+  # Calculate TOC removal percentage
+  BDOC_removed <- (BDOC_inf - BDOC_eff)
+
+  # Update water object with new TOC and DOC values
+  water@toc <- water@toc - BDOC_removed
+  water@doc <- water@toc - BDOC_removed
+  water@bdoc <- BDOC_eff
   water@applied_treatment <- paste(water@applied_treatment, "_biofilter", sep = "")
+
   return(water)
 }
