@@ -28,6 +28,7 @@ Authors:
 
 Other contributors:
 \itemize{
+  \item Rachel Merrifield [contributor]
   \item Brown and Caldwell [funder, copyright holder]
 }
 

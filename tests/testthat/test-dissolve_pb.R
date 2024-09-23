@@ -32,11 +32,13 @@ test_that("dissolve_pb works.", {
   water3 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, tds = 200)) %>%
     dissolve_pb(hydroxypyromorphite = "Zhu", pyromorphite = "Xie", laurionite = "Lothenbach")
 
-  #starting wq in the app, except for pH. Raised pH here because this was outputting different
+  # starting wq in the app, except for pH. Raised pH here because this was outputting different
   # controlling solids when code had errors
-  water4 <- suppressWarnings(define_water(ph= 8.5, temp =25, alk = 100, tot_hard = 150, na =25, k = 25, cl = 20,
-                        so4 = 40, cond = 500, toc =3, doc =3.2, uv= 0.07, br =50, f = 2,
-                        fe = 5, mn = 10, al = 2)) %>%
+  water4 <- suppressWarnings(define_water(
+    ph = 8.5, temp = 25, alk = 100, tot_hard = 150, na = 25, k = 25, cl = 20,
+    so4 = 40, cond = 500, toc = 3, doc = 3.2, uv = 0.07, br = 50, f = 2,
+    fe = 5, mn = 10, al = 2
+  )) %>%
     dissolve_pb()
 
   expect_equal(signif(water1$tot_dissolved_pb, 2), 1.2e-6)

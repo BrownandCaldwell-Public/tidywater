@@ -436,7 +436,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 #'   calculate_dic()
 #'
 #' @export
-#'@returns A numeric value for the calculated DIC.
+#' @returns A numeric value for the calculated DIC.
 #'
 
 calculate_dic <- function(water) {
