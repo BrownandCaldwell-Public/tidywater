@@ -7,7 +7,8 @@ Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role 
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
     person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
     person("Rachel", "Merrifield", role = "ctb"),
-    person("Brown and Caldwell", role = c("fnd", "cph")))
+    person("Brown and Caldwell", role = c("fnd", "cph"),
+    person("USEPA", role = "cph", comment = "Copyright holder of included TELSS fragments (dissolve_pb function)")))
 URL: https://github.com/BrownandCaldwell-Public/tidywater
 BugReports: https://github.com/BrownandCaldwell-Public/tidywater/issues
 Description: Provides multiple water chemistry-based models and published 
