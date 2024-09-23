@@ -11,7 +11,7 @@
 #' @examples
 #' library(tidywater)
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) %>%
-#'   dosed_water <- biofilter_toc(water, EBCT = 10, ozonated = TRUE)
+#'   biofilter_toc(ebct = 10, ozonated = TRUE)
 #'
 #' @returns  A water class object with modeled DOC removal from biofiltration.
 #' @export

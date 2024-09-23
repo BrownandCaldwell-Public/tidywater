@@ -37,7 +37,7 @@ DOC (mg/L).
 \examples{
 library(tidywater)
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) \%>\%
-  dosed_water <- biofilter_toc(water, EBCT = 10, ozonated = TRUE)
+  biofilter_toc(ebct = 10, ozonated = TRUE)
 
 example1 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) \%>\%
   biofilter_toc(ebct = 20)
