@@ -16,8 +16,7 @@
 #' @returns  A water class object with modeled DOC removal from biofiltration.
 #' @export
 #'
-biofilter_toc <- function(water, ebct, ozonated =TRUE) {
-
+biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   if (!is.logical(ozonated)) {
     warning("Ozonated argument must be logical. Calculation will be skipped for this instance.")
   }
