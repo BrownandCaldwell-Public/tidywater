@@ -2,19 +2,19 @@
 % Please edit documentation in R/biofilter_toc.R
 \name{biofilter_toc}
 \alias{biofilter_toc}
-\title{Determine TOC removal from biofiltration}
+\title{Determine TOC removal from biofiltration using Terry & Summers BDOC model}
 \source{
 Terry and Summers 2018
 }
 \usage{
-biofilter_toc(water, ebct, o3_dose = 0)
+biofilter_toc(water, ebct, ozonated = TRUE)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254}
+\item{water}{Source water object of class "water" created by \code{\link{define_water}}.}
 
 \item{ebct}{The empty bed contact time (min) used for the biofilter}
 
-\item{o3_dose}{Applied ozone (O3) dose in mg/L. Defaults to 0 mg/L.}
+\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise}
 }
 \value{
 A water class object with modeled DOC removal from biofiltration.
@@ -24,11 +24,8 @@ This function applies the Terry model to a water created by \code{\link{define_w
 DOC (mg/L).
 }
 \examples{
-example1 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) \%>\%
-  biofilter_toc(ebct = 20)
-example1@toc
-
-example2 <- define_water(ph = 7, temp = 15, alk = 100, toc = 4, doc = 3.8, uv254 = .1) \%>\%
-  biofilter_toc(ebct = 20, o3_dose = 3)
+library(tidywater)
+water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) \%>\%
+  biofilter_toc(ebct = 10, ozonated = FALSE)
 
 }

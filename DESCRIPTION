@@ -7,6 +7,7 @@ Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role 
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
     person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
     person("Rachel", "Merrifield", role = "ctb"),
+    person("Mayuri", "Namasivayam", role = "ctb"),
     person("USEPA", role = "cph", comment = "Copyright holder of included TELSS fragments (dissolve_pb function)"),
     person("Brown and Caldwell", role = c("fnd", "cph")
     ))
