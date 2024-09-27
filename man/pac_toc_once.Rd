@@ -62,7 +62,7 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  mutate(dose = seq(5,30,5), time = 30) \%>\%
+  mutate(dose = seq(5, 30, 5), time = 30) \%>\%
   pac_toc_once(input_water = "raw")
 
 example_df <- water_df \%>\%

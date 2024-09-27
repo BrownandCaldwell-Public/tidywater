@@ -141,7 +141,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(5,30,5), time = 30) %>%
+#'   mutate(dose = seq(5, 30, 5), time = 30) %>%
 #'   pac_toc_once(input_water = "raw")
 #'
 #' example_df <- water_df %>%
@@ -223,7 +223,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(11,22,1), time = 30) %>%
+#'   mutate(dose = seq(11, 22, 1), time = 30) %>%
 #'   pac_toc_chain(input_water = "raw")
 #'
 #' example_df <- water_df %>%
@@ -263,7 +263,7 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
   }
 
   if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-      ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
+    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
     stop("Dose and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
   }
 
@@ -288,4 +288,3 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
       pac_toc
     ))
 }
-
