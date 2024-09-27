@@ -2,7 +2,7 @@
 % Please edit documentation in R/biofilter_toc.R
 \name{biofilter_toc}
 \alias{biofilter_toc}
-\title{Determine TOC removal using Terry & Summers BDOC model}
+\title{Determine TOC removal from biofiltration using Terry & Summers BDOC model}
 \source{
 Terry and Summers 2018
 }
