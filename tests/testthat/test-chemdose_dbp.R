@@ -252,11 +252,11 @@ test_that("chemdose_dbp_chain errors with argument + column for same param", {
     mutate(br = 80) %>%
     define_water_chain("water")
   expect_error(water %>%
-                 mutate(cl2 = 5)  %>%
-                 chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+    mutate(cl2 = 5) %>%
+    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
   expect_error(water %>%
-                 mutate(time = 5)  %>%
-                 chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+    mutate(time = 5) %>%
+    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
 })
 
 test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers", {
@@ -265,11 +265,10 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
     define_water_chain("water")
 
   water1 <- water %>%
-    chemdose_dbp_chain("water", time = c(60,120), cl2 = 5)
+    chemdose_dbp_chain("water", time = c(60, 120), cl2 = 5)
   water2 <- water %>%
     chemdose_dbp_chain("water", time = 120, cl2 = seq(2, 4, 1))
 
-  expect_equal(nrow(water)*2, nrow(water1))
-  expect_equal(nrow(water)*3, nrow(water2))
-
+  expect_equal(nrow(water) * 2, nrow(water1))
+  expect_equal(nrow(water) * 3, nrow(water2))
 })
