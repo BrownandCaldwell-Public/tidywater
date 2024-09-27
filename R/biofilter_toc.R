@@ -1,4 +1,4 @@
-#' @title Determine TOC removal using Terry & Summers BDOC model
+#' @title Determine TOC removal from biofiltration using Terry & Summers BDOC model
 #'
 #' @description This function applies the Terry model to a water created by \code{\link{define_water}} to determine biofiltered
 #' DOC (mg/L).
@@ -18,12 +18,12 @@
 #'
 biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   if (!is.logical(ozonated)) {
-    warning("Ozonated argument must be logical. Calculation will be skipped for this instance.")
+    stop("ozonate must be set to TRUE or FALSE.")
   }
 
   temp = water@temp
 
-  validate_water(water, "toc")
+  validate_water(water, "doc")
 
   # Define BDOC fractions
   BDOC_fraction_nonozonated <- 0.2
@@ -55,7 +55,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   }
 
   # Calculate BDOC influent concentration
-  BDOC_inf <- BDOC_fraction * water@toc
+  BDOC_inf <- BDOC_fraction * water@doc
 
   # Calculate BDOC effluent concentration using the exponential decay model
   BDOC_eff <- BDOC_inf * exp(-k * ebct)

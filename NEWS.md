@@ -1,4 +1,4 @@
-# tidywater 0.6.0
+# tidywater (development version)
 
 ## New features
 * biofilter_toc updates the bdoc water slot
