@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.github$
+^LICENSE\.md$
+^CODE_OF_CONDUCT\.md$
+^data-raw$
+^.*\.toml
+^README\.Rmd$
+^cran-comments\.md$

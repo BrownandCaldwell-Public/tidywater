@@ -1,0 +1,44 @@
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    # Run every Monday at 13:06 UTC
+    - cron: "06 13 * * 1"
+
+name: dependecies-scan
+
+jobs:
+  oyster-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::oysteR
+          needs: oysteR
+
+      - name: Set working directory
+        run: cd ${{ github.workspace }}
+
+      - name: Oyster package vulnerabilites
+        run: |
+          audit <- oysteR::audit_description()
+          vulnerabilities <- oysteR::get_vulnerabilities(audit)
+          if(nrow(vulnerabilities) != 0) {
+            print(vulnerabilities)
+            quit(save = "no", 1)
+          } else {
+            print("No vulnerable packages identified.")
+            quit(save = "no", 0)
+          }
+        shell: Rscript {0}
