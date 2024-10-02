@@ -18,6 +18,9 @@ pac_toc_once(
 )
 }
 \arguments{
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type}
+
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{dose}{Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.}
