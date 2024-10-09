@@ -198,7 +198,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   expect_equal(water1$pac_water_doc, water2$pac_water_doc) # test different ways to input args
   expect_equal(water1$pac_water_uv254, water2$pac_water_uv254)
 
-  # Test that inputting time/cl2 separately (in column and as an argument)  gives save results
+  # Test that inputting time/dose separately (in column and as an argument)  gives save results
   expect_equal(water1$pac_water_doc, water3$pac_water_doc)
 })
 
