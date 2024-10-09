@@ -38,11 +38,11 @@ test_that("ozonate_bromate stops working when models don't line up with ammonia 
   expect_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Galey")) # Galey model does not use ammonia
   expect_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Siddiqui")) # Siddiqui model does not use ammonia
 
-  expect_no_error(ozonate_bromate(water1, dose = 4,time = 8, model = "Ozekin"))
-  expect_no_error(ozonate_bromate(water2, dose = 4,time = 8, model = "Ozekin"))
+  expect_no_error(ozonate_bromate(water1, dose = 4, time = 8, model = "Ozekin"))
+  expect_no_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Ozekin"))
 
-  expect_no_error(ozonate_bromate(water1, dose = 4,time = 8, model = "Sohn"))
-  expect_no_error(ozonate_bromate(water2, dose = 4,time = 8, model = "Sohn"))
+  expect_no_error(ozonate_bromate(water1, dose = 4, time = 8, model = "Sohn"))
+  expect_no_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Sohn"))
 })
 
 

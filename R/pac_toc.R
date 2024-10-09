@@ -170,7 +170,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
 pac_toc_once <- function(df, input_water = "defined_water",
                          dose = 0, time = 0, type = "bituminous") {
-  temp_df <- toc <- NULL # Quiet RCMD check global variable note
+  temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     pac_toc_chain(
       input_water = input_water, output_water = "temp_pac",
