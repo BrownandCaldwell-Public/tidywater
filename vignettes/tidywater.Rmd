@@ -53,7 +53,7 @@ caustic_req <- solvedose_ph(coag_water, target_ph = 8.6, chemical = "naoh")
 fin_water <- chemdose_ph(coag_water, naoh = caustic_req)
 ```
 
-We can apply similar principals for disinfection. Notice that the DBP function displays some warnings because the water we are modeling is outside the bounds of the original model fitting. This is common, and something you should always be aware of (even if tidywater doesn't warn you). We can use `summarize_wq` to view different groups of parameters in the water.
+We can apply similar principals for disinfection. Note that we have to specify the chlorine dose in both `chemdose_ph` and `chemdose_dbp` because they are calculating two different things. In this example, the DBP function displays some warnings because the water we are modeling is outside the bounds of the original model fitting. This is common, and something you should always be aware of (even if tidywater doesn't warn you). We can use `summarize_wq` to view different groups of parameters in the water.
 ```{r}
 dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
   chemdose_dbp(cl2 = 4, time = 24, treatment = "coag")
