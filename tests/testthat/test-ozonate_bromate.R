@@ -30,6 +30,21 @@ test_that("ozonate_bromate stops working when inputs are missing", {
   expect_error(ozonate_bromate(water5, dose = 4, model = "Ozekin")) # missing time
 })
 
+test_that("ozonate_bromate stops working when models don't line up with ammonia inputs", {
+  water1 <- suppressWarnings(define_water(ph = 8, alk = 50, toc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- suppressWarnings(define_water(ph = 8, alk = 50, toc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 2))
+
+  expect_error(ozonate_bromate(water1, dose = 4, time = 8, model = "Song")) # Song model requires ammonia
+  expect_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Galey")) # Galey model does not use ammonia
+  expect_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Siddiqui")) # Siddiqui model does not use ammonia
+
+  expect_no_error(ozonate_bromate(water1, dose = 4, time = 8, model = "Ozekin"))
+  expect_no_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Ozekin"))
+
+  expect_no_error(ozonate_bromate(water1, dose = 4, time = 8, model = "Sohn"))
+  expect_no_error(ozonate_bromate(water2, dose = 4, time = 8, model = "Sohn"))
+})
+
 
 test_that("ozonate_bromate works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, doc = 3.5, uv254 = 0.1, br = 50))

@@ -2,6 +2,7 @@
 
 ## New features
 * biofilter_toc updates the bdoc water slot
+* pac_toc helper functions _chain and _once
 
 ## Breaking changes
 * biofilter_toc argument, o3_dose, was replaced with ozonated, which accepts TRUE or FALSE inputs
