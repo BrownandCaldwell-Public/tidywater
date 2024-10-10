@@ -36,7 +36,7 @@ empty_water <- define_water()
 
 Notice that several warnings are generated about the water class. `define_water` will return warnings noting the assumptions and limitations of the water class depending on how much information you provided. For example, since we did not provide any information about the water's pH or alkalinity, the carbonate balance cannot be calculated. Similarly, since we did not provide any information about major ions in the water, information about the water's hardness and ionic strength are missing. 
 
-Even so, we successfully created our first water class! You can view the first few slots slots that a water class can contain by printing `empty_water`. But there are slots for general parameters, carbon content, corrosivity indicators, major cations and anions, and disinfection byproducts (DBPs). Different functions within tidywater will allow you to model all these parameters and more. 
+Even so, we successfully created our first water class! You can view the first few slots that a water class can contain by printing `empty_water`. But there are slots for general parameters, carbon content, corrosivity indicators, major cations and anions, and disinfection byproducts (DBPs). Different functions within tidywater will allow you to model all these parameters and more. 
 
 ```{r, echo=TRUE}
 print(empty_water)

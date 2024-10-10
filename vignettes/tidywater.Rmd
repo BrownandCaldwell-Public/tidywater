@@ -31,7 +31,7 @@ mywater <- define_water(
 )
 ```
 
-Now that we have a water, we can apply treatment models to it. The main models require a `water` input and will usually output another `water` or a number. Functions in tidywater follow the naming convention `treatmentapplied_parametersmodeled`. For example, when we want to dose chemical and see the impact on pH/alkalinity, we use `chemdose_ph`. There are a lot of available chemicals, which you can view with the documentation. Most chemicals are specified used the chemical formula in all lowercase, except hydrated coagulants which are named. Units for the chemical are also specified, and are usually mg/L as chemical.
+Now that we have a water, we can apply treatment models to it. The main models require a `water` input and will usually output another `water` or a number. Functions in tidywater follow the naming convention `treatmentapplied_parametersmodeled`. For example, when we want to dose chemical and see the impact on pH/alkalinity, we use `chemdose_ph`. There are a lot of available chemicals, which you can view with the documentation. Most chemicals are specified using the chemical formula in all lowercase, except hydrated coagulants, which are named. Units for the chemical are also specified, and are usually mg/L as chemical.
 ```{r}
 dosed_water <- chemdose_ph(mywater, hcl = 5, alum = 20)
 mywater@ph
