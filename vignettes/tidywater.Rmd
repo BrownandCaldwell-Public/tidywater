@@ -36,7 +36,6 @@ Now that we have a water, we can apply treatment models to it. The main models r
 dosed_water <- chemdose_ph(mywater, hcl = 5, alum = 20)
 mywater@ph
 dosed_water@ph
-
 ```
 
 Now `dosed_water` has updated pH chemistry based on the hydrochloric acid and alum doses. However, other slots in the water, such as TOC, have not been updated. If we also want to know how the coagulant impacts TOC, we need to apply `chemdose_toc` as well. This function defaults to published model coefficients, but because it's an empirical moodel, you could also select your own coefficients.
@@ -45,7 +44,6 @@ coag_water <- chemdose_toc(dosed_water, alum = 20)
 
 dosed_water@doc
 coag_water@doc
-
 ```
 
 We can also solve for chemical doses to change the pH with `solvedose_ph`. This function outputs a number instead of a water.
@@ -53,7 +51,6 @@ We can also solve for chemical doses to change the pH with `solvedose_ph`. This 
 caustic_req <- solvedose_ph(coag_water, target_ph = 8.6, chemical = "naoh")
 
 fin_water <- chemdose_ph(coag_water, naoh = caustic_req)
-
 ```
 
 We can apply similar principals for disinfection. Notice that the DBP function displays some warnings because the water we are modeling is outside the bounds of the original model fitting. This is common, and something you should always be aware of (even if tidywater doesn't warn you). We can use `summarize_wq` to view different groups of parameters in the water.
@@ -62,7 +59,6 @@ dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
   chemdose_dbp(cl2 = 4, time = 24, treatment = "coag")
 
 summarize_wq(dist_water, "dbps")
-
 ```
 
 Tidywater functions can also be applied to data frames using the `_chain` (output a water column) or `_once` (output numeric columns) suffixes. To learn more about those functions, look at the documentation or read the helper function vignette.
