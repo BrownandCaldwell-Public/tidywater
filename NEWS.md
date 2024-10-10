@@ -1,4 +1,6 @@
-# tidywater (development version)
+# tidywater 0.6.0
+
+* Initial CRAN submission.
 
 ## New features
 * biofilter_toc updates the bdoc water slot
@@ -8,8 +10,6 @@
 * biofilter_toc argument, o3_dose, was replaced with ozonated, which accepts TRUE or FALSE inputs
 
 # tidywater 0.5.0
-
-* Initial CRAN submission.
 
 ## Fixes
 * default temperature is now 25C
