@@ -1,0 +1,66 @@
+---
+title: "Getting started with tidywater"
+output: rmarkdown::html_vignette
+description: >
+  Start here if this is your first time using tidywater. You'll learn how to set 
+  up a `water` and how to apply different models to that water.
+vignette: >
+  %\VignetteIndexEntry{Getting started with tidywater}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tidywater)
+```
+
+Most tidywater functions required a `water` object. Start by creating a water with `define_water`. There are a lot of optional arguments that correspond to different water quality parameters. Start by specifying everything you know, or at least all the parameters relevant to the modeling you want to do. Parameters are all lowercase and use common abbreviations or chemical formulas. If you aren't sure what the correct argument name is, check the `define_water` documentation. Concentrations are specified in the most common units - usually mg/L or ug/L depending on the parameter. Units are also in the documentation, so make sure to check carefully until you are familiar with the system.
+
+```{r}
+mywater <- define_water(
+  ph = 7, temp = 15, alk = 100, tot_hard = 100, na = 100, cl = 80,
+  cond = 100,
+  toc = 3, uv254 = .02, br = 50
+)
+```
+
+Now that we have a water, we can apply treatment models to it. The main models require a `water` input and will usually output another `water` or a number. Functions in tidywater follow the naming convention `treatmentapplied_parametersmodeled`. For example, when we want to dose chemical and see the impact on pH/alkalinity, we use `chemdose_ph`. There are a lot of available chemicals, which you can view with the documentation. Most chemicals are specified using the chemical formula in all lowercase, except hydrated coagulants, which are named. Units for the chemical are also specified, and are usually mg/L as chemical.
+```{r}
+dosed_water <- chemdose_ph(mywater, hcl = 5, alum = 20)
+mywater@ph
+dosed_water@ph
+```
+
+Now `dosed_water` has updated pH chemistry based on the hydrochloric acid and alum doses. However, other slots in the water, such as TOC, have not been updated. If we also want to know how the coagulant impacts TOC, we need to apply `chemdose_toc` as well. This function defaults to published model coefficients, but because it's an empirical moodel, you could also select your own coefficients.
+```{r}
+coag_water <- chemdose_toc(dosed_water, alum = 20)
+
+dosed_water@doc
+coag_water@doc
+```
+
+We can also solve for chemical doses to change the pH with `solvedose_ph`. This function outputs a number instead of a water.
+```{r}
+caustic_req <- solvedose_ph(coag_water, target_ph = 8.6, chemical = "naoh")
+
+fin_water <- chemdose_ph(coag_water, naoh = caustic_req)
+```
+
+We can apply similar principals for disinfection. Note that we have to specify the chlorine dose in both `chemdose_ph` and `chemdose_dbp` because they are calculating two different things. In this example, the DBP function displays some warnings because the water we are modeling is outside the bounds of the original model fitting. This is common, and something you should always be aware of (even if tidywater doesn't warn you). We can use `summarize_wq` to view different groups of parameters in the water.
+```{r}
+dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
+  chemdose_dbp(cl2 = 4, time = 24, treatment = "coag")
+
+summarize_wq(dist_water, "dbps")
+```
+
+Tidywater functions can also be applied to data frames using the `_chain` (output a water column) or `_once` (output numeric columns) suffixes. To learn more about those functions, look at the documentation or read the helper function vignette.
+
+If you want a more detailed introduction to tidywater, check out the intro vignette.
