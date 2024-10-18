@@ -2,65 +2,62 @@
 % Please edit documentation in R/chlorine_chloramine_decay.R
 \name{chemdose_cl2}
 \alias{chemdose_cl2}
-\title{Calculate total OCL}
+\title{Calculate chlorine decay}
 \source{
-Ct, raw: U.S. EPA (2001) equation 5-113
-
-Ct, coagulated/treated: U.S. EPA (2001) equation 5-117
-
-Ct corrected: U.S. EPA (2001) equation 5-118
-
-CAt: U.S. EPA (2001) equation 5-120
+U.S. EPA (2001)
 
 See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
-chemdose_cl2(
-  water,
-  cl2_dose,
-  time,
-  treatment = "raw",
-  cl_type = "chlorine",
-  chlorine_correction = FALSE
-)
+chemdose_cl2(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine")
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
 
-\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2_dose). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 and for doses between 1.11 and 24.7 mg/L for coagulated water.}
 
 \item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
-does not have a time restriction.}
+does not have specified boundary conditions.}
 
 \item{treatment}{Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 water that has been coagulated or softened.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
-
-\item{chlorine_correction}{Defaults to FALSE. Corrects the initial chlorine residual concentration when the cl_type is also "chlorine".}
 }
 \value{
-An updated disinfectant residual in the tot_ocl water slot.
+An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 }
 \description{
-\code{chemdose_cl2} calculates the decay of chlorine/chloramine based on the U.S. EPA's
-Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
-created by \code{\link{define_water}} chlorine/chloramine dose, type, reaction time, and treatment applied (if any).
-The function also requires additional water quality parameters defined in \code{define_water}
-including TOC and UVA.
+\code{chemdose_cl2} calculates the decay of chlorine or chloramine based on the U.S. EPA's
+Water Treatment Plant Model (U.S. EPA, 2001).
 }
 \details{
-The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-The function returns a new object of class "water" with predicted chlorine/chloramine residual concentrations, which
-is total/combined chlorine concentration. For free concentration, the chemdose_ph functions should be implemented after
-this function.
-Use \code{summarise_wq} to quickly tabulate the results.
+Required arguments include an object of class "water" created by \code{\link{define_water}},
+applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
+no treatment, or "coag" for coagulated water). The function also requires additional water quality
+parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
+with the calculated total chlorine value stored in the 'tot_ocl' slot. When modeling residual concentrations
+through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
+influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
+applied manually be the user based on the output of \code{chemdose_cl2}.
 }
 \examples{
-example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
   chemdose_cl2(cl2_dose = 2, time = 8)
-example_cl2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_cl2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
   chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", cl_type = "chloramine")
+
+# Plot decay curves for multiple doses over time
+time = as.data.frame(seq(1, 200))
+dose = as.data.frame(seq(1, 5))
+water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1, br = 50))
+cross_join(time, dose)\%>\%
+  `colnames<-`(c("time", "dose"))\%>\%
+  rowwise()\%>\%
+  mutate(dosed_water = list(chemdose_cl2(water, cl2_dose = dose, time = time)),
+  tot_ocl = convert_units(pluck(dosed_water, "tot_ocl"), "ocl", "M", "mg/L"))\%>\%
+  ggplot(aes(x = time, y = tot_ocl))+
+  geom_point(aes(color = dose))
 
 }

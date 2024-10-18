@@ -41,14 +41,13 @@ test_that("chemdose_cl2 stops working when inputs are missing", {
 
 })
 
-
 test_that("chemdose_cl2 works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   water2 <- chemdose_cl2(water1, cl2_dose = 3, time = 8)
   water3 <- chemdose_cl2(water1, cl2_dose = 4, time = 3, treatment = "coag")
   water4 <- chemdose_cl2(water1, cl_type = 'chloramine', cl2_dose = 4, time = 5, treatment = "coag")
   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
-  water6 <- chemdose_cl2(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10, treatment = "either")
+  water6 <- chemdose_cl2(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10)
 
   expect_equal(signif(water2@tot_ocl,3), 1.83E-5)
   expect_equal(signif(water3@tot_ocl,3), 4.53E-5)
