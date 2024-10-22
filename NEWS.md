@@ -1,9 +1,18 @@
-# tidywater 0.5.0
+# tidywater 0.6.0
 
 * Initial CRAN submission.
 
+## New features
+* biofilter_toc updates the bdoc water slot
+* pac_toc helper functions _chain and _once
+
+## Breaking changes
+* biofilter_toc argument, o3_dose, was replaced with ozonated, which accepts TRUE or FALSE inputs
+
+# tidywater 0.5.0
+
 ## Fixes
-* default temperature is not 25C
+* default temperature is now 25C
 * corrected enthalpy of reaction for ammonium ion
 * completed PAC models
 
@@ -13,7 +22,7 @@
 * solvemass_ :convert chemical doses from mg/L to lb/day
 * solveresid_o3: ozone decay model and corresponding helper function from WTP model
 * ozonate_ct: ozone CT model
-* validate water funcion, not exported but useful for function writing
+* validate water function, not exported but useful for function writing
 * chemdose_f: fluoride model for alum addition. Requires site specific fitting.
 * biofilter_toc: biofiltration model (Terry & Summers)
 * added ACH to chemdose_ph
