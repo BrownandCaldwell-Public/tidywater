@@ -16,7 +16,7 @@
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
 #' @source TTHMs, treated: U.S. EPA (2001) equation 5-139
 #' @source HAAs, treated: U.S. EPA (2001) equation 5-142
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
