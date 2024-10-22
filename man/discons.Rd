@@ -15,7 +15,7 @@ A dataframe with 8 rows and 3 columns
 \source{
 Benjamin (2015) Appendix A.1 and A.2.
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 discons

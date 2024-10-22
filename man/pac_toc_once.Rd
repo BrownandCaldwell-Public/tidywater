@@ -4,7 +4,7 @@
 \alias{pac_toc_once}
 \title{Apply `pac_toc`function within a data frame and output a data frame}
 \source{
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
 CHO(2007)
 }
