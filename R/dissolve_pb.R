@@ -55,7 +55,7 @@
 #' following conditions: The above copyright notice and this permission notice shall be included in all copies or
 #' substantial portions of the Software.
 #' @source Wahman et al. (2021)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.

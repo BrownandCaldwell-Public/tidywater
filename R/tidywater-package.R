@@ -42,7 +42,7 @@ NULL
 #' \item{deltah}{Standard enthalpy in J/mol}
 #' }
 #' @source Benjamin (2015) Appendix A.1 and A.2.
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "discons"
 
 #' Data frame of Edwards model coefficients
@@ -63,7 +63,7 @@ NULL
 #' \item{b}{b parameter}
 #' }
 #' @source Edwards (1997) Table 2.
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "edwardscoeff"
 
 #' Data frame of water quality parameters
@@ -117,7 +117,7 @@ NULL
 #' @source Xie & Giammar (2007)
 #' @source Zhu et al. (2015)
 #' @source Wahman et al. (2021)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "leadsol_constants"
 
 #' Data frame of DBP coefficients for predicting DBP formation
@@ -142,7 +142,7 @@ NULL
 #' }
 #'
 #' @source U.S. EPA (2001)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "dbpcoeffs"
 
 #' Data frame of conversion factors for estimating DBP formation from chloramines
@@ -159,7 +159,7 @@ NULL
 #' \item{percent}{specifies the percent of DBP formation predicted from chloramines compared to chlorine, assuming the same chlorine dose applied}
 #' }
 #' @source U.S. EPA (2001), Table 5-10
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "chloramine_conv"
 
 #' Data frame of correction factors for estimating DBP formation as a function of location
@@ -177,7 +177,7 @@ NULL
 #' \item{ds}{specifies the correction factor for modelling DBP formation within the distribution system}
 #' }
 #' @source U.S. EPA (2001), Table 5-7
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "dbp_correction"
 
 
@@ -207,5 +207,5 @@ NULL
 #' }
 #'
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "bromatecoeffs"

@@ -6,7 +6,7 @@
 \source{
 U.S. EPA (2001)
 
-See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 solveresid_o3(water, dose, time)

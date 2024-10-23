@@ -8,7 +8,7 @@ Edwards (1997)
 
 U.S. EPA (2001)
 
-See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 chemdose_toc(

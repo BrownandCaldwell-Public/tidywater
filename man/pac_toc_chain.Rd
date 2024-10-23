@@ -5,7 +5,7 @@
 \title{Apply `pac_toc` within a data frame and output a column of `water` class to be chained to other tidywater functions
 PAC = powdered activated carbon}
 \source{
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
 CHO(2007)
 }

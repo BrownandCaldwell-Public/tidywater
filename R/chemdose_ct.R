@@ -13,7 +13,7 @@
 #'
 #' @source Smith et al. (1995)
 #' @source USEPA (2020)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp
