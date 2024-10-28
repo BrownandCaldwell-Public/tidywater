@@ -45,4 +45,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2024-09-23
+Date: 2024-10-28
