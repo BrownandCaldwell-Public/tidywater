@@ -35,7 +35,7 @@
 #' @source Schock (1984)
 #' @source Trussell (1998)
 #' @source U.S. EPA (1980)
-#' @source See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}

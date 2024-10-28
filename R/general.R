@@ -27,6 +27,7 @@
 #' @returns A knitr_kable table of specified water quality parameters.
 #'
 summarize_wq <- function(water, params = c("general")) {
+  pH <- TOC <- Na <- CO3 <- result <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input must be of class 'water'. Create a water using define_water.")
   }
@@ -46,7 +47,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(.data$pH:.data$TOC), names_to = "param", values_to = "result") %>%
+    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
       "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
       "mg/L", "uS/cm", "mg/L"
@@ -70,7 +71,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(.data$Na:.data$CO3), names_to = "ion", values_to = "c_mg")
+    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
@@ -91,7 +92,7 @@ summarize_wq <- function(water, params = c("general")) {
 
   corrosion <- corrosion %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2)) %>%
+    mutate(result = round(result, 2)) %>%
     mutate(
       units = c(rep("unitless", 5), "mg/L CaCO3"),
       Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
@@ -129,11 +130,11 @@ summarize_wq <- function(water, params = c("general")) {
 
   tthm <- tthm %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2))
+    mutate(result = round(result, 2))
 
   haa5 <- haa5 %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2))
+    mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,
     format = "simple",
@@ -184,7 +185,7 @@ summarise_wq <- summarize_wq
 #' @returns A ggplot object displaying the water's ion balance.
 #'
 plot_ions <- function(water) {
-  type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
+  type <- concentration <- label_pos <- ion <- label_y <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
@@ -209,7 +210,7 @@ plot_ions <- function(water) {
   )
 
   ions %>%
-    pivot_longer(c(.data$Na:.data$OH), names_to = "ion", values_to = "concentration") %>%
+    pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     arrange(type, concentration) %>%
     mutate(
