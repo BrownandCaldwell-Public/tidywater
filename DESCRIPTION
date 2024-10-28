@@ -1,7 +1,7 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Models for Drinking Water Treatment Processes
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
