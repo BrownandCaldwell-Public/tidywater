@@ -92,6 +92,7 @@ example_df <- water_df \%>\%
     location = "ds", cl_type = "chloramine"
   )
 
+\dontrun{
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
@@ -102,6 +103,7 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }
 \seealso{

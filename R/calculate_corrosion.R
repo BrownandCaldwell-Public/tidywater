@@ -251,15 +251,14 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # added to minimize example runtime
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once()
 #'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # added to minimize example runtime
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
+#' \dontrun{
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
@@ -268,6 +267,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -323,15 +323,14 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # added to minimize example runtime
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain()
 #'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # added to minimize example runtime
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
+#'
+#' \dontrun{
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
@@ -340,6 +339,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

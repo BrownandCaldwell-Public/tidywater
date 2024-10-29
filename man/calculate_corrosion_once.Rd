@@ -48,15 +48,14 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # added to minimize example runtime
   define_water_chain() \%>\%
   calculate_corrosion_once()
 
 example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # added to minimize example runtime
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
+\dontrun{
 # Initialize parallel processing
 plan(multisession)
 example_df <- water_df \%>\%
@@ -65,6 +64,7 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }
 \seealso{

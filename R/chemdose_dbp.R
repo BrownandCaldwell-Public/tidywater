@@ -272,7 +272,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'     input_water = "balanced_water", cl = 6, treatment = "coag",
 #'     location = "ds", cl_type = "chloramine"
 #'   )
-#'
+#' \dontrun{
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
@@ -283,6 +283,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -371,6 +372,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'     location = "ds", cl_type = "chloramine"
 #'   )
 #'
+#' \dontrun{
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
@@ -381,6 +383,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export
