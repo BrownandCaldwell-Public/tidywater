@@ -334,8 +334,8 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' # Initialize parallel processing
 #' plan(multisession)
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
