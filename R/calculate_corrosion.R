@@ -251,10 +251,12 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
@@ -323,10 +325,12 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 #'

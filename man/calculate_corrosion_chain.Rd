@@ -54,10 +54,12 @@ library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
+  slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_chain()
 
 example_df <- water_df \%>\%
+  slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 
