@@ -1,6 +1,9 @@
-# tidywater 0.6.0
+# tidywater 0.6.1
 
 * Initial CRAN submission.
+* Fix R CMD check notes
+
+# tidywater 0.6.0
 
 ## New features
 * biofilter_toc updates the bdoc water slot
