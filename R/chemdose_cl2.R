@@ -93,9 +93,9 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
     # get coefficients from defined clcoeffs table
     if (treatment == "raw") {
-      coeffs <- subset(cl2coeffs, treatment == "chlorine_raw")
+      coeffs <- subset(tidywater::cl2coeffs, treatment == "chlorine_raw")
     } else if (treatment == "coag") {
-      coeffs <- subset(cl2coeffs, treatment == "chlorine_coag")
+      coeffs <- subset(tidywater::cl2coeffs, treatment == "chlorine_coag")
     }
 
     # define function for chlorine decay
