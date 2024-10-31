@@ -209,3 +209,21 @@ NULL
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "bromatecoeffs"
+
+#' Data frame of Cl2 decay coefficients
+#'
+#' A dataset containing coefficients for calculating Cl2 decay
+#'
+#' @docType data
+#' @keywords datasets
+#' @name cl2coeffs
+#' @format A dataframe with 3 rows and 4 columns
+#' \describe{
+#' \item{treatment}{First author of source model}
+#' \item{a}{Coefficient in chlorine decay model, associated with Cl2 dose}
+#' \item{b}{Coefficient in chlorine decay model, associated with Cl2 dose/UV}
+#' \item{c}{Exponent in chlorine decay model, associated with Cl2 dose/UV}
+#' }
+#'
+#' @source U.S. EPA (2001)
+"cl2coeffs"
