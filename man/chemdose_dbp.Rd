@@ -12,7 +12,7 @@ TTHMs, treated: U.S. EPA (2001) equation 5-139
 
 HAAs, treated: U.S. EPA (2001) equation 5-142
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 chemdose_dbp(

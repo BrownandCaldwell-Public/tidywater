@@ -15,7 +15,7 @@ substantial portions of the Software.
 
 Wahman et al. (2021)
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 dissolve_pb(

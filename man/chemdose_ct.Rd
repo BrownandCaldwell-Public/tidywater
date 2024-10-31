@@ -8,7 +8,7 @@ Smith et al. (1995)
 
 USEPA (2020)
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 chemdose_ct(water, time, residual, baffle)

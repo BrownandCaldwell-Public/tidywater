@@ -1,12 +1,16 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Models for Drinking Water Treatment Processes
-Version: 0.4.0
+Version: 0.6.1
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
     person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
-    person("Brown and Caldwell", role = c("fnd", "cph")))
+    person("Rachel", "Merrifield", role = "ctb"),
+    person("Mayuri", "Namasivayam", role = "ctb"),
+    person("USEPA", role = "cph", comment = "Copyright holder of included TELSS fragments (dissolve_pb function)"),
+    person("Brown and Caldwell", role = c("fnd", "cph")
+    ))
 URL: https://github.com/BrownandCaldwell-Public/tidywater
 BugReports: https://github.com/BrownandCaldwell-Public/tidywater/issues
 Description: Provides multiple water chemistry-based models and published 
@@ -19,7 +23,7 @@ Description: Provides multiple water chemistry-based models and published
     Principles and Design (Third). John Wiley & Sons Inc.
     USEPA. (2001). Water Treatment Plant Model, Version 2.0, User’s Manual.
     <https://www.epa.gov/sites/default/files/2017-03/documents/wtp_model_v._2.0_manual_508.pdf>.
-License: MIT + file LICENSE
+License: Apache License (>= 2) | MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
@@ -33,7 +37,7 @@ Imports:
     furrr,
     methods,
     rlang
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 Suggests: 
@@ -41,3 +45,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+Date: 2024-10-28

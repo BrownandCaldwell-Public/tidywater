@@ -8,14 +8,14 @@
 #' @param time Ozone contact time in minutes
 #'
 #' @source U.S. EPA (2001)
-#' @source See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @examples
 #' ozone_resid <- define_water(7, 20, 100, doc = 2, toc = 2.2, uv254 = .02, br = 50) %>%
 #'   solveresid_o3(dose = 2, time = 10)
 #'
 #' @export
-#'@returns A numeric value for the resiudal ozone.
+#' @returns A numeric value for the resiudal ozone.
 solveresid_o3 <- function(water, dose, time) {
   validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -72,7 +72,7 @@ solveresid_o3 <- function(water, dose, time) {
 #'
 #' @import dplyr
 #' @export
-#'@returns A data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
+#' @returns A data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
 solveresid_o3_once <- function(df, input_water = "defined_water",
                                dose = 0, time = 0) {

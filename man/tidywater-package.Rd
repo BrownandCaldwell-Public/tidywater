@@ -28,6 +28,9 @@ Authors:
 
 Other contributors:
 \itemize{
+  \item Rachel Merrifield [contributor]
+  \item Mayuri Namasivayam [contributor]
+  \item USEPA (Copyright holder of included TELSS fragments (dissolve_pb function)) [copyright holder]
   \item Brown and Caldwell [funder, copyright holder]
 }
 

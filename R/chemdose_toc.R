@@ -15,7 +15,7 @@
 #'
 #' @source Edwards (1997)
 #' @source U.S. EPA (2001)
-#' @source See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
@@ -33,7 +33,7 @@
 #'
 #' @export
 #'
-#'@returns A water class object with an updated DOC, TOC, and UV254 concentration.
+#' @returns A water class object with an updated DOC, TOC, and UV254 concentration.
 #'
 chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   validate_water(water, c("ph", "doc", "uv254"))

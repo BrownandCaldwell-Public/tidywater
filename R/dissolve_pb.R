@@ -1,3 +1,37 @@
+# The original source for much of this came from USEPA's Theoretical Equilibrium Lead Solubility Simulator (TELSS)
+# code in https://github.com/USEPA/TELSS/app.R
+#
+# Below is the original license statement for the TELSS app.
+#
+# The MIT License (MIT)
+# =====================
+#
+#   Copyright © 2021 USEPA.
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the “Software”), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+#   The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+
+# Substantial changes were made to adapt the app into a function, but the underlying calculations are generally from the
+# simulate_solubility function.
+
 #' Simulate contributions of various lead solids to total soluble lead
 #'
 #' @description This function takes a water data frame defined by \code{\link{define_water}}
@@ -21,7 +55,7 @@
 #' following conditions: The above copyright notice and this permission notice shall be included in all copies or
 #' substantial portions of the Software.
 #' @source Wahman et al. (2021)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.
@@ -91,7 +125,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   # Cerussite: PbCO3(s) --> Pb2+ + CO32-
   solids["K_solid_cerussite", "Pb_2_plus"] <- solids["K_solid_cerussite", "K_num"] / (gamma_2^2 * water@co3)
   # Hydrocerussite: Pb3(CO3)2(OH)2(s) + 2H+ --> 3Pb2+ + 2CO32- + 2H2O
-  solids["K_solid_hydrocerussite", "Pb_2_plus"] <-  (solids["K_solid_hydrocerussite", "K_num"] * h^2 / (gamma_2^5 * water@co3^2))^(1 / 3)
+  solids["K_solid_hydrocerussite", "Pb_2_plus"] <- (solids["K_solid_hydrocerussite", "K_num"] * h^2 / (gamma_2^5 * water@co3^2))^(1 / 3)
   # Hydroxypyromorphite: Pb5(PO4)3OH(s) + H+ --> 5Pb2+ + 3PO43- + H2O
   solids["K_solid_hydroxypyromorphite_s", "Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_s", "K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)
   solids["K_solid_hydroxypyromorphite_z", "Pb_2_plus"] <- (solids["K_solid_hydroxypyromorphite_z", "K_num"] * h / (gamma_2^5 * gamma_3^3 * water@po4^3))^(1 / 5)

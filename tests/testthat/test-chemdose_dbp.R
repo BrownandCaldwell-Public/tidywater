@@ -147,7 +147,7 @@ test_that("chemdose_dbp_once can use a column or function argument for chemical 
   expect_equal(water2$chcl2br, water3$chcl2br)
 })
 
-test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_toc", {
+test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_dbp", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -245,4 +245,30 @@ test_that("chemdose_dbp_chain can use a column or function argument for chemical
   expect_equal(water1$disinfected_water_tthm, water3$disinfected_water_tthm)
   expect_equal(water2$disinfected_water_haa5, water3$disinfected_water_haa5)
   expect_equal(water2$disinfected_water_mbaa, water3$disinfected_water_mbaa)
+})
+
+test_that("chemdose_dbp_chain errors with argument + column for same param", {
+  water <- water_df %>%
+    mutate(br = 80) %>%
+    define_water_chain("water")
+  expect_error(water %>%
+    mutate(cl2 = 5) %>%
+    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+  expect_error(water %>%
+    mutate(time = 5) %>%
+    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+})
+
+test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers", {
+  water <- water_df %>%
+    mutate(br = 80) %>%
+    define_water_chain("water")
+
+  water1 <- water %>%
+    chemdose_dbp_chain("water", time = c(60, 120), cl2 = 5)
+  water2 <- water %>%
+    chemdose_dbp_chain("water", time = 120, cl2 = seq(2, 4, 1))
+
+  expect_equal(nrow(water) * 2, nrow(water1))
+  expect_equal(nrow(water) * 3, nrow(water2))
 })

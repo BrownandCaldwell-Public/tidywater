@@ -18,10 +18,10 @@ test_that("chemdose_f returns errors when the coefficients are input incorrectly
 })
 
 test_that("chemdose_f fails without ph and f.", {
-  water_f <- suppressWarnings(define_water(ph =7.5))
+  water_f <- suppressWarnings(define_water(ph = 7.5))
   water_ph <- suppressWarnings(define_water(f = 4))
 
-  expect_error(chemdose_f(water_f, alum =30))
+  expect_error(chemdose_f(water_f, alum = 30))
   expect_error(chemdose_f(water_ph, alum = 30))
 })
 
@@ -29,5 +29,5 @@ test_that("chemdose_f works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, f = 3))
   fluor <- chemdose_f(water1, alum = 30)
 
-  expect_equal(signif(fluor@f,2), 1.4E-4)
+  expect_equal(signif(fluor@f, 2), 1.4E-4)
 })
