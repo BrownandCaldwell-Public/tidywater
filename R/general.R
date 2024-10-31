@@ -304,29 +304,12 @@ convert_units.formula_to_charge[["al"]] <- 3
 convert_units.formula_to_charge[["fe"]] <- 3
 convert_units.formula_to_charge[["alum"]] <- 3
 convert_units.formula_to_charge[["fecl3"]] <- 3
-convert_units.formula_to_charge[["fe2so43"]] <- 3
+# TODO ASK SIERRA (fe2so43 is not in mweights)
+#convert_units.formula_to_charge[["fe2so43"]] <- 3
 convert_units.formula_to_charge[["po4"]] <- 3
 
-#' @title Calculate unit conversions for common compounds
-#'
-#' @description This function takes a value and converts units based on compound name.
-#'
-#' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
-#' and the same units with "m", "u", "n" prefixes
-#' @param endunit Desired units, currently accepts same as start units
-#'
-#' @examples
-#' convert_units(50, "ca") # converts from mg/L to M by default
-#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
-#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
-#'
-#' @export
-#'
-#' @returns A numeric value for the converted parameter.
-#'
-convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+# Internal conversion function
+convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -334,10 +317,10 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
-
+  
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
-
+  
   # Look up the unit multipliers for starting and end units
   start_mult <- convert_units.unit_to_mult[[startunit]]
   end_mult <- convert_units.unit_to_mult[[endunit]]
@@ -347,18 +330,18 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
   # Calculate the net multiplier
   multiplier <- start_mult / end_mult
-
+  
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
   n_mw <- as.numeric(tidywater::mweights["n"])
-
+  
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
+        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
     } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
+               (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
@@ -366,9 +349,9 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop("Chemical formula not supported")
+    stop(paste("Chemical formula not supported: ", formula))
   }
-
+  
   # Determine charge for equivalents
   # Look up our known charges in our hashtable
   table_charge <- convert_units.formula_to_charge[[formula]]
@@ -381,7 +364,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else {
     stop("Unable to find charge for equivalent conversion")
   }
-
+  
   # Unit conversion
   # g - mol
   if (startunit %in% gram_list & endunit %in% mole_list) {
@@ -410,12 +393,60 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     value / molar_weight * n_mw
     # same lists
   } else if ((startunit %in% gram_list & endunit %in% gram_list) |
-    (startunit %in% mole_list & endunit %in% mole_list) |
-    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
+             (startunit %in% mole_list & endunit %in% mole_list) |
+             (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     stop("Units not supported")
   }
+}
+
+generate_conversions_table <- function() {
+  # All units we support
+  units <- ls(convert_units.unit_to_mult)
+  # All formulas we support
+  formulas <- ls(convert_units.formula_to_charge)
+  env <- new.env(parent = emptyenv())
+  for (startunit in units) {
+    for (endunit in units) {
+      for (formula in formulas) {
+        name <- paste(formula,startunit,endunit)
+        env[[name]] <- convert_units_private(1.0, formula, startunit, endunit)
+      }
+    }
+  }
+  env
+}
+
+# Pre-compute all unit conversions and store in env
+convert_units.super_table <- generate_conversions_table()
+
+
+#' @title Calculate unit conversions for common compounds
+#'
+#' @description This function takes a value and converts units based on compound name.
+#'
+#' @param value Value to be converted
+#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' and the same units with "m", "u", "n" prefixes
+#' @param endunit Desired units, currently accepts same as start units
+#'
+#' @examples
+#' convert_units(50, "ca") # converts from mg/L to M by default
+#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted parameter.
+#'
+convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  lookup <- convert_units.super_table[[paste(formula, startunit, endunit)]]
+  if (is.null(lookup)) {
+    stop(paste("Unsupported unit conversion: ", formula, "from", startunit, "to", endunit))
+  }
+  value * lookup
 }
 
 
