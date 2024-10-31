@@ -247,6 +247,66 @@ plot_ions <- function(water) {
 }
 
 
+# Using a some package local environments to cache some hashmaps for fast lookups
+# Create an environment to act as a hashmap:
+# See: https://riptutorial.com/r/example/18339/environments-as-hash-maps
+convert_units.unit_to_mult <- new.env(parent = emptyenv())
+# All the standard units
+convert_units.unit_to_mult[["g/L"]] <- 1
+convert_units.unit_to_mult[["g/L CaCO3"]] <- 1
+convert_units.unit_to_mult[["g/L N"]] <- 1
+convert_units.unit_to_mult[["M"]] <- 1
+convert_units.unit_to_mult[["eq/L"]] <- 1
+# All the milli units
+convert_units.unit_to_mult[["mg/L"]] <- 1e-3
+convert_units.unit_to_mult[["mg/L CaCO3"]] <- 1e-3
+convert_units.unit_to_mult[["mg/L N"]] <- 1e-3
+convert_units.unit_to_mult[["mM"]] <- 1e-3
+convert_units.unit_to_mult[["meq/L"]] <- 1e-3
+# All the mirco units
+convert_units.unit_to_mult[["ug/L"]] <- 1e-6
+convert_units.unit_to_mult[["ug/L CaCO3"]] <- 1e-6
+convert_units.unit_to_mult[["ug/L N"]] <- 1e-6
+convert_units.unit_to_mult[["uM"]] <- 1e-6
+convert_units.unit_to_mult[["ueq/L"]] <- 1e-6
+# All the nano units
+convert_units.unit_to_mult[["ng/L"]] <- 1e-9
+convert_units.unit_to_mult[["ng/L CaCO3"]] <- 1e-9
+convert_units.unit_to_mult[["ng/L N"]] <- 1e-9
+convert_units.unit_to_mult[["nM"]] <- 1e-9
+convert_units.unit_to_mult[["neq/L"]] <- 1e-9
+
+convert_units.formula_to_charge <- new.env(parent = emptyenv())
+convert_units.formula_to_charge[["na"]] <- 1
+convert_units.formula_to_charge[["k"]] <- 1
+convert_units.formula_to_charge[["cl"]] <- 1
+convert_units.formula_to_charge[["hcl"]] <- 1
+convert_units.formula_to_charge[["naoh"]] <- 1
+convert_units.formula_to_charge[["nahco3"]] <- 1
+convert_units.formula_to_charge[["nh4"]] <- 1
+convert_units.formula_to_charge[["na"]] <- 1
+convert_units.formula_to_charge[["f"]] <- 1
+convert_units.formula_to_charge[["br"]] <- 1
+convert_units.formula_to_charge[["bro3"]] <- 1
+convert_units.formula_to_charge[["so4"]] <- 2
+convert_units.formula_to_charge[["caco3"]] <- 2
+convert_units.formula_to_charge[["h2so4"]] <- 2
+convert_units.formula_to_charge[["na2co3"]] <- 2
+convert_units.formula_to_charge[["caoh2"]] <- 2
+convert_units.formula_to_charge[["mgoh2"]] <- 2
+convert_units.formula_to_charge[["mg"]] <- 2
+convert_units.formula_to_charge[["ca"]] <- 2
+convert_units.formula_to_charge[["pb"]] <- 2
+convert_units.formula_to_charge[["cacl2"]] <- 2
+convert_units.formula_to_charge[["mn"]] <- 2
+convert_units.formula_to_charge[["h3po4"]] <- 3
+convert_units.formula_to_charge[["al"]] <- 3
+convert_units.formula_to_charge[["fe"]] <- 3
+convert_units.formula_to_charge[["alum"]] <- 3
+convert_units.formula_to_charge[["fecl3"]] <- 3
+convert_units.formula_to_charge[["fe2so43"]] <- 3
+convert_units.formula_to_charge[["po4"]] <- 3
+
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
@@ -267,11 +327,6 @@ plot_ions <- function(water) {
 #' @returns A numeric value for the converted parameter.
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
-  mcro_list <- c("ug/L", "ug/L CaCO3", "ug/L N", "uM", "ueq/L")
-  nano_list <- c("ng/L", "ng/L CaCO3", "ng/L N", "nM", "neq/L")
-  stand_list <- c("g/L", "g/L CaCO3", "g/L N", "M", "eq/L")
-
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -283,37 +338,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
 
-  # Determine multiplier for order of magnitude conversion
-  # In the same list, no multiplier needed
-  if ((startunit %in% milli_list & endunit %in% milli_list) |
-    (startunit %in% stand_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% nano_list) |
-    (startunit %in% mcro_list & endunit %in% mcro_list)) {
-    multiplier <- 1
-    # m - standard, n-u, u-n
-  } else if ((startunit %in% milli_list & endunit %in% stand_list) |
-    (startunit %in% mcro_list & endunit %in% milli_list) |
-    (startunit %in% nano_list & endunit %in% mcro_list)) {
-    multiplier <- 1e-3
-  } else if ((startunit %in% stand_list & endunit %in% milli_list) |
-    (startunit %in% milli_list & endunit %in% mcro_list) |
-    (startunit %in% mcro_list & endunit %in% nano_list)) {
-    multiplier <- 1e3
-    # u - standard
-  } else if ((startunit %in% mcro_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% milli_list)) {
-    multiplier <- 1e-6
-  } else if ((startunit %in% stand_list & endunit %in% mcro_list) |
-    (startunit %in% milli_list & endunit %in% nano_list)) {
-    multiplier <- 1e6
-    # n - standard
-  } else if (startunit %in% nano_list & endunit %in% stand_list) {
-    multiplier <- 1e-9
-  } else if (startunit %in% stand_list & endunit %in% nano_list) {
-    multiplier <- 1e9
-  } else {
+  # Look up the unit multipliers for starting and end units
+  start_mult <- convert_units.unit_to_mult[[startunit]]
+  end_mult <- convert_units.unit_to_mult[[endunit]]
+  if (is.null(start_mult) || is.null(end_mult)) {
+    # If we didn't find multipliers these units are not supported
     stop("Units not supported")
   }
+  # Calculate the net multiplier
+  multiplier <- start_mult / end_mult
 
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
@@ -337,12 +370,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "f", "br", "bro3")) {
-    charge <- 1
-  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
-    charge <- 2
-  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
-    charge <- 3
+  # Look up our known charges in our hashtable
+  table_charge <- convert_units.formula_to_charge[[formula]]
+  if (!is.null(table_charge)) {
+    # If we found a charge in the hash table use that
+    charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     # This is included so that charge can be in equations later without impacting results
     charge <- 1
