@@ -418,7 +418,8 @@ generate_conversions_table <- function() {
   env
 }
 
-# Pre-compute all unit conversions and store in env
+# Pre-compute all unit conversions and store in env on package load
+# Could probably put this in a .rdata file instead?
 convert_units.super_table <- generate_conversions_table()
 
 
@@ -444,9 +445,11 @@ convert_units.super_table <- generate_conversions_table()
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   lookup <- convert_units.super_table[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
-    stop(paste("Unsupported unit conversion: ", formula, "from", startunit, "to", endunit))
+    # Fallback to full implementation
+    convert_units_private(value, formula, startunit, endunit)
+  }else {
+    value * lookup
   }
-  value * lookup
 }
 
 
