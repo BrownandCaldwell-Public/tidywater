@@ -31,19 +31,6 @@
 #'   chemdose_cl2(cl2_dose = 2, time = 8)
 #' example_cl2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = 0.2)) %>%
 #'   chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", cl_type = "chloramine")
-#'
-#' # Plot decay curves for multiple doses over time
-#' time = as.data.frame(seq(1, 200))
-#' dose = as.data.frame(seq(1, 5))
-#' water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5, uv254 = 0.1, br = 50))
-#' cross_join(time, dose)%>%
-#'   `colnames<-`(c("time", "dose"))%>%
-#'   rowwise()%>%
-#'   mutate(dosed_water = list(chemdose_cl2(water, cl2_dose = dose, time = time)),
-#'   tot_ocl = convert_units(pluck(dosed_water, "tot_ocl"), "ocl", "M", "mg/L"))%>%
-#'   ggplot(aes(x = time, y = tot_ocl))+
-#'   geom_point(aes(color = dose))
-#'
 #' @export
 #' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 #'
@@ -127,13 +114,17 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
   #chloramine decay model
   } else if (cl_type == "chloramine") {
 
+    # Chloramine code commented out until water slot added. Remove next line once added.
+    warning("Chloramine calculations still under development.")
+
+
     # define function for chloramine decay
     #U.S. EPA (2001) equation 5-120
-    solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
-      a * cl2_dose * log(cl2_dose/ct) - b * uv254 * time + cl2_dose - ct
-    }
-
-    coeffs <- subset(cl2coeffs, treatment == "chloramine")
+    # solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
+    #   a * cl2_dose * log(cl2_dose/ct) - b * uv254 * time + cl2_dose - ct
+    # }
+    #
+    # coeffs <- subset(cl2coeffs, treatment == "chloramine")
   }
 
   # if dose is 0, do not run uniroot function
@@ -161,19 +152,3 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   return(water)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
