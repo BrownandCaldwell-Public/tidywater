@@ -29,12 +29,13 @@
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
 #'   chemdose_cl2(cl2_dose = 2, time = 8)
-#' example_cl2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = 0.2)) %>%
-#'   chemdose_cl2(cl2_dose = 3, time = 168, treatment = "coag", cl_type = "chloramine")
 #' @export
 #' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 #'
 chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
+
+  validate_water(water, c("toc", "uv254"))
+
   toc = water@toc
   uv254 = water@uv254
 
@@ -49,14 +50,6 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   if (!(cl_type %in% c("chlorine", "chloramine"))) {
     stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
-  }
-
-  if (is.na(toc)) {
-    stop("Missing value for TOC. Please add missing parameters to define_water.")
-  }
-
-  if (is.na(uv254)) {
-    stop("Missing value for UV254. Please add missing parameters to define_water.")
   }
 
   # chlorine decay model
