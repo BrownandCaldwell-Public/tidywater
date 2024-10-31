@@ -219,7 +219,7 @@ NULL
 #' @name cl2coeffs
 #' @format A dataframe with 3 rows and 4 columns
 #' \describe{
-#' \item{treatment}{First author of source model}
+#' \item{treatment}{Specifies the treatment applied to the water}
 #' \item{a}{Coefficient in chlorine decay model, associated with Cl2 dose}
 #' \item{b}{Coefficient in chlorine decay model, associated with Cl2 dose/UV}
 #' \item{c}{Exponent in chlorine decay model, associated with Cl2 dose/UV}
