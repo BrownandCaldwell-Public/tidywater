@@ -76,7 +76,7 @@ example_df <- water_df \%>\%
   )
 
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
   pac_toc_once(input_water = "raw", dose = 4, time = 8)

@@ -9,6 +9,9 @@ convert_watermg(water)
 \arguments{
 \item{water}{A water class object}
 }
+\value{
+A data frame containing columns for all non-NA water slots with ions in mg/L.
+}
 \description{
 This function is the same as \code{\link{convert_water}} except it converts the units of following slots from
 M to mg/L: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.  These slots are converted to

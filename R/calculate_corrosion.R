@@ -260,9 +260,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
-#' \dontrun{
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
@@ -334,9 +334,9 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 #'
-#' \dontrun{
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))

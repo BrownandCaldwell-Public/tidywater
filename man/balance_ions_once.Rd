@@ -40,7 +40,7 @@ example_df <- water_df \%>\%
   balance_ions_once(input_water = "Different_defined_water_column")
 
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_once()
