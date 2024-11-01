@@ -1,3 +1,8 @@
+# development version
+
+## New features
+* chlorine and chloramine decay
+
 # tidywater 0.6.2
 
 * CRAN resubmission.
@@ -41,6 +46,7 @@
 ## Code structure changes
 * renamed and rearranged R scripts to better find functions and associated helper functions
 * update most functions to use base R, and only use dplyr functions where necessary (increase speed)
+
 
 # tidywater 0.4.0
 
