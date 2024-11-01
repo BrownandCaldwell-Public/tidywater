@@ -1,5 +1,8 @@
 # tidywater 0.6.2
 
+* CRAN resubmission.
+* Minor changes to DESCRIPTION and examples using `plan`
+
 # tidywater 0.6.1
 
 * Initial CRAN submission.
