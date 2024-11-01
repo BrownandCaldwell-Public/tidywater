@@ -1,3 +1,5 @@
+# tidywater 0.6.2
+
 # tidywater 0.6.1
 
 * Initial CRAN submission.
