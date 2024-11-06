@@ -92,9 +92,9 @@ example_df <- water_df \%>\%
     location = "ds", cl_type = "chloramine"
   )
 
-\dontrun{
+\donttest{
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%

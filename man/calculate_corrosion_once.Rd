@@ -57,9 +57,9 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
-\dontrun{
+\donttest{
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))

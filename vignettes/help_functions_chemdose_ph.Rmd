@@ -19,6 +19,7 @@ library(dplyr)
 library(ggplot2)
 library(furrr)
 library(purrr)
+# Uncomment the following line for parallel processing.
 # plan(multisession)
 ```
 

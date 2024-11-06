@@ -1,10 +1,12 @@
-# tidywater 0.7.0
+# development version
 
 ## New features
 * chlorine and chloramine decay
 
-## Breaking changes
+# tidywater 0.6.2
 
+* CRAN resubmission.
+* Minor changes to DESCRIPTION and examples using `plan`
 
 # tidywater 0.6.1
 

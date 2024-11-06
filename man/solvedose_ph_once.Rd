@@ -70,9 +70,9 @@ example_df <- water_df \%>\%
   mutate(target_ph = seq(9, 10.1, .1)) \%>\%
   solvedose_ph_once(chemical = "naoh")
 
-\dontrun{
+\donttest{
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(target_ph = seq(9, 10.1, .1)) \%>\%
