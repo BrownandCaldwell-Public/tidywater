@@ -24,6 +24,7 @@ mweights <- data.frame(
   ferricchloride = 55.845 + 35.453 * 3,
   fecl3 = 55.845 + 35.453 * 3,
   ferricsulfate = 2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, # 8.8 H2O
+  ach = 26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, # 2 H2O
   mg = 24.305,
   ca = 40.078,
   po4 = 94.97,
@@ -62,7 +63,8 @@ discons <- data.frame(
   # Hypochlorite
   add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
   # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = -52210) # NH3 + H+ <--> NH4+
+  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
+rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
 
@@ -123,6 +125,7 @@ edwardscoeff <- data.frame(
     k1 = -0.054, k2 = 0.54,
     b = 0.092
   )
+rownames(edwardscoeff) <- edwardscoeff$ID
 
 usethis::use_data(edwardscoeff, overwrite = TRUE)
 
@@ -194,6 +197,7 @@ leadsol_constants <- data.frame(
     log_value = c(15.41, 21.05),
     source = rep("Schock et al. (1996)", 2)
   )
+rownames(leadsol_constants) <- leadsol_constants$constant_name
 
 usethis::use_data(leadsol_constants, overwrite = TRUE)
 
@@ -492,6 +496,7 @@ dbpcoeffs <- data.frame(
     treatment = "gac",
     A = 20.6, a = 0.509, b = 0.253, c = 0.053, d = 0.823, e = 1.019, f = 0.425, ph_const = 8
   )
+rownames(dbpcoeffs) <- dbpcoeffs$ID
 
 usethis::use_data(dbpcoeffs, overwrite = TRUE)
 
@@ -584,6 +589,7 @@ chloramine_conv <- data.frame(
     alias = "Nine haloacetic acids",
     percent = 0.20
   )
+rownames(chloramine_conv) <- chloramine_conv$ID
 
 usethis::use_data(chloramine_conv, overwrite = TRUE)
 
@@ -696,6 +702,7 @@ dbp_correction <- data.frame(
     plant = 1,
     ds = 1
   )
+rownames(dbp_correction) <- dbp_correction$ID
 
 usethis::use_data(dbp_correction, overwrite = TRUE)
 

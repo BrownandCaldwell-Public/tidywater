@@ -4,9 +4,9 @@
 \name{tidywater-package}
 \alias{tidywater}
 \alias{tidywater-package}
-\title{tidywater: Water Quality Modeling for Drinking Water Treatment}
+\title{tidywater: Water Quality Models for Drinking Water Treatment Processes}
 \description{
-Provides multiple water chemistry-based models and published empirical models in one standard format. Functions can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow.
+Provides multiple water chemistry-based models and published empirical models in one standard format. Functions can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow. Models are primarily based on these sources: Benjamin, M. M. (2002) Water Chemistry, 1st Edition, McGraw-Hill, New York, NY. Crittenden, J. C., Trussell, R., Hand, D., Howe, J. K., & Tchobanoglous, G., Borchardt, J. H. (2012). MWH’s Water Treatment: Principles and Design (Third). John Wiley & Sons Inc. USEPA. (2001). Water Treatment Plant Model, Version 2.0, User’s Manual. \url{https://www.epa.gov/sites/default/files/2017-03/documents/wtp_model_v._2.0_manual_508.pdf}.
 }
 \seealso{
 Useful links:
@@ -28,6 +28,8 @@ Authors:
 
 Other contributors:
 \itemize{
+  \item Rachel Merrifield [contributor]
+  \item USEPA (Copyright holder of included TELSS fragments (dissolve_pb function)) [copyright holder]
   \item Brown and Caldwell [funder, copyright holder]
 }
 
