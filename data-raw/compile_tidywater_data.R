@@ -795,3 +795,4 @@ cl2coeffs <- tibble(
   c = c(-1.2971, -0.9108, NA))
 
 usethis::use_data(cl2coeffs, overwrite = TRUE)
+
