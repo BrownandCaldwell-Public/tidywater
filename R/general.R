@@ -246,69 +246,9 @@ plot_ions <- function(water) {
     guides(fill = "none")
 }
 
-
-# Using a some package local environments to cache some hashmaps for fast lookups
-# Create an environment to act as a hashmap:
-# See: https://riptutorial.com/r/example/18339/environments-as-hash-maps
-convert_units.unit_to_mult <- new.env(parent = emptyenv())
-# All the standard units
-convert_units.unit_to_mult[["g/L"]] <- 1
-convert_units.unit_to_mult[["g/L CaCO3"]] <- 1
-convert_units.unit_to_mult[["g/L N"]] <- 1
-convert_units.unit_to_mult[["M"]] <- 1
-convert_units.unit_to_mult[["eq/L"]] <- 1
-# All the milli units
-convert_units.unit_to_mult[["mg/L"]] <- 1e-3
-convert_units.unit_to_mult[["mg/L CaCO3"]] <- 1e-3
-convert_units.unit_to_mult[["mg/L N"]] <- 1e-3
-convert_units.unit_to_mult[["mM"]] <- 1e-3
-convert_units.unit_to_mult[["meq/L"]] <- 1e-3
-# All the mirco units
-convert_units.unit_to_mult[["ug/L"]] <- 1e-6
-convert_units.unit_to_mult[["ug/L CaCO3"]] <- 1e-6
-convert_units.unit_to_mult[["ug/L N"]] <- 1e-6
-convert_units.unit_to_mult[["uM"]] <- 1e-6
-convert_units.unit_to_mult[["ueq/L"]] <- 1e-6
-# All the nano units
-convert_units.unit_to_mult[["ng/L"]] <- 1e-9
-convert_units.unit_to_mult[["ng/L CaCO3"]] <- 1e-9
-convert_units.unit_to_mult[["ng/L N"]] <- 1e-9
-convert_units.unit_to_mult[["nM"]] <- 1e-9
-convert_units.unit_to_mult[["neq/L"]] <- 1e-9
-
-convert_units.formula_to_charge <- new.env(parent = emptyenv())
-convert_units.formula_to_charge[["na"]] <- 1
-convert_units.formula_to_charge[["k"]] <- 1
-convert_units.formula_to_charge[["cl"]] <- 1
-convert_units.formula_to_charge[["hcl"]] <- 1
-convert_units.formula_to_charge[["naoh"]] <- 1
-convert_units.formula_to_charge[["nahco3"]] <- 1
-convert_units.formula_to_charge[["nh4"]] <- 1
-convert_units.formula_to_charge[["na"]] <- 1
-convert_units.formula_to_charge[["f"]] <- 1
-convert_units.formula_to_charge[["br"]] <- 1
-convert_units.formula_to_charge[["bro3"]] <- 1
-convert_units.formula_to_charge[["so4"]] <- 2
-convert_units.formula_to_charge[["caco3"]] <- 2
-convert_units.formula_to_charge[["h2so4"]] <- 2
-convert_units.formula_to_charge[["na2co3"]] <- 2
-convert_units.formula_to_charge[["caoh2"]] <- 2
-convert_units.formula_to_charge[["mgoh2"]] <- 2
-convert_units.formula_to_charge[["mg"]] <- 2
-convert_units.formula_to_charge[["ca"]] <- 2
-convert_units.formula_to_charge[["pb"]] <- 2
-convert_units.formula_to_charge[["cacl2"]] <- 2
-convert_units.formula_to_charge[["mn"]] <- 2
-convert_units.formula_to_charge[["h3po4"]] <- 3
-convert_units.formula_to_charge[["al"]] <- 3
-convert_units.formula_to_charge[["fe"]] <- 3
-convert_units.formula_to_charge[["alum"]] <- 3
-convert_units.formula_to_charge[["fecl3"]] <- 3
-# TODO ASK SIERRA (fe2so43 is not in mweights)
-#convert_units.formula_to_charge[["fe2so43"]] <- 3
-convert_units.formula_to_charge[["po4"]] <- 3
-
 # Internal conversion function
+# If we fail to lookup a unit conversion in our chached table we look here
+# This function is ~20x slower than the chache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
@@ -317,24 +257,24 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
-  
+
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
-  
+
   # Look up the unit multipliers for starting and end units
-  start_mult <- convert_units.unit_to_mult[[startunit]]
-  end_mult <- convert_units.unit_to_mult[[endunit]]
+  start_mult <- unit_multipliers[[startunit]]
+  end_mult <- unit_multipliers[[endunit]]
   if (is.null(start_mult) || is.null(end_mult)) {
     # If we didn't find multipliers these units are not supported
     stop("Units not supported")
   }
   # Calculate the net multiplier
   multiplier <- start_mult / end_mult
-  
+
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
   n_mw <- as.numeric(tidywater::mweights["n"])
-  
+
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
@@ -351,10 +291,10 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   } else {
     stop(paste("Chemical formula not supported: ", formula))
   }
-  
+
   # Determine charge for equivalents
   # Look up our known charges in our hashtable
-  table_charge <- convert_units.formula_to_charge[[formula]]
+  table_charge <- formula_to_charge[[formula]]
   if (!is.null(table_charge)) {
     # If we found a charge in the hash table use that
     charge <- table_charge
@@ -364,7 +304,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   } else {
     stop("Unable to find charge for equivalent conversion")
   }
-  
+
   # Unit conversion
   # g - mol
   if (startunit %in% gram_list & endunit %in% mole_list) {
@@ -401,28 +341,6 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   }
 }
 
-generate_conversions_table <- function() {
-  # All units we support
-  units <- ls(convert_units.unit_to_mult)
-  # All formulas we support
-  formulas <- ls(convert_units.formula_to_charge)
-  env <- new.env(parent = emptyenv())
-  for (startunit in units) {
-    for (endunit in units) {
-      for (formula in formulas) {
-        name <- paste(formula,startunit,endunit)
-        env[[name]] <- convert_units_private(1.0, formula, startunit, endunit)
-      }
-    }
-  }
-  env
-}
-
-# Pre-compute all unit conversions and store in env on package load
-# Could probably put this in a .rdata file instead?
-convert_units.super_table <- generate_conversions_table()
-
-
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
@@ -443,7 +361,7 @@ convert_units.super_table <- generate_conversions_table()
 #' @returns A numeric value for the converted parameter.
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  lookup <- convert_units.super_table[[paste(formula, startunit, endunit)]]
+  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
     convert_units_private(value, formula, startunit, endunit)
