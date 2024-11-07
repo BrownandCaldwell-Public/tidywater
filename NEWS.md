@@ -47,7 +47,6 @@
 * renamed and rearranged R scripts to better find functions and associated helper functions
 * update most functions to use base R, and only use dplyr functions where necessary (increase speed)
 
-
 # tidywater 0.4.0
 
 ## Fixes
