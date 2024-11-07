@@ -230,10 +230,11 @@ methods::setMethod("show",
     cat("Tribromoacetic acid (ug/L): ", object@tbaa, "\n")
   })
 
-#' Create a water class object given water quality parameters
+#' @title Create a water class object given water quality parameters
 #'
-#' This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
-#' Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
+#' @description This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+#'
+#' @details Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
 #' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
 #' manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
 #' Ionic strength (if TDS provided): Crittenden et al. (2012) equation 5-38
@@ -245,7 +246,8 @@ methods::setMethod("show",
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
-#' @param ca_hard Calcium hardness in mg/L as CaCO3
+#' @param ca Calcium in mg/L Ca+2
+#' @param mg Magnesium in mg/L Mg2+
 #' @param na Sodium in mg/L Na+
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
@@ -257,14 +259,16 @@ methods::setMethod("show",
 #' @param toc Total organic carbon (TOC) in mg/L
 #' @param doc Dissolved organic carbon (DOC) in mg/L
 #' @param uv254 UV absorbance at 254 nm (cm-1)
-#' @param br Bromide in mg/L Br-
+#' @param br Bromide in ug/L Br-
+#'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 #'
 #' @export
 #'
-define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
+
+define_water <- function(ph, temp = 20, alk, tot_hard, ca, mg, na, k, cl, so4, tot_ocl = 0, tot_po4 = 0, tds, cond,
                          toc, doc, uv254, br) {
 
   # Initialize string for tracking which parameters were estimated
@@ -281,21 +285,39 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
     warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
   }
 
-  if (missing(tot_hard) & missing(ca_hard)) {
-    tot_hard = NA_real_
-    ca_hard = NA_real_
+  tot_hard = ifelse(missing(tot_hard), NA_real_, tot_hard)
+  ca = ifelse(missing(ca), NA_real_, ca)
+  mg = ifelse(missing(mg), NA_real_, mg)
+
+  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
+    check_tot_hard = abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
+    if (check_tot_hard > 0.10) {
+      warning("User entered total hardness is >10% different than calculated hardness.")
+    }
   }
 
-  if (missing(tot_hard)) {
-    tot_hard = ca_hard / 0.65
-    warning("Missing value for total hardness. Default value of 154% of calcium hardness will be used.")
-    estimated <- paste(estimated, "tot_hard", sep = "_")
-  }
-
-  if (missing(ca_hard)) {
-    ca_hard = tot_hard * .65
-    warning("Missing value for calcium hardness. Default value of 65% of total hardness will be used.")
+  if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
+    ca = convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
+    warning("Missing value for calcium. Value estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & is.na(mg) & !is.na(ca)) {
+    mg = convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
+    warning("Missing value for magnesium. Value estimated from total hardness and calcium.")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
+    ca = convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
+    mg = convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
+    warning("Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
+    estimated <- paste(estimated, "ca", sep = "_")
+    estimated <- paste(estimated, "mg", sep = "_")
+  }
+
+  if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
+    tot_hard = calculate_hardness(ca, mg)
   }
 
   tds = ifelse(missing(tds), NA_real_, tds)
@@ -333,9 +355,9 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
   kw = 10^-pkw
 
   # Convert major ion concentration inputs to mol/L
+  ca = convert_units(ca, "ca")
+  mg = convert_units(mg, "mg")
   na = convert_units(na, "na")
-  ca = convert_units(ca_hard, "caco3")
-  mg = convert_units(tot_hard - ca_hard, "caco3")
   k = convert_units(k, "k")
   cl = convert_units(cl, "cl")
   so4 = convert_units(so4, "so4")
@@ -417,38 +439,60 @@ define_water <- function(ph, temp = 20, alk, tot_hard, ca_hard, na, k, cl, so4, 
   return(water)
 }
 
-#' Create summary table from water class
+#' @title Create summary table from water class
 #'
-#' This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table of
-#' general water quality parameters and major ions.
+#' @description This function takes a water data frame defined by \code{\link{define_water}} and outputs a formatted summary table of
+#' specified water quality parameters.
+#'
+#' \code{summarise_wq()} and \code{summarize_wq()} are synonyms.
+#'
+#' @details Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.
 #'
 #' @param water Source water vector created by \code{\link{define_water}}.
+#' @param params List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.
 #'
 #' @examples
+#' # Summarize general parameters
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#' summarise_wq(water_defined)
+#' summarize_wq(water_defined)
+#'
+#' # Summarize major cations and anions
+#' summarize_wq(water_defined, params = list("ions"))
 #'
 #' @export
 #'
-summarise_wq <- function(water) {
+summarize_wq <- function(water, params = c("general")) {
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    stop("Input must be of class 'water'. Create a water using define_water.")
   }
-  # Compile main WQ parameters to print
-  params = data.frame(pH = water@ph,
+  if (any(!params %in% c("general", "ions", "corrosion", "dbps"))) {
+    stop("params must be one or more of c('general', 'ions', 'corrosion', 'dbps')")
+  }
+
+  # Compile general WQ parameters
+  general = data.frame(pH = water@ph,
     Temp = water@temp,
     Alkalinity = water@alk,
-    Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"))
+    Total_Hardness = calculate_hardness(water@ca, water@mg, startunit = "M"),
+    TDS = water@tds,
+    Conductivity = water@cond,
+    TOC = water@toc)
 
-  params = params %>%
-    pivot_longer(c(pH:Total_Hardness), names_to = "param", values_to = "result") %>%
-    mutate(units = c("-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3"))
+  general = general %>%
+    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
+    mutate(units = c("-",
+      "deg C",
+      "mg/L as CaCO3",
+      "mg/L as CaCO3",
+      "mg/L",
+      "uS/cm",
+      "mg/L"))
 
-  tab1 = knitr::kable(params,
+  gen_tab = knitr::kable(general,
     format = "simple",
-    col.names = c("Key water quality parameters", "Result", "Units"))
+    col.names = c("General water quality parameters", "Result", "Units"))
 
-  # Compile major ions to print
+  # Compile major ions
   ions = data.frame(Na = convert_units(water@na, "na", "M", "mg/L"),
     Ca = convert_units(water@ca, "ca", "M", "mg/L"),
     Mg = convert_units(water@mg, "mg", "M", "mg/L"),
@@ -461,15 +505,83 @@ summarise_wq <- function(water) {
   ions = ions %>%
     pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
-  tab2 = knitr::kable(ions,
+  ions_tab = knitr::kable(ions,
     format = "simple",
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
     digits = 2)
 
-  # print(kables(list(tab1,tab2)))
-  return(knitr::kables(list(tab1, tab2)))
+  # Compile corrosion indices
+  corrosion = tibble(`Aggressive Index` = water@aggressive,
+    `Ryznar Stability Index` = water@ryznar,
+    `Langelier Saturation Index (LSI)` = water@langelier,
+    `Larson Skold Index` = water@larsonskold,
+    `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
+    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp)
+
+  corrosion = corrosion %>%
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    mutate(result = round(result, 2)) %>%
+    mutate(units = c(rep("unitless", 5), "mg/L CaCO3"),
+      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10"))
+
+  corr_tab = knitr::kable(corrosion,
+    format = "simple",
+    col.names = c("Corrosion Indices", "Result", "Units", "Recommended"))
+
+  # Compile DBPs
+  tthm = tibble(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
+    Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
+    Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
+    Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
+    `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm))
+
+
+  haa5 = tibble(`Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
+    `Dichloroacetic acid` = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
+    `Trichloroacetic acid` = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
+    `Bromoacetic acid` = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
+    `Dibromoacetic acid` = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
+    `Sum 5 haloacetic acids` = ifelse(length(water@haa5) == 0, NA, water@haa5))
+  # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
+  # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
+  # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
+  # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
+  # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
+  # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
+
+  tthm = tthm %>%
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    mutate(result = round(result, 2))
+
+  haa5 = haa5 %>%
+    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    mutate(result = round(result, 2))
+
+  thm_tab = knitr::kable(tthm,
+    format = "simple",
+    col.names = c("THMs", "Modeled concentration (ug/L)"))
+
+  haa_tab = knitr::kable(haa5,
+    format = "simple",
+    col.names = c("HAAs", "Modeled concentration (ug/L)"))
+
+  # Print tables
+  tables_list <- list()
+  if ("general" %in% params) {tables_list[[length(tables_list) + 1]] = gen_tab}
+  if ("ions" %in% params) {tables_list[[length(tables_list) + 1]] = ions_tab}
+  if ("corrosion" %in% params) {tables_list[[length(tables_list) + 1]] = corr_tab}
+  if ("dbps" %in% params) {
+    tables_list[[length(tables_list) + 1]] = thm_tab
+    tables_list[[length(tables_list) + 1]] = haa_tab
+  }
+
+  return(knitr::kables(tables_list))
 }
+
+#' @rdname summarize_wq
+#' @export
+summarise_wq <- summarize_wq
 
 #' Create summary plot of ions from water class
 #'
@@ -532,68 +644,10 @@ plot_ions <- function(water) {
     guides(fill = "none")
 }
 
-#' Create DBP summary table from water class
+
+#' @title Calculate unit conversions for common compounds
 #'
-#' This function takes a water data frame defined by \code{\link{chemdose_dbp}} and and outputs a formatted summary table of
-#' modeled DBP concentrations.
-#'
-#' @param water Source water vector created by \code{\link{chemdose_dbp}}.
-#'
-#' @examples
-#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#' summarise_dbp(water_defined)
-#'
-#' @export
-#'
-summarise_dbp <- function(water) {
-  if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water. Model DBP formation using chemdose_dbp")
-  }
-  # Compile main WQ parameters to print
-  thms = data.frame(Chloroform = ifelse(length(water@chcl3) == 0, NA, water@chcl3),
-    Bromodichloromethane = ifelse(length(water@chcl2br) == 0, NA, water@chcl2br),
-    Dibromochloromethane = ifelse(length(water@chbr2cl) == 0, NA, water@chbr2cl),
-    Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
-    Total_trihalomethanes = ifelse(length(water@tthm) == 0, NA, water@tthm))
-
-
-  haas = data.frame(Chloroacetic_acid = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
-    Dichloroacetic_acid = ifelse(length(water@dcaa) == 0, NA, water@dcaa),
-    Trichloroacetic_acid = ifelse(length(water@tcaa) == 0, NA, water@tcaa),
-    Bromoacetic_acid = ifelse(length(water@mbaa) == 0, NA, water@mbaa),
-    Dibromoacetic_acid = ifelse(length(water@dbaa) == 0, NA, water@dbaa),
-    Sum_5_haloacetic_acids = ifelse(length(water@haa5) == 0, NA, water@haa5))
-  # Bromochloroacetic_acid = ifelse(length(water@bcaa)==0, NA, water@bcaa),
-  # Sum_6_haloacetic_acids = ifelse(length(water@haa6)==0, NA, water@haa6),
-  # Chlorodibromoacetic_acid = ifelse(length(water@cdbaa)==0, NA, water@cdbaa),
-  # Dichlorobromoacetic_acid = ifelse(length(water@dcbaa)==0, NA, water@dcbaa),
-  # Tribromoacetic_acid = ifelse(length(water@tbaa)==0, NA, water@tbaa),
-  # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
-
-
-  thms = thms %>%
-    pivot_longer(c(Chloroform:Total_trihalomethanes), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2))
-
-  haas = haas %>%
-    pivot_longer(c(Chloroacetic_acid:Sum_5_haloacetic_acids), names_to = "param", values_to = "result") %>%
-
-    mutate(result = round(result, 2))
-
-  thms = knitr::kable(thms,
-    format = "simple",
-    col.names = c("THMs", "Modeled concentration (ug/L)"))
-
-  haas = knitr::kable(haas,
-    format = "simple",
-    col.names = c("HAAs", "Modeled concentration (ug/L)"))
-
-  return(knitr::kables(list(thms, haas)))
-}
-
-#' Calculate unit conversions for common compounds
-#'
-#' This function takes a value and converts units based on compound name.
+#' @description This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
 #' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
@@ -672,7 +726,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # Determine charge for equivalents
   if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na")) {
     charge <- 1
-  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb")) {
+  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2")) {
     charge <- 2
   } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
     charge <- 3
@@ -717,9 +771,9 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
-#' Calculate hardness from calcium and magnesium
+#' @title Calculate hardness from calcium and magnesium
 #'
-#' This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
+#' @description This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
 #'
 #' @param ca Calcium concentration in mg/L as Ca
 #' @param mg Magnesium concentration in mg/L as Mg
@@ -750,10 +804,11 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
 
 }
 
-#' Add Na, K, Cl, or SO4 to balance overall charge in a water
+#' @title Add Na, K, Cl, or SO4 to balance overall charge in a water
 #'
-#' This function takes a water defined by \code{\link{define_water}} and balances charge. If more cations are needed, sodium
-#' will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
+#' @description This function takes a water defined by \code{\link{define_water}} and balances charge.
+#'
+#' @details If more cations are needed, sodium will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
 #' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
 #' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.

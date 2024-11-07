@@ -1,3 +1,19 @@
+# tidywater 0.3.0
+## Fixes
+* Raw water DBP models do not require UVA
+* Updated incorrect DBP model coefficients
+## New features
+* CaCl2 now included in possible chemical addition.
+## Breaking changes
+* `define_water` now has arguments for "ca" and "mg" and no longer has "ca_hard".
+* `summarize_dbp` and `summarize_corrosion` removed. `summarize_wq` now takes arguments to summarize general, ions, dbps, or corrosion
+
+
+# tidywater 0.2.1
+## Bug fixes
+* Small vignette changes to fix package build.
+
+
 # tidywater 0.2.0
 ## New features
 * TOC removal through coagulation, `chemdose_toc` and matching `_chain` and `_once` helper functions.

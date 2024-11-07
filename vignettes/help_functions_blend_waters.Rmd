@@ -21,7 +21,7 @@ library(dplyr)
 library(ggplot2)
 library(furrr)
 library(purrr)
-plan(multisession)
+# plan(multisession)
 ```
 
 This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information.
@@ -38,7 +38,7 @@ data <- tibble(Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
-  ca_hard = c(5, 10),
+  ca = c(5, 10),
   cond = c(500, 900),
   tds = c(300, 500),
   na = c(100, 200),
@@ -60,7 +60,7 @@ raw_wells_water <- tibble(Well = c("A", "B"),
   ph = c(8, 9),
   alk = c(100, 150),
   temp = c(18, 19),
-  ca_hard = c(5, 10),
+  ca = c(5, 10),
   cond = c(500, 900),
   tds = c(300, 500),
   na = c(100, 200),
