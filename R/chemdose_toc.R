@@ -15,7 +15,7 @@
 #'
 #' @source Edwards (1997)
 #' @source U.S. EPA (2001)
-#' @source See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
@@ -173,7 +173,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'   chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -263,7 +263,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'   chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%

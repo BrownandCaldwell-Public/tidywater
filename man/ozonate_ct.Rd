@@ -7,7 +7,7 @@
 USEPA (2020) Equation 4-4 through 4-7
 https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_508.pdf
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 ozonate_ct(water, time, dose, kd, baffle)

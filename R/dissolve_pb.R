@@ -55,7 +55,7 @@
 #' following conditions: The above copyright notice and this permission notice shall be included in all copies or
 #' substantial portions of the Software.
 #' @source Wahman et al. (2021)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.
@@ -243,7 +243,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")

@@ -204,7 +204,8 @@ As you use more tidywater helper functions with larger data sets, you'll notice 
 
 ```{r, warning=FALSE}
 # For most operating systems, especially Windows, use this at the beginning of your script
-plan(multisession)
+# We recommend revmoving the `workers` argument to use your computer's full power.
+plan(multisession, workers = 2)
 
 # rest of script
 

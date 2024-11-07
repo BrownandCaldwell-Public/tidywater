@@ -13,7 +13,7 @@
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
 #' UV254 concentrations are predicted based on a linear relationship with DOC.
 #'
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
@@ -119,7 +119,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #' shorter run times will not benefit from parallel processing.
 #'
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
@@ -154,7 +154,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'   )
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_once(input_water = "raw", dose = 4, time = 8)
@@ -200,7 +200,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #' shorter run times will not benefit from parallel processing.
 #'
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
@@ -236,7 +236,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'   )
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_chain(input_water = "raw", dose = 4, time = 8)

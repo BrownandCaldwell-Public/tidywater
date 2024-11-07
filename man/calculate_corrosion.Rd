@@ -30,7 +30,7 @@ Trussell (1998)
 
 U.S. EPA (1980)
 
-See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See reference list at \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 calculate_corrosion(

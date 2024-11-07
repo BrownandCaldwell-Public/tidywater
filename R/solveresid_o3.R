@@ -8,7 +8,7 @@
 #' @param time Ozone contact time in minutes
 #'
 #' @source U.S. EPA (2001)
-#' @source See reference list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @examples
 #' ozone_resid <- define_water(7, 20, 100, doc = 2, toc = 2.2, uv254 = .02, br = 50) %>%

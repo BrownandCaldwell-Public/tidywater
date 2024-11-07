@@ -35,7 +35,7 @@
 #' @source Schock (1984)
 #' @source Trussell (1998)
 #' @source U.S. EPA (1980)
-#' @source See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
@@ -251,21 +251,25 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -321,21 +325,25 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
+#'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export
