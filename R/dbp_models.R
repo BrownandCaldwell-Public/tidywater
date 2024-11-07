@@ -36,12 +36,13 @@
 #' @export
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
-  toc = water@toc
-  doc = water@doc
-  uv254 = water@uv254
-  temp = water@temp
-  ph = water@ph
-  br = water@br
+  toc <- water@toc
+  doc <- water@doc
+  uv254 <- water@uv254
+  temp <- water@temp
+  ph <- water@ph
+  # Bromide should be in ug/L for these models
+  br <- convert_units(water@br, "br", "M", "ug/L")
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (treatment == "raw" & (is.na(toc) | is.na(temp) | is.na(ph) | is.na(br))) {
@@ -171,11 +172,15 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     filter(ID %in% c("tthm", "haa5")) # only model tthm and haa5, problems with haa6 and haa9 model outputs being <haa5 with low Br or Cl2
 
   individual_dbp <- corrected_dbp_1 %>%
-    filter(!(ID %in% c("tthm", "haa5")),
-      !(group %in% c("haa6", "haa9"))) %>%
+    filter(
+      !(ID %in% c("tthm", "haa5")),
+      !(group %in% c("haa6", "haa9"))
+    ) %>%
     group_by(group) %>%
-    mutate(sum_group = sum(modeled_dbp),
-      proportion_group = modeled_dbp / sum_group) %>%
+    mutate(
+      sum_group = sum(modeled_dbp),
+      proportion_group = modeled_dbp / sum_group
+    ) %>%
     left_join(bulk_dbp, by = "group", suffix = c("_ind", "_bulk")) %>%
     mutate(modeled_dbp = proportion_group * modeled_dbp_bulk)
 
@@ -191,17 +196,61 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       mutate(modeled_dbp = modeled_dbp * percent)
   }
 
-  water@tthm = corrected_dbp_2 %>% filter(ID == "tthm") %>% {.$modeled_dbp}
-  water@chcl3 = corrected_dbp_2 %>% filter(ID == "chcl3") %>% {.$modeled_dbp}
-  water@chcl2br = corrected_dbp_2 %>% filter(ID == "chcl2br") %>% {.$modeled_dbp}
-  water@chbr2cl = corrected_dbp_2 %>% filter(ID == "chbr2cl") %>% {.$modeled_dbp}
-  water@chbr3 = corrected_dbp_2 %>% filter(ID == "chbr3") %>% {.$modeled_dbp}
-  water@haa5 = corrected_dbp_2 %>% filter(ID == "haa5") %>% {.$modeled_dbp}
-  water@mcaa = corrected_dbp_2 %>% filter(ID == "mcaa") %>% {.$modeled_dbp}
-  water@dcaa = corrected_dbp_2 %>% filter(ID == "dcaa") %>% {.$modeled_dbp}
-  water@tcaa = corrected_dbp_2 %>% filter(ID == "tcaa") %>% {.$modeled_dbp}
-  water@mbaa = corrected_dbp_2 %>% filter(ID == "mbaa") %>% {.$modeled_dbp}
-  water@dbaa = corrected_dbp_2 %>% filter(ID == "dbaa") %>% {.$modeled_dbp}
+  water@tthm <- corrected_dbp_2 %>%
+    filter(ID == "tthm") %>%
+    {
+      .$modeled_dbp
+    }
+  water@chcl3 <- corrected_dbp_2 %>%
+    filter(ID == "chcl3") %>%
+    {
+      .$modeled_dbp
+    }
+  water@chcl2br <- corrected_dbp_2 %>%
+    filter(ID == "chcl2br") %>%
+    {
+      .$modeled_dbp
+    }
+  water@chbr2cl <- corrected_dbp_2 %>%
+    filter(ID == "chbr2cl") %>%
+    {
+      .$modeled_dbp
+    }
+  water@chbr3 <- corrected_dbp_2 %>%
+    filter(ID == "chbr3") %>%
+    {
+      .$modeled_dbp
+    }
+  water@haa5 <- corrected_dbp_2 %>%
+    filter(ID == "haa5") %>%
+    {
+      .$modeled_dbp
+    }
+  water@mcaa <- corrected_dbp_2 %>%
+    filter(ID == "mcaa") %>%
+    {
+      .$modeled_dbp
+    }
+  water@dcaa <- corrected_dbp_2 %>%
+    filter(ID == "dcaa") %>%
+    {
+      .$modeled_dbp
+    }
+  water@tcaa <- corrected_dbp_2 %>%
+    filter(ID == "tcaa") %>%
+    {
+      .$modeled_dbp
+    }
+  water@mbaa <- corrected_dbp_2 %>%
+    filter(ID == "mbaa") %>%
+    {
+      .$modeled_dbp
+    }
+  water@dbaa <- corrected_dbp_2 %>%
+    filter(ID == "dbaa") %>%
+    {
+      .$modeled_dbp
+    }
 
   return(water)
 }

@@ -41,7 +41,6 @@ test_that("chemdose_dbp stops working when inputs are missing", {
   expect_error(chemdose_dbp(water4, cl2 = 4, time = 8)) # missing br
   expect_error(chemdose_dbp(water5, time = 8)) # missing cl2
   expect_error(chemdose_dbp(water5, cl2 = 4)) # missing time
-
 })
 
 

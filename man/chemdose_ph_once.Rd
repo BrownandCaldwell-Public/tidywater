@@ -10,6 +10,7 @@ chemdose_ph_once(
   hcl = 0,
   h2so4 = 0,
   h3po4 = 0,
+  co2 = 0,
   naoh = 0,
   na2co3 = 0,
   nahco3 = 0,
@@ -18,10 +19,11 @@ chemdose_ph_once(
   cl2 = 0,
   naocl = 0,
   caocl2 = 0,
-  co2 = 0,
+  nh4oh = 0,
+  nh42so4 = 0,
   alum = 0,
-  fecl3 = 0,
-  fe2so43 = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
   caco3 = 0
 )
 }
@@ -36,6 +38,8 @@ chemdose_ph_once(
 \item{h2so4}{Sulfuric acid: H2SO4 -> 2H + SO4}
 
 \item{h3po4}{Phosphoric acid: H3PO4 -> 3H + PO4}
+
+\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
 
 \item{naoh}{Caustic: NaOH -> Na + OH}
 
@@ -53,13 +57,15 @@ chemdose_ph_once(
 
 \item{caocl2}{Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl}
 
-\item{co2}{Carbon Dioxide CO2 (gas) + H2O -> H2CO3*}
+\item{nh4oh}{Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH}
+
+\item{nh42so4}{Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4}
 
 \item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{ferricchloride}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+\item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 }
@@ -98,8 +104,10 @@ example_df <- water_df \%>\%
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  mutate(hcl = seq(1, 12, 1),
-    naoh = 20) \%>\%
+  mutate(
+    hcl = seq(1, 12, 1),
+    naoh = 20
+  ) \%>\%
   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 # Initialize parallel processing

@@ -52,8 +52,10 @@ library(dplyr)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  mutate(target_ph = 10,
-    chemical = rep(c("naoh", "mgoh2"), 6)) \%>\%
+  mutate(
+    target_ph = 10,
+    chemical = rep(c("naoh", "mgoh2"), 6)
+  ) \%>\%
   solvedose_ph_once()
 
 example_df <- water_df \%>\%
