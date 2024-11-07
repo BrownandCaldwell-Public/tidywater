@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper_functions.R
 \name{chemdose_ph_once}
 \alias{chemdose_ph_once}
-\title{Apply chemdose_ph function and output a dataframe}
+\title{Apply `chemdose_ph` function and output a dataframe}
 \usage{
 chemdose_ph_once(
   df,
@@ -21,14 +21,15 @@ chemdose_ph_once(
   co2 = 0,
   alum = 0,
   fecl3 = 0,
-  fe2so43 = 0
+  fe2so43 = 0,
+  caco3 = 0
 )
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already
-been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.}
+\item{df}{a data frame containing a water class column, which has already been computed using
+\code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{hcl}{Hydrochloric acid: HCl -> H + Cl}
 
@@ -59,38 +60,57 @@ been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. Th
 \item{fecl3}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
 \item{fe2so43}{Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2}
+
+\item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 }
 \description{
 This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 Its output is a data frame with updated ions and pH.
 }
 \details{
-The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 
 If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 ones specified in the function's arguments.
 The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 
-tidywater functions cannot be added after this function because they require a water class input.
+tidywater functions cannot be added after this function because they require a `water` class input.
+
+ For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
 
-library(dplyr)
 library(purrr)
+library(furrr)
 library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_chain() \%>\%
-chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_ph_once(input_water = "balanced_water", naoh = 5)
 
 example_df <- water_df \%>\%
- define_water_chain() \%>\%
-  balance_ions_chain()\%>\%
-  mutate(hcl = seq(1,12, 1),
-         naoh = 20) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(hcl = seq(1, 12, 1),
+    naoh = 20) \%>\%
   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+
+# Initialize parallel processing
+plan(multisession)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+
+# Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{

@@ -19,8 +19,11 @@ Imports:
     tidyr,
     knitr,
     ggplot2,
+    ggrepel,
     magrittr,
     purrr,
+    furrr,
+    rmarkdown,
     methods
 RoxygenNote: 7.3.1
 Depends: 
@@ -28,3 +31,4 @@ Depends:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

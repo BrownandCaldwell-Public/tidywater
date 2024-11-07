@@ -6,6 +6,7 @@
 ## usethis namespace: start
 #' @import dplyr
 #' @import tidyr
+#' @importFrom magrittr %$%
 ## usethis namespace: end
 NULL
 
@@ -20,15 +21,48 @@ NULL
 "mweights"
 
 
-#' Dissociation constants for weak acids/bases
+#' Dissociation constants and standard enthalpy for weak acids/bases
 #'
-#' A dataset containing the dissociation constants for carbonate, sulfate, phosphate, and hypochlorite
+#' Equilibrium constants (k) and corresponding standard enthalpy of reaction values (deltah) for significant acids in
+#' water influencing pH at equilibrium. Includes carbonate, sulfate, phosphate, and hypochlorite.
+#' Standard enthalpy of reaction is calculated by taking the sum of the enthalpy of formation of each individual component
+#' minus the enthalpy of formation of the final product. e.g., the standard enthalpy of reaction for water can be
+#' calculated as: deltah_h2o = deltah_f_oh + deltah_f_h - deltah_f_h2o = -230 + 0 - (-285.83) = 55.83 kJ/mol.
+#' See MWH (2012) example 5-5 and Benjamin (2002) eq. 2.96.
 #'
 #' @docType data
 #' @keywords datasets
 #' @name discons
-#' @format A dataframe with one row and one column per constant
+#' @format A dataframe with 7 rows and 3 columns
+#' \describe{
+#' \item{ID}{Coefficient type}
+#' \item{k}{Equilibrium constant}
+#' \item{deltah}{Standard enthalpy in J/mol}
+#' }
+#' @source Benjamin (2015) Appendix A.1 and A.2.
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 "discons"
+
+#' Data frame of Edwards model coefficients
+#'
+#' A dataset containing coefficients from the Edwards (1997) model for coagulation TOC removal.
+#'
+#' @docType data
+#' @keywords datasets
+#' @name edwardscoeff
+#' @format A dataframe with 5 rows and 7 columns:
+#' \describe{
+#' \item{ID}{Coefficient type}
+#' \item{x3}{x3 parameter}
+#' \item{x2}{x2 parameter}
+#' \item{x1}{x1 parameter}
+#' \item{k1}{k1 parameter}
+#' \item{k2}{k2 parameter}
+#' \item{b}{b parameter}
+#' }
+#' @source Edwards (1997) Table 2.
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"edwardscoeff"
 
 #' Data frame of water quality parameters
 #'
@@ -54,3 +88,92 @@ NULL
 #' }
 #' @source Fabricated for use in examples.
 "water_df"
+
+#' Data frame of equilibrium constants for lead and copper solubility
+#'
+#' A dataset containing equilibrium constants for lead solubility
+#'
+#' @docType data
+#' @keywords datasets
+#' @name leadsol_constants
+#' @format A dataframe with 38 rows and 3 columns
+#' @format Solids:
+#' \describe{
+#' \item{species_name}{Name of lead solid or complex with possible _letter to cite different references}
+#' \item{constant_name}{Reference ID for constants}
+#' \item{log_value}{Equilibrium constant log value}
+#' \item{source}{Source for equilibrium constant value}
+#' }
+#'
+#' @source Benjamin (2010)
+#' @source Lothenbach et al. (1999)
+#' @source Nasanen & Lindell (1976)
+#' @source Powell et al. (2009)
+#' @source Powell et al. (2005)
+#' @source Schock et al. (1996)
+#' @source Topolska et al. (2016)
+#' @source Xie & Giammar (2007)
+#' @source Zhu et al. (2015)
+#' @source Wahman et al. (2021)
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"leadsol_constants"
+
+#' Data frame of DBP coefficients for predicting DBP formation
+#'
+#' A dataset containing coefficients for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbpcoeffs
+#' @format A dataframe with 30 rows and 10 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{water_type}{specifies which model the constants apply to, either treated or untreated water}
+#' \item{A}{First coefficient in DBP model}
+#' \item{a}{Second coefficient in DBP model, associated with TOC or DOC}
+#' \item{b}{Third coefficient in DBP model, associated with Cl2 }
+#' \item{c}{Fourth coefficient in DBP model, associated with Br-}
+#' \item{d}{Fifth coefficient in DBP model, associated with temperature}
+#' \item{e}{Sixth coefficient in DBP model, associated with pH}
+#' \item{f}{Seventh coefficient in DBP model, associated with reaction time}
+#' }
+#'
+#' @source U.S. EPA (2001)
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"dbpcoeffs"
+
+#' Data frame of conversion factors for estimating DBP formation from chloramines
+#'
+#' A dataset containing conversion factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name conv_chloramine
+#' @format A dataframe with 17 rows and 3 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{percent}{specifies the percent of DBP formation predicted from chloramines compared to chlorine, assuming the same chlorine dose applied}
+#' }
+#' @source U.S. EPA (2001), Table 5-10
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"conv_chloramine"
+
+#' Data frame of correction factors for estimating DBP formation as a function of location
+#'
+#' A dataset containing correction factors for calculating DBP formation
+#'
+#' @docType data
+#' @keywords datasets
+#' @name dbp_correction
+#' @format A dataframe with 17 rows and 4 columns
+#' \describe{
+#' \item{ID}{abbreviation of dbp species}
+#' \item{alias}{full name of dbp species}
+#' \item{plant}{specifies the correction factor for modelling DBP formation within a treatment plant}
+#' \item{ds}{specifies the correction factor for modelling DBP formation within the distribution system}
+#' }
+#' @source U.S. EPA (2001), Table 5-7
+#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+"dbp_correction"

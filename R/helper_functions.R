@@ -5,195 +5,269 @@
 # Reviewers: Sierra Johnson 2/27/24
 
 
-#' Convert water class object to a dataframe
+#' Convert `water` class object to a dataframe
 #'
-#' This converts a water class to a dataframe with individual columns for each slot (water quality parameter) in the water.
+#' This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
 #' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
 #' there may be a `fn_once` tidywater function that provides a more efficient solution.
 #'
-#' @param water A "water" class object
+#'
+#' @param water A water class object
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
 #' library(dplyr)
-#' library(purrr)
 #' library(tidyr)
 #'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
-#' convert_water()
+#'   convert_water()
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' mutate(to_dataframe  = map(defined_water, convert_water)) %>%
-#' unnest(to_dataframe) %>%
-#' select(-defined_water)
+#'   define_water_chain() %>%
+#'   mutate(to_dataframe = map(defined_water, convert_water)) %>%
+#'   unnest(to_dataframe) %>%
+#'   select(-defined_water)
 #'
 #' @export
 
 convert_water <- function(water) {
   nms <- slotNames(water)
   lst <- lapply(nms, function(nm) slot(water, nm))
-  as.data.frame(setNames(lst, nms))
+  as.data.frame(setNames(lst, nms)) %>%
+    select(where(~ any(!is.na(.))))
 }
 
-#' Apply define_water and output a dataframe
+#' Apply `define_water` and output a dataframe
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
 #' It outputs all carbonate calculations and other parameters in a data frame.
-#' tidywater functions cannot be added after this function because they require a water class input.
+#' tidywater functions cannot be added after this function because they require a `water` class input.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>% define_water_once()
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>% define_water_once()
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 define_water_once <- function(df) {
-  ph = df$ph
-  temp =df$temp
-  alk = df$alk
-  tot_hard = df$tot_hard
-  ca_hard = df$ca_hard
-  na = df$na
-  k = df$k
-  cl = df$cl
-  so4 = df$so4
-  tot_ocl = 0 + df$tot_ocl
-  tot_po4 = 0+ df$tot_po4
 
-  df2 <- df %>%
-    select(-c(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4))
+  df %>%
+    define_water_chain() %>%
+    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
+    unnest_wider(defined_df) %>%
+    select(-defined_water) %>%
+    as.data.frame()
 
-  water_to_df <- define_water(ph,temp,alk,tot_hard,ca_hard,na,k,cl,so4, tot_ocl, tot_po4) %>%
-    convert_water()
 }
 
-
-#' Apply define_water within a dataframe and output a column of water class to be chained to other tidywater functions
+#' Apply `define_water` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{define_water}} to be added to a piped data frame.
-#' Its output is a "water" class, and can therefore be chained with "downstream" tidywater functions.
+#' Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined_water".
 #'
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
-#' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_once()
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain(output_water = "This is a column of water") %>%
-#' balance_ions_once(input_water ="This is a column of water")
+#'   define_water_chain() %>%
+#'   balance_ions_once()
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain(output_water = "This is a column of water") %>%
+#'   balance_ions_once(input_water = "This is a column of water")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_once()
+#'
+#' #' #Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 define_water_chain <- function(df, output_water = "defined_water") {
 
-  define_water_args <- c("ph","temp","alk","tot_hard","ca_hard","na","k","cl","so4", "tot_ocl", "tot_po4")
+  define_water_args <- c("ph", "temp", "alk", "tot_hard", "ca_hard", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tds", "cond",
+    "toc", "doc", "uv254", "br")
 
   extras <- df %>%
     select(!any_of(define_water_args))
 
-  output<- df %>%
+  output <- df %>%
     select(any_of(define_water_args)) %>%
-    mutate(!!output_water := purrr::pmap(., define_water)) %>%
+    mutate(!!output_water := furrr::future_pmap(., define_water)) %>%
     select(!any_of(define_water_args)) %>%
     cbind(extras)
 }
 
-#' Apply balance_ions function and output a dataframe
+#' Apply `balance_ions` function and output a dataframe
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 #' Its output is a dataframe with updated ions depending on starting concentrations
-#' tidywater functions cannot be added after this function because they require a water class input.
+#' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
-#' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_once()
+#'   define_water_chain() %>%
+#'   balance_ions_once()
 #'
 #' example_df <- water_df %>%
-#' define_water_chain(output_water = "Different_defined_water_column") %>%
-#' balance_ions_once(input_water = "Different_defined_water_column")
+#'   define_water_chain(output_water = "Different_defined_water_column") %>%
+#'   balance_ions_once(input_water = "Different_defined_water_column")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_once()
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 balance_ions_once <- function(df, input_water = "defined_water") {
 
-  output<- df %>%
-    mutate(balanced_water = purrr::pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
-    mutate(balance_df = purrr::map(balanced_water, convert_water)) %>%
+  output <- df %>%
+    mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
+    mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
 
 }
 
-#' Apply balance_ions within a dataframe and output a column of water class to be chained to other tidywater functions
+#' Apply `balance_ions` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-#' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
 #'
-#' @param df a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "balanced_water".
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "balanced_water".
 #'
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' chemdose_ph_chain(naoh = 5)
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 5)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain(output_water = "balanced ions, balanced life") %>%
-#' chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh =5)
+#'   define_water_chain() %>%
+#'   balance_ions_chain(output_water = "balanced ions, balanced life") %>%
+#'   chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 5)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
 
-  output<- df %>%
-    mutate(!!output_water := purrr::pmap(list(water = !!as.name(input_water)), balance_ions))
+  output <- df %>%
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
 
 }
 
-#' Apply chemdose_ph function and output a dataframe
+#' Apply `chemdose_ph` function and output a dataframe
 #'
 #' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
 #' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 #' ones specified in the function's arguments.
 #' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 #'
-#' tidywater functions cannot be added after this function because they require a water class input.
+#' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
@@ -209,67 +283,81 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_once(input_water = "balanced_water", naoh = 5)
 #'
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'   balance_ions_chain()%>%
-#'   mutate(hcl = seq(1,12, 1),
-#'          naoh = 20) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(hcl = seq(1, 12, 1),
+#'     naoh = 20) %>%
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
-chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
-                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                               cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                               alum = 0, fecl3 = 0, fe2so43 = 0) {
-
-  dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
-                          na2co3, nahco3, caoh2, mgoh2,
-                          cl2, naocl, caocl2, co2,
-                          alum, fecl3, fe2so43)
+chemdose_ph_once <- function(df, input_water = "defined_water",
+                             hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                             na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+                             cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                             alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
 
   output <- df %>%
     chemdose_ph_chain(input_water = input_water, output_water = "dosed_chem_water",
-                      hcl, h2so4, h3po4, naoh,
-                      na2co3, nahco3, caoh2, mgoh2,
-                      cl2, naocl, caocl2, co2,
-                      alum, fecl3, fe2so43) %>%
-    mutate(dose_chem = purrr::map(dosed_chem_water, convert_water)) %>%
+      hcl, h2so4, h3po4, naoh,
+      na2co3, nahco3, caoh2, mgoh2,
+      cl2, naocl, caocl2, co2,
+      alum, fecl3, fe2so43, caco3) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-dosed_chem_water)
 }
 
-#' Apply chemdose_ph within a dataframe and output a column of water class to be chained to other tidywater functions
+#' Apply `chemdose_ph` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-#' Its output is a "water" class, and can therefore be used with "downstream" tidywater functions.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
 #' Ions and pH will be updated based on input chemical doses.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
 #' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
 #' ones specified in the function's arguments.
 #' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
 #' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}} or \code{\link{balance_ions}}. The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "dosed_chem_water".
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
 #' @param hcl Hydrochloric acid: HCl -> H + Cl
 #' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
 #' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
@@ -285,42 +373,54 @@ chemdose_ph_once <- function(df, input_water = "defined_water", hcl = 0, h2so4 =
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #'
 #' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#' define_water_chain() %>%
-#' balance_ions_chain() %>%
-#' chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
 #'
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'   balance_ions_chain()%>%
-#'   mutate(hcl = seq(1,12, 1),
-#'          naoh = 20) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(hcl = seq(1, 12, 1),
+#'     naoh = 20) %>%
 #'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                               hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
-                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                               cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
-                               alum = 0, fecl3 = 0, fe2so43 = 0) {
+                              hcl = 0, h2so4 = 0, h3po4 = 0, naoh = 0,
+                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
+                              cl2 = 0, naocl = 0, caocl2 = 0, co2 = 0,
+                              alum = 0, fecl3 = 0, fe2so43 = 0, caco3 = 0) {
 
   dosable_chems <- tibble(hcl, h2so4, h3po4, naoh,
-                            na2co3, nahco3, caoh2, mgoh2,
-                            cl2, naocl, caocl2, co2,
-                            alum, fecl3, fe2so43)
+    na2co3, nahco3, caoh2, mgoh2,
+    cl2, naocl, caocl2, co2,
+    alum, fecl3, fe2so43, caco3)
 
   chem_inputs_arg <- dosable_chems %>%
-    select_if(~any(. > 0))
+    select_if(~ any(. > 0))
 
   chem_inputs_col <- df %>%
     subset(select = names(df) %in% names(dosable_chems)) %>%
@@ -330,11 +430,11 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
   if (length(chem_inputs_col) - 1 == 0 & length(chem_inputs_arg) == 0) {
     warning("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
 
-  if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) >0){
+  if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) > 0) {
     if (any(names(chem_inputs_arg) %in% names(chem_inputs_col))) {
       stop("At least one chemical was dosed as both a function argument and a data frame column. Remove your chemical(s) from one of these inputs.")}}
 
-if(nrow(chem_inputs_arg) == 1) {
+  if (nrow(chem_inputs_arg) == 1) {
     chem_doses <- chem_inputs_col %>%
       cross_join(chem_inputs_arg)
     # Add missing chemical columns
@@ -343,247 +443,396 @@ if(nrow(chem_inputs_arg) == 1) {
       cross_join(chem_doses) %>%
       mutate(ID = row_number())
 
-  } else if(nrow(chem_inputs_arg) > 1) {
+  } else if (nrow(chem_inputs_arg) > 1) {
 
-    chem_inputs_arg <- chem_inputs_arg %>%
-      mutate(ID = row_number())
     chem_doses <- chem_inputs_col %>%
-      left_join(chem_inputs_arg, by = "ID")
+      cross_join(chem_inputs_arg)
     chem2 <- dosable_chems %>%
       subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-      mutate(ID = row_number()) %>%
-      left_join(chem_doses, by = "ID")
+      unique() %>%
+      cross_join(chem_doses)
   }
 
-  output<- df %>%
+  output <- df %>%
     subset(select = !names(df) %in% names(chem_inputs_col)) %>%
     mutate(ID = row_number()) %>%
     left_join(chem2, by = "ID") %>%
     select(-ID) %>%
-    mutate(!!output_water := purrr::pmap(list(water= !!as.name(input_water),
-                                        hcl = hcl,
-                                        h2so4 = h2so4,
-                                        h3po4 = h3po4,
-                                        naoh= naoh,
-                                        na2co3 = na2co3,
-                                        nahco3 = nahco3,
-                                        caoh2 = caoh2,
-                                        mgoh2 = mgoh2,
-                                        cl2 = cl2,
-                                        naocl = naocl,
-                                        caocl2=caocl2,
-                                        co2=co2,
-                                        alum= alum,
-                                        fecl3= fecl3,
-                                        fe2so43= fe2so43),
-                                   chemdose_ph)) %>%
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
+      hcl = hcl,
+      h2so4 = h2so4,
+      h3po4 = h3po4,
+      naoh = naoh,
+      na2co3 = na2co3,
+      nahco3 = nahco3,
+      caoh2 = caoh2,
+      mgoh2 = mgoh2,
+      cl2 = cl2,
+      naocl = naocl,
+      caocl2 = caocl2,
+      co2 = co2,
+      alum = alum,
+      fecl3 = fecl3,
+      fe2so43 = fe2so43,
+      caco3 = caco3),
+    chemdose_ph)) %>%
     select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
 
 }
 
-
-#' Apply solvedose_ph to a dataframe and create a new column with numeric dose
+#' Apply `solvedose_ph` to a dataframe and create a new column with numeric dose
 #'
 #' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame.
 #' Its output is a chemical dose in mg/L.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'
 #' If the input data frame has column(s) named "target_ph" or "chemical", the function will use the column(s)
 #' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
 #' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
 #' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing doses in mg/L. Default is "dose_required".
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #' @param target_ph set a goal for pH using the function argument or a data frame column
 #' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
 #' @seealso \code{\link{solvedose_ph}}
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'mutate(target_ph = 10,
-#'       chemical = rep(c("naoh", "mgoh2"), 6)) %>%
-#'solvedose_ph_once()
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(target_ph = 10,
+#'     chemical = rep(c("naoh", "mgoh2"), 6)) %>%
+#'   solvedose_ph_once()
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
 #'
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'mutate(target_ph = seq(9, 10.1, .1)) %>%
-#'solvedose_ph_once(chemical = "naoh")
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(target_ph = seq(9, 10.1, .1)) %>%
+#'   solvedose_ph_once(chemical = "naoh")
 #'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(target_ph = seq(9, 10.1, .1)) %>%
+#'   solvedose_ph_once(chemical = "naoh")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
-solvedose_ph_once <- function(df, input_water = "defined_water", output_water = "dose_required", target_ph = NULL, chemical = NULL) {
+solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
 
-  dosable_chems <-  tibble(
-    # hcl = 0, h2so4 = 0, h3po4 = 0,
-                           co2 = 0,
-                           naoh = 0, caoh2 = 0, mgoh2 = 0,
-                           # na2co3 = 0, nahco3 = 0,
-                           # cl2 = 0, naocl = 0, caocl2 = 0,
-                           # alum = 0, fecl3 = 0, fe2so43 = 0
-    )
+  dosable_chems <- tibble(
+    hcl = 0, h2so4 = 0, h3po4 = 0,
+    co2 = 0,
+    naoh = 0, caoh2 = 0, mgoh2 = 0,
+    na2co3 = 0, nahco3 = 0,
+    cl2 = 0, naocl = 0, caocl2 = 0,
+    alum = 0, fecl3 = 0, fe2so43 = 0
+  )
 
   chem <- df %>%
     filter(chemical %in% names(dosable_chems))
 
   if (length(chemical) > 0) {
-     if (!chemical %in% names(dosable_chems)) {
-    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")}}
+    if (!chemical %in% names(dosable_chems)) {
+      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")}}
 
   if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
     stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")}
 
-  if ("target_ph" %in% names(df) & length(target_ph) >0) {
+  if ("target_ph" %in% names(df) & length(target_ph) > 0) {
     stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")}
 
   if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemcial was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
+    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
 
-  output<- chem %>%
+  output <- chem %>%
     mutate(target_ph = target_ph,
-           chemical = chemical) %>%
-    mutate(dose = purrr::pmap(list(water= !!as.name(input_water),
-                                     chemical = chemical,
-                                     target_ph = target_ph),
-                                solvedose_ph)) %>%
-    mutate(!!output_water := as.numeric(dose)) %>%
+      chemical = chemical) %>%
+    mutate(dose = furrr::future_pmap(list(water = !!as.name(input_water),
+      chemical = chemical,
+      target_ph = target_ph),
+    solvedose_ph)) %>%
+    mutate(!!output_column := as.numeric(dose)) %>%
     select(-dose)
 }
 
+#' Apply `solvedose_alk` to a dataframe and create a new column with numeric dose
+#'
+#' This function allows \code{\link{solvedose_alk}} to be added to a piped data frame.
+#' Its output is a chemical dose in mg/L.
+#'
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' If the input data frame has column(s) named "target_alk" or "chemical", the function will use the column(s)
+#' as function argument(s). If these columns aren't present, specify "target_alk" or "chemical" as function arguments.
+#' The chemical names must match the chemical names as displayed in \code{\link{solvedose_alk}}.
+#' To see which chemicals can be dosed, see \code{\link{solvedose_alk}}.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
+#' @param target_alk set a goal for alkalinity using the function argument or a data frame column
+#' @param chemical select the chemical to be used to reach the desired alkalinity using function argument or data frame column
+#' @seealso \code{\link{solvedose_alk}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(target_alk = 300,
+#'     chemical = rep(c("naoh", "na2co3"), 6)) %>%
+#'   solvedose_alk_once()
+#'
+#' # When the selected chemical can't raise the alkalinity, the dose_required will be NA
+#' # For example, soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+#'
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(target_alk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(target_alk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
 
-#' Apply blend_waters to a dataframe and output water as a dataframe
+solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
+
+  dosable_chems <- tibble(
+    hcl = 0, h2so4 = 0, h3po4 = 0,
+    co2 = 0,
+    naoh = 0, caoh2 = 0, mgoh2 = 0,
+    na2co3 = 0, nahco3 = 0
+  )
+
+  chem <- df %>%
+    filter(chemical %in% names(dosable_chems))
+
+  if (length(chemical) > 0) {
+    if (!chemical %in% names(dosable_chems)) {
+      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")}}
+
+  if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
+    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")}
+
+  if ("target_alk" %in% names(df) & length(target_alk) > 0) {
+    stop("Target alkalinity was set as both a function argument and a data frame column. Remove your target alkalinity from one of these inputs.")}
+
+  if ("chemical" %in% names(df) & length(chemical) > 0) {
+    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")}
+
+  output <- chem %>%
+    mutate(target_alk = target_alk,
+      chemical = chemical) %>%
+    mutate(dose = furrr::future_pmap(list(water = !!as.name(input_water),
+      chemical = chemical,
+      target_alk = target_alk),
+    solvedose_alk)) %>%
+    mutate(!!output_column := as.numeric(dose)) %>%
+    select(-dose)
+}
+
+#' Apply `blend_waters` to a dataframe and output `water` slots as a dataframe
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
 #' Its output is a data frame with updated ions and pH.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The Water class columns to use in the function are specified as function arguments. Ratios may be input
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
-#' tidywater functions cannot be added after this function because they require a water class input.
+#' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param waters List of column names containing a Water class to be blended
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}
+#' @param waters List of column names containing a water class to be blended
 #' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
 #'
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'chemdose_ph_chain(naoh = 22) %>%
-#'mutate(ratios1 = .4,
-#'       ratios2 = .6) %>%
-#'blend_waters_once(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"))
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
+#'   mutate(ratios1 = .4,
+#'     ratios2 = .6) %>%
+#'   blend_waters_once(waters = c("defined_water", "dosed"), ratios = c("ratios1", "ratios2"))
 #'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
+#'   blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'chemdose_ph_chain(naoh = 22) %>%
-#'blend_waters_once(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
+#'   blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
 
 blend_waters_once <- function(df, waters, ratios) {
 
-df_subset <- df %>% select(all_of(waters))
+  df_subset <- df %>% select(all_of(waters))
 
-for(row in 1:length(df_subset[[1]])) {
+  for (row in 1:length(df_subset[[1]])) {
 
-  water_vectors <- c()
-  blend_ratios <- c()
+    water_vectors <- c()
+    blend_ratios <- c()
 
-  for(cols in 1:length(df_subset)) {
+    for (cols in 1:length(df_subset)) {
 
-    water_save <- df_subset[[cols]][row]
-    water_vectors <- c(water_vectors, water_save)
+      water_save <- df_subset[[cols]][row]
+      water_vectors <- c(water_vectors, water_save)
 
-    if (is.character(ratios)) {
-      df_ratio <- df %>% select(all_of(ratios))
-      ratio_save <- df_ratio[[cols]][row]
-      blend_ratios <- c(blend_ratios, ratio_save)
-    } else {
-      ratio_save <- ratios[[cols]]
-      blend_ratios <- c(blend_ratios, ratio_save)
+      if (is.character(ratios)) {
+        df_ratio <- df %>% select(all_of(ratios))
+        ratio_save <- df_ratio[[cols]][row]
+        blend_ratios <- c(blend_ratios, ratio_save)
+      } else {
+        ratio_save <- ratios[[cols]]
+        blend_ratios <- c(blend_ratios, ratio_save)
+      }
+
     }
 
+    suppressWarnings(df$blended[row] <- list(blend_waters(water_vectors, blend_ratios)))
   }
 
- df$blended[row] <- list(blend_waters(water_vectors, blend_ratios))
-}
-
   output <- df %>%
-    mutate(blend_df = purrr::map(blended, convert_water)) %>%
+    mutate(blend_df = furrr::future_map(blended, convert_water)) %>%
     unnest_wider(blend_df) %>%
     select(-blended)
 
 }
 
-#' Apply blend_waters within a dataframe and output a column of water class to be chained to other tidywater functions
+#' Apply `blend_waters` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#' Its output is a "water" class with updated ions and pH.
+#' Its output is a `water` class with updated ions and pH.
 #'
-#' The data input comes from a Water class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The Water class columns to use in the function are specified as funciton arguments. Ratios may be input
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
 #' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
 #'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param waters List of column names containing a Water class to be blended
+#' @param df a data frame containing a water class column, which has already
+#' been computed using \code{\link{define_water_chain}},
+#' @param waters List of column names containing a water class to be blended
 #' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "blended_water".
+#' @param output_water name of output column storing updated parameters with the class, water. Default is "blended_water".
 #'
 #' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
 #'
-#' library(dplyr)
 #' library(purrr)
+#' library(furrr)
 #' library(tidyr)
+#' library(dplyr)
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'chemdose_ph_chain(naoh = 22) %>%
-#'mutate(ratios1 = .4,
-#'       ratios2 = .6) %>%
-#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water"), ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22) %>%
+#'   mutate(ratios1 = .4,
+#'     ratios2 = .6) %>%
+#'   blend_waters_chain(waters = c("defined_water", "dosed_chem_water"),
+#'     ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals")
 #'
 #'
-#'example_df <- water_df %>%
-#'define_water_chain() %>%
-#'balance_ions_chain() %>%
-#'chemdose_ph_chain(naoh = 22) %>%
-#'blend_waters_chain(waters = c("defined_water", "dosed_chem_water", "balanced_water"), ratios = c(.2, .3, .5))
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
+#'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
+#'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
 #'
 #' @export
 
@@ -592,14 +841,495 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 
   output <- df %>%
     rowwise() %>%
-    mutate(waters = purrr::pmap(across(all_of(waters)), list),
-           ratios = ifelse(
-             is.numeric(ratios),
-             list(ratios),
-             (list(c_across(all_of(ratios))))
-           )) %>%
+    mutate(waters = furrr::future_pmap(across(all_of(waters)), list),
+      ratios = ifelse(
+        is.numeric(ratios),
+        list(ratios),
+        (list(c_across(all_of(ratios))))
+    )) %>%
     ungroup() %>%
-    mutate(!!output_water := purrr::pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
+    mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
     select(-c(waters, ratios))
 }
 
+
+#' Pluck out a single parameter from a `water` class object
+#'
+#' This function plucks a selected parameter from a column of `water` class objects.
+#' To view multiple parameters, please use one of the "fn_once" functions or \code{\link{convert_water}}.
+#'
+#' @param df a data frame containing a water class column, which has already
+#' been computed using \code{\link{define_water}}
+#' @param input_water name of the column of water class data to be used as the input for this function.
+#' @param parameter water class attribute to view outside the water column
+#' @param output_column name of output column storing the plucked variable's values
+#'
+#' @seealso \code{\link{convert_water}}
+#'
+#' @examples
+#'
+#' library(dplyr)
+#' library(furrr)
+#' library(purrr)
+#' library(tidyr)
+#'
+#' pluck_example <- water_df %>%
+#'   define_water_chain() %>%
+#'   pluck_water(parameter = "tot_co3")
+#'
+#' pluck_example <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   pluck_water(parameter = "na", output_column = "defined_na") %>%
+#'   pluck_water(input_water = "balanced_water", parameter = "na", output_column = "balanced_na")
+#'
+#' plan(multisession)
+#' pluck_example <- water_df %>%
+#'   define_water_chain() %>%
+#'   pluck_water(parameter = "ph")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#' @export
+
+pluck_water <- function(df, input_water = "defined_water", parameter, output_column = NULL) {
+  if (missing(parameter)) {
+    stop("Parameter not specified to pluck.")
+  }
+
+  if (!parameter %in% slotNames("water")) {
+    stop("Parameter doesn't exist in water class.")
+  }
+  if (is.null(output_column)) {
+    output_column = parameter
+  }
+
+  df %>%
+    mutate(!!output_column := furrr::future_map_dbl(!!as.name(input_water), pluck, parameter))
+
+}
+
+#' Apply `dissolve_pb` to a dataframe and create a new column with numeric dose
+#'
+#' This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
+#' Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).
+#'
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' Use the `output_col_solid` and `output_col_result` arguments to name the ouput columns for the controlling lead solid
+#' and total dissolved lead, respectively. The input `water` used for the calculation will be appended to the
+#' start of these output columns. Omit the input `water` in the output columns, set `water_prefix` to FALSE (default is TRUE).
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param output_col_solid name of the output column storing the controlling lead solid. Default is "controlling_solid".
+#' @param output_col_result name of the output column storing dissolved lead in M. Default is "pb".
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Chenge to FALSE to remove the water prefix from output column names.
+#' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
+#' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
+#' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".
+#' @seealso \code{\link{dissolve_pb}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   dissolve_pb_once(input_water = "balanced_water")
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
+                             output_col_result = "pb", hydroxypyromorphite = "Schock",
+                             pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
+
+
+  if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
+    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")}
+
+  if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
+    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")}
+
+  if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
+    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")}
+
+  output <- df %>%
+    mutate(calc = furrr::future_pmap(list(water = !!as.name(input_water),
+      hydroxypyromorphite = hydroxypyromorphite,
+      pyromorphite = pyromorphite,
+      laurionite = laurionite),
+    dissolve_pb)) %>%
+    unnest_wider(calc)
+
+  if (water_prefix) {
+    output <- output %>%
+      rename(!!paste(input_water, output_col_result, sep = "_") := tot_dissolved_pb,
+        !!paste(input_water, output_col_solid, sep = "_") := controlling_solid)
+  } else {
+    output <- output %>%
+      rename(!!output_col_result := tot_dissolved_pb,
+        !!output_col_solid := controlling_solid)
+  }
+}
+
+#' Apply `chemdose_toc` function and output a dataframe
+#'
+#' This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
+#' Its output is a data frame with updated TOC, DOC, and UV254.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' If the input data frame has a column(s) name matching a valid coagulant(s), the function will dose that coagulant(s). Note:
+#' The function can only dose a coagulant as either a column or from the function arguments, not both.
+#'
+#' The column names must match the coagulant names as displayed in \code{\link{chemdose_toc}}.
+#' To see which coagulants can be passed into the function, see \code{\link{chemdose_toc}}.
+#'
+#' tidywater functions cannot be added after this function because they require a `water` class input.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+#' and a column named for the set of coefficients to use.
+#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
+#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
+#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
+#'
+#' @seealso \code{\link{chemdose_toc}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(alum = 30) %>%
+#'   chemdose_toc_once(input_water = "dosed_chem_water")
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(fecl3 = seq(1, 12, 1),
+#'     coeff = "Ferric") %>%
+#'   chemdose_toc_once(input_water = "balanced_water")
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(fecl3 = seq(1, 12, 1)) %>%
+#'   chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+chemdose_toc_once <- function(df, input_water = "defined_water",
+                              alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum") {
+
+  output <- df %>%
+    chemdose_toc_chain(input_water = input_water, output_water = "dosed_chem_water",
+      alum, fecl3, fe2so43, coeff) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    unnest(dose_chem) %>%
+    select(-dosed_chem_water)
+}
+
+#' Apply `chemdose_toc` within a dataframe and output a column of `water` class to be chained to other tidywater functions
+#'
+#' This function allows \code{\link{chemdose_toc}} to be added to a piped data frame.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
+#' TOC, DOC, and UV254 will be updated based on input chemical doses.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' If the input data frame has a coagulant(s) name matching a valid coagulant(s), the function will dose that coagulant(s). Note:
+#' The function can only dose a coagulant either a column or from the function arguments, not both.
+#'
+#' The column names must match the chemical names as displayed in \code{\link{chemdose_toc}}.
+#' To see which chemicals can be passed into the function, see \code{\link{chemdose_toc}}.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+#' and a column named for the set of coefficients to use.
+#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
+#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
+#' @param fecl3 Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param fe2so43 Ferric sulfate Fe2(SO4)3 + 6HCO3 -> 2Fe(OH)3(am) +3SO4 + 6CO2
+#' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
+#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
+#'
+#' @seealso \code{\link{chemdose_toc}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_ph_chain(alum = 30) %>%
+#'   chemdose_toc_chain(input_water = "dosed_chem_water")
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(fecl3 = seq(1, 12, 1),
+#'     coeff = "Ferric") %>%
+#'   chemdose_toc_chain(input_water = "balanced_water")
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(fecl3 = seq(1, 12, 1)) %>%
+#'   chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
+                               alum = 0, fecl3 = 0, fe2so43 = 0, coeff = "Alum") {
+
+  dosable_chems <- tibble(alum, fecl3, fe2so43)
+
+  chem_inputs_arg <- dosable_chems %>%
+    select_if(~ any(. > 0))
+
+  chem_inputs_col <- df %>%
+    subset(select = names(df) %in% names(dosable_chems)) %>%
+    # add row number for joining
+    mutate(ID = row_number())
+
+
+  if (length(chem_inputs_col) - 1 == 0 & length(chem_inputs_arg) == 0) {
+    warning("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")}
+
+  if (length(chem_inputs_col) > 1 & length(chem_inputs_arg) > 0) {
+    stop("Coagulants were dosed as both a function argument and a data frame column. Choose one input method.")}
+  if (length(chem_inputs_col) > 2 | length(chem_inputs_arg) > 1) {
+    stop("Multiple coagulants dosed. Choose one coagulant.")}
+
+  if (length(df$coeff) > 0) {
+    coeff <- tibble(coeff = df$coeff) %>%
+      mutate(ID = row_number())
+  } else {
+    coeff <- tibble(coeff = coeff) %>%
+      mutate(ID = row_number())
+  }
+
+  chem_doses <- chem_inputs_col %>%
+    cross_join(chem_inputs_arg)
+  # Add missing chemical columns
+  chem2 <- dosable_chems %>%
+    subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
+    cross_join(chem_doses) %>%
+    left_join(coeff, by = "ID") %>%
+    fill(coeff, .direction = "updown")
+
+  output <- df %>%
+    subset(select = !names(df) %in% c("alum", "fecl3", "fe2so43", "coeff")) %>%
+    mutate(ID = row_number()) %>%
+    left_join(chem2, by = "ID") %>%
+    select(-ID) %>%
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
+      alum = alum,
+      fecl3 = fecl3,
+      fe2so43 = fe2so43,
+      coeff = coeff),
+    chemdose_toc)) %>%
+    select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
+}
+
+#' Apply `calculate_corrosion` to a dataframe and create new columns with up to 6 corrosion indices
+#'
+#' This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
+#' Up to six additional columns will be added to the dataframe depending on what corrosion/scaling
+#' indices are selected: Aggressive index (AI), Ryznar index (RI), Langelier saturation index (LSI),
+#' Larson-Skold index (LI), chloride-to-sulfate mass ratio (CSMR) & calcium carbonate precipitation potential (CCPP).
+#'
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#' shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, created using \code{\link{define_water}}
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param index The indices to be calculated.
+#'  Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr".
+#'  CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors
+#' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
+#' @seealso \code{\link{calculate_corrosion}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once()
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#'
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+                                     form = "calcite") {
+
+  output <- df %>%
+    calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
+    mutate(index = furrr::future_map(corrosion_indices, convert_water)) %>%
+    unnest(index) %>%
+    select(-corrosion_indices) %>%
+    select_if(~ any(!is.na(.)))
+}
+
+
+#' Apply `calculate_corrosion` to a dataframe and output a column of `water` class to be chained to other tidywater functions.
+#'
+#' This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
+#' Up to six additional columns will be added to the output `water` class column depending on what corrosion/scaling
+#' indices are selected: Aggressive index (AI), Ryznar index (RI), Langelier saturation index (LSI),
+#' Larson-Skold index (LI), chloride-to-sulfate mass ratio (CSMR) & calcium carbonate precipitation potential (CCPP).
+#'
+#'
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The `water` class column to use in the function is specified in the `input_water` argument (default input `water` is "defined_water".
+#' The name of the output `water` class column defaults to  "corrosion_indices", but may be altered using the `output_water` argument.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#' shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a column, defined_water, which has already
+#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param output_water name of output column storing updated indices with the class, water. Default is "corrosion_indices".
+#' @param index The indices to be calculated.
+#'  Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
+#'  CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors
+#' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
+#' @seealso \code{\link{calculate_corrosion}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain()
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+
+#' # Initialize parallel processing
+#' plan(multisession)
+#' example_df <- water_df %>%
+#'  define_water_chain() %>%
+#'  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#'
+#' @export
+
+calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
+                                      index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+                                      form = "calcite") {
+
+  if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
+    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')") }
+
+  index = list(index)
+
+  output <- df %>%
+    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water),
+      index = index,
+      form = form),
+    calculate_corrosion))
+}

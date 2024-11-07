@@ -2,29 +2,49 @@
 % Please edit documentation in R/helper_functions.R
 \name{balance_ions_once}
 \alias{balance_ions_once}
-\title{Apply balance_ions function and output a dataframe}
+\title{Apply `balance_ions` function and output a dataframe}
 \usage{
 balance_ions_once(df, input_water = "defined_water")
 }
 \arguments{
-\item{df}{a data frame containing a column, defined_water, which has already been computed using \code{\link{define_water}}}
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 }
 \description{
 This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 Its output is a dataframe with updated ions depending on starting concentrations
-tidywater functions cannot be added after this function because they require a water class input.
+tidywater functions cannot be added after this function because they require a `water` class input.
+}
+\details{
+For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+ for the option to use parallel processing and speed things up. To initialize parallel processing, use
+ `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+ `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+ shorter run times will not benefit from parallel processing.
 }
 \examples{
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
 
 example_df <- water_df \%>\%
-define_water_chain() \%>\%
-balance_ions_once()
+  define_water_chain() \%>\%
+  balance_ions_once()
 
 example_df <- water_df \%>\%
-define_water_chain(output_water = "Different_defined_water_column") \%>\%
-balance_ions_once(input_water = "Different_defined_water_column")
+  define_water_chain(output_water = "Different_defined_water_column") \%>\%
+  balance_ions_once(input_water = "Different_defined_water_column")
+
+# Initialize parallel processing
+plan(multisession)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_once()
+
+# Optional: explicitly close multisession processing
+plan(sequential)
 
 }
 \seealso{
