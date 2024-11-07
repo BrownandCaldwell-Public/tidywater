@@ -1,12 +1,13 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Models for Drinking Water Treatment Processes
-Version: 0.5.0
+Version: 0.6.0
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
     person("Chris", "Corwin", email = "ccorwin@brwncald.com", role = "aut", comment = c(ORCID = "0000-0002-9462-0352")),
     person("Rachel", "Merrifield", role = "ctb"),
+    person("Mayuri", "Namasivayam", role = "ctb"),
     person("USEPA", role = "cph", comment = "Copyright holder of included TELSS fragments (dissolve_pb function)"),
     person("Brown and Caldwell", role = c("fnd", "cph")
     ))
@@ -36,7 +37,7 @@ Imports:
     furrr,
     methods,
     rlang
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
 Suggests: 

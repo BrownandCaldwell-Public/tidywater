@@ -24,7 +24,7 @@ pac_toc(water, dose, time, type = "bituminous")
 A water class object with post-PAC predicted DOC and UV254.
 }
 \description{
-\code{chemdose_PAC} calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
+Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
 ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
 Required arguments include an object of class "water"
 created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
@@ -36,7 +36,7 @@ The function will calculate DOC concentration by PAC adsorption in drinking wate
 UV254 concentrations are predicted based on a linear relationship with DOC.
 }
 \examples{
-water <- suppressWarnings(define_water(doc = 2.5, uv254 = .05, toc = 1.5)) \%>\%
+water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   pac_toc(dose = 15, time = 50, type = "wood")
 
 }

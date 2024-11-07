@@ -26,7 +26,6 @@
 #' @param cacl2 Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-
 #' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
-#' @param caocl2 Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl
 #' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
 #' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
@@ -67,7 +66,7 @@
 chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
                         na2co3 = 0, nahco3 = 0, caco3 = 0, cacl2 = 0,
-                        cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
+                        cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
                         softening_correction = FALSE) {
   validate_water(water, c("ph", "alk"))
@@ -100,8 +99,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   cl2 <- convert_units(cl2, "cl2")
   # Sodium hypochlorite (NaOCl) as Cl2
   naocl <- convert_units(naocl, "cl2")
-  # Calcium hypochlorite (Ca(OCl)2) as Cl2
-  caocl2 <- convert_units(caocl2, "cl2")
 
   # CaCO3
   caco3 <- convert_units(caco3, "caco3")
@@ -128,7 +125,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@na <- water@na + na_dose
 
   # Total calcium
-  ca_dose <- caoh2 + cacl2 + caocl2 / 2 + caco3
+  ca_dose <- caoh2 + cacl2 + caco3
   dosed_water@ca <- water@ca + ca_dose
 
   # Total magnesium
@@ -152,7 +149,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@tot_po4 <- water@tot_po4 + po4_dose
 
   # Total hypochlorite
-  ocl_dose <- cl2 + naocl + caocl2
+  ocl_dose <- cl2 + naocl
   dosed_water@tot_ocl <- water@tot_ocl + ocl_dose
 
   # Total ammonia
@@ -255,7 +252,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @param mgoh2  Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
-#' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
 #' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
 #' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
@@ -307,7 +303,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 chemdose_ph_once <- function(df, input_water = "defined_water",
                              hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                             cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
+                             cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                              alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
   dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
@@ -315,7 +311,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       input_water = input_water, output_water = "dosed_chem_water",
       hcl, h2so4, h3po4, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
-      cl2, naocl, caocl2, nh4oh, nh42so4,
+      cl2, naocl, nh4oh, nh42so4,
       alum, ferricchloride, ferricsulfate, ach, caco3
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
@@ -357,7 +353,6 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @param mgoh2  Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH
 #' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
-#' @param caocl2 Calcium hypochlorite: Ca(OCl)2 -> Ca + 2OCl
 #' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
 #' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
 #' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
@@ -407,13 +402,13 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                               hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
                               na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                              cl2 = 0, naocl = 0, caocl2 = 0, nh4oh = 0, nh42so4 = 0,
+                              cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
   ID <- NULL # Quiet RCMD check global variable note
   dosable_chems <- tibble(
     hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
-    cl2, naocl, caocl2, nh4oh, nh42so4,
+    cl2, naocl, nh4oh, nh42so4,
     alum, ferricchloride, ferricsulfate, ach, caco3
   )
 
@@ -471,7 +466,6 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         mgoh2 = mgoh2,
         cl2 = cl2,
         naocl = naocl,
-        caocl2 = caocl2,
         nh4oh = nh4oh,
         nh42so4 = nh4oh,
         alum = alum,

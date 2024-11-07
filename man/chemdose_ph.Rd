@@ -19,7 +19,6 @@ chemdose_ph(
   cacl2 = 0,
   cl2 = 0,
   naocl = 0,
-  caocl2 = 0,
   nh4oh = 0,
   nh42so4 = 0,
   alum = 0,
@@ -57,8 +56,6 @@ chemdose_ph(
 \item{cl2}{Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl}
 
 \item{naocl}{Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl}
-
-\item{caocl2}{Amount of calcium hypochlorite added in mg/L as Cl2: Ca(OCl)2 -> Ca + 2OCl}
 
 \item{nh4oh}{Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH}
 
