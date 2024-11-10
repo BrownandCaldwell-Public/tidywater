@@ -48,26 +48,6 @@ mweights <- data.frame(
 
 usethis::use_data(mweights, overwrite = TRUE)
 
-# Acid dissociation constants and corresponding enthalpy
-# Carbonic acid
-discons <- data.frame(
-  ID = c("k1co3", "k2co3"), # H2CO3<-->HCO3- + H+; HCO3<-->CO32- + H+
-  k = c(10^-6.35, 10^-10.33),
-  deltah = c(7700, 14900) # J/mol
-) %>%
-  # Sulfate
-  add_row(ID = "kso4", k = 10^-1.99, deltah = -21900) %>%
-  # Phosphate
-  # H3PO4<-->H+ + H2PO4-; H2PO4-<-->H+ + HPO42-; HPO42--<-->H+ + PO43-
-  add_row(ID = c("k1po4", "k2po4", "k3po4"), k = c(10^-2.16, 10^-7.20, 10^-12.35), deltah = c(-8000, 4200, 14700)) %>%
-  # Hypochlorite
-  add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
-  # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
-rownames(discons) <- discons$ID
-
-usethis::use_data(discons, overwrite = TRUE)
-
 # Dummy data frame for function examples
 
 water_df <- data.frame(
