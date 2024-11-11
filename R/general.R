@@ -247,8 +247,8 @@ plot_ions <- function(water) {
 }
 
 # Internal conversion function
-# If we fail to lookup a unit conversion in our chached table we look here
-# This function is ~20x slower than the chache lookup
+# If we fail to lookup a unit conversion in our cached table we look here
+# This function is ~20x slower than the cache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
   unit_multipliers <- get("unit_multipliers")
   formula_to_charge <- get("formula_to_charge")
