@@ -250,6 +250,7 @@ plot_ions <- function(water) {
 # If we fail to lookup a unit conversion in our chached table we look here
 # This function is ~20x slower than the chache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  unit_multipliers <- formula_to_charge <- NULL # Quiet RCMD check global variable note
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -278,10 +279,10 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
+      (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
     } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-               (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
+      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
@@ -333,8 +334,8 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     value / molar_weight * n_mw
     # same lists
   } else if ((startunit %in% gram_list & endunit %in% gram_list) |
-             (startunit %in% mole_list & endunit %in% mole_list) |
-             (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
+    (startunit %in% mole_list & endunit %in% mole_list) |
+    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     stop("Units not supported")
@@ -361,11 +362,12 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #' @returns A numeric value for the converted parameter.
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  convert_units_cache <- NULL # Quiet RCMD check global variable note
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
     convert_units_private(value, formula, startunit, endunit)
-  }else {
+  } else {
     value * lookup
   }
 }

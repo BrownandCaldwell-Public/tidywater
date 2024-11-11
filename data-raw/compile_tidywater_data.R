@@ -816,43 +816,40 @@ unit_multipliers <- data.frame(
   # required to allow names with slashes
   check.names = FALSE
 )
-usethis::use_data(unit_multipliers, overwrite = TRUE)
 
 # Used as part of convert units
 # Provides a quick lookup of the charge of a given formula
 formula_to_charge <- data.frame(
-"na" = 1,
-"k"=1,
-"cl"=1,
-"hcl"= 1,
-"naoh"= 1,
-"nahco3"= 1,
-"nh4"= 1,
-"f"= 1,
-"br"= 1,
-"bro3"= 1,
-"so4"= 2,
-"caco3"= 2,
-"h2so4"= 2,
-"na2co3"= 2,
-"caoh2"= 2,
-"mgoh2"= 2,
-"mg"= 2,
-"ca"= 2,
-"pb"= 2,
-"cacl2"= 2,
-"mn"= 2,
-"h3po4"= 3,
-"al"= 3,
-"fe"= 3,
-"alum"= 3,
-"fecl3"= 3,
-# TODO ASK SIERRA (fe2so43 is not in mweights)
-# "fe2so43"= 3,
-"po4"= 3
+  "na" = 1,
+  "k" = 1,
+  "cl" = 1,
+  "hcl" = 1,
+  "naoh" = 1,
+  "nahco3" = 1,
+  "nh4" = 1,
+  "f" = 1,
+  "br" = 1,
+  "bro3" = 1,
+  "so4" = 2,
+  "caco3" = 2,
+  "h2so4" = 2,
+  "na2co3" = 2,
+  "caoh2" = 2,
+  "mgoh2" = 2,
+  "mg" = 2,
+  "ca" = 2,
+  "pb" = 2,
+  "cacl2" = 2,
+  "mn" = 2,
+  "h3po4" = 3,
+  "al" = 3,
+  "fe" = 3,
+  "alum" = 3,
+  "fecl3" = 3,
+  # TODO ASK SIERRA (fe2so43 is not in mweights)
+  # "fe2so43"= 3,
+  "po4" = 3
 )
-usethis::use_data(formula_to_charge, overwrite = TRUE)
-
 
 # This function is used to generate a fast lookup table to speed up unit conversions.
 # We precompute all permutations of our normal conversions and store them in a hash map.
@@ -865,12 +862,15 @@ generate_unit_conversions_cache <- function() {
   for (startunit in units) {
     for (endunit in units) {
       for (formula in formulas) {
-        name <- paste(formula,startunit,endunit)
+        name <- paste(formula, startunit, endunit)
         # Not all unit conversions will be valid
         # Try them all and we won't store any that fail
-        try({
-          env[[name]] <- convert_units_private(1.0, formula, startunit, endunit)
-        }, silent = TRUE)
+        try(
+          {
+            env[[name]] <- convert_units_private(1.0, formula, startunit, endunit)
+          },
+          silent = TRUE
+        )
       }
     }
   }
@@ -878,4 +878,5 @@ generate_unit_conversions_cache <- function() {
 }
 
 convert_units_cache <- generate_unit_conversions_cache()
-usethis::use_data(convert_units_cache, overwrite = TRUE)
+
+usethis::use_data(unit_multipliers, formula_to_charge, convert_units_cache, overwrite = TRUE, internal = TRUE)
