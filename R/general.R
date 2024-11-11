@@ -250,7 +250,8 @@ plot_ions <- function(water) {
 # If we fail to lookup a unit conversion in our chached table we look here
 # This function is ~20x slower than the chache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  unit_multipliers <- formula_to_charge <- NULL # Quiet RCMD check global variable note
+  unit_multipliers <- get("unit_multipliers")
+  formula_to_charge <- get("formula_to_charge")
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -362,7 +363,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #' @returns A numeric value for the converted parameter.
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  convert_units_cache <- NULL # Quiet RCMD check global variable note
+  convert_units_cache <- get("convert_units_cache")
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
