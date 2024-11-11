@@ -364,6 +364,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
+  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
