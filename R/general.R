@@ -247,6 +247,7 @@ plot_ions <- function(water) {
 }
 
 # Internal conversion function
+# This function generates a cached table of unit conversions with every combo of formula and units in the compile_tidywater_data file.
 # If we fail to lookup a unit conversion in our cached table we look here
 # This function is ~20x slower than the cache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
