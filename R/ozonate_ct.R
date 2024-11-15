@@ -9,7 +9,7 @@
 #'
 #' @source USEPA (2020) Equation 4-4 through 4-7
 #' https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_508.pdf
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp

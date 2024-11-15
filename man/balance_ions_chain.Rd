@@ -17,6 +17,9 @@ balance_ions_chain(
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "balanced_water".}
 }
+\value{
+A data frame containing a water class column with updated ions to balance water charge.
+}
 \description{
 This function allows \code{\link{balance_ions}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
@@ -45,7 +48,7 @@ example_df <- water_df \%>\%
   chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
 
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%

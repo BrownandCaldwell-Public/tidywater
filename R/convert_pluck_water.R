@@ -54,6 +54,8 @@ convert_water <- function(water) {
 #'
 #' @export
 #'
+#' @returns A data frame containing columns for all non-NA water slots with ions in mg/L.
+
 convert_watermg <- function(water) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")
@@ -116,7 +118,7 @@ convert_watermg <- function(water) {
 #'   balance_ions_chain() %>%
 #'   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 #'
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   pluck_water(parameter = c("ph", "alk"))

@@ -183,17 +183,15 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   mutate(
 #'     target_ph = 10,
 #'     chemical = rep(c("naoh", "mgoh2"), 6)
 #'   ) %>%
-#'   solvedose_ph_once()
+#'   solvedose_ph_once(input_water = "defined_water")
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   solvedose_ph_once(input_water = "balanced_water", target_ph = 8.8, chemical = "naoh")
+#'   solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
 #'
 #'
 #' example_df <- water_df %>%
@@ -201,8 +199,9 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'   mutate(target_ph = seq(9, 10.1, .1)) %>%
 #'   solvedose_ph_once(chemical = "naoh")
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(target_ph = seq(9, 10.1, .1)) %>%
@@ -210,6 +209,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export
@@ -311,8 +311,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+#'   solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
 #'
 #'
 #' example_df <- water_df %>%
@@ -320,8 +319,9 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'   mutate(target_alk = seq(100, 210, 10)) %>%
 #'   solvedose_alk_once(chemical = "na2co3")
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(target_alk = seq(100, 210, 10)) %>%
@@ -329,6 +329,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

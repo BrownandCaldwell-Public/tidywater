@@ -133,7 +133,7 @@ balance_ions <- function(water) {
 #'   balance_ions_once(input_water = "Different_defined_water_column")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_once()
@@ -189,7 +189,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'   chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -200,6 +200,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'
 #' @import dplyr
 #' @export
+#' @returns A data frame containing a water class column with updated ions to balance water charge.
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
   output <- df %>%
