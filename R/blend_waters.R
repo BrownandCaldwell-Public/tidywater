@@ -186,8 +186,9 @@ blend_waters <- function(waters, ratios) {
 #'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
 #'   blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -196,6 +197,7 @@ blend_waters <- function(waters, ratios) {
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
@@ -284,8 +286,9 @@ blend_waters_once <- function(df, waters, ratios) {
 #'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
 #'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -294,6 +297,7 @@ blend_waters_once <- function(df, waters, ratios) {
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

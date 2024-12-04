@@ -21,7 +21,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
     stop("ozonate must be set to TRUE or FALSE.")
   }
 
-  temp = water@temp
+  temp <- water@temp
 
   validate_water(water, "doc")
 

@@ -154,7 +154,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'   )
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_once(input_water = "raw", dose = 4, time = 8)
@@ -236,7 +236,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'   )
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
