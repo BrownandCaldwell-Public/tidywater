@@ -16,6 +16,7 @@ define_water(
   cl,
   so4,
   tot_ocl = 0,
+  tot_nh2cl = 0,
   tot_po4 = 0,
   tot_nh3 = 0,
   tds,
@@ -51,7 +52,9 @@ define_water(
 
 \item{so4}{Sulfate in mg/L SO42-}
 
-\item{tot_ocl}{Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.}
+\item{tot_ocl}{Free chlorine in mg/L as Cl2. Used when a starting water has a free chlorine residual.}
+
+\item{tot_nh2cl}{Monochloramine in mg/L as Cl2. Used when a starting water has a monochloramine residual.}
 
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 

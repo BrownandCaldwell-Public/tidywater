@@ -138,6 +138,7 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   # Convert final result to molar
   water@tot_ocl <- convert_units(ct, "ocl", "mg/L", "M")
+  # water@tot_nh2cl  <- convert_units(ct, __, "mg/L", "M")
 
   return(water)
 }
