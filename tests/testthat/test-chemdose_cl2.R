@@ -33,12 +33,11 @@ test_that("chemdose_cl2 stops working when inputs are missing", {
   water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2))
   water5 <- suppressWarnings(define_water(ph = 8, temp = 25, toc = 3, uv = 0.2))
 
-  expect_error(chemdose_cl2(water1,cl_type = 'chloramine', cl2_dose = 2, time = 1)) # missing uv254
+  expect_error(chemdose_cl2(water1, cl_type = 'chloramine', cl2_dose = 2, time = 1)) # missing uv254
   expect_error(chemdose_cl2(water2, cl2_dose = 2, time = 1, treatment = "coag")) # missing toc
   expect_no_error(suppressWarnings(chemdose_cl2(water3, cl2_dose = 4, time = 0.22, treatment = "coag"))) # raw doesn't require uv
   expect_error(chemdose_cl2(water5, time = 1, treatment = "coag")) # missing cl2_dose
   expect_error(chemdose_cl2(water5, cl2_dose = 4, treatment = "coag")) # missing time
-
 })
 
 test_that("chemdose_cl2 works.", {
@@ -49,11 +48,8 @@ test_that("chemdose_cl2 works.", {
   # water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
   # water6 <- chemdose_cl2(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10)
 
-  expect_equal(signif(water2@tot_ocl,3), 1.83E-5)
-  expect_equal(signif(water3@tot_ocl,3), 4.53E-5)
+  expect_equal(signif(water2@tot_ocl, 3), 1.83E-5)
+  expect_equal(signif(water3@tot_ocl, 3), 4.53E-5)
   # expect_equal(signif(water4@tot_ocl,3), 7.23E-5)
   # expect_equal(signif(water6@tot_ocl,3), 1.1E-4)
 })
-
-
-

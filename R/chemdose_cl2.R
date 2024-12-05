@@ -33,16 +33,15 @@
 #' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 #'
 chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
-
   validate_water(water, c("toc", "uv254"))
 
   toc = water@toc
   uv254 = water@uv254
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
-   if (missing(cl2_dose)) {
+  if (missing(cl2_dose)) {
     stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
-   }
+  }
 
   if (missing(time)) {
     stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
@@ -54,10 +53,9 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   # chlorine decay model
   if (cl_type == "chlorine") {
-
     if (!(treatment %in% c("raw", "coag"))) {
       stop("The treatment type should be 'raw' or 'coag'. Please check the spelling for treatment.")
-     }
+    }
 
     # toc warnings
     if (treatment == "raw" & (toc < 1.2 | toc > 16)) {
@@ -101,18 +99,17 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
     # define function for chlorine decay
     # U.S. EPA (2001) equation 5-113 (raw) and equation 5-117 (coag)
     solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
-      a * cl2_dose * log(cl2_dose/ct) - b * (cl2_dose/uv254)^c *toc * time + cl2_dose - ct
+      a * cl2_dose * log(cl2_dose / ct) - b * (cl2_dose / uv254)^c * toc * time + cl2_dose - ct
     }
 
-  #chloramine decay model
+    # chloramine decay model
   } else if (cl_type == "chloramine") {
-
     # Chloramine code commented out until water slot added. Remove next line once added.
     warning("Chloramine calculations still under development.")
 
 
     # define function for chloramine decay
-    #U.S. EPA (2001) equation 5-120
+    # U.S. EPA (2001) equation 5-120
     # solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
     #   a * cl2_dose * log(cl2_dose/ct) - b * uv254 * time + cl2_dose - ct
     # }
@@ -122,22 +119,21 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
   # if dose is 0, do not run uniroot function
   if (cl2_dose == 0) {
-
     ct <- 0
-
   } else {
+    root_ct <- stats::uniroot(solve_decay,
+      interval = c(0, cl2_dose),
+      a = coeffs$a,
+      b = coeffs$b,
+      c = coeffs$c,
+      cl2_dose = cl2_dose,
+      uv254 = uv254,
+      toc = toc,
+      time = time,
+      tol = 1e-14
+    )
 
-      root_ct <- stats::uniroot(solve_decay, interval = c(0, cl2_dose),
-       a = coeffs$a,
-       b = coeffs$b,
-       c = coeffs$c,
-       cl2_dose = cl2_dose,
-       uv254 = uv254,
-       toc = toc,
-       time = time,
-       tol = 1e-14)
-
-      ct <- root_ct$root
+    ct <- root_ct$root
   }
 
   # Convert final result to molar

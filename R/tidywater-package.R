@@ -227,4 +227,3 @@ NULL
 #'
 #' @source U.S. EPA (2001)
 "cl2coeffs"
-

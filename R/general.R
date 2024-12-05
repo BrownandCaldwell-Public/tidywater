@@ -210,13 +210,14 @@ plot_ions <- function(water) {
   )
 
   ions %>%
-    pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    arrange(type, concentration) %>%
-    mutate(
+    tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
+    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
+    dplyr::arrange(type, concentration) %>%
+    dplyr::mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
+    dplyr::filter(!is.na(concentration)) %>%
     ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
     geom_bar(
       stat = "identity",
