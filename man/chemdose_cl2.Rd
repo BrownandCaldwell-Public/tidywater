@@ -9,12 +9,12 @@ U.S. EPA (2001)
 See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 }
 \usage{
-chemdose_cl2(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine")
+chemdose_cl2(water, cl2, time, treatment = "raw", cl_type = "chlorine")
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
 
-\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+\item{cl2}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 and for doses between 1.11 and 24.7 mg/L for coagulated water.}
 
 \item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
@@ -44,5 +44,5 @@ applied manually be the user based on the output of \code{chemdose_cl2}.
 }
 \examples{
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
-  chemdose_cl2(cl2_dose = 2, time = 8)
+  chemdose_cl2(cl2 = 2, time = 8)
 }
