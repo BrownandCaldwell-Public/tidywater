@@ -789,7 +789,7 @@ usethis::use_data(bromatecoeffs, overwrite = TRUE)
 # Data frame of Cl2 decay coefficients
 
 cl2coeffs <- tibble(
-  treatment = c('chlorine_raw', 'chlorine_coag', 'chloramine'),
+  treatment = c("chlorine_raw", "chlorine_coag", "chloramine"),
   a = c(-0.8147, -0.8404, -0.99),
   b = c(-2.2808, -0.404, -0.015),
   c = c(-1.2971, -0.9108, NA)
