@@ -65,7 +65,6 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
@@ -91,7 +90,7 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' @returns A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
 chemdose_ct_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
-  ID <- NULL # Quiet RCMD check global variable note
+  calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- data.frame(time, residual, baffle) %>%
     select_if(~ any(. > 0))
 
@@ -105,7 +104,7 @@ chemdose_ct_once <- function(df, input_water = "defined_water", time = 0, residu
   }
 
   if (("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) | ("residual" %in% colnames(inputs_arg) & "residual" %in% colnames(inputs_col)) |
-      ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col))) {
+    ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col))) {
     stop("Time, residual, and/or baffle were dosed as both a function argument and a data frame column. Choose one input method.")
   }
 
@@ -139,4 +138,3 @@ chemdose_ct_once <- function(df, input_water = "defined_water", time = 0, residu
       )
   }
 }
-

@@ -25,8 +25,6 @@ chemdose_ct_once(
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
 \item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.}
-
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp}
 }
 \value{
 A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.

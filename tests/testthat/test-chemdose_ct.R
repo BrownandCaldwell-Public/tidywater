@@ -55,10 +55,10 @@ test_that("chemdose_ct_once outputs are the same as base function, chemdose_ct",
     chemdose_ct(time = 30, residual = 5, baffle = .7)
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               chemdose_ct_once(time = 30, residual = 5, baffle = .7))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    chemdose_ct_once(time = 30, residual = 5, baffle = .7))
 
   expect_equal(water1$ct_required, water2$defined_water_ct_required)
 })
@@ -67,10 +67,10 @@ test_that("chemdose_ct_once outputs are the same as base function, chemdose_ct",
 
 test_that("chemdose_ct_once is a data frame", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               chemdose_ct_once(time = 30, residual = 5))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    chemdose_ct_once(time = 30, residual = 5))
 
 
   expect_true(is.data.frame(water1))
@@ -84,17 +84,19 @@ test_that("chemdose_ct_once can use a column and/or function argument for time a
 
   time <- data.frame(time = seq(2, 24, 2))
   water1 <- suppressWarnings(water_df %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               cross_join(time) %>%
-                               chemdose_ct_once(residual = 5, baffle = .5))
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    cross_join(time) %>%
+    chemdose_ct_once(residual = 5, baffle = .5))
 
   water2 <- suppressWarnings(water_df %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               chemdose_ct_once(time = seq(2, 24, 2),
-                                                residual = 5, baffle = .5) %>%
-                               unique())
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    chemdose_ct_once(
+      time = seq(2, 24, 2),
+      residual = 5, baffle = .5
+    ) %>%
+    unique())
 
   water3 <- water_df %>%
     mutate(br = 50) %>%

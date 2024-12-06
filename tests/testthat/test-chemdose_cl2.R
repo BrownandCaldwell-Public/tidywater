@@ -33,7 +33,7 @@ test_that("chemdose_cl2 stops working when inputs are missing", {
   water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2))
   water5 <- suppressWarnings(define_water(ph = 8, temp = 25, toc = 3, uv = 0.2))
 
-  expect_error(chemdose_cl2(water1, cl_type = 'chloramine', cl2 = 2, time = 1)) # missing uv254
+  expect_error(chemdose_cl2(water1, cl_type = "chloramine", cl2 = 2, time = 1)) # missing uv254
   expect_error(chemdose_cl2(water2, cl2 = 2, time = 1, treatment = "coag")) # missing toc
   expect_no_error(suppressWarnings(chemdose_cl2(water3, cl2 = 4, time = 0.22, treatment = "coag"))) # raw doesn't require uv
   expect_error(chemdose_cl2(water5, time = 1, treatment = "coag")) # missing cl2
@@ -59,34 +59,33 @@ test_that("chemdose_cl2 works.", {
 # chemdose_cl2 helpers ----
 test_that("chemdose_cl2_once outputs are the same as base function, chemdose_cl2", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
-                                          tot_hard = 50, ca = 13,
-                                          na = 20, k = 20, cl = 30, so4 = 20,
-                                          tds = 200, cond = 100,
-                                          toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
   )) %>%
     chemdose_cl2(cl2 = 10, time = 8)
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               chemdose_cl2_once(cl2 = 10, time = 8))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    chemdose_cl2_once(cl2 = 10, time = 8))
 
   expect_equal(water1@tot_ocl, water2$tot_ocl)
-
 })
 
 # Check that output is a data frame
 
 test_that("chemdose_cl2_once is a data frame", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_once(
-                                 input_water = "balanced_water",
-                                 cl2 = 5, time = 100
-                               ))
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_once(
+      input_water = "balanced_water",
+      cl2 = 5, time = 100
+    ))
 
   expect_true(is.data.frame(water1))
 })
@@ -95,32 +94,32 @@ test_that("chemdose_cl2_once is a data frame", {
 
 test_that("chemdose_cl2_once can use a column or function argument for chemical dose", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_once(
-                                 input_water = "balanced_water",
-                                 cl2 = 5, time = 100
-                               ))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_once(
+      input_water = "balanced_water",
+      cl2 = 5, time = 100
+    ))
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 cl2 = 5,
-                                 time = 100
-                               ) %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_once(input_water = "balanced_water"))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    mutate(
+      cl2 = 5,
+      time = 100
+    ) %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_once(input_water = "balanced_water"))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               mutate(cl2 = 5) %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_once(input_water = "balanced_water", time = 100))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    mutate(cl2 = 5) %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_once(input_water = "balanced_water", time = 100))
 
   expect_equal(water1$tot_ocl, water2$tot_ocl) # test different ways to input args
   # Test that inputting cl2 and time separately (in column and as an argument)  gives save results
@@ -129,21 +128,21 @@ test_that("chemdose_cl2_once can use a column or function argument for chemical 
 
 test_that("chemdose_cl2_chain outputs are the same as base function, chemdose_cl2", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
-                                          tot_hard = 50, ca = 13,
-                                          na = 20, k = 20, cl = 30, so4 = 20,
-                                          tds = 200, cond = 100,
-                                          toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
   )) %>%
     chemdose_cl2(cl2 = 10, time = 8)
 
   water2 <- suppressWarnings(water_df %>%
-                               mutate(br = 50) %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_cl2_chain(cl2 = 10, time = 8, output_water = "chlor") %>%
-                               pluck_water("chlor", c(
-                                 "tot_ocl"
-                               )))
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_cl2_chain(cl2 = 10, time = 8, output_water = "chlor") %>%
+    pluck_water("chlor", c(
+      "tot_ocl"
+    )))
 
   expect_equal(water1@tot_ocl, water2$chlor_tot_ocl)
 })
@@ -152,23 +151,23 @@ test_that("chemdose_cl2_chain outputs are the same as base function, chemdose_cl
 
 test_that("chemdose_cl2_chain output is list of water class objects, and can handle an ouput_water arg", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 60) %>%
-                               define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_chain(input_water = "balanced_water", time = 8, cl2 = 4))
+    slice(1) %>%
+    mutate(br = 60) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_chain(input_water = "balanced_water", time = 8, cl2 = 4))
 
   water2 <- purrr::pluck(water1, 7, 1)
 
   water3 <- suppressWarnings(water_df %>%
-                               mutate(br = 60) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 cl2 = 4,
-                                 time = 8
-                               ) %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_chain(output_water = "diff_name"))
+    mutate(br = 60) %>%
+    define_water_chain() %>%
+    mutate(
+      cl2 = 4,
+      time = 8
+    ) %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
   expect_equal(names(water3[7]), "diff_name") # check if output_water arg works
@@ -178,33 +177,33 @@ test_that("chemdose_cl2_chain output is list of water class objects, and can han
 
 test_that("chemdose_cl2_chain can use a column or function argument for chemical dose", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_chain(input_water = "balanced_water", time = 120, cl2 = 10) %>%
-                               pluck_water("disinfected_water", c("tot_ocl")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_chain(input_water = "balanced_water", time = 120, cl2 = 10) %>%
+    pluck_water("disinfected_water", c("tot_ocl")))
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 time = 120,
-                                 cl2 = 10,
-                               ) %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_chain(input_water = "balanced_water") %>%
-                               pluck_water("disinfected_water", c("tot_ocl")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    mutate(
+      time = 120,
+      cl2 = 10,
+    ) %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_chain(input_water = "balanced_water") %>%
+    pluck_water("disinfected_water", c("tot_ocl")))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               mutate(time = 120) %>%
-                               balance_ions_chain() %>%
-                               chemdose_cl2_chain(input_water = "balanced_water", cl2 = 10) %>%
-                               pluck_water("disinfected_water", c("tot_ocl")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    mutate(time = 120) %>%
+    balance_ions_chain() %>%
+    chemdose_cl2_chain(input_water = "balanced_water", cl2 = 10) %>%
+    pluck_water("disinfected_water", c("tot_ocl")))
 
   expect_equal(water1$disinfected_water_tot_ocl, water2$disinfected_water_tot_ocl) # test different ways to input args
   # Test that inputting time/cl2 separately (in column and as an argument)  gives save results
@@ -215,11 +214,11 @@ test_that("chemdose_cl2_chain errors with argument + column for same param", {
   water <- water_df %>%
     define_water_chain("water")
   expect_error(water %>%
-                 mutate(cl2 = 5) %>%
-                 chemdose_cl2_chain(input_water = "water", time = 120, cl2 = 10))
+    mutate(cl2 = 5) %>%
+    chemdose_cl2_chain(input_water = "water", time = 120, cl2 = 10))
   expect_error(water %>%
-                 mutate(time = 5) %>%
-                 chemdose_cl2_chain(input_water = "water", time = 120, cl2 = 10))
+    mutate(time = 5) %>%
+    chemdose_cl2_chain(input_water = "water", time = 120, cl2 = 10))
 })
 
 test_that("chemdose_cl2_chain correctly handles arguments with multiple numbers", {
@@ -234,5 +233,3 @@ test_that("chemdose_cl2_chain correctly handles arguments with multiple numbers"
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))
 })
-
-

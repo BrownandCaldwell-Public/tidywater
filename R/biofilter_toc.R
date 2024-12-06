@@ -113,7 +113,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     ebct = c(10,15,20),
+#'     ebct = c(10, 15, 20),
 #'     ozonated = c(rep(TRUE, 3), rep(FALSE, 3))
 #'   ) %>%
 #'   biofilter_toc_once(input_water = "defined_water")
@@ -122,7 +122,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = c(10,20))
+#'   biofilter_toc_once(input_water = "defined_water", ebct = c(10, 20))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -186,7 +186,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     ebct = c(10,15,20)
+#'     ebct = c(10, 15, 20),
 #'     ozonated = c(rep(TRUE, 3), rep(FALSE, 3))
 #'   ) %>%
 #'   biofilter_toc_once(input_water = "defined_water", output_water = "biof")
@@ -195,7 +195,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = c(10,20))
+#'   biofilter_toc_once(input_water = "defined_water", ebct = c(10, 20))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -244,6 +244,3 @@ biofilter_toc_chain <- function(df, input_water = "defined_water", output_water 
       biofilter_toc
     ))
 }
-
-
-

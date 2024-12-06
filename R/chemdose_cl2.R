@@ -35,8 +35,8 @@
 chemdose_cl2 <- function(water, cl2, time, treatment = "raw", cl_type = "chlorine") {
   validate_water(water, c("toc", "uv254"))
 
-  toc = water@toc
-  uv254 = water@uv254
+  toc <- water@toc
+  uv254 <- water@uv254
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2)) {
@@ -229,7 +229,7 @@ chemdose_cl2 <- function(water, cl2, time, treatment = "raw", cl_type = "chlorin
 #' @returns A data frame with updated chlorine residuals.
 
 chemdose_cl2_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
-                                  treatment = "raw", cl_type = "chlorine") {
+                              treatment = "raw", cl_type = "chlorine") {
   temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_cl2_chain(
@@ -368,4 +368,3 @@ chemdose_cl2_chain <- function(df, input_water = "defined_water", output_water =
       chemdose_cl2
     ))
 }
-
