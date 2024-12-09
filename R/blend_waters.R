@@ -109,7 +109,7 @@ blend_waters <- function(waters, ratios) {
   pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
   blended_water@kw <- 10^-pkw
 
-  #Calculate new pH
+  # Calculate new pH
   ph <- solve_ph(blended_water)
   h <- 10^-ph
   blended_water@oh <- blended_water@kw / h
