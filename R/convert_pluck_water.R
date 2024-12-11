@@ -64,7 +64,7 @@ convert_watermg <- function(water) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
   ks <- correct_k(water)
-  h <- 10^-ph
+  h <- 10^-water@ph
 
   water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
   water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
