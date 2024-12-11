@@ -2,12 +2,12 @@
 test_that("most indices won't work without ca, cl, so4", {
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
-  expect_equal(suppressWarnings(calculate_corrosion(water, index = "aggressive"))@aggressive, NA_real_)
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "aggressive")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "ryznar")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "langelier")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "ccpp")))
-  expect_equal(suppressWarnings(calculate_corrosion(water, index = "larsonskold"))@larsonskold, NA_real_)
-  expect_equal(suppressWarnings(calculate_corrosion(water, index = "csmr"))@csmr, NA_real_)
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "larsonskold")))
+  expect_error(suppressWarnings(calculate_corrosion(water, index = "csmr")))
 })
 
 test_that("function catches index typos", {
