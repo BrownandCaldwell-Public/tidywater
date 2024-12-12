@@ -30,7 +30,7 @@
 #'
 #' @returns A data frame of the required CT, actual CT, and giardia log removal.
 
-chemdose_ct <- function(water, time, residual, baffle) {
+solvect_chlorine <- function(water, time, residual, baffle) {
   validate_water(water, c("ph", "temp"))
 
   ph <- water@ph

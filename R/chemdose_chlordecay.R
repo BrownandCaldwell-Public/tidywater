@@ -32,7 +32,7 @@
 #' @export
 #' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 #'
-chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
+chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
   validate_water(water, c("toc", "uv254"))
 
   toc = water@toc
