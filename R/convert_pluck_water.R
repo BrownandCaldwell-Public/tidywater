@@ -77,10 +77,10 @@ convert_watermg <- function(water) {
   water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
-  water@tot_po4 <- water@h2po4/calculate_alpha1_phosphate(h, ks) +  water@hpo4/calculate_alpha2_phosphate(h, ks) + water@po4/calculate_alpha3_phosphate(h, ks)
+  water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
-  water@tot_ocl <- water@ocl/ calculate_alpha1_hypochlorite(h, ks)
-  water@tot_nh3 <- convert_units(water@nh4, "nh4", "M", "mg/L N") / calculate_alpha1_ammonia(h, ks)
+  water@tot_ocl <-  convert_units(water@tot_ocl, "cl2", "M", "mg/L")
+  water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
 
   water@f <- convert_units(water@f, "f", "M", "mg/L")
   water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
