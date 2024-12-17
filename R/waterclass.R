@@ -56,7 +56,6 @@ methods::setClass(
     nh2cl = "numeric", # monochloramine
     nhcl2 = "numeric", # dichloramine
     ncl3 = "numeric", # trichloramine
-    total_chlorine = "numeric", # free + combined chlorine
 
     # Corrosion indices
     aggressive = "numeric",
@@ -121,7 +120,6 @@ methods::setClass(
     h2po4 = NA_real_,
     hpo4 = NA_real_,
     po4 = NA_real_,
-
     nh4 = NA_real_,
     h = NA_real_,
     oh = NA_real_,
@@ -145,7 +143,6 @@ methods::setClass(
     nh2cl = NA_real_, # monochloramine
     nhcl2 = NA_real_, # dichloramine
     ncl3 = NA_real_, # trichloramine
-    total_chlorine = NA_real_, # free + combined chlorine
 
     # Corrosion indices
     aggressive = NA_real_,

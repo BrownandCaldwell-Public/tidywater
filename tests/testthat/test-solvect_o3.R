@@ -1,4 +1,3 @@
-
 test_that("solvect_o3 returns 0's for all outputs when time is 0 or missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ozone <- solvect_o3(water1, time = 0, dose = 3, baffle = .2)
