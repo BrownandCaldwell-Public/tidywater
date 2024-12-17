@@ -66,8 +66,7 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  solvedose_alk_once(input_water = "balanced_water", target_alk = 100, chemical = "na2co3")
+  solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
 
 
 example_df <- water_df \%>\%
@@ -75,8 +74,9 @@ example_df <- water_df \%>\%
   mutate(target_alk = seq(100, 210, 10)) \%>\%
   solvedose_alk_once(chemical = "na2co3")
 
+\donttest{
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(target_alk = seq(100, 210, 10)) \%>\%
@@ -84,6 +84,7 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }
 \seealso{

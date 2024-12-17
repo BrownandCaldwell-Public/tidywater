@@ -70,7 +70,7 @@ example_df <- water_df \%>\%
   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")

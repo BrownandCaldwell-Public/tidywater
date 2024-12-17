@@ -38,7 +38,7 @@ pluck_example <- water_df \%>\%
   balance_ions_chain() \%>\%
   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   pluck_water(parameter = c("ph", "alk"))

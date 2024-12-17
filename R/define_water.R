@@ -248,7 +248,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' example_df <- water_df %>% define_water_once()
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>% define_water_once()
 #'
 #' # Optional: explicitly close multisession processing
@@ -301,7 +301,7 @@ define_water_once <- function(df) {
 #'   balance_ions_once(input_water = "This is a column of water")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_once()
@@ -315,7 +315,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tot_nh4",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )

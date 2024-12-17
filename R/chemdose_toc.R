@@ -173,7 +173,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'   chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -263,7 +263,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'   chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%

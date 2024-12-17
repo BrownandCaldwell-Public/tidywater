@@ -33,7 +33,7 @@ library(dplyr)
 example_df <- water_df \%>\% define_water_once()
 
 # Initialize parallel processing
-plan(multisession)
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\% define_water_once()
 
 # Optional: explicitly close multisession processing

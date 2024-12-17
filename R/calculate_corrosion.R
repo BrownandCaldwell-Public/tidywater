@@ -35,7 +35,7 @@
 #' @source Schock (1984)
 #' @source Trussell (1998)
 #' @source U.S. EPA (1980)
-#' @source See reference list at \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See reference list at \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
@@ -61,7 +61,7 @@
 #' @returns A water class object with updated corrosion and scaling index slots.
 #'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
-  validate_water(water, c())
+
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
     warning("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
   }
@@ -78,6 +78,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # AWWA (1977)
 
   if ("aggressive" %in% index) {
+    validate_water(water, c("ca", "ph", "alk"))
     if (grepl("ca", water@estimated)) {
       warning("Calcium estimated by previous tidywater function, aggressiveness index calculation approximate.")
       water@estimated <- paste0(water@estimated, "_aggressive")
@@ -96,6 +97,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Nguyen et al. (2011)
 
   if ("csmr" %in% index) {
+    validate_water(water, c("cl", "so4"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
       warning("Chloride or sulfate estimated by previous tidywater function, CSMR calculation approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
@@ -115,6 +117,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Larson and Skold (1958)
 
   if ("larsonskold" %in% index) {
+    validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
       warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
@@ -136,6 +139,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # U.S. EPA (1980), equation 4a
 
   if ("langelier" %in% index | "ryznar" %in% index) {
+    validate_water(water, c("temp", "ca", "alk_eq", "hco3", "ph"))
     ks <- correct_k(water)
     pk2co3 <- -log10(ks$k2co3)
     gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
@@ -196,6 +200,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
+    validate_water(water, c("temp", "alk_eq", "ca", "co3"))
     tempa <- water@temp + 273.15
     pkso <- 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     K_so <- 10^-pkso
@@ -251,21 +256,25 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -321,21 +330,25 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain()
 #'
 #' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
+#'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
-#'  define_water_chain() %>%
-#'  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'   define_water_chain() %>%
+#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

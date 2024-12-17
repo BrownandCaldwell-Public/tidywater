@@ -284,7 +284,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -385,7 +385,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 #'
 #' # Initialize parallel processing
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%

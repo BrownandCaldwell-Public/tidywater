@@ -54,6 +54,8 @@ convert_water <- function(water) {
 #'
 #' @export
 #'
+#' @returns A data frame containing columns for all non-NA water slots with ions in mg/L.
+
 convert_watermg <- function(water) {
   if (missing(water)) {
     stop("No source water defined. Create a water using the 'define_water' function.")
@@ -61,10 +63,12 @@ convert_watermg <- function(water) {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using 'define_water'.")
   }
+  ks <- correct_k(water)
+  h <- 10^-water@ph
 
-  water@na <- convert_units(water@na, "na", "M", "mg/L")
   water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
   water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
   water@k <- convert_units(water@k, "k", "M", "mg/L")
   water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
   water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
@@ -73,12 +77,15 @@ convert_watermg <- function(water) {
   water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
+  water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+  water@tot_ocl <-  convert_units(water@tot_ocl, "cl2", "M", "mg/L")
+  water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
 
-  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
   water@f <- convert_units(water@f, "f", "M", "mg/L")
   water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
   water@al <- convert_units(water@al, "al", "M", "mg/L")
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
 
   # These get converted to ug/L instead.
   water@br <- convert_units(water@br, "br", "M", "ug/L")
@@ -116,7 +123,7 @@ convert_watermg <- function(water) {
 #'   balance_ions_chain() %>%
 #'   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
 #'
-#' plan(multisession)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   pluck_water(parameter = c("ph", "alk"))
