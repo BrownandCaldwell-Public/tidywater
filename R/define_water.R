@@ -220,7 +220,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   if (combined_chlorine > 0) {
     # First, find ocl and nh3 in system
     k1 = (.023) # pk = 1.64
-    k2 = (335.3) #pK =
+    k2 = (335.3) # pK =
     k3 = 500 # todo: find number
 
     chloramine_system <- function(vars) {
