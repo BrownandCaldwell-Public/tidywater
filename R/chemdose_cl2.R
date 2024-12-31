@@ -206,7 +206,7 @@ chemdose_cl2 <- function(water, cl2, time, treatment = "raw", cl_type = "chlorin
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
 #'   chemdose_cl2_once(
-#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     input_water = "balanced_water", cl2 = 6, treatment = "coag",
 #'     cl_type = "chloramine"
 #'   )
 #' \donttest{
@@ -304,7 +304,7 @@ chemdose_cl2_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
 #'   chemdose_cl2_chain(
-#'     input_water = "balanced_water", cl = 6, treatment = "coag",
+#'     input_water = "balanced_water", cl2 = 6, treatment = "coag",
 #'     cl_type = "chloramine"
 #'   )
 #'
