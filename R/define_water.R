@@ -317,7 +317,6 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-
     "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"

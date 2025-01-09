@@ -10,7 +10,8 @@
 #' applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 #' no treatment, or "coag" for coagulated water). The function also requires additional water quality
 #' parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
-#' with the calculated total chlorine value stored in the 'free_chlorine' slot. When modeling residual concentrations
+#' with the calculated total chlorine value stored in the 'free_chlorine' or 'combined_chlorine' slot,
+#' depending on what type of chlorine is dosed. When modeling residual concentrations
 #' through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 #' influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
 #' applied manually be the user based on the output of \code{chemdose_cl2}.
@@ -30,13 +31,14 @@
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
 #'   chemdose_chlordecay(cl2_dose = 2, time = 8)
 #' @export
-#' @returns An updated disinfectant residual in the free_chlorine water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
+#' @returns An updated disinfectant residual in the free_chlorine or combined chlorine water slot in units of M.
+#' Use \code{\link{convert_units}} to convert to mg/L.
 #'
 chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
   validate_water(water, c("toc", "uv254"))
 
-  toc = water@toc
-  uv254 = water@uv254
+  toc <- water@toc
+  uv254 <- water@uv254
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2_dose)) {

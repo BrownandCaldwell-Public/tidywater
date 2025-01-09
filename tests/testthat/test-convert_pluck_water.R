@@ -32,7 +32,6 @@ test_that("convert water mg works", {
   expect_equal(3.2, df_water$tot_po4)
   expect_equal(0.54, df_water$tot_nh3)
   expect_equal(2.1, df_water$free_chlorine)
-
 })
 
 ################################################################################*

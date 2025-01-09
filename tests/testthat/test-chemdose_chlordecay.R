@@ -33,7 +33,7 @@ test_that("chemdose_chlordecay stops working when inputs are missing", {
   water4 <- suppressWarnings(define_water(ph = 8, toc = 3, uv = 0.2))
   water5 <- suppressWarnings(define_water(ph = 8, temp = 25, toc = 3, uv = 0.2))
 
-  expect_error(chemdose_chlordecay(water1, cl_type = 'chloramine', cl2_dose = 2, time = 1)) # missing uv254
+  expect_error(chemdose_chlordecay(water1, cl_type = "chloramine", cl2_dose = 2, time = 1)) # missing uv254
   expect_error(chemdose_chlordecay(water2, cl2_dose = 2, time = 1, treatment = "coag")) # missing toc
   expect_no_error(suppressWarnings(chemdose_chlordecay(water3, cl2_dose = 4, time = 0.22, treatment = "coag"))) # raw doesn't require uv
   expect_error(chemdose_chlordecay(water5, time = 1, treatment = "coag")) # missing cl2_dose

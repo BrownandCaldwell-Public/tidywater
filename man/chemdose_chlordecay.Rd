@@ -32,7 +32,8 @@ water that has been coagulated or softened.}
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
 }
 \value{
-An updated disinfectant residual in the free_chlorine water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
+An updated disinfectant residual in the free_chlorine or combined chlorine water slot in units of M.
+Use \code{\link{convert_units}} to convert to mg/L.
 }
 \description{
 \code{chemdose_cl2} calculates the decay of chlorine or chloramine based on the U.S. EPA's
@@ -43,7 +44,8 @@ Required arguments include an object of class "water" created by \code{\link{def
 applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 no treatment, or "coag" for coagulated water). The function also requires additional water quality
 parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
-with the calculated total chlorine value stored in the 'free_chlorine' slot. When modeling residual concentrations
+with the calculated total chlorine value stored in the 'free_chlorine' or 'combined_chlorine' slot,
+depending on what type of chlorine is dosed. When modeling residual concentrations
 through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
 applied manually be the user based on the output of \code{chemdose_cl2}.
