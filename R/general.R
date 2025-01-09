@@ -335,7 +335,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop(paste("Chemical formula not supported", formula, "hi"))
+    stop(paste("Chemical formula", formula, "not supported"))
   }
 
   # Determine charge for equivalents
