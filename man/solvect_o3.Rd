@@ -39,9 +39,9 @@ instantaneous demand.
 
 # Use kd from experimental data (recommended):
 define_water(ph = 7.5, temp = 25) \%>\%
-  ozonate_ct(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
+  solvect_o3(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
 define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
-  ozonate_ct(time = 10, dose = 2, baffle = 0.5)
+  solvect_o3(time = 10, dose = 2, baffle = 0.5)
 
 }
 \seealso{

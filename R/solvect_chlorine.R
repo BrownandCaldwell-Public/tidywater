@@ -25,7 +25,7 @@
 #' @examples
 #'
 #' example_ct <- define_water(ph = 7.5, temp = 25) %>%
-#'   chemdose_ct(time = 30, residual = 1, baffle = 0.7)
+#'   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
 #' @export
 #'
 #' @returns A data frame of the required CT, actual CT, and giardia log removal.

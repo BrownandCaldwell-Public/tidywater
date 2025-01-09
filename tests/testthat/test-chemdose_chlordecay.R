@@ -48,8 +48,8 @@ test_that("chemdose_chlordecay works.", {
   # water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
   # water6 <- chemdose_chlordecay(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10)
 
-  expect_equal(signif(water2@tot_ocl, 3), 1.83E-5)
-  expect_equal(signif(water3@tot_ocl, 3), 4.53E-5)
-  # expect_equal(signif(water4@tot_ocl,3), 7.23E-5)
-  # expect_equal(signif(water6@tot_ocl,3), 1.1E-4)
+  expect_equal(signif(water2@free_chlorine, 3), 1.83E-5)
+  expect_equal(signif(water3@free_chlorine, 3), 4.53E-5)
+  # expect_equal(signif(water4@free_chlorine,3), 7.23E-5)
+  # expect_equal(signif(water6@free_chlorine,3), 1.1E-4)
 })

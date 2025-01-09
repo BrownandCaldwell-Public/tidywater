@@ -85,7 +85,7 @@ water_df <- data.frame(
   k = rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
   so4 = rep(c(20, 40, 60, 80), 3),
-  tot_ocl = rep(c(0, 1), 6),
+  free_chlorine = rep(c(0, 1), 6),
   tot_po4 = rep(c(0, 0, 1), 4),
   tds = rep(c(200, 100, NA), 4),
   cond = rep(c(100, 150, NA), 4),

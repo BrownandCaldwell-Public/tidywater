@@ -10,7 +10,7 @@
 #' applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 #' no treatment, or "coag" for coagulated water). The function also requires additional water quality
 #' parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
-#' with the calculated total chlorine value stored in the 'tot_ocl' slot. When modeling residual concentrations
+#' with the calculated total chlorine value stored in the 'free_chlorine' slot. When modeling residual concentrations
 #' through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 #' influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
 #' applied manually be the user based on the output of \code{chemdose_cl2}.
@@ -28,9 +28,9 @@
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
-#'   chemdose_cl2(cl2_dose = 2, time = 8)
+#'   chemdose_chlordecay(cl2_dose = 2, time = 8)
 #' @export
-#' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
+#' @returns An updated disinfectant residual in the free_chlorine water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
 #'
 chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
   validate_water(water, c("toc", "uv254"))
@@ -137,8 +137,8 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   }
 
   # Convert final result to molar
-  water@tot_ocl <- convert_units(ct, "ocl", "mg/L", "M")
-  # water@tot_nh2cl  <- convert_units(ct, __, "mg/L", "M")
+  water@free_chlorine <- convert_units(ct, "ocl", "mg/L", "M")
+  # water@combined_chlorine  <- convert_units(ct, __, "mg/L", "M")
 
   return(water)
 }
