@@ -216,40 +216,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
-  # Chloramine speciation
-  if (combined_chlorine > 0) {
-    # First, find ocl and nh3 in system
-    k1 = (.023) # pk = 1.64
-    k2 = (335.3) # pK =
-    k3 = 500 # todo: find number
-
-    chloramine_system <- function(vars) {
-      NH3 <- vars[1]
-      OCl <- vars[2]
-
-      NH2Cl <- (k1 * NH3 * h * OCl) / ks$kocl
-      NHCl2 <- (k1 * k2 * NH3 * h^2 * OCl^2) / ks$kocl^2
-      NCl3 <- (k1 * k2 * k3 * NH3 * h^3 * OCl^3) / ks$kocl^3
-
-      total_chloramines_calc <- NH2Cl + NHCl2 + NCl3
-
-      return(c(total_chloramines_calc - total_chloramines))
-    }
-
-    solution <- rootSolve::multiroot(f = chloramine_system, start = c(1e-3, 1e-3))
-
-    water@ocl = solution$root[2]
-    water@nh3 = solution$root[1]
-    water@nh2cl = (k1 * water@nh3 * h * water@ocl) / ks$kocl # monochloramine
-    water@nhcl2 = (k1 * k2 * water@nh3 * h^2 * water@ocl^2) / ks$kocl^2 # dichloramine
-    water@ncl3 = (k1 * k2 * k3 * water@nh3 * h^3 * water@ocl^3) / ks$kocl^3 # trichloramine
-  } else {
-    water@nh2cl = 0
-    water@nhcl2 = 0
-    water@ncl3 = 0
-  }
-
-
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
   water@alk_eq <- carb_alk_eq
 
