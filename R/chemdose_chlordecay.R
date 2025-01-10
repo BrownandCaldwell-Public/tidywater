@@ -106,17 +106,13 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
     # chloramine decay model
   } else if (cl_type == "chloramine") {
-    # Chloramine code commented out until water slot added. Remove next line once added.
-    warning("Chloramine calculations still under development.")
-
-
     # define function for chloramine decay
     # U.S. EPA (2001) equation 5-120
-    # solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
-    #   a * cl2_dose * log(cl2_dose/ct) - b * uv254 * time + cl2_dose - ct
-    # }
-    #
-    # coeffs <- subset(cl2coeffs, treatment == "chloramine")
+    solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
+      a * cl2_dose * log(cl2_dose / ct) - b * uv254 * time + cl2_dose - ct
+    }
+
+    coeffs <- subset(cl2coeffs, treatment == "chloramine")
   }
 
   # if dose is 0, do not run uniroot function
@@ -139,8 +135,12 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   }
 
   # Convert final result to molar
-  water@free_chlorine <- convert_units(ct, "ocl", "mg/L", "M")
-  # water@combined_chlorine  <- convert_units(ct, __, "mg/L", "M")
+  if (cl_type == "chlorine") {
+    water@free_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+  } else if (cl_type == "chloramine") {
+    water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+  }
+
 
   return(water)
 }
