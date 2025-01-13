@@ -112,7 +112,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
       a * cl2_dose * log(cl2_dose / ct) - b * uv254 * time + cl2_dose - ct
     }
 
-    coeffs <- subset(cl2coeffs, treatment == "chloramine")
+    coeffs <- subset(tidywater::cl2coeffs, treatment == "chloramine")
   }
 
   # if dose is 0, do not run uniroot function
