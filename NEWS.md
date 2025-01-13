@@ -1,7 +1,7 @@
 # development version
 
 ## New features
-* chlorine and chloramine decay
+* chlorine and chloramine decay: `chemdose_chlordecay`
 * New water slots for chloramine chemistry: `combined_chlorine`, `nh2cl`, `nhcl2`, `ncl3`
 
 ## Breaking changes
