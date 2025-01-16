@@ -79,7 +79,8 @@ convert_watermg <- function(water) {
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
   water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
-  water@tot_ocl <-  convert_units(water@tot_ocl, "cl2", "M", "mg/L")
+  water@free_chlorine <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
+  water@combined_chlorine <- convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
 
   water@f <- convert_units(water@f, "f", "M", "mg/L")

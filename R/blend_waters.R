@@ -133,7 +133,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@hpo4 <- blended_water@tot_po4 * alpha2p
   blended_water@po4 <- blended_water@tot_po4 * alpha3p
 
-  blended_water@ocl <- blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
+  blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
   blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 

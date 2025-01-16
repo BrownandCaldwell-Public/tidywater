@@ -137,7 +137,7 @@ test_that("K temp correction returns a value close to K.", {
 test_that("Ionic strength calc in define water works.", {
   water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
 
-  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
+  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl) * 1^2 +
     (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
     (water@po4) * 3^2)
   expect_equal(signif(water@is, 3), signif(is_calced, 3))
