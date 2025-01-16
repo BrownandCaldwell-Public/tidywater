@@ -1,7 +1,14 @@
 # development version
 
 ## New features
-* chlorine and chloramine decay
+* chlorine and chloramine decay: `chemdose_chlordecay`
+* New water slots for chloramine chemistry: `combined_chlorine`, `nh2cl`, `nhcl2`, `ncl3`
+
+## Breaking changes
+* `chemdose_ct` renamed `solvect_chlorine`
+* `ozonate_ct` renamed `solvect_o3`
+* `tot_ocl` slot in water renamed `free_chlorine`
+* `define_water` argument changes: `tot_ocl` changed to `free_chlorine`, added `combined_chlorine`
 
 # tidywater 0.6.2
 

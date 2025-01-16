@@ -10,7 +10,8 @@
 #' applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 #' no treatment, or "coag" for coagulated water). The function also requires additional water quality
 #' parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
-#' with the calculated total chlorine value stored in the 'tot_ocl' slot. When modeling residual concentrations
+#' with the calculated total chlorine value stored in the 'free_chlorine' or 'combined_chlorine' slot,
+#' depending on what type of chlorine is dosed. When modeling residual concentrations
 #' through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 #' influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
 #' applied manually be the user based on the output of \code{chemdose_cl2}.
@@ -28,15 +29,16 @@
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
-#'   chemdose_cl2(cl2_dose = 2, time = 8)
+#'   chemdose_chlordecay(cl2_dose = 2, time = 8)
 #' @export
-#' @returns An updated disinfectant residual in the tot_ocl water slot in units of M. Use \code{\link{convert_units}} to convert to mg/L.
+#' @returns An updated disinfectant residual in the free_chlorine or combined chlorine water slot in units of M.
+#' Use \code{\link{convert_units}} to convert to mg/L.
 #'
-chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
+chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
   validate_water(water, c("toc", "uv254"))
 
-  toc = water@toc
-  uv254 = water@uv254
+  toc <- water@toc
+  uv254 <- water@uv254
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2_dose)) {
@@ -104,17 +106,13 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
 
     # chloramine decay model
   } else if (cl_type == "chloramine") {
-    # Chloramine code commented out until water slot added. Remove next line once added.
-    warning("Chloramine calculations still under development.")
-
-
     # define function for chloramine decay
     # U.S. EPA (2001) equation 5-120
-    # solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
-    #   a * cl2_dose * log(cl2_dose/ct) - b * uv254 * time + cl2_dose - ct
-    # }
-    #
-    # coeffs <- subset(cl2coeffs, treatment == "chloramine")
+    solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
+      a * cl2_dose * log(cl2_dose / ct) - b * uv254 * time + cl2_dose - ct
+    }
+
+    coeffs <- subset(tidywater::cl2coeffs, treatment == "chloramine")
   }
 
   # if dose is 0, do not run uniroot function
@@ -137,7 +135,12 @@ chemdose_cl2 <- function(water, cl2_dose, time, treatment = "raw", cl_type = "ch
   }
 
   # Convert final result to molar
-  water@tot_ocl <- convert_units(ct, "ocl", "mg/L", "M")
+  if (cl_type == "chlorine") {
+    water@free_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+  } else if (cl_type == "chloramine") {
+    water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+  }
+
 
   return(water)
 }

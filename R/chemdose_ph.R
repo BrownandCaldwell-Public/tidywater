@@ -150,7 +150,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 
   # Total hypochlorite
   ocl_dose <- cl2 + naocl
-  dosed_water@tot_ocl <- water@tot_ocl + ocl_dose
+  dosed_water@free_chlorine <- water@free_chlorine + ocl_dose
 
   # Total ammonia
   nh4_dose <- nh4oh + 2 * nh42so4
@@ -199,7 +199,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@hpo4 <- dosed_water@tot_po4 * alpha2p
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
 
-  dosed_water@ocl <- dosed_water@tot_ocl * calculate_alpha1_hypochlorite(h, ks)
+  dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
   # Calculate new alkalinity

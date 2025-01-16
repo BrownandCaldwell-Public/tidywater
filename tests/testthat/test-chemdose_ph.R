@@ -89,7 +89,7 @@ test_that("Phosphate dose works as expected.", {
 })
 
 test_that("Starting chlorine residual does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_ocl = 1) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 1) %>%
     chemdose_ph())
 
   water2 <- water1 %>%
