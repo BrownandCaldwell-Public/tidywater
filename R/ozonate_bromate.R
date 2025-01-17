@@ -247,7 +247,7 @@ ozonate_bromate_chain <- function(df, input_water = "defined_water", output_wate
   inputs_arg <- cross_join(tibble(dose), tibble(time)) %>%
     select_if(~ any(. > 0))
 
-  if(length(model) > 1) {
+  if (length(model) > 1) {
     inputs_arg <- inputs_arg %>%
       cross_join(tibble(model))
   }
@@ -262,8 +262,8 @@ ozonate_bromate_chain <- function(df, input_water = "defined_water", output_wate
   }
 
   if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-      ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) |
-      ("model" %in% colnames(inputs_arg) & "model" %in% colnames(inputs_col))) {
+    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) |
+    ("model" %in% colnames(inputs_arg) & "model" %in% colnames(inputs_col))) {
     stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
   }
 

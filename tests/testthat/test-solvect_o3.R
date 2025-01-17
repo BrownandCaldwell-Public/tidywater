@@ -71,3 +71,65 @@ test_that("solvect_o3 works.", {
   expect_equal(round(ozone2$vlog_removal, 2), 20.64)
   expect_equal(round(ozone2$clog_removal, 2), 0.60)
 })
+
+# HELPERS ----
+test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
+  water1 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  )) %>%
+    solvect_o3(time = 10, dose = 5, kd = -0.5, baffle = .7)
+
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_chain() %>%
+                               solvect_o3_once(time = 10, dose = 5, kd = -0.5, baffle = .7))
+
+  expect_equal(water1$glog_removal, water2$defined_water_glog_removal)
+})
+
+# Check that output is a data frame
+
+test_that("solvect_o3_once is a data frame", {
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_chain() %>%
+                               solvect_o3_once(time = 10, dose = 5, kd = -0.5, baffle = .7))
+
+
+  expect_true(is.data.frame(water1))
+})
+
+# Check solvect_o3_once can use a column or function argument for chemical residual
+
+test_that("solvect_o3_once can use a column and/or function argument for time and residual", {
+  water0 <- water_df %>%
+    slice(1:4) %>%
+    define_water_chain()
+
+  time <- data.frame(time = seq(2, 10, 2))
+  water1 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               cross_join(time) %>%
+                               solvect_o3_once(dose = 5, kd = -0.5, baffle = .7))
+
+  water2 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               solvect_o3_once(
+                                 time = seq(2, 10, 2),
+                                 dose = 5, kd = -0.5, baffle = .7
+                               ) %>%
+                               unique())
+
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    cross_join(time) %>%
+    solvect_o3_once(dose = c(5, 8), kd = -0.5, baffle = .7)
+
+  expect_equal(water1$defined_water_glog_removal, water2$defined_water_glog_removal) # test different ways to input time
+  expect_equal(ncol(water3), ncol(water0) + 4 + 4)
+  expect_equal(nrow(water3), 120) # joined correctly
+})
+

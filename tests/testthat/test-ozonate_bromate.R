@@ -68,18 +68,18 @@ test_that("ozonate_bromate works.", {
 # ozonate_bromate helpers ----
 test_that("ozonate_bromate_once outputs are the same as base function, ozonate_bromate", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
-                                          tot_hard = 50, ca = 13,
-                                          na = 20, k = 20, cl = 30, so4 = 20,
-                                          tds = 200, cond = 100,
-                                          toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
   )) %>%
     ozonate_bromate(dose = 5, time = 8)
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_once(dose = 5, time = 8))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    ozonate_bromate_once(dose = 5, time = 8))
 
   expect_equal(water1@bro3, water2$bro3)
 })
@@ -88,12 +88,12 @@ test_that("ozonate_bromate_once outputs are the same as base function, ozonate_b
 
 test_that("ozonate_bromate_once is a data frame", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_once(
-                                 dose = 3, time = 10
-                               ))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    ozonate_bromate_once(
+      dose = 3, time = 10
+    ))
 
   expect_true(is.data.frame(water1))
 })
@@ -102,28 +102,28 @@ test_that("ozonate_bromate_once is a data frame", {
 
 test_that("ozonate_bromate_once can use a column or function argument for chemical dose", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_once(
-                                 dose = 3, time = 5
-                               ))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    ozonate_bromate_once(
+      dose = 3, time = 5
+    ))
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 dose = 3,
-                                 time = 5
-                               ) %>%
-                               ozonate_bromate_once())
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    mutate(
+      dose = 3,
+      time = 5
+    ) %>%
+    ozonate_bromate_once())
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 50) %>%
-                               define_water_chain() %>%
-                               mutate(dose = 3) %>%
-                               ozonate_bromate_once(time = 5))
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    mutate(dose = 3) %>%
+    ozonate_bromate_once(time = 5))
 
   expect_equal(water1$bro3, water2$bro3) # test different ways to input args
   # Test that inputting dose and time separately (in column and as an argument)  gives save results
@@ -132,21 +132,21 @@ test_that("ozonate_bromate_once can use a column or function argument for chemic
 
 test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_bromate", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
-                                          tot_hard = 50, ca = 13,
-                                          na = 20, k = 20, cl = 30, so4 = 20,
-                                          tds = 200, cond = 100,
-                                          toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
   )) %>%
     ozonate_bromate(dose = 3, time = 5)
 
   water2 <- suppressWarnings(water_df %>%
-                               mutate(br = 50) %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_chain(dose = 3, time = 5, output_water = "ozone") %>%
-                               pluck_water("ozone", c(
-                                 "bro3"
-                               )))
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    ozonate_bromate_chain(dose = 3, time = 5, output_water = "ozone") %>%
+    pluck_water("ozone", c(
+      "bro3"
+    )))
 
   expect_equal(water1@bro3, water2$ozone_bro3)
 })
@@ -155,54 +155,54 @@ test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_
 
 test_that("ozonate_bromate_chain output is list of water class objects, and can handle an ouput_water arg", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 60) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_chain(time = 5, dose = 3))
+    slice(1) %>%
+    mutate(br = 60) %>%
+    define_water_chain() %>%
+    ozonate_bromate_chain(time = 5, dose = 3))
 
-  water2 <- purrr::pluck(water1, 5, 1)
+  water2 <- purrr::pluck(water1, 4, 1)
 
   water3 <- suppressWarnings(water_df %>%
-                               mutate(br = 60) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 dose = 3,
-                                 time = 5
-                               ) %>%
-                               ozonate_bromate_chain(output_water = "diff_name"))
+    mutate(br = 60) %>%
+    define_water_chain() %>%
+    mutate(
+      dose = 3,
+      time = 5
+    ) %>%
+    ozonate_bromate_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
 })
 
 # Check ozonate_bromate_chain can use a column or function argument for chemical dose
 
 test_that("ozonate_bromate_chain can use a column or function argument for chemical dose, time", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain("watta") %>%
-                               ozonate_bromate_chain(input_water = "watta", time = 5, dose = 3) %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain("watta") %>%
+    ozonate_bromate_chain(input_water = "watta", time = 5, dose = 3) %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               mutate(
-                                 time = 5,
-                                 dose = 3,
-                               ) %>%
-                               ozonate_bromate_chain() %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    mutate(
+      time = 5,
+      dose = 3,
+    ) %>%
+    ozonate_bromate_chain() %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               mutate(time = 5) %>%
-                               ozonate_bromate_chain(dose = 3) %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    mutate(time = 5) %>%
+    ozonate_bromate_chain(dose = 3) %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   expect_equal(water1$ozonated_water_bro3, water2$ozonated_water_bro3) # test different ways to input args
   # Test that inputting time/dose separately (in column and as an argument)  gives save results
@@ -211,26 +211,26 @@ test_that("ozonate_bromate_chain can use a column or function argument for chemi
 
 test_that("ozonate_bromate_chain multiple models", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               cross_join(tibble(model = c("Sohn", "Galey"))) %>%
-                               ozonate_bromate_chain(time = 5, dose = 3) %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    cross_join(tibble(model = c("Sohn", "Galey"))) %>%
+    ozonate_bromate_chain(time = 5, dose = 3) %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_chain(time = 5, dose = 3, model = "Sohn") %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    ozonate_bromate_chain(time = 5, dose = 3, model = "Sohn") %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(br = 80) %>%
-                               define_water_chain() %>%
-                               ozonate_bromate_chain(time = 5, dose = 3, model = c("Sohn", "Galey")) %>%
-                               pluck_water("ozonated_water", c("bro3")))
+    slice(1) %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    ozonate_bromate_chain(time = 5, dose = 3, model = c("Sohn", "Galey")) %>%
+    pluck_water("ozonated_water", c("bro3")))
 
   expect_equal(water1$ozonated_water_bro3[1], water2$ozonated_water_bro3) # test different ways to input args
   expect_equal(water1$ozonated_water_bro3, water3$ozonated_water_bro3)
@@ -240,11 +240,11 @@ test_that("ozonate_bromate_chain errors with argument + column for same param", 
   water <- water_df %>%
     define_water_chain("water")
   expect_error(water %>%
-                 mutate(dose = 5) %>%
-                 ozonate_bromate_chain(input_water = "water", time = 5, dose = 5))
+    mutate(dose = 5) %>%
+    ozonate_bromate_chain(input_water = "water", time = 5, dose = 5))
   expect_error(water %>%
-                 mutate(time = 5) %>%
-                 ozonate_bromate_chain(input_water = "water", time = 5, dose = 5))
+    mutate(time = 5) %>%
+    ozonate_bromate_chain(input_water = "water", time = 5, dose = 5))
 })
 
 test_that("ozonate_bromate_chain correctly handles arguments with multiple values", {
@@ -254,12 +254,10 @@ test_that("ozonate_bromate_chain correctly handles arguments with multiple value
     define_water_chain()
 
   water1 <- water %>%
-    ozonate_bromate_chain(time = c(5, 10), dose = c(1,2,5))
+    ozonate_bromate_chain(time = c(5, 10), dose = c(1, 2, 5))
   water2 <- water %>%
-    ozonate_bromate_chain(time = 5, dose = c(2,5), model = c("Sohn", "Galey"))
+    ozonate_bromate_chain(time = 5, dose = c(2, 5), model = c("Sohn", "Galey"))
 
   expect_equal(nrow(water) * 6, nrow(water1))
   expect_equal(nrow(water) * 4, nrow(water2))
 })
-
-

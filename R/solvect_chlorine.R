@@ -50,7 +50,7 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 }
 
 
-#' Apply `solvect_chlorine` to a data frame and create a new column with residual ozone dose
+#' Apply `solvect_chlorine` to a data frame and create new columns with ct and log removals.
 #'
 #' This function allows \code{\link{solvect_chlorine}} to be added to a piped data frame.
 #' Three additional columns will be added to the data frame; ct_required (mg/L*min), ct_actual (mg/L*min), glog_removal
