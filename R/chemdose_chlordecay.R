@@ -20,7 +20,7 @@
 #' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
-#' @param cl2 Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+#' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 #' and for doses between 1.11 and 24.7 mg/L for coagulated water.
 #' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
 #' does not have specified boundary conditions.

@@ -20,6 +20,9 @@ chemdose_chlordecay(
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
 
+\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+and for doses between 1.11 and 24.7 mg/L for coagulated water.}
+
 \item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
 does not have specified boundary conditions.}
 
@@ -27,9 +30,6 @@ does not have specified boundary conditions.}
 water that has been coagulated or softened.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
-
-\item{cl2}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
-and for doses between 1.11 and 24.7 mg/L for coagulated water.}
 }
 \value{
 An updated disinfectant residual in the free_chlorine or combined chlorine water slot in units of M.
