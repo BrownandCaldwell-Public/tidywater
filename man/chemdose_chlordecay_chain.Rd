@@ -8,7 +8,7 @@ chemdose_chlordecay_chain(
   df,
   input_water = "defined_water",
   output_water = "disinfected_water",
-  cl2 = 0,
+  cl2_dose = 0,
   time = 0,
   treatment = "raw",
   cl_type = "chlorine"
@@ -16,14 +16,14 @@ chemdose_chlordecay_chain(
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using
-\code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2),
+\code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2_dose),
 and a column for time.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 
-\item{cl2}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 and for doses between 1.11 and 24.7 mg/L for coagulated water.}
 
 \item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
@@ -38,17 +38,15 @@ water that has been coagulated or softened.}
 A data frame containing a water class column with updated chlorine residuals.
 }
 \description{
-DBP = disinfection byproduct
-}
-\details{
 This function allows \code{\link{chemdose_chlordecay}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-tot_ocl or tot_nh2cl slots will be updated depending on chlorine type.
+free_chlorine or combined_chlorine slots will be updated depending on chlorine type.
+}
+\details{
+The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
 
-The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-
-If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+If the input data frame has a chlorine dose column (cl2_dose) or time column (time), the function will use those columns. Note:
+The function can only take cl2_dose and time inputs as EITHER a column or from the function arguments, not both.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -67,14 +65,14 @@ example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   mutate(
-    cl2 = seq(2, 24, 2),
+    cl2_dose = seq(2, 24, 2),
     time = 30
   ) \%>\%
   chemdose_chlordecay_chain(input_water = "balanced_water")
@@ -85,7 +83,7 @@ example_df <- water_df \%>\%
   balance_ions_chain() \%>\%
   mutate(time = 8) \%>\%
   chemdose_chlordecay_chain(
-    input_water = "balanced_water", cl2 = 6, treatment = "coag",
+    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
     cl_type = "chloramine"
   )
 
@@ -96,7 +94,7 @@ example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
 plan(sequential)

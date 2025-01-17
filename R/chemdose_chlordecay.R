@@ -150,7 +150,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' Apply `chemdose_chlordecay`function within a data frame and output a data frame
 #'
 #' This function allows \code{\link{chemdose_chlordecay}} to be added to a piped data frame.
-#' Its output is a data frame containing columns for total OCl or NH2Cl (depending on chlorine type).
+#' Its output is a data frame containing columns for free_chlorine or combined_chlorine (depending on chlorine type).
 #'
 #' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
 #'
@@ -169,7 +169,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param cl2 Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+#' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2_dose). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 #' and for doses between 1.11 and 24.7 mg/L for coagulated water.
 #' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
 #' does not have specified boundary conditions.
@@ -190,14 +190,14 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_chlordecay_once(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_chlordecay_once(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
-#'     cl2 = seq(2, 24, 2),
+#'     cl2_dose = seq(2, 24, 2),
 #'     time = 30
 #'   ) %>%
 #'   chemdose_chlordecay_once(input_water = "balanced_water")
@@ -208,7 +208,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
 #'   chemdose_chlordecay_once(
-#'     input_water = "balanced_water", cl2 = 6, treatment = "coag",
+#'     input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
 #'     cl_type = "chloramine"
 #'   )
 #' \donttest{
@@ -218,7 +218,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_chlordecay_once(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_chlordecay_once(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -230,13 +230,13 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' @returns A data frame with updated chlorine residuals.
 
-chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
+chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = 0, time = 0,
                                      treatment = "raw", cl_type = "chlorine") {
   temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_chlordecay_chain(
       input_water = input_water, output_water = "temp_cl2",
-      cl2, time, treatment, cl_type
+      cl2_dose, time, treatment, cl_type
     ) %>%
     mutate(chlor = furrr::future_map(temp_cl2, convert_water)) %>%
     unnest(chlor) %>%
@@ -245,16 +245,14 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 
 #' Apply `chemdose_chlordecay` within a data frame and output a column of `water` class to be chained to other tidywater functions
 #'
-#' DBP = disinfection byproduct
-#'
 #' This function allows \code{\link{chemdose_chlordecay}} to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' tot_ocl or tot_nh2cl slots will be updated depending on chlorine type.
+#' free_chlorine or combined_chlorine slots will be updated depending on chlorine type.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
 #'
-#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+#' If the input data frame has a chlorine dose column (cl2_dose) or time column (time), the function will use those columns. Note:
+#' The function can only take cl2_dose and time inputs as EITHER a column or from the function arguments, not both.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -263,11 +261,11 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 #'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2),
+#' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2_dose),
 #' and a column for time.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
-#' @param cl2 Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+#' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 #' and for doses between 1.11 and 24.7 mg/L for coagulated water.
 #' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
 #' does not have specified boundary conditions.
@@ -288,14 +286,14 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
-#'     cl2 = seq(2, 24, 2),
+#'     cl2_dose = seq(2, 24, 2),
 #'     time = 30
 #'   ) %>%
 #'   chemdose_chlordecay_chain(input_water = "balanced_water")
@@ -306,7 +304,7 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 #'   balance_ions_chain() %>%
 #'   mutate(time = 8) %>%
 #'   chemdose_chlordecay_chain(
-#'     input_water = "balanced_water", cl2 = 6, treatment = "coag",
+#'     input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
 #'     cl_type = "chloramine"
 #'   )
 #'
@@ -317,7 +315,7 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
-#'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -329,21 +327,21 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2 = 0,
 #' @returns A data frame containing a water class column with updated chlorine residuals.
 
 chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                                      cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine") {
+                                      cl2_dose = 0, time = 0, treatment = "raw", cl_type = "chlorine") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(cl2, time) %>%
+  inputs_arg <- tibble(cl2_dose, time) %>%
     select_if(~ any(. > 0))
 
   inputs_col <- df %>%
-    subset(select = names(df) %in% c("cl2", "time")) %>%
+    subset(select = names(df) %in% c("cl2_dose", "time")) %>%
     # add row number for joining
     mutate(ID = row_number())
 
   if (length(inputs_col) < 2 & length(inputs_arg) == 0) {
-    warning("Cl2 and/or time arguments missing. Add them as a column or function argument.")
+    warning("cl2_dose and/or time arguments missing. Add them as a column or function argument.")
   }
 
-  if (("cl2" %in% colnames(inputs_arg) & "cl2" %in% colnames(inputs_col)) | ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
+  if (("cl2_dose" %in% colnames(inputs_arg) & "cl2_dose" %in% colnames(inputs_col)) | ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
     stop("Chlorine and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
   }
 
@@ -351,7 +349,7 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
     cross_join(inputs_arg)
 
   output <- df %>%
-    subset(select = !names(df) %in% c("cl2", "time")) %>%
+    subset(select = !names(df) %in% c("cl2_dose", "time")) %>%
     mutate(
       ID = row_number(),
       treatment = treatment,
@@ -362,7 +360,7 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        cl2 = cl2,
+        cl2_dose = cl2_dose,
         time = time,
         treatment = treatment,
         cl_type = cl_type
