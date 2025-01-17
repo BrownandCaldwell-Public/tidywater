@@ -190,7 +190,7 @@ test_that("biofilter_toc_chain can use a column or function argument for chemica
     slice(1) %>%
     define_water_chain() %>%
     biofilter_toc_chain(ebct = 10) %>%
-    pluck_water("biofiltered_water", c("tot_ocl"))
+    pluck_water("biofiltered_water", c("doc"))
 
   water2 <- water_df %>%
     slice(1) %>%
@@ -199,18 +199,18 @@ test_that("biofilter_toc_chain can use a column or function argument for chemica
       ebct = 10,
     ) %>%
     biofilter_toc_chain() %>%
-    pluck_water("biofiltered_water", c("tot_ocl"))
+    pluck_water("biofiltered_water", c("doc"))
 
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     mutate(time = 120) %>%
     biofilter_toc_chain(ebct = 10) %>%
-    pluck_water("biofiltered_water", c("tot_ocl"))
+    pluck_water("biofiltered_water", c("doc"))
 
-  expect_equal(water1$disinfected_water_tot_ocl, water2$disinfected_water_tot_ocl) # test different ways to input args
+  expect_equal(water1$biofiltered_water_doc, water2$biofiltered_water_doc) # test different ways to input args
   # Test that inputting time/ebct separately (in column and as an argument)  gives save results
-  expect_equal(water1$disinfected_water_tot_ocl, water3$disinfected_water_tot_ocl)
+  expect_equal(water1$biofiltered_water_doc, water3$biofiltered_water_doc)
 })
 
 test_that("biofilter_toc_chain errors with argument + column for same param", {

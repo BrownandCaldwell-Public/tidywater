@@ -113,7 +113,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     ebct = rep(c(10, 15, 20),4),
+#'     ebct = rep(c(10, 15, 20), 4),
 #'     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
 #'   ) %>%
 #'   biofilter_toc_once(input_water = "defined_water")

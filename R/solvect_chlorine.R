@@ -25,12 +25,12 @@
 #' @examples
 #'
 #' example_ct <- define_water(ph = 7.5, temp = 25) %>%
-#'   chemdose_ct(time = 30, residual = 1, baffle = 0.7)
+#'   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
 #' @export
 #'
 #' @returns A data frame of the required CT, actual CT, and giardia log removal.
 
-chemdose_ct <- function(water, time, residual, baffle) {
+solvect_chlorine <- function(water, time, residual, baffle) {
   validate_water(water, c("ph", "temp"))
 
   ph <- water@ph
@@ -50,9 +50,9 @@ chemdose_ct <- function(water, time, residual, baffle) {
 }
 
 
-#' Apply `chemdose_ct` to a data frame and create a new column with residual ozone dose
+#' Apply `solvect_chlorine` to a data frame and create a new column with residual ozone dose
 #'
-#' This function allows \code{\link{chemdose_ct}} to be added to a piped data frame.
+#' This function allows \code{\link{solvect_chlorine}} to be added to a piped data frame.
 #' Three additional columns will be added to the data frame; ct_required (mg/L*min), ct_actual (mg/L*min), glog_removal
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}}.
@@ -74,7 +74,7 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #' library(dplyr)
 #' ct_calc <- water_df %>%
 #'   define_water_chain() %>%
-#'   chemdose_ct_once(residual = 2, time = 10)
+#'   solvect_chlorine_once(residual = 2, time = 10)
 #'
 #' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
@@ -83,13 +83,13 @@ chemdose_ct <- function(water, time, residual, baffle) {
 #'     dose = seq(1, 12, 1),
 #'     time = seq(2, 24, 2)
 #'   ) %>%
-#'   chemdose_ct_once()
+#'   solvect_chlorine_once()
 #'
 #' @import dplyr
 #' @export
 #' @returns A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
-chemdose_ct_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
+solvect_chlorine_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- data.frame(time, residual, baffle) %>%
     select_if(~ any(. > 0))
@@ -125,7 +125,7 @@ chemdose_ct_once <- function(df, input_water = "defined_water", time = 0, residu
         residual = residual,
         baffle = baffle
       ),
-      chemdose_ct
+      solvect_chlorine
     )) %>%
     unnest_wider(calc)
 

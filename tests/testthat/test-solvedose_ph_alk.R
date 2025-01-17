@@ -35,7 +35,7 @@ test_that("Solve dose pH doesn't error when target pH is close to starting.", {
 
   water2 <- define_water(
     ph = 7.99, temp = 19, alk = 150, tot_hard = 100,
-    ca = 26, mg = 8, tot_ocl = 1, tds = 200
+    ca = 26, mg = 8, free_chlorine = 1, tds = 200
   )
 
   expect_no_error(solvedose_ph(water2, 8, "naoh"))
