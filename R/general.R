@@ -447,24 +447,6 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
-#' Convert mg/L of chemical to lb/day
-#'
-#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
-#'
-#' @param dose Chemical dose in mg/L as chemical
-#' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100 percent.
-#'
-#' @examples
-#' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
-#'
-#' @export
-#' @returns  A numeric value for the chemical mass in lb/day.
-#'
-solvemass_chem <- function(dose, flow, strength = 100) {
-  dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
-}
-
 # Non-exported functions -----
 
 validate_water <- function(water, slots) {
