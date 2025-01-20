@@ -488,6 +488,45 @@ validate_water <- function(water, slots) {
   }
 }
 
+construct_helper <- function(df, num_arguments, str_arguments) {
+  all_arguments <- c(names(num_arguments), names(str_arguments))
+
+  inputs_arg <- do.call(expand.grid, num_arguments) %>%
+    select_if(~ any(. > 0))
+
+  if (any(sapply(str_arguments, length) > 1)) {
+    inputs_arg <- inputs_arg %>%
+      cross_join(do.call(expand.grid, str_arguments))
+  }
+
+  inputs_col <- df %>%
+    subset(select = names(df) %in% all_arguments) %>%
+    # add row number for joining
+    mutate(ID = row_number())
+
+  if (length(inputs_col) < length(num_arguments) & length(inputs_arg) == 0) {
+    warning("Arguments missing. Add them as a column or function argument.")
+  }
+
+  if (any(all_arguments %in% colnames(inputs_arg) & all_arguments %in% colnames(inputs_col))) {
+    stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
+  }
+
+  arguments <- inputs_col %>%
+    cross_join(inputs_arg)
+  if (!all(all_arguments %in% colnames(arguments))) {
+    missing_args <- do.call(expand.grid, num_arguments) %>%
+      cross_join(do.call(expand.grid, str_arguments)) %>%
+      subset(select = !names(.) %in% names(arguments)) %>%
+      unique()
+    arguments <- arguments %>%
+      cross_join(missing_args)
+  }
+
+  return(arguments)
+}
+
+
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate

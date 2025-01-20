@@ -62,7 +62,7 @@ example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain("raw") \%>\%
   mutate(
-    dose = seq(1, 5, .5),
+    dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
     time = 10
   ) \%>\%
   ozonate_bromate_once(input_water = "raw")

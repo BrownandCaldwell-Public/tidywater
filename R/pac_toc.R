@@ -252,33 +252,15 @@ pac_toc_once <- function(df, input_water = "defined_water",
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = 0, time = 0, type = "bituminous") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(dose, time) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("dose", "time")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 3 & length(inputs_arg) == 0) {
-    warning("dose, time, or type arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
-    stop("Dose and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  dose_time <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
 
   output <- df %>%
     subset(select = !names(df) %in% c("dose", "time", "type")) %>%
     mutate(
-      ID = row_number(),
-      type = type
+      ID = row_number()
     ) %>%
-    left_join(dose_time, by = "ID") %>%
+    left_join(arguments, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(

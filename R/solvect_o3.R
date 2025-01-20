@@ -100,8 +100,8 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     dose = seq(1,4,1),
-#'     time = seq(2,10,2),
+#'     dose = rep(seq(1, 4, 1), 3),
+#'     time = rep(seq(2, 8, 2), 3),
 #'     baffle = .5
 #'   ) %>%
 #'   solvect_o3_once()
@@ -111,7 +111,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @returns A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
 solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 0, kd = 0, baffle = 0, water_prefix = TRUE) {
-  calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
+  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- ID <- NULL # Quiet RCMD check global variable note
   inputs_arg <- expand.grid(time = time, dose = dose, kd = kd, baffle = baffle) %>%
     select_if(~ any(. != 0))
 
@@ -125,7 +125,7 @@ solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 
   }
 
   if (("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) | ("residual" %in% colnames(inputs_arg) & "residual" %in% colnames(inputs_col)) |
-      ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col)) | "kd" %in% colnames(inputs_arg) & "kd" %in% colnames(inputs_col)) {
+    ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col)) | "kd" %in% colnames(inputs_arg) & "kd" %in% colnames(inputs_col)) {
     stop("Time, dose, kd, and/or baffle were dosed as both a function argument and a data frame column. Choose one input method.")
   }
 
@@ -161,4 +161,3 @@ solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 
       )
   }
 }
-

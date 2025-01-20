@@ -123,7 +123,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #'   mutate(br = 50) %>%
 #'   define_water_chain("raw") %>%
 #'   mutate(
-#'     dose = seq(1, 5, .5),
+#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
 #'     time = 10
 #'   ) %>%
 #'   ozonate_bromate_once(input_water = "raw")
@@ -210,7 +210,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     dose = seq(1, 3, .5),
+#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
 #'     time = 30
 #'   ) %>%
 #'   ozonate_bromate_chain()
@@ -243,32 +243,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = 0, time = 0, model = "Ozekin") {
   ID <- NULL # Quiet RCMD check global variable note
-
-  inputs_arg <- cross_join(tibble(dose), tibble(time)) %>%
-    select_if(~ any(. > 0))
-
-  if (length(model) > 1) {
-    inputs_arg <- inputs_arg %>%
-      cross_join(tibble(model))
-  }
-
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("dose", "time", "model")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 3 & length(inputs_arg) == 0) {
-    warning("Arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) |
-    ("model" %in% colnames(inputs_arg) & "model" %in% colnames(inputs_col))) {
-    stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("model" = model))
 
   output <- df %>%
     subset(select = !names(df) %in% c("dose", "time", "model")) %>%

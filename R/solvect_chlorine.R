@@ -91,7 +91,7 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 
 solvect_chlorine_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- data.frame(time, residual, baffle) %>%
+  inputs_arg <- expand.grid(time = time, residual = residual, baffle = baffle) %>%
     select_if(~ any(. > 0))
 
   inputs_col <- df %>%
@@ -112,7 +112,7 @@ solvect_chlorine_once <- function(df, input_water = "defined_water", time = 0, r
     cross_join(inputs_arg)
 
   output <- df %>%
-    subset(select = !names(df) %in% c("dose", "time")) %>%
+    subset(select = !names(df) %in% c("time", "residual", "baffle")) %>%
     mutate(
       ID = row_number()
     ) %>%

@@ -93,16 +93,14 @@ test_that("chemdose_chlordecay_once is a data frame", {
 # Check chemdose_chlordecay_once can use a column or function argument for chemical dose
 
 test_that("chemdose_chlordecay_once can use a column or function argument for chemical dose", {
-  water1 <- suppressWarnings(water_df %>%
+  water1 <- water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
     chemdose_chlordecay_once(
-      input_water = "balanced_water",
       cl2_dose = 5, time = 100
-    ))
-  water2 <- suppressWarnings(water_df %>%
+    )
+  water2 <- water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
@@ -110,16 +108,14 @@ test_that("chemdose_chlordecay_once can use a column or function argument for ch
       cl2_dose = 5,
       time = 100
     ) %>%
-    balance_ions_chain() %>%
-    chemdose_chlordecay_once(input_water = "balanced_water"))
+    chemdose_chlordecay_once()
 
-  water3 <- suppressWarnings(water_df %>%
+  water3 <- water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
     mutate(cl2_dose = 5) %>%
-    balance_ions_chain() %>%
-    chemdose_chlordecay_once(input_water = "balanced_water", time = 100))
+    chemdose_chlordecay_once(time = 100)
 
   expect_equal(water1$free_chlorine, water2$free_chlorine) # test different ways to input args
   # Test that inputting cl2_dose and time separately (in column and as an argument)  gives save results
@@ -150,14 +146,13 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_chlordecay_chain output is list of water class objects, and can handle an ouput_water arg", {
-  water1 <- suppressWarnings(water_df %>%
+  water1 <- water_df %>%
     slice(1) %>%
     mutate(br = 60) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_chlordecay_chain(input_water = "balanced_water", time = 8, cl2_dose = 4))
+    chemdose_chlordecay_chain(time = 8, cl2_dose = 4)
 
-  water2 <- purrr::pluck(water1, 7, 1)
+  water2 <- purrr::pluck(water1, 6, 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
@@ -166,11 +161,10 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
       cl2_dose = 4,
       time = 8
     ) %>%
-    balance_ions_chain() %>%
     chemdose_chlordecay_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[7]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[6]), "diff_name") # check if output_water arg works
 })
 
 # Check chemdose_chlordecay_chain can use a column or function argument for chemical dose

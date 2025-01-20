@@ -208,30 +208,13 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
                                 ebct = 0, ozonated = TRUE) {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(ebct) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("ebct")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 1 & length(inputs_arg) == 0) {
-    warning("EBCT argument missing. Add as a column or function argument.")
-  }
-
-  if (("ebct" %in% colnames(inputs_arg) & "ebct" %in% colnames(inputs_col))) {
-    stop("EBCT was added as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("ebct" = ebct), list("ozonated" = ozonated))
 
   output <- df %>%
-    subset(select = !names(df) %in% c("ebct")) %>%
+    subset(select = !names(df) %in% c("ebct", "ozonated")) %>%
     mutate(
-      ID = row_number(),
-      ozonated = ozonated
+      ID = row_number()
     ) %>%
     left_join(arguments, by = "ID") %>%
     select(-ID) %>%

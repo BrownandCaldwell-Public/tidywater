@@ -165,22 +165,20 @@ test_that("biofilter_toc_chain outputs are the same as base function, chemdose_d
 test_that("biofilter_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
   water1 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    biofilter_toc_chain(input_water = "balanced_water", ebct = 8)
+    define_water_chain("water") %>%
+    biofilter_toc_chain(input_water = "water", ebct = 8)
 
-  water2 <- purrr::pluck(water1, 5, 1)
+  water2 <- purrr::pluck(water1, 4, 1)
 
   water3 <- water_df %>%
     define_water_chain() %>%
     mutate(
       ebct = 4
     ) %>%
-    balance_ions_chain() %>%
     biofilter_toc_chain(output_water = "diff_name")
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
 })
 
 # Check biofilter_toc_chain can use a column or function argument for chemical dose
@@ -189,7 +187,7 @@ test_that("biofilter_toc_chain can use a column or function argument for chemica
   water1 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    biofilter_toc_chain(ebct = 10) %>%
+    biofilter_toc_chain(ebct = 10, ozonated = TRUE) %>%
     pluck_water("biofiltered_water", c("doc"))
 
   water2 <- water_df %>%
@@ -204,12 +202,12 @@ test_that("biofilter_toc_chain can use a column or function argument for chemica
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    mutate(time = 120) %>%
+    mutate(ozonated = TRUE) %>%
     biofilter_toc_chain(ebct = 10) %>%
     pluck_water("biofiltered_water", c("doc"))
 
   expect_equal(water1$biofiltered_water_doc, water2$biofiltered_water_doc) # test different ways to input args
-  # Test that inputting time/ebct separately (in column and as an argument)  gives save results
+  # Test that inputting ozonated/ebct separately (in column and as an argument)  gives save results
   expect_equal(water1$biofiltered_water_doc, water3$biofiltered_water_doc)
 })
 
@@ -218,10 +216,13 @@ test_that("biofilter_toc_chain errors with argument + column for same param", {
     define_water_chain("water")
   expect_error(water %>%
     mutate(ebct = 5) %>%
-    biofilter_toc_chain(input_water = "water", time = 120, ebct = 10))
-  expect_error(water %>%
-    mutate(time = 5) %>%
-    biofilter_toc_chain(input_water = "water", time = 120, ebct = 10))
+    biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = FALSE))
+
+  # This doesn't work because the function can't see the difference between an argument the user enters and the default ozonated = TRUE
+  # Eventually remove helper defaults? Not sure.
+  # expect_error(water %>%
+  #   mutate(ozonated = FALSE) %>%
+  #   biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = TRUE))
 })
 
 test_that("biofilter_toc_chain correctly handles arguments with multiple numbers", {

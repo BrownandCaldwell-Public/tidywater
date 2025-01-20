@@ -329,31 +329,16 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                       cl2_dose = 0, time = 0, treatment = "raw", cl_type = "chlorine") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(cl2_dose, time) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("cl2_dose", "time")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 2 & length(inputs_arg) == 0) {
-    warning("cl2_dose and/or time arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("cl2_dose" %in% colnames(inputs_arg) & "cl2_dose" %in% colnames(inputs_col)) | ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
-    stop("Chlorine and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(
+    df, list("cl2_dose" = cl2_dose, "time" = time),
+    list("treatment" = treatment, "cl_type" = cl_type)
+  )
 
   output <- df %>%
-    subset(select = !names(df) %in% c("cl2_dose", "time")) %>%
+    subset(select = !names(df) %in% c("cl2_dose", "time", "treatment", "cl_type")) %>%
     mutate(
-      ID = row_number(),
-      treatment = treatment,
-      cl_type = cl_type
+      ID = row_number()
     ) %>%
     left_join(arguments, by = "ID") %>%
     select(-ID) %>%

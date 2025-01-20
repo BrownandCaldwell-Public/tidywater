@@ -160,7 +160,7 @@ test_that("ozonate_bromate_chain output is list of water class objects, and can 
     define_water_chain() %>%
     ozonate_bromate_chain(time = 5, dose = 3))
 
-  water2 <- purrr::pluck(water1, 4, 1)
+  water2 <- purrr::pluck(water1, 5, 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
@@ -172,7 +172,7 @@ test_that("ozonate_bromate_chain output is list of water class objects, and can 
     ozonate_bromate_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
 })
 
 # Check ozonate_bromate_chain can use a column or function argument for chemical dose

@@ -55,8 +55,8 @@ ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   mutate(
-    dose = seq(1,4,1),
-    time = seq(2,10,2),
+    dose = rep(seq(1, 4, 1), 3),
+    time = rep(seq(2, 8, 2), 3),
     baffle = .5
   ) \%>\%
   solvect_o3_once()
