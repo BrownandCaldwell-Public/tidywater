@@ -1,4 +1,4 @@
-# development version
+# tidywater 0.7.0
 
 ## New features
 * chlorine and chloramine decay: `chemdose_chlordecay`
