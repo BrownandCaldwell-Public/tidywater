@@ -13,6 +13,13 @@
 #' @examples
 #' alum_cost <- solvecost_chem(dose = 20, flow = 10, strength = 49, cost = .22)
 #'
+#' library(dplyr)
+#' cost_data <- tibble(
+#'   dose = seq(10, 50, 10),
+#'   flow = 10
+#' ) %>%
+#'   mutate(costs = solvecost_chem(dose = dose, flow = flow, strength = 49, cost = .22))
+#'
 #' @export
 #' @returns A numeric value for chemical cost, $/time.
 #'
@@ -40,6 +47,13 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
 #'
 #' @examples
 #' powercost <- solvecost_power(50, 100, .08)
+#'
+#' library(dplyr)
+#' cost_data <- tibble(
+#'   power = seq(10, 50, 10),
+#'   utilization = 80
+#' ) %>%
+#'   mutate(costs = solvecost_power(power = power, utilization = utilization, cost = .08))
 #'
 #' @export
 #' @returns A numeric value for power, $/time.
@@ -73,15 +87,18 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @examples
 #' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 #'
+#' library(dplyr)
+#' cost_data <- tibble(
+#'   alum = seq(10, 50, 10),
+#'   flow = 10
+#' ) %>%
+#'   mutate(costs = solvecost_solids(alum = alum, flow = flow, turb = 2, cost = 0.05))
+#'
 #' @export
 #' @returns A numeric value for disposal costs, $/time.
 #'
 solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5, cost, time = "day") {
-  suspended <- turb * b
-  # 2 mol of Fe added per mol of ferric sulfate
-  fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
-
-  lb_day <- 8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended)
+  lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, turb, b)
   cost_day <- cost * lb_day # $/lb * lb/day
 
   if (time == "day") {
@@ -105,6 +122,12 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
 #'
 #' @examples
 #' laborcost <- solvecost_labor(1.5, 50000)
+#'
+#' library(dplyr)
+#' cost_data <- tibble(
+#'   fte = seq(1, 10, 1)
+#' ) %>%
+#'   mutate(costs = solvecost_labor(fte = fte, cost = .08))
 #'
 #' @export
 #' @returns A numeric value for labor $/time.

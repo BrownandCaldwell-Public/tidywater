@@ -39,7 +39,7 @@ solveresid_o3 <- function(water, dose, time) {
 #' Apply `solveresid_o3` to a data frame and create a new column with residual ozone dose
 #'
 #' This function allows \code{\link{solveresid_o3}} to be added to a piped data frame.
-#' Once additional column will be added to the data frame; the residual ozone dose (mg/L)
+#' One additional column will be added to the data frame; the residual ozone dose (mg/L)
 #'
 #' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
 #'

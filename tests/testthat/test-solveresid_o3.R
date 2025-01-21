@@ -1,4 +1,4 @@
-# ozone decay tests here
+# BASE FUNCTION ----
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
@@ -37,7 +37,7 @@ test_that("solveresid_o3 works.", {
 })
 
 
-
+# HELPERS ----
 test_that("solveresid_o3_once outputs are the same as base function, solveresid_o3", {
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
