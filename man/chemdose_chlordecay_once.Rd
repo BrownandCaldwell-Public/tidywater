@@ -16,14 +16,14 @@ chemdose_chlordecay_once(
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using
 \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-and a column for time.}
+and a column for time in hours.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
-\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2_dose). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+\item{cl2_dose}{Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 and for doses between 1.11 and 24.7 mg/L for coagulated water.}
 
-\item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
+\item{time}{Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours. Chloramine decay model
 does not have specified boundary conditions.}
 
 \item{treatment}{Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
@@ -39,10 +39,10 @@ This function allows \code{\link{chemdose_chlordecay}} to be added to a piped da
 Its output is a data frame containing columns for free_chlorine or combined_chlorine (depending on chlorine type).
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 
 If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+The function can only take cl2 and time inputs as EITHER a column or as function arguments, not both.
 
 tidywater functions cannot be added after this function because they require a `water` class input.
 

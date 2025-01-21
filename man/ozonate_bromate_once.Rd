@@ -15,7 +15,7 @@ ozonate_bromate_once(
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using
 \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-and a column for time.}
+and a column for time in minutes.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -23,7 +23,7 @@ and a column for time.}
 
 \item{time}{Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.}
 
-\item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
+\item{model}{Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
 }
 \value{
 A data frame with updated bromate.
@@ -33,10 +33,10 @@ This function allows \code{\link{ozonate_bromate}} to be added to a piped data f
 Its output is a data frame containing a bro3 column.
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 
 If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
-The function can only take dose and time inputs as EITHER a column or from the function arguments, not both.
+The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
 
 tidywater functions cannot be added after this function because they require a `water` class input.
 

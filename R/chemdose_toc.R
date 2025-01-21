@@ -282,9 +282,6 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
                                alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   ID <- NULL # Quiet RCMD check global variable note
 
-  # arguments <- construct_helper(df, list("alum" = alum, "ferricchloride" = ferricchloride, "ferricsulfate" = ferricsulfate),
-  #                               list("coeff" = coeff))
-
   dosable_chems <- tibble(alum, ferricchloride, ferricsulfate)
 
   chem_inputs_arg <- dosable_chems %>%

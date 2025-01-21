@@ -10,6 +10,8 @@ test_that("solvemass_chem returns 0 when inputs are 0, missing, or the wrong for
 
   # format
   expect_error(solvemass_chem(dose = "alum", flow = 30, strength = 10))
+  expect_error(solvemass_chem(dose = 30, flow = "20gpm", strength = 10))
+  expect_error(solvemass_chem(dose = 30, flow = 20, strength = "10%"))
 })
 
 test_that("solvemass_chem works.", {
@@ -36,7 +38,9 @@ test_that("solvemass_solids returns 0 when inputs are 0, missing, or the wrong f
   expect_error(solvemass_solids(ferricchloride = 10, turb = 5))
 
   # format
-  expect_error(solvemass_solids(alum = "20", flow = 30, cost = 0.2, turb = 5))
+  expect_error(solvemass_solids(alum = "20", flow = 30, turb = 5))
+  expect_error(solvemass_solids(alum = 20, flow = "30", turb = 5))
+  expect_error(solvemass_solids(alum = 20, flow = 30, turb = "5NTU"))
 })
 
 test_that("solvemass_solids works.", {

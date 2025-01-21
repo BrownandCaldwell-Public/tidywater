@@ -99,10 +99,10 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
     mutate(br = 50) %>%
     define_water_chain() %>%
     cross_join(time) %>%
-    solvect_chlorine_once(residual = c(5, 8))
+    solvect_chlorine_once(residual = c(5, 8), baffle = .5)
 
   expect_equal(water1$defined_water_ct_required, water2$defined_water_ct_required) # test different ways to input time
-  expect_equal(ncol(water3), ncol(water0) + 5) # adds cols for time, residual, and ct_actual, ct_req, glog_removal
+  expect_equal(ncol(water3), ncol(water0) + 6) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal
   expect_equal(nrow(water3), 288) # joined correctly
 })
 

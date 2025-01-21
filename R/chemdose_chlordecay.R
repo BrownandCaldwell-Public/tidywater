@@ -152,10 +152,10 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' This function allows \code{\link{chemdose_chlordecay}} to be added to a piped data frame.
 #' Its output is a data frame containing columns for free_chlorine or combined_chlorine (depending on chlorine type).
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
+#' The function can only take cl2 and time inputs as EITHER a column or as function arguments, not both.
 #'
 #' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
@@ -167,11 +167,11 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-#' and a column for time.
+#' and a column for time in hours.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2_dose). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
+#' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 #' and for doses between 1.11 and 24.7 mg/L for coagulated water.
-#' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
+#' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours. Chloramine decay model
 #' does not have specified boundary conditions.
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 #' water that has been coagulated or softened.
@@ -249,10 +249,10 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
 #' free_chlorine or combined_chlorine slots will be updated depending on chlorine type.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has a chlorine dose column (cl2_dose) or time column (time), the function will use those columns. Note:
-#' The function can only take cl2_dose and time inputs as EITHER a column or from the function arguments, not both.
+#' The function can only take cl2_dose and time inputs as EITHER a column or as function arguments, not both.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -262,12 +262,12 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2_dose),
-#' and a column for time.
+#' and a column for time in hours.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,
 #' and for doses between 1.11 and 24.7 mg/L for coagulated water.
-#' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours.Chloramine decay model
+#' @param time Reaction time (hours). Chlorine decay model results are valid for reaction times between 0.25 and 120 hours. Chloramine decay model
 #' does not have specified boundary conditions.
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 #' water that has been coagulated or softened.

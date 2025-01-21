@@ -77,9 +77,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' This function allows \code{\link{biofilter_toc}} to be added to a piped data frame.
 #' Its output is a data frame with updated TOC, DOC, and BDOC
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
-#' If the input data frame has column(s) named "ebct" or "ozonated", the function use those as arguments. Note:
+#' If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 #' The function can use either a column or the direct function arguments, not both.
 #'
 #' tidywater functions cannot be added after this function because they require a `water` class input.
@@ -91,8 +91,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
-#' and a column named for the set of coefficients to use.
+#' \code{\link{define_water_chain}}. The df may include a column indicating the EBCT or whether the water is ozonated.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param ebct The empty bed contact time (min) used for the biofilter
 #' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise
@@ -131,7 +130,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with an updated DOC, TOC, and BDOC concentration.
+#' @returns A data frame with updated DOC, TOC, and BDOC concentrations.
 
 biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozonated = TRUE) {
   biofiltered_water <- biofilter <- NULL # Quiet RCMD check global variable note
@@ -149,11 +148,11 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #'
 #' This function allows \code{\link{biofilter_toc}} to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' TOC, DOC, and UV254 will be updated based on input chemical doses.
+#' TOC, DOC, and UV254 water slots will be updated based on input EBCT and whether the water is ozonated.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
-#' If the input data frame has column(s) named "ebct" or "ozonated", the function use those as arguments. Note:
+#' If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 #' The function can use either a column or the direct function arguments, not both.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
@@ -163,10 +162,10 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
+#' \code{\link{define_water_chain}}. The df may include a column indicating the EBCT or whether the water is ozonated.
 #' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
+#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "biofiltered_water".
 #' @param ebct The empty bed contact time (min) used for the biofilter
 #' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise
 #'
@@ -181,7 +180,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = 10, ozonated = FALSE)
+#'   biofilter_toc_chain(input_water = "defined_water", ebct = 10, ozonated = FALSE)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -189,13 +188,13 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #'     ebct = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
 #'     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
 #'   ) %>%
-#'   biofilter_toc_once(input_water = "defined_water")
+#'   biofilter_toc_chain(input_water = "defined_water")
 #'
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = c(10, 20))
+#'   biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 20))
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -203,7 +202,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
 
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
                                 ebct = 0, ozonated = TRUE) {

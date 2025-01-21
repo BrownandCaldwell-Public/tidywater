@@ -1,6 +1,6 @@
 #' Convert mg/L of chemical to lb/day
 #'
-#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
+#' This function takes a chemical dose in mg/L, plant flow in MGD, and chemical strength and calculates lb/day of product
 #'
 #' @param dose Chemical dose in mg/L as chemical
 #' @param flow Plant flow in MGD
@@ -26,11 +26,11 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 
 #' Determine solids lb/day
 #'
-#' This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow to determine solids production.
+#' This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow as MGD to determine solids production.
 #'
-#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+#' @param alum  Amount of hydrated aluminum sulfate added in mg/L as chemical: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
+#' @param ferricchloride  Amount of ferric chloride added in mg/L as chemical: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
+#' @param ferricsulfate Amount of ferric sulfate added in mg/L as chemical: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.

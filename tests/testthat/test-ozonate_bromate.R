@@ -126,7 +126,7 @@ test_that("ozonate_bromate_once can use a column or function argument for chemic
     ozonate_bromate_once(time = 5))
 
   expect_equal(water1$bro3, water2$bro3) # test different ways to input args
-  # Test that inputting dose and time separately (in column and as an argument)  gives save results
+  # Test that inputting dose and time separately (in column and as an argument) gives same results
   expect_equal(water1$bro3, water3$bro3)
 })
 
@@ -205,7 +205,7 @@ test_that("ozonate_bromate_chain can use a column or function argument for chemi
     pluck_water("ozonated_water", c("bro3")))
 
   expect_equal(water1$ozonated_water_bro3, water2$ozonated_water_bro3) # test different ways to input args
-  # Test that inputting time/dose separately (in column and as an argument)  gives save results
+  # Test that inputting time/dose separately (in column and as an argument) gives same results
   expect_equal(water1$ozonated_water_bro3, water3$ozonated_water_bro3)
 })
 

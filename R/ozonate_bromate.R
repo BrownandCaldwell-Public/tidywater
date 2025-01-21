@@ -84,10 +84,10 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' This function allows \code{\link{ozonate_bromate}} to be added to a piped data frame.
 #' Its output is a data frame containing a bro3 column.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
-#' The function can only take dose and time inputs as EITHER a column or from the function arguments, not both.
+#' The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
 #'
 #' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
@@ -99,11 +99,11 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-#' and a column for time.
+#' and a column for time in minutes.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param dose Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.
 #' @param time Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.
-#' @param model Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
+#' @param model Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
 #'
 #' @seealso \code{\link{ozonate_bromate}}
 #'
@@ -170,12 +170,12 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 #'
 #' This function allows \code{\link{ozonate_bromate}} to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' bro3 slot will be updated.
+#' The bro3 slot will be updated.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
-#' The function can only take dose and time inputs as EITHER a column or from the function arguments, not both.
+#' The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -185,12 +185,12 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include a column named for the applied ozone dose (dose),
-#' and a column for time.
+#' and a column for time in minutes.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
 #' @param dose Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.
 #' @param time Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.
-#' @param model Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
+#' @param model Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
 #'
 #' @seealso \code{\link{ozonate_bromate}}
 #'
@@ -238,7 +238,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated chlorine residuals.
+#' @returns A data frame containing a water class column with updated bro3.
 
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = 0, time = 0, model = "Ozekin") {

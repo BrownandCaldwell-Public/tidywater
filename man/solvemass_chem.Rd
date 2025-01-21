@@ -17,7 +17,7 @@ solvemass_chem(dose, flow, strength = 100)
 A numeric value for the chemical mass in lb/day.
 }
 \description{
-This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
+This function takes a chemical dose in mg/L, plant flow in MGD, and chemical strength and calculates lb/day of product
 }
 \examples{
 alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
