@@ -474,7 +474,7 @@ construct_helper <- function(df, num_arguments, str_arguments) {
   all_arguments <- c(names(num_arguments), names(str_arguments))
 
   inputs_arg <- do.call(expand.grid, num_arguments) %>%
-    select_if(~ any(. > 0))
+    select_if(~ any(. != 0))
 
   if (any(sapply(str_arguments, length) > 1)) {
     inputs_arg <- inputs_arg %>%

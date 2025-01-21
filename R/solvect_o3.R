@@ -115,9 +115,6 @@ solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 
 
   arguments <- construct_helper(df, list("time" = time, "dose" = dose, "kd" = kd, "baffle" = baffle), str_arguments = list(NULL))
 
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
-
   output <- df %>%
     subset(select = !names(df) %in% c("dose", "time", "kd", "baffle")) %>%
     mutate(
