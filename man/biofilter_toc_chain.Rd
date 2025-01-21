@@ -34,7 +34,7 @@ Its output is a `water` class, and can therefore be used with "downstream" tidyw
 TOC, DOC, and UV254 water slots will be updated based on input EBCT and whether the water is ozonated.
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}. 
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 
 If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 The function can use either a column or the direct function arguments, not both.

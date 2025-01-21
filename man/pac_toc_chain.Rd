@@ -25,7 +25,7 @@ pac_toc_chain(
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "pac_water".}
 
 \item{dose}{Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.}
 
@@ -34,7 +34,7 @@ pac_toc_chain(
 \item{type}{Type of PAC applied, either "bituminous", "lignite", "wood".}
 }
 \value{
-A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+A data frame containing a water class column with updated DOC, TOC, and UV254 slots
 }
 \description{
 This function allows \code{\link{pac_toc}} to be added to a piped data frame.

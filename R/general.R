@@ -495,7 +495,7 @@ construct_helper <- function(df, num_arguments, str_arguments) {
 
   if (!all(all_arguments %in% colnames(arguments))) {
     if (!all(names(num_arguments) %in% colnames(arguments))) {
-      warning("Arguments missing. Add them as a column or function argument.")
+      warning("Numeric arguments missing or set to 0. Add them as a column or function argument.")
     }
 
     missing_args <- do.call(expand.grid, num_arguments) %>%
@@ -505,7 +505,6 @@ construct_helper <- function(df, num_arguments, str_arguments) {
 
     arguments <- arguments %>%
       cross_join(missing_args)
-
   }
 
   return(arguments)

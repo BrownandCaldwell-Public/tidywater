@@ -29,7 +29,7 @@ This function allows \code{\link{biofilter_toc}} to be added to a piped data fra
 Its output is a data frame with updated TOC, DOC, and BDOC
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}. 
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 
 If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 The function can use either a column or the direct function arguments, not both.

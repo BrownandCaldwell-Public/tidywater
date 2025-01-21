@@ -52,8 +52,9 @@ ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   mutate(
-    dose = seq(1, 12, 1),
-    time = seq(2, 24, 2)
+    residual = seq(1, 12, 1),
+    time = seq(2, 24, 2),
+    baffle = 0.7
   ) \%>\%
   solvect_chlorine_once()
 

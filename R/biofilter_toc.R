@@ -77,7 +77,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' This function allows \code{\link{biofilter_toc}} to be added to a piped data frame.
 #' Its output is a data frame with updated TOC, DOC, and BDOC
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}. 
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 #' The function can use either a column or the direct function arguments, not both.
@@ -150,7 +150,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
 #' TOC, DOC, and UV254 water slots will be updated based on input EBCT and whether the water is ozonated.
 #'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}. 
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 #'
 #' If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 #' The function can use either a column or the direct function arguments, not both.

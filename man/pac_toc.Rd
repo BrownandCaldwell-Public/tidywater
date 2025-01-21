@@ -21,7 +21,7 @@ pac_toc(water, dose, time, type = "bituminous")
 \item{type}{Type of PAC applied, either "bituminous", "lignite", "wood".}
 }
 \value{
-A water class object with post-PAC predicted DOC and UV254.
+A water class object with updated DOC, TOC, and UV254 slots.
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER

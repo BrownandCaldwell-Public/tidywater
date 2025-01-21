@@ -112,22 +112,8 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
 solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 0, kd = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- expand.grid(time = time, dose = dose, kd = kd, baffle = baffle) %>%
-    select_if(~ any(. != 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("time", "dose", "kd", "baffle")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 4 & length(inputs_arg) == 0) {
-    warning("Time, dose, decay constant, and/or baffle arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) | ("residual" %in% colnames(inputs_arg) & "residual" %in% colnames(inputs_col)) |
-    ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col)) | "kd" %in% colnames(inputs_arg) & "kd" %in% colnames(inputs_col)) {
-    stop("Time, dose, kd, and/or baffle were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
+  arguments <- construct_helper(df, list("time" = time, "dose" = dose, "kd" = kd, "baffle" = baffle), str_arguments = list(NULL))
 
   arguments <- inputs_col %>%
     cross_join(inputs_arg)

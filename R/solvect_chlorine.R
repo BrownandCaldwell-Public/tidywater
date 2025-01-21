@@ -80,8 +80,9 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     dose = seq(1, 12, 1),
-#'     time = seq(2, 24, 2)
+#'     residual = seq(1, 12, 1),
+#'     time = seq(2, 24, 2),
+#'     baffle = 0.7
 #'   ) %>%
 #'   solvect_chlorine_once()
 #'
@@ -91,25 +92,8 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 
 solvect_chlorine_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- expand.grid(time = time, residual = residual, baffle = baffle) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("time", "residual", "baffle")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 3 & length(inputs_arg) == 0) {
-    warning("Time, residual, and/or baffle arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col)) | ("residual" %in% colnames(inputs_arg) & "residual" %in% colnames(inputs_col)) |
-    ("baffle" %in% colnames(inputs_arg) & "baffle" %in% colnames(inputs_col))) {
-    stop("Time, residual, and/or baffle were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("time" = time, "residual" = residual, "baffle" = baffle), str_arguments = list(NULL))
 
   output <- df %>%
     subset(select = !names(df) %in% c("time", "residual", "baffle")) %>%
