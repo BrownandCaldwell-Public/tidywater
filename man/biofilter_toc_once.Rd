@@ -13,8 +13,7 @@ biofilter_toc_once(
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using
-\code{\link{define_water_chain}}. The df may include a column named for the coagulant being dosed,
-and a column named for the set of coefficients to use.}
+\code{\link{define_water_chain}}. The df may include a column indicating the EBCT or whether the water is ozonated.}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -23,16 +22,16 @@ and a column named for the set of coefficients to use.}
 \item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise}
 }
 \value{
-A data frame with an updated DOC, TOC, and BDOC concentration.
+A data frame with updated DOC, TOC, and BDOC concentrations.
 }
 \description{
 This function allows \code{\link{biofilter_toc}} to be added to a piped data frame.
 Its output is a data frame with updated TOC, DOC, and BDOC
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}. 
 
-If the input data frame has column(s) named "ebct" or "ozonated", the function use those as arguments. Note:
+If the input data frame has column(s) named "ebct" or "ozonated", the function uses those as arguments. Note:
 The function can use either a column or the direct function arguments, not both.
 
 tidywater functions cannot be added after this function because they require a `water` class input.

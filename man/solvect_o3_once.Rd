@@ -21,13 +21,13 @@ solvect_o3_once(
 
 \item{time}{Retention time of disinfection segment in minutes.}
 
-\item{dose}{Ozone dose in mg/L. This value can also be the y intercept of the decay curve (often slightly lower than ozone dose.)}
+\item{dose}{Ozone dose (mg/L as O3). This value can also be the y intercept of the decay curve (often slightly lower than ozone dose.)}
 
 \item{kd}{First order decay constant. This parameter is optional. If not specified, the default ozone decay equations will be used.}
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.}
+\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
 A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
@@ -37,7 +37,7 @@ This function allows \code{\link{solvect_o3}} to be added to a piped data frame.
 Three additional columns will be added to the data frame; ct_required (mg/L*min), ct_actual (mg/L*min), glog_removal
 }
 \details{
-The data input comes from a `water` class column, initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, initialized in \code{\link{define_water_chain}}.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use

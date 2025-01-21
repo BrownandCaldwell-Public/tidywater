@@ -16,7 +16,7 @@ ozonate_bromate_chain(
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using
 \code{\link{define_water_chain}}. The df may include a column named for the applied ozone dose (dose),
-and a column for time.}
+and a column for time in minutes.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -26,21 +26,21 @@ and a column for time.}
 
 \item{time}{Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.}
 
-\item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
+\item{model}{Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
 }
 \value{
-A data frame containing a water class column with updated chlorine residuals.
+A data frame containing a water class column with updated bro3.
 }
 \description{
 This function allows \code{\link{ozonate_bromate}} to be added to a piped data frame.
 Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-bro3 slot will be updated.
+The bro3 slot will be updated.
 }
 \details{
-The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
 
 If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
-The function can only take dose and time inputs as EITHER a column or from the function arguments, not both.
+The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use

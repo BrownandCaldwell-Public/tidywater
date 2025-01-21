@@ -17,11 +17,11 @@ solvemass_solids(
 )
 }
 \arguments{
-\item{alum}{Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
+\item{alum}{Amount of hydrated aluminum sulfate added in mg/L as chemical: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
-\item{ferricchloride}{Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
+\item{ferricchloride}{Amount of ferric chloride added in mg/L as chemical: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
-\item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
+\item{ferricsulfate}{Amount of ferric sulfate added in mg/L as chemical: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{flow}{Plant flow in MGD}
 
@@ -33,7 +33,7 @@ solvemass_solids(
 A numeric value for solids mass in lb/day.
 }
 \description{
-This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow to determine solids production.
+This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow as MGD to determine solids production.
 }
 \examples{
 solids_mass <- solvemass_solids(alum = 50, flow = 10, turb = 20)

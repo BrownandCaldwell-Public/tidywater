@@ -24,7 +24,7 @@ solvect_chlorine_once(
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.}
+\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
 A data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
@@ -34,7 +34,7 @@ This function allows \code{\link{solvect_chlorine}} to be added to a piped data 
 Three additional columns will be added to the data frame; ct_required (mg/L*min), ct_actual (mg/L*min), glog_removal
 }
 \details{
-The data input comes from a `water` class column, initialized in \code{\link{define_water}}.
+The data input comes from a `water` class column, initialized in \code{\link{define_water_chain}}.
 
  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
  for the option to use parallel processing and speed things up. To initialize parallel processing, use
