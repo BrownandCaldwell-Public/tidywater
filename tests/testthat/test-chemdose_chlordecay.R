@@ -118,7 +118,7 @@ test_that("chemdose_chlordecay_once can use a column or function argument for ch
     chemdose_chlordecay_once(time = 100)
 
   expect_equal(water1$free_chlorine, water2$free_chlorine) # test different ways to input args
-  # Test that inputting cl2_dose and time separately (in column and as an argument)  gives save results
+  # Test that inputting cl2_dose and time separately (in column and as an argument) gives same results
   expect_equal(water1$free_chlorine, water3$free_chlorine)
 })
 
@@ -200,7 +200,7 @@ test_that("chemdose_chlordecay_chain can use a column or function argument for c
     pluck_water("disinfected_water", c("free_chlorine")))
 
   expect_equal(water1$disinfected_water_free_chlorine, water2$disinfected_water_free_chlorine) # test different ways to input args
-  # Test that inputting time/cl2_dose separately (in column and as an argument)  gives save results
+  # Test that inputting time/cl2_dose separately (in column and as an argument) gives same results
   expect_equal(water1$disinfected_water_free_chlorine, water3$disinfected_water_free_chlorine)
 })
 

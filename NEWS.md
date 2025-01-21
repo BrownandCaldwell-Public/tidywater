@@ -4,6 +4,7 @@
 * chlorine and chloramine decay: `chemdose_chlordecay`
 * New water slots for chloramine chemistry: `combined_chlorine`, `nh2cl`, `nhcl2`, `ncl3`
 * `solvemass_solids` separates functionality from `solvecost_solids` to solve lb/day
+* `biofilter_toc`, `chemdose_chlordecay`, `ozonate_bromate`, and `solvect` helpers now available.
 
 ## Breaking changes
 * `chemdose_ct` renamed `solvect_chlorine`

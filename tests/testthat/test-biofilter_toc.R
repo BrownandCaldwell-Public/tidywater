@@ -136,11 +136,11 @@ test_that("biofilter_toc_once can use a column or function argument for ebct", {
     biofilter_toc_once(input_water = "balanced_water", ozonated = TRUE))
 
   expect_equal(water1$doc, water2$doc) # test different ways to input args
-  # Test that inputting ebct and ozonated separately (in column and as an argument)  gives save results
+  # Test that inputting ebct and ozonated separately (in column and as an argument) gives same results
   expect_equal(water1$doc, water3$doc)
 })
 
-test_that("biofilter_toc_chain outputs are the same as base function, chemdose_dbp", {
+test_that("biofilter_toc_chain outputs are the same as base function, biofilter_toc", {
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -207,7 +207,7 @@ test_that("biofilter_toc_chain can use a column or function argument for chemica
     pluck_water("biofiltered_water", c("doc"))
 
   expect_equal(water1$biofiltered_water_doc, water2$biofiltered_water_doc) # test different ways to input args
-  # Test that inputting ozonated/ebct separately (in column and as an argument)  gives save results
+  # Test that inputting ozonated/ebct separately (in column and as an argument) gives same results
   expect_equal(water1$biofiltered_water_doc, water3$biofiltered_water_doc)
 })
 
@@ -230,7 +230,7 @@ test_that("biofilter_toc_chain correctly handles arguments with multiple numbers
     define_water_chain("water")
 
   water1 <- water %>%
-    biofilter_toc_chain("water", ebct = seq(10, 30, 5))
+    biofilter_toc_chain("water", ebct = seq(10, 30, 5), ozonated = c(TRUE, FALSE))
 
-  expect_equal(nrow(water) * 5, nrow(water1))
+  expect_equal(nrow(water) * 10, nrow(water1))
 })

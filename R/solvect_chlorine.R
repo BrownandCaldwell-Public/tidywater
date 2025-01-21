@@ -55,7 +55,7 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 #' This function allows \code{\link{solvect_chlorine}} to be added to a piped data frame.
 #' Three additional columns will be added to the data frame; ct_required (mg/L*min), ct_actual (mg/L*min), glog_removal
 #'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}}.
+#' The data input comes from a `water` class column, initialized in \code{\link{define_water_chain}}.
 #'
 #'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -68,7 +68,7 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
-#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'
 #' @examples
 #' library(dplyr)
