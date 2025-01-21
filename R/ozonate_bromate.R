@@ -77,3 +77,188 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 
   return(water)
 }
+
+
+#' Apply `ozonate_bromate`function within a data frame and output a data frame
+#'
+#' This function allows \code{\link{ozonate_bromate}} to be added to a piped data frame.
+#' Its output is a data frame containing a bro3 column.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
+#'
+#' If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
+#' The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
+#'
+#' tidywater functions cannot be added after this function because they require a `water` class input.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#' shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
+#' and a column for time in minutes.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param dose Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.
+#' @param time Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.
+#' @param model Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
+#'
+#' @seealso \code{\link{ozonate_bromate}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain("raw") %>%
+#'   ozonate_bromate_once(input_water = "raw", dose = 3, time = 8)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain("raw") %>%
+#'   mutate(
+#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
+#'     time = 10
+#'   ) %>%
+#'   ozonate_bromate_once(input_water = "raw")
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 80) %>%
+#'   define_water_chain("raw") %>%
+#'   mutate(time = 8) %>%
+#'   ozonate_bromate_once(
+#'     input_water = "raw", dose = 6, model = "Sohn"
+#'   )
+#' \donttest{
+#' # Initialize parallel processing
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   ozonate_bromate_once(input_water = "defined_water", dose = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#' }
+#'
+#' @import dplyr
+#' @importFrom tidyr unnest
+#' @export
+#'
+#' @returns A data frame with updated bromate.
+
+ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, time = 0,
+                                 model = "Ozekin") {
+  temp_o3 <- ozone <- NULL # Quiet RCMD check global variable note
+  output <- df %>%
+    ozonate_bromate_chain(
+      input_water = input_water, output_water = "temp_o3",
+      dose, time, model
+    ) %>%
+    mutate(ozone = furrr::future_map(temp_o3, convert_water)) %>%
+    unnest(ozone) %>%
+    select(-temp_o3)
+}
+
+#' Apply `ozonate_bromate` within a data frame and output a column of `water` class to be chained to other tidywater functions
+#'
+#' This function allows \code{\link{ozonate_bromate}} to be added to a piped data frame.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
+#' The bro3 slot will be updated.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
+#'
+#' If the input data frame has a dose column (dose) or time column (time), the function will use those columns. Note:
+#' The function can only take dose and time inputs as EITHER a column or as function arguments, not both.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the applied ozone dose (dose),
+#' and a column for time in minutes.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
+#' @param dose Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.
+#' @param time Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.
+#' @param model Model to apply, defaults to "Ozekin". One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
+#'
+#' @seealso \code{\link{ozonate_bromate}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   ozonate_bromate_chain(dose = 4, time = 8)
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   mutate(
+#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
+#'     time = 30
+#'   ) %>%
+#'   ozonate_bromate_chain()
+#'
+#' example_df <- water_df %>%
+#'   mutate(br = 80) %>%
+#'   define_water_chain() %>%
+#'   mutate(time = 8) %>%
+#'   ozonate_bromate_chain(
+#'     dose = 6, model = "Sohn"
+#'   )
+#'
+#' \donttest{
+#' # Initialize parallel processing
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   ozonate_bromate_chain(dose = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#' }
+#'
+#' @import dplyr
+#' @export
+#'
+#' @returns A data frame containing a water class column with updated bro3.
+
+ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
+                                  dose = 0, time = 0, model = "Ozekin") {
+  ID <- NULL # Quiet RCMD check global variable note
+  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("model" = model))
+
+  output <- df %>%
+    subset(select = !names(df) %in% c("dose", "time", "model")) %>%
+    mutate(
+      ID = row_number()
+    ) %>%
+    left_join(arguments, by = "ID") %>%
+    select(-ID) %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        dose = dose,
+        time = time,
+        model = model
+      ),
+      ozonate_bromate
+    ))
+}
