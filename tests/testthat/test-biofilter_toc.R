@@ -70,3 +70,167 @@ test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
   dosed_water_low <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE))
   expect_equal(round(dosed_water_low@toc, 2), 4.69)
 })
+
+
+
+################################################################################*
+################################################################################*
+# biofilter_toc helpers ----
+test_that("biofilter_toc_once outputs are the same as base function, biofilter_toc", {
+  water1 <- suppressWarnings(define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  )) %>%
+    biofilter_toc(ebct = 10)
+
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    biofilter_toc_once(ebct = 10))
+
+  expect_equal(water1@doc, water2$doc)
+})
+
+# Check that output is a data frame
+
+test_that("biofilter_toc_once is a data frame", {
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    biofilter_toc_once(
+      input_water = "balanced_water",
+      ebct = 5
+    ))
+
+  expect_true(is.data.frame(water1))
+})
+
+# Check biofilter_toc_once can use a column or function argument for ebct
+
+test_that("biofilter_toc_once can use a column or function argument for ebct", {
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    biofilter_toc_once(
+      input_water = "balanced_water",
+      ebct = 5
+    ))
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(
+      ebct = 5
+    ) %>%
+    balance_ions_chain() %>%
+    biofilter_toc_once(input_water = "balanced_water"))
+
+  water3 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(ebct = 5) %>%
+    balance_ions_chain() %>%
+    biofilter_toc_once(input_water = "balanced_water", ozonated = TRUE))
+
+  expect_equal(water1$doc, water2$doc) # test different ways to input args
+  # Test that inputting ebct and ozonated separately (in column and as an argument) gives same results
+  expect_equal(water1$doc, water3$doc)
+})
+
+test_that("biofilter_toc_chain outputs are the same as base function, biofilter_toc", {
+  water1 <- suppressWarnings(define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05
+  ) %>%
+    biofilter_toc(ebct = 10))
+
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    biofilter_toc_chain(ebct = 10, output_water = "biof") %>%
+    pluck_water("biof", c(
+      "doc"
+    )))
+
+  expect_equal(water1@doc, water2$biof_doc)
+})
+
+# Test that output is a column of water class lists, and changing the output column name works
+
+test_that("biofilter_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain("water") %>%
+    biofilter_toc_chain(input_water = "water", ebct = 8)
+
+  water2 <- purrr::pluck(water1, 4, 1)
+
+  water3 <- water_df %>%
+    define_water_chain() %>%
+    mutate(
+      ebct = 4
+    ) %>%
+    biofilter_toc_chain(output_water = "diff_name")
+
+  expect_s4_class(water2, "water") # check class
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
+})
+
+# Check biofilter_toc_chain can use a column or function argument for chemical dose
+
+test_that("biofilter_toc_chain can use a column or function argument for chemical dose", {
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    biofilter_toc_chain(ebct = 10, ozonated = TRUE) %>%
+    pluck_water("biofiltered_water", c("doc"))
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(
+      ebct = 10,
+    ) %>%
+    biofilter_toc_chain() %>%
+    pluck_water("biofiltered_water", c("doc"))
+
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(ozonated = TRUE) %>%
+    biofilter_toc_chain(ebct = 10) %>%
+    pluck_water("biofiltered_water", c("doc"))
+
+  expect_equal(water1$biofiltered_water_doc, water2$biofiltered_water_doc) # test different ways to input args
+  # Test that inputting ozonated/ebct separately (in column and as an argument) gives same results
+  expect_equal(water1$biofiltered_water_doc, water3$biofiltered_water_doc)
+})
+
+test_that("biofilter_toc_chain errors with argument + column for same param", {
+  water <- water_df %>%
+    define_water_chain("water")
+  expect_error(water %>%
+    mutate(ebct = 5) %>%
+    biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = FALSE))
+
+  # This doesn't work because the function can't see the difference between an argument the user enters and the default ozonated = TRUE
+  # Eventually remove helper defaults? Not sure.
+  # expect_error(water %>%
+  #   mutate(ozonated = FALSE) %>%
+  #   biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = TRUE))
+})
+
+test_that("biofilter_toc_chain correctly handles arguments with multiple numbers", {
+  water <- water_df %>%
+    define_water_chain("water")
+
+  water1 <- water %>%
+    biofilter_toc_chain("water", ebct = seq(10, 30, 5), ozonated = c(TRUE, FALSE))
+
+  expect_equal(nrow(water) * 10, nrow(water1))
+})

@@ -63,8 +63,7 @@ blend_waters <- function(waters, ratios) {
   }
 
   not_averaged <- c(
-    "ph", "hco3", "co3", "po4", "hpo4", "h2po4", "ocl", "nh4",
-    "h", "oh", "kw", "applied_treatment", "estimated"
+    "ph", "kw", "applied_treatment", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -110,30 +109,7 @@ blend_waters <- function(waters, ratios) {
   pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
   blended_water@kw <- 10^-pkw
 
-  # so4_dose, po4_dose, na_dose, ca_dose, mg_dose, cl_dose are all 0
-  # kw calculated above. tot_po4, tot_co3, tot_ocl, tot_nh3, alk_eq part of mass balance.
-  # need po4_i, hpo4_i, h2po4_i, ocl_i, nh4_i. Instead, use the total charge from each water for those ions.
-  if (blended_water@tot_po4 > 0 | blended_water@tot_ocl > 0 | blended_water@tot_nh3 > 0) {
-    charge_delta <- 0
-    for (i in 1:length(waters)) {
-      temp_water <- waters[[i]]
-      temp_water@nh4 <- ifelse(is.na(temp_water@nh4), 0, temp_water@nh4)
-      charge <- temp_water@nh4 - sum(3 * temp_water@po4, 2 * temp_water@hpo4, temp_water@h2po4, temp_water@ocl, na.rm = TRUE)
-      charge_weight <- ratios[i] * charge
-      charge_delta <- charge_delta + charge_weight
-    }
-  } else {
-    charge_delta <- 0
-  }
-
-  # Replace NAs for those ions in the blended_water for pH solving.
-  blended_water@po4 <- 0
-  blended_water@hpo4 <- 0
-  blended_water@h2po4 <- 0
-  blended_water@ocl <- 0
-  # Replace nh4 with the charge so that it's added to the end during solve pH
-  blended_water@nh4 <- charge_delta
-
+  # Calculate new pH
   ph <- solve_ph(blended_water)
   h <- 10^-ph
   blended_water@oh <- blended_water@kw / h
@@ -143,21 +119,21 @@ blend_waters <- function(waters, ratios) {
   # Correct eq constants
   k <- correct_k(blended_water)
 
-  # Carbonate, phosphate, ocl, and nh4 ions
+  # Recalculate carbonate, phosphate, ocl, and nh4 speciation given new pH
   alpha1 <- calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
 
-  alpha1p <- calculate_alpha1_phosphate(h, k)
-  alpha2p <- calculate_alpha2_phosphate(h, k)
-  alpha3p <- calculate_alpha3_phosphate(h, k)
+  alpha1p <- calculate_alpha1_phosphate(h, k) # proportion of total phosphate as H2PO4-
+  alpha2p <- calculate_alpha2_phosphate(h, k) # proportion of total phosphate as HPO42-
+  alpha3p <- calculate_alpha3_phosphate(h, k) # proportion of total phosphate as PO43-
 
   blended_water@h2po4 <- blended_water@tot_po4 * alpha1p
   blended_water@hpo4 <- blended_water@tot_po4 * alpha2p
   blended_water@po4 <- blended_water@tot_po4 * alpha3p
 
-  blended_water@ocl <- blended_water@tot_ocl * calculate_alpha1_hypochlorite(h, k)
+  blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
   blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 

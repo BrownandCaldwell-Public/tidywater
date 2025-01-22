@@ -44,4 +44,11 @@ This function takes coagulant doses in mg/L as chemical, removed turbidity, and 
 \examples{
 alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 
+library(dplyr)
+cost_data <- tibble(
+  alum = seq(10, 50, 10),
+  flow = 10
+) \%>\%
+  mutate(costs = solvecost_solids(alum = alum, flow = flow, turb = 2, cost = 0.05))
+
 }

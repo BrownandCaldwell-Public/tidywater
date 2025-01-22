@@ -1,3 +1,18 @@
+# tidywater 0.7.0
+
+## New features
+* chlorine and chloramine decay: `chemdose_chlordecay`
+* New water slots for chloramine chemistry: `combined_chlorine`, `nh2cl`, `nhcl2`, `ncl3`
+* `solvemass_solids` separates functionality from `solvecost_solids` to solve lb/day
+* `biofilter_toc`, `chemdose_chlordecay`, `ozonate_bromate`, and `solvect` helpers now available.
+
+## Breaking changes
+* `chemdose_ct` renamed `solvect_chlorine`
+* `ozonate_ct` renamed `solvect_o3`
+* `tot_ocl` slot in water renamed `free_chlorine`
+* `define_water` argument changes: `tot_ocl` changed to `free_chlorine`, added `combined_chlorine`
+* Helper function (`_chain` and `_once`) behavior change: if multiple values are specified for multiple arguments, all combinations are used.
+
 # tidywater 0.6.2
 
 * CRAN resubmission.

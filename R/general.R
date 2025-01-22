@@ -210,13 +210,14 @@ plot_ions <- function(water) {
   )
 
   ions %>%
-    pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    arrange(type, concentration) %>%
-    mutate(
+    tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
+    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
+    dplyr::arrange(type, concentration) %>%
+    dplyr::mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
+    dplyr::filter(!is.na(concentration)) %>%
     ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
     geom_bar(
       stat = "identity",
@@ -334,11 +335,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop("Chemical formula not supported")
+    stop(paste("Chemical formula", formula, "not supported"))
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "f", "br", "bro3")) {
+  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "bro3")) {
     charge <- 1
   } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
     charge <- 2
@@ -446,24 +447,6 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
-#' Convert mg/L of chemical to lb/day
-#'
-#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
-#'
-#' @param dose Chemical dose in mg/L as chemical
-#' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100 percent.
-#'
-#' @examples
-#' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
-#'
-#' @export
-#' @returns  A numeric value for the chemical mass in lb/day.
-#'
-solvemass_chem <- function(dose, flow, strength = 100) {
-  dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
-}
-
 # Non-exported functions -----
 
 validate_water <- function(water, slots) {
@@ -486,6 +469,47 @@ validate_water <- function(water, slots) {
     stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
   }
 }
+
+construct_helper <- function(df, num_arguments, str_arguments) {
+  all_arguments <- c(names(num_arguments), names(str_arguments))
+
+  inputs_arg <- do.call(expand.grid, num_arguments) %>%
+    select_if(~ any(. != 0))
+
+  if (any(sapply(str_arguments, length) > 1)) {
+    inputs_arg <- inputs_arg %>%
+      cross_join(do.call(expand.grid, str_arguments))
+  }
+
+  inputs_col <- df %>%
+    subset(select = names(df) %in% all_arguments) %>%
+    # add row number for joining
+    mutate(ID = row_number())
+
+  if (any(all_arguments %in% colnames(inputs_arg) & all_arguments %in% colnames(inputs_col))) {
+    stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
+  }
+
+  arguments <- inputs_col %>%
+    cross_join(inputs_arg)
+
+  if (!all(all_arguments %in% colnames(arguments))) {
+    if (!all(names(num_arguments) %in% colnames(arguments))) {
+      warning("Numeric arguments missing or set to 0. Add them as a column or function argument.")
+    }
+
+    missing_args <- do.call(expand.grid, num_arguments) %>%
+      cross_join(do.call(expand.grid, str_arguments)) %>%
+      subset(select = !names(.) %in% names(arguments)) %>%
+      unique()
+
+    arguments <- arguments %>%
+      cross_join(missing_args)
+  }
+
+  return(arguments)
+}
+
 
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 

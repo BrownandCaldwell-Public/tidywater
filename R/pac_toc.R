@@ -26,7 +26,7 @@
 #'
 #' @export
 #'
-#' @returns A water class object with post-PAC predicted DOC and UV254.
+#' @returns A water class object with updated DOC, TOC, and UV254 slots.
 pac_toc <- function(water, dose, time, type = "bituminous") {
   validate_water(water, c("doc"))
   if (missing(dose) | !is.numeric(dose)) {
@@ -205,7 +205,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "pac_water".
 #' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
@@ -247,38 +247,20 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = 0, time = 0, type = "bituminous") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(dose, time) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("dose", "time")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 3 & length(inputs_arg) == 0) {
-    warning("dose, time, or type arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
-    stop("Dose and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  dose_time <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
 
   output <- df %>%
     subset(select = !names(df) %in% c("dose", "time", "type")) %>%
     mutate(
-      ID = row_number(),
-      type = type
+      ID = row_number()
     ) %>%
-    left_join(dose_time, by = "ID") %>%
+    left_join(arguments, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
