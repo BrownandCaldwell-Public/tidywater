@@ -20,7 +20,8 @@
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
-#' @param tot_ocl Chlorine in mg/L as Cl2. Used when a starting water has a chlorine residual.
+#' @param free_chlorine Free chlorine in mg/L as Cl2. Used when a starting water has a free chlorine residual.
+#' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tot_nh3 Total ammonia in mg/L as N
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
@@ -43,7 +44,7 @@
 #' @returns A water class object where slots are filled or calculated based on input parameters.
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
-                         tot_ocl = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
+                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
                          toc, doc, uv254, br, f, fe, al, mn) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
@@ -111,7 +112,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   cl <- ifelse(missing(cl), NA_real_, convert_units(cl, "cl"))
   so4 <- ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
   tot_po4 <- convert_units(tot_po4, "po4")
-  tot_ocl <- convert_units(tot_ocl, "cl2")
+  free_chlorine <- convert_units(free_chlorine, "cl2")
+  combined_chlorine <- convert_units(combined_chlorine, "cl2")
   tot_nh3 <- convert_units(tot_nh3, "n")
 
   br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
@@ -166,7 +168,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
     hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
     h = h, oh = oh,
-    tot_po4 = tot_po4, tot_ocl = tot_ocl, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
+    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn
@@ -211,7 +213,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water@hpo4 <- tot_po4 * alpha2p
   water@po4 <- tot_po4 * alpha3p
 
-  water@ocl <- tot_ocl * calculate_alpha1_hypochlorite(h, ks)
+  water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
   # Calculate total alkalinity (set equal to carbonate alkalinity for now)
@@ -315,7 +317,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "tot_ocl", "tot_po4", "tot_nh4",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )

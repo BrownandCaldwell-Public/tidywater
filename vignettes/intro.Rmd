@@ -43,11 +43,13 @@ print(empty_water)
 ```
 So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and the  sodium concentration. We can define each of these parameters as arguments in `define_water`, which accepts pH (unitless), alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L (with the exception of bromide and manganese, reported as ug/L). The function also refers to all chemical compounds by their chemical symbol or formula. Let's call the new water class `my_water.`
 
-Notice that the slots for `ph`, `alk`, `temp`,and `na` are now populated when we print out the resulting water. The sodium slot (`na`) is output in units of mol/L (M).  We can also see that `define_water` automatically calculated the amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based on the alkalinity and pH. 
+Notice that the slots for `ph`, `alk`, `temp`, `na`, and `ca` are now populated, but we'll need to use slot names to see most of the information. The ions slots (`na`, `ca`) are output in units of mol/L (M).  We can also see that `define_water` automatically calculated the amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based on the alkalinity and pH. 
 
 ```{r, warning=FALSE}
-my_water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 5)
+my_water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50)
 my_water
+my_water@na
+my_water@hco3
 ```
 
 You can easily summarize your water quality using the `summarize_wq` function, which takes a water class object and exports an easy-to-read table of the water quality into the console. 
@@ -73,32 +75,41 @@ To correct this, the `balance_ions` function automatically adds in sodium, potas
 balanced_water <- my_water %>% balance_ions()
 plot_ions(balanced_water)
 ```
-Great! `balance_ions` added potassium to `my_water` so it is now electrically neutral. To see how much potassium was added, you can use the "@" symbol with a `water` class object to access the slot you want, in this case, potassium.
+Great! `balance_ions` added chloride to `my_water` so it is now electrically neutral. To see how much chloride was added, you can use the "@" symbol with a `water` class object to access the slot you want, in this case, chloride
 
 ```{r}
-my_water@k # We did not input any potassium in the original water
+my_water@cl # We did not input any chloride in the original water
 
-balanced_water@k # The balanced water now contains 0.00178 M of potassium
+balanced_water@cl # The balanced water now contains chloride
 ```
 
 ## Converting units
-The potassium units are in M. What if you want to know what that is in mg/L? There are two ways to do this in tidywater. The easiest way is to use the `summarize_wq` function shown above, which converts the ion concentrations back to mg/L. 
+The chloride units are in M. What if you want to know what that is in mg/L? There are two ways to do this in tidywater. The easiest way is to use the `summarize_wq` function shown above, which converts the ion concentrations back to mg/L. 
 
-Another option is to use the `convert_units` function, which allows you to specify the chemical and the starting and ending units. In this case, we want to convert the potassium concentration in `balanced_water` from M to mg/L.
+Another option is to use the `convert_units` function, which allows you to specify the chemical and the starting and ending units. In this case, we want to convert the chloride concentration in `balanced_water` from M to mg/L.
 ```{r}
-convert_units(value = balanced_water@k, formula = "k", startunit = "M", endunit = "mg/L")
+convert_units(value = balanced_water@cl, formula = "cl", startunit = "M", endunit = "mg/L")
 ```
 ## Modelling assumptions
 
 ### Ionic strength
 
-Obviously, "adding" 69.6 mg/L of potassium to `my_water` is an assumption. There could be other cations in the water besides potassium that we don't know about. But having a balanced `water` is important because it affects the ionic strength, which in turn affects how different species interact when we dose chemicals into the `water`. You can see more detail on ionic strength and chemical dosing in the `chemdose_ph` vignette, but for now let's take a look at the ionic strength of `my_water` before and after balancing the ions. 
+When possible, `define_water` will calculate ionic strength of the water, either based on TDS, conductivity, or the ions provided in the water. Most functions will work fine if you don't know the ionic strength, but especially when it comes to pH chemistry, it's good to include all the information you have. Note that in our original water, we didn't provide enough ions for the ionic strenth to be determined. We can remedy this in a few ways.
 
 ```{r}
 # The ionic strength slot was NA in the original water because we did not
 # provide enough information to calculate it
 my_water@is
-balanced_water@is # Now the ionic strength is 0.002 M
+
+# Input TDS or conductivity
+new_water1 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, tds = 100)
+new_water2 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, cond = 200)
+# Input more known ions
+new_water3 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, so4 = 100)
+
+new_water1@is
+new_water2@is
+new_water3@is
 ```
 
 There are a couple of other assumptions that `define_water` makes to be able to set up the data for downstream `tidywater` functions. These include standard ratios for hardness and DOC. 

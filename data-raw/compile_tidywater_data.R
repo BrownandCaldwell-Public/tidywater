@@ -39,6 +39,10 @@ mweights <- data.frame(
   f = 18.9984,
   mn = 54.938,
   nh4 = 18.04,
+  nh3 = 17.031,
+  nh2cl = 51.48,
+  nhcl2 = 85.92,
+  ncl3 = 120.365,
   n = 14.0067,
   nh4oh = 18.04 + 17.008,
   nh42so4 = 18.04 * 2 + 96.0626,
@@ -81,7 +85,7 @@ water_df <- data.frame(
   k = rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
   so4 = rep(c(20, 40, 60, 80), 3),
-  tot_ocl = rep(c(0, 1), 6),
+  free_chlorine = rep(c(0, 1), 6),
   tot_po4 = rep(c(0, 0, 1), 4),
   tds = rep(c(200, 100, NA), 4),
   cond = rep(c(100, 150, NA), 4),
@@ -785,3 +789,14 @@ bromatecoeffs <- data.frame(
     I = 1 # temp not in exponent
   )
 usethis::use_data(bromatecoeffs, overwrite = TRUE)
+
+# Data frame of Cl2 decay coefficients
+
+cl2coeffs <- tibble(
+  treatment = c("chlorine_raw", "chlorine_coag", "chloramine"),
+  a = c(-0.8147, -0.8404, -0.99),
+  b = c(-2.2808, -0.404, -0.015),
+  c = c(-1.2971, -0.9108, NA)
+)
+
+usethis::use_data(cl2coeffs, overwrite = TRUE)
