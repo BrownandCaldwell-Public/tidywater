@@ -20,6 +20,7 @@ methods::setClass(
     dic = "numeric",
 
     # Ions
+    is = "numeric",
     na = "numeric",
     ca = "numeric",
     mg = "numeric",
@@ -27,19 +28,19 @@ methods::setClass(
     cl = "numeric",
     so4 = "numeric",
     no3 = "numeric",
+    # pH dependent ions
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",
     hpo4 = "numeric",
     po4 = "numeric",
-    ocl = "numeric",
+    nh4 = "numeric",
     h = "numeric",
     oh = "numeric",
+    # total of pH dependent ions
     tot_po4 = "numeric",
-    tot_ocl = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
-    is = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",
@@ -47,7 +48,14 @@ methods::setClass(
     fe = "numeric",
     al = "numeric",
     mn = "numeric",
-    nh4 = "numeric",
+
+    # Chlorine
+    free_chlorine = "numeric",
+    ocl = "numeric", # Ion of free chlorine
+    combined_chlorine = "numeric", # sum of chloramines
+    nh2cl = "numeric", # monochloramine
+    nhcl2 = "numeric", # dichloramine
+    ncl3 = "numeric", # trichloramine
 
     # Corrosion indices
     aggressive = "numeric",
@@ -98,6 +106,7 @@ methods::setClass(
     uv254 = NA_real_,
 
     # Ions
+    is = NA_real_,
     na = NA_real_,
     ca = NA_real_,
     mg = NA_real_,
@@ -105,19 +114,20 @@ methods::setClass(
     cl = NA_real_,
     so4 = NA_real_,
     no3 = NA_real_,
+    # pH dependent ions
     hco3 = NA_real_,
     co3 = NA_real_,
     h2po4 = NA_real_,
     hpo4 = NA_real_,
     po4 = NA_real_,
-    ocl = NA_real_,
+    nh4 = NA_real_,
     h = NA_real_,
     oh = NA_real_,
+    # total of pH dependent ions
     tot_po4 = NA_real_,
-    tot_ocl = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
-    is = NA_real_,
+
     # Additional ions
     br = NA_real_,
     bro3 = NA_real_,
@@ -125,7 +135,14 @@ methods::setClass(
     fe = NA_real_,
     al = NA_real_,
     mn = NA_real_,
-    nh4 = NA_real_,
+
+    # Chlorine
+    free_chlorine = NA_real_,
+    ocl = NA_real_, # Ion of free chlorine
+    combined_chlorine = NA_real_, # sum of chloramines
+    nh2cl = NA_real_, # monochloramine
+    nhcl2 = NA_real_, # dichloramine
+    ncl3 = NA_real_, # trichloramine
 
     # Corrosion indices
     aggressive = NA_real_,
