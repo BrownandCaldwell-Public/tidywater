@@ -215,7 +215,7 @@ plot_ions <- function(water) {
     dplyr::arrange(type, concentration) %>%
     dplyr::mutate(ions = factor(ions, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
                                                  "CO3", "HCO3", "H2PO4", "HPO4", "PO4",
-                                                 "OCl", "OH", "SO4"))) %>%
+                                                 "OCl", "OH", "SO4")),
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
