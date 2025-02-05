@@ -213,7 +213,7 @@ plot_ions <- function(water) {
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     dplyr::arrange(type, concentration) %>%
-    dplyr::mutate(ions = factor(ions, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
+    dplyr::mutate(ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
                                                  "CO3", "HCO3", "H2PO4", "HPO4", "PO4",
                                                  "OCl", "OH", "SO4")),
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
