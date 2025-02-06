@@ -209,31 +209,40 @@ plot_ions <- function(water) {
     OH = water@oh
   )
 
-  ions %>%
+  plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     dplyr::arrange(type, concentration) %>%
-    dplyr::mutate(ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
-                                                 "CO3", "HCO3", "H2PO4", "HPO4", "PO4",
-                                                 "OCl", "OH", "SO4")),
+     dplyr::mutate( #ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
+    #                                              "CO3", "HCO3", "H2PO4", "HPO4", "PO4",
+    #                                              "OCl", "OH", "SO4")),
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    dplyr::filter(!is.na(concentration)) %>%
-    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
+    dplyr::filter(!is.na(concentration),
+                  !concentration <=0) %>%
+    dplyr::mutate(label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""))
+
+  ion_order <- c("H", "NH4", "K", "Na", "Mg","Ca", "SO4","OH", "OCl", "PO4",
+                  "HPO4", "H2PO4","HCO3", "CO3", "Cl")
+
+  plot$ion <- factor(plot$ion, levels = ion_order)
+
+  plot %>%
+    ggplot(aes(x = concentration, y = type, fill = ion)) +
     geom_bar(
       stat = "identity",
       width = 0.5,
       alpha = 0.5,
       color = "black"
     ) +
-    geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-      size = 3.5
+    geom_text(aes(label = label, fontface = "bold", angle = 90),
+              size = 3.5, position = position_stack(vjust = 0.5)
     ) +
     ggrepel::geom_text_repel(
       aes(
-        x = label_pos, y = label_y,
-        label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
+        #x = label_pos, y = label_y,
+        label = label,
         fontface = "bold"
       ),
       size = 3.5,
@@ -246,8 +255,8 @@ plot_ions <- function(water) {
       x = "Concentration (eq/L)",
       y = "Major Cations and Anions",
       subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
-    ) +
-    guides(fill = "none")
+    ) #+
+    #guides(fill = "none")
 }
 
 
