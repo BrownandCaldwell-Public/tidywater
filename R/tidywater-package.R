@@ -241,7 +241,7 @@ NULL
 #' \item{A}{Constant in the PAC model}
 #' \item{a}{Coefficient in PAC model, associated with DOC0}
 #' \item{b}{Coefficient in PAC model, associated with dose}
-#' \item{c}{Exponent in PAC model, associated with time}
+#' \item{c}{Coefficient in PAC model, associated with time}
 #' }
 #'
 #' @source Cho (2007)
