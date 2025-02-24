@@ -82,6 +82,7 @@ example_df <- water_df \%>\%
   balance_ions_chain() \%>\%
   chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 
+\donttest{
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
@@ -92,6 +93,7 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }
 \seealso{

@@ -6,7 +6,7 @@
 \source{
 U.S. EPA (2001)
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 chemdose_chlordecay(
