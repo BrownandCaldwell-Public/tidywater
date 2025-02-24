@@ -1,3 +1,7 @@
+# tidywater development version
+
+* `calculate_corrosion` expanded CCPP search range (fewer errors)
+
 # tidywater 0.7.0
 
 ## New features
