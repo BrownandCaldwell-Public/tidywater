@@ -28,6 +28,7 @@
 #'
 #' @returns A water class object with updated DOC, TOC, and UV254 slots.
 pac_toc <- function(water, dose, time, type = "bituminous") {
+  pactype <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("doc"))
   if (missing(dose) | !is.numeric(dose) | dose < 0) {
     stop("PAC dose must be specified as a non-negative number.")
@@ -141,12 +142,12 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(5, 60, 5), time = 30) %>%
+#'   mutate(dose = seq(11, 22, 1), time = 30) %>%
 #'   pac_toc_once(input_water = "raw")
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(time = 8) %>%
+#'   mutate(time = 10) %>%
 #'   pac_toc_once(
 #'     input_water = "raw", dose = 6, type = "wood"
 #'   )
@@ -155,7 +156,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   pac_toc_once(input_water = "raw", dose = 4, time = 8)
+#'   pac_toc_once(input_water = "raw", dose = 4, time = 10)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
