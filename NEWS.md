@@ -2,6 +2,9 @@
 
 * `calculate_corrosion` expanded CCPP search range (fewer errors)
 
+## Breaking changes
+* `pac_toc` now constrained to accept a smaller range of doses and times. The form of the equation was allowing negative TOC outputs.
+
 # tidywater 0.7.0
 
 ## New features

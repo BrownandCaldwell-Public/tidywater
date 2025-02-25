@@ -65,12 +65,12 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  mutate(dose = seq(5, 60, 5), time = 30) \%>\%
+  mutate(dose = seq(11, 22, 1), time = 30) \%>\%
   pac_toc_once(input_water = "raw")
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  mutate(time = 8) \%>\%
+  mutate(time = 10) \%>\%
   pac_toc_once(
     input_water = "raw", dose = 6, type = "wood"
   )
@@ -79,7 +79,7 @@ example_df <- water_df \%>\%
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  pac_toc_once(input_water = "raw", dose = 4, time = 8)
+  pac_toc_once(input_water = "raw", dose = 4, time = 10)
 
 # Optional: explicitly close multisession processing
 plan(sequential)
