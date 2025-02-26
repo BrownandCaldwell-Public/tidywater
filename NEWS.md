@@ -4,6 +4,8 @@
 
 ## Breaking changes
 * `pac_toc` now constrained to accept a smaller range of doses and times. The form of the equation was allowing negative TOC outputs.
+* `define_water`, `chemdose_ph`, `blend_waters`, and other pH related functions slightly impacted by a fix in concentration vs activity. 
+Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 
 # tidywater 0.7.0
 

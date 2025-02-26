@@ -153,12 +153,12 @@ test_that("ccpp works", {
   water6 <- suppressWarnings(define_water(ph = 5, alk = 20, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")
 
-  expect_equal(round(water1@ccpp), 17) # high alk
-  expect_equal(round(water2@ccpp, 1), -1.2) # low alk
+  expect_equal(round(water1@ccpp), 16) # high alk
+  expect_equal(round(water2@ccpp, 1), -1.3) # low alk
   expect_equal(round(water3@ccpp), 16) # use tot_hard to get ca
   expect_equal(round(water4@ccpp), -4) # low ca
-  expect_equal(round(water5@ccpp), -33) # low pH
-  expect_equal(round(water6@ccpp), -327) # extra low pH
+  expect_equal(round(water5@ccpp), -34) # low pH
+  expect_equal(round(water6@ccpp), -328) # extra low pH
   expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })
