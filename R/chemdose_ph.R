@@ -179,8 +179,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
     ph <- ph_corrected
   }
 
-  h <- 10^-ph
-  oh <- dosed_water@kw / h
+  # Convert from pH to concentration (not activity)
+  h <- (10^-ph) / calculate_activity(1, water@is, water@temp)
+  oh <- dosed_water@kw / (h * calculate_activity(1, water@is, water@temp)^2)
 
   # Correct eq constants
   ks <- correct_k(dosed_water)

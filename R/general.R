@@ -616,16 +616,22 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
 
 calculate_activity <- function(z, is, temp) {
-  tempa <- temp + 273.15 # absolute temperature (K)
 
-  # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
-  de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
+  if(!is.na(is)) {
+    tempa <- temp + 273.15 # absolute temperature (K)
 
-  # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
-  a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+    # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
+    de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
 
-  # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
-  10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+    # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
+    a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+
+    # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
+    activity <- 10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+  } else {
+    activity <- 1
+  }
+  return(activity)
 }
 
 

@@ -111,8 +111,9 @@ blend_waters <- function(waters, ratios) {
 
   # Calculate new pH
   ph <- solve_ph(blended_water)
-  h <- 10^-ph
-  blended_water@oh <- blended_water@kw / h
+  gamma1 <- calculate_activity(1, blended_water@is, blended_water@temp)
+  h <- (10^-ph) / gamma1
+  blended_water@oh <- blended_water@kw / (h * gamma1^2)
   blended_water@h <- h
   blended_water@ph <- ph
 
