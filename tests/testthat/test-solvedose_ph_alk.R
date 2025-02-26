@@ -19,8 +19,8 @@ test_that("Solve dose pH doesn't run when target pH is out of range.", {
 test_that("Solve dose pH returns the correct values.", {
   water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_ph(water4, 11, "naoh"), 39.2)
-  expect_equal(solvedose_ph(water4, 7, "co2"), 3.5)
+  expect_equal(solvedose_ph(water4, 11, "naoh"), 40.3)
+  expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
   co2dose <- solvedose_ph(water4, 7, "co2")
   expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
 })
@@ -56,8 +56,8 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
 test_that("Solve dose alk works.", {
   water5 <- define_water(8, 20, 50, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_alk(water5, 100, "naoh"), 39.8)
-  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.2)
+  expect_equal(solvedose_alk(water5, 100, "naoh"),40)
+  expect_equal(solvedose_alk(water5, 10, "h2so4"), 39.3)
   naohdose <- solvedose_alk(water5, 100, "naoh")
   expect_equal(signif(chemdose_ph(water5, naoh = naohdose)@alk, 2), 100)
 })

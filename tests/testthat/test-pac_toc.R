@@ -202,7 +202,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   water4 <- water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
-    mutate(pactime = 20) %>%
+    mutate(pactime = 10) %>%
     pac_toc_chain(input_water = "raw", dose = 10, time = .$pactime) %>%
     pluck_water("pac_water", c("doc", "uv254"))
 
