@@ -616,8 +616,7 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
 
 calculate_activity <- function(z, is, temp) {
-
-  if(!is.na(is)) {
+  if (!is.na(is)) {
     tempa <- temp + 273.15 # absolute temperature (K)
 
     # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
