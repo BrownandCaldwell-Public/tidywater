@@ -7,10 +7,10 @@
 solvect_o3_once(
   df,
   input_water = "defined_water",
-  time = 0,
-  dose = 0,
-  kd = 0,
-  baffle = 0,
+  time = "use_col",
+  dose = "use_col",
+  kd = "use_col",
+  baffle = "use_col",
   water_prefix = TRUE
 )
 }

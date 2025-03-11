@@ -7,9 +7,9 @@
 ozonate_bromate_once(
   df,
   input_water = "defined_water",
-  dose = 0,
-  time = 0,
-  model = "Ozekin"
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
 )
 }
 \arguments{

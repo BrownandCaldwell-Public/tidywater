@@ -132,7 +132,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #'
 #' @returns A data frame with updated DOC, TOC, and BDOC concentrations.
 
-biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozonated = TRUE) {
+biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_col", ozonated = "use_col") {
   biofiltered_water <- biofilter <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     biofilter_toc_chain(
@@ -205,23 +205,27 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozon
 #' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
 
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
-                                ebct = 0, ozonated = TRUE) {
-  ID <- NULL # Quiet RCMD check global variable note
+                                ebct = "use_col", ozonated = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
+  ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
 
-  arguments <- construct_helper(df, list("ebct" = ebct), list("ozonated" = ozonated))
+  arguments <- construct_helper(df, list("ebct" = ebct, "ozonated" = ozonated))
 
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
   output <- df %>%
-    subset(select = !names(df) %in% c("ebct", "ozonated")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(arguments, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        ebct = ebct,
-        ozonated = ozonated
+        ebct = !!as.name(arguments$final_names$ebct),
+        # This logic needed for any argument that has a default
+        ozonated = ifelse(exists(as.name(arguments$final_names$ozonated), where = .),
+          !!as.name(arguments$final_names$ozonated), TRUE
+        )
       ),
       biofilter_toc
     ))

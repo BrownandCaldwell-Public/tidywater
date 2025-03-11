@@ -7,11 +7,11 @@
 chemdose_dbp_once(
   df,
   input_water = "defined_water",
-  cl2 = 0,
-  time = 0,
-  treatment = "raw",
-  cl_type = "chlorine",
-  location = "plant"
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col"
 )
 }
 \arguments{

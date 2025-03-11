@@ -230,8 +230,8 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' @returns A data frame with updated chlorine residuals.
 
-chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = 0, time = 0,
-                                     treatment = "raw", cl_type = "chlorine") {
+chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = "use_col", time = "use_col",
+                                     treatment = "use_col", cl_type = "use_col") {
   temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_chlordecay_chain(
@@ -327,28 +327,39 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 #' @returns A data frame containing a water class column with updated chlorine residuals.
 
 chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                                      cl2_dose = 0, time = 0, treatment = "raw", cl_type = "chlorine") {
-  ID <- NULL # Quiet RCMD check global variable note
+                                      cl2_dose = "use_col", time = "use_col",
+                                      treatment = "use_col", cl_type = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
 
-  arguments <- construct_helper(
-    df, list("cl2_dose" = cl2_dose, "time" = time),
-    list("treatment" = treatment, "cl_type" = cl_type)
-  )
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, list(
+    "cl2_dose" = cl2_dose, "time" = time,
+    "treatment" = treatment, "cl_type" = cl_type
+  ))
 
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
   output <- df %>%
-    subset(select = !names(df) %in% c("cl2_dose", "time", "treatment", "cl_type")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(arguments, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        cl2_dose = cl2_dose,
-        time = time,
-        treatment = treatment,
-        cl_type = cl_type
+        cl2_dose = !!as.name(arguments$final_names$cl2_dose),
+        time = !!as.name(arguments$final_names$time),
+
+        # This logic needed for any argument that has a default
+        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
+          !!as.name(arguments$final_names$treatment), "raw"
+        ),
+        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
+          !!as.name(arguments$final_names$cl_type), "chlorine"
+        )
       ),
       chemdose_chlordecay
     ))

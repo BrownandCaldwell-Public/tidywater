@@ -14,9 +14,9 @@ pac_toc_chain(
   df,
   input_water = "defined_water",
   output_water = "pac_water",
-  dose = 0,
-  time = 0,
-  type = "bituminous"
+  dose = "use_col",
+  time = "use_col",
+  type = "use_col"
 )
 }
 \arguments{

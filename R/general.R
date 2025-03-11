@@ -470,44 +470,61 @@ validate_water <- function(water, slots) {
   }
 }
 
-construct_helper <- function(df, num_arguments, str_arguments) {
-  all_arguments <- c(names(num_arguments), names(str_arguments))
-
-  inputs_arg <- do.call(expand.grid, num_arguments) %>%
-    select_if(~ any(. != 0))
-
-  if (any(sapply(str_arguments, length) > 1)) {
-    inputs_arg <- inputs_arg %>%
-      cross_join(do.call(expand.grid, str_arguments))
-  }
-
-  inputs_col <- df %>%
-    subset(select = names(df) %in% all_arguments) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (any(all_arguments %in% colnames(inputs_arg) & all_arguments %in% colnames(inputs_col))) {
-    stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  arguments <- inputs_col %>%
-    cross_join(inputs_arg)
-
-  if (!all(all_arguments %in% colnames(arguments))) {
-    if (!all(names(num_arguments) %in% colnames(arguments))) {
-      warning("Numeric arguments missing or set to 0. Add them as a column or function argument.")
+validate_args <- function(num_args = list(), str_args = list(), log_args = list(), misc_args = list()) {
+  all_args <- c(num_args, str_args, log_args, misc_args)
+  for (arg in names(all_args)) {
+    if (is.null(all_args[[arg]])) {
+      stop("argument '", arg, "' is missing, with no default")
     }
+  }
+  for (arg in names(num_args)) {
+    if (!is.numeric(num_args[[arg]])) {
+      stop("argument '", arg, "' must be numeric.")
+    }
+  }
+  for (arg in names(str_args)) {
+    if (!is.character(str_args[[arg]])) {
+      stop("argument '", arg, "' must be specified as a string.")
+    }
+  }
+  for (arg in names(log_args)) {
+    if (!is.logical(log_args[[arg]])) {
+      stop("argument '", arg, "' must be either TRUE or FALSE.")
+    }
+  }
+}
 
-    missing_args <- do.call(expand.grid, num_arguments) %>%
-      cross_join(do.call(expand.grid, str_arguments)) %>%
-      subset(select = !names(.) %in% names(arguments)) %>%
-      unique()
+construct_helper <- function(df, all_args) {
+  # Get the names of each argument type
+  all_arguments <- names(all_args)
+  from_df <- names(all_args[all_args == "use_col"])
 
-    arguments <- arguments %>%
-      cross_join(missing_args)
+  from_new <- all_args[all_args != "use_col"]
+  if (length(from_new) > 0) {
+    from_columns <- all_args[sapply(from_new, function(x) any(inherits(x, "quosure")))]
+  } else {
+    from_columns <- list()
   }
 
-  return(arguments)
+  from_inputs <- setdiff(from_new, from_columns)
+
+  inputs_arg <- do.call(expand.grid, list(from_inputs, stringsAsFactors = FALSE))
+
+
+  if (any(colnames(df) %in% colnames(inputs_arg))) {
+    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
+  }
+
+  # Get the new names for relevant columns
+  final_names <- setNames(as.list(all_arguments), all_arguments)
+  for (arg in names(from_columns)) {
+    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
+  }
+
+  return(list(
+    "new_cols" = as.list(inputs_arg),
+    "final_names" = as.list(final_names)
+  ))
 }
 
 

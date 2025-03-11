@@ -304,10 +304,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #'
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
-                             hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
-                             na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                             cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
-                             alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
+                             hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
+                             na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
+                             cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
+                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
+                             caco3 = "use_col") {
   dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     chemdose_ph_chain(
@@ -405,81 +406,71 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @returns A data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                              hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0, naoh = 0,
-                              na2co3 = 0, nahco3 = 0, caoh2 = 0, mgoh2 = 0,
-                              cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
-                              alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
-  ID <- NULL # Quiet RCMD check global variable note
-  dosable_chems <- tibble(
-    hcl, h2so4, h3po4, co2, naoh,
-    na2co3, nahco3, caoh2, mgoh2,
-    cl2, naocl, nh4oh, nh42so4,
-    alum, ferricchloride, ferricsulfate, ach, caco3
-  )
+                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
+                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
+                              cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
+                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
+                              caco3 = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
+  h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
+  h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
+  co2 <- tryCatch(co2, error = function(e) enquo(co2))
+  naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
 
-  chem_inputs_arg <- dosable_chems %>%
-    select_if(~ any(. > 0))
+  na2co3 <- tryCatch(na2co3, error = function(e) enquo(na2co3))
+  nahco3 <- tryCatch(nahco3, error = function(e) enquo(nahco3))
+  caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
+  mgoh2 <- tryCatch(mgoh2, error = function(e) enquo(mgoh2))
 
-  chem_inputs_col <- df %>%
-    subset(select = names(df) %in% names(dosable_chems)) %>%
-    # add row number for joining
-    mutate(ID = row_number())
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  naocl <- tryCatch(naocl, error = function(e) enquo(naocl))
+  nh4oh <- tryCatch(nh4oh, error = function(e) enquo(nh4oh))
+  nh42so4 <- tryCatch(nh42so4, error = function(e) enquo(nh42so4))
 
-  if (length(chem_inputs_col) - 1 == 0 & length(chem_inputs_arg) == 0) {
-    warning("No chemical dose found. Create dose column, enter a dose argument, or check availbility of chemical in the chemdose_ph function.")
+  alum <- tryCatch(alum, error = function(e) enquo(alum))
+  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
+  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  ach <- tryCatch(ach, error = function(e) enquo(ach))
+  caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
+
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list(
+    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "co2" = co2, "naoh" = naoh,
+    "na2co3" = na2co3, "nahco3" = nahco3, "caoh2" = caoh2, "mgoh2" = mgoh2,
+    "cl2" = cl2, "naocl" = naocl, "nh4oh" = nh4oh, "nh42so4" = nh42so4,
+    "alum" = alum, "ferricchloride" = ferricchloride, "ferricsulfate" = ferricsulfate, "ach" = ach, "caco3" = caco3
+  ))
+  final_names <- arguments$final_names
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (length(chem_inputs_col) > 0 & length(chem_inputs_arg) > 0) {
-    if (any(names(chem_inputs_arg) %in% names(chem_inputs_col))) {
-      stop("At least one chemical was dosed as both a function argument and a data frame column. Remove your chemical(s) from one of these inputs.")
-    }
-  }
-
-  if (nrow(chem_inputs_arg) == 1) {
-    chem_doses <- chem_inputs_col %>%
-      cross_join(chem_inputs_arg)
-    # Add missing chemical columns
-    chem2 <- dosable_chems %>%
-      subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-      cross_join(chem_doses) %>%
-      mutate(ID = row_number())
-  } else if (nrow(chem_inputs_arg) > 1) {
-    chem_doses <- chem_inputs_col %>%
-      cross_join(chem_inputs_arg)
-    chem2 <- dosable_chems %>%
-      subset(select = !names(dosable_chems) %in% names(chem_doses)) %>%
-      unique() %>%
-      cross_join(chem_doses)
-  }
-
   output <- df %>%
-    subset(select = !names(df) %in% names(chem_inputs_col)) %>%
-    mutate(ID = row_number()) %>%
-    left_join(chem2, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        hcl = hcl,
-        h2so4 = h2so4,
-        h3po4 = h3po4,
-        co2 = co2,
-        naoh = naoh,
-        na2co3 = na2co3,
-        nahco3 = nahco3,
-        caoh2 = caoh2,
-        mgoh2 = mgoh2,
-        cl2 = cl2,
-        naocl = naocl,
-        nh4oh = nh4oh,
-        nh42so4 = nh4oh,
-        alum = alum,
-        ferricchloride = ferricchloride,
-        ferricsulfate = ferricsulfate,
-        ach = ach,
-        caco3 = caco3
+        hcl = ifelse(exists(as.name(final_names$hcl), where = .), !!as.name(final_names$hcl), 0),
+        h2so4 = ifelse(exists(as.name(final_names$h2so4), where = .), !!as.name(final_names$h2so4), 0),
+        h3po4 = ifelse(exists(as.name(final_names$h3po4), where = .), !!as.name(final_names$h3po4), 0),
+        co2 = ifelse(exists(as.name(final_names$co2), where = .), !!as.name(final_names$co2), 0),
+        naoh = ifelse(exists(as.name(final_names$naoh), where = .), !!as.name(final_names$naoh), 0),
+        na2co3 = ifelse(exists(as.name(final_names$na2co3), where = .), !!as.name(final_names$na2co3), 0),
+        nahco3 = ifelse(exists(as.name(final_names$nahco3), where = .), !!as.name(final_names$nahco3), 0),
+        caoh2 = ifelse(exists(as.name(final_names$caoh2), where = .), !!as.name(final_names$caoh2), 0),
+        mgoh2 = ifelse(exists(as.name(final_names$mgoh2), where = .), !!as.name(final_names$mgoh2), 0),
+        cl2 = ifelse(exists(as.name(final_names$cl2), where = .), !!as.name(final_names$cl2), 0),
+        naocl = ifelse(exists(as.name(final_names$naocl), where = .), !!as.name(final_names$naocl), 0),
+        nh4oh = ifelse(exists(as.name(final_names$nh4oh), where = .), !!as.name(final_names$nh4oh), 0),
+        nh42so4 = ifelse(exists(as.name(final_names$nh42so4), where = .), !!as.name(final_names$nh42so4), 0),
+        alum = ifelse(exists(as.name(final_names$alum), where = .), !!as.name(final_names$alum), 0),
+        ferricchloride = ifelse(exists(as.name(final_names$ferricchloride), where = .), !!as.name(final_names$ferricchloride), 0),
+        ferricsulfate = ifelse(exists(as.name(final_names$ferricsulfate), where = .), !!as.name(final_names$ferricsulfate), 0),
+        ach = ifelse(exists(as.name(final_names$ach), where = .), !!as.name(final_names$ach), 0),
+        caco3 = ifelse(exists(as.name(final_names$caco3), where = .), !!as.name(final_names$caco3), 0)
       ),
       chemdose_ph
-    )) %>%
-    select(!any_of(names(dosable_chems)), any_of(names(chem_doses)))
+    ))
 }

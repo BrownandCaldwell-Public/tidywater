@@ -7,9 +7,9 @@
 solvect_chlorine_once(
   df,
   input_water = "defined_water",
-  time = 0,
-  residual = 0,
-  baffle = 0,
+  time = "use_col",
+  residual = "use_col",
+  baffle = "use_col",
   water_prefix = TRUE
 )
 }

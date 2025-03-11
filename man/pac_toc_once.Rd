@@ -12,9 +12,9 @@ CHO(2007)
 pac_toc_once(
   df,
   input_water = "defined_water",
-  dose = 0,
-  time = 0,
-  type = "bituminous"
+  dose = "use_col",
+  time = "use_col",
+  type = "use_col"
 )
 }
 \arguments{

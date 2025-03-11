@@ -8,8 +8,8 @@ biofilter_toc_chain(
   df,
   input_water = "defined_water",
   output_water = "biofiltered_water",
-  ebct = 0,
-  ozonated = TRUE
+  ebct = "use_col",
+  ozonated = "use_col"
 )
 }
 \arguments{

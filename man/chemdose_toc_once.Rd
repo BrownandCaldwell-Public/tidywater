@@ -7,10 +7,10 @@
 chemdose_toc_once(
   df,
   input_water = "defined_water",
-  alum = 0,
-  ferricchloride = 0,
-  ferricsulfate = 0,
-  coeff = "Alum"
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
 )
 }
 \arguments{

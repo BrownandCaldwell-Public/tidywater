@@ -168,7 +168,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' @returns A data frame with an updated DOC, TOC, and UV254 concentration.
 
 pac_toc_once <- function(df, input_water = "defined_water",
-                         dose = 0, time = 0, type = "bituminous") {
+                         dose = "use_col", time = "use_col", type = "use_col") {
   temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     pac_toc_chain(
@@ -249,24 +249,30 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
-                          dose = 0, time = 0, type = "bituminous") {
-  ID <- NULL # Quiet RCMD check global variable note
+                          dose = "use_col", time = "use_col", type = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  type <- tryCatch(type, error = function(e) enquo(type))
 
-  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "type" = type))
 
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
   output <- df %>%
-    subset(select = !names(df) %in% c("dose", "time", "type")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(arguments, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        dose = dose,
-        time = time,
-        type = type
+        dose = !!as.name(arguments$final_names$dose),
+        time = !!as.name(arguments$final_names$time),
+        # This logic needed for any argument that has a default
+        type = ifelse(exists(as.name(arguments$final_names$type), where = .),
+          !!as.name(arguments$final_names$type), "bituminous"
+        )
       ),
       pac_toc
     ))

@@ -8,9 +8,9 @@ ozonate_bromate_chain(
   df,
   input_water = "defined_water",
   output_water = "ozonated_water",
-  dose = 0,
-  time = 0,
-  model = "Ozekin"
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
 )
 }
 \arguments{
