@@ -24,7 +24,7 @@ test_that("function catches index typos", {
 
 test_that("warnings are present when parameters used in calculations are estimated by tidywater.", {
   water1 <- suppressWarnings(define_water(8, 25, 200, 200))
-  water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions()
+  water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions(anion = "so4")
 
   expect_warning(calculate_corrosion(water1, index = "aggressive"))
   expect_warning(calculate_corrosion(water2, index = "csmr"))
