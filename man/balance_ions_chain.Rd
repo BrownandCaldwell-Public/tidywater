@@ -7,7 +7,9 @@
 balance_ions_chain(
   df,
   input_water = "defined_water",
-  output_water = "balanced_water"
+  output_water = "balanced_water",
+  anion = "cl",
+  cation = "na"
 )
 }
 \arguments{
@@ -16,6 +18,10 @@ balance_ions_chain(
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "balanced_water".}
+
+\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").}
+
+\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").}
 }
 \value{
 A data frame containing a water class column with updated ions to balance water charge.
@@ -39,8 +45,8 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 5)
+  balance_ions_chain(anion = "co3", cation = "ca") \%>\%
+  select(-defined_water, -balanced_water)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

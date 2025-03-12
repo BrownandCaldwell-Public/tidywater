@@ -8,7 +8,7 @@ test_that("Balance ions doesn't alter carbonate system.", {
   expect_equal(water1@hco3, water2@hco3)
 })
 
-test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl.", {
+test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl if not specified.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
   water2 <- balance_ions(water1)
   expect_equal(water1@ca, water2@ca)
