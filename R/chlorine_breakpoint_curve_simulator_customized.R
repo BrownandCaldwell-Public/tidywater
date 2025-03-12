@@ -1,36 +1,33 @@
 # chlorine breakpoint curve simulator
-# These functions predict total trihalomethane (TTHM) and haloacetic acid (HAA) formation
+# This function carries out the Chlorine Breakpoint analysis, predicting the residual chlorine and chloramine concentrations
 
-#' @title Calculate DBP formation
-#'
-#' @description \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
-#' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
-#' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
+#' @title Calculate Chlorine and Chloramine Concentrations with the Breakpoint Chlorination approach
+#' 
+#' @description \code{simulate_breakpoint}, adopted from the U.S. EPA's Chlorine Breakpoint Curve Simulator, 
+#' calculates chlorine and chlorinamine concentrations based on the two papers Jafvert & Valentine 
+#' (Environ. Sci. Technol., 1992, 26 (3), pp 577-586) and Vikesland et al. (Water Res., 2001, 35 (7), pp 1766-1776).
+#' Required arguments include an object of class "water" created by \code{\link{define_water}}, chlorine dose, and reaction time.
 #' The function also requires additional water quality parameters defined in \code{define_water}
-#' including bromide, TOC, UV254, temperature, and pH.
+#' including temperature, pH, and alkalinity.
 #'
-#' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' Use \code{summarise_wq} to quickly tabulate the results.
+#' @details The function will calculate the Chlorine and Chloramine concentrations and update the "water"
+#' class object proceed to the next steps of the treatment chain. 
 #'
-#' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
-#' @source HAAs, raw: U.S. EPA (2001) equation 5-134
-#' @source TTHMs, treated: U.S. EPA (2001) equation 5-139
-#' @source HAAs, treated: U.S. EPA (2001) equation 5-142
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
-#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
-#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
-#' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
+#' @param time Reaction time (minutes).
+#' @param cl2  Applied chlorine dose (mg/L as Cl2).
 #' @examples
-#' example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
-#'   chemdose_dbp(cl2 = 2, time = 8)
-#' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
-#'   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
+#' example_breakpoint <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2, tot_nh3 = 1)) %>% 
+#'   simulate_chloramine2(time=20)
+#' example_breakpoint <- suppressWarnings(define_water(8, 20, 65)) %>% 
+#'   simulate_chloramine2(time=20, cl2=2)
+#'
 #'
 #' @export
 #'
-#' @returns A water class object with predicted DBP concentrations.
+#' @returns A water class object with predicted Chlorine and Chloramine concentrations.
 #'
 
 # library(deSolve)
@@ -39,309 +36,50 @@
 # library(scales)
 # library(tidywater)
 # library(tidyverse)
-
-
-# Define chloramine system simulation function, output a dataframe with a time series
-simulate_chloramine1 <- function(water, initial_chemical, Free_mgL) { # time_m argument to be added 
-  
-  # Set general simulation parameters
-  length_m <- 240
-  ratio_step <- 0.2
-  ratio_min <- 0.0
-  ratio_max <- 15.0
-  
-  temp <- water@temp
-  ph <- water@ph
-  alk <- water@alk
-  #tot_nh3 <- water@tot_nh3 # (tot_nh3 = NH3 + NH4+)
-  tot_ocl <- water@tot_ocl # (tot_ocl is free chlorine, tot_ocl = HOCl + OCl-)
-  
-  
-  #Set time steps
-  time <- seq(from = 0, to = length_m*60, by = 60)
-  # time can be assigned in the function, just a single number
-  data_points <- length(time)
-  
-  #Get initial conditions based on various possible input scenarios
-  
-  #Calcualate initial total chlorine concentration
-  #Free Chlorine
-  if (initial_chemical == "chlorine") {
-    #Set chlorine to nitrogen mass ratio number sequence
-    CltoN_Mass <- seq(1, ratio_max, ratio_step)
-    # CltoN_Mass <- can assign some value, or include in the function, or calculate from the free chlorine and NH3
-    # may want to check this mass ratio later, note that in paper it's initially defined as a molar ratio mol Cl/mol N
-    num_cond <- length(CltoN_Mass)
-    
-    #Calcualate initial total chlorine and total ammonia concentrations
-    TOTCl_ini <- rep(Free_mgL/71000, num_cond) # total = given Free_mgL + tot_ocl? (check unit conversion, use convert units function)
-    TOTNH_ini <- (Free_mgL/CltoN_Mass)/14000   # tot_nh3 from water? (check units, check units in a water tot_nh3, mg/L)
-    # TOTNH_ini <- tot_nh3
-    
-  } # keep in moles, double check units
-  
-  #Free Ammonia
-  if (initial_chemical == "ammonia") {
-    #Set chlorine to nitrogen mass ratio number sequence
-    CltoN_Mass <- seq(ratio_min, ratio_max, ratio_step)
-    num_cond <- length(CltoN_Mass)
-    
-    #Calcualate initial total chlorine and total ammonia concentrations
-    TOTCl_ini <- (CltoN_Mass*tot_nh3)/71000
-    TOTNH_ini <- rep(tot_nh3/14000, num_cond)
-    # TOTNH_ini <- tot_nh3
-  }
-  
-  #Calcualate initial concentrations
-  NH2Cl_ini <- rep(0, num_cond)
-  NHCl2_ini <- rep(0, num_cond)
-  NCl3_ini <- rep(0, num_cond)
-  I_ini <- rep(0, num_cond)
-  # NH2Cl_ini <- 0
-  # NHCl2_ini <- 0
-  # NCl3_ini <- 0
-  # I_ini <- 0
-  # these might not be true, because there's chlorine residual in previous function?
-  
-  # Convert temperature from Celsius to Kelvin
-  T_K <- temp + 273.15
-  
-  # Calculate equilibrium constants for chloramine system adjusted for temperature
-  KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5))  #10^-7.6
-  KNH4 <- 10^(-(1.03e-4 * T_K^2 - 9.21e-2 * T_K + 27.6))   #10^-9.25
-  KH2CO3 <- 10^(-(1.48e-4 * T_K^2 - 9.39e-2 * T_K + 21.2)) #10^-6.35
-  KHCO3 <- 10^(-(1.19e-4 * T_K^2 - 7.99e-2 * T_K + 23.6))  #10^-10.33
-  KW <- 10^(-(1.5e-4 * T_K^2 - 1.23e-1 * T_K + 37.3))      #10^-14
-  
-  # Calculate water species concentrations (moles/L)
-  H <- 10^-ph
-  OH <- KW/H
-  
-  # Calculate alpha values
-  alpha0TOTCl <- 1/(1 + KHOCl/H)
-  alpha1TOTCl <- 1/(1 + H/KHOCl)
-  
-  alpha0TOTNH <- 1/(1 + KNH4/H)
-  alpha1TOTNH <- 1/(1 + H/KNH4)
-  
-  alpha0TOTCO <- 1/(1 + KH2CO3/H + KH2CO3*KHCO3/H^2)
-  alpha1TOTCO <- 1/(1 + H/KH2CO3 + KHCO3/H)
-  alpha2TOTCO <- 1/(1 + H/KHCO3 + H^2/(KH2CO3*KHCO3))
-  
-  # Calculate total carbonate concentration (moles/L)
-  TOTCO <- (alk/50000 + H - OH)/(alpha1TOTCO + 2 * alpha2TOTCO)
-  
-  # Calculate carbonate species concentrations (moles/L)
-  H2CO3 <- alpha0TOTCO*TOTCO
-  HCO3 <- alpha1TOTCO*TOTCO
-  CO3 <- alpha2TOTCO*TOTCO
-  
-  # Calculated rate constants (moles/L and seconds) adjusted for temperature
-  k1 <- 6.6e8 * exp(-1510/T_K)                #4.2e6
-  k2 <- 1.38e8 * exp(-8800/T_K)               #2.1e-5
-  k3 <- 3.0e5 * exp(-2010/T_K)                #2.8e2        % -2080
-  k4 <- 6.5e-7
-  k5H <- 1.05e7 * exp(-2169/T_K)              #6.9e3        % off by a bit
-  k5HCO3 <- 4.2e31 * exp(-22144/T_K)          #2.2e-1       % off by a bit
-  k5H2CO3 <- 8.19e6 * exp(-4026/T_K)          #1.1e1
-  k5 <- k5H*H + k5HCO3*HCO3 + k5H2CO3*H2CO3
-  k6 <- 6.0e4
-  k7 <- 1.1e2
-  k8 <- 2.8e4
-  k9 <- 8.3e3
-  k10 <- 1.5e-2
-  k11p <- 3.28e9*OH + 6.0e6*CO3                             # double check this and below
-  k11OCl <- 9e4
-  k12 <- 5.56e10
-  k13 <- 1.39e9
-  k14 <- 2.31e2
-  
-  # Define function for chloramine system
-  chloramine <- function(t, y, parms) { # t argument is unused
-    with(as.list(y), {
-      
-      dTOTNH <- (-k1*alpha0TOTCl*TOTCl*alpha1TOTNH*TOTNH + k2*NH2Cl + k5*NH2Cl^2 - k6*NHCl2*alpha1TOTNH*TOTNH*H)
-      dTOTCl <- (-k1*alpha0TOTCl*TOTCl*alpha1TOTNH*TOTNH + k2*NH2Cl - k3*alpha0TOTCl*TOTCl*NH2Cl + k4*NHCl2 + k8*I*NHCl2 -
-                   (k11p + k11OCl*alpha1TOTCl*TOTCl)*alpha0TOTCl*TOTCl*NHCl2 + 2*k12*NHCl2*NCl3*OH + k13*NH2Cl*NCl3*OH -
-                   2*k14*NHCl2*alpha1TOTCl*TOTCl)
-      dNH2Cl <- (k1*alpha0TOTCl*TOTCl*alpha1TOTNH*TOTNH - k2*NH2Cl - k3*alpha0TOTCl*TOTCl*NH2Cl + k4*NHCl2 - 2*k5*NH2Cl^2 +
-                   2*k6*NHCl2*alpha1TOTNH*TOTNH*H - k9*I*NH2Cl - k10*NH2Cl*NHCl2 - k13*NH2Cl*NCl3*OH)
-      dNHCl2 <- (k3*alpha0TOTCl*TOTCl*NH2Cl - k4*NHCl2 + k5*NH2Cl^2 - k6*NHCl2*alpha1TOTNH*TOTNH*H - k7*NHCl2*OH - k8*I*NHCl2 -
-                   k10*NH2Cl*NHCl2 - (k11p + k11OCl*alpha1TOTCl*TOTCl)*alpha0TOTCl*TOTCl*NHCl2 - k12*NHCl2*NCl3*OH -
-                   k14*NHCl2*alpha1TOTCl*TOTCl)
-      dNCl3 <- ((k11p + k11OCl*alpha1TOTCl*TOTCl)*alpha0TOTCl*TOTCl*NHCl2 - k12*NHCl2*NCl3*OH - k13*NH2Cl*NCl3*OH)
-      dI <- (k7*NHCl2*OH - k8*I*NHCl2 - k9*I*NH2Cl)
-      list(c(dTOTNH, dTOTCl, dNH2Cl, dNHCl2, dNCl3, dI))
-    })
-  }
-  
-  #Initialize blank data frame for simulation results
-  sim_data <- data.frame(TOTNH = numeric(),
-                         TOTCl = numeric(),
-                         NH2Cl = numeric(),
-                         NHCl2 = numeric(),
-                         NCl3 = numeric(),
-                         I = numeric(),
-                         Mass_Ratio = numeric()
-  )
-  
-  for (i in 1:num_cond){
-    #Set Initial Condition Variables
-    yini <- c(TOTNH = TOTNH_ini[i],
-              TOTCl = TOTCl_ini[i],
-              NH2Cl = NH2Cl_ini[i],
-              NHCl2 = NHCl2_ini[i],
-              NCl3 = NCl3_ini[i],
-              I = I_ini[i])
-    
-    # yin <- c(TOTNH = TOTNH_ini,   
-    #          TOTCl = TOTCl_ini,
-    #          NH2Cl = NH2Cl_ini,
-    #          NHCl2 = NHCl2_ini,
-    #          NCl3 = NCl3_ini,
-    #          I = I_ini)
-    
-    #Solver of ODE System
-    out <- cbind(as.data.frame(ode(func = chloramine,
-                                   parms = NULL,
-                                   y = yini,
-                                   # y = yin,
-                                   times = time,
-                                   atol = 1e-12,
-                                   rtol = 1e-12
-    )
-    ),
-    Mass_Ratio = CltoN_Mass[i]
-    )
-    
-    sim_data <- rbind(sim_data, out)
-  }
-  
-  # Extract concentrations (moles/L) and convert to typical units (e.g., mg Cl2/L or mg N/L)
-  sim_data$Total_Chlorine <- (sim_data$NH2Cl + sim_data$NHCl2*2 + sim_data$NCl3*3 + sim_data$TOTCl)*71000
-  sim_data$Monochloramine <- sim_data$NH2Cl*71000
-  sim_data$Dichloramine <- sim_data$NHCl2*71000*2
-  sim_data$Trichloramine <- sim_data$NCl3*71000*3
-  sim_data$Free_Chlorine <- sim_data$TOTCl*71000
-  sim_data$Free_Ammonia <- sim_data$TOTNH*14000
-  sim_data$Total_Ammonia_N <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)*14000
-  sim_data$Total_Ammonia_NH3 <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)*17000
-  sim_data$Cl2N <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_N
-  sim_data$Cl2NH3 <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_NH3
-  sim <- melt(sim_data, id.vars=c("time", "Mass_Ratio"), variable.name="chemical", value.name="concentration")
-  
-  # water@... <- ...
-  
-  
-  #return(water)
-  
-  }
+# devtools::load_all()
 
 
 ############################
-# output for one time step 
-# dose of chlorine (sum)
-# cl2 as dose, in mg/L
 
-simulate_chloramine2 <- function(water,time, cl2=0) { # time in minutes
+# time constraint? (240 minutes? with warning
+# reference list add articles?
 
-  time <- time*60 # convert to seconds, or define time with seconds as unit
-  temp <- water@temp
+simulate_breakpoint <- function(water,time, cl2=0) {
+
+  if (missing(time)) {
+    stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
+  }
+  
+  # if (time > 240) {
+  #   warning("Treatment time is outside the model bounds of 0 <= time <= 240 minutes")
+  # }
+  
+  if (water@nh2cl != 0 | water@nhcl2 != 0 | water@ncl3 != 0) {
+    warning("Chloramine presence in water class object")
+  }
+
+  time <- time*60
   ph <- water@ph
   alk <- water@alk
+  temp <- water@temp
+  # Convert temperature from Celsius to Kelvin
+  T_K <- temp + 273.15
 
   # in moles/L
   TOTCl_ini <- water@free_chlorine + convert_units(cl2,'cl2') # +dose # (tot_ocl is free chlorine, tot_ocl = HOCl + OCl-)
   TOTNH_ini <- water@tot_nh3 # (tot_nh3 = NH3 + NH4+)
-  # testing
-  # TOTCl_ini <- TOTNH_ini/(71/14)*15
-  
-  # for testing purpose 
-  # CltoN_Mass <-  TOTCl_ini/TOTNH_ini*(71/14)
+  # in mg/L
   CltoN_Mass <- convert_units(TOTCl_ini,'cl2','M','mg/L')/convert_units(TOTNH_ini,'n','M','mg/L')
-  
-  #Calcualate initial concentrations
-  NH2Cl_ini <- 0
-  NHCl2_ini <- 0
-  NCl3_ini <- 0
-  I_ini <- 0
-  # potential water slots for chloramines
-  # these might not be true, because there's chlorine residual in previous function?
-  # test with no chloramine as start
-  # test with chloramine, check results, warning function
-  
-  # General temperature correction for equilibrium constants
-  # Temperature in deg C
-  # van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17
-  # Assumes delta H for a reaction doesn't change with temperature, which is valid for ~0-30 deg C
-  
-  K_temp_adjust <- function(deltah, ka, temp) {
-    R <- 8.314 # J/mol * K
-    tempa <- temp + 273.15
-    lnK <- log(ka)
-    exp((deltah / R * (1 / 298.15 - 1 / tempa)) + lnK)
-  }
-  
-  correct_k <- function(water) {
-    # Determine activity coefficients
-    if (is.na(water@is)) {
-      activity_z1 <- 1
-      activity_z2 <- 1
-      activity_z3 <- 1
-    } else {
-      activity_z1 <- calculate_activity(1, water@is, water@temp)
-      activity_z2 <- calculate_activity(2, water@is, water@temp)
-      activity_z3 <- calculate_activity(3, water@is, water@temp)
-    }
-    
-    temp <- water@temp
-    discons <- tidywater::discons
-    # Eq constants
-    # k1co3 = {h+}{hco3-}/{h2co3}
-    k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
-    # k2co3 = {h+}{co32-}/{hco3-}
-    k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
-    # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-    kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
-    # k1po4 = {h+}{h2po4-}/{h3po4}
-    k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
-    # k2po4 = {h+}{hpo42-}/{h2po4-}
-    k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
-    # k3po4 = {h+}{po43-}/{hpo42-}
-    k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
-    # kocl = {h+}{ocl-}/{hocl}
-    kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
-    # knh4 = {h+}{nh3}/{nh4+}
-    knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-    
-    return(data.frame(
-      "k1co3" = k1co3, "k2co3" = k2co3,
-      "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-      "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
-    ))
-  }
   
   ks <- correct_k(water)
 
-  
-  # Convert temperature from Celsius to Kelvin
-  T_K <- temp + 273.15
-  
   # Calculate equilibrium constants for chloramine system adjusted for temperature
   KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5))  #10^-7.6
   KNH4 <- ks$knh4
   Kh2CO3 <- ks$k1co3
   KHCO3 <- ks$k2co3
-  
   pkw <- round((4787.3 / (T_K)) + (7.1321 * log10(T_K)) + (0.010365 * T_K) - 22.801, 1)
   KW <- 10^-pkw
-  
-  # KNH4 <- 10^(-(1.03e-4 * T_K^2 - 9.21e-2 * T_K + 27.6))   #10^-9.25
-  # KH2CO3 <- 10^(-(1.48e-4 * T_K^2 - 9.39e-2 * T_K + 21.2)) #10^-6.35
-  # KHCO3 <- 10^(-(1.19e-4 * T_K^2 - 7.99e-2 * T_K + 23.6))  #10^-10.33
-  # KW <- 10^(-(1.5e-4 * T_K^2 - 1.23e-1 * T_K + 37.3))      #10^-14
-  
-  # Calculate water species concentrations (moles/L)
   H <- 10^-ph
   OH <- KW/H
   
@@ -353,9 +91,6 @@ simulate_chloramine2 <- function(water,time, cl2=0) { # time in minutes
   alpha1TOTNH <- 1/(1 + H/KNH4)
   
   alpha0TOTCO <- 1/(1 + KH2CO3/H + KH2CO3*KHCO3/H^2)
-  # alpha1TOTCO <- 1/(1 + H/KH2CO3 + KHCO3/H)  # same formula as below
-  # alpha2TOTCO <- 1/(1 + H/KHCO3 + H^2/(KH2CO3*KHCO3)) # same formula as below
-  
   alpha1TOTCO <- calculate_alpha1_carbonate(H,ks)
   alpha2TOTCO <- calculate_alpha2_carbonate(H,ks)
   
@@ -408,12 +143,15 @@ simulate_chloramine2 <- function(water,time, cl2=0) { # time in minutes
     })
   }
   
+    I_ini <- 0
+      
     yin <- c(TOTNH = TOTNH_ini,
              TOTCl = TOTCl_ini, 
-             NH2Cl = NH2Cl_ini,
-             NHCl2 = NHCl2_ini,
-             NCl3 = NCl3_ini,
+             NH2Cl = water@nh2cl,
+             NHCl2 = water@nhcl2,
+             NCl3 = water@ncl3,
              I = I_ini)
+    
     
     #Solver of ODE System
     out <- as.data.frame(ode(func = chloramine, # revisit as.data.frame vs. data.frame
@@ -428,81 +166,26 @@ simulate_chloramine2 <- function(water,time, cl2=0) { # time in minutes
   sim_data <- tail(out,n=1)
   
   # concentrations (moles/L)
-  Total_Chlorine <- (sim_data$NH2Cl + sim_data$NHCl2*2 + sim_data$NCl3*3 + sim_data$TOTCl)
-  Monochloramine <- sim_data$NH2Cl
-  Dichloramine <- sim_data$NHCl2*2 
-  Trichloramine <- sim_data$NCl3*3 
-  Free_Chlorine <- sim_data$TOTCl
-  Free_Ammonia <- sim_data$TOTNH
-  Total_Ammonia_N <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
-  Total_Ammonia_NH3 <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
-  Cl2N <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_N
-  Cl2NH3 <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_NH3
+  # Total_Chlorine <- (sim_data$NH2Cl + sim_data$NHCl2*2 + sim_data$NCl3*3 + sim_data$TOTCl)
+  # Monochloramine <- 
+  # Dichloramine <- 
+  # Trichloramine <- 
+  # Free_Chlorine <- 
+  # Free_Ammonia <- sim_data$TOTNH
+  # Total_Ammonia_N <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
+  # Total_Ammonia_NH3 <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
+  # Cl2N <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_N
+  # Cl2NH3 <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_NH3
   # sim <- melt(sim_data, id.vars=c("time", "Mass_Ratio"), variable.name="chemical", value.name="concentration")
   
-  water@free_chlorine <- Free_Chlorine
-  water@tot_nh3 <- Free_Ammonia
-    
+  water@free_chlorine <- sim_data$TOTCl
+  water@nh2cl <- sim_data$NH2Cl
+  water@nhcl2 <- sim_data$NHCl2*2 
+  water@ncl3 <- sim_data$NCl3*3 
+  water@combined_chlorine <- water@nh2cl + water@nhcl2 + water@ncl3
+  water@tot_nh3 <- sim_data$TOTNH
+    # (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
+
   return(water)
   
 }
-
-
-#######################
-
-test2 <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2, tot_nh3 = 1)) %>% 
-  simulate_chloramine2(time=20)
-test2@tot_nh3*14000
-
-############
-water <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2, tot_nh3 = 1))
-# test1 <- simulate_chloramine1(water, 'chlorine', 1) 
-test1 <- simulate_chloramine1(water, 'chlorine', Free_mgL=water@tot_nh3*15*14000 ) 
-test1[test1['time']==1200&test1['chemical']=='Trichloramine'&test1['Mass_Ratio']==15,]
-
-
-test3 <- simulate_chloramine('ammonia', TOTNH_mgL=1, pH=8, Alk=65, T_C=20, time_m=20)
-test3[test3['time']==1200&test3['chemical']=='Trichloramine'&test3['Mass_Ratio']==15,]
-
-
-
-
-#######
-# next steps
-# (checked) whenever needed, use the convert function instead of manual number
-# (checked) check the simulate_chloramine 1,2 functions, if they give the same results (they should)
-# (checked) check the questions on the margins of simulate_chloramine2
-# (checked) if 1,2 give the same results, check against shiny app
-# add in the part with something presence, correct for nitrite-/bromide-induced monochloramine loss 
-
-# look into alpha calculations defined
-# look into k calculations defined
-# look into water treatment plant user's manual (for their alpha, k calculations, gibbs free energy...)
-# ask about what outputs to keep, 
-#   what slots they feed into, 
-#   and which part of the treatment chain this breakpoint analysis fits into
-#   revisit paper for the above
-
-# put in checks for params missing
-# fill in for function description
-# write a loop for plotting
-
-# add ks/as calculation in the main? or just better off to leave them in this function
-
-
-# doses and time -- 
-# chlorine dosing amount adequate?
-# reaction time vs kinetics?
-# chloramine decay -- free chlorine available?
-# dose chlorine+ammonia -- (mono)chloramine, stability of the types of chloramine, stable residual
-# chemical dosing -- affects basic parameters, or just what happens
-# chlorine, slots consistency chlorine vs. free_chlorine, ph impacts
-
-
-# (noted) bicarbonate carbonate already slots in water
-# water slots 
-# (checked) ode solver, go from 0 to time input
-# water slot vs. dosing? the current way works for testing, but eventually (risk of double dosing)
-# (checked) -- have option to dose? 
-# (noted) rename free chlorine slot (total_ocl (total free chlorine)), remerge main?
-# (?) convert_units function slight difference
