@@ -21,12 +21,12 @@ test_that("Balance ions alters specified ions.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
   water2 <- balance_ions(water1, cation = "ca")
   water3 <- suppressWarnings(define_water(7, 25, 100, tot_hard = 150))
-  water4 <- balance_ions(water3, anion = "po4")
+  water4 <- balance_ions(water3, anion = "so4")
 
   expect_error(expect_equal(water1@ca, water2@ca)) # calcium updated in water 2, so they should not be equal
   expect_equal(water1@na, water2@na) # sodium not updated, so they should be equal
 
-  expect_error(expect_equal(water3@po4, water4@po4)) # phosphate updated in water 4, so they should not be equal
+  expect_error(expect_equal(water3@so4, water4@so4)) # phosphate updated in water 4, so they should not be equal
   expect_equal(water3@cl, water4@cl) # chloride not updated, so they should be equal
 })
 
@@ -173,3 +173,4 @@ test_that("balance_ions_chain can be piped and handle an output_water argument",
   expect_equal(names(water1[2]), "different_column") # check output_water arg
   expect_equal(ncol(water1), 4) # check if pipe worked
 })
+

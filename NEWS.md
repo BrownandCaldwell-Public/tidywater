@@ -14,6 +14,7 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * New water slots for chloramine chemistry: `combined_chlorine`, `nh2cl`, `nhcl2`, `ncl3`
 * `solvemass_solids` separates functionality from `solvecost_solids` to solve lb/day
 * `biofilter_toc`, `chemdose_chlordecay`, `ozonate_bromate`, and `solvect` helpers now available.
+* User may now choose which cation or anion to use for balancing ions
 
 ## Breaking changes
 * `chemdose_ct` renamed `solvect_chlorine`

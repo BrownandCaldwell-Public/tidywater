@@ -9,9 +9,9 @@ balance_ions(water, anion = "cl", cation = "na")
 \arguments{
 \item{water}{Water created with define_water, which may have some ions set to 0 when unknown}
 
-\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").}
+\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").}
 
-\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").}
+\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").}
 }
 \value{
 A water class object with updated ions to balance water charge.
@@ -21,8 +21,9 @@ This function takes a water defined by \code{\link{define_water}} and balances c
 }
 \details{
 If more cations are needed, a default of sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
-Similarly, anions are added by default with chloride. User may specify which anion ("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4") to use for balancing. If calcium and magnesium are not specified when defining a water with
-\code{\link{define_water}}, they will default to 0 and not be changed by this function unless specified in the cation argument.  This function is purely mathematical.
+If calcium and magnesium are not specified when defining a water with
+\code{\link{define_water}}, they will default to 0 and not be changed by this function unless specified in the cation argument.
+Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing. This function is purely mathematical.
 User should always check the outputs to make sure values are reasonable for the input source water.
 }
 \examples{

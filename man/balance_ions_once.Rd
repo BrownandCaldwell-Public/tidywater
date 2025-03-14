@@ -16,9 +16,9 @@ balance_ions_once(
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
-\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").}
+\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").}
 
-\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").}
+\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").}
 }
 \value{
 A dataframe with updated ions to balance water charge

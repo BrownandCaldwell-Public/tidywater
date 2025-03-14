@@ -3,13 +3,14 @@
 #' @description This function takes a water defined by \code{\link{define_water}} and balances charge.
 #'
 #' @details If more cations are needed, a default of sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
-#' Similarly, anions are added by default with chloride. User may specify which anion ("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4") to use for balancing. If calcium and magnesium are not specified when defining a water with
-#' \code{\link{define_water}}, they will default to 0 and not be changed by this function unless specified in the cation argument.  This function is purely mathematical.
+#' If calcium and magnesium are not specified when defining a water with
+#' \code{\link{define_water}}, they will default to 0 and not be changed by this function unless specified in the cation argument.
+#' Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing. This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
-#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").
-#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #'
 #' @examples
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
@@ -35,11 +36,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
   cl_new <- water@cl
   so4_new <- water@so4
-  hco3_new <- water@hco3
-  co3_new <- water@co3
-  h2po4_new <- water@h2po4
-  hpo4_new <- water@hpo4
-  po4_new <- water@po4
 
   # calculate charge
   cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
@@ -60,11 +56,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
   add_cl <- 0
   add_so4 <- 0
-  add_hco3 <- 0
-  add_co3 <- 0
-  add_h2po4 <- 0
-  add_hpo4 <- 0
-  add_po4 <- 0
 
   # Add either sodium or potassium if cations are needed
   # Sodium is preferred because it's often present and not measured.
@@ -102,26 +93,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       add_so4 <- add_ani / 2
       so4_new <- ifelse(is.na(water@so4), add_so4, water@so4 + add_so4)
       water@estimated <- paste(water@estimated, "so4", sep = "_")
-    } else if (anion == "hco3") {
-      add_hco3 <- add_ani
-      hco3_new <- ifelse(is.na(water@hco3), add_hco3, water@hco3 + add_hco3)
-      water@estimated <- paste(water@estimated, "hco3", sep = "_")
-    } else if (anion == "co3") {
-      add_co3 <- add_ani / 2
-      co3_new <- ifelse(is.na(water@co3), add_co3, water@co3 + add_co3)
-      water@estimated <- paste(water@estimated, "co3", sep = "_")
-    } else if (anion == "h2po4") {
-      add_h2po4 <- add_ani
-      h2po4_new <- ifelse(is.na(water@h2po4), add_h2po4, water@h2po4 + add_h2po4)
-      water@estimated <- paste(water@estimated, "h2po4", sep = "_")
-    } else if (anion == "hpo4") {
-      add_hpo4 <- add_ani / 2
-      hpo4_new <- ifelse(is.na(water@hpo4), add_hpo4, water@hpo4 + add_hpo4)
-      water@estimated <- paste(water@estimated, "hpo4", sep = "_")
-    } else if (anion == "po4") {
-      add_po4 <- add_ani / 3
-      po4_new <- ifelse(is.na(water@po4), add_po4, water@po4 + add_po4)
-      water@estimated <- paste(water@estimated, "po4", sep = "_")
     }
   }
 
@@ -132,11 +103,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
   water@cl <- cl_new
   water@so4 <- so4_new
-  water@hco3 <- hco3_new
-  water@co3 <- co3_new
-  water@h2po4 <- h2po4_new
-  water@hpo4 <- hpo4_new
-  water@po4 <- po4_new
 
   water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
 
@@ -146,9 +112,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
     water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
       convert_units(add_ca, "ca", "M", "mg/L") +  convert_units(add_mg, "mg", "M", "mg/L") +
 
-      convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L") +
-      convert_units(add_hco3, "hco3", "M", "mg/L") + convert_units(add_co3, "co3", "M", "mg/L") +
-      convert_units(add_h2po4, "h2po4", "M", "mg/L") + convert_units(add_hpo4, "hpo4", "M", "mg/L") + convert_units(add_po4, "po4", "M", "mg/L")
+      convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
 
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
@@ -171,9 +135,8 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").
-#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").
-#'
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
@@ -234,9 +197,8 @@ balance_ions_once <- function(df, input_water = "defined_water",
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "balanced_water".
-#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("na", "k", "ca", or "mg").
-#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("cl", "so4", "hco3", "co3", 'h2po4", "hpo4", or "po4").
-#'
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
@@ -247,7 +209,7 @@ balance_ions_once <- function(df, input_water = "defined_water",
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain(anion = "co3", cation = "ca") %>%
+#'   balance_ions_chain(anion = "so4", cation = "ca") %>%
 #'   select(-defined_water, -balanced_water)
 #'
 #' example_df <- water_df %>%
