@@ -28,6 +28,14 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
 
+  # check for acceptable cations/anions
+  if (!(anion %in% c("cl", "so4"))) {
+    stop("Anion must be one of 'cl' or 'so4'. No other ions supported at this time.")
+  }
+  if (!(cation %in% c("na", "k", "ca", "mg"))) {
+    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'. No other ions supported at this time.")
+  }
+
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
