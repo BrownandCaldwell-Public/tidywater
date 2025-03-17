@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_pluck_water.R
 \name{convert_watermg}
 \alias{convert_watermg}
-\title{Convert a `water` class object to a dataframe with ions in mg/L or ug/L}
+\title{Convert a \code{water} class object to a dataframe with ions in mg/L or ug/L}
 \usage{
 convert_watermg(water)
 }

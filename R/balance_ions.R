@@ -1,21 +1,30 @@
 #' @title Add Na, K, Cl, or SO4 to balance overall charge in a water
 #'
-#' @description This function takes a water defined by \code{\link{define_water}} and balances charge.
+#' @description This function takes a water defined by [define_water] and balances charge.
+#' For a single water use `balance_ions`; for a dataframe where you want to output a water for continued modeling use
+#' `balance_ions_chain`; for a dataframe where you want to output water parameters as columns use `balance_ions_once`
+#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
 #'
 #' @details If more cations are needed, sodium will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
 #' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
-#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
+#' [define_water], they will default to 0 and not be changed by this function.  This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
-#' @param water Water created with define_water, which may have some ions set to 0 when unknown
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param water Water created with [define_water], which may have some ions set to 0 when unknown
 #'
 #' @examples
-#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10) %>%
 #'   balance_ions()
 #'
 #' @export
 #'
-#' @returns A water class object with updated ions to balance water charge.
+#' @returns `balance_ions` returns a single water class object with updated ions to balance water charge.
 #'
 balance_ions <- function(water) {
   if (!methods::is(water, "water")) {
@@ -102,21 +111,10 @@ balance_ions <- function(water) {
   return(water)
 }
 
-#' Apply `balance_ions` function and output a dataframe
-#'
-#' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
+#' @rdname balance_ions
 #'
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
 #' library(purrr)
@@ -132,19 +130,10 @@ balance_ions <- function(water) {
 #'   define_water_chain(output_water = "Different_defined_water_column") %>%
 #'   balance_ions_once(input_water = "Different_defined_water_column")
 #'
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_once()
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
-#' @returns A dataframe with updated ions to balance water charge
+#' @returns `balance_ions_once` returns a dataframe with updated ions to balance water charge
 
 balance_ions_once <- function(df, input_water = "defined_water") {
   balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
@@ -155,22 +144,9 @@ balance_ions_once <- function(df, input_water = "defined_water") {
     select(-balanced_water)
 }
 
-#' Apply `balance_ions` within a dataframe and output a column of `water` class to be chained to other tidywater functions
-#'
-#' This function allows \code{\link{balance_ions}} to be added to a piped data frame.
-#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "balanced_water".
-#'
-#' @seealso \code{\link{balance_ions}}
+
+#' @rdname balance_ions
+#' @param output_water name of the output column storing updated water classes. Default is "balanced_water".
 #'
 #' @examples
 #' library(purrr)
@@ -200,7 +176,7 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'
 #' @import dplyr
 #' @export
-#' @returns A data frame containing a water class column with updated ions to balance water charge.
+#' @returns `balance_ions_chain` returns a dataframe with a new column with the ion balanced water
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
   output <- df %>%

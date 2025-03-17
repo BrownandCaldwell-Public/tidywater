@@ -1,18 +1,30 @@
 #' @title Calculate new pH and ion balance after chemical addition
 #'
-#' @description \code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+#' @description Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 #' additions.
+#' For a single water use `chemdose_ph`; for a dataframe where you want to output a water for continued modeling use
+#' `chemdose_ph_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_ph_once`
+#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
+#' For most arguments, the `_chain` and `_once` helpers
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
 #' @details The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
 #' chemical additions and returns a new object of class "water" with updated water quality.
 #' Units of all chemical additions are in mg/L as chemical (not as product).
 #'
-#' \code{chemdose_ph} works by evaluating all the user-specified chemical additions and solving for what the new pH
-#' must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
+#' `chemdose_ph` works by evaluating all the user-specified chemical additions and solving for what the new pH
+#' must be using [uniroot] to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
 #' of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
 #' modeled independently through sequential doses.
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param water Source water object of class "water" created by [define_water]
 #' @param hcl Amount of hydrochloric acid added in mg/L: HCl -> H + Cl
 #' @param h2so4 Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4
 #' @param h3po4 Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4
@@ -61,7 +73,7 @@
 #'
 #' @export
 #'
-#' @returns A water class object with updated pH, alkalinity, and ions post-chemical addition.
+#' @returns `chemdose_ph` returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 #'
 chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
@@ -219,49 +231,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   return(dosed_water)
 }
 
-#' Apply `chemdose_ph` function and output a dataframe
-#'
-#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-#' Its output is a data frame with updated ions and pH.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
-#' ones specified in the function's arguments.
-#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
-#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
-#'
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
+#' @rdname chemdose_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
+#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param hcl Hydrochloric acid: HCl -> H + Cl
-#' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
-#' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
-#' @param naoh Caustic: NaOH -> Na + OH
-#' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
-#' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
-#' @param caoh2 Lime: Ca(OH)2 -> Ca + 2OH
-#' @param mgoh2  Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH
-#' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
-#' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
-#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
-#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
-#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
-#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
-#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
-#'
-#' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
 #'
@@ -284,23 +257,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #'   ) %>%
 #'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_once(input_water = "balanced_water", naoh = 5)
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#' }
-#'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with updated pH, alkalinity, and ions post-chemical addition.
+#' @returns `chemdose_ph_once` returns a data frame with columns for pH, alkalinity, and ions post-chemical addition.
 #'
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
@@ -323,49 +284,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
     select(-dosed_chem_water)
 }
 
-#' Apply `chemdose_ph` within a dataframe and output a column of `water` class to be chained to other tidywater functions
-#'
-#' This function allows \code{\link{chemdose_ph}} to be added to a piped data frame.
-#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' Ions and pH will be updated based on input chemical doses.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has a column(s) name matching a valid chemical(s), the function will dose that chemical(s) in addition to the
-#' ones specified in the function's arguments.
-#' The column names must match the chemical names as displayed in \code{\link{chemdose_ph}}.
-#' To see which chemicals can be passed into the function, see \code{\link{chemdose_ph}}.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @rdname chemdose_ph
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
-#' @param hcl Hydrochloric acid: HCl -> H + Cl
-#' @param h2so4 Sulfuric acid: H2SO4 -> 2H + SO4
-#' @param h3po4 Phosphoric acid: H3PO4 -> 3H + PO4
-#' @param co2 Carbon Dioxide CO2 (gas) + H2O -> H2CO3*
-#' @param naoh Caustic: NaOH -> Na + OH
-#' @param na2co3 Soda ash: Na2CO3 -> 2Na + CO3
-#' @param nahco3 Sodium bicarbonate: NaHCO3 -> Na + H + CO3
-#' @param caoh2 Lime: Ca(OH)2 -> Ca + 2OH
-#' @param mgoh2  Magneisum hydroxide: Mg(OH)2 -> Mg + 2OH
-#' @param cl2 Chlorine gas: Cl2(g) + H2O -> HOCl + H + Cl
-#' @param naocl Sodium hypochlorite: NaOCl -> Na + OCl
-#' @param nh4oh Amount of ammonium hydroxide added in mg/L as N: NH4OH -> NH4 + OH
-#' @param nh42so4 Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -> 2NH4 + SO4
-#' @param alum Hydrated aluminum sulfate Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
-#' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
-#' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
-#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
-#' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
-#'
-#' @seealso \code{\link{chemdose_ph}}
 #'
 #' @examples
 #'
@@ -384,9 +304,9 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #'   balance_ions_chain() %>%
 #'   mutate(
 #'     hcl = seq(1, 12, 1),
-#'     naoh = 20
+#'     Caustic = 20
 #'   ) %>%
-#'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4, naoh = Caustic)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -403,7 +323,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
+#' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                               hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
