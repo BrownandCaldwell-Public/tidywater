@@ -37,8 +37,8 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
   temp <- water@temp
 
-  if(!missing(kd)) {
-    if(!is.na(kd)) {
+  if (!missing(kd)) {
+    if (!is.na(kd)) {
       use_kd <- TRUE
     } else {
       use_kd <- FALSE
@@ -52,7 +52,6 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
     ct_tot <- dose * (exp(kd * time) - 1) / kd
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
-
   } else {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -144,9 +143,9 @@ solvect_o3_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         dose = !!as.name(arguments$final_names$dose),
-        kd =  ifelse(exists(as.name(arguments$final_names$kd), where = .),
-               !!as.name(arguments$final_names$kd), NA),
-
+        kd = ifelse(exists(as.name(arguments$final_names$kd), where = .),
+          !!as.name(arguments$final_names$kd), NA
+        ),
         baffle = !!as.name(arguments$final_names$baffle)
       ),
       solvect_o3
