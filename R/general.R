@@ -516,7 +516,7 @@ construct_helper <- function(df, all_args) {
   }
 
   # Get the new names for relevant columns
-  final_names <- setNames(as.list(all_arguments), all_arguments)
+  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
   for (arg in names(from_columns)) {
     final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
   }

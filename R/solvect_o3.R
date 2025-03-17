@@ -37,12 +37,22 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
   temp <- water@temp
 
+  if(!missing(kd)) {
+    if(!is.na(kd)) {
+      use_kd <- TRUE
+    } else {
+      use_kd <- FALSE
+    }
+  } else {
+    use_kd <- FALSE
+  }
   # First order decay curve: y = dose * exp(k*t)
   # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
-  if (!missing(kd)) {
+  if (use_kd) {
     ct_tot <- dose * (exp(kd * time) - 1) / kd
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
+
   } else {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -94,7 +104,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' library(dplyr)
 #' ct_calc <- water_df %>%
 #'   define_water_chain() %>%
-#'   solvect_o3_once(dose = 2, kd = -0.5, time = 10)
+#'   solvect_o3_once(dose = 2, kd = -0.5, time = 10, baffle = .5)
 #'
 #' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
@@ -102,7 +112,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #'   mutate(
 #'     dose = rep(seq(1, 4, 1), 3),
 #'     time = rep(seq(2, 8, 2), 3),
-#'     baffle = .5
+#'     baffle = .5,
 #'   ) %>%
 #'   solvect_o3_once()
 #'
@@ -113,7 +123,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 solvect_o3_once <- function(df, input_water = "defined_water",
                             time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
                             water_prefix = TRUE) {
-  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- ID <- NULL # Quiet RCMD check global variable note
+  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -134,7 +144,9 @@ solvect_o3_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         dose = !!as.name(arguments$final_names$dose),
-        kd = !!as.name(arguments$final_names$kd),
+        kd =  ifelse(exists(as.name(arguments$final_names$kd), where = .),
+               !!as.name(arguments$final_names$kd), NA),
+
         baffle = !!as.name(arguments$final_names$baffle)
       ),
       solvect_o3

@@ -49,7 +49,7 @@ The data input comes from a `water` class column, initialized in \code{\link{def
 library(dplyr)
 ct_calc <- water_df \%>\%
   define_water_chain() \%>\%
-  solvect_o3_once(dose = 2, kd = -0.5, time = 10)
+  solvect_o3_once(dose = 2, kd = -0.5, time = 10, baffle = .5)
 
 ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
@@ -57,7 +57,7 @@ ozone_resid <- water_df \%>\%
   mutate(
     dose = rep(seq(1, 4, 1), 3),
     time = rep(seq(2, 8, 2), 3),
-    baffle = .5
+    baffle = .5,
   ) \%>\%
   solvect_o3_once()
 

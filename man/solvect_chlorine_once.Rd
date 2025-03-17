@@ -46,7 +46,7 @@ The data input comes from a `water` class column, initialized in \code{\link{def
 library(dplyr)
 ct_calc <- water_df \%>\%
   define_water_chain() \%>\%
-  solvect_chlorine_once(residual = 2, time = 10)
+  solvect_chlorine_once(residual = 2, time = 10, baffle = .5)
 
 ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
