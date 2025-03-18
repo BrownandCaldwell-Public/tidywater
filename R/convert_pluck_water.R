@@ -146,21 +146,18 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
     stop("One or more specified waters doesn't exist in dataframe. Check column names.")
   }
 
+
   plucked <- data.frame(row.names = seq(1, nrow(df)))
   for (water in input_waters) {
     if (!methods::is(df[[water]][[1]], "water")) {
       stop("All waters must be of class 'water'.")
     }
     output_column <- paste0(water, "_", parameter)
-    temp <- furrr::future_map2(
-      parameter,
-      output_column,
-      ~ {
-        df %>%
-          mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
-          select(!!as.name(.y))
-      }
-    ) %>%
+    temp <- furrr::future_map2(parameter, output_column, ~ {
+      df %>%
+        mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
+        select(!!as.name(.y))
+    }) %>%
       purrr::list_cbind()
 
     plucked <- bind_cols(plucked, temp)

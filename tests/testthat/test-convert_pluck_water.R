@@ -3,19 +3,8 @@
 # Test convertWater converts a water class input to a dataframe
 test_that("convert water creates a dataframe", {
   water1 <- define_water(
-    ph = 6.7,
-    temp = 20,
-    alk = 20,
-    tot_hard = 70,
-    ca = 10,
-    mg = 10,
-    na = 10,
-    k = 10,
-    cl = 10,
-    so4 = 10,
-    toc = 3.5,
-    doc = 3.2,
-    uv254 = 0.1
+    ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
+    cl = 10, so4 = 10, toc = 3.5, doc = 3.2, uv254 = 0.1
   )
   df_water <- convert_water(water1)
   expect_true(is.data.frame(df_water))
@@ -23,19 +12,8 @@ test_that("convert water creates a dataframe", {
 
 test_that("convert water works", {
   water1 <- define_water(
-    ph = 6.7,
-    temp = 20,
-    alk = 20,
-    tot_hard = 70,
-    ca = 10,
-    mg = 10,
-    na = 10,
-    k = 10,
-    cl = 10,
-    so4 = 10,
-    toc = 3.5,
-    doc = 3.2,
-    uv254 = 0.1
+    ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
+    cl = 10, so4 = 10, toc = 3.5, doc = 3.2, uv254 = 0.1
   )
   df_water <- convert_water(water1)
   expect_equal(water1@ph, df_water$ph)
@@ -44,19 +22,8 @@ test_that("convert water works", {
 
 test_that("convert water mg works", {
   water1 <- define_water(
-    ph = 6.7,
-    temp = 20,
-    alk = 20,
-    tot_hard = 70,
-    ca = 10,
-    mg = 10,
-    na = 10,
-    k = 10,
-    cl = 10,
-    so4 = 50,
-    tot_po4 = 3.2,
-    tot_nh3 = 0.54,
-    free_chlorine = 2.1
+    ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
+    cl = 10, so4 = 50, tot_po4 = 3.2, tot_nh3 = 0.54, free_chlorine = 2.1
   )
   df_water <- convert_watermg(water1)
   expect_equal(6.7, df_water$ph)
@@ -71,21 +38,17 @@ test_that("convert water mg works", {
 ################################################################################*
 # pluck_waters----
 test_that("pluck_water works", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      pluck_water(parameter = "tot_co3")
-  )
+  water1 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    pluck_water(parameter = "tot_co3"))
 
   tot_co3_water <- purrr::pluck(water1, 1, 4)
   tot_co3_pluck <- water1 %>% slice(4)
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      pluck_water(input_water = c("defined_water", "balanced_water"), parameter = "na")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = "na"))
 
   expect_equal(ncol(water1), 2)
   expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)

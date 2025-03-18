@@ -43,32 +43,9 @@
 #'
 #' @returns A water class object where slots are filled or calculated based on input parameters.
 
-define_water <- function(
-  ph,
-  temp = 25,
-  alk,
-  tot_hard,
-  ca,
-  mg,
-  na,
-  k,
-  cl,
-  so4,
-  free_chlorine = 0,
-  combined_chlorine = 0,
-  tot_po4 = 0,
-  tot_nh3 = 0,
-  tds,
-  cond,
-  toc,
-  doc,
-  uv254,
-  br,
-  f,
-  fe,
-  al,
-  mn
-) {
+define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
+                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
+                         toc, doc, uv254, br, f, fe, al, mn) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
@@ -109,9 +86,7 @@ define_water <- function(
   if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
     ca <- convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
     mg <- convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
-    warning(
-      "Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used."
-    )
+    warning("Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
     estimated <- paste(estimated, "ca", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   }
@@ -119,9 +94,7 @@ define_water <- function(
   if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
     tot_hard <- calculate_hardness(ca, 0) / .65
     mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
-    warning(
-      "Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used."
-    )
+    warning("Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.")
     estimated <- paste(estimated, "tothard", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   } else if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
@@ -190,45 +163,15 @@ define_water <- function(
   tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
-  water <- methods::new(
-    "water",
-    ph = ph,
-    temp = temp,
-    alk = alk,
-    tds = tds,
-    cond = cond,
-    tot_hard = tot_hard,
-    na = na,
-    ca = ca,
-    mg = mg,
-    k = k,
-    cl = cl,
-    so4 = so4,
-    hco3 = tot_co3 * alpha1,
-    co3 = tot_co3 * alpha2,
-    h2po4 = 0,
-    hpo4 = 0,
-    po4 = 0,
-    ocl = 0,
-    nh4 = 0,
-    h = h,
-    oh = oh,
-    tot_po4 = tot_po4,
-    free_chlorine = free_chlorine,
-    combined_chlorine = combined_chlorine,
-    tot_nh3 = tot_nh3,
-    tot_co3 = tot_co3,
-    kw = kw,
-    is = 0,
-    alk_eq = carb_alk_eq,
-    doc = doc,
-    toc = toc,
-    uv254 = uv254,
-    br = br,
-    f = f,
-    fe = fe,
-    al = al,
-    mn = mn
+  water <- methods::new("water",
+    ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
+    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
+    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
+    h = h, oh = oh,
+    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
+    kw = kw, is = 0, alk_eq = carb_alk_eq,
+    doc = doc, toc = toc, uv254 = uv254,
+    br = br, f = f, fe = fe, al = al, mn = mn
   )
 
   # Determine ionic strength
@@ -241,18 +184,14 @@ define_water <- function(
     water@is <- correlate_ionicstrength(cond, from = "cond")
     water@tds <- correlate_ionicstrength(cond, from = "cond", to = "tds")
     estimated <- paste(estimated, "tds", sep = "_")
-  } else if (
-    is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl) | !is.na(so4)) & alk > 0) & !is.na(ph)
-  ) {
+  } else if (is.na(tds) & is.na(cond) & ((!is.na(ca) | !is.na(na)) & (!is.na(cl) | !is.na(so4)) & alk > 0) & !is.na(ph)) {
     water@is <- calculate_ionicstrength(water)
     water@tds <- correlate_ionicstrength(water@is, from = "is", to = "tds")
     estimated <- paste(estimated, "tds", sep = "_")
     water@cond <- correlate_ionicstrength(water@is, from = "is", to = "cond")
     estimated <- paste(estimated, "cond", sep = "_")
   } else {
-    warning(
-      "Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1."
-    )
+    warning("Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.")
     water@is <- NA_real_
   }
 
@@ -385,30 +324,9 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph",
-    "temp",
-    "alk",
-    "tot_hard",
-    "ca",
-    "mg",
-    "na",
-    "k",
-    "cl",
-    "so4",
-    "free_chlorine",
-    "combined_chlorine",
-    "tot_po4",
-    "tot_nh3",
-    "tds",
-    "cond",
-    "toc",
-    "doc",
-    "uv254",
-    "br",
-    "f",
-    "fe",
-    "al",
-    "mn"
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
+    "tds", "cond",
+    "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
 
   extras <- df %>%

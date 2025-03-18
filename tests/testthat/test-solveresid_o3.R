@@ -2,6 +2,7 @@
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
+
   expect_equal(solveresid_o3(water1, time = 0, dose = 2), 2)
   expect_error(solveresid_o3(water1, dose = 2))
 })
@@ -39,32 +40,18 @@ test_that("solveresid_o3 works.", {
 # HELPERS ----
 test_that("solveresid_o3_once outputs are the same as base function, solveresid_o3", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9,
-    temp = 20,
-    alk = 50,
-    tot_hard = 50,
-    na = 20,
-    k = 20,
-    cl = 30,
-    so4 = 20,
-    tds = 200,
-    cond = 100,
-    toc = 2,
-    doc = 1.8,
-    uv254 = 0.05,
-    br = 50
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
   )) %>%
     balance_ions() %>%
     solveresid_o3(time = 30, dose = 5)
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      mutate(br = 50) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      solveresid_o3_once(input_water = "balanced_water", time = 30, dose = 5)
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solveresid_o3_once(input_water = "balanced_water", time = 30, dose = 5))
 
   expect_equal(water1, water2$o3resid)
 })
@@ -72,14 +59,13 @@ test_that("solveresid_o3_once outputs are the same as base function, solveresid_
 # Check that output is a data frame
 
 test_that("solveresid_o3_once is a data frame", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      mutate(br = 50) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      solveresid_o3_once(input_water = "balanced_water", time = 30, dose = 5)
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solveresid_o3_once(input_water = "balanced_water", time = 30, dose = 5))
+
 
   expect_true(is.data.frame(water1))
 })
@@ -91,23 +77,19 @@ test_that("solveresid_o3_once can use a column and/or function argument for time
     define_water_chain()
 
   time <- data.frame(time = seq(2, 24, 2))
-  water1 <- suppressWarnings(
-    water_df %>%
-      mutate(br = 50) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      cross_join(time) %>%
-      solveresid_o3_once(input_water = "balanced_water", dose = 5)
-  )
+  water1 <- suppressWarnings(water_df %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    cross_join(time) %>%
+    solveresid_o3_once(input_water = "balanced_water", dose = 5))
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      mutate(br = 50) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      solveresid_o3_once(input_water = "balanced_water", time = seq(2, 24, 2), dose = 5) %>%
-      unique()
-  )
+  water2 <- suppressWarnings(water_df %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    solveresid_o3_once(input_water = "balanced_water", time = seq(2, 24, 2), dose = 5) %>%
+    unique())
 
   water3 <- water_df %>%
     mutate(br = 50) %>%

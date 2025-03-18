@@ -124,10 +124,8 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_co
 
   output <- df %>%
     biofilter_toc_chain(
-      input_water = input_water,
-      output_water = "biofiltered_water",
-      ebct,
-      ozonated
+      input_water = input_water, output_water = "biofiltered_water",
+      ebct, ozonated
     ) %>%
     mutate(biofilter = furrr::future_map(biofiltered_water, convert_water)) %>%
     unnest(biofilter) %>%
@@ -170,13 +168,8 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_co
 #'
 #' @returns `biofilter_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
 
-biofilter_toc_chain <- function(
-  df,
-  input_water = "defined_water",
-  output_water = "biofiltered_water",
-  ebct = "use_col",
-  ozonated = "use_col"
-) {
+biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
+                                ebct = "use_col", ozonated = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
@@ -189,19 +182,15 @@ biofilter_toc_chain <- function(
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(
-      !!output_water := furrr::future_pmap(
-        list(
-          water = !!as.name(input_water),
-          ebct = !!as.name(arguments$final_names$ebct),
-          # This logic needed for any argument that has a default
-          ozonated = ifelse(
-            exists(as.name(arguments$final_names$ozonated), where = .),
-            !!as.name(arguments$final_names$ozonated),
-            TRUE
-          )
-        ),
-        biofilter_toc
-      )
-    )
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        ebct = !!as.name(arguments$final_names$ebct),
+        # This logic needed for any argument that has a default
+        ozonated = ifelse(exists(as.name(arguments$final_names$ozonated), where = .),
+          !!as.name(arguments$final_names$ozonated), TRUE
+        )
+      ),
+      biofilter_toc
+    ))
 }

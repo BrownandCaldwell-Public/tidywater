@@ -87,14 +87,9 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 #' @import dplyr
 #' @export
 
-solvect_chlorine_once <- function(
-  df,
-  input_water = "defined_water",
-  time = "use_col",
-  residual = "use_col",
-  baffle = "use_col",
-  water_prefix = TRUE
-) {
+solvect_chlorine_once <- function(df, input_water = "defined_water",
+                                  time = "use_col", residual = "use_col", baffle = "use_col",
+                                  water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -110,17 +105,15 @@ solvect_chlorine_once <- function(
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(
-      calc := furrr::future_pmap(
-        list(
-          water = !!as.name(input_water),
-          time = !!as.name(arguments$final_names$time),
-          residual = !!as.name(arguments$final_names$residual),
-          baffle = !!as.name(arguments$final_names$baffle)
-        ),
-        solvect_chlorine
-      )
-    ) %>%
+    mutate(calc := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        time = !!as.name(arguments$final_names$time),
+        residual = !!as.name(arguments$final_names$residual),
+        baffle = !!as.name(arguments$final_names$baffle)
+      ),
+      solvect_chlorine
+    )) %>%
     unnest_wider(calc)
 
   if (water_prefix) {

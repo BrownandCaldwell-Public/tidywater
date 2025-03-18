@@ -68,18 +68,14 @@ blend_waters <- function(waters, ratios) {
     if (!purrr::is_empty(missingn) | !purrr::is_empty(missing1)) {
       missing <- paste0(c(missingn, missing1), collapse = ", ")
       warning(paste0(
-        "The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ",
-        missing,
+        "The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ", missing,
         "\nTo fix this, make sure all waters provided have the same parameters specified."
       ))
     }
   }
 
   not_averaged <- c(
-    "ph",
-    "kw",
-    "applied_treatment",
-    "estimated"
+    "ph", "kw", "applied_treatment", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -97,9 +93,7 @@ blend_waters <- function(waters, ratios) {
       if (is.na(methods::slot(blended_water, param))) {
         methods::slot(blended_water, param) <- methods::slot(temp_water, param) * ratio
       } else {
-        methods::slot(blended_water, param) <- methods::slot(temp_water, param) *
-          ratio +
-          methods::slot(blended_water, param)
+        methods::slot(blended_water, param) <- methods::slot(temp_water, param) * ratio + methods::slot(blended_water, param)
       }
     }
   }

@@ -67,30 +67,18 @@ test_that("Error when an unaccepted PAC type is entered.", {
 ################################################################################*
 # pac_toc helpers ----
 test_that("pac_toc_once outputs are the same as base function, pac_toc", {
-  water1 <- suppressWarnings(define_water(
-    7.9,
-    20,
-    50,
-    tot_hard = 50,
-    ca = 13,
-    na = 20,
-    k = 20,
-    cl = 30,
-    so4 = 20,
-    tds = 200,
-    cond = 100,
-    toc = 2,
-    doc = 1.8,
-    uv254 = 0.05
+  water1 <- suppressWarnings(define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
     pac_toc(dose = 10, time = 10)
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      pac_toc_once(dose = 10, time = 10)
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    pac_toc_once(dose = 10, time = 10))
 
   expect_equal(water1@doc, water2$doc)
   expect_equal(water1@toc, water2$toc)
@@ -100,16 +88,13 @@ test_that("pac_toc_once outputs are the same as base function, pac_toc", {
 # Check that output is a data frame
 
 test_that("pac_toc_once is a data frame", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      pac_toc_once(
-        input_water = "defined_water",
-        dose = 5,
-        time = 10
-      )
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    pac_toc_once(
+      input_water = "defined_water",
+      dose = 5, time = 10
+    ))
 
   expect_true(is.data.frame(water1))
 })
@@ -117,34 +102,26 @@ test_that("pac_toc_once is a data frame", {
 # Check pac_toc_once can use a column or function argument for chemical dose
 
 test_that("pac_toc_once can use a column or function argument for dose", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      pac_toc_once(
-        input_water = "raw",
-        dose = 5,
-        time = 10
-      )
-  )
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      mutate(
-        dose = 5,
-        time = 10
-      ) %>%
-      pac_toc_once("raw")
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    pac_toc_once(
+      input_water = "raw",
+      dose = 5, time = 10
+    ))
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(
+      dose = 5, time = 10
+    ) %>%
+    pac_toc_once("raw"))
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      mutate(dose = 5) %>%
-      pac_toc_once(input_water = "raw", time = 10)
-  )
+  water3 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(dose = 5) %>%
+    pac_toc_once(input_water = "raw", time = 10))
 
   expect_equal(water1$doc, water2$doc) # test different ways to input args
   expect_equal(water1$uv254, water2$uv254)
@@ -154,38 +131,21 @@ test_that("pac_toc_once can use a column or function argument for dose", {
 })
 
 test_that("pac_toc_chain outputs are the same as base function, pac_toc", {
-  water1 <- suppressWarnings(define_water(
-    7.9,
-    20,
-    50,
-    tot_hard = 50,
-    ca = 13,
-    na = 20,
-    k = 20,
-    cl = 30,
-    so4 = 20,
-    tds = 200,
-    cond = 100,
-    toc = 2,
-    doc = 1.8,
-    uv254 = 0.05
+  water1 <- suppressWarnings(define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
     pac_toc(dose = 10, time = 10)
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      pac_toc_chain(dose = 10, time = 10, output_water = "pac") %>%
-      pluck_water(
-        "pac",
-        c(
-          "doc",
-          "toc",
-          "uv254"
-        )
-      )
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    pac_toc_chain(dose = 10, time = 10, output_water = "pac") %>%
+    pluck_water("pac", c(
+      "doc", "toc", "uv254"
+    )))
 
   expect_equal(water1@doc, water2$pac_doc)
   expect_equal(water1@uv254, water2$pac_uv254)
@@ -194,24 +154,20 @@ test_that("pac_toc_chain outputs are the same as base function, pac_toc", {
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("pac_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      pac_toc_chain(input_water = "raw", time = 10, dose = 4)
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    pac_toc_chain(input_water = "raw", time = 10, dose = 4))
 
   water2 <- purrr::pluck(water1, "pac_water", 1)
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      define_water_chain("raw") %>%
-      mutate(
-        dose = 4,
-        time = 10
-      ) %>%
-      pac_toc_chain(input_water = "raw", output_water = "diff_name")
-  )
+  water3 <- suppressWarnings(water_df %>%
+    define_water_chain("raw") %>%
+    mutate(
+      dose = 4,
+      time = 10
+    ) %>%
+    pac_toc_chain(input_water = "raw", output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
   expect_true(exists("diff_name", water3)) # check if output_water arg works
@@ -220,40 +176,35 @@ test_that("pac_toc_chain output is list of water class objects, and can handle a
 # Check pac_toc_chain can use a column or function argument for chemical dose
 
 test_that("pac_toc_chain can use a column or function argument for chemical dose", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      pac_toc_chain(input_water = "raw", time = 50, dose = 10) %>%
-      pluck_water("pac_water", c("doc", "uv254"))
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10) %>%
+    pluck_water("pac_water", c("doc", "uv254")))
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      mutate(
-        time = 50,
-        dose = 10,
-      ) %>%
-      pac_toc_chain(input_water = "raw") %>%
-      pluck_water("pac_water", c("doc", "uv254"))
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(
+      time = 50,
+      dose = 10,
+    ) %>%
+    pac_toc_chain(input_water = "raw") %>%
+    pluck_water("pac_water", c("doc", "uv254")))
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain("raw") %>%
-      mutate(time = 50) %>%
-      pac_toc_chain(input_water = "raw", dose = 10) %>%
-      pluck_water("pac_water", c("doc", "uv254"))
-  )
+  water3 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(time = 50) %>%
+    pac_toc_chain(input_water = "raw", dose = 10) %>%
+    pluck_water("pac_water", c("doc", "uv254")))
 
   expect_equal(water1$pac_water_doc, water2$pac_water_doc) # test different ways to input args
   expect_equal(water1$pac_water_uv254, water2$pac_water_uv254)
 
   # Test that inputting time/dose separately (in column and as an argument)  gives same results
   expect_equal(water1$pac_water_doc, water3$pac_water_doc)
+
 
   water4 <- water_df %>%
     slice(1:4) %>%
@@ -293,16 +244,12 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
 test_that("pac_toc_chain errors with argument + column for same param", {
   water <- water_df %>%
     define_water_chain("raw")
-  expect_error(
-    water %>%
-      mutate(dose = 5) %>%
-      pac_toc_chain(input_water = "raw", time = 50, dose = 10)
-  )
-  expect_error(
-    water %>%
-      mutate(time = 5) %>%
-      pac_toc_chain(input_water = "raw", time = 50, dose = 10)
-  )
+  expect_error(water %>%
+    mutate(dose = 5) %>%
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10))
+  expect_error(water %>%
+    mutate(time = 5) %>%
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10))
 })
 
 test_that("pac_toc_chain correctly handles arguments with multiple numbers", {

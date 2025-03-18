@@ -26,15 +26,7 @@ test_that("dissolve_pb works.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 100, tds = 200, so4 = 120, cl = 50, tot_hard = 90)) %>%
     dissolve_pb()
 
-  water2 <- suppressWarnings(define_water(
-    ph = 7,
-    alk = 100,
-    temp = 25,
-    cl = 100,
-    tot_po4 = 2,
-    so4 = 100,
-    tot_hard = 50
-  )) %>%
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, cl = 100, tot_po4 = 2, so4 = 100, tot_hard = 50)) %>%
     dissolve_pb()
 
   water3 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, tds = 200)) %>%
@@ -43,23 +35,9 @@ test_that("dissolve_pb works.", {
   # starting wq in the app, except for pH. Raised pH here because this was outputting different
   # controlling solids when code had errors
   water4 <- suppressWarnings(define_water(
-    ph = 8.5,
-    temp = 25,
-    alk = 100,
-    tot_hard = 150,
-    na = 25,
-    k = 25,
-    cl = 20,
-    so4 = 40,
-    cond = 500,
-    toc = 3,
-    doc = 3.2,
-    uv = 0.07,
-    br = 50,
-    f = 2,
-    fe = 5,
-    mn = 10,
-    al = 2
+    ph = 8.5, temp = 25, alk = 100, tot_hard = 150, na = 25, k = 25, cl = 20,
+    so4 = 40, cond = 500, toc = 3, doc = 3.2, uv = 0.07, br = 50, f = 2,
+    fe = 5, mn = 10, al = 2
   )) %>%
     dissolve_pb()
 
@@ -81,32 +59,18 @@ test_that("dissolve_pb works.", {
 
 test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9,
-    temp = 20,
-    alk = 50,
-    tot_hard = 50,
-    ca = 13,
-    mg = 4,
-    na = 20,
-    k = 20,
-    cl = 30,
-    so4 = 20,
-    tds = 200,
-    cond = 100,
-    toc = 2,
-    doc = 1.8,
-    uv254 = 0.05
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
+    ca = 13, mg = 4, na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
     balance_ions() %>%
     dissolve_pb()
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      dissolve_pb_once(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water"))
 
   expect_equal(water1$tot_dissolved_pb, water2$balanced_water_pb)
   expect_equal(water1$controlling_solid, water2$balanced_water_controlling_solid)
@@ -115,12 +79,10 @@ test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb",
 # Check that output column is numeric
 
 test_that("dissolve_pb_once outputs data frame", {
-  water2 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      dissolve_pb_once(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water"))
 
   expect_true(is.numeric(water2$balanced_water_pb))
   expect_true(is.character(water2$balanced_water_controlling_solid))
@@ -128,21 +90,17 @@ test_that("dissolve_pb_once outputs data frame", {
 
 # Check that outputs are different depending on selected source
 test_that("dissolve_pb_once processes different input constants", {
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(3) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      dissolve_pb_once(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(3) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water"))
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      slice(3) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      dissolve_pb_once(input_water = "balanced_water", pyromorphite = "Xie")
-  )
+  water3 <- suppressWarnings(water_df %>%
+    slice(3) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    dissolve_pb_once(input_water = "balanced_water", pyromorphite = "Xie"))
 
   expect_equal(water2$balanced_water_controlling_solid, water3$balanced_water_controlling_solid)
   expect_error(expect_equal(water2$balanced_water_pb, water3$balanced_water_pb))
@@ -150,11 +108,9 @@ test_that("dissolve_pb_once processes different input constants", {
 
 # Check that the function stops due to errors in selected source
 test_that("dissolve_pb_once errors work", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain()
-  )
+  water1 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain())
 
   expect_error(dissolve_pb_once(water1, input_water = "balanced_water", hydroxypyromorphite = "schock"))
   expect_error(dissolve_pb_once(water1, input_water = "balanced_water", pyromorphite = "Schock"))

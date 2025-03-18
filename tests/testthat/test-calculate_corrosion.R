@@ -12,13 +12,8 @@ test_that("most indices won't work without ca, cl, so4", {
 
 test_that("function catches index typos", {
   water <- suppressWarnings(define_water(
-    ph = 8,
-    temp = 25,
-    alk = 200,
-    tds = 238,
-    tot_hard = 100,
-    cl = 40,
-    so4 = 40
+    ph = 8, temp = 25, alk = 200, tds = 238,
+    tot_hard = 100, cl = 40, so4 = 40
   ))
 
   expect_error(calculate_corrosion(water, index = "csr"))
@@ -164,10 +159,8 @@ test_that("ccpp works", {
   expect_equal(round(water4@ccpp), -4) # low ca
   expect_equal(round(water5@ccpp), -34) # low pH
   expect_equal(round(water6@ccpp), -328) # extra low pH
-  expect_error(
-    suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
-      calculate_corrosion(index = "ccpp")
-  ) # high pH is out of uniroot bounds
+  expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
+    calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })
 
 ################################################################################*
@@ -176,35 +169,18 @@ test_that("ccpp works", {
 # Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
 
 test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
-  water1 <- suppressWarnings(
-    define_water(
-      ph = 7.9,
-      temp = 20,
-      alk = 50,
-      tot_hard = 50,
-      ca = 13,
-      mg = 4,
-      na = 20,
-      k = 20,
-      cl = 30,
-      so4 = 20,
-      tds = 200,
-      cond = 100,
-      toc = 2,
-      doc = 1.8,
-      uv254 = 0.05
-    ) %>%
-      balance_ions() %>%
-      calculate_corrosion()
-  )
+  water1 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  ) %>%
+    balance_ions() %>%
+    calculate_corrosion())
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_once(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water"))
 
   expect_equal(water1@langelier, water2$langelier)
   expect_equal(water1@ryznar, water2$ryznar)
@@ -215,10 +191,8 @@ test_that("calculate_corrosion_once outputs are the same as base function, calcu
 })
 
 test_that("function catches index typos", {
-  water <- suppressWarnings(
-    water_df %>%
-      define_water_chain()
-  )
+  water <- suppressWarnings(water_df %>%
+    define_water_chain())
 
   expect_error(calculate_corrosion_chain(water, index = "csr"))
   expect_error(calculate_corrosion_chain(water, index = c("aggressive", "ccccp")))
@@ -231,13 +205,11 @@ test_that("function catches index typos", {
 # Check that output is a data frame
 
 test_that("calculate_corrosion_once is a data frame", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_once(input_water = "balanced_water")
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water"))
 
   expect_true(is.data.frame(water1))
 })
@@ -245,22 +217,18 @@ test_that("calculate_corrosion_once is a data frame", {
 # Check calculate_corrosion_once outputs an appropriate number of indices
 
 test_that("calculate_corrosion_once outputs an appropriate number of indices", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_once(input_water = "balanced_water", index = c("aggressive", "csmr"))
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water", index = c("aggressive", "csmr")))
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      mutate(naoh = 5) %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_once(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(naoh = 5) %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_once(input_water = "balanced_water"))
 
   water3 <- water1 %>%
     select_if(names(water1) %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))
@@ -275,35 +243,18 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
 # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
 test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
-  water1 <- suppressWarnings(
-    define_water(
-      ph = 7.9,
-      temp = 20,
-      alk = 50,
-      tot_hard = 50,
-      ca = 13,
-      mg = 4,
-      na = 20,
-      k = 20,
-      cl = 30,
-      so4 = 20,
-      tds = 200,
-      cond = 100,
-      toc = 2,
-      doc = 1.8,
-      uv254 = 0.05
-    ) %>%
-      balance_ions() %>%
-      calculate_corrosion()
-  )
+  water1 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  ) %>%
+    balance_ions() %>%
+    calculate_corrosion())
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(input_water = "balanced_water")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water"))
 
   water3 <- purrr::pluck(water2, 3, 1)
 
@@ -313,23 +264,19 @@ test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosi
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("calculate_corrosion_chain output is list of water class objects, and can handle an ouput_water arg", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      slice(1) %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(input_water = "balanced_water")
-  )
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water"))
 
   water2 <- purrr::pluck(water1, 3, 1)
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      mutate(naoh = 10) %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(output_water = "diff_name")
-  )
+  water3 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    mutate(naoh = 10) %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
   expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
@@ -338,26 +285,20 @@ test_that("calculate_corrosion_chain output is list of water class objects, and 
 
 # Check that variety of ways to input chemicals work
 test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
-  water1 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(input_water = "balanced_water")
-  )
+  water1 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water"))
 
-  water2 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(input_water = "balanced_water", form = "aragonite")
-  )
+  water2 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water", form = "aragonite"))
 
-  water3 <- suppressWarnings(
-    water_df %>%
-      define_water_chain() %>%
-      balance_ions_chain() %>%
-      calculate_corrosion_chain(input_water = "balanced_water", form = "vaterite")
-  )
+  water3 <- suppressWarnings(water_df %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    calculate_corrosion_chain(input_water = "balanced_water", form = "vaterite"))
 
   pluck1 <- purrr::pluck(water1, 3)
   pluck2 <- purrr::pluck(water2, 3)

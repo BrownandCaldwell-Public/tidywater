@@ -44,20 +44,10 @@ solvedose_ph <- function(water, target_ph, chemical) {
     stop("Target pH should be between 1-14.")
   }
 
-  if (
-    !(chemical %in%
-      c(
-        "hcl",
-        "h2so4",
-        "h3po4",
-        "co2",
-        "naoh",
-        "na2co3",
-        "nahco3",
-        "caoh2",
-        "mgoh2"
-      ))
-  ) {
+  if (!(chemical %in% c(
+    "hcl", "h2so4", "h3po4", "co2",
+    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+  ))) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -74,17 +64,10 @@ solvedose_ph <- function(water, target_ph, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- chemdose_ph(
-      water,
-      hcl = hcl,
-      h2so4 = h2so4,
-      h3po4 = h3po4,
-      naoh = naoh,
-      na2co3 = na2co3,
-      nahco3 = nahco3,
-      caoh2 = caoh2,
-      mgoh2 = mgoh2,
-      co2 = co2
+    waterfin <- chemdose_ph(water,
+      hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+      naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+      caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
     )
 
     phfin <- waterfin@ph
@@ -93,22 +76,16 @@ solvedose_ph <- function(water, target_ph, chemical) {
   }
 
   # Target pH can't be met
-  if (
-    (chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") & target_ph < water@ph) |
-      (chemical == "co2" & (target_ph < 6.5)) |
-      (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_ph > water@ph) |
-      is.na(target_ph)
-  ) {
+  if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
+    target_ph < water@ph) |
+    (chemical == "co2" & (target_ph < 6.5)) |
+    (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
+      target_ph > water@ph) |
+    is.na(target_ph)) {
     warning("Target pH cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
-    chemdose <- stats::uniroot(
-      match_ph,
-      interval = c(0, 1000),
-      chemical = chemical,
-      target_ph = target_ph,
-      water = water
-    )
+    chemdose <- stats::uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
     round(chemdose$root, 1)
   }
 }
@@ -152,21 +129,10 @@ solvedose_alk <- function(water, target_alk, chemical) {
     stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")
   }
 
-  if (
-    (chemical %in%
-      c(
-        "hcl",
-        "h2so4",
-        "h3po4",
-        "co2",
-        "naoh",
-        "na2co3",
-        "nahco3",
-        "caoh2",
-        "mgoh2"
-      )) ==
-      FALSE
-  ) {
+  if ((chemical %in% c(
+    "hcl", "h2so4", "h3po4", "co2",
+    "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+  )) == FALSE) {
     stop("Selected chemical addition not supported.")
   }
 
@@ -183,17 +149,10 @@ solvedose_alk <- function(water, target_alk, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- chemdose_ph(
-      water,
-      hcl = hcl,
-      h2so4 = h2so4,
-      h3po4 = h3po4,
-      naoh = naoh,
-      na2co3 = na2co3,
-      nahco3 = nahco3,
-      caoh2 = caoh2,
-      mgoh2 = mgoh2,
-      co2 = co2
+    waterfin <- chemdose_ph(water,
+      hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+      naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+      caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
     )
     alkfin <- waterfin@alk
 
@@ -201,21 +160,15 @@ solvedose_alk <- function(water, target_alk, chemical) {
   }
 
   # Target alkalinity can't be met
-  if (
-    (chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") & target_alk <= water@alk) |
-      (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_alk >= water@alk) |
-      is.na(target_alk)
-  ) {
+  if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
+    target_alk <= water@alk) |
+    (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
+      target_alk >= water@alk) |
+    is.na(target_alk)) {
     warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
-    chemdose <- stats::uniroot(
-      match_alk,
-      interval = c(0, 1000),
-      chemical = chemical,
-      target_alk = target_alk,
-      water = water
-    )
+    chemdose <- stats::uniroot(match_alk, interval = c(0, 1000), chemical = chemical, target_alk = target_alk, water = water)
     round(chemdose$root, 1)
   }
 }
@@ -267,13 +220,8 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #' @export
 #' @returns `solvedose_ph_once` returns a data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 
-solvedose_ph_once <- function(
-  df,
-  input_water = "defined_water",
-  output_column = "dose_required",
-  target_ph = NULL,
-  chemical = NULL
-) {
+solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
+
   # This allows for the function to process unquoted column names without erroring
   target_ph <- tryCatch(target_ph, error = function(e) enquo(target_ph))
   chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
@@ -286,17 +234,16 @@ solvedose_ph_once <- function(
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(
-      !!output_column := furrr::future_pmap(
-        list(
-          water = !!as.name(input_water),
-          chemical = !!as.name(arguments$final_names$chemical),
-          target_ph = !!as.name(arguments$final_names$target_ph)
-        ),
-        solvedose_ph
-      ) %>%
-        as.numeric()
-    )
+    mutate(!!output_column := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_ph = !!as.name(arguments$final_names$target_ph)
+      ),
+      solvedose_ph
+    ) %>%
+      as.numeric())
+
 }
 
 #' @rdname solvedose_alk
@@ -351,13 +298,8 @@ solvedose_ph_once <- function(
 #'
 #' @returns `solvedose_alk_once` returns a data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 
-solvedose_alk_once <- function(
-  df,
-  input_water = "defined_water",
-  output_column = "dose_required",
-  target_alk = NULL,
-  chemical = NULL
-) {
+solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
+
   # This allows for the function to process unquoted column names without erroring
   target_alk <- tryCatch(target_alk, error = function(e) enquo(target_alk))
   chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
@@ -370,15 +312,14 @@ solvedose_alk_once <- function(
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(
-      !!output_column := furrr::future_pmap(
-        list(
-          water = !!as.name(input_water),
-          chemical = !!as.name(arguments$final_names$chemical),
-          target_alk = !!as.name(arguments$final_names$target_alk)
-        ),
-        solvedose_alk
-      ) %>%
-        as.numeric()
-    )
+    mutate(!!output_column := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_alk = !!as.name(arguments$final_names$target_alk)
+      ),
+      solvedose_alk
+    ) %>%
+      as.numeric())
+
 }

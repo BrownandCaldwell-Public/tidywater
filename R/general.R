@@ -48,20 +48,12 @@ summarize_wq <- function(water, params = c("general")) {
 
   general <- general %>%
     pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
-    mutate(
-      units = c(
-        "-",
-        "deg C",
-        "mg/L as CaCO3",
-        "mg/L as CaCO3",
-        "mg/L",
-        "uS/cm",
-        "mg/L"
-      )
-    )
+    mutate(units = c(
+      "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
+      "mg/L", "uS/cm", "mg/L"
+    ))
 
-  gen_tab <- knitr::kable(
-    general,
+  gen_tab <- knitr::kable(general,
     format = "simple",
     col.names = c("General water quality parameters", "Result", "Units")
   )
@@ -81,8 +73,7 @@ summarize_wq <- function(water, params = c("general")) {
   ions <- ions %>%
     pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
-  ions_tab <- knitr::kable(
-    ions,
+  ions_tab <- knitr::kable(ions,
     format = "simple",
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
@@ -107,8 +98,7 @@ summarize_wq <- function(water, params = c("general")) {
       Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
     )
 
-  corr_tab <- knitr::kable(
-    corrosion,
+  corr_tab <- knitr::kable(corrosion,
     format = "simple",
     col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
   )
@@ -121,6 +111,7 @@ summarize_wq <- function(water, params = c("general")) {
     Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
     `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm)
   )
+
 
   haa5 <- data.frame(
     `Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
@@ -145,9 +136,15 @@ summarize_wq <- function(water, params = c("general")) {
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
-  thm_tab <- knitr::kable(tthm, format = "simple", col.names = c("THMs", "Modeled concentration (ug/L)"))
+  thm_tab <- knitr::kable(tthm,
+    format = "simple",
+    col.names = c("THMs", "Modeled concentration (ug/L)")
+  )
 
-  haa_tab <- knitr::kable(haa5, format = "simple", col.names = c("HAAs", "Modeled concentration (ug/L)"))
+  haa_tab <- knitr::kable(haa5,
+    format = "simple",
+    col.names = c("HAAs", "Modeled concentration (ug/L)")
+  )
 
   # Print tables
   tables_list <- list()
@@ -217,8 +214,7 @@ plot_ions <- function(water) {
     dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
     dplyr::arrange(type, concentration) %>%
     dplyr::mutate(
-      label_pos = cumsum(concentration) - concentration / 2,
-      .by = type,
+      label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
     dplyr::filter(!is.na(concentration)) %>%
@@ -229,14 +225,12 @@ plot_ions <- function(water) {
       alpha = 0.5,
       color = "black"
     ) +
-    geom_text(
-      aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
+    geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
       size = 3.5
     ) +
     ggrepel::geom_text_repel(
       aes(
-        x = label_pos,
-        y = label_y,
+        x = label_pos, y = label_y,
         label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
         fontface = "bold"
       ),
@@ -281,18 +275,9 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   stand_list <- c("g/L", "g/L CaCO3", "g/L N", "M", "eq/L")
 
   gram_list <- c(
-    "ng/L",
-    "ug/L",
-    "mg/L",
-    "g/L",
-    "ng/L CaCO3",
-    "ug/L CaCO3",
-    "mg/L CaCO3",
-    "g/L CaCO3",
-    "ng/L N",
-    "ug/L N",
-    "mg/L N",
-    "g/L N"
+    "ng/L", "ug/L", "mg/L", "g/L",
+    "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
+    "ng/L N", "ug/L N", "mg/L N", "g/L N"
   )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
@@ -302,36 +287,26 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 
   # Determine multiplier for order of magnitude conversion
   # In the same list, no multiplier needed
-  if (
-    (startunit %in% milli_list & endunit %in% milli_list) |
-      (startunit %in% stand_list & endunit %in% stand_list) |
-      (startunit %in% nano_list & endunit %in% nano_list) |
-      (startunit %in% mcro_list & endunit %in% mcro_list)
-  ) {
+  if ((startunit %in% milli_list & endunit %in% milli_list) |
+    (startunit %in% stand_list & endunit %in% stand_list) |
+    (startunit %in% nano_list & endunit %in% nano_list) |
+    (startunit %in% mcro_list & endunit %in% mcro_list)) {
     multiplier <- 1
     # m - standard, n-u, u-n
-  } else if (
-    (startunit %in% milli_list & endunit %in% stand_list) |
-      (startunit %in% mcro_list & endunit %in% milli_list) |
-      (startunit %in% nano_list & endunit %in% mcro_list)
-  ) {
+  } else if ((startunit %in% milli_list & endunit %in% stand_list) |
+    (startunit %in% mcro_list & endunit %in% milli_list) |
+    (startunit %in% nano_list & endunit %in% mcro_list)) {
     multiplier <- 1e-3
-  } else if (
-    (startunit %in% stand_list & endunit %in% milli_list) |
-      (startunit %in% milli_list & endunit %in% mcro_list) |
-      (startunit %in% mcro_list & endunit %in% nano_list)
-  ) {
+  } else if ((startunit %in% stand_list & endunit %in% milli_list) |
+    (startunit %in% milli_list & endunit %in% mcro_list) |
+    (startunit %in% mcro_list & endunit %in% nano_list)) {
     multiplier <- 1e3
     # u - standard
-  } else if (
-    (startunit %in% mcro_list & endunit %in% stand_list) |
-      (startunit %in% nano_list & endunit %in% milli_list)
-  ) {
+  } else if ((startunit %in% mcro_list & endunit %in% stand_list) |
+    (startunit %in% nano_list & endunit %in% milli_list)) {
     multiplier <- 1e-6
-  } else if (
-    (startunit %in% stand_list & endunit %in% mcro_list) |
-      (startunit %in% milli_list & endunit %in% nano_list)
-  ) {
+  } else if ((startunit %in% stand_list & endunit %in% mcro_list) |
+    (startunit %in% milli_list & endunit %in% nano_list)) {
     multiplier <- 1e6
     # n - standard
   } else if (startunit %in% nano_list & endunit %in% stand_list) {
@@ -348,15 +323,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
-    if (
-      (startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
+    if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
+      (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
-    } else if (
-      (startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
+    } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
+      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
@@ -408,11 +379,9 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
     value / molar_weight * n_mw
     # same lists
-  } else if (
-    (startunit %in% gram_list & endunit %in% gram_list) |
-      (startunit %in% mole_list & endunit %in% mole_list) |
-      (startunit %in% eqvl_list & endunit %in% eqvl_list)
-  ) {
+  } else if ((startunit %in% gram_list & endunit %in% gram_list) |
+    (startunit %in% mole_list & endunit %in% mole_list) |
+    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     stop("Units not supported")
@@ -492,14 +461,10 @@ validate_water <- function(water, slots) {
   # Check if any slots are NA
   if (any(sapply(slots, function(sl) is.na(methods::slot(water, sl))))) {
     # Paste all missing slots together.
-    missing <- gsub(
-      " +",
-      ", ",
-      trimws(paste(
-        sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
-        collapse = " "
-      ))
-    )
+    missing <- gsub(" +", ", ", trimws(paste(
+      sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
+      collapse = " "
+    )))
 
     stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
   }
@@ -545,10 +510,9 @@ construct_helper <- function(df, all_args) {
 
   inputs_arg <- do.call(expand.grid, list(from_inputs, stringsAsFactors = FALSE))
 
+
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop(
-      "Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column."
-    )
+    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
   }
 
   # Get the new names for relevant columns
@@ -587,38 +551,33 @@ calculate_alpha0_phosphate <- function(h, k) {
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 
-calculate_alpha1_phosphate <- function(h, k) {
-  # H2PO4
+calculate_alpha1_phosphate <- function(h, k) { # H2PO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * k1 / h
 }
 
-calculate_alpha2_phosphate <- function(h, k) {
-  # HPO4
+calculate_alpha2_phosphate <- function(h, k) { # HPO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
-calculate_alpha3_phosphate <- function(h, k) {
-  # PO4
+calculate_alpha3_phosphate <- function(h, k) { # PO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 * k3 / h^3)
 }
 
-calculate_alpha1_hypochlorite <- function(h, k) {
-  # OCl-
+calculate_alpha1_hypochlorite <- function(h, k) { # OCl-
   k1 <- k$kocl
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
-calculate_alpha1_ammonia <- function(h, k) {
-  # NH4+
+calculate_alpha1_ammonia <- function(h, k) { # NH4+
   k1 <- k$knh4
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
@@ -641,25 +600,12 @@ K_temp_adjust <- function(deltah, ka, temp) {
 
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
-  0.5 *
-    (sum(
-      water@na,
-      water@cl,
-      water@k,
-      water@hco3,
-      water@h2po4,
-      water@h,
-      water@oh,
-      water@ocl,
-      water@f,
-      water@br,
-      water@bro3,
-      water@nh4,
-      na.rm = TRUE
-    ) *
-      1^2 +
-      sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
-      sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
+  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
+    water@f, water@br, water@bro3, water@nh4,
+    na.rm = TRUE
+  ) * 1^2 +
+    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
+    sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
 }
 
 correlate_ionicstrength <- function(result, from = "cond", to = "is") {
@@ -734,23 +680,16 @@ correct_k <- function(water) {
   # k2po4 = {h+}{hpo42-}/{h2po4-}
   k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
   # k3po4 = {h+}{po43-}/{hpo42-}
-  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) *
-    activity_z2 /
-    (activity_z1 * activity_z3)
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
   # kocl = {h+}{ocl-}/{hocl}
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
 
   return(data.frame(
-    "k1co3" = k1co3,
-    "k2co3" = k2co3,
-    "k1po4" = k1po4,
-    "k2po4" = k2po4,
-    "k3po4" = k3po4,
-    "kocl" = kocl,
-    "knh4" = knh4,
-    "kso4" = kso4
+    "k1co3" = k1co3, "k2co3" = k2co3,
+    "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
   ))
 }
 
