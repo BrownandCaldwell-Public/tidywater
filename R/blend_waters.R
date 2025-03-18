@@ -198,7 +198,7 @@ blend_waters_once <- function(df, waters, ratios) {
   n = 0
   water_names <- list()
   for (water in waters) {
-    n = n +1
+    n = n + 1
 
     if (!is.character(water)) {
       output <- paste0("merging_water_", n)
@@ -290,11 +290,10 @@ blend_waters_once <- function(df, waters, ratios) {
 #' @returns `blend_waters_chain` returns a data frame with a water class column containing blended water quality
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
-
   n = 0
   water_names <- list()
   for (water in waters) {
-    n = n +1
+    n = n + 1
 
     if (!is.character(water)) {
       output <- paste0("merging_water_", n)
