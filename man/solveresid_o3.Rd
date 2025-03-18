@@ -12,7 +12,13 @@ See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater
 \usage{
 solveresid_o3(water, dose, time)
 
-solveresid_o3_once(df, input_water = "defined_water", dose = 0, time = 0)
+solveresid_o3_once(
+  df,
+  input_water = "defined_water",
+  output_column = "o3resid",
+  dose = "use_col",
+  time = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water object of class \code{water} created by \link{define_water}}
@@ -24,6 +30,8 @@ solveresid_o3_once(df, input_water = "defined_water", dose = 0, time = 0)
 \item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \value{
 \code{solveresid_o3} returns a numeric value for the residual ozone.

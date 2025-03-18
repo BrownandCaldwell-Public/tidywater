@@ -265,6 +265,14 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
   temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+  location <- tryCatch(location, error = function(e) enquo(location))
+
   output <- df %>%
     chemdose_dbp_chain(
       input_water = input_water, output_water = "temp_dbp",

@@ -44,6 +44,7 @@ solveresid_o3 <- function(water, dose, time) {
 #' @rdname solveresid_o3
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #'
 #' @examples
 #' library(dplyr)
@@ -65,40 +66,27 @@ solveresid_o3 <- function(water, dose, time) {
 #' @export
 #' @returns `solveresid_o3_once` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
-solveresid_o3_once <- function(df, input_water = "defined_water",
-                               dose = 0, time = 0) {
+solveresid_o3_once <- function(df, input_water = "defined_water", output_column = "o3resid",
+                               dose = "use_col", time = "use_col") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- data.frame(dose, time) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("dose", "time")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
+  # This allows for the function to process unquoted column names without erroring
+  time <- tryCatch(time, error = function(e) enquo(time))
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
 
-  if (length(inputs_col) < 2 & length(inputs_arg) == 0) {
-    warning("Dose and time arguments missing. Add them as a column or function argument.")
+  arguments <- construct_helper(df, list("time" = time, "dose" = dose))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) | ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
-    stop("Dose and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  dose_time <- inputs_col %>%
-    cross_join(inputs_arg)
-
   output <- df %>%
-    subset(select = !names(df) %in% c("dose", "time")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(dose_time, by = "ID") %>%
-    select(-ID) %>%
-    mutate(o3resid = furrr::future_pmap_dbl(
+    mutate(!!output_column := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        dose = dose,
-        time = time
+        time = !!as.name(arguments$final_names$time),
+        dose = !!as.name(arguments$final_names$dose)
       ),
       solveresid_o3
     ))

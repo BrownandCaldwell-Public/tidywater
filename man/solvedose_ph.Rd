@@ -80,8 +80,8 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(target_ph = seq(9, 10.1, .1)) \%>\%
-  solvedose_ph_once(chemical = "naoh")
+  mutate(finpH = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh", target_ph = finpH)
 
 \donttest{
 # Initialize parallel processing

@@ -271,6 +271,29 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
                              caco3 = "use_col") {
   dose_chem <- dosed_chem_water <- NULL # Quiet RCMD check global variable note
+  # This allows for the function to process unquoted column names without erroring
+  hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
+  h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
+  h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
+  co2 <- tryCatch(co2, error = function(e) enquo(co2))
+  naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
+
+  na2co3 <- tryCatch(na2co3, error = function(e) enquo(na2co3))
+  nahco3 <- tryCatch(nahco3, error = function(e) enquo(nahco3))
+  caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
+  mgoh2 <- tryCatch(mgoh2, error = function(e) enquo(mgoh2))
+
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  naocl <- tryCatch(naocl, error = function(e) enquo(naocl))
+  nh4oh <- tryCatch(nh4oh, error = function(e) enquo(nh4oh))
+  nh42so4 <- tryCatch(nh42so4, error = function(e) enquo(nh42so4))
+
+  alum <- tryCatch(alum, error = function(e) enquo(alum))
+  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
+  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  ach <- tryCatch(ach, error = function(e) enquo(ach))
+  caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
+
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",

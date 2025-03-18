@@ -146,6 +146,12 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 pac_toc_once <- function(df, input_water = "defined_water",
                          dose = "use_col", time = "use_col", type = "use_col") {
   temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  type <- tryCatch(type, error = function(e) enquo(type))
+
   output <- df %>%
     pac_toc_chain(
       input_water = input_water, output_water = "temp_pac",

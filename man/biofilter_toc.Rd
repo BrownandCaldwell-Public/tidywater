@@ -100,10 +100,10 @@ example_df <- water_df \%>\%
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(
-    ebct = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
+    BiofEBCT = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
   ) \%>\%
-  biofilter_toc_chain(input_water = "defined_water")
+  biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute

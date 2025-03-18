@@ -134,6 +134,12 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 ozonate_bromate_once <- function(df, input_water = "defined_water",
                                  dose = "use_col", time = "use_col", model = "use_col") {
   temp_o3 <- ozone <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  model <- tryCatch(model, error = function(e) enquo(model))
+
   output <- df %>%
     ozonate_bromate_chain(
       input_water = input_water, output_water = "temp_o3",

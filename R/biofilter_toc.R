@@ -118,6 +118,10 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 
 biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_col", ozonated = "use_col") {
   biofiltered_water <- biofilter <- NULL # Quiet RCMD check global variable note
+
+  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
+  ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
+
   output <- df %>%
     biofilter_toc_chain(
       input_water = input_water, output_water = "biofiltered_water",
@@ -145,10 +149,10 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_co
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     ebct = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
+#'     BiofEBCT = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
 #'     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
 #'   ) %>%
-#'   biofilter_toc_chain(input_water = "defined_water")
+#'   biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 #'
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute

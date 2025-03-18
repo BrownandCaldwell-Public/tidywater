@@ -206,6 +206,13 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = "use_col", time = "use_col",
                                      treatment = "use_col", cl_type = "use_col") {
   temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+
   output <- df %>%
     chemdose_chlordecay_chain(
       input_water = input_water, output_water = "temp_cl2",

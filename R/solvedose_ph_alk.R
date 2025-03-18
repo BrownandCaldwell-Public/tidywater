@@ -201,8 +201,8 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(target_ph = seq(9, 10.1, .1)) %>%
-#'   solvedose_ph_once(chemical = "naoh")
+#'   mutate(finpH = seq(9, 10.1, .1)) %>%
+#'   solvedose_ph_once(chemical = "naoh", target_ph = finpH)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -221,52 +221,29 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #' @returns `solvedose_ph_once` returns a data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
-  dose <- NULL # Quiet RCMD check global variable note
-  dosable_chems <- tibble(
-    hcl = 0, h2so4 = 0, h3po4 = 0,
-    co2 = 0,
-    naoh = 0, caoh2 = 0, mgoh2 = 0,
-    na2co3 = 0, nahco3 = 0,
-    cl2 = 0, naocl = 0, caocl2 = 0,
-    alum = 0, ferricchloride = 0, ferricsulfate = 0
-  )
 
-  chem <- df %>%
-    filter(chemical %in% names(dosable_chems))
+  # This allows for the function to process unquoted column names without erroring
+  target_ph <- tryCatch(target_ph, error = function(e) enquo(target_ph))
+  chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
 
-  if (length(chemical) > 0) {
-    if (!chemical %in% names(dosable_chems)) {
-      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")
-    }
+  arguments <- construct_helper(df, list("target_ph" = target_ph, "chemical" = chemical))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
-    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")
-  }
-
-  if ("target_ph" %in% names(df) & length(target_ph) > 0) {
-    stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")
-  }
-
-  if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")
-  }
-
-  output <- chem %>%
-    mutate(
-      target_ph = target_ph,
-      chemical = chemical
-    ) %>%
-    mutate(dose = furrr::future_pmap(
+  output <- df %>%
+    mutate(!!output_column := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        chemical = chemical,
-        target_ph = target_ph
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_ph = !!as.name(arguments$final_names$target_ph)
       ),
       solvedose_ph
-    )) %>%
-    mutate(!!output_column := as.numeric(dose)) %>%
-    select(-dose)
+    ) %>%
+      as.numeric())
+
 }
 
 #' @rdname solvedose_alk
@@ -301,8 +278,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(target_alk = seq(100, 210, 10)) %>%
-#'   solvedose_alk_once(chemical = "na2co3")
+#'   mutate(finAlk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3", target_alk = finAlk)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -322,48 +299,27 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @returns `solvedose_alk_once` returns a data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
-  dose <- NULL # Quiet RCMD check global variable note
-  dosable_chems <- tibble(
-    hcl = 0, h2so4 = 0, h3po4 = 0,
-    co2 = 0,
-    naoh = 0, caoh2 = 0, mgoh2 = 0,
-    na2co3 = 0, nahco3 = 0
-  )
 
-  chem <- df %>%
-    filter(chemical %in% names(dosable_chems))
+  # This allows for the function to process unquoted column names without erroring
+  target_alk <- tryCatch(target_alk, error = function(e) enquo(target_alk))
+  chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
 
-  if (length(chemical) > 0) {
-    if (!chemical %in% names(dosable_chems)) {
-      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")
-    }
+  arguments <- construct_helper(df, list("target_alk" = target_alk, "chemical" = chemical))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
-    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")
-  }
-
-  if ("target_alk" %in% names(df) & length(target_alk) > 0) {
-    stop("Target alkalinity was set as both a function argument and a data frame column. Remove your target alkalinity from one of these inputs.")
-  }
-
-  if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")
-  }
-
-  output <- chem %>%
-    mutate(
-      target_alk = target_alk,
-      chemical = chemical
-    ) %>%
-    mutate(dose = furrr::future_pmap(
+  output <- df %>%
+    mutate(!!output_column := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        chemical = chemical,
-        target_alk = target_alk
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_alk = !!as.name(arguments$final_names$target_alk)
       ),
       solvedose_alk
-    )) %>%
-    mutate(!!output_column := as.numeric(dose)) %>%
-    select(-dose)
+    ) %>%
+      as.numeric())
+
 }
