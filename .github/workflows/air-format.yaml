@@ -1,0 +1,20 @@
+name: 'Format R code with air'
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  
+jobs:
+  air-format:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Commit changes
+      run: |
+        git config --global user.name "$GITHUB_ACTOR"
+        git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+    - name: Format R code
+      uses: rstudio/shiny-workflows/format-r-code@v1
