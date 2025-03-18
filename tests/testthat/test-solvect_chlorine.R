@@ -29,7 +29,6 @@ test_that("solvect_chlorine works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
 
-
   expect_equal(round(ct$ct_required, 2), 18.52)
   expect_equal(round(ct$ct_actual), 45)
   expect_equal(round(ct$glog_removal, 2), 1.21)
@@ -38,16 +37,30 @@ test_that("solvect_chlorine works.", {
 # HELPERS ----
 test_that("solvect_chlorine_once outputs are the same as base function, solvect_chlorine", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05,
+    br = 50
   )) %>%
     solvect_chlorine(time = 30, residual = 5, baffle = .7)
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    solvect_chlorine_once(time = 30, residual = 5, baffle = .7))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 50) %>%
+      define_water_chain() %>%
+      solvect_chlorine_once(time = 30, residual = 5, baffle = .7)
+  )
 
   expect_equal(water1$ct_required, water2$defined_water_ct_required)
 })
@@ -55,12 +68,13 @@ test_that("solvect_chlorine_once outputs are the same as base function, solvect_
 # Check that output is a data frame
 
 test_that("solvect_chlorine_once is a data frame", {
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    solvect_chlorine_once(time = 30, residual = 5, baffle = .5))
-
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 50) %>%
+      define_water_chain() %>%
+      solvect_chlorine_once(time = 30, residual = 5, baffle = .5)
+  )
 
   expect_true(is.data.frame(water1))
 })
@@ -72,20 +86,25 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
     define_water_chain()
 
   time <- data.frame(time = seq(2, 24, 2))
-  water1 <- suppressWarnings(water_df %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    cross_join(time) %>%
-    solvect_chlorine_once(residual = 5, baffle = .5))
+  water1 <- suppressWarnings(
+    water_df %>%
+      mutate(br = 50) %>%
+      define_water_chain() %>%
+      cross_join(time) %>%
+      solvect_chlorine_once(residual = 5, baffle = .5)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    solvect_chlorine_once(
-      time = seq(2, 24, 2),
-      residual = 5, baffle = .5
-    ) %>%
-    unique())
+  water2 <- suppressWarnings(
+    water_df %>%
+      mutate(br = 50) %>%
+      define_water_chain() %>%
+      solvect_chlorine_once(
+        time = seq(2, 24, 2),
+        residual = 5,
+        baffle = .5
+      ) %>%
+      unique()
+  )
 
   water3 <- water_df %>%
     mutate(br = 50) %>%

@@ -53,7 +53,9 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 
   # Other parameters depend on model
   if (is.na(water@alk) & model %in% c("Sohn", "Song")) {
-    stop("Alkalinity required for selected model. Use one of 'Ozekin', 'Galey', 'Siddiqui' instead or add alkalinity when defining water.")
+    stop(
+      "Alkalinity required for selected model. Use one of 'Ozekin', 'Galey', 'Siddiqui' instead or add alkalinity when defining water."
+    )
   }
   if (is.na(water@doc) & model != "Sohn") {
     stop("DOC required for selected model. Use 'Sohn' to use UV254 instead or add DOC when defining water.")
@@ -77,15 +79,28 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   solve_bro3 <- subset(tidywater::bromatecoeffs, model == mod & ammonia == ifelse(nh4 == 0, F, T))
 
   if (nrow(solve_bro3) == 0 & nh4 == 0) {
-    stop("Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',
-         specify nh4 in define_water, or dose it with chemdose_ph.")
+    stop(
+      "Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',
+         specify nh4 in define_water, or dose it with chemdose_ph."
+    )
   } else if (nrow(solve_bro3) == 0 & nh4 > 0) {
-    stop("Selected model not applicable to water with ammonia. Select one of 'Ozekin', 'Sohn', 'Song' or change nh4 to 0.")
+    stop(
+      "Selected model not applicable to water with ammonia. Select one of 'Ozekin', 'Sohn', 'Song' or change nh4 to 0."
+    )
   }
 
   # bro3 = A * br^a * doc^b * uv254^c * ph^d * alk^e * dose^f * time^g * nh4^h * temp^i * I^(temp - 20)
-  water@bro3 <- solve_bro3$A * br^solve_bro3$a * doc^solve_bro3$b * uv254^solve_bro3$c * ph^solve_bro3$d *
-    alk^solve_bro3$e * dose^solve_bro3$f * time^solve_bro3$g * nh4^solve_bro3$h * temp^solve_bro3$i * solve_bro3$I^(temp - 20)
+  water@bro3 <- solve_bro3$A *
+    br^solve_bro3$a *
+    doc^solve_bro3$b *
+    uv254^solve_bro3$c *
+    ph^solve_bro3$d *
+    alk^solve_bro3$e *
+    dose^solve_bro3$f *
+    time^solve_bro3$g *
+    nh4^solve_bro3$h *
+    temp^solve_bro3$i *
+    solve_bro3$I^(temp - 20)
 
   return(water)
 }
@@ -131,8 +146,13 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #'
 #' @returns `ozonate_bromate_once` returns a data frame with updated bromate as a column.
 
-ozonate_bromate_once <- function(df, input_water = "defined_water",
-                                 dose = "use_col", time = "use_col", model = "use_col") {
+ozonate_bromate_once <- function(
+  df,
+  input_water = "defined_water",
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
+) {
   temp_o3 <- ozone <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -142,8 +162,11 @@ ozonate_bromate_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     ozonate_bromate_chain(
-      input_water = input_water, output_water = "temp_o3",
-      dose, time, model
+      input_water = input_water,
+      output_water = "temp_o3",
+      dose,
+      time,
+      model
     ) %>%
     mutate(ozone = furrr::future_map(temp_o3, convert_water)) %>%
     unnest(ozone) %>%
@@ -198,8 +221,14 @@ ozonate_bromate_once <- function(df, input_water = "defined_water",
 #'
 #' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro3.
 
-ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
-                                  dose = "use_col", time = "use_col", model = "use_col") {
+ozonate_bromate_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "ozonated_water",
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -214,16 +243,20 @@ ozonate_bromate_chain <- function(df, input_water = "defined_water", output_wate
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        dose = !!as.name(arguments$final_names$dose),
-        time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        model = ifelse(exists(as.name(arguments$final_names$model), where = .),
-          !!as.name(arguments$final_names$model), "Ozekin"
-        )
-      ),
-      ozonate_bromate
-    ))
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          dose = !!as.name(arguments$final_names$dose),
+          time = !!as.name(arguments$final_names$time),
+          # This logic needed for any argument that has a default
+          model = ifelse(
+            exists(as.name(arguments$final_names$model), where = .),
+            !!as.name(arguments$final_names$model),
+            "Ozekin"
+          )
+        ),
+        ozonate_bromate
+      )
+    )
 }

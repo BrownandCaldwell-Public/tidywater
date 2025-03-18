@@ -39,13 +39,23 @@ balance_ions <- function(water) {
 
   # calculate charge
   cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
-  anions <- sum(water@cl, 2 * water@so4, water@hco3, 2 * water@co3, water@h2po4, 2 * water@hpo4, 3 * water@po4,
-    water@oh, water@ocl,
+  anions <- sum(
+    water@cl,
+    2 * water@so4,
+    water@hco3,
+    2 * water@co3,
+    water@h2po4,
+    2 * water@hpo4,
+    3 * water@po4,
+    water@oh,
+    water@ocl,
     na.rm = TRUE
   )
 
   if (is.na(cations) | is.na(anions)) {
-    stop("Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called.")
+    stop(
+      "Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called."
+    )
   }
 
   # Initialize these objects so they can be used later.
@@ -101,8 +111,11 @@ balance_ions <- function(water) {
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
-    water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
-      convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
+    water@tds <- water@tds +
+      convert_units(add_na, "na", "M", "mg/L") +
+      convert_units(add_k, "k", "M", "mg/L") +
+      convert_units(add_cl, "cl", "M", "mg/L") +
+      convert_units(add_so4, "so4", "M", "mg/L")
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
     water@is <- calculate_ionicstrength(water)

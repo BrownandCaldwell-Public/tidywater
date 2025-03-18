@@ -65,9 +65,15 @@
 #'
 #' @returns `calculate_corrosion` returns a single water class object with updated corrosion and scaling index slots.
 #'
-calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
+calculate_corrosion <- function(
+  water,
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
+) {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    warning("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
+    warning(
+      "Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated."
+    )
   }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
@@ -123,7 +129,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("larsonskold" %in% index) {
     validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate.")
+      warning(
+        "Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate."
+      )
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     # epm = equivalents per million
@@ -219,28 +227,17 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     root_x <- tryCatch(
       {
         # First try with a restricted interval
-        stats::uniroot(solve_x,
-          water = water,
-          interval = c(-50, 50)
-        )
+        stats::uniroot(solve_x, water = water, interval = c(-50, 50))
       },
       error = function(e) {
         tryCatch(
           {
-            stats::uniroot(solve_x,
-              water = water,
-              interval = c(-1, 1),
-              extendInt = "downX"
-            )
+            stats::uniroot(solve_x, water = water, interval = c(-1, 1), extendInt = "downX")
           },
           error = function(e) {
             tryCatch(
               {
-                stats::uniroot(solve_x,
-                  water = water,
-                  interval = c(-1, 1),
-                  extendInt = "upX"
-                )
+                stats::uniroot(solve_x, water = water, interval = c(-1, 1), extendInt = "upX")
               },
               error = function(e) {
                 stop("Water outside range for CCPP solver.")
@@ -250,7 +247,6 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
         )
       }
     )
-
 
     water@ccpp <- -root_x$root
   }
@@ -285,8 +281,12 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'
 #' @returns `calculate_corrosion_once` returns a data frame containing specified corrosion and scaling indices as columns.
 
-calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                     form = "calcite") {
+calculate_corrosion_once <- function(
+  df,
+  input_water = "defined_water",
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
+) {
   corrosion_indices <- NULL # Quiet RCMD check global variable note
   output <- df %>%
     calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
@@ -332,9 +332,13 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #'
 #' @returns `calculate_corrosion_chain` returns a data frame containing a water class column with updated corrosion and scaling index slots.
 
-calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
-                                      index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                      form = "calcite") {
+calculate_corrosion_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "corrosion_indices",
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
+) {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
@@ -342,12 +346,14 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
   index <- list(index)
 
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        index = index,
-        form = form
-      ),
-      calculate_corrosion
-    ))
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          index = index,
+          form = form
+        ),
+        calculate_corrosion
+      )
+    )
 }

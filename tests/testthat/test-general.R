@@ -7,16 +7,25 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 and M works.", {
   naoh_m <- .1
   expect_equal(convert_units(naoh_m, "naoh", startunit = "M", endunit = "mg/L"), naoh_m * mweights$naoh * 1000)
   ca_mgcaco3 <- 50
-  expect_equal(convert_units(ca_mgcaco3, "ca", startunit = "mg/L CaCO3", endunit = "M"), ca_mgcaco3 / mweights$caco3 / 1000)
+  expect_equal(
+    convert_units(ca_mgcaco3, "ca", startunit = "mg/L CaCO3", endunit = "M"),
+    ca_mgcaco3 / mweights$caco3 / 1000
+  )
   ca_mol <- .002
   expect_equal(convert_units(ca_mol, "ca", startunit = "M", endunit = "mg/L CaCO3"), ca_mol * mweights$caco3 * 1000)
 })
 
 test_that("Unit conversion between mg/L and mg/L CaCO3 works.", {
   ca_mg <- 20
-  expect_equal(convert_units(ca_mg, "ca", startunit = "mg/L", endunit = "mg/L CaCO3"), ca_mg / mweights$ca * mweights$caco3)
+  expect_equal(
+    convert_units(ca_mg, "ca", startunit = "mg/L", endunit = "mg/L CaCO3"),
+    ca_mg / mweights$ca * mweights$caco3
+  )
   hco3_caco3 <- 80
-  expect_equal(convert_units(hco3_caco3, "hco3", startunit = "mg/L CaCO3", endunit = "mg/L"), hco3_caco3 * mweights$hco3 / mweights$caco3)
+  expect_equal(
+    convert_units(hco3_caco3, "hco3", startunit = "mg/L CaCO3", endunit = "mg/L"),
+    hco3_caco3 * mweights$hco3 / mweights$caco3
+  )
 })
 
 test_that("Unit conversion to same units works.", {
@@ -39,15 +48,36 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
   na_eq <- .002
   expect_equal(convert_units(na_eq, "na", startunit = "eq/L", endunit = "mg/L"), na_eq * mweights$na * 1000)
   ca_mgcaco3 <- 50
-  expect_equal(convert_units(ca_mgcaco3, "ca", startunit = "mg/L CaCO3", endunit = "eq/L"), ca_mgcaco3 / mweights$caco3 / 1000 * 2)
+  expect_equal(
+    convert_units(ca_mgcaco3, "ca", startunit = "mg/L CaCO3", endunit = "eq/L"),
+    ca_mgcaco3 / mweights$caco3 / 1000 * 2
+  )
   ca_eq <- .002
-  expect_equal(convert_units(ca_eq, "ca", startunit = "eq/L", endunit = "mg/L CaCO3"), ca_eq * mweights$caco3 * 1000 / 2)
+  expect_equal(
+    convert_units(ca_eq, "ca", startunit = "eq/L", endunit = "mg/L CaCO3"),
+    ca_eq * mweights$caco3 * 1000 / 2
+  )
 })
 
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
+  water1 <- define_water(
+    ph = 7,
+    temp = 25,
+    alk = 100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    tds = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1,
+    br = 50
+  )
   expect_match(summarise_wq(water1), ".+pH.+7.+Alkalinity.+100.+")
   expect_s3_class(summarise_wq(water1), "knitr_kable")
 })
@@ -55,7 +85,22 @@ test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
 # Plot Ions ----
 
 test_that("Plot ions creates a ggplot object that can be printed.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)
+  water1 <- define_water(
+    ph = 7,
+    temp = 25,
+    alk = 100,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    tds = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1,
+    br = 50
+  )
   expect_s3_class(plot_ions(water1), "ggplot")
   expect_no_error(plot_ions(water1))
 })
@@ -65,7 +110,10 @@ test_that("Plot ions creates a ggplot object that can be printed.", {
 
 test_that("Total hardness calculation works.", {
   expect_equal(calculate_hardness(20, 2), 20 / mweights$ca * mweights$caco3 + 2 / mweights$mg * mweights$caco3)
-  expect_equal(calculate_hardness(.002, .001, startunit = "M"), .002 * mweights$caco3 * 1000 + .001 * mweights$caco3 * 1000)
+  expect_equal(
+    calculate_hardness(.002, .001, startunit = "M"),
+    .002 * mweights$caco3 * 1000 + .001 * mweights$caco3 * 1000
+  )
 })
 
 test_that("Calcium hardness calculation works.", {
@@ -137,9 +185,11 @@ test_that("K temp correction returns a value close to K.", {
 test_that("Ionic strength calc in define water works.", {
   water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
 
-  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl) * 1^2 +
-    (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
-    (water@po4) * 3^2)
+  is_calced <- 0.5 *
+    ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl) *
+      1^2 +
+      (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
+      (water@po4) * 3^2)
   expect_equal(signif(water@is, 3), signif(is_calced, 3))
 })
 

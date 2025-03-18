@@ -84,7 +84,9 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
 
   tibble(
-    "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = virus_log_removal,
+    "ct_actual" = ct_actual,
+    "glog_removal" = giardia_log_removal,
+    "vlog_removal" = virus_log_removal,
     "clog_removal" = crypto_log_removal
   )
 }
@@ -115,9 +117,15 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @export
 #' @returns `solvect_o3_once` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
-solvect_o3_once <- function(df, input_water = "defined_water",
-                            time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
-                            water_prefix = TRUE) {
+solvect_o3_once <- function(
+  df,
+  input_water = "defined_water",
+  time = "use_col",
+  dose = "use_col",
+  kd = "use_col",
+  baffle = "use_col",
+  water_prefix = TRUE
+) {
   calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -134,18 +142,18 @@ solvect_o3_once <- function(df, input_water = "defined_water",
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(calc := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        time = !!as.name(arguments$final_names$time),
-        dose = !!as.name(arguments$final_names$dose),
-        kd = ifelse(exists(as.name(arguments$final_names$kd), where = .),
-          !!as.name(arguments$final_names$kd), NA
+    mutate(
+      calc := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          time = !!as.name(arguments$final_names$time),
+          dose = !!as.name(arguments$final_names$dose),
+          kd = ifelse(exists(as.name(arguments$final_names$kd), where = .), !!as.name(arguments$final_names$kd), NA),
+          baffle = !!as.name(arguments$final_names$baffle)
         ),
-        baffle = !!as.name(arguments$final_names$baffle)
-      ),
-      solvect_o3
-    )) %>%
+        solvect_o3
+      )
+    ) %>%
     unnest_wider(calc)
 
   if (water_prefix) {

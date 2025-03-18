@@ -3,9 +3,19 @@ test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
     water1 <- define_water(
-      ph = 7, temp = 25, alk = 100, tot_hard = 0,
-      ca = 0, mg = 0, na = 0, k = 0, cl = 0, so4 = 0,
-      toc = 5, doc = 4.8, uv254 = .1
+      ph = 7,
+      temp = 25,
+      alk = 100,
+      tot_hard = 0,
+      ca = 0,
+      mg = 0,
+      na = 0,
+      k = 0,
+      cl = 0,
+      so4 = 0,
+      toc = 5,
+      doc = 4.8,
+      uv254 = .1
     )
     water2 <- define_water(temp = 25, tot_hard = 50)
     water3 <- define_water(ph = 7, temp = 25, alk = 100)
@@ -47,22 +57,57 @@ test_that("Define water calculates correct TDS/IS/cond.", {
 test_that("Define water gives missing value warnings.", {
   expect_warning(
     define_water(
-      alk = 100, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
-      doc = 5, toc = 5, uv254 = .1, br = 50
+      alk = 100,
+      temp = 20,
+      tot_hard = 70,
+      ca = 10,
+      mg = 10,
+      na = 10,
+      k = 10,
+      cl = 10,
+      so4 = 10,
+      tds = 100,
+      doc = 5,
+      toc = 5,
+      uv254 = .1,
+      br = 50
     ),
     "Missing.+pH.+"
   )
   expect_warning(
     define_water(
-      ph = 7, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10, tds = 100,
-      doc = 5, toc = 5, uv254 = .1, br = 50
+      ph = 7,
+      temp = 20,
+      tot_hard = 70,
+      ca = 10,
+      mg = 10,
+      na = 10,
+      k = 10,
+      cl = 10,
+      so4 = 10,
+      tds = 100,
+      doc = 5,
+      toc = 5,
+      uv254 = .1,
+      br = 50
     ),
     "Missing.+alkalinity.+"
   )
   expect_warning(
     define_water(
-      ph = 7, alk = 100, temp = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10, cl = 10, so4 = 10,
-      toc = 5, uv254 = .1, br = 50
+      ph = 7,
+      alk = 100,
+      temp = 20,
+      tot_hard = 70,
+      ca = 10,
+      mg = 10,
+      na = 10,
+      k = 10,
+      cl = 10,
+      so4 = 10,
+      toc = 5,
+      uv254 = .1,
+      br = 50
     ),
     "Missing.+DOC+"
   )
@@ -95,8 +140,16 @@ test_that("define_water correctly specifies when estimates are used.", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
   water2 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
   water3 <- suppressWarnings(define_water(
-    ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100, toc = 3.5, doc = 3.5,
-    ca = 40, tds = 100
+    ph = 7,
+    temp = 25,
+    alk = 100,
+    tot_hard = 50,
+    na = 100,
+    cl = 100,
+    toc = 3.5,
+    doc = 3.5,
+    ca = 40,
+    tds = 100
   ))
 
   expect_true(grepl("tds", water1@estimated))
@@ -116,8 +169,21 @@ test_that("define_water correctly specifies when estimates are used.", {
 
 test_that("define_water_once output is the same as define_water", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
   water2 <- convert_water(water1)
 
@@ -139,8 +205,21 @@ test_that("define_water_once outputs a data frame", {
 
 test_that("define_water_chain output is the same as define_water", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
   # water2 <- convert_Water(water1)
 
@@ -154,8 +233,19 @@ test_that("define_water_chain output is the same as define_water", {
 
 test_that("define_water_chain outputs a water class and the output water argument works", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
   # water2 <- convert_Water(water1)
 
@@ -169,8 +259,19 @@ test_that("define_water_chain outputs a water class and the output water argumen
 
 test_that("define_water_chain can be piped", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
   # water2 <- convert_Water(water1)
 

@@ -143,8 +143,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' @returns `pac_toc_once` returns a data frame with an updated DOC, TOC, and UV254 concentration as columns.
 
-pac_toc_once <- function(df, input_water = "defined_water",
-                         dose = "use_col", time = "use_col", type = "use_col") {
+pac_toc_once <- function(df, input_water = "defined_water", dose = "use_col", time = "use_col", type = "use_col") {
   temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -154,8 +153,11 @@ pac_toc_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     pac_toc_chain(
-      input_water = input_water, output_water = "temp_pac",
-      dose, time, type
+      input_water = input_water,
+      output_water = "temp_pac",
+      dose,
+      time,
+      type
     ) %>%
     mutate(toc = furrr::future_map(temp_pac, convert_water)) %>%
     unnest(toc) %>%
@@ -202,8 +204,14 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' @returns `pac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
-pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
-                          dose = "use_col", time = "use_col", type = "use_col") {
+pac_toc_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "pac_water",
+  dose = "use_col",
+  time = "use_col",
+  type = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -218,16 +226,20 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        dose = !!as.name(arguments$final_names$dose),
-        time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        type = ifelse(exists(as.name(arguments$final_names$type), where = .),
-          !!as.name(arguments$final_names$type), "bituminous"
-        )
-      ),
-      pac_toc
-    ))
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          dose = !!as.name(arguments$final_names$dose),
+          time = !!as.name(arguments$final_names$time),
+          # This logic needed for any argument that has a default
+          type = ifelse(
+            exists(as.name(arguments$final_names$type), where = .),
+            !!as.name(arguments$final_names$type),
+            "bituminous"
+          )
+        ),
+        pac_toc
+      )
+    )
 }

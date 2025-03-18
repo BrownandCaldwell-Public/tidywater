@@ -54,15 +54,21 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2_dose)) {
-    stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
+    stop(
+      "Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay."
+    )
   }
 
   if (missing(time)) {
-    stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
+    stop(
+      "Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay."
+    )
   }
 
   if (!(cl_type %in% c("chlorine", "chloramine"))) {
-    stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
+    stop(
+      "cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay."
+    )
   }
 
   # chlorine decay model
@@ -131,7 +137,8 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   if (cl2_dose == 0) {
     ct <- 0
   } else {
-    root_ct <- stats::uniroot(solve_decay,
+    root_ct <- stats::uniroot(
+      solve_decay,
       interval = c(0, cl2_dose),
       a = coeffs$a,
       b = coeffs$b,
@@ -152,7 +159,6 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
-
 
   return(water)
 }
@@ -203,8 +209,14 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' @returns `chemdose_chlordecay_once` returns a data frame with updated chlorine residual as columns.
 
-chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = "use_col", time = "use_col",
-                                     treatment = "use_col", cl_type = "use_col") {
+chemdose_chlordecay_once <- function(
+  df,
+  input_water = "defined_water",
+  cl2_dose = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col"
+) {
   temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -215,8 +227,12 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 
   output <- df %>%
     chemdose_chlordecay_chain(
-      input_water = input_water, output_water = "temp_cl2",
-      cl2_dose, time, treatment, cl_type
+      input_water = input_water,
+      output_water = "temp_cl2",
+      cl2_dose,
+      time,
+      treatment,
+      cl_type
     ) %>%
     mutate(chlor = furrr::future_map(temp_cl2, convert_water)) %>%
     unnest(chlor) %>%
@@ -277,9 +293,15 @@ chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose
 #'
 #' @returns `chemdose_chlordecay_chain` returns a data frame containing a water class column with updated chlorine residuals.
 
-chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                                      cl2_dose = "use_col", time = "use_col",
-                                      treatment = "use_col", cl_type = "use_col") {
+chemdose_chlordecay_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "disinfected_water",
+  cl2_dose = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -287,10 +309,15 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, list(
-    "cl2_dose" = cl2_dose, "time" = time,
-    "treatment" = treatment, "cl_type" = cl_type
-  ))
+  arguments <- construct_helper(
+    df,
+    list(
+      "cl2_dose" = cl2_dose,
+      "time" = time,
+      "treatment" = treatment,
+      "cl_type" = cl_type
+    )
+  )
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
@@ -298,20 +325,26 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        cl2_dose = !!as.name(arguments$final_names$cl2_dose),
-        time = !!as.name(arguments$final_names$time),
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          cl2_dose = !!as.name(arguments$final_names$cl2_dose),
+          time = !!as.name(arguments$final_names$time),
 
-        # This logic needed for any argument that has a default
-        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
-          !!as.name(arguments$final_names$treatment), "raw"
+          # This logic needed for any argument that has a default
+          treatment = ifelse(
+            exists(as.name(arguments$final_names$treatment), where = .),
+            !!as.name(arguments$final_names$treatment),
+            "raw"
+          ),
+          cl_type = ifelse(
+            exists(as.name(arguments$final_names$cl_type), where = .),
+            !!as.name(arguments$final_names$cl_type),
+            "chlorine"
+          )
         ),
-        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
-          !!as.name(arguments$final_names$cl_type), "chlorine"
-        )
-      ),
-      chemdose_chlordecay
-    ))
+        chemdose_chlordecay
+      )
+    )
 }

@@ -48,12 +48,23 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     edwardscoeff <- tidywater::edwardscoeff
     coeffs <- subset(edwardscoeff, edwardscoeff$ID == coeff)
     if (nrow(coeffs) != 1) {
-      stop("coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector.")
+      stop(
+        "coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector."
+      )
     }
   } else if (is.numeric(coeff)) {
-    coeffs <- data.frame(k1 = coeff["k1"], k2 = coeff["k2"], x1 = coeff["x1"], x2 = coeff["x2"], x3 = coeff["x3"], b = coeff["b"])
+    coeffs <- data.frame(
+      k1 = coeff["k1"],
+      k2 = coeff["k2"],
+      x1 = coeff["x1"],
+      x2 = coeff["x2"],
+      x3 = coeff["x3"],
+      b = coeff["b"]
+    )
     if (any(is.na(coeffs))) {
-      stop("coeff must be specified as a named vector and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
+      stop(
+        "coeff must be specified as a named vector and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string."
+      )
     }
   } else {
     stop("coeffs must be specified with a string or named vector. See documentation for acceptable formats.")
@@ -68,7 +79,6 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
   } else if (alum > 0 & any(grepl("Ferric", coeff))) {
     warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
   }
-
 
   # Alum - hydration included
   alum <- convert_units(alum, "alum", endunit = "mM")
@@ -91,7 +101,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
   # Rearrangement of equation from wolfram alpha
   adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-    b * coag * xterm + b * water@doc * sterm - 1) /
+    b * coag * xterm +
+    b * water@doc * sterm -
+    1) /
     (2 * b)
 
   if (coag == 0) {
@@ -156,9 +168,14 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'
 #' @returns `chemdose_toc_once` returns a data frame with columns for updated DOC, TOC, and UV254 concentration.
 
-chemdose_toc_once <- function(df, input_water = "defined_water",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                              coeff = "use_col") {
+chemdose_toc_once <- function(
+  df,
+  input_water = "defined_water",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
+) {
   dosed_chem_water <- dose_chem <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -169,8 +186,12 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     chemdose_toc_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
-      alum, ferricchloride, ferricsulfate, coeff
+      input_water = input_water,
+      output_water = "dosed_chem_water",
+      alum,
+      ferricchloride,
+      ferricsulfate,
+      coeff
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
@@ -226,9 +247,15 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'
 #' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 
-chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                               coeff = "use_col") {
+chemdose_toc_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "coagulated_water",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
@@ -236,11 +263,15 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list(
-    "alum" = alum, "ferricchloride" = ferricchloride,
-    "ferricsulfate" = ferricsulfate,
-    "coeff" = coeff
-  ))
+  arguments <- construct_helper(
+    df,
+    all_args = list(
+      "alum" = alum,
+      "ferricchloride" = ferricchloride,
+      "ferricsulfate" = ferricsulfate,
+      "coeff" = coeff
+    )
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -249,21 +280,25 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        alum = ifelse(exists(as.name(final_names$alum), where = .), !!as.name(final_names$alum), 0),
-        ferricchloride = ifelse(exists(as.name(final_names$ferricchloride), where = .),
-          !!as.name(final_names$ferricchloride), 0
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          alum = ifelse(exists(as.name(final_names$alum), where = .), !!as.name(final_names$alum), 0),
+          ferricchloride = ifelse(
+            exists(as.name(final_names$ferricchloride), where = .),
+            !!as.name(final_names$ferricchloride),
+            0
+          ),
+          ferricsulfate = ifelse(
+            exists(as.name(final_names$ferricsulfate), where = .),
+            !!as.name(final_names$ferricsulfate),
+            0
+          ),
+          # This logic needed for any argument that has a default
+          coeff = ifelse(exists(as.name(final_names$coeff), where = .), !!as.name(final_names$coeff), "Alum")
         ),
-        ferricsulfate = ifelse(exists(as.name(final_names$ferricsulfate), where = .),
-          !!as.name(final_names$ferricsulfate), 0
-        ),
-        # This logic needed for any argument that has a default
-        coeff = ifelse(exists(as.name(final_names$coeff), where = .),
-          !!as.name(final_names$coeff), "Alum"
-        )
-      ),
-      chemdose_toc
-    ))
+        chemdose_toc
+      )
+    )
 }

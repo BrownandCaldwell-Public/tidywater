@@ -66,8 +66,13 @@ solveresid_o3 <- function(water, dose, time) {
 #' @export
 #' @returns `solveresid_o3_once` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
-solveresid_o3_once <- function(df, input_water = "defined_water", output_column = "o3resid",
-                               dose = "use_col", time = "use_col") {
+solveresid_o3_once <- function(
+  df,
+  input_water = "defined_water",
+  output_column = "o3resid",
+  dose = "use_col",
+  time = "use_col"
+) {
   ID <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -82,13 +87,15 @@ solveresid_o3_once <- function(df, input_water = "defined_water", output_column 
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_column := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        time = !!as.name(arguments$final_names$time),
-        dose = !!as.name(arguments$final_names$dose)
-      ),
-      solveresid_o3
-    ) %>%
-      as.numeric)
+    mutate(
+      !!output_column := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          time = !!as.name(arguments$final_names$time),
+          dose = !!as.name(arguments$final_names$dose)
+        ),
+        solveresid_o3
+      ) %>%
+        as.numeric
+    )
 }

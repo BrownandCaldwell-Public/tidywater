@@ -145,14 +145,24 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
-    predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
-      temp^predicted_dbp$d * ph^predicted_dbp$e * time^predicted_dbp$f
+    predicted_dbp$modeled_dbp <- predicted_dbp$A *
+      toc^predicted_dbp$a *
+      cl2^predicted_dbp$b *
+      br^predicted_dbp$c *
+      temp^predicted_dbp$d *
+      ph^predicted_dbp$e *
+      time^predicted_dbp$f
   } else {
     treat <- treatment
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
-    predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
-      br^predicted_dbp$c * predicted_dbp$d^(ph - predicted_dbp$ph_const) * predicted_dbp$e^(temp - 20) * time^predicted_dbp$f
+    predicted_dbp$modeled_dbp <- predicted_dbp$A *
+      (doc * uv254)^predicted_dbp$a *
+      cl2^predicted_dbp$b *
+      br^predicted_dbp$c *
+      predicted_dbp$d^(ph - predicted_dbp$ph_const) *
+      predicted_dbp$e^(temp - 20) *
+      time^predicted_dbp$f
   }
 
   # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
@@ -262,8 +272,15 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'
 #' @returns `chemdose_dbp_once` returns a data frame with predicted DBP concentrations as columns.
 
-chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
-                              treatment = "use_col", cl_type = "use_col", location = "use_col") {
+chemdose_dbp_once <- function(
+  df,
+  input_water = "defined_water",
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col"
+) {
   temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -275,8 +292,13 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
 
   output <- df %>%
     chemdose_dbp_chain(
-      input_water = input_water, output_water = "temp_dbp",
-      cl2, time, treatment, cl_type, location
+      input_water = input_water,
+      output_water = "temp_dbp",
+      cl2,
+      time,
+      treatment,
+      cl_type,
+      location
     ) %>%
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dbps) %>%
@@ -337,9 +359,16 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
 #'
 #' @returns `chemdose_dbp_chain` returns a data frame containing a water class column with predicted DBP concentrations.
 
-chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                               cl2 = "use_col", time = "use_col",
-                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
+chemdose_dbp_chain <- function(
+  df,
+  input_water = "defined_water",
+  output_water = "disinfected_water",
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -347,12 +376,15 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
 
-
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(
-    df, list(
-      "cl2" = cl2, "time" = time, "treatment" = treatment,
-      "cl_type" = cl_type, "location" = location
+    df,
+    list(
+      "cl2" = cl2,
+      "time" = time,
+      "treatment" = treatment,
+      "cl_type" = cl_type,
+      "location" = location
     )
   )
 
@@ -362,22 +394,30 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
       cross_join(as.data.frame(arguments$new_cols))
   }
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        cl2 = !!as.name(arguments$final_names$cl2),
-        time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
-          !!as.name(arguments$final_names$treatment), "raw"
+    mutate(
+      !!output_water := furrr::future_pmap(
+        list(
+          water = !!as.name(input_water),
+          cl2 = !!as.name(arguments$final_names$cl2),
+          time = !!as.name(arguments$final_names$time),
+          # This logic needed for any argument that has a default
+          treatment = ifelse(
+            exists(as.name(arguments$final_names$treatment), where = .),
+            !!as.name(arguments$final_names$treatment),
+            "raw"
+          ),
+          cl_type = ifelse(
+            exists(as.name(arguments$final_names$cl_type), where = .),
+            !!as.name(arguments$final_names$cl_type),
+            "chlorine"
+          ),
+          location = ifelse(
+            exists(as.name(arguments$final_names$location), where = .),
+            !!as.name(arguments$final_names$location),
+            "plant"
+          )
         ),
-        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
-          !!as.name(arguments$final_names$cl_type), "chlorine"
-        ),
-        location = ifelse(exists(as.name(arguments$final_names$location), where = .),
-          !!as.name(arguments$final_names$location), "plant"
-        )
-      ),
-      chemdose_dbp
-    ))
+        chemdose_dbp
+      )
+    )
 }
