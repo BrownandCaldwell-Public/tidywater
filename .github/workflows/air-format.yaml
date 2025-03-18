@@ -26,6 +26,10 @@ jobs:
       id: extract_branch
       run: echo "branch=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
 
+    - name: Pull latest changes
+      run: |
+        git pull origin ${{ steps.extract_branch.outputs.branch }}
+
     - name: Push changes
       run: |
         git push origin HEAD:${{ steps.extract_branch.outputs.branch }}

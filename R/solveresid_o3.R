@@ -89,5 +89,6 @@ solveresid_o3_once <- function(df, input_water = "defined_water", output_column 
         dose = !!as.name(arguments$final_names$dose)
       ),
       solveresid_o3
-    ))
+    ) %>%
+      as.numeric)
 }
