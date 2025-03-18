@@ -16,7 +16,7 @@
 #' function instead or an unquoted column name can be provided.
 #'
 #' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' Use [summarize_wq(water, params = c("dbps"))] to quickly tabulate the results.
+#' Use `summarize_wq(water, params = c("dbps"))` to quickly tabulate the results.
 #'
 #' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use

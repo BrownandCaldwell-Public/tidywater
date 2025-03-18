@@ -501,7 +501,7 @@ construct_helper <- function(df, all_args) {
 
   from_new <- all_args[all_args != "use_col"]
   if (length(from_new) > 0) {
-    from_columns <- all_args[sapply(from_new, function(x) any(inherits(x, "quosure")))]
+    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
   } else {
     from_columns <- list()
   }
