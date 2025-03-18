@@ -14,6 +14,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Extract branch name
+      id: extract_branch
+      run: echo "branch=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
+
     - name: Pull latest changes
       run: |
         git pull origin ${{ steps.extract_branch.outputs.branch }}
@@ -25,10 +29,6 @@ jobs:
 
     - name: Format R code
       uses: rstudio/shiny-workflows/format-r-code@v1
-
-    - name: Extract branch name
-      id: extract_branch
-      run: echo "branch=${GITHUB_HEAD_REF}" >> $GITHUB_OUTPUT
 
     - name: Push changes
       run: |
