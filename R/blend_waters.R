@@ -13,8 +13,10 @@
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.#'
 #'
-#' @param waters Vector of source waters created by [define_water]. For `chain` or `once` functions, this should be a list of column names.
-#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` or `once` functions, this can also be a list of column names.
+#' @param waters Vector of source waters created by [define_water]. For `chain` or `once` functions, this can include
+#' quoted column names or existing single water objects unquoted.
+#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` or `once` functions,
+#' this can also be a list of quoted column names.
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -192,7 +194,24 @@ blend_waters <- function(waters, ratios) {
 
 blend_waters_once <- function(df, waters, ratios) {
   blend_df <- blended <- NULL # Quiet RCMD check global variable note
-  df_subset <- df %>% select(all_of(waters))
+
+  n = 0
+  water_names <- list()
+  for (water in waters) {
+    n = n +1
+
+    if (!is.character(water)) {
+      output <- paste0("merging_water_", n)
+      df <- df %>%
+        mutate(!!output := list(water))
+      water_names[n] <- output
+    } else {
+      water_names[n] <- water
+    }
+  }
+  water_names <- unlist(water_names)
+
+  df_subset <- df %>% select(all_of(water_names))
 
   for (row in 1:length(df_subset[[1]])) {
     water_vectors <- c()
@@ -271,10 +290,27 @@ blend_waters_once <- function(df, waters, ratios) {
 #' @returns `blend_waters_chain` returns a data frame with a water class column containing blended water quality
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
+
+  n = 0
+  water_names <- list()
+  for (water in waters) {
+    n = n +1
+
+    if (!is.character(water)) {
+      output <- paste0("merging_water_", n)
+      df <- df %>%
+        mutate(!!output := list(water))
+      water_names[n] <- output
+    } else {
+      water_names[n] <- water
+    }
+  }
+  water_names <- unlist(water_names)
+
   output <- df %>%
     rowwise() %>%
     mutate(
-      waters = furrr::future_pmap(across(all_of(waters)), list),
+      waters = furrr::future_pmap(across(all_of(water_names)), list),
       ratios = ifelse(
         is.numeric(ratios),
         list(ratios),
@@ -283,5 +319,5 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     ) %>%
     ungroup() %>%
     mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
-    select(-c(waters, ratios))
+    select(-c(waters, ratios, contains("merging_water_")))
 }

@@ -13,9 +13,11 @@ blend_waters_once(df, waters, ratios)
 blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }
 \arguments{
-\item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} or \code{once} functions, this should be a list of column names.}
+\item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} or \code{once} functions, this can include
+quoted column names or existing single water objects unquoted.}
 
-\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} or \code{once} functions, this can also be a list of column names.}
+\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} or \code{once} functions,
+this can also be a list of quoted column names.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
