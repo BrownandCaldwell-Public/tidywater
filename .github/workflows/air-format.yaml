@@ -20,7 +20,8 @@ jobs:
 
     - name: Pull latest changes
       run: |
-        git pull origin ${{ steps.extract_branch.outputs.branch }}
+        git fetch
+        git pull --rebase origin ${{ steps.extract_branch.outputs.branch }}
 
     - name: Commit changes
       run: |
