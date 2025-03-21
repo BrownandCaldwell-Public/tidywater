@@ -1,4 +1,4 @@
-# chlorine breakpoint curve simulator
+# Chloramine Breakpoint Curve Simulator
 # This function carries out the Chlorine Breakpoint analysis, predicting the residual chlorine and chloramine concentrations
 
 #' @title Calculate Chlorine and Chloramine Concentrations with the Breakpoint Chlorination approach
@@ -36,25 +36,45 @@
 # library(scales)
 # library(tidywater)
 # library(tidyverse)
-# devtools::load_all()
+# devtools::load_all() # comment out in file, run in console pane only
 
 
 ############################
 
-# time constraint? (240 minutes? with warning
-# reference list add articles?
+simulate_breakpoint <- function(water,time, cl2, nh3, use_slots = FALSE) {
 
-simulate_breakpoint <- function(water,time, cl2=0) {
-
+  if (missing(cl2)) { # does this mean cl2 as an argument is missing or just cl2 = 0, and if 0, just means intentional not dosing because dosing has been included in free_chlorine or just intentional not/dosing?
+    cl2 <- water@free_chlorine
+    TOTCl_ini <- cl2 } else {
+      if (use_slots == FALSE) {
+        TOTCl_ini <- water@free_chlorine
+        # warning('Chemdose cl2 is defined but not incorporated in initial free chlorine to avoid double dosing, change to use_slots = TRUE if needed')
+      }
+    } # check w/ Sierra
+  # print(cl2)
+  
+  if (missing(nh3)) {
+    nh3 <- water@tot_nh3
+    TOTNH_ini <- nh3
+  } else {
+    if (use_slots == FALSE) {
+      TOTNH_ini <- water@tot_nh3
+      # warning('Chemdose nh3 is defined but not incorporated in initial free ammonia to avoid double dosing, change to use_slots = TRUE if needed')
+    }
+  }
+  
+  if (use_slots == TRUE) { # suggests that totcl starts with existing free_chlorine and dosing
+    TOTCl_ini <- water@free_chlorine + convert_units(cl2,'cl2') 
+    TOTNH_ini <- water@tot_nh3 + convert_units(nh3, 'n') 
+  }
+  # print(TOTCl_ini)
+  # print(TOTNH_ini)
+  
   if (missing(time)) {
     stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
   }
   
-  # if (time > 240) {
-  #   warning("Treatment time is outside the model bounds of 0 <= time <= 240 minutes")
-  # }
-  
-  if (water@nh2cl != 0 | water@nhcl2 != 0 | water@ncl3 != 0) {
+  if (!is.na(water@nh2cl)| !is.na(water@nhcl2) | !is.na(water@ncl3)) {
     warning("Chloramine presence in water class object")
   }
 
@@ -66,17 +86,19 @@ simulate_breakpoint <- function(water,time, cl2=0) {
   T_K <- temp + 273.15
 
   # in moles/L
-  TOTCl_ini <- water@free_chlorine + convert_units(cl2,'cl2') # +dose # (tot_ocl is free chlorine, tot_ocl = HOCl + OCl-)
-  TOTNH_ini <- water@tot_nh3 # (tot_nh3 = NH3 + NH4+)
+  # TOTCl_ini <- water@free_chlorine + convert_units(cl2,'cl2') # +dose # (tot_ocl is free chlorine, tot_ocl = HOCl + OCl-)
+  # TOTNH_ini <- water@tot_nh3 + convert_units(nh3, 'n') # (tot_nh3 = NH3 + NH4+)
+  
   # in mg/L
   CltoN_Mass <- convert_units(TOTCl_ini,'cl2','M','mg/L')/convert_units(TOTNH_ini,'n','M','mg/L')
+  # print(CltoN_Mass)
   
   ks <- correct_k(water)
 
   # Calculate equilibrium constants for chloramine system adjusted for temperature
   KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5))  #10^-7.6
   KNH4 <- ks$knh4
-  Kh2CO3 <- ks$k1co3
+  KH2CO3 <- ks$k1co3
   KHCO3 <- ks$k2co3
   pkw <- round((4787.3 / (T_K)) + (7.1321 * log10(T_K)) + (0.010365 * T_K) - 22.801, 1)
   KW <- 10^-pkw
@@ -122,8 +144,18 @@ simulate_breakpoint <- function(water,time, cl2=0) {
   k13 <- 1.39e9
   k14 <- 2.31e2
   
+  if (is.na(water@nh2cl)){
+    water@nh2cl <- 0
+  }
+  if (is.na(water@nhcl2)){
+    water@nhcl2 <- 0
+  }
+  if (is.na(water@ncl3)){
+    water@ncl3 <- 0
+  }
+
   # Define function for chloramine system
-  chloramine <- function(t, y, parms) { # t argument is unused
+  chloramine <- function(t, y, parms) {
     with(as.list(y), {
       
       dTOTNH <- (-k1*alpha0TOTCl*TOTCl*alpha1TOTNH*TOTNH + k2*NH2Cl + k5*NH2Cl^2 - k6*NHCl2*alpha1TOTNH*TOTNH*H)
@@ -152,7 +184,6 @@ simulate_breakpoint <- function(water,time, cl2=0) {
              NCl3 = water@ncl3,
              I = I_ini)
     
-    
     #Solver of ODE System
     out <- as.data.frame(ode(func = chloramine, # revisit as.data.frame vs. data.frame
                                    parms = NULL,
@@ -166,26 +197,16 @@ simulate_breakpoint <- function(water,time, cl2=0) {
   sim_data <- tail(out,n=1)
   
   # concentrations (moles/L)
-  # Total_Chlorine <- (sim_data$NH2Cl + sim_data$NHCl2*2 + sim_data$NCl3*3 + sim_data$TOTCl)
-  # Monochloramine <- 
-  # Dichloramine <- 
-  # Trichloramine <- 
-  # Free_Chlorine <- 
-  # Free_Ammonia <- sim_data$TOTNH
-  # Total_Ammonia_N <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
-  # Total_Ammonia_NH3 <- (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
-  # Cl2N <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_N
-  # Cl2NH3 <- sim_data$Total_Chlorine/sim_data$Total_Ammonia_NH3
-  # sim <- melt(sim_data, id.vars=c("time", "Mass_Ratio"), variable.name="chemical", value.name="concentration")
-  
   water@free_chlorine <- sim_data$TOTCl
   water@nh2cl <- sim_data$NH2Cl
   water@nhcl2 <- sim_data$NHCl2*2 
   water@ncl3 <- sim_data$NCl3*3 
   water@combined_chlorine <- water@nh2cl + water@nhcl2 + water@ncl3
   water@tot_nh3 <- sim_data$TOTNH
-    # (sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3)
 
   return(water)
   
 }
+
+
+
