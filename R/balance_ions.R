@@ -1,30 +1,47 @@
-#' @title Add Na, K, Cl, or SO4 to balance overall charge in a water
+#' @title Add an ion to balance overall charge in a water
 #'
 #' @description This function takes a water defined by \code{\link{define_water}} and balances charge.
 #'
-#' @details If more cations are needed, sodium will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
-#' anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
-#' \code{\link{define_water}}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
+#' @details If more cations are needed, a default of sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
+#' If calcium and magnesium are not specified when defining a water with
+#' \code{\link{define_water}}, they will default to 0 and not be changed by this function unless specified in the cation argument.
+#' Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing. This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
 #' @param water Water created with define_water, which may have some ions set to 0 when unknown
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #'
 #' @examples
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
 #'   balance_ions()
 #'
+#' water_defined <- define_water(7, 20, 50, tot_hard = 150) %>%
+#'   balance_ions(anion = "so4")
+#'
 #' @export
 #'
 #' @returns A water class object with updated ions to balance water charge.
 #'
-balance_ions <- function(water) {
+balance_ions <- function(water, anion = "cl", cation = "na") {
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
+  }
+
+  # check for acceptable cations/anions
+  if (!(anion %in% c("cl", "so4"))) {
+    stop("Anion must be one of 'cl' or 'so4'. No other ions supported at this time.")
+  }
+  if (!(cation %in% c("na", "k", "ca", "mg"))) {
+    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'. No other ions supported at this time.")
   }
 
   # Set up ions to be changed
   na_new <- water@na
   k_new <- water@k
+  ca_new <- water@ca
+  mg_new <- water@mg
+
   cl_new <- water@cl
   so4_new <- water@so4
 
@@ -42,58 +59,69 @@ balance_ions <- function(water) {
   # Initialize these objects so they can be used later.
   add_na <- 0
   add_k <- 0
+  add_ca <- 0
+  add_mg <- 0
+
   add_cl <- 0
   add_so4 <- 0
+
   # Add either sodium or potassium if cations are needed
   # Sodium is preferred because it's often present and not measured.
   # Potassium is usually low, but if it's the only cation not measured, it can be added.
-  # No defaut behavior to add Ca or Mg because those are frequently measured.
+  # Added Ca and Mg as options
   if (cations < anions) {
     add_cat <- anions - cations
-    if (is.na(water@na)) {
+    if (cation == "na") {
       add_na <- add_cat
-      na_new <- add_na
+      na_new <- ifelse(is.na(water@na), add_na, water@na + add_na)
       water@estimated <- paste(water@estimated, "na", sep = "_")
-    } else if (is.na(water@k)) {
+    } else if (cation == "k") {
       add_k <- add_cat
-      k_new <- add_k
+      k_new <- ifelse(is.na(water@k), add_k, water@k + add_k)
       water@estimated <- paste(water@estimated, "k", sep = "_")
-    } else {
-      add_na <- add_cat
-      na_new <- water@na + add_na
-      water@estimated <- paste(water@estimated, "na", sep = "_")
+    }else if (cation == "ca") {
+      add_ca <- add_cat / 2
+      ca_new <- ifelse(is.na(water@ca), add_ca, water@ca + add_ca)
+      water@estimated <- paste(water@estimated, "ca", sep = "_")
+    }else if (cation == "mg") {
+      add_mg <- add_cat / 2
+      mg_new <- ifelse(is.na(water@mg), add_mg, water@mg + add_mg)
+      water@estimated <- paste(water@estimated, "mg", sep = "_")
     }
     # add chloride or sulfate if anions are needed
     # Similar logic to cations, although sulfate is typically at higher concentrations than potassium.
     # Pretty standard to add Na and Cl because those are just regular salt. It does affect CSMR, but almost nothing else.
   } else if (anions < cations) {
     add_ani <- cations - anions
-    if (is.na(water@cl)) {
+    if (anion == "cl") {
       add_cl <- add_ani
-      cl_new <- add_cl
+      cl_new <- ifelse(is.na(water@cl), add_cl, water@cl + add_cl)
       water@estimated <- paste(water@estimated, "cl", sep = "_")
-    } else if (is.na(water@so4)) {
+    } else if (anion == "so4") {
       add_so4 <- add_ani / 2
-      so4_new <- add_so4
+      so4_new <- ifelse(is.na(water@so4), add_so4, water@so4 + add_so4)
       water@estimated <- paste(water@estimated, "so4", sep = "_")
-    } else {
-      add_cl <- add_ani
-      cl_new <- water@cl + add_cl
-      water@estimated <- paste(water@estimated, "cl", sep = "_")
     }
   }
 
   water@na <- na_new
   water@k <- k_new
+  water@ca <- ca_new
+  water@mg <- mg_new
+
   water@cl <- cl_new
   water@so4 <- so4_new
+
   water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
 
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
     water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
+      convert_units(add_ca, "ca", "M", "mg/L") +  convert_units(add_mg, "mg", "M", "mg/L") +
+
       convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
+
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
     water@is <- calculate_ionicstrength(water)
@@ -115,7 +143,8 @@ balance_ions <- function(water) {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
@@ -126,7 +155,7 @@ balance_ions <- function(water) {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_once()
+#'   balance_ions_once(anion = "so4", cation = "mg")
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain(output_water = "Different_defined_water_column") %>%
@@ -146,10 +175,17 @@ balance_ions <- function(water) {
 #' @export
 #' @returns A dataframe with updated ions to balance water charge
 
-balance_ions_once <- function(df, input_water = "defined_water") {
+balance_ions_once <- function(df, input_water = "defined_water",
+                              anion = "cl", cation = "na") {
   balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
   output <- df %>%
-    mutate(balanced_water = furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions)) %>%
+    mutate(balanced_water = furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        anion = anion,
+        cation = cation
+        ), balance_ions)
+      ) %>%
     mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
@@ -169,7 +205,8 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "balanced_water".
-#'
+#' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
+#' @param cation Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").
 #' @seealso \code{\link{balance_ions}}
 #'
 #' @examples
@@ -180,8 +217,8 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 5)
+#'   balance_ions_chain(anion = "so4", cation = "ca") %>%
+#'   select(-defined_water, -balanced_water)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -202,7 +239,14 @@ balance_ions_once <- function(df, input_water = "defined_water") {
 #' @export
 #' @returns A data frame containing a water class column with updated ions to balance water charge.
 
-balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water") {
+balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water",
+                               anion = "cl", cation = "na") {
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(list(water = !!as.name(input_water)), balance_ions))
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        anion = anion,
+        cation = cation
+      ), balance_ions)
+    )
 }
