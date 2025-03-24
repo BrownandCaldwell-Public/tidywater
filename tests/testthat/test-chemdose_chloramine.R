@@ -6,45 +6,55 @@
 # plot
 # add the nitrite, bromide dependence after passing all tests
 # double check on all coeffs? (what's I_ini)
+# reference list add articles?
+# reread function description and revise
+# helper (chain) function
 
 # Questions
-# need a test to make sure use_slots = TRUE/FALSE is working? or just manual checking should be good?
-# is use_slots for both chlorine and ammonia? add warning?
+# need a test to make sure use_slot = TRUE/FALSE is working? or just manual checking should be good?
+# is use_slot for both chlorine and ammonia? add warning?
 # is there a way to test if both warning will show up at the same time, or do we know that both will show up as long as we see one?
+# test coverage error: could not find function ode?
+# conceptual question: go to shiny app
 # add temp warning? 
 # function name?
 # not-so-relevant questions on test file chlordecay Ct?
 
+# capture warning
 
 ################
 test_that("chloramine_breakpoint returns free_chlorine = 0 when existing free chlorine in the system and chlorine dose are 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66))
-  rewater1 <- suppressWarnings(simulate_breakpoint(water1, time = 8, cl2=0))
+  rewater1 <- suppressWarnings(chemdose_chloramine(water1, time = 8, cl2=0))
   
   expect_equal(rewater1@free_chlorine, 0)
-  expect_equal(rewater1@tot_nh3, 0)
-  
 })
 
 test_that("chloramine_breakpoint warns when chloramine is present in the system", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
   water1@nh2cl <- 1
-  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, tot_nh3 = 1))
   water2@nhcl2 <- 1
   water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
   water3@ncl3 <- 1
+  water4 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 1,tot_nh3 = 2))
   
-  expect_warning(simulate_breakpoint(water1, time = 20, cl2=1)) # cl2 dosage not incorporated and chloramine initial presence. 
-  expect_warning(simulate_breakpoint(water2, time = 20, cl2=1))
-  expect_warning(simulate_breakpoint(water3, time = 20, cl2=1))
+  warnings1 <- capture_warnings(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1, cl_use_slot = TRUE, nh3_use_slot = TRUE, nh3_num = 2)) 
+  expect_equal(length(warnings1),3)
+  warnings2 <- capture_warnings(chemdose_chloramine(water2, time = 5, cl2 = 1, nh3 = 2, nh3_use_slot = TRUE)) 
+  expect_equal(length(warnings2),3)
+  warnings3 <- capture_warnings(chemdose_chloramine(water3, time = 30, cl2 = 2, cl_use_slot = TRUE, nh3 = 2)) 
+  expect_equal(length(warnings3),3)
+  warnings4 <- capture_warnings(chemdose_chloramine(water4, time = 10, cl2 = 1, nh3 = 4, cl_num = 2, nh3_num = 2))
+  expect_equal(length(warnings4),2)
 })
 
 test_that("chloramine_breakpoint stops working when inputs are missing", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 65, free_chlorine = 5,tot_nh3 = 1))
+  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 65, free_chlorine = 5))
 
-  expect_no_error(simulate_breakpoint(water1, time = 20, cl2 = 1))
-  expect_error(simulate_breakpoint(water2, cl2 = 4, use_slots = TRUE)) # missing time
+  expect_no_error(suppressWarnings(chemdose_chloramine(water1, time = 20, cl2 = 1)))
+  expect_error(chemdose_chloramine(water2, cl2 = 4, cl_use_slot = TRUE)) # missing time
 })
 
 ####################
@@ -66,17 +76,32 @@ test_that("chloramine_breakpoint stops working when inputs are missing", {
 #########################
 
 # example_breakpoint <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2,tot_nh3 = 1)) %>%
-#   simulate_breakpoint(time=20,cl2=1,nh3 = 1)
+#   chemdose_chloramine(time=20,cl2=1,nh3 = 1)
 # 
 # example_breakpoint@free_chlorine
 # 
 # # # # 
 # water1 <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2,tot_nh3 = 1))
 # water1@nh2cl <- 1
-# example_breakpoint1 <- simulate_breakpoint(water1,time=20,cl2=1)
+# example_breakpoint1 <- chemdose_chloramine(water1,time=20,cl2=1)
 # 
 # example_breakpoint1@free_chlorine
 # 
-# 
 # example_breakpoint1<- suppressWarnings(define_water(8, 20, 65, free_chlorine = 10, tot_nh3 = 1)) %>%
-#   simulate_breakpoint(time=37)
+#   chemdose_chloramine(time=37)
+
+
+# library(deSolve)
+# library(ggplot2)
+# library(reshape2)
+# library(scales)
+# library(tidywater)
+# library(tidyverse)
+# devtools::load_all() # comment out in file, run in console pane only
+
+
+
+
+
+
+

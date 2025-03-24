@@ -32,7 +32,8 @@ Imports:
     purrr,
     furrr,
     methods,
-    rlang
+    rlang,
+    deSolve
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
