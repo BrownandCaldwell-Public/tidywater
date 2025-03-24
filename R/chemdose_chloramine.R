@@ -1,4 +1,4 @@
-# Chloramine Breakpoint Curve Simulator
+# Chlorine/Chloramine Breakpoint Curve Simulator
 # This function carries out the Chlorine Breakpoint analysis, predicting the residual chlorine and chloramine concentrations
 
 #' @title Calculate Chlorine and Chloramine Concentrations with the Breakpoint Chlorination approach
@@ -17,57 +17,71 @@
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param time Reaction time (minutes).
-#' @param cl2  Applied chlorine dose (mg/L as Cl2).
+#' @param cl2 Applied chlorine dose (mg/L as Cl2).
+#' @param nh3 Applied ammonia dose (mg/L as N).
+#' @param multi_cl_source # of chlorine source in use, default to 1 (1 or 2).
+#' @param multi_nh3_source # of ammonia source in use, default to 1 (1 or 2).
+#' @param cl_use_slot If TRUE, uses free_chlorine slot in water instead of chlorine dose. Input for cl2 will be ignored. 
+#'                    Default to FALSE, no effect if multi_cl_source is set to 2. 
+#' @param nh3_use_slot If TRUE, uses tot_nh3 slot in water instead of ammonia dose. Input for nh3 will be ignored. 
+#'                    Default to FALSE, no effect if multi_nh3_source is set to 2.
+#' 
 #' @examples
 #' example_breakpoint <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2, tot_nh3 = 1)) %>% 
 #'   simulate_chloramine2(time=20)
 #' example_breakpoint <- suppressWarnings(define_water(8, 20, 65)) %>% 
 #'   simulate_chloramine2(time=20, cl2=2)
 #'
-#'
 #' @export
 #'
 #' @returns A water class object with predicted Chlorine and Chloramine concentrations.
-#'
 
 
-# naming of use_slot
-# add a case when only dose is used, ignore free_chlorine
-# apply to both
-
-# print out free_chlorine conc, and ammonia conc in function? or just say what is incorporated let people check themselves?
-# warning message will be too long, how to make it more concise, right now haven't incorporated instructions in how to change the values of argument
-# while I do expect no errors but expect warnings, can I just do suppress warnings to pass the expect_no_error test?
 
 ############################
 
+
 chemdose_chloramine <- function(water,time, cl2, nh3, 
-                                cl_num = 1, cl_use_slot = FALSE,  
-                                nh3_num = 1, nh3_use_slot = FALSE) {
+                                multi_cl_source = 1, cl_use_slot = FALSE,  
+                                multi_nh3_source = 1, nh3_use_slot = FALSE) {
 
   if (missing(time)) {
-    stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
+    stop("Missing value for reaction time. Please check the function inputs required to run chemdose_chloramine")
+  }
+  
+  
+  if (multi_cl_source != 1 & multi_cl_source != 2) {
+    stop("multi_cl_source should be '1' or '2'. Please check the function input value for multi_cl_source.")
+  }
+  
+  if (multi_nh3_source != 1 & multi_nh3_source != 2) {
+    stop("multi_nh3_source should be '1' or '2'. Please check the function input value for multi_cl_source.")
   }
   
   if (missing(cl2)) { 
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2 
-    warning('Chlorine dose is not defined, use free chlorine concentration in water')
+    warning('Chlorine dose is not defined, use free chlorine in water as the initial free chlorine.')
     
     } else {
-      if (cl_num == 1 & cl_use_slot == FALSE) { 
+      if (multi_cl_source == 1 & cl_use_slot == FALSE) { 
         TOTCl_ini <- convert_units(cl2,'cl2') 
-        message <- sprintf("Chlorine dose is defined as %f mg/L Cl2 and used as the initial free chlorine. Free chlorine in water is %f mol/L and is ignored.", cl2, water@free_chlorine)
+        message <- sprintf("Chlorine dose is used as the initial free chlorine. Free chlorine in water (%f mol/L) is ignored. 
+        If want to use free chlorine in water, please set cl_use_slot to TRUE or remove function input cl2.
+        If want to use both sources, please set multi_cl_source to 2.", water@free_chlorine)
         warning(message)
         
-      } else if (cl_num == 1 & cl_use_slot == TRUE) {
+      } else if (multi_cl_source == 1 & cl_use_slot == TRUE) {
         TOTCl_ini <- water@free_chlorine
-        message <- sprintf("Chlorine dose is defined as %f mg/L Cl2 but is not incorporated. Free chlorine in water is %f mol/L and is used as the initial free chlorine", cl2, water@free_chlorine)
+        message <- sprintf("Free chlorine in water (%f mol/L) is used instead of chlorine dose as the initial free chlorine. 
+        If want to use chlorine dose, please set cl_use_slot to FALSE.
+        If want to use both sources, please set multi_cl_source to 2.", water@free_chlorine)
         warning(message)
         
-      } else if (cl_num == 2) {
+      } else if (multi_cl_source == 2) {
         TOTCl_ini <- water@free_chlorine + convert_units(cl2,'cl2') 
-        message <- sprintf("Chlorine dose is defined as % f mg/L Cl2, and free chlorine in water is %f mol/L. Both are incorporated into the initial free chlorine.", cl2, water@free_chlorine)
+        message <- sprintf("Chlorine dose and free chlorine in water (%f mol/L) are both incorporated into the initial free chlorine.
+        If want to use a single chlorine source, please set multi_cl_source to 1 and specify TRUE/FALSE for cl_use_slot.", water@free_chlorine)
         warning(message)
         
       }
@@ -76,26 +90,31 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   if (missing(nh3)) {
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3 
-    warning('Ammonia dose is not defined, use free ammonia concentration in water')
+    warning('Ammonia dose is not defined, use free ammonia in water as the intial free ammonia.')
     
-  } else {
-    if (nh3_num == 1 & nh3_use_slot == FALSE) { 
-      TOTNH_ini <- convert_units(nh3, 'n') 
-      message <- sprintf("Ammonia dose is defined as %f mg/L N and used as the initial free ammonia. Free ammonia in water is %f mol/L and is ignored.", nh3, water@tot_nh3)
-      warning(message)
-      
-    } else if (nh3_num == 1 & nh3_use_slot == TRUE) {
-      TOTNH_ini <- water@tot_nh3
-      message <- sprintf("Ammonia dose is defined as %f mg/L N but is not incorporated. Free ammonia in water is %f mol/L and is used as the initial free chlorine", nh3, water@tot_nh3)
-      warning(message)
-      
-    } else if (nh3_num == 2) {
-      TOTNH_ini <- water@tot_nh3 + convert_units(nh3, 'n') 
-      message <- sprintf("Ammonia dose is defined as % f mg/L N, and free ammonia in water is %f mol/L. Both are incorporated into the initial free ammonia", nh3, water@tot_nh3)
-      warning(message)
-      
+    } else {
+      if (multi_nh3_source == 1 & nh3_use_slot == FALSE) { 
+        TOTNH_ini <- convert_units(nh3, 'n') 
+        message <- sprintf("Ammonia dose is used as the initial free ammonia. Free ammonia in water (%f mol/L) is ignored.
+        If want to use free ammonia in water, please set nh3_use_slot to TRUE or remove function input nh3.
+        If want to use both sources, please set multi_nh3_source to 2.", water@tot_nh3)
+        warning(message)
+        
+      } else if (multi_nh3_source == 1 & nh3_use_slot == TRUE) {
+        TOTNH_ini <- water@tot_nh3
+        message <- sprintf("Free ammonia in water (%f mol/L) is used instead of ammonia dose as the initial free ammonia.
+        If want to use ammonia dose, please set nh3_use_slot to FALSE.
+        If want to use both sources, please set multi_nh3_source to 2.", water@tot_nh3)
+        warning(message)
+        
+      } else if (multi_nh3_source == 2) {
+        TOTNH_ini <- water@tot_nh3 + convert_units(nh3, 'n') 
+        message <- sprintf("Ammonia dose and free ammonia in water (%f mol/L) are both incorporated into the initial free ammonia. 
+        If want to use a single ammonia source, please set multi_nh3_source to 1 and specify TRUE/FALSE for nh3_use_slot.", water@tot_nh3)
+        warning(message)
+        
+      }
     }
-  }
   
   if (!is.na(water@nh2cl)| !is.na(water@nhcl2) | !is.na(water@ncl3)) {
     warning("Chloramine presence in water class object")
