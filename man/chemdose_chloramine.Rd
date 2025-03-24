@@ -53,8 +53,9 @@ The function will calculate the Chlorine and Chloramine concentrations and updat
 class object proceed to the next steps of the treatment chain.
 }
 \examples{
-example_breakpoint1 <- suppressWarnings(define_water(7.5, 20, 65, free_chlorine = 5,tot_nh3 = 1)) \%>\% 
-  chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, cl_use_slot = TRUE, multi_nh3_source = 2)
+example_breakpoint1 <- suppressWarnings(define_water(7.5, 20, 65, free_chlorine = 5, 
+  tot_nh3 = 1)) \%>\% chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, 
+  cl_use_slot = TRUE, multi_nh3_source = 2)
 example_breakpoint2 <- suppressWarnings(define_water(8, 20, 65)) \%>\% 
   chemdose_chloramine(time = 20, cl2 = 2, nh3 = 2, multi_cl_source = 2)
 
