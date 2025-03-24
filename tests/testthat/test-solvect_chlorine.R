@@ -42,3 +42,80 @@ test_that("solvect_chlorine works.", {
   expect_equal(round(ct$ct_actual), 45)
   expect_equal(round(ct$glog_removal, 2), 1.21)
 })
+
+# HELPERS ----
+test_that("solvect_chlorine_once outputs are the same as base function, solvect_chlorine", {
+  water1 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  )) %>%
+    solvect_chlorine(time = 30, residual = 5, baffle = .7)
+
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    solvect_chlorine_once(time = 30, residual = 5, baffle = .7))
+
+  expect_equal(water1$ct_required, water2$defined_water_ct_required)
+})
+
+# Check that output is a data frame
+
+test_that("solvect_chlorine_once is a data frame", {
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    solvect_chlorine_once(time = 30, residual = 5))
+
+
+  expect_true(is.data.frame(water1))
+})
+
+# Check solvect_chlorine_once can use a column or function argument for chemical residual
+
+test_that("solvect_chlorine_once can use a column and/or function argument for time and residual", {
+  water0 <- water_df %>%
+    define_water_chain()
+
+  time <- data.frame(time = seq(2, 24, 2))
+  water1 <- suppressWarnings(water_df %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    cross_join(time) %>%
+    solvect_chlorine_once(residual = 5, baffle = .5))
+
+  water2 <- suppressWarnings(water_df %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    solvect_chlorine_once(
+      time = seq(2, 24, 2),
+      residual = 5, baffle = .5
+    ) %>%
+    unique())
+
+  water3 <- water_df %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    cross_join(time) %>%
+    solvect_chlorine_once(residual = c(5, 8), baffle = .5)
+
+  expect_equal(water1$defined_water_ct_required, water2$defined_water_ct_required) # test different ways to input time
+  expect_equal(ncol(water3), ncol(water0) + 6) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal
+  expect_equal(nrow(water3), 288) # joined correctly
+})
+
+test_that("solvect_chlorine_once correctly handles arguments with multiple values", {
+  water <- water_df %>%
+    slice(1:2) %>%
+    define_water_chain()
+
+  water1 <- water %>%
+    solvect_chlorine_once(time = c(5, 10), residual = c(1, 2, 5), baffle = 0.5)
+  water2 <- water %>%
+    solvect_chlorine_once(time = 5, residual = c(2, 5), baffle = c(.5, .8))
+
+  expect_equal(nrow(water) * 6, nrow(water1))
+  expect_equal(nrow(water) * 4, nrow(water2))
+})

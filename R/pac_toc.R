@@ -26,33 +26,30 @@
 #'
 #' @export
 #'
-#' @returns A water class object with post-PAC predicted DOC and UV254.
+#' @returns A water class object with updated DOC, TOC, and UV254 slots.
 pac_toc <- function(water, dose, time, type = "bituminous") {
+  pactype <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("doc"))
-  if (missing(dose) | !is.numeric(dose)) {
-    stop("PAC dose must be specified as a number.")
+  if (missing(dose) | !is.numeric(dose) | dose < 0) {
+    stop("PAC dose must be specified as a non-negative number.")
   }
-  if (missing(time) | !is.numeric(time)) {
-    stop("Reaction time must be specified as a number.")
+  if (missing(time) | !is.numeric(time) | time < 0) {
+    stop("Reaction time must be specified as a non-negative number.")
   }
 
   doc <- water@doc
   uv254 <- water@uv254
   toc <- water@toc
 
-  # warnings for bounds of PAC dose, time, defined doc in tidywater etc.
-  if (dose < 5 | dose > 30) {
-    warning("PAC Dose is outside the model bounds of 5 to 30 mg/L")
-  }
-  if (time < 10 | time > 1440) {
-    warning("Duration is outside the model bounds of 10 to 1440 min")
-  }
-  if (dose <= 0) {
-    warning("No PAC added. Final water will equal input water.")
-  }
+  # warnings and errors for bounds of PAC dose, time.
+  # High dose/time not allowed because model form results in negative DOC.
+  if (dose < 5) warning("PAC dose is less than model bound of 5 mg/L")
+  if (dose > 30) stop("PAC model does not work for PAC dose >30. Adjust dose argument.")
 
+  if (time < 10) warning("Time is less than model bounds of 10 min")
+  if (time > 60) stop("PAC model does not work for time > 60 mins. Adjust time argument.")
 
-  # more warnings
+  # water warnings
   if (!is.na(water@toc) & water@toc < water@doc) {
     warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
   }
@@ -60,28 +57,30 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
     warning("Input water TOC not specified. Output water TOC will be NA.")
   }
 
-  if (doc < 1 || doc > 5) {
-    warning("DOC concentration is outside the model bounds of 1 to 5 mg/L")
+  if (doc < 1.3 || doc > 5.4) {
+    warning("DOC concentration is outside the model bounds of 1.3 to 5.4 mg/L")
   }
-
 
   # Calculate toc
   org_carbon_undissolved <- toc - doc
   # make case insensitive
   type <- tolower(type)
-  if (dose == 0 | time == 0) {
-    warning("No PAC added. Final water will equal input water.")
-    result <- doc
-  } else if (type == "bituminous") {
-    result <- .1561 + .9114 * doc - .0263 * dose - .002 * time
-  } else if (type == "lignite") {
-    result <- .4078 + .8516 * doc - .0225 * dose - .002 * time
-  } else if (type == "wood") {
-    result <- .3653 + .8692 * doc - .0151 * dose - .0025 * time
-  } else {
-    stop("Invalid PAC type. Choose either 'Bituminous', 'Wood' or 'Lignite' ")
+  if (!type %in% c("bituminous", "wood", "lignite")) {
+    stop("Invalid PAC type. Choose either 'bituminous', 'wood' or 'lignite'.")
   }
 
+  coeffs <- subset(tidywater::pactoccoeffs, pactype == type)
+
+  if (dose == 0 | time == 0) {
+    warning("No PAC added or reaction time is zero. Final water will equal input water.")
+    remaining <- 1
+  } else if (doc < 1.3) {
+    # Because of the form of the equation, DOC<1.3 results in negative DOC. Assume same % removal as DOC0=1.3
+    remaining <- (coeffs$A + coeffs$a * 1.3 - coeffs$b * dose - coeffs$c * time) / doc
+  } else {
+    remaining <- (coeffs$A + coeffs$a * doc - coeffs$b * dose - coeffs$c * time) / doc
+  }
+  result <- remaining * doc
 
   # Predict DOC concentration via UV absorbance
 
@@ -143,12 +142,12 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(5, 60, 5), time = 30) %>%
+#'   mutate(dose = seq(11, 22, 1), time = 30) %>%
 #'   pac_toc_once(input_water = "raw")
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(time = 8) %>%
+#'   mutate(time = 10) %>%
 #'   pac_toc_once(
 #'     input_water = "raw", dose = 6, type = "wood"
 #'   )
@@ -157,7 +156,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   pac_toc_once(input_water = "raw", dose = 4, time = 8)
+#'   pac_toc_once(input_water = "raw", dose = 4, time = 10)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -205,7 +204,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "pac_water".
 #' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
@@ -247,38 +246,20 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = 0, time = 0, type = "bituminous") {
   ID <- NULL # Quiet RCMD check global variable note
-  inputs_arg <- tibble(dose, time) %>%
-    select_if(~ any(. > 0))
 
-  inputs_col <- df %>%
-    subset(select = names(df) %in% c("dose", "time")) %>%
-    # add row number for joining
-    mutate(ID = row_number())
-
-  if (length(inputs_col) < 3 & length(inputs_arg) == 0) {
-    warning("dose, time, or type arguments missing. Add them as a column or function argument.")
-  }
-
-  if (("dose" %in% colnames(inputs_arg) & "dose" %in% colnames(inputs_col)) |
-    ("time" %in% colnames(inputs_arg) & "time" %in% colnames(inputs_col))) {
-    stop("Dose and/or time were dosed as both a function argument and a data frame column. Choose one input method.")
-  }
-
-  dose_time <- inputs_col %>%
-    cross_join(inputs_arg)
+  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
 
   output <- df %>%
     subset(select = !names(df) %in% c("dose", "time", "type")) %>%
     mutate(
-      ID = row_number(),
-      type = type
+      ID = row_number()
     ) %>%
-    left_join(dose_time, by = "ID") %>%
+    left_join(arguments, by = "ID") %>%
     select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(

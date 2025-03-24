@@ -6,7 +6,7 @@
 \source{
 U.S. EPA (2001)
 
-See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 chemdose_chlordecay(
@@ -36,7 +36,7 @@ An updated disinfectant residual in the free_chlorine or combined chlorine water
 Use \code{\link{convert_units}} to convert to mg/L.
 }
 \description{
-\code{chemdose_cl2} calculates the decay of chlorine or chloramine based on the U.S. EPA's
+calculates the decay of chlorine or chloramine based on the U.S. EPA's
 Water Treatment Plant Model (U.S. EPA, 2001).
 }
 \details{
@@ -48,7 +48,7 @@ with the calculated total chlorine value stored in the 'free_chlorine' or 'combi
 depending on what type of chlorine is dosed. When modeling residual concentrations
 through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
-applied manually be the user based on the output of \code{chemdose_cl2}.
+applied manually by the user based on the output.
 }
 \examples{
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%

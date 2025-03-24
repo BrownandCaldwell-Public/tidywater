@@ -172,6 +172,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'   balance_ions_chain() %>%
 #'   chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
+#' \donttest{
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
@@ -182,6 +183,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -262,6 +264,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'   balance_ions_chain() %>%
 #'   chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
 #'
+#' \donttest{
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
@@ -272,6 +275,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export
@@ -281,6 +285,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water",
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                                alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
   ID <- NULL # Quiet RCMD check global variable note
+
   dosable_chems <- tibble(alum, ferricchloride, ferricsulfate)
 
   chem_inputs_arg <- dosable_chems %>%

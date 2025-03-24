@@ -210,13 +210,42 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       K_so / (water2@co3 * gamma2) - water2@ca * gamma2
     }
 
-    root_x <- stats::uniroot(solve_x,
-      water = water,
-      interval = c(-1000, 1000),
-      lower = -1,
-      upper = 1,
-      extendInt = "yes"
+    # Crazy nesting here to allow broader search without causing errors in the solve_ph uniroot.
+    root_x <- tryCatch(
+      {
+        # First try with a restricted interval
+        stats::uniroot(solve_x,
+          water = water,
+          interval = c(-50, 50)
+        )
+      },
+      error = function(e) {
+        tryCatch(
+          {
+            stats::uniroot(solve_x,
+              water = water,
+              interval = c(-1, 1),
+              extendInt = "downX"
+            )
+          },
+          error = function(e) {
+            tryCatch(
+              {
+                stats::uniroot(solve_x,
+                  water = water,
+                  interval = c(-1, 1),
+                  extendInt = "upX"
+                )
+              },
+              error = function(e) {
+                stop("Water outside range for CCPP solver.")
+              }
+            )
+          }
+        )
+      }
     )
+
 
     water@ccpp <- -root_x$root
   }

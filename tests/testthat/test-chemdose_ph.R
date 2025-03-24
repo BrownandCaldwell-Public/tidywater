@@ -42,23 +42,23 @@ test_that("chemdose ph works", {
   test7 <- chemdose_ph(water1, nh42so4 = 5)
   test8 <- chemdose_ph(water4, nh4oh = 5)
 
-  # Rounded values from waterpro spot check (doesn't match with more decimals)
+  # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
   expect_equal(round(test1@alk, 0), 5)
   expect_equal(round(test2@ph, 1), 6.9)
   expect_equal(round(test2@alk, 0), 85)
-  expect_equal(round(test3@ph, 1), 6.3)
-  expect_equal(round(test3@alk, 0), 54)
-  expect_equal(round(test4@ph, 1), 6)
+  expect_equal(round(test3@ph, 1), 6.4)
+  expect_equal(round(test3@alk, 0), 55)
+  expect_equal(round(test4@ph, 1), 6.1)
   expect_equal(round(test4@alk, 0), 7)
   expect_equal(round(test5@ph, 1), 4.0)
   expect_equal(round(test5@alk, 0), -5)
   expect_equal(round(test6@ph, 1), 11.4)
-  expect_equal(round(test6@alk, 0), 120)
+  expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
-  # This is not passing right now. Numbers from WTP model
-  # expect_equal(round(test8@ph, 1), 9.7)
-  # expect_equal(round(test8@alk, 0), 25)
+  expect_equal(round(test7@alk, 0), 20)
+  expect_equal(round(test8@ph, 1), 9.7)
+  expect_equal(round(test8@alk, 0), 26)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {
@@ -126,7 +126,7 @@ test_that("Starting ammonia does not affect starting pH.", {
 
 test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph", {
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
     balance_ions() %>%
@@ -200,8 +200,8 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 10))
+    balance_ions_chain()) %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = 10)
 
   water3 <- purrr::pluck(water2, 3, 1)
 

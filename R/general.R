@@ -447,24 +447,6 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
-#' Convert mg/L of chemical to lb/day
-#'
-#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
-#'
-#' @param dose Chemical dose in mg/L as chemical
-#' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100 percent.
-#'
-#' @examples
-#' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
-#'
-#' @export
-#' @returns  A numeric value for the chemical mass in lb/day.
-#'
-solvemass_chem <- function(dose, flow, strength = 100) {
-  dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
-}
-
 # Non-exported functions -----
 
 validate_water <- function(water, slots) {
@@ -487,6 +469,47 @@ validate_water <- function(water, slots) {
     stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
   }
 }
+
+construct_helper <- function(df, num_arguments, str_arguments) {
+  all_arguments <- c(names(num_arguments), names(str_arguments))
+
+  inputs_arg <- do.call(expand.grid, num_arguments) %>%
+    select_if(~ any(. != 0))
+
+  if (any(sapply(str_arguments, length) > 1)) {
+    inputs_arg <- inputs_arg %>%
+      cross_join(do.call(expand.grid, str_arguments))
+  }
+
+  inputs_col <- df %>%
+    subset(select = names(df) %in% all_arguments) %>%
+    # add row number for joining
+    mutate(ID = row_number())
+
+  if (any(all_arguments %in% colnames(inputs_arg) & all_arguments %in% colnames(inputs_col))) {
+    stop("Argument was applied as both a function argument and a data frame column. Choose one input method.")
+  }
+
+  arguments <- inputs_col %>%
+    cross_join(inputs_arg)
+
+  if (!all(all_arguments %in% colnames(arguments))) {
+    if (!all(names(num_arguments) %in% colnames(arguments))) {
+      warning("Numeric arguments missing or set to 0. Add them as a column or function argument.")
+    }
+
+    missing_args <- do.call(expand.grid, num_arguments) %>%
+      cross_join(do.call(expand.grid, str_arguments)) %>%
+      subset(select = !names(.) %in% names(arguments)) %>%
+      unique()
+
+    arguments <- arguments %>%
+      cross_join(missing_args)
+  }
+
+  return(arguments)
+}
+
 
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
@@ -593,16 +616,21 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
 
 calculate_activity <- function(z, is, temp) {
-  tempa <- temp + 273.15 # absolute temperature (K)
+  if (!is.na(is)) {
+    tempa <- temp + 273.15 # absolute temperature (K)
 
-  # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
-  de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
+    # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
+    de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
 
-  # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
-  a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+    # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
+    a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
 
-  # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
-  10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+    # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
+    activity <- 10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+  } else {
+    activity <- 1
+  }
+  return(activity)
 }
 
 

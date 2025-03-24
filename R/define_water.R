@@ -147,8 +147,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
   kw <- 10^-pkw
 
-  h <- 10^-ph
-  oh <- kw / h
+  h <- 10^-ph # assume activity = concentration to start
+  oh <- kw / h # assume activity = concentration to start
 
   # convert alkalinity input to equivalents/L
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
@@ -197,6 +197,13 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 
   # Eq constants
   ks <- correct_k(water)
+
+  # Recalculate H and OH concentration (not activity)
+  gamma1 <- calculate_activity(1, water@is, water@temp)
+  h <- h / gamma1
+  oh <- oh / gamma1
+  water@h <- h
+  water@oh <- oh
 
   # Carbonate and phosphate ions and ocl ions
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-

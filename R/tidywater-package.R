@@ -227,3 +227,22 @@ NULL
 #'
 #' @source U.S. EPA (2001)
 "cl2coeffs"
+
+#' Data frame of PAC TOC model coefficients
+#'
+#' A dataset containing coefficients for calculating PAC TOC removal
+#'
+#' @docType data
+#' @keywords datasets
+#' @name pactoccoeffs
+#' @format A dataframe with 4 rows and 3 columns
+#' \describe{
+#' \item{pactype}{Specifies PAC type}
+#' \item{A}{Constant in the PAC model}
+#' \item{a}{Coefficient in PAC model, associated with DOC0}
+#' \item{b}{Coefficient in PAC model, associated with dose}
+#' \item{c}{Coefficient in PAC model, associated with time}
+#' }
+#'
+#' @source Cho (2007)
+"pactoccoeffs"

@@ -24,4 +24,11 @@ This function takes kW, % utilization, $/kWhr and determines power cost.
 \examples{
 powercost <- solvecost_power(50, 100, .08)
 
+library(dplyr)
+cost_data <- tibble(
+  power = seq(10, 50, 10),
+  utilization = 80
+) \%>\%
+  mutate(costs = solvecost_power(power = power, utilization = utilization, cost = .08))
+
 }
