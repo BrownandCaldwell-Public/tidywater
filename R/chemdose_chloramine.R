@@ -7,7 +7,7 @@
 #' calculates chlorine and chlorinamine concentrations based on the two papers Jafvert & Valentine 
 #' (Environ. Sci. Technol., 1992, 26 (3), pp 577-586) and Vikesland et al. (Water Res., 2001, 35 (7), pp 1766-1776).
 #' Required arguments include an object of class "water" created by \code{\link{define_water}}, chlorine dose, and reaction time.
-#' The function also requires additional water quality parameters defined in \code{define_water}
+#' The function also requires additional water quality parameters defined in \code{\link{define_water}}
 #' including temperature, pH, and alkalinity.
 #'
 #' @details The function will calculate the Chlorine and Chloramine concentrations and update the "water"
@@ -27,11 +27,13 @@
 #'                    Default to FALSE, no effect if multi_nh3_source is set to 2.
 #' 
 #' @examples
-#' example_breakpoint <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2, tot_nh3 = 1)) %>% 
-#'   simulate_chloramine2(time=20)
-#' example_breakpoint <- suppressWarnings(define_water(8, 20, 65)) %>% 
-#'   simulate_chloramine2(time=20, cl2=2)
+#' example_breakpoint1 <- suppressWarnings(define_water(7.5, 20, 65, free_chlorine = 5,tot_nh3 = 1)) %>% 
+#'   chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, cl_use_slot = TRUE, multi_nh3_source = 2)
+#' example_breakpoint2 <- suppressWarnings(define_water(8, 20, 65)) %>% 
+#'   chemdose_chloramine(time = 20, cl2 = 2, nh3 = 2, multi_cl_source = 2)
 #'
+#' @importFrom deSolve ode
+#' @importFrom utils tail
 #' @export
 #'
 #' @returns A water class object with predicted Chlorine and Chloramine concentrations.
