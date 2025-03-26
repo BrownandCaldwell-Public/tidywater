@@ -17,7 +17,7 @@
 #' applied manually by the user based on the output.
 #'
 #' @source U.S. EPA (2001)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param cl2_dose Applied chlorine or chloramine dose (mg/L as cl2). Model results are valid for doses between 0.995 and 41.7 mg/L for raw water,

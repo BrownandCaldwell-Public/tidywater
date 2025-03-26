@@ -1,6 +1,6 @@
 # PAC_TOC ----
 
-test_that("pac_toc returns no modeled DOC value when PAC dose is 0.", {
+test_that("pac_toc returns no removed DOC value when PAC dose is 0.", {
   water1 <- suppressWarnings(define_water(doc = 2.5, uv254 = 0.05, toc = 3.5))
   water2 <- suppressWarnings(pac_toc(water1, type = "wood", time = 18, dose = 0))
   # expected value of doc when no PAC is added - would equal starting value
@@ -19,10 +19,10 @@ test_that("pac_toc defaults to bituminous when type isn't specified.", {
   expect_equal(dosed1@doc, dosed2@doc)
 })
 
-test_that("pac_toc warns when inputs are out of model range", {
+test_that("pac_toc errors when inputs are out of model range", {
   water1 <- suppressWarnings(define_water(doc = 2.5, uv254 = 0.05, toc = 50))
-  expect_warning(pac_toc(water1, dose = 31, time = 50)) # dose is out of bounds
-  expect_warning(pac_toc(water1, dose = 15, time = 1441)) # duration is out of bounds
+  expect_error(pac_toc(water1, dose = 31, time = 50)) # dose is out of bounds
+  expect_error(pac_toc(water1, dose = 15, time = 1441)) # duration is out of bounds
 })
 
 test_that("pac_toc stops working when inputs are missing", {
@@ -52,6 +52,10 @@ test_that("pac_toc works", {
 
   water4 <- pac_toc(water1, dose = 15, time = 50, type = "lignite")
   expect_equal(round(water4@doc, 2), 2.10)
+
+  water5 <- suppressWarnings(define_water(doc = 1, uv254 = .05))
+  water6 <- suppressWarnings(pac_toc(water5, dose = 15, time = 20))
+  expect_equal(round(water6@doc, 2), 0.91)
 })
 
 test_that("Error when an unaccepted PAC type is entered.", {
@@ -175,14 +179,14 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
-    pac_toc_chain(input_water = "raw", time = 120, dose = 10) %>%
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10) %>%
     pluck_water("pac_water", c("doc", "uv254")))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
     mutate(
-      time = 120,
+      time = 50,
       dose = 10,
     ) %>%
     pac_toc_chain(input_water = "raw") %>%
@@ -191,7 +195,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
-    mutate(time = 120) %>%
+    mutate(time = 50) %>%
     pac_toc_chain(input_water = "raw", dose = 10) %>%
     pluck_water("pac_water", c("doc", "uv254")))
 
@@ -207,10 +211,10 @@ test_that("pac_toc_chain errors with argument + column for same param", {
     define_water_chain("raw")
   expect_error(water %>%
     mutate(dose = 5) %>%
-    pac_toc_chain(input_water = "raw", time = 120, dose = 10))
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10))
   expect_error(water %>%
     mutate(time = 5) %>%
-    pac_toc_chain(input_water = "raw", time = 120, dose = 10))
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10))
 })
 
 test_that("pac_toc_chain correctly handles arguments with multiple numbers", {
@@ -218,9 +222,9 @@ test_that("pac_toc_chain correctly handles arguments with multiple numbers", {
     define_water_chain("raw")
 
   water1 <- water %>%
-    pac_toc_chain("raw", time = c(60, 120), dose = 5)
+    pac_toc_chain("raw", time = c(10, 20), dose = 5)
   water2 <- water %>%
-    pac_toc_chain("raw", time = 120, dose = seq(10, 30, 10))
+    pac_toc_chain("raw", time = 20, dose = seq(10, 30, 10))
 
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))

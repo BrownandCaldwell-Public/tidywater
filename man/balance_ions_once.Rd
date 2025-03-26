@@ -4,12 +4,21 @@
 \alias{balance_ions_once}
 \title{Apply `balance_ions` function and output a dataframe}
 \usage{
-balance_ions_once(df, input_water = "defined_water")
+balance_ions_once(
+  df,
+  input_water = "defined_water",
+  anion = "cl",
+  cation = "na"
+)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").}
+
+\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").}
 }
 \value{
 A dataframe with updated ions to balance water charge
@@ -33,7 +42,7 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_once(anion = "so4", cation = "mg")
 
 example_df <- water_df \%>\%
   define_water_chain(output_water = "Different_defined_water_column") \%>\%
