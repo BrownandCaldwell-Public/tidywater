@@ -250,7 +250,10 @@ pac_toc_once <- function(df, input_water = "defined_water",
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = 0, time = 0, type = "bituminous") {
+
   ID <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
 
   arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
 

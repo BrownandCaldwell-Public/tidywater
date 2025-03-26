@@ -307,6 +307,8 @@ blend_waters_once <- function(df, waters, ratios) {
 
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
+  validate_water_helpers(df, input_water)
+
   output <- df %>%
     rowwise() %>%
     mutate(

@@ -113,6 +113,8 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 solvect_o3_once <- function(df, input_water = "defined_water", time = 0, dose = 0, kd = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- ID <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
+
   arguments <- construct_helper(df, list("time" = time, "dose" = dose, "kd" = kd, "baffle" = baffle), str_arguments = list(NULL))
 
   output <- df %>%

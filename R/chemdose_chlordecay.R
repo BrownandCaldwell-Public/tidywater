@@ -330,6 +330,8 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
                                       cl2_dose = 0, time = 0, treatment = "raw", cl_type = "chlorine") {
   ID <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
+
   arguments <- construct_helper(
     df, list("cl2_dose" = cl2_dose, "time" = time),
     list("treatment" = treatment, "cl_type" = cl_type)

@@ -134,6 +134,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 
 biofilter_toc_once <- function(df, input_water = "defined_water", ebct = 0, ozonated = TRUE) {
   biofiltered_water <- biofilter <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   output <- df %>%
     biofilter_toc_chain(
       input_water = input_water, output_water = "biofiltered_water",

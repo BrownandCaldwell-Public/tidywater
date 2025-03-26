@@ -261,6 +261,9 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
                              output_col_result = "pb", hydroxypyromorphite = "Schock",
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
   calc <- tot_dissolved_pb <- controlling_solid <- NULL # Quiet RCMD check global variable note
+
+   validate_water_helpers(df, input_water)
+
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
     stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
   }

@@ -470,6 +470,17 @@ validate_water <- function(water, slots) {
   }
 }
 
+validate_water_helpers <- function(df, input_water) {
+  # Make sure input_water column is in the dataframe and is a water class.
+
+  if (!(input_water %in% colnames(df))) {
+    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_chain().")
+  }
+  if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
+    stop("Specified input_water does not contain water class objects. Use define_water_chain() or specify a different column.")
+  }
+}
+
 construct_helper <- function(df, num_arguments, str_arguments) {
   all_arguments <- c(names(num_arguments), names(str_arguments))
 

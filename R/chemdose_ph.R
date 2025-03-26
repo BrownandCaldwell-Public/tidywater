@@ -410,6 +410,9 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                               alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, caco3 = 0) {
   ID <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   dosable_chems <- tibble(
     hcl, h2so4, h3po4, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,

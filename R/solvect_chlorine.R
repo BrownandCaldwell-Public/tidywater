@@ -93,6 +93,8 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 solvect_chlorine_once <- function(df, input_water = "defined_water", time = 0, residual = 0, baffle = 0, water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- ID <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
+
   arguments <- construct_helper(df, list("time" = time, "residual" = residual, "baffle" = baffle), str_arguments = list(NULL))
 
   output <- df %>%

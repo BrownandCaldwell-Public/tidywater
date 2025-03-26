@@ -217,6 +217,9 @@ solvedose_alk <- function(water, target_alk, chemical) {
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
   dose <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,
@@ -338,6 +341,9 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
   dose <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   dosable_chems <- tibble(
     hcl = 0, h2so4 = 0, h3po4 = 0,
     co2 = 0,

@@ -394,6 +394,8 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
                                cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
   ID <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
+
   arguments <- construct_helper(
     df, list("cl2" = cl2, "time" = time),
     list("treatment" = treatment, "cl_type" = cl_type, "location" = location)

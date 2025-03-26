@@ -243,6 +243,9 @@ ozonate_bromate_once <- function(df, input_water = "defined_water", dose = 0, ti
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = 0, time = 0, model = "Ozekin") {
   ID <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("model" = model))
 
   output <- df %>%

@@ -390,6 +390,8 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
 
+  validate_water_helpers(df, input_water)
+
   index <- list(index)
 
   output <- df %>%
