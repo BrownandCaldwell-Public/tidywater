@@ -141,7 +141,11 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Convert final result to molar
   if (cl_type == "chlorine") {
-    water@free_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+
+    # chlorine residual correction Eq. 5-118
+    ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
+    water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
+
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
