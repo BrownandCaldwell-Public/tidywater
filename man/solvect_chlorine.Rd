@@ -21,6 +21,8 @@ solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = FALSE)
 \item{residual}{Minimum chlorine residual in disinfection segment in mg/L as Cl2.}
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
+
+\item{use_free_cl_slot}{Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.}
 }
 \value{
 A data frame of the required CT, actual CT, and giardia log removal.
