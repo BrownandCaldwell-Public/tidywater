@@ -118,6 +118,39 @@ test_that("Starting ammonia does not affect starting pH.", {
   expect_equal(water3@ph, 7)
 })
 
+test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
+
+  expect_warning(chemdose_ph(water1, cl2 = 30, nh42so4 = 20))
+  expect_warning(chemdose_ph(water1, naocl = 30, nh42so4 = 20))
+  expect_warning(chemdose_ph(water1, cl2 = 30, nh4oh = 20))
+  expect_no_warning(chemdose_ph(water1, cl2 = 30, naocl = 20))
+  expect_no_warning(chemdose_ph(water1, nh4oh = 10, nh42so4 = 12))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
+test_that("Warning when chlorine-based chemical is dosed into water containing ammonia", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+    chemdose_ph(nh4oh = 4)
+
+  expect_warning(chemdose_ph(water1, cl2 = 30))
+  expect_warning(chemdose_ph(water2, naocl = 30))
+  expect_no_warning(chemdose_ph(water1, nh4oh = 20))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
+test_that("Warning when ammonia-based chemical is dosed into water containing chlorine", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+    chemdose_ph(naocl = 4)
+
+  expect_warning(chemdose_ph(water1, nh42so4 = 30))
+  expect_warning(chemdose_ph(water2, nh4oh = 30))
+  expect_no_warning(chemdose_ph(water1, cl2 = 20))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_ph helpers ----

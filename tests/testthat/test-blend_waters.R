@@ -68,6 +68,18 @@ test_that("Blend waters warns when some slots are NA.", {
   expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "ca.+na")
 })
 
+test_that("Blend waters warns about chloramines.", {
+  water1 <- suppressWarnings(define_water(7, 20, 50, free_chlorine = 2))
+  water2 <- suppressWarnings(define_water(7.5, 20, 100, tot_nh3 = 2))
+
+  water3 <- suppressWarnings(define_water(8, 22, 13, combined_chlorine = 3))
+  water4 <- suppressWarnings(define_water(8, 22, 13) %>% chemdose_ph(nh4oh = 30))
+
+  expect_warning(blend_waters(c(water1, water2), c(.5, .5)), "breakpoint+")
+  expect_warning(blend_waters(c(water3, water4), c(.25, .75)), "breakpoint+")
+  expect_no_warning(blend_waters(c(water1, water3), c(.20, .80)))
+})
+
 ################################################################################*
 ################################################################################*
 # blend_waters helpers ----

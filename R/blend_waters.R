@@ -138,6 +138,11 @@ blend_waters <- function(waters, ratios) {
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
   blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
+  if ((blended_water@nh4 > 0 | blended_water@tot_nh3 > 0) &
+      (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
+    warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   return(blended_water)
 }
 

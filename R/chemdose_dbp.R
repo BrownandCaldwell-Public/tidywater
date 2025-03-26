@@ -129,6 +129,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours.")
   }
 
+  # breakpoint warning
+  if (water@nh4 > 0 | water@tot_nh3 > 0) {
+    warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")

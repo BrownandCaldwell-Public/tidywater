@@ -11,7 +11,7 @@ USEPA (2020)
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
-solvect_chlorine(water, time, residual, baffle)
+solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = FALSE)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp}

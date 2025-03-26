@@ -53,6 +53,11 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
   }
 
+  # breakpoint warning
+  if (water@nh4 > 0 | water@tot_nh3 > 0) {
+    warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   # chlorine decay model
   if (cl_type == "chlorine") {
     if (!(treatment %in% c("raw", "coag"))) {
@@ -140,7 +145,6 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
-
 
   return(water)
 }

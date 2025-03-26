@@ -33,6 +33,19 @@ test_that("solvect_chlorine fails without ph and temp.", {
   expect_error(solvect_chlorine(water_ph, time = 30, residual = 5, baffle = 0.2))
 })
 
+test_that("solvect_chlorine correctly uses free_chlorine slot", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 1))
+  ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
+  ct_use <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
+  ct_use2 <- solvect_chlorine(water1, time = 30, baffle = 0.3, use_free_cl_slot = TRUE) # no residual argument
+
+
+  expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
+  expect_equal(round(ct_use2$ct_required), 10)
+  expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) #no residual argument or water slot
+
+})
+
 test_that("solvect_chlorine works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)

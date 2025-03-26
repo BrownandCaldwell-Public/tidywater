@@ -139,6 +139,10 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
     estimated <- paste(estimated, "doc", sep = "_")
   }
 
+  if (tot_nh3 > 0 & (free_chlorine > 0 | combined_chlorine > 0)) {
+    warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
