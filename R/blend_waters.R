@@ -312,7 +312,15 @@ blend_waters_once <- function(df, waters, ratios) {
 
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
-  validate_water_helpers(df, input_water)
+
+  for (water_col in waters) {
+    if (!(water_col %in% colnames(df))) {
+      stop(paste("Specified input_water column", water_col, "not found. Check spelling or create a water class column using define_water_chain()."))
+    }
+    if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
+      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+    }
+  }
 
   output <- df %>%
     rowwise() %>%
