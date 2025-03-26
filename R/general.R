@@ -177,8 +177,8 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
-water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-plot_ions(water_defined)
+#' water<- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
+#' plot_ions(water)
 #'
 #' @export
 #'
@@ -211,54 +211,38 @@ plot_ions <- function(water) {
 
   plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    dplyr::arrange(type, concentration) %>%
-    dplyr::mutate( #ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H", "Cl",
-      #                                              "CO3", "HCO3", "H2PO4", "HPO4", "PO4",
-      #                                              "OCl", "OH", "SO4")),
-      label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
+                  ion = factor(ion, levels = c("H", "NH4", "K", "Na", "Mg","Ca", "OH", "OCl", "PO4",
+                                               "HPO4", "H2PO4","CO3","HCO3", "SO4", "Cl"))) %>%
+    dplyr::arrange(type, -ion) %>%
+    dplyr::mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
+                  label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
     dplyr::filter(!is.na(concentration),
-                  !concentration <=0) %>%
-    dplyr::mutate(label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""))
-
-  ion_order <- c("H", "NH4", "K", "Na", "Mg","Ca", "SO4","OH", "OCl", "PO4",
-                 "HPO4", "H2PO4","HCO3", "CO3", "Cl")
-
-  plot$ion <- factor(plot$ion, levels = ion_order)
+                  concentration > 0) %>%
+    dplyr::mutate(label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
+                  repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ ""))
 
   plot %>%
     ggplot(aes(x = concentration, y = type, fill = ion)) +
-    geom_bar(
-      stat = "identity",
-      width = 0.5,
-      alpha = 0.5,
-      color = "black"
-    ) +
+    geom_bar(stat = "identity", width = 0.5, alpha = 0.5, color = "black") +
     geom_text(aes(label = label, fontface = "bold", angle = 90),
-              size = 3.5, position = position_stack(vjust = 0.5)
-    ) +
+              size = 3.5, position = position_stack(vjust = 0.5)) +
     ggrepel::geom_text_repel(
       aes(
-        #x = label_pos, y = label_y,
-        label = label,
+        x = label_pos, y = label_y,
+        label = repel_label,
         fontface = "bold"
       ),
       size = 3.5,
       nudge_y = -.2,
-      seed = 555
-    ) +
+      seed = 555) +
     theme_bw() +
-    theme(axis.title = element_text(face = "bold")) +
-    labs(
-      x = "Concentration (eq/L)",
-      y = "Major Cations and Anions",
-      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
-    ) #+
-  #guides(fill = "none")
+    theme(axis.title = element_text(face = "bold"),
+          legend.position = "none") +
+    labs(x = "Concentration (eq/L)", y = "Major Cations and Anions",
+         subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk))
 }
-
 
 #' @title Calculate unit conversions for common compounds
 #'
