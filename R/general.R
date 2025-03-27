@@ -185,7 +185,7 @@ summarise_wq <- summarize_wq
 #' @returns A ggplot object displaying the water's ion balance.
 #'
 plot_ions <- function(water) {
-  type <- concentration <- label_pos <- ion <- label_y <- Na <- OH <- NULL # Quiet RCMD check global variable note
+  type <- concentration <- label_pos <- ion <- label_y <- label <- repel_label <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
