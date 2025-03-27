@@ -11,14 +11,14 @@
 #' including temperature, pH, and alkalinity.
 #'
 #' @details The function will calculate the Chlorine and Chloramine concentrations and update the "water"
-#' class object proceed to the next steps of the treatment chain. 
-#'
+#' class object proceed to the next steps of the treatment chain.
+#' 
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#'
+
 #' @param water Source water object of class "water" created by \code{\link{define_water}}
 #' @param time Reaction time (minutes).
-#' @param cl2 Applied chlorine dose (mg/L as Cl2).
-#' @param nh3 Applied ammonia dose (mg/L as N).
+#' @param cl2 Applied chlorine dose (mg/L as Cl2).If not specified, use free_chlorine slot in water.
+#' @param nh3 Applied ammonia dose (mg/L as N). If not specified, use tot_nh3 slot in water.
 #' @param multi_cl_source # of chlorine source in use, default to 1 (1 or 2).
 #' @param multi_nh3_source # of ammonia source in use, default to 1 (1 or 2).
 #' @param cl_use_slot If TRUE, uses free_chlorine slot in water instead of chlorine dose. Input for cl2 will be ignored. 
@@ -38,16 +38,12 @@
 #' @export
 #'
 #' @returns A water class object with predicted Chlorine and Chloramine concentrations.
-
-
-
-############################
-
-
+#'
+#'
+#
 chemdose_chloramine <- function(water,time, cl2, nh3, 
                                 multi_cl_source = 1, cl_use_slot = FALSE,  
                                 multi_nh3_source = 1, nh3_use_slot = FALSE) {
-
   if (missing(time)) {
     stop("Missing value for reaction time. Please check the function inputs required to run chemdose_chloramine")
   }
@@ -64,7 +60,8 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   if (missing(cl2)) { 
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2 
-    warning('Chlorine dose is not defined, use free chlorine in water as the initial free chlorine.')
+    message <- sprintf("Chlorine dose is not specified, use free chlorine in water (%f mol/L) as the initial free chlorine.",water@free_chlorine)
+    warning(message)
     
     } else {
       if (multi_cl_source == 1 & cl_use_slot == FALSE) { 
@@ -93,7 +90,8 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   if (missing(nh3)) {
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3 
-    warning('Ammonia dose is not defined, use free ammonia in water as the intial free ammonia.')
+    message <- sprintf("Ammonia dose is not specified, use free ammonia in water (%f mol/L) as the intial free ammonia.", water@tot_nh3)
+    warning(message)
     
     } else {
       if (multi_nh3_source == 1 & nh3_use_slot == FALSE) { 
@@ -122,6 +120,10 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   if (!is.na(water@nh2cl)| !is.na(water@nhcl2) | !is.na(water@ncl3)) {
     warning("Chloramine presence in water class object")
   }
+  
+  if (water@combined_chlorine != 0) {
+    warning("Chloramine presence in water as combined_chloramine. Breakdown of combined_chlorine is potentially based on pH but will be subject to future discussion. Ignore for now.")
+  }
 
   time <- time*60
   ph <- water@ph
@@ -134,8 +136,7 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   # TOTNH_ini <- water@tot_nh3 + convert_units(nh3, 'n') # (tot_nh3 = NH3 + NH4+)
   
   # in mg/L
-  CltoN_Mass <- convert_units(TOTCl_ini,'cl2','M','mg/L')/convert_units(TOTNH_ini,'n','M','mg/L')
-  # print(CltoN_Mass)
+  # CltoN_Mass <- convert_units(TOTCl_ini,'cl2','M','mg/L')/convert_units(TOTNH_ini,'n','M','mg/L')
   
   ks <- correct_k(water)
 
@@ -240,18 +241,176 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
                          )
   
   sim_data <- tail(out,n=1)
+  # noticed that some values turn out to be less than 0 and just oscillate around 0 as the ode calculates, may be set to NA
+  sim_data[sim_data < 0] <- 0
   
   # concentrations (moles/L)
   water@free_chlorine <- sim_data$TOTCl
   water@nh2cl <- sim_data$NH2Cl
-  water@nhcl2 <- sim_data$NHCl2*2 
-  water@ncl3 <- sim_data$NCl3*3 
+  water@nhcl2 <- sim_data$NHCl2 
+  water@ncl3 <- sim_data$NCl3 
   water@combined_chlorine <- water@nh2cl + water@nhcl2 + water@ncl3
   water@tot_nh3 <- sim_data$TOTNH
 
   return(water)
   
 }
+
+
+
+
+#' Apply `chemdose_chloramine` within a data frame and output a column of `water` class to be chained to other tidywater functions
+#'
+#' This function allows \code{\link{chemdose_chloramine}} to be added to a piped data frame.
+#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
+#' free_chlorine, combined_chlorine, nh2cl, nhcl2, ncl3, tot_nh3 slots will be updated depending on chlorine type.
+#'
+#' The data input comes from a `water` class column, as initialized in \code{\link{define_water_chain}}.
+#'
+#' If the input data frame has a chlorine dose column (cl2), ammonia dose column (nh3), or time column (time), the function will use those columns. Note:
+#' The function can only take cl2_dose and time inputs as EITHER a column or as function arguments, not both.
+#'
+#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
+#' @param df a data frame containing a water class column, which has already been computed using
+#' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2_dose),
+#' and a column for time in hours.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "chlorinated_water".
+#' @param cl2 Applied chlorine dose (mg/L as cl2). 
+#' @param nh3 Applied ammonia dose (mg/L as N).
+#' @param multi_cl_source # of chlorine source in use, default to 1 (1 or 2).
+#' @param multi_nh3_source # of ammonia source in use, default to 1 (1 or 2).
+#' @param cl_use_slot If TRUE, uses free_chlorine slot in water instead of chlorine dose. Input for cl2 will be ignored. 
+#'                    Default to FALSE, no effect if multi_cl_source is set to 2. 
+#' @param nh3_use_slot If TRUE, uses tot_nh3 slot in water instead of ammonia dose. Input for nh3 will be ignored. 
+#'                    Default to FALSE, no effect if multi_nh3_source is set to 2.
+#' @param time Reaction time (minutes).
+#'
+#' @seealso \code{\link{chemdose_chloramine}}
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#'
+#'example_df <- water_df %>%
+#'  mutate(free_chlorine = 5, tot_nh3 = 1) %>%
+#'  define_water_chain() %>%
+#'  balance_ions_chain() %>%
+#'  mutate(
+#'       time = 8,
+#'       cl2 = 10,
+#'       nh3 = 2,
+#'       multi_cl_source = 1,
+#'       multi_nh3_source = 1
+#'   ) %>%
+#'   chemdose_chloramine_chain(input_water = "balanced_water")
+#'
+#'
+#'
+#'
+#'
+#' \donttest{
+#' # Initialize parallel processing
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_chloramine_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' plan(sequential)
+#' }
+#'
+#' @import dplyr
+#' @export
+#'
+#' @returns A data frame containing a water class column with updated chlorine residuals.
+
+
+chemdose_chloramine_chain <- function(df, input_water = "defined_water", output_water = "chlorinated_water",
+                                      time = 0, cl2 = 0, nh3 = 0, 
+                                      multi_cl_source = 0, cl_use_slot = FALSE,  
+                                      multi_nh3_source = 0, nh3_use_slot = FALSE) {
+  ID <- NULL # Quiet RCMD check global variable note
+
+  arguments <- construct_helper(
+    df, list("cl2" = cl2, "nh3" = nh3, "time" = time, 
+             "multi_cl_source" = multi_cl_source, "multi_nh3_source" = multi_nh3_source),
+    list("cl_use_slot" = cl_use_slot, "nh3_use_slot" = nh3_use_slot)
+  )
+
+  output <- df %>%
+    subset(select = !names(df) %in% c("cl2", "nh3", "time", 
+                                      "multi_cl_source", "cl_use_slot",
+                                      "multi_nh3_source", "nh3_use_slot")) %>% 
+    mutate(
+      ID = row_number()
+    ) %>%
+    left_join(arguments, by = "ID") %>%
+    select(-ID) %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        cl2 = cl2,
+        nh3 = nh3,
+        time = time,
+        multi_cl_source = multi_cl_source,
+        cl_use_slot = cl_use_slot,
+        multi_nh3_source = multi_nh3_source,
+        nh3_use_slot = nh3_use_slot
+      ),
+      chemdose_chloramine
+    ))
+}
+
+
+
+
+# issues to note
+# some values turned out to be 0, set them to 0 for now, could be NA
+# unit conversion cl2 (M >- mg/L)
+# time, may need to add a check if less than 1 or something ode can't be solved
+# breakdown of total_chloramine if present, now ignored
+
+
+
+# more examples to add
+
+# example_df <- water_df %>%
+#   mutate(free_chlorine = 5, tot_nh3 = 1)  %>%
+#   define_water_chain() %>%
+#   balance_ions_chain() %>%
+#   chemdose_chloramine_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+# 
+# example_df <- water_df %>%
+#   mutate(free_chlorine = 10, tot_nh3 = 2)  %>%
+#   define_water_chain() %>%
+#   balance_ions_chain() %>%
+#   mutate(
+#     cl2_dose = seq(2, 24, 2),
+#     time = 30
+#   ) %>%
+#   chemdose_chloramine_chain(input_water = "balanced_water")
+# 
+# example_df <- water_df %>%
+#   mutate(free_chlorine = 6, tot_nh3 = 1)  %>%
+#   define_water_chain() %>%
+#   balance_ions_chain() %>%
+#   mutate(time = 8) %>%
+#   chemdose_chloramine_chain(
+# # input_water = "balanced_water", cl2_dose = 6, treatment = "coag",    cl_type = "chloramine"
+#   )
+
 
 
 

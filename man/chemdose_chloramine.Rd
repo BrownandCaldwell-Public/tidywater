@@ -23,9 +23,9 @@ chemdose_chloramine(
 
 \item{time}{Reaction time (minutes).}
 
-\item{cl2}{Applied chlorine dose (mg/L as Cl2).}
+\item{cl2}{Applied chlorine dose (mg/L as Cl2).If not specified, use free_chlorine slot in water.}
 
-\item{nh3}{Applied ammonia dose (mg/L as N).}
+\item{nh3}{Applied ammonia dose (mg/L as N). If not specified, use tot_nh3 slot in water.}
 
 \item{multi_cl_source}{# of chlorine source in use, default to 1 (1 or 2).}
 

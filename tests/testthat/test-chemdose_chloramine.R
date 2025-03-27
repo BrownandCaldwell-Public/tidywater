@@ -1,36 +1,36 @@
 # Chloramine Breakpoint/Mono- formation
 
 # test value compare
-    # breakpoint trend, nh3 dose --> high conc of nhcl2 
-    # test values, compare with shiny results
-# plot
+    # check the effect of having chloramine presence
+# make sure that the last test, the values from the original function is replicable
+# chemdose_chloramine_chain
+# sensitivity check
 # add the nitrite, bromide dependence after passing all tests
 # double check on all coeffs? (what's I_ini)
+# coefficients make into the main?
 # reference list add articles?
 # reread function description and revise
-# helper (chain) function
+# clean up function script and test script
 
 # Questions
-# need a test to make sure use_slot = TRUE/FALSE is working? or just manual checking should be good?
-# is use_slot for both chlorine and ammonia? add warning?
-# is there a way to test if both warning will show up at the same time, or do we know that both will show up as long as we see one?
-# test coverage error: could not find function ode?
+
+# asked about \code naming the simulate_breakpoint
 # conceptual question: go to shiny app
-# add temp warning? 
-# function name?
-# not-so-relevant questions on test file chlordecay Ct?
 
-# capture warning
-
-################
+###############
 test_that("chemdose_chloramine returns free_chlorine = 0 when existing free chlorine in the system and chlorine dose are 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66))
-  rewater1 <- suppressWarnings(chemdose_chloramine(water1, time = 8, cl2=0))
+  water2 <- suppressWarnings(chemdose_chloramine(water1, time = 10))
   
-  expect_equal(rewater1@free_chlorine, 0)
+  expect_equal(water2@free_chlorine, 0)
 })
 
-
+test_that("chemdose_chloramine warns when chloramine is present in the system in the form of combined_chlorine.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5, combined_chlorine = 1, tot_nh3 = 1))
+  
+  warnings <- capture_warnings(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1, cl_use_slot = TRUE, nh3_use_slot = TRUE, multi_nh3_source = 2)) 
+  expect_equal(length(warnings),3)
+})
 
 test_that("chemdose_chloramine warns when chloramine is present in the system", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
@@ -66,7 +66,7 @@ test_that("chemdose_chloramine stops running when input multi_cl_source is set t
   water2 <- suppressWarnings(define_water(ph = 9, temp = 25, alk = 75, free_chlorine = 5))
   
   expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, cl_use_slot = TRUE, multi_cl_source = 3))
-  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, nh3 = 2, cl_use_slot = TRUE, multi_cl_source = 3))
+  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, nh3 = 2, cl_use_slot = TRUE, multi_cl_source = 4))
 }) 
 
 test_that("chemdose_chloramine stops running when input multi_nh3_source is set to an invalid value", {
@@ -77,40 +77,86 @@ test_that("chemdose_chloramine stops running when input multi_nh3_source is set 
   expect_error(chemdose_chloramine(water1, time = 10, nh3 = 2, nh3_use_slot = TRUE, multi_nh3_source = 10))
 }) 
 
-####################
-# test_that("chemdose_chloramine works.", {
-#   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
-#   water2 <- chemdose_chlordecay(water1, cl2_dose = 3, time = 8)
-#   water3 <- chemdose_chlordecay(water1, cl2_dose = 4, time = 3, treatment = "coag")
-#   water4 <- chemdose_chlordecay(water1, cl_type = 'chloramine', cl2_dose = 4, time = 5, treatment = "coag")
-#   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
-#   water6 <- chemdose_chlordecay(water5, cl_type = 'chloramine', cl2_dose = 6, time = 10)
-#   
-#   expect_equal(signif(water2@free_chlorine, 3), 1.33E-5)
-#   expect_equal(signif(water3@free_chlorine, 3), 3.28E-5)
-#   expect_equal(signif(water4@combined_chlorine, 3), 5.24E-5)
-#   expect_equal(signif(water6@combined_chlorine, 3), 8.0E-5)
-# })
+test_that("chemdose_chloramine works.", {
+  water1 <- suppressWarnings(define_water(7.5, 20, 50, free_chlorine = 10, tot_nh3 = 1))
+  water2 <- suppressWarnings(define_water(8, 25, 60, free_chlorine = 6, tot_nh3 = 2))
+  water3 <- suppressWarnings(define_water(6.5, 21, 80, free_chlorine = 12, tot_nh3 = 2))
+  water4 <- suppressWarnings(define_water(6, 30, 90, free_chlorine = 10, tot_nh3 = 10/13))
+  
+  water5 <- suppressWarnings(chemdose_chloramine(water1, time = 5))
+  water6 <- suppressWarnings(chemdose_chloramine(water2, time = 10))
+  water7 <- suppressWarnings(chemdose_chloramine(water3, time = 3))
+  water8 <- suppressWarnings(chemdose_chloramine(water4, time = 30))
+  
+  # values calculated from original EPA function
+  expect_lt(abs(2.164128e-05 - water5@free_chlorine), convert_units(0.2,'cl2'))
+  expect_lt(abs(1.139440e-05 - water5@nh2cl), convert_units(0.2,'cl2'))
+  expect_lt(abs(2.666012e-06 - water5@nhcl2), convert_units(0.2,'cl2'))
+  expect_lt(abs(6.743913e-07 - water5@ncl3), convert_units(0.2,'cl2'))
+  expect_lt(abs(2.856840e-10- water5@tot_nh3), convert_units(0.2,'n'))
+  
+  expect_lt(abs(5.700349e-10 - water6@free_chlorine), convert_units(0.2,'cl2'))
+  expect_lt(abs(8.433662e-05 - water6@nh2cl), convert_units(0.2,'cl2'))
+  expect_lt(abs(7.578846e-08 - water6@nhcl2), convert_units(0.2,'cl2'))
+  expect_lt(abs(3.108072e-13 - water6@ncl3), convert_units(0.2,'cl2'))
+  expect_lt(abs(5.843269e-05 - water6@tot_nh3), convert_units(0.2,'n'))
+  
+  expect_lt(abs(7.408670e-08 - water7@free_chlorine), convert_units(0.2,'cl2'))
+  expect_lt(abs(1.117277e-04 - water7@nh2cl), convert_units(0.2,'cl2'))
+  expect_lt(abs(2.678862e-05 - water7@nhcl2), convert_units(0.2,'cl2'))
+  expect_lt(abs(8.791807e-09 - water7@ncl3), convert_units(0.2,'cl2'))
+  expect_lt(abs(2.268390e-06 - water7@tot_nh3), convert_units(0.2,'n'))
+  
+  expect_lt(abs(4.565128e-05 - water8@free_chlorine), convert_units(0.2,'cl2'))
+  expect_lt(abs(7.314484e-13 - water8@nh2cl), convert_units(0.2,'cl2'))
+  expect_lt(abs(7.314484e-13 - water8@nhcl2), convert_units(0.2,'cl2'))
+  expect_lt(abs(1.414666e-08 - water8@ncl3), convert_units(0.2,'cl2'))
+  expect_lt(abs(2.549642e-06 - water8@tot_nh3), convert_units(0.2,'n'))
+
+})
 
 
 #########################
+# example_breakpoint2 <- suppressWarnings(define_water(7.5, 20, 60, free_chlorine = 10,tot_nh3 = 10/7)) %>% 
+#   chemdose_chloramine(time = 20, cl2 = 2, cl_use_slot = TRUE)
+# 
+# ratio <- example_breakpoint2[[4]]
+# water <- example_breakpoint2[[3]]
+# sim_data <- example_breakpoint2[[2]]
+# out <- example_breakpoint2[[1]]
+# 
+# out1 <- out
+# out1$time <- out1$time/60
+# out1$TOTNH <- convert_units(out$TOTNH,'n','M','mg/L')
+# out1$TOTCl <- convert_units(out$TOTCl,'cl2','M','mg/L')
+# out1$NH2Cl <-  convert_units(out$NH2Cl,'cl2','M','mg/L')
+# out1$NHCl2 <- convert_units(out$NHCl2,'cl2','M','mg/L')
+# out1$NCl3 <- convert_units(out$NCl3,'cl2','M','mg/L')
+# out1$TOT <- out1$TOTCl + out1$NHCl2 + out1$NH2Cl + out1$NCl3
+# 
+# x <- out1$time
+# freeNH3 <- out1$TOTNH
+# freeCl <- out1$TOTCl
+# mono <-  out1$NH2Cl
+# di <- out1$NHCl2 
+# tri <- out1$NCl3 
+# totalCl <- out1$TOT
+# 
+# plot(x,freeCl, type='l', ylim=c(0,10))
+# lines(x,mono,col = 'green')
+# lines(x, di, col = 'blue')
+# lines(x, tri, col = 'red')
+# lines(x,totalCl,col='orange')
+# 
+# legend(x = "topright",          # Position
+#        legend = c('freeCl','mono','di','tri','total'),  # Legend texts
+#        lty = rep(1,5),           # Line types
+#        # inset=c(-1,1),
+#        col = c('black','green','blue','red','orange'),           # Line colors
+#        lwd = 2)                 # Line width
+# 
 
-# example_breakpoint <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2,tot_nh3 = 1)) %>%
-#   chemdose_chloramine(time=20,cl2=1,nh3 = 1)
 # 
-# example_breakpoint@free_chlorine
-# 
-# # # # 
-# water1 <- suppressWarnings(define_water(8, 20, 65, free_chlorine = 2,tot_nh3 = 1))
-# water1@nh2cl <- 1
-# example_breakpoint1 <- chemdose_chloramine(water1,time=20,cl2=1)
-# 
-# example_breakpoint1@free_chlorine
-# 
-# example_breakpoint1<- suppressWarnings(define_water(8, 20, 65, free_chlorine = 10, tot_nh3 = 1)) %>%
-#   chemdose_chloramine(time=37)
-
-
 # library(deSolve)
 # library(ggplot2)
 # library(reshape2)
@@ -118,8 +164,6 @@ test_that("chemdose_chloramine stops running when input multi_nh3_source is set 
 # library(tidywater)
 # library(tidyverse)
 # devtools::load_all() # comment out in file, run in console pane only
-
-
 
 
 
