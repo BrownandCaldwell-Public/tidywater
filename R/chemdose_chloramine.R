@@ -327,7 +327,7 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
 #' library(dplyr)
 #'
 #'
-#'example_df <- water_df %>%
+#'example_df1 <- water_df %>%
 #'  mutate(free_chlorine = 5, tot_nh3 = 1) %>%
 #'  define_water_chain() %>%
 #'  balance_ions_chain() %>%
@@ -339,6 +339,34 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
 #'       multi_nh3_source = 1
 #'   ) %>%
 #'   chemdose_chloramine_chain(input_water = "balanced_water")
+#'
+#'
+#'example_df2 <- water_df %>%
+#'   mutate(free_chlorine = 8, tot_nh3 = 1) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(
+#'        multi_cl_source = 2,
+#'        multi_nh3_source = 2
+#'    ) %>%
+#'    chemdose_chloramine_chain(input_water = "balanced_water",       
+#'                                time = 20,
+#'                                cl2 = 6,
+#'                                nh3 = 2)
+#'                              
+#'                              
+#'example_df3 <- water_df %>%
+#'   mutate(free_chlorine = 8, tot_nh3 = 1) %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   mutate(
+#'        time = 30,
+#'        multi_cl_source = 1,
+#'        multi_nh3_source = 1
+#'    ) %>%
+#'    chemdose_chloramine_chain(input_water = "balanced_water",       
+#'                              cl2 = seq(2, 24, 2),
+#'                              nh3 = 2)
 #'
 #'
 #' \donttest{
@@ -399,31 +427,21 @@ chemdose_chloramine_chain <- function(df, input_water = "defined_water", output_
 
 
 
-# more examples to add
 
-# example_df <- water_df %>%
-#   mutate(free_chlorine = 5, tot_nh3 = 1)  %>%
-#   define_water_chain() %>%
-#   balance_ions_chain() %>%
-#   chemdose_chloramine_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
-# 
-# example_df <- water_df %>%
-#   mutate(free_chlorine = 10, tot_nh3 = 2)  %>%
-#   define_water_chain() %>%
-#   balance_ions_chain() %>%
-#   mutate(
-#     cl2_dose = seq(2, 24, 2),
-#     time = 30
-#   ) %>%
-#   chemdose_chloramine_chain(input_water = "balanced_water")
-# 
-# example_df <- water_df %>%
-#   mutate(free_chlorine = 6, tot_nh3 = 1)  %>%
-#   define_water_chain() %>%
-#   balance_ions_chain() %>%
-#   mutate(time = 8) %>%
-#   chemdose_chloramine_chain(
-# # input_water = "balanced_water", cl2_dose = 6, treatment = "coag",    cl_type = "chloramine"
-#   )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
