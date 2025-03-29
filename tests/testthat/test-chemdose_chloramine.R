@@ -4,7 +4,8 @@
 # 1. added in time check can't be less than 1 min, otherwise will have a solver error, possibly caused by ode
   # after 1 min, the time input doesn't even need to be whole numbers
 # 2. redefined calculate_alpha functions for carbonate, just so alpha1 and alpha2 build off of alpha0, like phosphate
-# 3. alpha0 and alpha for ammonia and ammonium, 
+# 3. alpha0 and alpha1 for ammonia and ammonium, alpha0TOTNH is actually unused
+  # did some testing for the two different expressions for alpha1TOTNH, the returned concs are close (see the bottom of this script)
 # 4. forms of chloramines, mol Cl2/L <--> mg Cl2/L and mol N/L <--> mg N/L?
 # 5. if combined_chloramine is present, how to break it down (potentially based on pH), currently ignored
 # 6. when ode keeps oscillate around 0 and returns a negative number, set it to 0
@@ -82,40 +83,40 @@ test_that("chemdose_chloramine stops running when input multi_nh3_source is set 
 
 
 # note that this test only passes when chemdose_chlorine uses the original alpha0TOTNH and alpha1TOTNH
-#  test_that("chemdose_chloramine works.", { 
+#  test_that("chemdose_chloramine works.", {
 #   water1 <- suppressWarnings(define_water(7.5, 20, 50, free_chlorine = 10, tot_nh3 = 1))
 #   water2 <- suppressWarnings(define_water(8, 25, 60, free_chlorine = 6, tot_nh3 = 2))
 #   water3 <- suppressWarnings(define_water(6.5, 21, 80, free_chlorine = 12, tot_nh3 = 2))
 #   water4 <- suppressWarnings(define_water(6, 30, 90, free_chlorine = 10, tot_nh3 = 10/13))
-#   
+# 
 #   water5 <- suppressWarnings(chemdose_chloramine(water1, time = 5))
 #   water6 <- suppressWarnings(chemdose_chloramine(water2, time = 10))
 #   water7 <- suppressWarnings(chemdose_chloramine(water3, time = 3))
 #   water8 <- suppressWarnings(chemdose_chloramine(water4, time = 30))
-#   
-#   # values calculated from original EPA function, run simulate_chloramine1 below 
+# 
+#   # values calculated from original EPA function, run simulate_chloramine1 below
 #   # set threshold for difference between models to be 0.2 mg/L
 #   TH_cl2 <- convert_units(0.2,'cl2')
 #   TH_nh3 <- convert_units(0.2,'n')
-#   
+# 
 #   expect_lt(abs(2.164128e-05 - water5@free_chlorine), TH_cl2)
 #   expect_lt(abs(1.139440e-05 - water5@nh2cl), TH_cl2)
 #   expect_lt(abs(2.666012e-06 - water5@nhcl2), TH_cl2)
 #   expect_lt(abs(6.743913e-07 - water5@ncl3), TH_cl2)
 #   expect_lt(abs(2.856840e-10- water5@tot_nh3), TH_nh3)
-#   
+# 
 #   expect_lt(abs(5.700349e-10 - water6@free_chlorine), TH_cl2)
 #   expect_lt(abs(8.433662e-05 - water6@nh2cl), TH_cl2)
 #   expect_lt(abs(7.578846e-08 - water6@nhcl2), TH_cl2)
 #   expect_lt(abs(3.108072e-13 - water6@ncl3), TH_cl2)
 #   expect_lt(abs(5.843269e-05 - water6@tot_nh3), TH_nh3)
-#   
+# 
 #   expect_lt(abs(7.408670e-08 - water7@free_chlorine), TH_cl2)
 #   expect_lt(abs(1.117277e-04 - water7@nh2cl), TH_cl2)
 #   expect_lt(abs(2.678862e-05 - water7@nhcl2), TH_cl2)
 #   expect_lt(abs(8.791807e-09 - water7@ncl3), TH_cl2)
 #   expect_lt(abs(2.268390e-06 - water7@tot_nh3), TH_nh3)
-#   
+# 
 #   expect_lt(abs(4.565128e-05 - water8@free_chlorine), TH_cl2)
 #   expect_lt(abs(7.314484e-13 - water8@nh2cl), TH_cl2)
 #   expect_lt(abs(1.414666e-08 - water8@nhcl2), TH_cl2)
@@ -125,9 +126,11 @@ test_that("chemdose_chloramine stops running when input multi_nh3_source is set 
 # })
 
  
+###################### 
+# EPA script, generate numbers for the last test
 
 # simulate_chloramine1 <- function(water, initial_chemical, Free_mgL, input_ratio, output_time, output_chemical) { # time_m argument to be added
-# 
+#
 #   # Set general simulation parameters
 #   length_m <- 240
 #   ratio_step <- 0.2
@@ -314,4 +317,54 @@ test_that("chemdose_chloramine stops running when input multi_nh3_source is set 
 #  
 # 
 # 
+
+############## 
+# # test difference depending on alpha1TOTNH equations
+
+# # with alpha1TOTNH <- 1/(1 + H/ks$knh4)
+# example_df1 <- water_df %>%
+#   mutate(free_chlorine = 10, tot_nh3 = 2) %>%
+#   define_water_chain() %>%
+#   balance_ions_chain() %>%
+#   mutate(
+#        time = 30,
+#        multi_cl_source = 1,
+#        multi_nh3_source = 1
+#    ) %>%
+#    chemdose_chloramine_chain(input_water = "balanced_water",
+#                              cl2 = seq(2, 24, 2),
+#                              nh3 = 2)
+
+# # With alpha1TOTNH <- calculate_alpha1_ammonia(H, ks)
+# example_df2 <- water_df %>%
+#   mutate(free_chlorine = 10, tot_nh3 = 2) %>%
+#   define_water_chain() %>%
+#   balance_ions_chain() %>%
+#   mutate(
+#     time = 30,
+#     multi_cl_source = 1,
+#     multi_nh3_source = 1
+#   ) %>%
+#   chemdose_chloramine_chain(input_water = "balanced_water",
+#                             cl2 = seq(2, 24, 2),
+#                             nh3 = 2)
 # 
+# test1 <- pluck_water(example_df1,input_waters = c('chlorinated_water'),'tot_nh3')
+# test2 <- pluck_water(example_df2,input_waters = c('chlorinated_water'),'tot_nh3')
+# 
+# test1 <- convert_units(test1$chlorinated_water_tot_nh3, 'n','M','mg/L')
+# test2 <- convert_units(test2$chlorinated_water_tot_nh3, 'n', 'M','mg/L')
+# 
+# plot(test1,test2, xlim=c(0,7),ylim=c(0,7))
+# 
+# test <- test1-test2 
+# plot(test)
+
+# # difference in mg/L:
+# free_chlorine(0~0.003) nhcl2, ncl3, tot_nh3
+# nh2cl (0~-0.25)
+# nhcl2 (0~0.1)
+# ncl3 (~0, alpha1TOTNH not in dNCl3 in ode)
+# tot_nh3 (0~0.025)
+
+

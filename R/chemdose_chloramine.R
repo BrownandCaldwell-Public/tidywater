@@ -250,6 +250,7 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
       
     yin <- c(TOTNH = TOTNH_ini,
              TOTCl = TOTCl_ini, 
+             # assume chloramines are in the form of mol cl2/L
              NH2Cl = water@nh2cl,
              NHCl2 = water@nhcl2,
              NCl3 = water@ncl3,
@@ -271,7 +272,7 @@ chemdose_chloramine <- function(water,time, cl2, nh3,
   # Note that some values turn out to be less than 0 and just oscillate around 0 as the ode calculates, may be set to NA
   sim_data[sim_data < 0] <- 0
   
-  # concentrations (moles/L)
+  # concentrations (moles/L) in Cl2 or N
   water@free_chlorine <- sim_data$TOTCl
   water@nh2cl <- sim_data$NH2Cl
   water@nhcl2 <- sim_data$NHCl2 
