@@ -645,26 +645,27 @@ correct_k <- function(water) {
   }
 
   temp <- water@temp
-  discons <- tidywater::discons
+
   # Eq constants
   # k1co3 = {h+}{hco3-}/{h2co3}
-  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
+  k1co3 <- K_temp_adjust(7700, 4.466836e-07, temp) / activity_z1^2
   # k2co3 = {h+}{co32-}/{hco3-}
-  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
+  k2co3 <- K_temp_adjust(14900, 4.677351e-11, temp) / activity_z2
   # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-  kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
+  kso4 <- K_temp_adjust(-21900, 1.023293e-02, temp) / activity_z2
   # k1po4 = {h+}{h2po4-}/{h3po4}
-  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
+  k1po4 <- K_temp_adjust(-8000, 6.918310e-03, temp) / activity_z1^2
   # k2po4 = {h+}{hpo42-}/{h2po4-}
-  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
+  k2po4 <- K_temp_adjust(4200, 6.309573e-08, temp) / activity_z2
   # k3po4 = {h+}{po43-}/{hpo42-}
-  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  k3po4 <- K_temp_adjust(14700, 4.466836e-13, temp) * activity_z2 / (activity_z1 * activity_z3)
   # kocl = {h+}{ocl-}/{hocl}
-  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
+  kocl <- K_temp_adjust(13800, 2.951209e-08, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
-  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  knh4 <- K_temp_adjust(52210, 5.701643e-10, temp) / activity_z1^2
 
-  return(data.frame(
+  # Returning list here instead of dataframe is much much faster
+  return(list(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
     "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
