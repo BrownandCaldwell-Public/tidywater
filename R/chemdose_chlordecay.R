@@ -54,7 +54,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   }
 
   # breakpoint warning
-  if (water@nh4 > 0 | water@tot_nh3 > 0) {
+  if (water@tot_nh3 > 0) {
     warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
 

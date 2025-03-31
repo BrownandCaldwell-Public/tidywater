@@ -21,7 +21,6 @@
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
 #' @param use_free_cl_slot Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.
-#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
