@@ -77,7 +77,7 @@ solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = F
 #'   define_water_chain() %>%
 #'   solvect_chlorine_once(residual = 2, time = 10, baffle = .5)
 #'
-#' ozone_resid <- water_df %>%
+#' chlor_resid <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
@@ -93,6 +93,7 @@ solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = F
 
 solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
+                                  use_free_cl_slot = FALSE,
                                   water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
 
@@ -115,7 +116,8 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         residual = !!as.name(arguments$final_names$residual),
-        baffle = !!as.name(arguments$final_names$baffle)
+        baffle = !!as.name(arguments$final_names$baffle),
+        use_free_cl_slot = use_free_cl_slot
       ),
       solvect_chlorine
     )) %>%

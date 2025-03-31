@@ -295,21 +295,13 @@ blend_waters_once <- function(df, waters, ratios) {
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
 
-  for (water_col in waters) {
-    if (!(water_col %in% colnames(df))) {
-      stop(paste("Specified input_water column", water_col, "not found. Check spelling or create a water class column using define_water_chain()."))
-    }
-    if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
-      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
-    }
-  }
-
   n = 0
   water_names <- list()
   for (water in waters) {
     n = n +1
 
     if (!is.character(water)) {
+
       output <- paste0("merging_water_", n)
       df <- df %>%
         mutate(!!output := list(water))
@@ -319,6 +311,23 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     }
   }
   water_names <- unlist(water_names)
+
+  for (water_col in waters) {
+    if (is.character(water_col)) {
+
+      if (!(water_col %in% colnames(df))) {
+
+        stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_chain()."))
+
+         } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
+
+             stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+      }
+    } else if (!is.character(water_col) & !methods::is(water_col, "water")){
+      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+    }
+  }
+
 
   output <- df %>%
     rowwise() %>%
