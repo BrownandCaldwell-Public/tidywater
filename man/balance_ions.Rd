@@ -4,22 +4,33 @@
 \alias{balance_ions}
 \alias{balance_ions_once}
 \alias{balance_ions_chain}
-\title{Add Na, K, Cl, or SO4 to balance overall charge in a water}
+\title{Add an ion to balance overall charge in a water}
 \usage{
-balance_ions(water)
+balance_ions(water, anion = "cl", cation = "na")
 
-balance_ions_once(df, input_water = "defined_water")
+balance_ions_once(
+  df,
+  input_water = "defined_water",
+  anion = "cl",
+  cation = "na"
+)
 
 balance_ions_chain(
   df,
   input_water = "defined_water",
-  output_water = "balanced_water"
+  output_water = "balanced_water",
+  anion = "cl",
+  cation = "na"
 )
 }
 \arguments{
 \item{water}{Water created with \link{define_water}, which may have some ions set to 0 when unknown}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
+\item{anion}{Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").}
+
+\item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").}
+
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -39,9 +50,11 @@ For a single water use \code{balance_ions}; for a dataframe where you want to ou
 (note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
 }
 \details{
-If more cations are needed, sodium will be added, unless a number for sodium is already provided and potassium is 0, then it will add potassium. Similarly,
-anions are added using chloride, unless sulfate is 0. If calcium and magnesium are not specified when defining a water with
-\link{define_water}, they will default to 0 and not be changed by this function.  This function is purely mathematical.
+If more cations are needed, sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
+If calcium and magnesium are not specified when defining a water with
+\link{define_water}, they will default to 0 and not be changed by this function unless specified in the cation argument.
+Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing.
+This function is purely mathematical.
 User should always check the outputs to make sure values are reasonable for the input source water.
 
 For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
@@ -54,6 +67,9 @@ shorter run times will not benefit from parallel processing.
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10) \%>\%
   balance_ions()
 
+water_defined <- define_water(7, 20, 50, tot_hard = 150) \%>\%
+  balance_ions(anion = "so4")
+
 library(purrr)
 library(furrr)
 library(tidyr)
@@ -61,7 +77,7 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_once(anion = "so4", cation = "mg")
 
 example_df <- water_df \%>\%
   define_water_chain(output_water = "Different_defined_water_column") \%>\%
@@ -74,8 +90,8 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 5)
+  balance_ions_chain(anion = "so4", cation = "ca") \%>\%
+  select(-defined_water, -balanced_water)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
