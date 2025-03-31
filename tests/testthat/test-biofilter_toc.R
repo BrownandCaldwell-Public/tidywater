@@ -168,7 +168,7 @@ test_that("biofilter_toc_chain output is list of water class objects, and can ha
     define_water_chain("water") %>%
     biofilter_toc_chain(input_water = "water", ebct = 8)
 
-  water2 <- purrr::pluck(water1, 4, 1)
+  water2 <- purrr::pluck(water1, "biofiltered_water", 1)
 
   water3 <- water_df %>%
     define_water_chain() %>%
@@ -178,7 +178,7 @@ test_that("biofilter_toc_chain output is list of water class objects, and can ha
     biofilter_toc_chain(output_water = "diff_name")
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
+  expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
 # Check biofilter_toc_chain can use a column or function argument for chemical dose

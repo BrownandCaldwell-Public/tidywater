@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_pluck_water.R
 \name{convert_water}
 \alias{convert_water}
-\title{Convert `water` class object to a dataframe}
+\title{Convert \code{water} class object to a dataframe}
 \usage{
 convert_water(water)
 }
@@ -13,9 +13,9 @@ convert_water(water)
 A data frame containing columns for all non-NA water slots.
 }
 \description{
-This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
-This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
-there may be a `fn_once` tidywater function that provides a more efficient solution.
+This converts a \code{water} class to a dataframe with individual columns for each slot (water quality parameter) in the \code{water}.
+This is useful for one-off checks and is applied in all \code{fn_once} tidywater functions. For typical applications,
+there may be a \code{fn_once} tidywater function that provides a more efficient solution.
 }
 \examples{
 

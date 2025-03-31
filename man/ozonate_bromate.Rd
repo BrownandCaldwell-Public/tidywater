@@ -2,6 +2,8 @@
 % Please edit documentation in R/ozonate_bromate.R
 \name{ozonate_bromate}
 \alias{ozonate_bromate}
+\alias{ozonate_bromate_once}
+\alias{ozonate_bromate_chain}
 \title{Calculate bromate formation}
 \source{
 Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
@@ -10,30 +12,140 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 }
 \usage{
 ozonate_bromate(water, dose, time, model = "Ozekin")
+
+ozonate_bromate_once(
+  df,
+  input_water = "defined_water",
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
+)
+
+ozonate_bromate_chain(
+  df,
+  input_water = "defined_water",
+  output_water = "ozonated_water",
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
+)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water object of class "water" created by \link{define_water}}
 
 \item{dose}{Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.}
 
 \item{time}{Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.}
 
 \item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_once}. The df may include a column named for the applied chlorine dose (cl2),
+and a column for time in minutes.}
+
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "ozonated_water".}
 }
 \value{
-A water class object with calculated bromate (ug/L).
+\code{ozonate_bromate} returns a single water class object with calculated bromate (ug/L).
+
+\code{ozonate_bromate_once} returns a data frame with updated bromate as a column.
+
+\code{ozonate_bromate_chain} returns a data frame containing a water class column with updated bro3.
 }
 \description{
 Calculates bromate (BrO3-, ug/L) formation based on selected model. Required arguments include an object of class "water"
-created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
-The function also requires additional water quality parameters defined in \code{define_water}
+created by \link{define_water} ozone dose, reaction time, and desired model.
+The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
-optionally, ammonia (added when defining water using the `tot_nh3` argument.)
+optionally, ammonia (added when defining water using the \code{tot_nh3} argument.)
+For a single water use \code{ozonate_bromate}; for a dataframe where you want to output a water for continued modeling use
+\code{ozonate_bromate_chain}; for a dataframe where you want to output water parameters as columns use \code{ozonate_bromate_once}
+(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
+For most arguments, the \verb{_chain} and \verb{_once} helpers
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
+}
+\details{
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
-example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 1.5, time = 5, model = "Ozekin")
-example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain("raw") \%>\%
+  ozonate_bromate_once(input_water = "raw", dose = 3, time = 8)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain("raw") \%>\%
+  mutate(
+    dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
+    time = 10
+  ) \%>\%
+  ozonate_bromate_once(input_water = "raw")
+
+example_df <- water_df \%>\%
+  mutate(br = 80) \%>\%
+  define_water_chain("raw") \%>\%
+  mutate(time = 8) \%>\%
+  ozonate_bromate_once(
+    input_water = "raw", dose = 6, model = "Sohn"
+  )
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  ozonate_bromate_chain(dose = 4, time = 8)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  mutate(
+    dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
+    OzoneTime = 30
+  ) \%>\%
+  ozonate_bromate_chain(time = OzoneTime)
+
+example_df <- water_df \%>\%
+  mutate(br = 80) \%>\%
+  define_water_chain() \%>\%
+  mutate(time = 8) \%>\%
+  ozonate_bromate_chain(
+    dose = 6, model = "Sohn"
+  )
+
+\donttest{
+# Initialize parallel processing
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  ozonate_bromate_chain(dose = 4, time = 8)
+
+# Optional: explicitly close multisession processing
+plan(sequential)
+}
 
 }

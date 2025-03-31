@@ -1,17 +1,29 @@
 #' @title Calculate a desired chemical dose for a target pH
 #'
-#' @description \code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-#' The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
+#' @description Calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+#' The function takes an object of class "water", and user-specified chemical and target pH
 #' and returns a numeric value for the required dose in mg/L.
+#' For a single water, use `solvedose_ph`; to apply the model to a dataframe, use `solvedose_ph_once`.
+#' For most arguments, the `_once` helper
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
-#' \code{solvedose_ph} uses \code{uniroot} on \code{\link{chemdose_ph}} to match the required dose for the requested pH target.
+#' @details
+#'
+#' `solvedose_ph` uses [stats::uniroot()] on [chemdose_ph] to match the required dose for the requested pH target.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
 #'
-#' @seealso \code{\link{define_water}}, \code{\link{chemdose_ph}}
+#' @seealso [chemdose_ph], [solvedose_alk]
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 10)
@@ -83,20 +95,33 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #'
 #' @description This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
 #' Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function.
+#' For a single water, use `solvedose_alk`; to apply the model to a dataframe, use `solvedose_alk_once`.
+#' For most arguments, the `_once` helper
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
+#'
+#' @details
+#' `solvedose_alk` uses [stats::uniroot()] on [chemdose_ph] to match the required dose for the requested alkalinity target.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_alk The final alkalinity in mg/L as CaCO3 to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
 #'
-#' @seealso \code{\link{define_water}}
+#' @seealso [solvedose_ph]
 #'
 #' @examples
 #' dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) %>%
 #'   solvedose_alk(target_alk = 150, "naoh")
 #' @export
 #'
-#' @returns  A numeric value for the required chemical dose.
+#' @returns `solvedose_alk` returns a numeric value for the required chemical dose.
 #'
 solvedose_alk <- function(water, target_alk, chemical) {
   validate_water(water, c("ph", "alk"))
@@ -148,31 +173,11 @@ solvedose_alk <- function(water, target_alk, chemical) {
   }
 }
 
-#' Apply `solvedose_ph` to a dataframe and create a new column with numeric dose
-#'
-#' This function allows \code{\link{solvedose_ph}} to be added to a piped data frame.
-#' Its output is a chemical dose in mg/L.
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has column(s) named "target_ph" or "chemical", the function will use the column(s)
-#' as function argument(s). If these columns aren't present, specify "target_ph" or "chemical" as function arguments.
-#' The chemical names must match the chemical names as displayed in \code{\link{solvedose_ph}}.
-#' To see which chemicals can be dosed, see \code{\link{solvedose_ph}}.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
+#' @rdname solvedose_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
+#' [define_water_chain]. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
-#' @param target_ph set a goal for pH using the function argument or a data frame column
-#' @param chemical select the chemical to be used to reach the desired pH using function argument or data frame column
-#' @seealso \code{\link{solvedose_ph}}
 #'
 #' @examples
 #'
@@ -196,8 +201,8 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(target_ph = seq(9, 10.1, .1)) %>%
-#'   solvedose_ph_once(chemical = "naoh")
+#'   mutate(finpH = seq(9, 10.1, .1)) %>%
+#'   solvedose_ph_once(chemical = "naoh", target_ph = finpH)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -213,82 +218,39 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' @import dplyr
 #' @export
-#' @returns A data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
+#' @returns `solvedose_ph_once` returns a data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
-  dose <- NULL # Quiet RCMD check global variable note
-  dosable_chems <- tibble(
-    hcl = 0, h2so4 = 0, h3po4 = 0,
-    co2 = 0,
-    naoh = 0, caoh2 = 0, mgoh2 = 0,
-    na2co3 = 0, nahco3 = 0,
-    cl2 = 0, naocl = 0, caocl2 = 0,
-    alum = 0, ferricchloride = 0, ferricsulfate = 0
-  )
 
-  chem <- df %>%
-    filter(chemical %in% names(dosable_chems))
+  # This allows for the function to process unquoted column names without erroring
+  target_ph <- tryCatch(target_ph, error = function(e) enquo(target_ph))
+  chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
 
-  if (length(chemical) > 0) {
-    if (!chemical %in% names(dosable_chems)) {
-      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")
-    }
+  arguments <- construct_helper(df, list("target_ph" = target_ph, "chemical" = chemical))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
-    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_ph.")
-  }
-
-  if ("target_ph" %in% names(df) & length(target_ph) > 0) {
-    stop("Target pH was set as both a function argument and a data frame column. Remove your target pH from one of these inputs.")
-  }
-
-  if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")
-  }
-
-  output <- chem %>%
-    mutate(
-      target_ph = target_ph,
-      chemical = chemical
-    ) %>%
-    mutate(dose = furrr::future_pmap(
+  output <- df %>%
+    mutate(!!output_column := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        chemical = chemical,
-        target_ph = target_ph
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_ph = !!as.name(arguments$final_names$target_ph)
       ),
       solvedose_ph
-    )) %>%
-    mutate(!!output_column := as.numeric(dose)) %>%
-    select(-dose)
+    ) %>%
+      as.numeric())
+
 }
 
-#' Apply `solvedose_alk` to a dataframe and create a new column with numeric dose
-#'
-#' This function allows \code{\link{solvedose_alk}} to be added to a piped data frame.
-#' Its output is a chemical dose in mg/L.
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has column(s) named "target_alk" or "chemical", the function will use the column(s)
-#' as function argument(s). If these columns aren't present, specify "target_alk" or "chemical" as function arguments.
-#' The chemical names must match the chemical names as displayed in \code{\link{solvedose_alk}}.
-#' To see which chemicals can be dosed, see \code{\link{solvedose_alk}}.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
+#' @rdname solvedose_alk
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column with names for each of the chemicals being dosed.
+#' [define_water_chain]. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
-#' @param target_alk set a goal for alkalinity using the function argument or a data frame column
-#' @param chemical select the chemical to be used to reach the desired alkalinity using function argument or data frame column
-#' @seealso \code{\link{solvedose_alk}}
 #'
 #' @examples
 #'
@@ -316,8 +278,8 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(target_alk = seq(100, 210, 10)) %>%
-#'   solvedose_alk_once(chemical = "na2co3")
+#'   mutate(finAlk = seq(100, 210, 10)) %>%
+#'   solvedose_alk_once(chemical = "na2co3", target_alk = finAlk)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -334,51 +296,30 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
+#' @returns `solvedose_alk_once` returns a data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
-  dose <- NULL # Quiet RCMD check global variable note
-  dosable_chems <- tibble(
-    hcl = 0, h2so4 = 0, h3po4 = 0,
-    co2 = 0,
-    naoh = 0, caoh2 = 0, mgoh2 = 0,
-    na2co3 = 0, nahco3 = 0
-  )
 
-  chem <- df %>%
-    filter(chemical %in% names(dosable_chems))
+  # This allows for the function to process unquoted column names without erroring
+  target_alk <- tryCatch(target_alk, error = function(e) enquo(target_alk))
+  chemical <- tryCatch(chemical, error = function(e) enquo(chemical))
 
-  if (length(chemical) > 0) {
-    if (!chemical %in% names(dosable_chems)) {
-      stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")
-    }
+  arguments <- construct_helper(df, list("target_alk" = target_alk, "chemical" = chemical))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-
-  if (length(chem$chemical) > 0 & !all(unique(df$chemical) %in% names(dosable_chems))) {
-    stop("Can't find chemical. Check spelling or list of valid chemicals in solvedose_alk")
-  }
-
-  if ("target_alk" %in% names(df) & length(target_alk) > 0) {
-    stop("Target alkalinity was set as both a function argument and a data frame column. Remove your target alkalinity from one of these inputs.")
-  }
-
-  if ("chemical" %in% names(df) & length(chemical) > 0) {
-    stop("Chemical was set as both a function argument and a data frame column. Remove your chemical from one of these inputs.")
-  }
-
-  output <- chem %>%
-    mutate(
-      target_alk = target_alk,
-      chemical = chemical
-    ) %>%
-    mutate(dose = furrr::future_pmap(
+  output <- df %>%
+    mutate(!!output_column := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        chemical = chemical,
-        target_alk = target_alk
+        chemical = !!as.name(arguments$final_names$chemical),
+        target_alk = !!as.name(arguments$final_names$target_alk)
       ),
       solvedose_alk
-    )) %>%
-    mutate(!!output_column := as.numeric(dose)) %>%
-    select(-dose)
+    ) %>%
+      as.numeric())
+
 }

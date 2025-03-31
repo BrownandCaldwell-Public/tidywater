@@ -170,7 +170,7 @@ test_that("pac_toc_chain output is list of water class objects, and can handle a
     pac_toc_chain(input_water = "raw", output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
+  expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
 # Check pac_toc_chain can use a column or function argument for chemical dose
@@ -202,8 +202,43 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   expect_equal(water1$pac_water_doc, water2$pac_water_doc) # test different ways to input args
   expect_equal(water1$pac_water_uv254, water2$pac_water_uv254)
 
-  # Test that inputting time/dose separately (in column and as an argument)  gives save results
+  # Test that inputting time/dose separately (in column and as an argument)  gives same results
   expect_equal(water1$pac_water_doc, water3$pac_water_doc)
+
+
+  water4 <- water_df %>%
+    slice(1:4) %>%
+    define_water_chain("raw") %>%
+    mutate(time = c(20, 20, 50, 50)) %>%
+    pac_toc_chain(input_water = "raw", output_water = "pac", dose = c(10, 20))
+  water4b <- water4 %>%
+    filter(dose == 10)
+
+  water5 <- water_df %>%
+    slice(1:4) %>%
+    define_water_chain("raw") %>%
+    mutate(PACtime = c(20, 20, 50, 50)) %>%
+    pac_toc_chain(input_water = "raw", output_water = "pac", dose = c(10, 20), time = PACtime)
+
+  water6 <- water_df %>%
+    slice(1:4) %>%
+    define_water_chain("raw") %>%
+    mutate(time = c(20, 20, 50, 50)) %>%
+    cross_join(tibble(dose = c(10, 20))) %>%
+    pac_toc_chain(input_water = "raw", output_water = "pac")
+
+  water7 <- water_df %>%
+    slice(1:4) %>%
+    define_water_chain("raw") %>%
+    mutate(
+      PACtime = c(20, 20, 50, 50),
+      type = "bituminous"
+    ) %>%
+    pac_toc_chain(input_water = "raw", output_water = "pac", dose = 10, time = PACtime)
+
+  expect_equal(water4$pac, water5$pac)
+  expect_equal(water4$pac, water6$pac)
+  expect_equal(water4b$pac, water7$pac)
 })
 
 test_that("pac_toc_chain errors with argument + column for same param", {

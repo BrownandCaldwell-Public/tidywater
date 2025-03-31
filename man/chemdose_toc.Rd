@@ -2,6 +2,8 @@
 % Please edit documentation in R/chemdose_toc.R
 \name{chemdose_toc}
 \alias{chemdose_toc}
+\alias{chemdose_toc_once}
+\alias{chemdose_toc_chain}
 \title{Determine TOC removal from coagulation}
 \source{
 Edwards (1997)
@@ -18,6 +20,25 @@ chemdose_toc(
   ferricsulfate = 0,
   coeff = "Alum"
 )
+
+chemdose_toc_once(
+  df,
+  input_water = "defined_water",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
+)
+
+chemdose_toc_chain(
+  df,
+  input_water = "defined_water",
+  output_water = "coagulated_water",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254}
@@ -30,14 +51,32 @@ chemdose_toc(
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_chain}. The df may include a column named for the coagulant being dosed,
+and a column named for the set of coefficients to use.}
+
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".}
 }
 \value{
-A water class object with an updated DOC, TOC, and UV254 concentration.
+\code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
+
+\code{chemdose_toc_once} returns a data frame with columns for updated DOC, TOC, and UV254 concentration.
+
+\code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 }
 \description{
-This function applies the Edwards (1997) model to a water created by \code{\link{define_water}} to determine coagulated
+This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
 DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
-only raw water pH is known, utilize \code{\link{chemdose_ph}} first.
+only raw water pH is known, utilize \link{chemdose_ph} first.
+For a single water use \code{chemdose_toc}; for a dataframe where you want to output a water for continued modeling use
+\code{chemdose_toc_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_toc_once}
+(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
+For most arguments, the \verb{_chain} and \verb{_once} helpers
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
@@ -52,6 +91,71 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
     "x1" = 280, "x2" = -73.9, "x3" = 4.96,
     "k1" = -0.028, "k2" = 0.23, "b" = 0.068
   ))
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_ph_chain(alum = 30) \%>\%
+  chemdose_toc_once(input_water = "dosed_chem_water")
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(
+    ferricchloride = seq(1, 12, 1),
+    coeff = "Ferric"
+  ) \%>\%
+  chemdose_toc_once(input_water = "balanced_water")
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_ph_chain(alum = 30) \%>\%
+  chemdose_toc_chain(input_water = "dosed_chem_water")
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(
+    FerricDose = seq(1, 12, 1),
+    coeff = "Ferric"
+  ) \%>\%
+  chemdose_toc_chain(input_water = "balanced_water", ferricchloride = FerricDose)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+
+\donttest{
+# Initialize parallel processing
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(ferricchloride = seq(1, 12, 1)) \%>\%
+  chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
+
+# Optional: explicitly close multisession processing
+plan(sequential)
+}
 
 }
 \seealso{
