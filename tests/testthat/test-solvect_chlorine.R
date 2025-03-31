@@ -125,3 +125,18 @@ test_that("solvect_chlorine_once correctly handles arguments with multiple value
   expect_equal(nrow(water) * 6, nrow(water1))
   expect_equal(nrow(water) * 4, nrow(water2))
 })
+
+test_that("solvect_chlorine_once correctly uses free_chlorine slot", {
+  residual_df <- water_df %>%
+    define_water_chain() %>%
+    chemdose_ph_chain(naocl = 10) %>%
+    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3)
+
+  free_cl_slot_df <- water_df %>%
+    define_water_chain() %>%
+    chemdose_ph_chain(naocl = 10) %>%
+    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
+
+  expect_error(expect_equal(residual_df$defined_water_ct_required, free_cl_slot_df$defined_water_ct_required))
+
+})
