@@ -26,6 +26,7 @@ LazyData: true
 Imports:
     dplyr,
     tidyr,
+    forcats,
     knitr,
     ggplot2,
     ggrepel,

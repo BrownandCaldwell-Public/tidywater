@@ -212,16 +212,18 @@ plot_ions <- function(water) {
   plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
-                  ion = factor(ion, levels = c("H", "NH4", "K", "Na", "Mg","Ca", "OH", "OCl", "PO4",
-                                               "HPO4", "H2PO4","CO3","HCO3", "SO4", "Cl"))) %>%
-    dplyr::arrange(type, -ion) %>%
+                  ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H",
+                                               "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH")),
+                  concentration = case_when(is.na(concentration) ~ 0, TRUE ~ concentration)) %>%
+    dplyr::arrange(ion) %>%
     dplyr::mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
                   label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
     dplyr::filter(!is.na(concentration),
                   concentration > 0) %>%
     dplyr::mutate(label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
-                  repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ ""))
+                  repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ "")) %>%
+    dplyr::mutate(ion = forcats::fct_rev(ion))
 
   plot %>%
     ggplot(aes(x = concentration, y = type, fill = ion)) +
