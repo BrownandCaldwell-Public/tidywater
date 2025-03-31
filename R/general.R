@@ -54,8 +54,8 @@ summarize_wq <- function(water, params = c("general")) {
     ))
 
   gen_tab <- knitr::kable(general,
-    format = "simple",
-    col.names = c("General water quality parameters", "Result", "Units")
+                          format = "simple",
+                          col.names = c("General water quality parameters", "Result", "Units")
   )
 
   # Compile major ions
@@ -74,10 +74,10 @@ summarize_wq <- function(water, params = c("general")) {
     pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
-    format = "simple",
-    col.names = c("Major ions", "Concentration (mg/L)"),
-    # format.args = list(scientific = TRUE),
-    digits = 2
+                           format = "simple",
+                           col.names = c("Major ions", "Concentration (mg/L)"),
+                           # format.args = list(scientific = TRUE),
+                           digits = 2
   )
 
   # Compile corrosion indices
@@ -99,8 +99,8 @@ summarize_wq <- function(water, params = c("general")) {
     )
 
   corr_tab <- knitr::kable(corrosion,
-    format = "simple",
-    col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
+                           format = "simple",
+                           col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
   )
 
   # Compile DBPs
@@ -137,13 +137,13 @@ summarize_wq <- function(water, params = c("general")) {
     mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,
-    format = "simple",
-    col.names = c("THMs", "Modeled concentration (ug/L)")
+                          format = "simple",
+                          col.names = c("THMs", "Modeled concentration (ug/L)")
   )
 
   haa_tab <- knitr::kable(haa5,
-    format = "simple",
-    col.names = c("HAAs", "Modeled concentration (ug/L)")
+                          format = "simple",
+                          col.names = c("HAAs", "Modeled concentration (ug/L)")
   )
 
   # Print tables
@@ -177,15 +177,15 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
-#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#' plot_ions(water_defined)
+#' water<- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
+#' plot_ions(water)
 #'
 #' @export
 #'
 #' @returns A ggplot object displaying the water's ion balance.
 #'
 plot_ions <- function(water) {
-  type <- concentration <- label_pos <- ion <- label_y <- Na <- OH <- NULL # Quiet RCMD check global variable note
+  type <- concentration <- label_pos <- ion <- label_y <- label <- repel_label <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
@@ -209,45 +209,42 @@ plot_ions <- function(water) {
     OH = water@oh
   )
 
-  ions %>%
+  plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
-    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    dplyr::arrange(type, concentration) %>%
-    dplyr::mutate(
-      label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+    dplyr::mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
+                  ion = factor(ion, levels = c("Ca", "Mg", "Na", "K", "NH4", "H",
+                                               "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH")),
+                  concentration = case_when(is.na(concentration) ~ 0, TRUE ~ concentration)) %>%
+    dplyr::arrange(ion) %>%
+    dplyr::mutate(label_pos = cumsum(concentration) - concentration / 2, .by = type,
+                  label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    dplyr::filter(!is.na(concentration)) %>%
-    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
-    geom_bar(
-      stat = "identity",
-      width = 0.5,
-      alpha = 0.5,
-      color = "black"
-    ) +
-    geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-      size = 3.5
-    ) +
+    dplyr::filter(!is.na(concentration),
+                  concentration > 0) %>%
+    dplyr::mutate(label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
+                  repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ "")) %>%
+    dplyr::mutate(ion = forcats::fct_rev(ion))
+
+  plot %>%
+    ggplot(aes(x = concentration, y = type, fill = ion)) +
+    geom_bar(stat = "identity", width = 0.5, alpha = 0.5, color = "black") +
+    geom_text(aes(label = label, fontface = "bold", angle = 90),
+              size = 3.5, position = position_stack(vjust = 0.5)) +
     ggrepel::geom_text_repel(
       aes(
         x = label_pos, y = label_y,
-        label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
+        label = repel_label,
         fontface = "bold"
       ),
       size = 3.5,
       nudge_y = -.2,
-      seed = 555
-    ) +
+      seed = 555) +
     theme_bw() +
-    theme(axis.title = element_text(face = "bold")) +
-    labs(
-      x = "Concentration (eq/L)",
-      y = "Major Cations and Anions",
-      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
-    ) +
-    guides(fill = "none")
+    theme(axis.title = element_text(face = "bold"),
+          legend.position = "none") +
+    labs(x = "Concentration (eq/L)", y = "Major Cations and Anions",
+         subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk))
 }
-
 
 #' @title Calculate unit conversions for common compounds
 #'
@@ -288,25 +285,25 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # Determine multiplier for order of magnitude conversion
   # In the same list, no multiplier needed
   if ((startunit %in% milli_list & endunit %in% milli_list) |
-    (startunit %in% stand_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% nano_list) |
-    (startunit %in% mcro_list & endunit %in% mcro_list)) {
+      (startunit %in% stand_list & endunit %in% stand_list) |
+      (startunit %in% nano_list & endunit %in% nano_list) |
+      (startunit %in% mcro_list & endunit %in% mcro_list)) {
     multiplier <- 1
     # m - standard, n-u, u-n
   } else if ((startunit %in% milli_list & endunit %in% stand_list) |
-    (startunit %in% mcro_list & endunit %in% milli_list) |
-    (startunit %in% nano_list & endunit %in% mcro_list)) {
+             (startunit %in% mcro_list & endunit %in% milli_list) |
+             (startunit %in% nano_list & endunit %in% mcro_list)) {
     multiplier <- 1e-3
   } else if ((startunit %in% stand_list & endunit %in% milli_list) |
-    (startunit %in% milli_list & endunit %in% mcro_list) |
-    (startunit %in% mcro_list & endunit %in% nano_list)) {
+             (startunit %in% milli_list & endunit %in% mcro_list) |
+             (startunit %in% mcro_list & endunit %in% nano_list)) {
     multiplier <- 1e3
     # u - standard
   } else if ((startunit %in% mcro_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% milli_list)) {
+             (startunit %in% nano_list & endunit %in% milli_list)) {
     multiplier <- 1e-6
   } else if ((startunit %in% stand_list & endunit %in% mcro_list) |
-    (startunit %in% milli_list & endunit %in% nano_list)) {
+             (startunit %in% milli_list & endunit %in% nano_list)) {
     multiplier <- 1e6
     # n - standard
   } else if (startunit %in% nano_list & endunit %in% stand_list) {
@@ -324,10 +321,10 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
     if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
+        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- caco3_mw
     } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
+               (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
       molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
@@ -380,8 +377,8 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     value / molar_weight * n_mw
     # same lists
   } else if ((startunit %in% gram_list & endunit %in% gram_list) |
-    (startunit %in% mole_list & endunit %in% mole_list) |
-    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
+             (startunit %in% mole_list & endunit %in% mole_list) |
+             (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     stop("Units not supported")
@@ -601,8 +598,8 @@ K_temp_adjust <- function(deltah, ka, temp) {
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
   0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
-    water@f, water@br, water@bro3, water@nh4,
-    na.rm = TRUE
+             water@f, water@br, water@bro3, water@nh4,
+             na.rm = TRUE
   ) * 1^2 +
     sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
     sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
