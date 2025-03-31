@@ -106,7 +106,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     # define function for chlorine decay
     # U.S. EPA (2001) equation 5-113 (raw) and equation 5-117 (coag)
     solve_decay <- function(ct, a, b, cl2_dose, uv254, time, c, toc) {
-      a * cl2_dose * log(cl2_dose / ct) + b * (cl2_dose / uv254)^c * toc * time + cl2_dose - ct
+      a * cl2_dose * log(cl2_dose / ct) - b * (cl2_dose / uv254)^c * toc * time + cl2_dose - ct
     }
 
     # chloramine decay model
