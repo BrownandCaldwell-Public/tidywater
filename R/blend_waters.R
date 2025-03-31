@@ -1,10 +1,22 @@
 #' @title Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium
 #'
-#' @description This function takes a vector of waters defined by \code{\link{define_water}}
+#' @description This function takes a vector of waters defined by [define_water]
 #' and a vector of ratios and outputs a new water object with updated ions and pH.
+#' For a single blend use `blend_waters`; for a dataframe where you want to output a water for continued modeling use
+#' `blend_waters_chain`; for a dataframe where you want to output water parameters as columns use `blend_waters_once`
+#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
 #'
-#' @param waters Vector of source waters created by \code{\link{define_water}}
-#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1)
+#' @details
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.#'
+#'
+#' @param waters Vector of source waters created by [define_water]. For `chain` or `once` functions, this can include
+#' quoted column names and/or existing single water objects unquoted.
+#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` or `once` functions,
+#' this can also be a list of quoted column names.
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -15,7 +27,7 @@
 #'
 #' @export
 #'
-#' @returns A water class object with blended water quality parameters.
+#' @returns `blend_waters` returns a water class object with blended water quality parameters.
 #'
 blend_waters <- function(waters, ratios) {
   if (length(waters) != length(ratios)) {
@@ -146,28 +158,9 @@ blend_waters <- function(waters, ratios) {
   return(blended_water)
 }
 
-#' Apply `blend_waters` to a dataframe and output `water` slots as a dataframe
+#' @rdname blend_waters
 #'
-#' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
-#' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
-#'
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}
-#' @param waters List of column names containing a water class to be blended
-#' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
-#'
-#' @seealso \code{\link{blend_waters}}
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
 #'
 #' @examples
 #'
@@ -192,29 +185,32 @@ blend_waters <- function(waters, ratios) {
 #'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
 #'   blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
-#'   blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#' }
-#'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
 #'
-#' @returns A data frame with blended water quality parameters.
-
+#' @returns `blend_waters_once` returns a data frame with blended water quality parameters as columns.
 
 blend_waters_once <- function(df, waters, ratios) {
   blend_df <- blended <- NULL # Quiet RCMD check global variable note
-  df_subset <- df %>% select(all_of(waters))
+
+  n = 0
+  water_names <- list()
+  for (water in waters) {
+    n = n +1
+
+    if (!is.character(water)) {
+      output <- paste0("merging_water_", n)
+      df <- df %>%
+        mutate(!!output := list(water))
+      water_names[n] <- output
+    } else {
+      water_names[n] <- water
+    }
+  }
+  water_names <- unlist(water_names)
+
+  df_subset <- df %>% select(all_of(water_names))
 
   for (row in 1:length(df_subset[[1]])) {
     water_vectors <- c()
@@ -243,27 +239,9 @@ blend_waters_once <- function(df, waters, ratios) {
     select(-blended)
 }
 
-#' Apply `blend_waters` within a dataframe and output a column of `water` class to be chained to other tidywater functions
+#' @rdname blend_waters
 #'
-#' This function allows \code{\link{blend_waters}} to be added to a piped data frame.
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The `water` class columns to use in the function are specified as function arguments. Ratios may be input
-#' as columns with varied ratios (in this case, input column names in the function arguments), OR input as numbers directly.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, which has already
-#' been computed using \code{\link{define_water_chain}},
-#' @param waters List of column names containing a water class to be blended
-#' @param ratios List of column names or vector of blend ratios in the same order as waters. (Blend ratios must sum to 1)
 #' @param output_water name of output column storing updated parameters with the class, water. Default is "blended_water".
-#'
-#' @seealso \code{\link{blend_waters}}
 #'
 #' @examples
 #'
@@ -292,6 +270,11 @@ blend_waters_once <- function(df, waters, ratios) {
 #'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
 #'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
+#' waterA <- define_water(7,20,100,tds = 100)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
+#'
 #' \donttest{
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
@@ -308,8 +291,7 @@ blend_waters_once <- function(df, waters, ratios) {
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame with a water class column containing updated ions and pH.
-
+#' @returns `blend_waters_chain` returns a data frame with a water class column containing blended water quality
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
 
@@ -322,10 +304,26 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     }
   }
 
+  n = 0
+  water_names <- list()
+  for (water in waters) {
+    n = n +1
+
+    if (!is.character(water)) {
+      output <- paste0("merging_water_", n)
+      df <- df %>%
+        mutate(!!output := list(water))
+      water_names[n] <- output
+    } else {
+      water_names[n] <- water
+    }
+  }
+  water_names <- unlist(water_names)
+
   output <- df %>%
     rowwise() %>%
     mutate(
-      waters = furrr::future_pmap(across(all_of(waters)), list),
+      waters = furrr::future_pmap(across(all_of(water_names)), list),
       ratios = ifelse(
         is.numeric(ratios),
         list(ratios),
@@ -334,5 +332,5 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     ) %>%
     ungroup() %>%
     mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
-    select(-c(waters, ratios))
+    select(-c(waters, ratios, contains("merging_water_")))
 }

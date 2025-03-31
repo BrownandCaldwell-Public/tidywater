@@ -2,6 +2,8 @@
 % Please edit documentation in R/chemdose_chlordecay.R
 \name{chemdose_chlordecay}
 \alias{chemdose_chlordecay}
+\alias{chemdose_chlordecay_once}
+\alias{chemdose_chlordecay_chain}
 \title{Calculate chlorine decay}
 \source{
 U.S. EPA (2001)
@@ -15,6 +17,25 @@ chemdose_chlordecay(
   time,
   treatment = "raw",
   cl_type = "chlorine"
+)
+
+chemdose_chlordecay_once(
+  df,
+  input_water = "defined_water",
+  cl2_dose = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col"
+)
+
+chemdose_chlordecay_chain(
+  df,
+  input_water = "defined_water",
+  output_water = "disinfected_water",
+  cl2_dose = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col"
 )
 }
 \arguments{
@@ -30,14 +51,32 @@ does not have specified boundary conditions.}
 water that has been coagulated or softened.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_once}. The df may include a column named for the applied chlorine dose (cl2),
+and a column for time in hours.}
+
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 }
 \value{
-An updated disinfectant residual in the free_chlorine or combined chlorine water slot in units of M.
-Use \code{\link{convert_units}} to convert to mg/L.
+\code{chemdose_chlordecay} returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
+Use \link{convert_units} to convert to mg/L.
+
+\code{chemdose_chlordecay_once} returns a data frame with updated chlorine residual as columns.
+
+\code{chemdose_chlordecay_chain} returns a data frame containing a water class column with updated chlorine residuals.
 }
 \description{
 calculates the decay of chlorine or chloramine based on the U.S. EPA's
 Water Treatment Plant Model (U.S. EPA, 2001).
+For a single water use \code{chemdose_chlordecay}; for a dataframe where you want to output a water for continued modeling use
+\code{chemdose_chlordecay_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_chlordecay_once}
+(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
+For most arguments, the \verb{_chain} and \verb{_once} helpers
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \details{
 Required arguments include an object of class "water" created by \code{\link{define_water}},
@@ -49,8 +88,91 @@ depending on what type of chlorine is dosed. When modeling residual concentratio
 through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
 influent and effluent residual concentrations (see U.S. EPA (2001) equation 5-118) that may need to be
 applied manually by the user based on the output.
+
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.#'
 }
 \examples{
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
   chemdose_chlordecay(cl2_dose = 2, time = 8)
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_chlordecay_once(input_water = "balanced_water", cl2_dose = 4, time = 8)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(
+    cl2_dose = seq(2, 24, 2),
+    time = 30
+  ) \%>\%
+  chemdose_chlordecay_once(input_water = "balanced_water")
+
+example_df <- water_df \%>\%
+  mutate(br = 80) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(time = 8) \%>\%
+  chemdose_chlordecay_once(
+    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
+    cl_type = "chloramine"
+  )
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(
+    cl2_dose = seq(2, 24, 2),
+    ClTime = 30
+  ) \%>\%
+  chemdose_chlordecay_chain(input_water = "balanced_water", time = ClTime)
+
+example_df <- water_df \%>\%
+  mutate(br = 80) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(time = 8) \%>\%
+  chemdose_chlordecay_chain(
+    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
+    cl_type = "chloramine"
+  )
+
+\donttest{
+# Initialize parallel processing
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+
+# Optional: explicitly close multisession processing
+plan(sequential)
+}
+
 }

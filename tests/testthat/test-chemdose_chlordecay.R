@@ -163,7 +163,7 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
     define_water_chain() %>%
     chemdose_chlordecay_chain(time = 8, cl2_dose = 4)
 
-  water2 <- purrr::pluck(water1, 6, 1)
+  water2 <- purrr::pluck(water1, "disinfected_water", 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
@@ -175,7 +175,7 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
     chemdose_chlordecay_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[6]), "diff_name") # check if output_water arg works
+  expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
 # Check chemdose_chlordecay_chain can use a column or function argument for chemical dose

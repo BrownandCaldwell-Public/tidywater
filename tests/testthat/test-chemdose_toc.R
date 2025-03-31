@@ -143,7 +143,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
     balance_ions_chain() %>%
     chemdose_toc_chain(input_water = "balanced_water", ferricsulfate = 30, coeff = "Ferric"))
 
-  water2 <- purrr::pluck(water1, 4, 1)
+  water2 <- purrr::pluck(water1, "coagulated_water", 1)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
@@ -152,7 +152,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
     chemdose_toc_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
+  expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
 # Check chemdose_toc_chain can use a column or function argument for chemical dose

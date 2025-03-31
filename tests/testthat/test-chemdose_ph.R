@@ -236,7 +236,7 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
     balance_ions_chain()) %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 10)
 
-  water3 <- purrr::pluck(water2, 3, 1)
+  water3 <- purrr::pluck(water2, 4, 1)
 
   expect_equal(water1, water3) # check against base
 })
@@ -250,7 +250,7 @@ test_that("chemdose_ph_chain output is list of water class objects, and can hand
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 10))
 
-  water2 <- purrr::pluck(water1, 3, 1)
+  water2 <- purrr::pluck(water1, 4, 1)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
@@ -259,7 +259,7 @@ test_that("chemdose_ph_chain output is list of water class objects, and can hand
     chemdose_ph_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one

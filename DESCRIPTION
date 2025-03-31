@@ -26,6 +26,7 @@ LazyData: true
 Imports:
     dplyr,
     tidyr,
+    forcats,
     knitr,
     ggplot2,
     ggrepel,
@@ -34,6 +35,7 @@ Imports:
     furrr,
     methods,
     rlang
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)

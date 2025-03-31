@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_pluck_water.R
 \name{pluck_water}
 \alias{pluck_water}
-\title{Pluck out a single parameter from a `water` class object}
+\title{Pluck out a single parameter from a \code{water} class object}
 \usage{
 pluck_water(df, input_waters = c("defined_water"), parameter)
 }
@@ -18,9 +18,9 @@ been computed using \code{\link{define_water}}}
 A data frame containing columns of selected parameters from a list of water class objects.
 }
 \description{
-This function plucks one or more selected parameters from selected columns of `water` class objects.
-The names of the output columns will follow the form `water_parameter`
-To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
+This function plucks one or more selected parameters from selected columns of \code{water} class objects.
+The names of the output columns will follow the form \code{water_parameter}
+To view all slots as columns, please use one of the \code{fn_once} functions or \code{\link{convert_water}}.
 }
 \examples{
 
