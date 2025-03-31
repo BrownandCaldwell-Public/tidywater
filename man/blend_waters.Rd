@@ -14,7 +14,7 @@ blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }
 \arguments{
 \item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} or \code{once} functions, this can include
-quoted column names or existing single water objects unquoted.}
+quoted column names and/or existing single water objects unquoted.}
 
 \item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} or \code{once} functions,
 this can also be a list of quoted column names.}
@@ -96,6 +96,11 @@ example_df <- water_df \%>\%
   balance_ions_chain() \%>\%
   chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
+
+waterA <- define_water(7,20,100,tds = 100)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
 
 \donttest{
 # Initialize parallel processing
