@@ -235,6 +235,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
+  validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
     "alum" = alum, "ferricchloride" = ferricchloride,

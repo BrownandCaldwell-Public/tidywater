@@ -215,6 +215,7 @@ balance_ions_once <- function(df, input_water = "defined_water",
 
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water",
                                anion = "cl", cation = "na") {
+  validate_water_helpers(df, input_water)
   output <- df %>%
     mutate(!!output_water := furrr::future_pmap(
       list(

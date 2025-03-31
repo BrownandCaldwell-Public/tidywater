@@ -204,6 +204,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = "use_col", time = "use_col", type = "use_col") {
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
   time <- tryCatch(time, error = function(e) enquo(time))

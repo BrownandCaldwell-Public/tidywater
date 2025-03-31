@@ -120,6 +120,8 @@ solvect_o3_once <- function(df, input_water = "defined_water",
                             water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
+
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))
   dose <- tryCatch(dose, error = function(e) enquo(dose))

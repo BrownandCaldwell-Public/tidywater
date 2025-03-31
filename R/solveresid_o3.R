@@ -69,6 +69,7 @@ solveresid_o3 <- function(water, dose, time) {
 solveresid_o3_once <- function(df, input_water = "defined_water", output_column = "o3resid",
                                dose = "use_col", time = "use_col") {
   ID <- NULL # Quiet RCMD check global variable note
+  validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))

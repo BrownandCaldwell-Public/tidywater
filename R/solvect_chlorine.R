@@ -30,7 +30,7 @@
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
-#' @seealso \code{\link{define_water}}
+#' @param use_free_cl_slot Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.
 #'
 #' @examples
 #'
@@ -40,8 +40,12 @@
 #'
 #' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
 
-solvect_chlorine <- function(water, time, residual, baffle) {
-  validate_water(water, c("ph", "temp"))
+solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = FALSE) {
+  if (use_free_cl_slot){
+    validate_water(water, c("ph", "temp", "free_chlorine"))
+    residual <- water@free_chlorine
+  } else validate_water(water, c("ph", "temp"))
+
   validate_args(num_args = list("time" = time, "residual" = residual, "baffle" = baffle))
 
   ph <- water@ph
@@ -73,7 +77,7 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 #'   define_water_chain() %>%
 #'   solvect_chlorine_once(residual = 2, time = 10, baffle = .5)
 #'
-#' ozone_resid <- water_df %>%
+#' chlor_resid <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
@@ -89,9 +93,11 @@ solvect_chlorine <- function(water, time, residual, baffle) {
 
 solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
+                                  use_free_cl_slot = FALSE,
                                   water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
 
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))
   residual <- tryCatch(residual, error = function(e) enquo(residual))
@@ -110,7 +116,8 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         residual = !!as.name(arguments$final_names$residual),
-        baffle = !!as.name(arguments$final_names$baffle)
+        baffle = !!as.name(arguments$final_names$baffle),
+        use_free_cl_slot = use_free_cl_slot
       ),
       solvect_chlorine
     )) %>%

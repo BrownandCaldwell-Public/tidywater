@@ -65,6 +65,11 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
   }
 
+  # breakpoint warning
+  if (water@tot_nh3 > 0) {
+    warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   # chlorine decay model
   if (cl_type == "chlorine") {
     if (!(treatment %in% c("raw", "coag"))) {
@@ -148,11 +153,14 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Convert final result to molar
   if (cl_type == "chlorine") {
-    water@free_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
+
+    # chlorine residual correction Eq. 5-118
+    ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
+    water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
+
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
-
 
   return(water)
 }
@@ -285,6 +293,8 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
   time <- tryCatch(time, error = function(e) enquo(time))
   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+
+  validate_water_helpers(df, input_water)
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, list(

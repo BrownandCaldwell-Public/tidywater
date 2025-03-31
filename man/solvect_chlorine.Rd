@@ -12,7 +12,7 @@ USEPA (2020)
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
-solvect_chlorine(water, time, residual, baffle)
+solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = FALSE)
 
 solvect_chlorine_once(
   df,
@@ -20,6 +20,7 @@ solvect_chlorine_once(
   time = "use_col",
   residual = "use_col",
   baffle = "use_col",
+  use_free_cl_slot = FALSE,
   water_prefix = TRUE
 )
 }
@@ -31,6 +32,8 @@ solvect_chlorine_once(
 \item{residual}{Minimum chlorine residual in disinfection segment in mg/L as Cl2.}
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
+
+\item{use_free_cl_slot}{Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
@@ -73,7 +76,7 @@ ct_calc <- water_df \%>\%
   define_water_chain() \%>\%
   solvect_chlorine_once(residual = 2, time = 10, baffle = .5)
 
-ozone_resid <- water_df \%>\%
+chlor_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   mutate(
@@ -83,7 +86,4 @@ ozone_resid <- water_df \%>\%
   ) \%>\%
   solvect_chlorine_once()
 
-}
-\seealso{
-\code{\link{define_water}}
 }

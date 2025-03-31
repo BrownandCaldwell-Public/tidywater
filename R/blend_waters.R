@@ -150,6 +150,11 @@ blend_waters <- function(waters, ratios) {
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
   blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
+  if (blended_water@tot_nh3 > 0 &
+      (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
+    warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   return(blended_water)
 }
 
@@ -296,6 +301,7 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     n = n +1
 
     if (!is.character(water)) {
+
       output <- paste0("merging_water_", n)
       df <- df %>%
         mutate(!!output := list(water))
@@ -305,6 +311,23 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
     }
   }
   water_names <- unlist(water_names)
+
+  for (water_col in waters) {
+    if (is.character(water_col)) {
+
+      if (!(water_col %in% colnames(df))) {
+
+        stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_chain()."))
+
+         } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
+
+             stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+      }
+    } else if (!is.character(water_col) & !methods::is(water_col, "water")){
+      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+    }
+  }
+
 
   output <- df %>%
     rowwise() %>%

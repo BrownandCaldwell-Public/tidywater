@@ -170,6 +170,7 @@ biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_co
 
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
                                 ebct = "use_col", ozonated = "use_col") {
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
