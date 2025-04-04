@@ -444,6 +444,39 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
+#' @title calculate_dic_chain
+#' @description
+#'
+#'  Calculate dissolved inorganic carbon (DIC) from total carbonate
+#'
+#' This function takes a water class object defined by \code{\link{define_water}}
+#' and outputs a DIC (mg/L). This function should be used when calculating DIC for multiple waters.
+#'
+#' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
+#'
+#' @seealso \code{\link{define_water}}
+#'
+#' @examples
+#'
+#' example_dic <- water_df %>%
+#' define_water_chain() %>%
+#' calculate_dic_chain()
+#'
+#'
+#' @export
+#' @returns A numeric value for the calculated DIC.
+
+calculate_dic_chain <- function(df, input_water = "Finished") {
+
+  output <- df %>%
+    mutate(dic = furrr::future_pmap(
+      list(
+        water = !!as.name(input_water)
+      ),
+      calculate_dic
+    ))
+}
+
 # Non-exported functions -----
 
 validate_water <- function(water, slots) {

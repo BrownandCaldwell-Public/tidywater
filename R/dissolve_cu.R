@@ -74,10 +74,10 @@ dissolve_cu_once <- function(df, input_water = "defined_water", dic) {
 
 
 #testing
-water <- water_df %>%
-  mutate(dic = 30) %>%
-  define_water_chain() %>%
-  dissolve_cu_once()
+# water <- water_df %>%
+#   mutate(dic = 30) %>%
+#   define_water_chain() %>%
+#   dissolve_cu_once()
 
 
 
