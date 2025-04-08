@@ -466,7 +466,7 @@ calculate_dic <- function(water) {
 #' @export
 #' @returns A numeric value for the calculated DIC.
 
-calculate_dic_chain <- function(df, input_water = "Finished") {
+calculate_dic_chain <- function(df, input_water = "defined_water") {
 
   output <- df %>%
     mutate(dic = furrr::future_pmap(

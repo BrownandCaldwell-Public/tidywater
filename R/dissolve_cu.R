@@ -26,16 +26,25 @@
 #' @returns `dissolve_cu` returns a column containing dissolved copper concentration in mg/L.
 #'
 
-dissolve_cu <- function(water, dic) {
-  validate_water(water, c("ph", "dic"))
-  validate_args(num_args = list("ph" = ph, "dic" = dic, "tot_po4" = tot_po4))
+dissolve_cu <- function(water, dic = 0) {
+  #validate_water(water, c("ph", "alk"))
+  #validate_args(num_args = list("ph" = ph, "dic" = dic, "tot_po4" = tot_po4))
 
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
 
+  if (dic == 0 & !is.na(water@alk)) {
+    dic <- calculate_dic(water)
+    water@dic <- dic
+    warning("DIC was not provided. DIC will be calculated using provided pH and Alkalinity")
+  } else if (dic == 0 & is.na(water@alk)) {
+    stop("Alkalinity is missing. DIC cannot be calculated. DIC must be provided")
+    }
+
+  if (is.na(water@ph)) {
+    stop("Missing value for pH. Dissolved copper cannot be calculated.")}
+
   cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (dic^0.59)
   data.frame(cu)
-
-
 }
 
 
@@ -58,6 +67,7 @@ dissolve_cu <- function(water, dic) {
 #' @export
 #'
 
+#add construct helper and validate water helper to make sure there is a column input for dic
 
 dissolve_cu_once <- function(df, input_water = "defined_water", dic) {
 
@@ -72,12 +82,6 @@ dissolve_cu_once <- function(df, input_water = "defined_water", dic) {
     unnest_wider(calc)
 }
 
-
-#testing
-# water <- water_df %>%
-#   mutate(dic = 30) %>%
-#   define_water_chain() %>%
-#   dissolve_cu_once()
 
 
 
