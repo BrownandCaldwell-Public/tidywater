@@ -253,17 +253,11 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        alum = ifelse(exists(as.name(final_names$alum), where = .), !!as.name(final_names$alum), 0),
-        ferricchloride = ifelse(exists(as.name(final_names$ferricchloride), where = .),
-          !!as.name(final_names$ferricchloride), 0
-        ),
-        ferricsulfate = ifelse(exists(as.name(final_names$ferricsulfate), where = .),
-          !!as.name(final_names$ferricsulfate), 0
-        ),
         # This logic needed for any argument that has a default
-        coeff = ifelse(exists(as.name(final_names$coeff), where = .),
-          !!as.name(final_names$coeff), "Alum"
-        )
+        alum = if(final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
+        ferricchloride = if(final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
+        ferricsulfate = if(final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
+        coeff = if(final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
       ),
       chemdose_toc
     ))
