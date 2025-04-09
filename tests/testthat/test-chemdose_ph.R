@@ -218,27 +218,52 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
   expect_equal(ncol(water3), ncol(water0) + 3) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
+
 })
 
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
-  water1 <- suppressWarnings(define_water(
+  water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )) %>%
-    balance_ions() %>%
-    chemdose_ph(naoh = 10)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
+  water1 <- chemdose_ph(water0, naoh = 10)
+
+  water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain()) %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 10)
+    chemdose_ph_chain(input_water = "defined_water", naoh = 10) %>%
+    pluck_water(c("dosed_chem_water"), c("ph", "alk"))
 
-  water3 <- purrr::pluck(water2, 4, 1)
+  coag_doses <- tibble(alum = seq(0,100,10))
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    cross_join(coag_doses) %>%
+    chemdose_ph_chain("raw", "dose") %>%
+    pluck_water(c("dose"), c("ph", "alk"))
 
-  expect_equal(water1, water3) # check against base
+  water4 <- chemdose_ph(water0, alum = 20)
+  water5 <- chemdose_ph(water0, alum = 100)
+
+  water6 <- water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(naoh = 10) %>%
+    cross_join(coag_doses) %>%
+    rename(NewName = alum) %>%
+    chemdose_ph_chain("raw", "dose", alum = NewName, naocl = c(0,2)) %>%
+    pluck_water(c("dose"), c("ph", "alk"))
+
+  water7 <- chemdose_ph(water0, alum = 20, naocl = 2, naoh = 10)
+
+  expect_equal(water2$dosed_chem_water_alk[1], water1@alk)
+  expect_equal(water3$dose_ph[3], water4@ph)
+  expect_equal(water3$dose_ph[11], water5@ph)
+  expect_equal(water6$dose_ph[6], water7@ph)
+
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
