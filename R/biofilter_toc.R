@@ -188,10 +188,8 @@ biofilter_toc_chain <- function(df, input_water = "defined_water", output_water 
         water = !!as.name(input_water),
         ebct = !!as.name(arguments$final_names$ebct),
         # This logic needed for any argument that has a default
-        ozonated = ifelse(exists(as.name(arguments$final_names$ozonated), where = .),
-          !!as.name(arguments$final_names$ozonated), TRUE
-        )
-      ),
+        ozonated = if(arguments$final_names$ozonated %in% names(.)) !!sym(arguments$final_names$ozonated) else rep(TRUE, nrow(.))
+        ),
       biofilter_toc
     ))
 }
