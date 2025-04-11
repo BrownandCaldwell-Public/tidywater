@@ -39,8 +39,8 @@ pluck_example <- water_df \%>\%
 
 pluck_example <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  chemdose_toc_chain("raw", "coag", alum = 10)
-pluck_water(c("raw", "coag"), "all")
+  chemdose_toc_chain("raw", "coag", alum = 10) \%>\%
+  pluck_water(c("raw", "coag"), "all")
 
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 pluck_example <- water_df \%>\%

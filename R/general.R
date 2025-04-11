@@ -529,9 +529,7 @@ construct_helper <- function(df, all_args) {
     from_columns <- list()
   }
 
-  from_inputs <- setdiff(from_new, from_columns)
-
-  inputs_arg <- do.call(expand.grid, list(from_inputs, stringsAsFactors = FALSE))
+  inputs_arg <- do.call(expand.grid, list(from_new, stringsAsFactors = FALSE))
 
 
   if (any(colnames(df) %in% colnames(inputs_arg))) {

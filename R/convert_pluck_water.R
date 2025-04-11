@@ -122,8 +122,8 @@ convert_watermg <- function(water) {
 #'
 #' pluck_example <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   chemdose_toc_chain("raw", "coag", alum = 10)
-#' pluck_water(c("raw", "coag"), "all")
+#'   chemdose_toc_chain("raw", "coag", alum = 10) %>%
+#'   pluck_water(c("raw", "coag"), "all")
 #'
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' pluck_example <- water_df %>%
@@ -152,7 +152,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
         stop("All waters must be of class 'water'.")
       }
       temp <- df %>%
-        mutate(!!as.name(water) := map(!!as.name(water), convert_water)) %>%
+        mutate(!!as.name(water) := furrr::map(!!as.name(water), convert_water)) %>%
         select(!!as.name(water)) %>%
         unnest_wider(!!as.name(water), names_sep = "_")
 
