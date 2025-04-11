@@ -5,17 +5,27 @@
 #'
 #' @description Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
 #' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
-#' Required arguments include an object of class "water"
-#' created by \code{\link{define_water}} initial DOC concentration, amount of PAC added to system, contact time with PAC, type of PAC
+#' For a single water use `pac_toc`; for a dataframe where you want to output a water for continued modeling use
+#' `pac_toc_chain`; for a dataframe where you want to output water parameters as columns use `pac_toc_once`
+#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
+#' For most arguments, the `_chain` and `_once` helpers
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
 #' water must contain DOC or TOC value.
 #'
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
 #' UV254 concentrations are predicted based on a linear relationship with DOC.
 #'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
-#' @param water Source water object of class "water" created by \code{\link{define_water}}
+#' @param water Source water object of class "water" created by [define_water]
 #' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
 #' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
 #' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
@@ -26,7 +36,8 @@
 #'
 #' @export
 #'
-#' @returns A water class object with updated DOC, TOC, and UV254 slots.
+#' @returns `pac_toc` returns a water class object with updated DOC, TOC, and UV254 slots.
+#'
 pac_toc <- function(water, dose, time, type = "bituminous") {
   pactype <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("doc"))
@@ -98,36 +109,10 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   return(water)
 }
 
-#' Apply `pac_toc`function within a data frame and output a data frame
-#'
-#' PAC = powdered activated carbon
-#'
-#' This function allows \code{\link{pac_toc}} to be added to a piped data frame.
-#' Its output is a data frame containing a water with updated TOC, DOC, and UV254.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
-#'
-#' If the input data frame has a dose, time or type column, the function will use those columns. Note:
-#' The function can only take dose, time, and type inputs as EITHER a column or from the function arguments, not both.
-#'
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
-#'
-#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#' @source CHO(2007)
+#' @rdname pac_toc
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
+#' [define_water_chain]. The df may include columns named for the dose, time, and type
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
-#' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
-#' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
-#'
-#' @seealso \code{\link{pac_toc}}
 #'
 #' @examples
 #'
@@ -152,24 +137,21 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'     input_water = "raw", dose = 6, type = "wood"
 #'   )
 #'
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   pac_toc_once(input_water = "raw", dose = 4, time = 10)
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with an updated DOC, TOC, and UV254 concentration.
+#' @returns `pac_toc_once` returns a data frame with an updated DOC, TOC, and UV254 concentration as columns.
 
 pac_toc_once <- function(df, input_water = "defined_water",
-                         dose = 0, time = 0, type = "bituminous") {
+                         dose = "use_col", time = "use_col", type = "use_col") {
   temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  type <- tryCatch(type, error = function(e) enquo(type))
+
   output <- df %>%
     pac_toc_chain(
       input_water = input_water, output_water = "temp_pac",
@@ -180,36 +162,8 @@ pac_toc_once <- function(df, input_water = "defined_water",
     select(-temp_pac)
 }
 
-#' Apply `pac_toc` within a data frame and output a column of `water` class to be chained to other tidywater functions
-#' PAC = powdered activated carbon
-#'
-#' This function allows \code{\link{pac_toc}} to be added to a piped data frame.
-#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}}.
-#'
-#' If the input data frame has a dose, time or type column, the function will use those columns. Note:
-#' The function can only take dose, time, and type inputs as EITHER a column or from the function arguments, not both.
-#'
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
-#'
-#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#' @source CHO(2007)
-#' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include columns named for the dose, time, and type
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @rdname pac_toc
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "pac_water".
-#' @param dose Applied PAC dose (mg/L). Model results are valid for doses concentrations between 5 and 30 mg/L.
-#' @param time Contact time (minutes). Model results are valid for reaction times between 10 and 1440 minutes
-#' @param type Type of PAC applied, either "bituminous", "lignite", "wood".
-#'
-#' @seealso \code{\link{pac_toc}}
 #'
 #' @examples
 #'
@@ -224,8 +178,8 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(11, 22, 1), time = 30) %>%
-#'   pac_toc_chain(input_water = "raw")
+#'   mutate(dose = seq(11, 22, 1), PACTime = 30) %>%
+#'   pac_toc_chain(input_water = "raw", time = PACTime)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
@@ -246,27 +200,34 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated DOC, TOC, and UV254 slots
+#' @returns `pac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
-                          dose = 0, time = 0, type = "bituminous") {
-  ID <- NULL # Quiet RCMD check global variable note
+                          dose = "use_col", time = "use_col", type = "use_col") {
+  validate_water_helpers(df, input_water)
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  type <- tryCatch(type, error = function(e) enquo(type))
 
-  arguments <- construct_helper(df, list("dose" = dose, "time" = time), list("type" = type))
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "type" = type))
 
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
   output <- df %>%
-    subset(select = !names(df) %in% c("dose", "time", "type")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(arguments, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        dose = dose,
-        time = time,
-        type = type
+        dose = !!as.name(arguments$final_names$dose),
+        time = !!as.name(arguments$final_names$time),
+        # This logic needed for any argument that has a default
+        type = ifelse(exists(as.name(arguments$final_names$type), where = .),
+          !!as.name(arguments$final_names$type), "bituminous"
+        )
       ),
       pac_toc
     ))

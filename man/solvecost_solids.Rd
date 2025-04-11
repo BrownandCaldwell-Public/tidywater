@@ -4,7 +4,7 @@
 \alias{solvecost_solids}
 \title{Determine solids disposal cost}
 \source{
-https://water.mecc.edu/courses/ENV295Residuals/lesson3b.htm#:~:text=From%20the%20diagram%2C%20for%20example,million%20gallons%20of%20water%20produced.
+https://water.mecc.edu/courses/ENV295Residuals/lesson3b.htm#:~:text=From\%20the\%20diagram\%2C\%20for\%20example,million\%20gallons\%20of\%20water\%20produced.
 }
 \usage{
 solvecost_solids(

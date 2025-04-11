@@ -68,6 +68,34 @@ test_that("Define water gives missing value warnings.", {
   )
 })
 
+test_that("Define water warns about chloramines.", {
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      free_chlorine = 2, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      combined_chlorine = 2, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      free_chlorine = 2, combined_chlorine = 4, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+
+})
+
+
 test_that("Define water doesn't output carbonate when pH or alk aren't provided.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({

@@ -2,6 +2,7 @@
 % Please edit documentation in R/solveresid_o3.R
 \name{solveresid_o3}
 \alias{solveresid_o3}
+\alias{solveresid_o3_once}
 \title{Determine ozone decay}
 \source{
 U.S. EPA (2001)
@@ -10,23 +11,58 @@ See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater
 }
 \usage{
 solveresid_o3(water, dose, time)
+
+solveresid_o3_once(
+  df,
+  input_water = "defined_water",
+  output_column = "o3resid",
+  dose = "use_col",
+  time = "use_col"
+)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}.}
+\item{water}{Source water object of class \code{water} created by \link{define_water}}
 
 \item{dose}{Applied ozone dose in mg/L}
 
 \item{time}{Ozone contact time in minutes}
+
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
+
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \value{
-A numeric value for the resiudal ozone.
+\code{solveresid_o3} returns a numeric value for the residual ozone.
+
+\code{solveresid_o3_once} returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 }
 \description{
-This function applies the ozone decay model to a water created by \code{\link{define_water}}
+This function applies the ozone decay model to a \code{water}
 from U.S. EPA (2001) equation 5-128.
+For a single water, use \code{solveresid_o3}; to apply the model to a dataframe, use \code{solveresid_o3_once}.
+For most arguments, the \verb{_once} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \examples{
 ozone_resid <- define_water(7, 20, 100, doc = 2, toc = 2.2, uv254 = .02, br = 50) \%>\%
   solveresid_o3(dose = 2, time = 10)
+
+library(dplyr)
+ozone_resid <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  solveresid_o3_once(dose = 2, time = 10)
+
+ozone_resid <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  mutate(
+    dose = seq(1, 12, 1),
+    time = seq(2, 24, 2)
+  ) \%>\%
+  solveresid_o3_once()
 
 }

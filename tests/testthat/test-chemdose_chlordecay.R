@@ -26,6 +26,17 @@ test_that("chemdose_chlordecay warns when inputs are out of model range", {
   expect_warning(chemdose_chlordecay(water3, cl2_dose = 2, time = 100, treatment = "coag")) # uv254 out of bounds
 })
 
+test_that("chemdose_chlordecay warns about chloramines", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 3))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30)) %>%
+    chemdose_ph(nh42so4 = 3)
+  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+
+  expect_warning(chemdose_chlordecay(water1, cl2_dose = 2, time = 8, cl_type = "chloramine"), "breakpoint+")
+  expect_warning(chemdose_chlordecay(water2, cl2 = 4, time = 8), "breakpoint+")
+  expect_no_warning(chemdose_chlordecay(water3, cl2 = 4, time = 8))
+})
+
 test_that("chemdose_chlordecay stops working when inputs are missing", {
   water1 <- suppressWarnings(define_water(toc = 3.5))
   water2 <- suppressWarnings(define_water(ph = 7.5, uv254 = 0.1))
@@ -48,8 +59,8 @@ test_that("chemdose_chlordecay works.", {
   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 1, uv254 = 0.04, br = 50))
   water6 <- chemdose_chlordecay(water5, cl_type = "chloramine", cl2_dose = 6, time = 10)
 
-  expect_equal(signif(water2@free_chlorine, 3), 1.33E-5)
-  expect_equal(signif(water3@free_chlorine, 3), 3.28E-5)
+  expect_equal(signif(water2@free_chlorine, 3), 8.14E-6)
+  expect_equal(signif(water3@free_chlorine, 3), 2.87E-5)
   expect_equal(signif(water4@combined_chlorine, 3), 5.24E-5)
   expect_equal(signif(water6@combined_chlorine, 3), 8.0E-5)
 })
@@ -152,7 +163,7 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
     define_water_chain() %>%
     chemdose_chlordecay_chain(time = 8, cl2_dose = 4)
 
-  water2 <- purrr::pluck(water1, 6, 1)
+  water2 <- purrr::pluck(water1, "disinfected_water", 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
@@ -164,7 +175,7 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
     chemdose_chlordecay_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[6]), "diff_name") # check if output_water arg works
+  expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
 # Check chemdose_chlordecay_chain can use a column or function argument for chemical dose

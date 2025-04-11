@@ -3,14 +3,26 @@
 
 #' @title Calculate DBP formation
 #'
-#' @description \code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
+#' @description Calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
-#' created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
-#' The function also requires additional water quality parameters defined in \code{define_water}
+#' created by [define_water] chlorine dose, type, reaction time, and treatment applied (if any).
+#' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, TOC, UV254, temperature, and pH.
+#' For a single water use `chemdose_dbp`; for a dataframe where you want to output a water for continued modeling use
+#' `chemdose_dbp_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_dbp_once`
+#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
+#' For most arguments, the `_chain` and `_once` helpers
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
 #' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-#' Use \code{summarise_wq} to quickly tabulate the results.
+#' Use `summarize_wq(water, params = c("dbps"))` to quickly tabulate the results.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
@@ -27,14 +39,14 @@
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
 #' @examples
-#' example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   chemdose_dbp(cl2 = 2, time = 8)
-#' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 #'
 #' @export
 #'
-#' @returns A water class object with predicted DBP concentrations.
+#' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
@@ -129,6 +141,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours.")
   }
 
+  # breakpoint warning
+  if (water@tot_nh3 > 0) {
+    warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
@@ -205,40 +222,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   return(water)
 }
 
-#' Apply `chemdose_dbp`function within a data frame and output a data frame
-#'
-#' DBP = disinfection byproduct
-#'
-#' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
-#' Its output is a data frame containing columns for TTHM, HAA5, and individual DBP species.
-#' DBPs are estimated based on the applied chlorine dose, the reaction time, treatment type, chlorine type, and DBP formation location.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
-#'
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
-#'
+#' @rdname chemdose_dbp
 #' @param df a data frame containing a water class column, which has already been computed using
 #' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
-#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
-#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
-#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
-#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
-#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
-#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
-#'
-#' @seealso \code{\link{chemdose_dbp}}
 #'
 #' @examples
 #'
@@ -259,9 +247,9 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'   balance_ions_chain() %>%
 #'   mutate(
 #'     cl2 = seq(2, 24, 2),
-#'     time = 30
+#'     DBPTime = 30
 #'   ) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water")
+#'   chemdose_dbp_once(input_water = "balanced_water", time = DBPTime)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 80) %>%
@@ -272,28 +260,24 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'     input_water = "balanced_water", cl = 6, treatment = "coag",
 #'     location = "ds", cl_type = "chloramine"
 #'   )
-#' \donttest{
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame with predicted DBP concentrations.
+#' @returns `chemdose_dbp_once` returns a data frame with predicted DBP concentrations as columns.
 
-chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time = 0,
-                              treatment = "raw", cl_type = "chlorine", location = "plant") {
+chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
+                              treatment = "use_col", cl_type = "use_col", location = "use_col") {
   temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+  location <- tryCatch(location, error = function(e) enquo(location))
+
   output <- df %>%
     chemdose_dbp_chain(
       input_water = input_water, output_water = "temp_dbp",
@@ -304,40 +288,8 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
     select(-temp_dbp)
 }
 
-#' Apply `chemdose_dbp` within a data frame and output a column of `water` class to be chained to other tidywater functions
-#'
-#' DBP = disinfection byproduct
-#'
-#' This function allows \code{\link{chemdose_dbp}} to be added to a piped data frame.
-#' Its output is a `water` class, and can therefore be used with "downstream" tidywater functions.
-#' TTHM, HAA5, and individual DBP species will be updated based on the applied chlorine dose,
-#' the reaction time, treatment type, chlorine type, and DBP formation location.
-#'
-#' The data input comes from a `water` class column, as initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' If the input data frame has a chlorine dose column (cl2) or time column (time), the function will use those columns. Note:
-#' The function can only take cl2 and time inputs as EITHER a column or from the function arguments, not both.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}. The df may include a column named for the applied chlorine dose (cl2),
-#' and a column for time.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @rdname chemdose_dbp
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
-#' @param cl2 Applied chlorine dose (mg/L as Cl2). Model results are valid for doses between 1.51 and 33.55 mg/L.
-#' @param time Reaction time (hours). Model results are valid for reaction times between 2 and 168 hours.
-#' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default),
-#' "coag" for water that has been coagulated or softened, and "gac" for water that has been treated by granular activated carbon (GAC).
-#' GAC treatment has also been used for estimating formation after membrane treatment with good results.
-#' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
-#' @param location Location for DBP formation, either in the "plant" (default), or in the distribution system, "ds".
-#'
-#' @seealso \code{\link{chemdose_dbp}}
 #'
 #' @examples
 #'
@@ -388,32 +340,49 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = 0, time =
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with predicted DBP concentrations.
+#' @returns `chemdose_dbp_chain` returns a data frame containing a water class column with predicted DBP concentrations.
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                               cl2 = 0, time = 0, treatment = "raw", cl_type = "chlorine", location = "plant") {
-  ID <- NULL # Quiet RCMD check global variable note
+                               cl2 = "use_col", time = "use_col",
+                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+  location <- tryCatch(location, error = function(e) enquo(location))
 
+  validate_water_helpers(df, input_water)
+
+  # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(
-    df, list("cl2" = cl2, "time" = time),
-    list("treatment" = treatment, "cl_type" = cl_type, "location" = location)
+    df, list(
+      "cl2" = cl2, "time" = time, "treatment" = treatment,
+      "cl_type" = cl_type, "location" = location
+    )
   )
 
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
   output <- df %>%
-    subset(select = !names(df) %in% c("cl2", "time", "treatment", "cl_type", "location")) %>%
-    mutate(
-      ID = row_number()
-    ) %>%
-    left_join(arguments, by = "ID") %>%
-    select(-ID) %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        cl2 = cl2,
-        time = time,
-        treatment = treatment,
-        cl_type = cl_type,
-        location = location
+        cl2 = !!as.name(arguments$final_names$cl2),
+        time = !!as.name(arguments$final_names$time),
+        # This logic needed for any argument that has a default
+        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
+          !!as.name(arguments$final_names$treatment), "raw"
+        ),
+        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
+          !!as.name(arguments$final_names$cl_type), "chlorine"
+        ),
+        location = ifelse(exists(as.name(arguments$final_names$location), where = .),
+          !!as.name(arguments$final_names$location), "plant"
+        )
       ),
       chemdose_dbp
     ))
