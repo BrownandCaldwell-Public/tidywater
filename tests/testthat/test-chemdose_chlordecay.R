@@ -68,90 +68,40 @@ test_that("chemdose_chlordecay works.", {
 ################################################################################*
 ################################################################################*
 # chemdose_chlordecay helpers ----
-test_that("chemdose_chlordecay_once outputs are the same as base function, chemdose_chlordecay", {
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
-    chemdose_chlordecay(cl2_dose = 10, time = 8)
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    chemdose_chlordecay_once(cl2_dose = 10, time = 8))
-
-  expect_equal(water1@free_chlorine, water2$free_chlorine)
-})
-
-# Check that output is a data frame
-
-test_that("chemdose_chlordecay_once is a data frame", {
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_chlordecay_once(
-      input_water = "balanced_water",
-      cl2_dose = 5, time = 100
-    ))
-
-  expect_true(is.data.frame(water1))
-})
-
-# Check chemdose_chlordecay_once can use a column or function argument for chemical dose
-
-test_that("chemdose_chlordecay_once can use a column or function argument for chemical dose", {
-  water1 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    chemdose_chlordecay_once(
-      cl2_dose = 5, time = 100
-    )
-  water2 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    mutate(
-      cl2_dose = 5,
-      time = 100
-    ) %>%
-    chemdose_chlordecay_once()
-
-  water3 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    mutate(cl2_dose = 5) %>%
-    chemdose_chlordecay_once(time = 100)
-
-  expect_equal(water1$free_chlorine, water2$free_chlorine) # test different ways to input args
-  # Test that inputting cl2_dose and time separately (in column and as an argument) gives same results
-  expect_equal(water1$free_chlorine, water3$free_chlorine)
-})
 
 test_that("chemdose_chlordecay_chain outputs are the same as base function, chemdose_chlordecay", {
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
+  water0 <- define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
     tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
+  )
+
+  water1 <- water0 %>%
     chemdose_chlordecay(cl2_dose = 10, time = 8)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
     define_water_chain() %>%
     chemdose_chlordecay_chain(cl2_dose = 10, time = 8, output_water = "chlor") %>%
-    pluck_water("chlor", c(
-      "free_chlorine"
-    )))
+    pluck_water("chlor", "free_chlorine")
+
+  cldoses <- tibble(cl2_dose = seq(2, 8, 2))
+  cltypes <- tibble(free_mono = c("chlorine", "chloramine"))
+  water3 <- water_df %>%
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    cross_join(cldoses) %>%
+    cross_join(cltypes) %>%
+    chemdose_chlordecay_chain(time = 4, cl_type = free_mono, output_water = "chlor") %>%
+    pluck_water("chlor", "free_chlorine")
+
+  water4 <- chemdose_chlordecay(water0, cl2_dose = 4, time = 4, cl_type = "chloramine")
 
   expect_equal(water1@free_chlorine, water2$chlor_free_chlorine)
+  expect_equal(water4@free_chlorine, water3$chlor_free_chlorine[4])
 })
 
 # Test that output is a column of water class lists, and changing the output column name works

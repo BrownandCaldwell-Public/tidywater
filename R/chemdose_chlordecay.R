@@ -5,17 +5,15 @@
 #'
 #' @description calculates the decay of chlorine or chloramine based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001).
-#' For a single water use `chemdose_chlordecay`; for a dataframe where you want to output a water for continued modeling use
-#' `chemdose_chlordecay_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_chlordecay_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `chemdose_chlordecay`; for a dataframe use `chemdose_chlordecay_chain`.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' @details Required arguments include an object of class "water" created by \code{\link{define_water}},
+#' @details Required arguments include an object of class "water" created by [define_water],
 #' applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 #' no treatment, or "coag" for coagulated water). The function also requires additional water quality
-#' parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
+#' parameters defined in [define_water] including TOC and UV254. The output is a new "water" class
 #' with the calculated total chlorine value stored in the 'free_chlorine' or 'combined_chlorine' slot,
 #' depending on what type of chlorine is dosed. When modeling residual concentrations
 #' through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
@@ -153,11 +151,9 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Convert final result to molar
   if (cl_type == "chlorine") {
-
     # chlorine residual correction Eq. 5-118
     ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
     water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
-
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
@@ -171,67 +167,6 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time in hours.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_chlordecay_once(input_water = "balanced_water", cl2_dose = 4, time = 8)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(
-#'     cl2_dose = seq(2, 24, 2),
-#'     time = 30
-#'   ) %>%
-#'   chemdose_chlordecay_once(input_water = "balanced_water")
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 80) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(time = 8) %>%
-#'   chemdose_chlordecay_once(
-#'     input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
-#'     cl_type = "chloramine"
-#'   )
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `chemdose_chlordecay_once` returns a data frame with updated chlorine residual as columns.
-
-chemdose_chlordecay_once <- function(df, input_water = "defined_water", cl2_dose = "use_col", time = "use_col",
-                                     treatment = "use_col", cl_type = "use_col") {
-  temp_cl2 <- chlor <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
-  time <- tryCatch(time, error = function(e) enquo(time))
-  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
-  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
-
-  output <- df %>%
-    chemdose_chlordecay_chain(
-      input_water = input_water, output_water = "temp_cl2",
-      cl2_dose, time, treatment, cl_type
-    ) %>%
-    mutate(chlor = furrr::future_map(temp_cl2, convert_water)) %>%
-    unnest(chlor) %>%
-    select(-temp_cl2)
-}
-
-#' @rdname chemdose_chlordecay
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #'
 #' @examples
@@ -313,14 +248,8 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
         water = !!as.name(input_water),
         cl2_dose = !!as.name(arguments$final_names$cl2_dose),
         time = !!as.name(arguments$final_names$time),
-
-        # This logic needed for any argument that has a default
-        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
-          !!as.name(arguments$final_names$treatment), "raw"
-        ),
-        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
-          !!as.name(arguments$final_names$cl_type), "chlorine"
-        )
+        treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
+        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.))
       ),
       chemdose_chlordecay
     ))
