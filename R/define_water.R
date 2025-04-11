@@ -215,7 +215,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
-  water@dic <- convert_units(water@tot_co3 * tidywater::mweights$dic * 1000, "dic")
+  water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)

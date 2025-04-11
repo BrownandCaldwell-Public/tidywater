@@ -141,10 +141,7 @@ test_that("define_water correctly calculates dic", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
 
   dic_mg <- calculate_dic(water1)
-  dic_M <- convert_units(dic_mg, "dic")
-
-  expect_error(expect_equal(dic_mg, water1@dic)) # calculate_dic outputs as mg/L, def_water outputs as M
-  expect_equal(dic_M, water1@dic)
+  expect_equal(dic_mg, water1@dic)
 })
 
 # define_water helpers ----
@@ -229,8 +226,7 @@ test_that("define_water_chain correctly calculates dic", {
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
-    calculate_dic() %>%
-    convert_units("dic", "mg/L", "M")
+    calculate_dic()
 
   expect_equal(dic_mol, water1$defined_water_dic)
 })
