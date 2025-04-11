@@ -11,8 +11,8 @@ solvedose_ph_once(
   df,
   input_water = "defined_water",
   output_column = "dose_required",
-  target_ph = NULL,
-  chemical = NULL
+  target_ph = "use_col",
+  chemical = "use_col"
 )
 }
 \arguments{

@@ -11,8 +11,8 @@ solvedose_alk_once(
   df,
   input_water = "defined_water",
   output_column = "dose_required",
-  target_alk = NULL,
-  chemical = NULL
+  target_alk = "use_col",
+  chemical = "use_col"
 )
 }
 \arguments{

@@ -21,10 +21,10 @@ test_that("convert water works", {
 })
 
 test_that("convert water mg works", {
-  water1 <- define_water(
+  water1 <- suppressWarnings(define_water(
     ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
     cl = 10, so4 = 50, tot_po4 = 3.2, tot_nh3 = 0.54, free_chlorine = 2.1
-  )
+  ))
   df_water <- convert_watermg(water1)
   expect_equal(6.7, df_water$ph)
   expect_equal(10, df_water$na)

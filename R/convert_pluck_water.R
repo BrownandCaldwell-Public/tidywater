@@ -152,7 +152,7 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
         stop("All waters must be of class 'water'.")
       }
       temp <- df %>%
-        mutate(!!as.name(water) := furrr::map(!!as.name(water), convert_water)) %>%
+        mutate(!!as.name(water) := furrr::future_map(!!as.name(water), convert_water)) %>%
         select(!!as.name(water)) %>%
         unnest_wider(!!as.name(water), names_sep = "_")
 
