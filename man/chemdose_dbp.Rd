@@ -2,7 +2,6 @@
 % Please edit documentation in R/chemdose_dbp.R
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
-\alias{chemdose_dbp_once}
 \alias{chemdose_dbp_chain}
 \title{Calculate DBP formation}
 \source{
@@ -24,16 +23,6 @@ chemdose_dbp(
   treatment = "raw",
   cl_type = "chorine",
   location = "plant"
-)
-
-chemdose_dbp_once(
-  df,
-  input_water = "defined_water",
-  cl2 = "use_col",
-  time = "use_col",
-  treatment = "use_col",
-  cl_type = "use_col",
-  location = "use_col"
 )
 
 chemdose_dbp_chain(
@@ -63,17 +52,12 @@ GAC treatment has also been used for estimating formation after membrane treatme
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-and a column for time.}
+\link{define_water}. The df may include columns for the other function arguments.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
-
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
-
-\code{chemdose_dbp_once} returns a data frame with predicted DBP concentrations as columns.
 
 \code{chemdose_dbp_chain} returns a data frame containing a water class column with predicted DBP concentrations.
 }
@@ -83,10 +67,8 @@ Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an obje
 created by \link{define_water} chlorine dose, type, reaction time, and treatment applied (if any).
 The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, TOC, UV254, temperature, and pH.
-For a single water use \code{chemdose_dbp}; for a dataframe where you want to output a water for continued modeling use
-\code{chemdose_dbp_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_dbp_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_chain}.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -105,38 +87,6 @@ example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 2, time = 8)
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    cl2 = seq(2, 24, 2),
-    DBPTime = 30
-  ) \%>\%
-  chemdose_dbp_once(input_water = "balanced_water", time = DBPTime)
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(time = 8) \%>\%
-  chemdose_dbp_once(
-    input_water = "balanced_water", cl = 6, treatment = "coag",
-    location = "ds", cl_type = "chloramine"
-  )
 
 
 library(purrr)

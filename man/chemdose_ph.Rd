@@ -42,6 +42,7 @@ chemdose_ph_chain(
   nahco3 = "use_col",
   caoh2 = "use_col",
   mgoh2 = "use_col",
+  cacl2 = "use_col",
   cl2 = "use_col",
   naocl = "use_col",
   nh4oh = "use_col",
@@ -50,7 +51,8 @@ chemdose_ph_chain(
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
-  caco3 = "use_col"
+  caco3 = "use_col",
+  softening_correction = "use_col"
 )
 }
 \arguments{

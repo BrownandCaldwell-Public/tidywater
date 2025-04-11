@@ -171,15 +171,17 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
     pluck_water(c("dosed_chem_water"), c("ph", "alk"))
 
   coag_doses <- tibble(alum = seq(0, 100, 10))
+  softening <- tibble(softening_correction = c(T, F))
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
     cross_join(coag_doses) %>%
+    cross_join(softening) %>%
     chemdose_ph_chain("raw", "dose") %>%
     pluck_water(c("dose"), c("ph", "alk"))
 
   water4 <- chemdose_ph(water0, alum = 20)
-  water5 <- chemdose_ph(water0, alum = 100)
+  water5 <- chemdose_ph(water0, alum = 100, softening_correction = FALSE)
 
   water6 <- water_df %>%
     slice(1) %>%
@@ -193,8 +195,8 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
   water7 <- chemdose_ph(water0, alum = 20, naocl = 2, naoh = 10)
 
   expect_equal(water2$dosed_chem_water_alk[1], water1@alk)
-  expect_equal(water3$dose_ph[3], water4@ph)
-  expect_equal(water3$dose_ph[11], water5@ph)
+  expect_equal(water3$dose_ph[6], water4@ph)
+  expect_equal(water3$dose_ph[22], water5@ph)
   expect_equal(water6$dose_ph[6], water7@ph)
 })
 

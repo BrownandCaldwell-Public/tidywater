@@ -8,10 +8,8 @@
 #' created by [define_water] chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, TOC, UV254, temperature, and pH.
-#' For a single water use `chemdose_dbp`; for a dataframe where you want to output a water for continued modeling use
-#' `chemdose_dbp_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_dbp_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `chemdose_dbp`; for a dataframe use `chemdose_dbp_chain`.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -224,73 +222,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
 #' @rdname chemdose_dbp
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_once}}. The df may include a column named for the applied chlorine dose (cl2),
-#' and a column for time.
+#' [define_water]. The df may include columns for the other function arguments.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", cl2 = 4, time = 8)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(
-#'     cl2 = seq(2, 24, 2),
-#'     DBPTime = 30
-#'   ) %>%
-#'   chemdose_dbp_once(input_water = "balanced_water", time = DBPTime)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 80) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(time = 8) %>%
-#'   chemdose_dbp_once(
-#'     input_water = "balanced_water", cl = 6, treatment = "coag",
-#'     location = "ds", cl_type = "chloramine"
-#'   )
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `chemdose_dbp_once` returns a data frame with predicted DBP concentrations as columns.
-
-chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
-                              treatment = "use_col", cl_type = "use_col", location = "use_col") {
-  temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
-  time <- tryCatch(time, error = function(e) enquo(time))
-  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
-  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
-  location <- tryCatch(location, error = function(e) enquo(location))
-
-  output <- df %>%
-    chemdose_dbp_chain(
-      input_water = input_water, output_water = "temp_dbp",
-      cl2, time, treatment, cl_type, location
-    ) %>%
-    mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
-    unnest(dbps) %>%
-    select(-temp_dbp)
-}
-
-#' @rdname chemdose_dbp
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
-#'
 #' @examples
 #'
 #' library(purrr)
@@ -381,3 +314,26 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
       chemdose_dbp
     ))
 }
+
+
+# Not currently in use, but could be modified to be useful again someday.
+# chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
+#                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
+#   temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
+#
+#   # This allows for the function to process unquoted column names without erroring
+#   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+#   time <- tryCatch(time, error = function(e) enquo(time))
+#   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+#   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+#   location <- tryCatch(location, error = function(e) enquo(location))
+#
+#   output <- df %>%
+#     chemdose_dbp_chain(
+#       input_water = input_water, output_water = "temp_dbp",
+#       cl2, time, treatment, cl_type, location
+#     ) %>%
+#     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
+#     unnest(dbps) %>%
+#     select(-temp_dbp)
+# }
