@@ -2,10 +2,9 @@
 #'
 #' @description Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 #' additions.
-#' For a single water use `chemdose_ph`; for a dataframe where you want to output a water for continued modeling use
-#' `chemdose_ph_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_ph_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `chemdose_ph`; for a dataframe use `chemdose_ph_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'

@@ -66,69 +66,6 @@ test_that("ozonate_bromate works.", {
 ################################################################################*
 ################################################################################*
 # ozonate_bromate helpers ----
-test_that("ozonate_bromate_once outputs are the same as base function, ozonate_bromate", {
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
-    ozonate_bromate(dose = 5, time = 8)
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    ozonate_bromate_once(dose = 5, time = 8))
-
-  expect_equal(water1@bro3, water2$bro3)
-})
-
-# Check that output is a data frame
-
-test_that("ozonate_bromate_once is a data frame", {
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    ozonate_bromate_once(
-      dose = 3, time = 10
-    ))
-
-  expect_true(is.data.frame(water1))
-})
-
-# Check ozonate_bromate_once can use a column or function argument for chemical dose
-
-test_that("ozonate_bromate_once can use a column or function argument for chemical dose", {
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    ozonate_bromate_once(
-      dose = 3, time = 5
-    ))
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    mutate(
-      dose = 3,
-      time = 5
-    ) %>%
-    ozonate_bromate_once())
-
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    mutate(dose = 3) %>%
-    ozonate_bromate_once(time = 5))
-
-  expect_equal(water1$bro3, water2$bro3) # test different ways to input args
-  # Test that inputting dose and time separately (in column and as an argument) gives same results
-  expect_equal(water1$bro3, water3$bro3)
-})
 
 test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_bromate", {
   water0 <- define_water(7.9, 20, 50,

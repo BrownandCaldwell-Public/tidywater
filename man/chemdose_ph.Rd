@@ -111,10 +111,9 @@ chemdose_ph_chain(
 \description{
 Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 additions.
-For a single water use \code{chemdose_ph}; for a dataframe where you want to output a water for continued modeling use
-\code{chemdose_ph_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_ph_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{chemdose_ph}; for a dataframe use \code{chemdose_ph_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }

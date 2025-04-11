@@ -89,44 +89,6 @@ test_that("Balance ions only updates TDS/cond/IS when appropriate.", {
 ################################################################################*
 ################################################################################*
 # balance_ions helpers ----
-# Check balance_ions_once outputs are the same as base function, balance_ions
-
-test_that("balance_ions_once output is the same as balance_ions", {
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  ))
-  water2 <- balance_ions(water1)
-
-  water3 <- suppressWarnings(define_water_chain(slice(water_df, 1))) %>%
-    balance_ions_once() %>%
-    select(-defined_water)
-
-  expect_equal(water2@cl, water3$cl) # check against base
-
-  water4 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  ))
-  water5 <- balance_ions(water4, anion = "so4", cation = "ca")
-
-  water6 <- suppressWarnings(define_water_chain(slice(water_df, 1))) %>%
-    balance_ions_once(anion = "so4", cation = "ca") %>%
-    select(-defined_water)
-
-  expect_equal(water5@cl, water6$cl) # check against base
-})
-
-# Check that output is a data frame
-
-test_that("balance_ions_once outputs a data frame", {
-  water1 <- suppressWarnings(define_water_chain(slice(water_df, 1))) %>%
-    balance_ions_once() %>%
-    select(-defined_water)
-
-  expect_true(is.data.frame(water1))
-})
-
 
 # Test that balance_ions_chain outputs are the same as base function, balance_ions.
 

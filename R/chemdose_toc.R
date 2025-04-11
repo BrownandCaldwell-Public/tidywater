@@ -3,10 +3,9 @@
 #' @description This function applies the Edwards (1997) model to a water created by [define_water] to determine coagulated
 #' DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
-#' For a single water use `chemdose_toc`; for a dataframe where you want to output a water for continued modeling use
-#' `chemdose_toc_chain`; for a dataframe where you want to output water parameters as columns use `chemdose_toc_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -123,62 +122,6 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' [define_water_chain]. The df may include a column named for the coagulant being dosed,
 #' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(alum = 30) %>%
-#'   chemdose_toc_once(input_water = "dosed_chem_water")
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(
-#'     ferricchloride = seq(1, 12, 1),
-#'     coeff = "Ferric"
-#'   ) %>%
-#'   chemdose_toc_once(input_water = "balanced_water")
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `chemdose_toc_once` returns a data frame with columns for updated DOC, TOC, and UV254 concentration.
-
-chemdose_toc_once <- function(df, input_water = "defined_water",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                              coeff = "use_col") {
-  dosed_chem_water <- dose_chem <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  alum <- tryCatch(alum, error = function(e) enquo(alum))
-  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
-  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
-
-  output <- df %>%
-    chemdose_toc_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
-      alum, ferricchloride, ferricsulfate, coeff
-    ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
-    unnest(dose_chem) %>%
-    select(-dosed_chem_water)
-}
-
-#' @rdname chemdose_toc
-#'
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
 #'
 #' @examples

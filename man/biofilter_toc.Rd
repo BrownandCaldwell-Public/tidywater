@@ -2,7 +2,6 @@
 % Please edit documentation in R/biofilter_toc.R
 \name{biofilter_toc}
 \alias{biofilter_toc}
-\alias{biofilter_toc_once}
 \alias{biofilter_toc_chain}
 \title{Determine TOC removal from biofiltration using Terry & Summers BDOC model}
 \source{
@@ -10,13 +9,6 @@ Terry and Summers 2018
 }
 \usage{
 biofilter_toc(water, ebct, ozonated = TRUE)
-
-biofilter_toc_once(
-  df,
-  input_water = "defined_water",
-  ebct = "use_col",
-  ozonated = "use_col"
-)
 
 biofilter_toc_chain(
   df,
@@ -43,17 +35,14 @@ biofilter_toc_chain(
 \value{
 \code{biofilter_toc} returns water class object with modeled DOC removal from biofiltration.
 
-\code{biofilter_toc_once} returns a data frame with updated DOC, TOC, and BDOC concentrations as columns.
-
 \code{biofilter_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
 }
 \description{
 This function applies the Terry model to a water created by \link{define_water} to determine biofiltered
 DOC (mg/L).
-For a single water use \code{biofilter_toc}; for a dataframe where you want to output a water for continued modeling use
-\code{biofilter_toc_chain}; for a dataframe where you want to output water parameters as columns use \code{biofilter_toc_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -68,24 +57,6 @@ shorter run times will not benefit from parallel processing.
 library(tidywater)
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) \%>\%
   biofilter_toc(ebct = 10, ozonated = FALSE)
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  biofilter_toc_once(input_water = "defined_water", ebct = 10, ozonated = FALSE)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(
-    BiofEBCT = rep(c(10, 15, 20), 4),
-    ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
-  ) \%>\%
-  biofilter_toc_once(input_water = "defined_water", ebct = BiofEBCT)
 
 
 library(purrr)
