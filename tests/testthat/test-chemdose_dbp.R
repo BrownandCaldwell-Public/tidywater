@@ -290,7 +290,15 @@ test_that("chemdose_dbp_chain errors with argument + column for same param", {
     slice(1) %>%
     define_water_chain() %>%
     cross_join(times)
+
+  water2 <- water_df %>%
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(treatment = "raw")
+
   expect_error(chemdose_dbp_chain(water1, cl2 = 10, time = 10, output_water = "chlor"))
+  expect_error(chemdose_dbp_chain(water2, cl2 = 10, time = 10, treatment = "raw", output_water = "chlor"))
 })
 
 test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers", {
