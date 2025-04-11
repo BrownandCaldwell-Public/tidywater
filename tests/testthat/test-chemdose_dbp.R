@@ -285,6 +285,7 @@ test_that("chemdose_dbp_chain errors with argument + column for same param", {
     mutate(time = 5) %>%
     chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
 
+  times <- tibble(time = seq(4, 10, 2))
   water1 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
