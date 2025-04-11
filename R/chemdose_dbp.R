@@ -224,6 +224,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water]. The df may include columns for the other function arguments.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @examples
 #'
 #' library(purrr)

@@ -55,6 +55,8 @@ GAC treatment has also been used for estimating formation after membrane treatme
 \link{define_water}. The df may include columns for the other function arguments.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
