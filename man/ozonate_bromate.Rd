@@ -2,7 +2,6 @@
 % Please edit documentation in R/ozonate_bromate.R
 \name{ozonate_bromate}
 \alias{ozonate_bromate}
-\alias{ozonate_bromate_once}
 \alias{ozonate_bromate_chain}
 \title{Calculate bromate formation}
 \source{
@@ -12,14 +11,6 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 }
 \usage{
 ozonate_bromate(water, dose, time, model = "Ozekin")
-
-ozonate_bromate_once(
-  df,
-  input_water = "defined_water",
-  dose = "use_col",
-  time = "use_col",
-  model = "use_col"
-)
 
 ozonate_bromate_chain(
   df,
@@ -50,8 +41,6 @@ and a column for time in minutes.}
 \value{
 \code{ozonate_bromate} returns a single water class object with calculated bromate (ug/L).
 
-\code{ozonate_bromate_once} returns a data frame with updated bromate as a column.
-
 \code{ozonate_bromate_chain} returns a data frame containing a water class column with updated bro3.
 }
 \description{
@@ -60,10 +49,9 @@ created by \link{define_water} ozone dose, reaction time, and desired model.
 The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 optionally, ammonia (added when defining water using the \code{tot_nh3} argument.)
-For a single water use \code{ozonate_bromate}; for a dataframe where you want to output a water for continued modeling use
-\code{ozonate_bromate_chain}; for a dataframe where you want to output water parameters as columns use \code{ozonate_bromate_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{ozonate_bromate}; for a dataframe use \code{ozonate_bromate_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -79,34 +67,6 @@ example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 1.5, time = 5, model = "Ozekin")
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain("raw") \%>\%
-  ozonate_bromate_once(input_water = "raw", dose = 3, time = 8)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(
-    dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
-    time = 10
-  ) \%>\%
-  ozonate_bromate_once(input_water = "raw")
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(time = 8) \%>\%
-  ozonate_bromate_once(
-    input_water = "raw", dose = 6, model = "Sohn"
-  )
 
 
 library(purrr)

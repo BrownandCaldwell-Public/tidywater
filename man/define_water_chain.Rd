@@ -34,17 +34,17 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_chain()
 
 example_df <- water_df \%>\%
   define_water_chain(output_water = "This is a column of water") \%>\%
-  balance_ions_once(input_water = "This is a column of water")
+  balance_ions_chain(input_water = "This is a column of water")
 
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_chain()
 
 #' #Optional: explicitly close multisession processing
 plan(sequential)

@@ -220,8 +220,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #' @export
 #' @returns `solvedose_ph_once` returns a data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 
-solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = NULL, chemical = NULL) {
-
+solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = "use_col", chemical = "use_col") {
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
@@ -245,7 +244,6 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
       solvedose_ph
     ) %>%
       as.numeric())
-
 }
 
 #' @rdname solvedose_alk
@@ -300,7 +298,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' @returns `solvedose_alk_once` returns a data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 
-solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = NULL, chemical = NULL) {
+solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = "use_col", chemical = "use_col") {
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
@@ -324,5 +322,4 @@ solvedose_alk_once <- function(df, input_water = "defined_water", output_column 
       solvedose_alk
     ) %>%
       as.numeric())
-
 }

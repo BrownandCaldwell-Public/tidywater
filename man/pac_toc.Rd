@@ -2,7 +2,6 @@
 % Please edit documentation in R/pac_toc.R
 \name{pac_toc}
 \alias{pac_toc}
-\alias{pac_toc_once}
 \alias{pac_toc_chain}
 \title{Calculate DOC Concentration in PAC system}
 \source{
@@ -12,14 +11,6 @@ CHO(2007)
 }
 \usage{
 pac_toc(water, dose, time, type = "bituminous")
-
-pac_toc_once(
-  df,
-  input_water = "defined_water",
-  dose = "use_col",
-  time = "use_col",
-  type = "use_col"
-)
 
 pac_toc_chain(
   df,
@@ -49,17 +40,14 @@ pac_toc_chain(
 \value{
 \code{pac_toc} returns a water class object with updated DOC, TOC, and UV254 slots.
 
-\code{pac_toc_once} returns a data frame with an updated DOC, TOC, and UV254 concentration as columns.
-
 \code{pac_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
 ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
-For a single water use \code{pac_toc}; for a dataframe where you want to output a water for continued modeling use
-\code{pac_toc_chain}; for a dataframe where you want to output water parameters as columns use \code{pac_toc_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 
@@ -78,28 +66,6 @@ shorter run times will not benefit from parallel processing.
 \examples{
 water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   pac_toc(dose = 15, time = 50, type = "wood")
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  pac_toc_once(input_water = "raw", dose = 10, time = 20)
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(dose = seq(11, 22, 1), time = 30) \%>\%
-  pac_toc_once(input_water = "raw")
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(time = 10) \%>\%
-  pac_toc_once(
-    input_water = "raw", dose = 6, type = "wood"
-  )
 
 
 library(purrr)

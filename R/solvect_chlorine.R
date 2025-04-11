@@ -41,10 +41,12 @@
 #' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
 
 solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = FALSE) {
-  if (use_free_cl_slot){
+  if (use_free_cl_slot) {
     validate_water(water, c("ph", "temp", "free_chlorine"))
     residual <- water@free_chlorine
-  } else validate_water(water, c("ph", "temp"))
+  } else {
+    validate_water(water, c("ph", "temp"))
+  }
 
   validate_args(num_args = list("time" = time, "residual" = residual, "baffle" = baffle))
 
