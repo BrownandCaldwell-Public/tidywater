@@ -131,24 +131,49 @@ test_that("ozonate_bromate_once can use a column or function argument for chemic
 })
 
 test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_bromate", {
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
+  water0 <- define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
     tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
+  )
+  water1 <- water0 %>%
     ozonate_bromate(dose = 3, time = 5)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
     define_water_chain() %>%
     ozonate_bromate_chain(dose = 3, time = 5, output_water = "ozone") %>%
-    pluck_water("ozone", c(
-      "bro3"
-    )))
+    pluck_water("ozone", "bro3")
+
+  models <- tibble(bromate_model = c("Ozekin", "Sohn", "Galey", "Siddiqui"))
+  doses <- tibble(dose = seq(1, 3, .5))
+  water3 <- water_df %>%
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    cross_join(models) %>%
+    cross_join(doses) %>%
+    ozonate_bromate_chain(time = 5, model = bromate_model, output_water = "ozone") %>%
+    pluck_water("ozone", "bro3")
+
+  water4 <- ozonate_bromate(water0, dose = 2.5, time = 5, model = "Galey")
+
+  badmodels <- tibble(bromate_model = c("Ozekin", "Song", "Galey"))
+  water5 <- water_df %>%
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    cross_join(badmodels) %>%
+    cross_join(doses)
+
+  expect_error(
+    ozonate_bromate_chain(water5, time = 5, model = bromate_model, output_water = "ozone")
+  )
 
   expect_equal(water1@bro3, water2$ozone_bro3)
+  expect_equal(water4@bro3, water3$ozone_bro3[14])
 })
 
 # Test that output is a column of water class lists, and changing the output column name works

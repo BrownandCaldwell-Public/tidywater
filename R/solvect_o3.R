@@ -141,9 +141,7 @@ solvect_o3_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         dose = !!as.name(arguments$final_names$dose),
-        kd = ifelse(exists(as.name(arguments$final_names$kd), where = .),
-          !!as.name(arguments$final_names$kd), NA
-        ),
+        kd = if (arguments$final_names$kd %in% names(.)) !!sym(arguments$final_names$kd) else rep(NA, nrow(.)),
         baffle = !!as.name(arguments$final_names$baffle)
       ),
       solvect_o3

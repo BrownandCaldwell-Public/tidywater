@@ -34,8 +34,7 @@ test_that("solvect_chlorine correctly uses free_chlorine slot", {
 
   expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
   expect_equal(round(ct_use2$ct_required), 10)
-  expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) #no residual argument or water slot
-
+  expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) # no residual argument or water slot
 })
 
 test_that("solvect_chlorine works.", {
@@ -138,5 +137,4 @@ test_that("solvect_chlorine_once correctly uses free_chlorine slot", {
     solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
 
   expect_error(expect_equal(residual_df$defined_water_ct_required, free_cl_slot_df$defined_water_ct_required))
-
 })

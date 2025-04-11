@@ -11,7 +11,6 @@ test_that("Balance ions doesn't alter carbonate system.", {
 test_that("Balance ions anions and cations only accept specific ions.", {
   expect_error(define_water(ph = 7, temp = 25, alk = 100, na = 30, cl = 10) %>% balance_ions(anion = "co3", cation = "ca"))
   expect_error(define_water(ph = 7, temp = 25, alk = 100, na = 2, so4 = 30) %>% balance_ions(anion = "so4", cation = "calcium"))
-
 })
 
 test_that("Balance ions doesn't alter Ca, Mg, PO4, or OCl if not specified.", {
@@ -60,14 +59,13 @@ test_that("Balance ions results in neutral charge.", {
 
   water5 <- balance_ions(water3, cation = "mg")
   expect_equal(water5@na + water5@ca * 2 + water5@mg * 2 + water5@k -
-                 (water5@cl + 2 * water5@so4 + water5@hco3 + 2 * water5@co3 + water5@h2po4 + 2 * water5@hpo4 + 3 * water5@po4) +
-                 water5@h - water5@oh - water5@ocl, 0)
+    (water5@cl + 2 * water5@so4 + water5@hco3 + 2 * water5@co3 + water5@h2po4 + 2 * water5@hpo4 + 3 * water5@po4) +
+    water5@h - water5@oh - water5@ocl, 0)
 
   water6 <- balance_ions(water1, anion = "so4")
   expect_equal(water6@na + water6@ca * 2 + water6@mg * 2 + water6@k -
-                 (water6@cl + 2 * water6@so4 + water6@hco3 + 2 * water6@co3 + water6@h2po4 + 2 * water6@hpo4 + 3 * water6@po4) +
-                 water6@h - water6@oh - water6@ocl, 0)
-
+    (water6@cl + 2 * water6@so4 + water6@hco3 + 2 * water6@co3 + water6@h2po4 + 2 * water6@hpo4 + 3 * water6@po4) +
+    water6@h - water6@oh - water6@ocl, 0)
 })
 
 test_that("Balance ions only updates TDS/cond/IS when appropriate.", {
@@ -179,4 +177,3 @@ test_that("balance_ions_chain can be piped and handle an output_water argument",
   expect_equal(names(water1[2]), "different_column") # check output_water arg
   expect_equal(ncol(water1), 4) # check if pipe worked
 })
-

@@ -157,15 +157,16 @@ test_that("chemdose_dbp_once can use a column or function argument for chemical 
 })
 
 test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_dbp", {
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
+  water0 <- define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
     tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
+  )
+  water1 <- water0 %>%
     chemdose_dbp(cl2 = 10, time = 8)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -173,7 +174,21 @@ test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_db
     pluck_water("chlor", c(
       "chcl3", "chcl2br", "chbr2cl", "chbr3", "tthm",
       "mcaa", "dcaa", "tcaa", "mbaa", "dbaa", "haa5"
-    )))
+    ))
+
+  times <- tibble(time = seq(4, 10, 2))
+  treatment <- tibble(Location = c("raw", "coag", "gac"))
+  water3 <- suppressWarnings(water_df %>%
+    mutate(br = 50) %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    cross_join(times) %>%
+    cross_join(treatment) %>%
+    chemdose_dbp_chain(cl2 = 10, treatment = Location, output_water = "chlor") %>%
+    pluck_water("chlor", c("tthm", "haa5")))
+
+  water4 <- suppressWarnings(chemdose_dbp(water0, cl2 = 10, time = 8, treatment = "coag"))
+  water5 <- suppressWarnings(chemdose_dbp(water0, cl2 = 10, time = 4, treatment = "gac"))
 
   expect_equal(water1@chcl3, water2$chlor_chcl3)
   expect_equal(water1@chcl2br, water2$chlor_chcl2br)
@@ -186,6 +201,9 @@ test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_db
   expect_equal(water1@mbaa, water2$chlor_mbaa)
   expect_equal(water1@dbaa, water2$chlor_dbaa)
   expect_equal(water1@haa5, water2$chlor_haa5)
+
+  expect_equal(water4@tthm, water3$chlor_tthm[8])
+  expect_equal(water5@haa5, water3$chlor_haa5[3])
 })
 
 # Test that output is a column of water class lists, and changing the output column name works

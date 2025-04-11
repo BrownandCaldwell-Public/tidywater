@@ -374,15 +374,9 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
         cl2 = !!as.name(arguments$final_names$cl2),
         time = !!as.name(arguments$final_names$time),
         # This logic needed for any argument that has a default
-        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
-          !!as.name(arguments$final_names$treatment), "raw"
-        ),
-        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
-          !!as.name(arguments$final_names$cl_type), "chlorine"
-        ),
-        location = ifelse(exists(as.name(arguments$final_names$location), where = .),
-          !!as.name(arguments$final_names$location), "plant"
-        )
+        treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
+        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.)),
+        location = if (arguments$final_names$location %in% names(.)) !!sym(arguments$final_names$location) else rep("plant", nrow(.))
       ),
       chemdose_dbp
     ))

@@ -125,15 +125,15 @@ test_that("biofilter_toc_once can use a column or function argument for ebct", {
     mutate(
       ebct = 5
     ) %>%
-      balance_ions_chain() %>%
-      biofilter_toc_once(input_water = "balanced_water"))
+    balance_ions_chain() %>%
+    biofilter_toc_once(input_water = "balanced_water"))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               mutate(ebct = 5) %>%
-                               balance_ions_chain() %>%
-                               biofilter_toc_once(input_water = "balanced_water", ozonated = TRUE))
+    slice(1) %>%
+    define_water_chain() %>%
+    mutate(ebct = 5) %>%
+    balance_ions_chain() %>%
+    biofilter_toc_once(input_water = "balanced_water", ozonated = TRUE))
 
   expect_equal(water1$doc, water2$doc) # test different ways to input args
   # Test that inputting ebct and ozonated separately (in column and as an argument) gives same results
@@ -142,10 +142,10 @@ test_that("biofilter_toc_once can use a column or function argument for ebct", {
 
 test_that("biofilter_toc_chain outputs are the same as base function, biofilter_toc", {
   water0 <- define_water(7.9, 20, 50,
-                         tot_hard = 50, ca = 13, mg = 4,
-                         na = 20, k = 20, cl = 30, so4 = 20,
-                         tds = 200, cond = 100,
-                         toc = 2, doc = 1.8, uv254 = 0.05
+    tot_hard = 50, ca = 13, mg = 4,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05
   )
 
   water1 <- biofilter_toc(water0, ebct = 10)
@@ -156,8 +156,8 @@ test_that("biofilter_toc_chain outputs are the same as base function, biofilter_
     biofilter_toc_chain(ebct = 10, output_water = "biof") %>%
     pluck_water("biof", c("doc"))
 
-  ebcts <- tibble(EBCT = c(10,20,30))
-  ozone <- tibble(ozonated = c(T,F))
+  ebcts <- tibble(EBCT = c(10, 20, 30))
+  ozone <- tibble(ozonated = c(T, F))
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -170,7 +170,6 @@ test_that("biofilter_toc_chain outputs are the same as base function, biofilter_
 
   expect_equal(water1@doc, water2$biof_doc)
   expect_equal(water4@doc, water3$biof_doc[4])
-
 })
 
 # Test that output is a column of water class lists, and changing the output column name works

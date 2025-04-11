@@ -130,7 +130,7 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
     chemdose_toc_chain(ferricchloride = 40, coeff = "Ferric", output_water = "coag") %>%
     pluck_water("coag", c("toc", "doc", "uv254")))
 
-  coag_doses <- tibble(ferricchloride = seq(0,100,10))
+  coag_doses <- tibble(ferricchloride = seq(0, 100, 10))
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -139,12 +139,12 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
     pluck_water(c("coag"), c("doc")))
 
   water4 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain("raw") %>%
-                               cross_join(coag_doses) %>%
-                               rename(Coagulant = ferricchloride) %>%
-                               chemdose_toc_chain("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
-                               pluck_water(c("coag"), c("doc")))
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    cross_join(coag_doses) %>%
+    rename(Coagulant = ferricchloride) %>%
+    chemdose_toc_chain("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
+    pluck_water(c("coag"), c("doc")))
 
   expect_equal(water1@toc, water2$coag_toc)
   expect_equal(water1@doc, water2$coag_doc)

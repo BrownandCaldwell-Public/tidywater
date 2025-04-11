@@ -151,7 +151,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
   if (blended_water@tot_nh3 > 0 &
-      (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
+    (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
     warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
 
@@ -194,10 +194,10 @@ blend_waters <- function(waters, ratios) {
 blend_waters_once <- function(df, waters, ratios) {
   blend_df <- blended <- NULL # Quiet RCMD check global variable note
 
-  n = 0
+  n <- 0
   water_names <- list()
   for (water in waters) {
-    n = n +1
+    n <- n + 1
 
     if (!is.character(water)) {
       output <- paste0("merging_water_", n)
@@ -270,7 +270,7 @@ blend_waters_once <- function(df, waters, ratios) {
 #'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
 #'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
-#' waterA <- define_water(7,20,100,tds = 100)
+#' waterA <- define_water(7, 20, 100, tds = 100)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
@@ -294,14 +294,12 @@ blend_waters_once <- function(df, waters, ratios) {
 #' @returns `blend_waters_chain` returns a data frame with a water class column containing blended water quality
 
 blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
-
-  n = 0
+  n <- 0
   water_names <- list()
   for (water in waters) {
-    n = n +1
+    n <- n + 1
 
     if (!is.character(water)) {
-
       output <- paste0("merging_water_", n)
       df <- df %>%
         mutate(!!output := list(water))
@@ -314,16 +312,12 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
 
   for (water_col in waters) {
     if (is.character(water_col)) {
-
       if (!(water_col %in% colnames(df))) {
-
         stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_chain()."))
-
-         } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
-
-             stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+      } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
+        stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
       }
-    } else if (!is.character(water_col) & !methods::is(water_col, "water")){
+    } else if (!is.character(water_col) & !methods::is(water_col, "water")) {
       stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
     }
   }

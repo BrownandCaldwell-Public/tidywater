@@ -81,14 +81,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
                         softening_correction = FALSE) {
-  if((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
+  if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
     warning("Both chlorine- and ammonia-based chemicals were dosed and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
-  if((cacl2 > 0 | cl2 > 0 | naocl > 0) & water@tot_nh3 > 0) {
+  if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & water@tot_nh3 > 0) {
     warning("A chlorine-based chemical was dosed into a water containing ammonia, which may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
 
-  if((nh4oh > 0 | nh42so4 > 0) & (water@free_chlorine > 0 | water@combined_chlorine > 0)) {
+  if ((nh4oh > 0 | nh42so4 > 0) & (water@free_chlorine > 0 | water@combined_chlorine > 0)) {
     warning("An ammonia-based chemical was dosed into a water containing chlorine, which may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
 
@@ -287,12 +287,12 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                               hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
+                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
                               na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                               cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
                               caco3 = "use_col") {
-   validate_water_helpers(df, input_water)
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
   h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
@@ -339,24 +339,24 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        hcl = if(final_names$hcl %in% names(.)) !!sym(final_names$hcl) else rep(0, nrow(.)),
-        h2so4 = if(final_names$h2so4 %in% names(.)) !!sym(final_names$h2so4) else rep(0, nrow(.)),
-        h3po4 = if(final_names$h3po4 %in% names(.)) !!sym(final_names$h3po4) else rep(0, nrow(.)),
-        co2 = if(final_names$co2 %in% names(.)) !!sym(final_names$co2) else rep(0, nrow(.)),
-        naoh = if(final_names$naoh %in% names(.)) !!sym(final_names$naoh) else rep(0, nrow(.)),
-        na2co3 = if(final_names$na2co3 %in% names(.)) !!sym(final_names$na2co3) else rep(0, nrow(.)),
-        nahco3 = if(final_names$nahco3 %in% names(.)) !!sym(final_names$nahco3) else rep(0, nrow(.)),
-        caoh2 = if(final_names$caoh2 %in% names(.)) !!sym(final_names$caoh2) else rep(0, nrow(.)),
-        mgoh2 = if(final_names$mgoh2 %in% names(.)) !!sym(final_names$mgoh2) else rep(0, nrow(.)),
-        cl2 = if(final_names$cl2 %in% names(.)) !!sym(final_names$cl2) else rep(0, nrow(.)),
-        naocl = if(final_names$naocl %in% names(.)) !!sym(final_names$naocl) else rep(0, nrow(.)),
-        nh4oh = if(final_names$nh4oh %in% names(.)) !!sym(final_names$nh4oh) else rep(0, nrow(.)),
-        nh42so4 = if(final_names$nh42so4 %in% names(.)) !!sym(final_names$nh42so4) else rep(0, nrow(.)),
-        alum = if(final_names$alum %in% names(.)) !!sym(final_names$alum) else rep(0, nrow(.)),
-        ferricchloride = if(final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else rep(0, nrow(.)),
-        ferricsulfate = if(final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else rep(0, nrow(.)),
-        ach = if(final_names$ach %in% names(.)) !!sym(final_names$ach) else rep(0, nrow(.)),
-        caco3 = if(final_names$caco3 %in% names(.)) !!sym(final_names$caco3) else rep(0, nrow(.))
+        hcl = if (final_names$hcl %in% names(.)) !!sym(final_names$hcl) else rep(0, nrow(.)),
+        h2so4 = if (final_names$h2so4 %in% names(.)) !!sym(final_names$h2so4) else rep(0, nrow(.)),
+        h3po4 = if (final_names$h3po4 %in% names(.)) !!sym(final_names$h3po4) else rep(0, nrow(.)),
+        co2 = if (final_names$co2 %in% names(.)) !!sym(final_names$co2) else rep(0, nrow(.)),
+        naoh = if (final_names$naoh %in% names(.)) !!sym(final_names$naoh) else rep(0, nrow(.)),
+        na2co3 = if (final_names$na2co3 %in% names(.)) !!sym(final_names$na2co3) else rep(0, nrow(.)),
+        nahco3 = if (final_names$nahco3 %in% names(.)) !!sym(final_names$nahco3) else rep(0, nrow(.)),
+        caoh2 = if (final_names$caoh2 %in% names(.)) !!sym(final_names$caoh2) else rep(0, nrow(.)),
+        mgoh2 = if (final_names$mgoh2 %in% names(.)) !!sym(final_names$mgoh2) else rep(0, nrow(.)),
+        cl2 = if (final_names$cl2 %in% names(.)) !!sym(final_names$cl2) else rep(0, nrow(.)),
+        naocl = if (final_names$naocl %in% names(.)) !!sym(final_names$naocl) else rep(0, nrow(.)),
+        nh4oh = if (final_names$nh4oh %in% names(.)) !!sym(final_names$nh4oh) else rep(0, nrow(.)),
+        nh42so4 = if (final_names$nh42so4 %in% names(.)) !!sym(final_names$nh42so4) else rep(0, nrow(.)),
+        alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else rep(0, nrow(.)),
+        ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else rep(0, nrow(.)),
+        ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else rep(0, nrow(.)),
+        ach = if (final_names$ach %in% names(.)) !!sym(final_names$ach) else rep(0, nrow(.)),
+        caco3 = if (final_names$caco3 %in% names(.)) !!sym(final_names$caco3) else rep(0, nrow(.))
       ),
       chemdose_ph
     ))

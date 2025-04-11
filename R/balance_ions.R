@@ -89,11 +89,11 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       add_k <- add_cat
       k_new <- ifelse(is.na(water@k), add_k, water@k + add_k)
       water@estimated <- paste(water@estimated, "k", sep = "_")
-    }else if (cation == "ca") {
+    } else if (cation == "ca") {
       add_ca <- add_cat / 2
       ca_new <- ifelse(is.na(water@ca), add_ca, water@ca + add_ca)
       water@estimated <- paste(water@estimated, "ca", sep = "_")
-    }else if (cation == "mg") {
+    } else if (cation == "mg") {
       add_mg <- add_cat / 2
       mg_new <- ifelse(is.na(water@mg), add_mg, water@mg + add_mg)
       water@estimated <- paste(water@estimated, "mg", sep = "_")
@@ -128,7 +128,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
     water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
-      convert_units(add_ca, "ca", "M", "mg/L") +  convert_units(add_mg, "mg", "M", "mg/L") +
+      convert_units(add_ca, "ca", "M", "mg/L") + convert_units(add_mg, "mg", "M", "mg/L") +
 
       convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
 
@@ -173,8 +173,8 @@ balance_ions_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         anion = anion,
         cation = cation
-        ), balance_ions)
-      ) %>%
+      ), balance_ions
+    )) %>%
     mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
     unnest_wider(balance_df) %>%
     select(-balanced_water)
@@ -222,6 +222,6 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
         water = !!as.name(input_water),
         anion = anion,
         cation = cation
-      ), balance_ions)
-    )
+      ), balance_ions
+    ))
 }

@@ -170,7 +170,7 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
     chemdose_ph_chain(input_water = "defined_water", naoh = 10) %>%
     pluck_water(c("dosed_chem_water"), c("ph", "alk"))
 
-  coag_doses <- tibble(alum = seq(0,100,10))
+  coag_doses <- tibble(alum = seq(0, 100, 10))
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -187,7 +187,7 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
     mutate(naoh = 10) %>%
     cross_join(coag_doses) %>%
     rename(NewName = alum) %>%
-    chemdose_ph_chain("raw", "dose", alum = NewName, naocl = c(0,2)) %>%
+    chemdose_ph_chain("raw", "dose", alum = NewName, naocl = c(0, 2)) %>%
     pluck_water(c("dose"), c("ph", "alk"))
 
   water7 <- chemdose_ph(water0, alum = 20, naocl = 2, naoh = 10)
@@ -196,7 +196,6 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
   expect_equal(water3$dose_ph[3], water4@ph)
   expect_equal(water3$dose_ph[11], water5@ph)
   expect_equal(water6$dose_ph[6], water7@ph)
-
 })
 
 # Test that output is a column of water class lists, and changing the output column name works

@@ -254,10 +254,10 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
       list(
         water = !!as.name(input_water),
         # This logic needed for any argument that has a default
-        alum = if(final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
-        ferricchloride = if(final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
-        ferricsulfate = if(final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
-        coeff = if(final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
+        alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
+        ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
+        ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
+        coeff = if (final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
       ),
       chemdose_toc
     ))

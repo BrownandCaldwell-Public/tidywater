@@ -225,9 +225,7 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
         dose = !!as.name(arguments$final_names$dose),
         time = !!as.name(arguments$final_names$time),
         # This logic needed for any argument that has a default
-        type = ifelse(exists(as.name(arguments$final_names$type), where = .),
-          !!as.name(arguments$final_names$type), "bituminous"
-        )
+        type = if (arguments$final_names$type %in% names(.)) !!sym(arguments$final_names$type) else rep("bituminous", nrow(.))
       ),
       pac_toc
     ))

@@ -153,11 +153,9 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Convert final result to molar
   if (cl_type == "chlorine") {
-
     # chlorine residual correction Eq. 5-118
     ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
     water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
-
   } else if (cl_type == "chloramine") {
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
@@ -313,14 +311,8 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
         water = !!as.name(input_water),
         cl2_dose = !!as.name(arguments$final_names$cl2_dose),
         time = !!as.name(arguments$final_names$time),
-
-        # This logic needed for any argument that has a default
-        treatment = ifelse(exists(as.name(arguments$final_names$treatment), where = .),
-          !!as.name(arguments$final_names$treatment), "raw"
-        ),
-        cl_type = ifelse(exists(as.name(arguments$final_names$cl_type), where = .),
-          !!as.name(arguments$final_names$cl_type), "chlorine"
-        )
+        treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
+        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.))
       ),
       chemdose_chlordecay
     ))

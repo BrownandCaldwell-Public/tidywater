@@ -200,7 +200,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water",
 
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = "use_col", time = "use_col", model = "use_col") {
-validate_water_helpers(df, input_water)
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -220,10 +220,7 @@ validate_water_helpers(df, input_water)
         water = !!as.name(input_water),
         dose = !!as.name(arguments$final_names$dose),
         time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        model = ifelse(exists(as.name(arguments$final_names$model), where = .),
-          !!as.name(arguments$final_names$model), "Ozekin"
-        )
+        model = if (arguments$final_names$model %in% names(.)) !!sym(arguments$final_names$model) else rep("Ozekin", nrow(.))
       ),
       ozonate_bromate
     ))
