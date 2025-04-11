@@ -66,3 +66,18 @@ test_that("pluck_water inputs must be waters and water slots", {
   expect_error(water2 %>% pluck_water("na", c("na", "ca")))
   expect_error(water1 %>% pluck_water(c("raw", "ohno"), c("na", "ca")))
 })
+
+test_that("pluck_water all works", {
+  water1 <- water_df %>%
+    define_water_chain("raw") %>%
+    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    pluck_water(c("raw", "coag"), "all")
+
+  water2 <- water_df %>%
+    define_water_chain("raw") %>%
+    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    pluck_water(c("raw", "coag"), c("doc", "hco3"))
+
+  expect_equal(water1$raw_hco3, water2$raw_hco3)
+  expect_equal(water1$coag_doc, water2$coag_doc)
+})
