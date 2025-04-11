@@ -2,7 +2,7 @@
 % Please edit documentation in R/modify_water.R
 \name{modify_water}
 \alias{modify_water}
-\title{Modify a single slot in a `water` class object}
+\title{Modify a single slot in a \code{water} class object}
 \usage{
 modify_water(water, slot, value, units)
 }
@@ -11,7 +11,7 @@ modify_water(water, slot, value, units)
 
 \item{value}{New value for the modified slot}
 
-\item{units}{Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
+\item{units}{Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
 are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".}
 
 \item{parameter}{A character string of the slot in the water to modify, eg, "tthm"}
@@ -20,8 +20,13 @@ are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1",
 A data frame containing columns of selected parameters from a list of water class objects.
 }
 \description{
-This function a single slot of a `water` class object without impacting the other parameters. For example, you can
+This function a single slot of a \code{water} class object without impacting the other parameters. For example, you can
 manually update "tthm" and the new speciation will be calculated. This function is designed to make sure all parameters
 are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
-they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update [define_water].
+they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update \link{define_water}.
+}
+\examples{
+water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5)
+modify_water(water1, slot = "toc", value = 4, units = "mg/L")
+
 }

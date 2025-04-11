@@ -234,7 +234,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@ph <- ph
   dosed_water@h <- h
   dosed_water@oh <- oh
-  dosed_water@applied_treatment <- paste(dosed_water@applied_treatment, "_chemdosed", sep = "")
 
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")

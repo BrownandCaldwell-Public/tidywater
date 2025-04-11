@@ -122,8 +122,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   water@cl <- cl_new
   water@so4 <- so4_new
 
-  water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
-
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.

@@ -80,7 +80,6 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   water@toc <- water@toc - BDOC_removed
   water@doc <- water@toc - BDOC_removed
   water@bdoc <- BDOC_eff
-  water@applied_treatment <- paste(water@applied_treatment, "_biofilter", sep = "")
 
   return(water)
 }

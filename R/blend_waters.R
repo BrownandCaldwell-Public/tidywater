@@ -75,7 +75,7 @@ blend_waters <- function(waters, ratios) {
   }
 
   not_averaged <- c(
-    "ph", "kw", "applied_treatment", "estimated"
+    "ph", "kw", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -98,8 +98,7 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  # Track treatments and estimated params
-  applied_treatment <- c()
+  # Track estimated params
   estimated <- c()
 
   for (i in 1:length(waters)) {

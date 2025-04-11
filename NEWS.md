@@ -9,6 +9,7 @@
 * `pac_toc` now constrained to accept a smaller range of doses and times. The form of the equation was allowing negative TOC outputs.
 * `define_water`, `chemdose_ph`, `blend_waters`, and other pH related functions slightly impacted by a fix in concentration vs activity. 
 Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
+* Removed `applied_treatment` slot because it's not used by any functions and should be the responsibility of the user to track.
 
 ## New features
 * User may now choose which cation or anion to use for balancing ions
