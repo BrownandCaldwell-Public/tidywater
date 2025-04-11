@@ -97,7 +97,7 @@ example_df <- water_df \%>\%
   chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 
-waterA <- define_water(7,20,100,tds = 100)
+waterA <- define_water(7, 20, 100, tds = 100)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
