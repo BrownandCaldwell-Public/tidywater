@@ -4,8 +4,8 @@
 
 ## Breaking changes
 * Helper function (`_chain` and `_once`) behavior change: can now specify column name unquoted (eg, alum = AlumDose)
-
-## Breaking changes
+* Removed most (`_once`) helper functions because the desired output is almost never all water slots as columns. 
+Refer to `pluck_water(parameter = "all")` for same behavior.
 * `pac_toc` now constrained to accept a smaller range of doses and times. The form of the equation was allowing negative TOC outputs.
 * `define_water`, `chemdose_ph`, `blend_waters`, and other pH related functions slightly impacted by a fix in concentration vs activity. 
 Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}

@@ -2,7 +2,6 @@
 % Please edit documentation in R/chemdose_chlordecay.R
 \name{chemdose_chlordecay}
 \alias{chemdose_chlordecay}
-\alias{chemdose_chlordecay_once}
 \alias{chemdose_chlordecay_chain}
 \title{Calculate chlorine decay}
 \source{
@@ -17,15 +16,6 @@ chemdose_chlordecay(
   time,
   treatment = "raw",
   cl_type = "chlorine"
-)
-
-chemdose_chlordecay_once(
-  df,
-  input_water = "defined_water",
-  cl2_dose = "use_col",
-  time = "use_col",
-  treatment = "use_col",
-  cl_type = "use_col"
 )
 
 chemdose_chlordecay_chain(
@@ -64,25 +54,21 @@ and a column for time in hours.}
 \code{chemdose_chlordecay} returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
 Use \link{convert_units} to convert to mg/L.
 
-\code{chemdose_chlordecay_once} returns a data frame with updated chlorine residual as columns.
-
 \code{chemdose_chlordecay_chain} returns a data frame containing a water class column with updated chlorine residuals.
 }
 \description{
 calculates the decay of chlorine or chloramine based on the U.S. EPA's
 Water Treatment Plant Model (U.S. EPA, 2001).
-For a single water use \code{chemdose_chlordecay}; for a dataframe where you want to output a water for continued modeling use
-\code{chemdose_chlordecay_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_chlordecay_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{chemdose_chlordecay}; for a dataframe use \code{chemdose_chlordecay_chain}.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
 \details{
-Required arguments include an object of class "water" created by \code{\link{define_water}},
+Required arguments include an object of class "water" created by \link{define_water},
 applied chlorine/chloramine dose, type, reaction time, and treatment applied (options include "raw" for
 no treatment, or "coag" for coagulated water). The function also requires additional water quality
-parameters defined in \code{define_water} including TOC and UV254. The output is a new "water" class
+parameters defined in \link{define_water} including TOC and UV254. The output is a new "water" class
 with the calculated total chlorine value stored in the 'free_chlorine' or 'combined_chlorine' slot,
 depending on what type of chlorine is dosed. When modeling residual concentrations
 through a unit process, the U.S. EPA Water Treatment Plant Model applies a correction factor based on the
@@ -98,38 +84,6 @@ shorter run times will not benefit from parallel processing.#'
 \examples{
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
   chemdose_chlordecay(cl2_dose = 2, time = 8)
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_chlordecay_once(input_water = "balanced_water", cl2_dose = 4, time = 8)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    cl2_dose = seq(2, 24, 2),
-    time = 30
-  ) \%>\%
-  chemdose_chlordecay_once(input_water = "balanced_water")
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(time = 8) \%>\%
-  chemdose_chlordecay_once(
-    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
-    cl_type = "chloramine"
-  )
-
 
 library(purrr)
 library(furrr)

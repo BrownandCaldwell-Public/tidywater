@@ -91,5 +91,5 @@ solveresid_o3_once <- function(df, input_water = "defined_water", output_column 
       ),
       solveresid_o3
     ) %>%
-      as.numeric)
+      as.numeric())
 }

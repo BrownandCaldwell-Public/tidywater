@@ -83,92 +83,6 @@ test_that("Blend waters warns about chloramines.", {
 ################################################################################*
 ################################################################################*
 # blend_waters helpers ----
-# Check blend_waters_once outputs are the same as base function, blend_waters
-
-test_that("blend_waters_once outputs are the same as base function, blend_waters", {
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )) %>%
-    balance_ions()
-
-  water2 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )) %>%
-    balance_ions() %>%
-    chemdose_ph(naoh = 20)
-
-  blend1 <- blend_waters(waters = c(water1, water2), ratios = c(.4, .6))
-
-  blend2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
-    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6)))
-
-  expect_equal(blend1@ph, blend2$ph)
-  expect_equal(blend1@temp, blend2$temp)
-  expect_equal(blend1@alk, blend2$alk)
-})
-
-# Check that output is a data frame
-
-test_that("blend_waters_once outputs a data frame", {
-  blend2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
-    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6)))
-
-
-  expect_true(is.data.frame(blend2))
-})
-
-# test different ways to input ratios
-
-test_that("blend_waters_once can handle different ways to input ratios", {
-  blend2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
-    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c(.4, .6)))
-
-
-  blend3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 20) %>%
-    mutate(
-      ratio1 = .4,
-      ratio2 = .6
-    ) %>%
-    blend_waters_once(waters = c("balanced_water", "dosed_chem_water"), ratios = c("ratio1", "ratio2")))
-
-
-  expect_equal(blend2$ph, blend3$ph)
-})
-
-
-test_that("blend_waters_once can handle water columns mixed with objects", {
-
-  water4 <- water_df %>%
-    slice(1:3) %>%
-    define_water_chain("A")
-  water5 <- define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-                         cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
-
-  blend4 <- water4 %>%
-    blend_waters_once(c("A", water5), c(.5,.5))
-
-  expect_equal(water_df$ph[1], blend4$ph[1])
-
-})
-
 # Test that blend_waters_chain outputs are the same as base function, blend_waters
 test_that("blend_waters_chain outputs are the same as base function, blend_waters", {
   water1 <- suppressWarnings(define_water(
@@ -242,15 +156,16 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
 })
 
 test_that("blend_waters_chain can handle water columns mixed with objects", {
-
   water4 <- water_df %>%
     slice(1:3) %>%
     define_water_chain("A")
-  water5 <- define_water(ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-                         cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05)
+  water5 <- define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  )
 
   blend4 <- water4 %>%
-    blend_waters_chain(c("A", water5), c(.5,.5))
+    blend_waters_chain(c("A", water5), c(.5, .5))
 
   final <- purrr::pluck(blend4, "blended_water", 1)
 

@@ -2,10 +2,9 @@
 #'
 #' @description This function applies the Terry model to a water created by [define_water] to determine biofiltered
 #' DOC (mg/L).
-#' For a single water use `biofilter_toc`; for a dataframe where you want to output a water for continued modeling use
-#' `biofilter_toc_chain`; for a dataframe where you want to output water parameters as columns use `biofilter_toc_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `biofilter_toc`; for a dataframe use `biofilter_toc_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -90,49 +89,6 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include a column indicating the EBCT or whether the water is ozonated.
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = 10, ozonated = FALSE)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(
-#'     BiofEBCT = rep(c(10, 15, 20), 4),
-#'     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
-#'   ) %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = BiofEBCT)
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `biofilter_toc_once` returns a data frame with updated DOC, TOC, and BDOC concentrations as columns.
-
-biofilter_toc_once <- function(df, input_water = "defined_water", ebct = "use_col", ozonated = "use_col") {
-  biofiltered_water <- biofilter <- NULL # Quiet RCMD check global variable note
-
-  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
-  ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
-
-  output <- df %>%
-    biofilter_toc_chain(
-      input_water = input_water, output_water = "biofiltered_water",
-      ebct, ozonated
-    ) %>%
-    mutate(biofilter = furrr::future_map(biofiltered_water, convert_water)) %>%
-    unnest(biofilter) %>%
-    select(-biofiltered_water)
-}
-
-#' @rdname biofilter_toc
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "biofiltered_water".
 #'
 #' @examples
@@ -188,9 +144,7 @@ biofilter_toc_chain <- function(df, input_water = "defined_water", output_water 
         water = !!as.name(input_water),
         ebct = !!as.name(arguments$final_names$ebct),
         # This logic needed for any argument that has a default
-        ozonated = ifelse(exists(as.name(arguments$final_names$ozonated), where = .),
-          !!as.name(arguments$final_names$ozonated), TRUE
-        )
+        ozonated = if (arguments$final_names$ozonated %in% names(.)) !!sym(arguments$final_names$ozonated) else rep(TRUE, nrow(.))
       ),
       biofilter_toc
     ))

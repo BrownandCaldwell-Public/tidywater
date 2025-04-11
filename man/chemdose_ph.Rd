@@ -2,7 +2,6 @@
 % Please edit documentation in R/chemdose_ph.R
 \name{chemdose_ph}
 \alias{chemdose_ph}
-\alias{chemdose_ph_once}
 \alias{chemdose_ph_chain}
 \title{Calculate new pH and ion balance after chemical addition}
 \usage{
@@ -30,29 +29,6 @@ chemdose_ph(
   softening_correction = FALSE
 )
 
-chemdose_ph_once(
-  df,
-  input_water = "defined_water",
-  hcl = "use_col",
-  h2so4 = "use_col",
-  h3po4 = "use_col",
-  co2 = "use_col",
-  naoh = "use_col",
-  na2co3 = "use_col",
-  nahco3 = "use_col",
-  caoh2 = "use_col",
-  mgoh2 = "use_col",
-  cl2 = "use_col",
-  naocl = "use_col",
-  nh4oh = "use_col",
-  nh42so4 = "use_col",
-  alum = "use_col",
-  ferricchloride = "use_col",
-  ferricsulfate = "use_col",
-  ach = "use_col",
-  caco3 = "use_col"
-)
-
 chemdose_ph_chain(
   df,
   input_water = "defined_water",
@@ -66,6 +42,7 @@ chemdose_ph_chain(
   nahco3 = "use_col",
   caoh2 = "use_col",
   mgoh2 = "use_col",
+  cacl2 = "use_col",
   cl2 = "use_col",
   naocl = "use_col",
   nh4oh = "use_col",
@@ -74,7 +51,8 @@ chemdose_ph_chain(
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
-  caco3 = "use_col"
+  caco3 = "use_col",
+  softening_correction = "use_col"
 )
 }
 \arguments{
@@ -130,17 +108,14 @@ chemdose_ph_chain(
 \value{
 \code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 
-\code{chemdose_ph_once} returns a data frame with columns for pH, alkalinity, and ions post-chemical addition.
-
 \code{chemdose_ph_chain} returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 }
 \description{
 Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 additions.
-For a single water use \code{chemdose_ph}; for a dataframe where you want to output a water for continued modeling use
-\code{chemdose_ph_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_ph_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{chemdose_ph}; for a dataframe use \code{chemdose_ph_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -182,26 +157,6 @@ dosed_water1 <- chemdose_ph(water2, caco3 = -100)
 dosed_water1@ph
 dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 dosed_water2@ph
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_once(input_water = "balanced_water", naoh = 5)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    hcl = seq(1, 12, 1),
-    naoh = 20
-  ) \%>\%
-  chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
 
 
 library(purrr)
