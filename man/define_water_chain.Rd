@@ -2,7 +2,7 @@
 % Please edit documentation in R/define_water.R
 \name{define_water_chain}
 \alias{define_water_chain}
-\title{Apply `define_water` within a dataframe and output a column of `water` class to be chained to other tidywater functions}
+\title{Apply \code{define_water} within a dataframe and output a column of \code{water} class to be chained to other tidywater functions}
 \usage{
 define_water_chain(df, output_water = "defined_water")
 }
@@ -16,14 +16,14 @@ A data frame containing a water class column.
 }
 \description{
 This function allows \code{\link{define_water}} to be added to a piped data frame.
-Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
+Its output is a \code{water} class, and can therefore be chained with "downstream" tidywater functions.
 }
 \details{
-For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
- for the option to use parallel processing and speed things up. To initialize parallel processing, use
- `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
- `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
- shorter run times will not benefit from parallel processing.
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
 
@@ -34,17 +34,17 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_chain()
 
 example_df <- water_df \%>\%
   define_water_chain(output_water = "This is a column of water") \%>\%
-  balance_ions_once(input_water = "This is a column of water")
+  balance_ions_chain(input_water = "This is a column of water")
 
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once()
+  balance_ions_chain()
 
 #' #Optional: explicitly close multisession processing
 plan(sequential)

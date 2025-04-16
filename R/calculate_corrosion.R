@@ -3,8 +3,9 @@
 
 #' @title Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR, CCPP)
 #'
-#' @description \code{calculate_corrosion} takes an object of class "water" created by \code{\link{define_water}} and calculates
-#' corrosion and scaling indices.
+#' @description This function takes an object created by [define_water] and calculates
+#' corrosion and scaling indices. For a single water, use `calculate_corrosion`; to apply the calculations to a
+#' dataframe, use `calculate_corrosion_once`.
 #'
 #' @details Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
 #'
@@ -22,6 +23,12 @@
 #' A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate.
 #' A negative CCPP indicates how much CaCO3 can be dissolved in the water.
 #'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
+#'
 #' @source AWWA (1977)
 #' @source Crittenden et al. (2012)
 #' @source Langelier (1936)
@@ -38,13 +45,11 @@
 #' @source See reference list at \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
-#' @param water Source water of class "water" created by \code{\link{define_water}}
+#' @param water Source water of class "water" created by [define_water]
 #' @param index The indices to be calculated.
 #'  Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
 #'  CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors
 #' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
-#'
-#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #' water <- define_water(
@@ -58,7 +63,7 @@
 #'
 #' @export
 #'
-#' @returns A water class object with updated corrosion and scaling index slots.
+#' @returns `calculate_corrosion` returns a single water class object with updated corrosion and scaling index slots.
 #'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
@@ -253,28 +258,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   return(water)
 }
 
-#' Apply `calculate_corrosion` to a dataframe and create new columns with up to 6 corrosion indices
-#'
-#' This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
-#' Up to six additional columns will be added to the dataframe depending on what corrosion/scaling
-#' indices are selected: Aggressive index (AI), Ryznar index (RI), Langelier saturation index (LSI),
-#' Larson-Skold index (LI), chloride-to-sulfate mass ratio (CSMR) & calcium carbonate precipitation potential (CCPP).
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a water class column, created using \code{\link{define_water}}
+#' @rdname calculate_corrosion
+#' @param df a data frame containing a water class column, created using [define_water]
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
-#' @param index The indices to be calculated.
-#'  Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr".
-#'  CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors
-#' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
-#' @seealso \code{\link{calculate_corrosion}}
 #'
 #' @examples
 #'
@@ -293,22 +279,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'   define_water_chain() %>%
 #'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
-#' }
-#'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns A data frame containing specified corrosion and scaling indices.
+#' @returns `calculate_corrosion_once` returns a data frame containing specified corrosion and scaling indices as columns.
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
@@ -321,34 +296,8 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
     select_if(~ any(!is.na(.)))
 }
 
-
-#' Apply `calculate_corrosion` to a dataframe and output a column of `water` class to be chained to other tidywater functions.
-#'
-#' This function allows \code{\link{calculate_corrosion}} to be added to a piped data frame.
-#' Up to six additional columns will be added to the output `water` class column depending on what corrosion/scaling
-#' indices are selected: Aggressive index (AI), Ryznar index (RI), Langelier saturation index (LSI),
-#' Larson-Skold index (LI), chloride-to-sulfate mass ratio (CSMR) & calcium carbonate precipitation potential (CCPP).
-#'
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' The `water` class column to use in the function is specified in the `input_water` argument (default input `water` is "defined_water".
-#' The name of the output `water` class column defaults to  "corrosion_indices", but may be altered using the `output_water` argument.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing a column, defined_water, which has already
-#' been computed using \code{\link{define_water}}, and a column named for each of the chemicals being dosed
-#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @rdname calculate_corrosion
 #' @param output_water name of output column storing updated indices with the class, water. Default is "corrosion_indices".
-#' @param index The indices to be calculated.
-#'  Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
-#'  CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors
-#' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
-#' @seealso \code{\link{calculate_corrosion}}
 #'
 #' @examples
 #'
@@ -381,7 +330,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' @import dplyr
 #' @export
 #'
-#' @returns A data frame containing a water class column with updated corrosion and scaling index slots.
+#' @returns `calculate_corrosion_chain` returns a data frame containing a water class column with updated corrosion and scaling index slots.
 
 calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
                                       index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
@@ -389,6 +338,8 @@ calculate_corrosion_chain <- function(df, input_water = "defined_water", output_
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
+
+  validate_water_helpers(df, input_water)
 
   index <- list(index)
 

@@ -13,8 +13,8 @@ mweights
 \description{
 A dataset containing the molar weights of several compounds in g/mol. Column names are lowercase chemical formulas (with no charge),
 with the exception of the following coagulants:
-alum = Al2(SO4)3*14H2O,
+alum = Al2(SO4)3\emph{14H2O,
 ferricchloride = FeCl3,
-ferricsulfate = Fe2(SO4)3*8.8H2O,
+ferricsulfate = Fe2(SO4)3}8.8H2O,
 }
 \keyword{datasets}

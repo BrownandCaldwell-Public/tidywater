@@ -2,6 +2,7 @@
 % Please edit documentation in R/chemdose_dbp.R
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
+\alias{chemdose_dbp_chain}
 \title{Calculate DBP formation}
 \source{
 TTHMs, raw: U.S. EPA (2001) equation 5-131
@@ -23,6 +24,17 @@ chemdose_dbp(
   cl_type = "chorine",
   location = "plant"
 )
+
+chemdose_dbp_chain(
+  df,
+  input_water = "defined_water",
+  output_water = "disinfected_water",
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}}
@@ -38,25 +50,89 @@ GAC treatment has also been used for estimating formation after membrane treatme
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
 
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water}. The df may include columns for the other function arguments.}
+
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 }
 \value{
-A water class object with predicted DBP concentrations.
+\code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
+
+\code{chemdose_dbp_chain} returns a data frame containing a water class column with predicted DBP concentrations.
 }
 \description{
-\code{chemdose_dbp} calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
+Calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
 Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an object of class "water"
-created by \code{\link{define_water}} chlorine dose, type, reaction time, and treatment applied (if any).
-The function also requires additional water quality parameters defined in \code{define_water}
+created by \link{define_water} chlorine dose, type, reaction time, and treatment applied (if any).
+The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, TOC, UV254, temperature, and pH.
+For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_chain}.
+For most arguments in the \verb{_chain} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \details{
 The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
-Use \code{summarise_wq} to quickly tabulate the results.
+Use \code{summarize_wq(water, params = c("dbps"))} to quickly tabulate the results.
+
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
-example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 2, time = 8)
-example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) \%>\%
+example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(
+    cl2 = seq(2, 24, 2),
+    time = 30
+  ) \%>\%
+  chemdose_dbp_chain(input_water = "balanced_water")
+
+example_df <- water_df \%>\%
+  mutate(br = 80) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  mutate(time = 8) \%>\%
+  chemdose_dbp_chain(
+    input_water = "balanced_water", cl = 6, treatment = "coag",
+    location = "ds", cl_type = "chloramine"
+  )
+
+\donttest{
+# Initialize parallel processing
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+example_df <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  balance_ions_chain() \%>\%
+  chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+
+# Optional: explicitly close multisession processing
+plan(sequential)
+}
 
 }

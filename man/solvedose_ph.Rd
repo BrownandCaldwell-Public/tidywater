@@ -2,9 +2,18 @@
 % Please edit documentation in R/solvedose_ph_alk.R
 \name{solvedose_ph}
 \alias{solvedose_ph}
+\alias{solvedose_ph_once}
 \title{Calculate a desired chemical dose for a target pH}
 \usage{
 solvedose_ph(water, target_ph, chemical)
+
+solvedose_ph_once(
+  df,
+  input_water = "defined_water",
+  output_column = "dose_required",
+  target_ph = "use_col",
+  chemical = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water of class "water" created by \code{\link{define_water}}}
@@ -13,16 +22,36 @@ solvedose_ph(water, target_ph, chemical)
 
 \item{chemical}{The chemical to be added. Current supported chemicals include:
 acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_chain}. The df may include a column with names for each of the chemicals being dosed.}
+
+\item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
+
+\item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \value{
 A numeric value for the required chemical dose.
+
+\code{solvedose_ph_once} returns a data frame containing the original data frame and columns for target pH, chemical dosed, and required chemical dose.
 }
 \description{
-\code{solvedose_ph} calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-The function takes an object of class "water" created by \code{\link{define_water}}, and user-specified chemical and target pH
+Calculates the required amount of a chemical to dose based on a target pH and existing water quality.
+The function takes an object of class "water", and user-specified chemical and target pH
 and returns a numeric value for the required dose in mg/L.
+For a single water, use \code{solvedose_ph}; to apply the model to a dataframe, use \code{solvedose_ph_once}.
+For most arguments, the \verb{_once} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
+}
+\details{
+\code{solvedose_ph} uses \code{\link[stats:uniroot]{stats::uniroot()}} on \link{chemdose_ph} to match the required dose for the requested pH target.
 
-\code{solvedose_ph} uses \code{uniroot} on \code{\link{chemdose_ph}} to match the required dose for the requested pH target.
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 10)
@@ -30,7 +59,43 @@ water <- define_water(ph = 7, temp = 25, alk = 10)
 # Calculate required dose of lime to reach pH 8
 solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(
+    target_ph = 10,
+    chemical = rep(c("naoh", "mgoh2"), 6)
+  ) \%>\%
+  solvedose_ph_once(input_water = "defined_water")
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
+
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(finpH = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh", target_ph = finpH)
+
+\donttest{
+# Initialize parallel processing
+plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(target_ph = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh")
+
+# Optional: explicitly close multisession processing
+plan(sequential)
+}
+
 }
 \seealso{
-\code{\link{define_water}}, \code{\link{chemdose_ph}}
+\link{chemdose_ph}, \link{solvedose_alk}
 }

@@ -118,94 +118,86 @@ test_that("Starting ammonia does not affect starting pH.", {
   expect_equal(water3@ph, 7)
 })
 
+test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
+
+  expect_warning(chemdose_ph(water1, cl2 = 30, nh42so4 = 20))
+  expect_warning(chemdose_ph(water1, naocl = 30, nh42so4 = 20))
+  expect_warning(chemdose_ph(water1, cl2 = 30, nh4oh = 20))
+  expect_no_warning(chemdose_ph(water1, cl2 = 30, naocl = 20))
+  expect_no_warning(chemdose_ph(water1, nh4oh = 10, nh42so4 = 12))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
+test_that("Warning when chlorine-based chemical is dosed into water containing ammonia", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+    chemdose_ph(nh4oh = 4)
+
+  expect_warning(chemdose_ph(water1, cl2 = 30))
+  expect_warning(chemdose_ph(water2, naocl = 30))
+  expect_no_warning(chemdose_ph(water1, nh4oh = 20))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
+test_that("Warning when ammonia-based chemical is dosed into water containing chlorine", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+    chemdose_ph(naocl = 4)
+
+  expect_warning(chemdose_ph(water1, nh42so4 = 30))
+  expect_warning(chemdose_ph(water2, nh4oh = 30))
+  expect_no_warning(chemdose_ph(water1, cl2 = 20))
+  expect_no_warning(chemdose_ph(water1, hcl = 20))
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_ph helpers ----
-# Check chemdose_ph_once outputs are the same as base function, chemdose_ph
-# Check that output is a data frame
-
-test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph", {
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )) %>%
-    balance_ions() %>%
-    chemdose_ph(naoh = 5)
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_once(input_water = "balanced_water", naoh = 5))
-
-  expect_equal(water1@ph, water2$ph)
-})
-
-# Check that output is a data frame
-
-test_that("chemdose_ph_once is a data frame", {
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_once(input_water = "balanced_water", naoh = 5))
-
-
-  expect_true(is.data.frame(water1))
-})
-
-# Check chemdose_ph_once can use a column or function argument for chemical dose
-
-test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
-  water0 <- water_df %>%
-    define_water_once()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_ph_once(input_water = "balanced_water", naoh = 5))
-
-  water2 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
-    mutate(naoh = 5) %>%
-    balance_ions_chain() %>%
-    chemdose_ph_once(input_water = "balanced_water"))
-
-  water3 <- water_df %>%
-    define_water_chain() %>%
-    mutate(naoh = seq(0, 11, 1)) %>%
-    chemdose_ph_once(hcl = c(5, 8))
-
-  water4 <- water3 %>%
-    slice(11) # same starting wq as water 5
-
-  water5 <- water1 %>%
-    slice(6) # same starting wq as water 4
-
-  expect_equal(water1$ph, water2$ph) # test different ways to input chemical
-  expect_equal(ncol(water3), ncol(water0) + 3) # both naoh and hcl dosed
-  expect_equal(nrow(water3), 24) # joined correctly
-  expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
-})
-
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
-  water1 <- suppressWarnings(define_water(
+  water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )) %>%
-    balance_ions() %>%
-    chemdose_ph(naoh = 10)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
+  water1 <- chemdose_ph(water0, naoh = 10)
+
+  water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain()) %>%
-    chemdose_ph_chain(input_water = "balanced_water", naoh = 10)
+    chemdose_ph_chain(input_water = "defined_water", naoh = 10) %>%
+    pluck_water(c("dosed_chem_water"), c("ph", "alk"))
 
-  water3 <- purrr::pluck(water2, 3, 1)
+  coag_doses <- tibble(alum = seq(0, 100, 10))
+  softening <- tibble(softening_correction = c(T, F))
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    cross_join(coag_doses) %>%
+    cross_join(softening) %>%
+    chemdose_ph_chain("raw", "dose") %>%
+    pluck_water(c("dose"), c("ph", "alk"))
 
-  expect_equal(water1, water3) # check against base
+  water4 <- chemdose_ph(water0, alum = 20)
+  water5 <- chemdose_ph(water0, alum = 100, softening_correction = FALSE)
+
+  water6 <- water_df %>%
+    slice(1) %>%
+    define_water_chain("raw") %>%
+    mutate(naoh = 10) %>%
+    cross_join(coag_doses) %>%
+    rename(NewName = alum) %>%
+    chemdose_ph_chain("raw", "dose", alum = NewName, naocl = c(0, 2)) %>%
+    pluck_water(c("dose"), c("ph", "alk"))
+
+  water7 <- chemdose_ph(water0, alum = 20, naocl = 2, naoh = 10)
+
+  expect_equal(water2$dosed_chem_water_alk[1], water1@alk)
+  expect_equal(water3$dose_ph[6], water4@ph)
+  expect_equal(water3$dose_ph[22], water5@ph)
+  expect_equal(water6$dose_ph[6], water7@ph)
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
@@ -217,7 +209,7 @@ test_that("chemdose_ph_chain output is list of water class objects, and can hand
     balance_ions_chain() %>%
     chemdose_ph_chain(input_water = "balanced_water", naoh = 10))
 
-  water2 <- purrr::pluck(water1, 3, 1)
+  water2 <- purrr::pluck(water1, 4, 1)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
@@ -226,7 +218,7 @@ test_that("chemdose_ph_chain output is list of water class objects, and can hand
     chemdose_ph_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[4]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one
