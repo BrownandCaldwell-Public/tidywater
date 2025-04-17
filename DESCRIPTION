@@ -34,7 +34,8 @@ Imports:
     purrr,
     furrr,
     methods,
-    rlang
+    rlang,
+    deSolve
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 

@@ -2,9 +2,9 @@
 
 test_that("chemdose_chlordecay returns modeled chlorine/chloramine residual = 0 when chlorine dose is 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
-  Ct <- suppressWarnings(chemdose_chlordecay(water1, cl2_dose = 0, time = 8))
+  water2 <- suppressWarnings(chemdose_chlordecay(water1, cl2_dose = 0, time = 8))
 
-  expect_equal(water1@ocl, 0)
+  expect_equal(water2@ocl, 0)
 })
 
 test_that("chemdose_chlordecay does not run when treatment_type isn't supplied correctly.", {

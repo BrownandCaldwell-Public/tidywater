@@ -14,6 +14,7 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * User may now choose which cation or anion to use for balancing ions
 * dic now calculated in `define_water`
 * dic now available in `convert_units`
+* `chemdose_chloramine` now available
 
 # tidywater 0.7.0
 
