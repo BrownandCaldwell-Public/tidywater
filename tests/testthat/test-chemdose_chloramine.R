@@ -84,7 +84,122 @@ test_that("chemdose_chloramine uses both slot and dose when slots are set to TRU
   })
 
 # chemdose_chloramine_chain ----
+# Test that chemdose_chloramine_chain outputs are the same as base function, chemdose_chloramine.
+test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chloramine", {
+  water0 <- define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  )
 
+  water1 <- chemdose_chloramine(water0, time = 20, nh3 = 1, cl2 = 1)
+
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_chloramine_chain(nh3 = 1, cl2 = 1, time = 20) %>%
+    pluck_water(c("chlorinated_water"), c("ph", "free_chlorine", "combined_chlorine"))
+
+  expect_equal(water2$chlorinated_water_ph[1], water1@ph)
+  expect_equal(water2$chlorinated_water_free_chlorine[1], water1@free_chlorine)
+  expect_equal(water2$chlorinated_water_combined_chlorine[1], water1@combined_chlorine)
+
+  water3 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, free_chlorine = 2, tot_nh3 = 2
+  ) %>%
+    chemdose_chloramine(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE))
+
+
+  water4 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(free_chlorine = 2, tot_nh3 = 2) %>%
+    define_water_chain() %>%
+    chemdose_chloramine_chain(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE) %>%
+    pluck_water(c("chlorinated_water"), c("ph", "free_chlorine", "combined_chlorine")))
+
+
+    expect_equal(water4$chlorinated_water_ph[1], water3@ph)
+    expect_equal(water4$chlorinated_water_free_chlorine[1], water3@free_chlorine)
+    expect_equal(water4$chlorinated_water_combined_chlorine[1], water3@combined_chlorine)
+})
+
+# Test that output is a column of water class lists, and changing the output column name works
+
+test_that("chemdose_chloramine_chain output is list of water class objects, and can handle an ouput_water arg", {
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(input_water = "balanced_water", time = 10, nh3 = 3, cl2 = 3))
+
+  water2 <- purrr::pluck(water1, 6, 1)
+
+  water3 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               mutate(nh3 = 3) %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(output_water = "diff_name", time = 10, cl2 = 3))
+
+  expect_s4_class(water2, "water") # check class
+  expect_equal(names(water3[6]), "diff_name") # check if output_water arg works
+})
+
+# Check that this function can be piped to the next one
+test_that("chemdose_chloramine_chain works", {
+  water1 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               mutate(nh3 = 2,
+                                      cl2 = 3,
+                                      time = 10) %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(input_water = "balanced_water"))
+
+  expect_equal(ncol(water1), 6) # check if pipe worked
+})
+
+# Check that variety of ways to input chemicals work
+test_that("chemdose_chloramine_chain can handle different ways to input chem doses", {
+  water1 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(input_water = "balanced_water", nh3 = 3, cl2 = 5, time = 30))
+
+  water2 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               mutate(nh3 = 3,
+                                      cl2 = 5,
+                                      time = 30) %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(input_water = "balanced_water"))
+
+  water3 <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               mutate(nh3 = seq(0, 11, 1)) %>%
+                               balance_ions_chain() %>%
+                               chemdose_chloramine_chain(cl2 = c(5, 8), time = 30))
+
+  water4 <- water3 %>%
+    slice(7) # same starting wq as water 5
+
+  water5 <- water1 %>%
+    slice(8) # same starting wq as water 4
+
+  # test different ways to input chemical
+  expect_equal(
+    pluck_water(water1, "chlorinated_water", "free_chlorine")$chlorinated_water_free_chlorine,
+    pluck_water(water2, "chlorinated_water", "free_chlorine")$chlorinated_water_free_chlorine
+  )
+
+  expect_equal(
+    pluck_water(water1, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine,
+    pluck_water(water2, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine
+  )
+
+  # expect_error(expect_equal(
+  #   pluck_water(water4, "dosed_chem_water", "toc")$dosed_chem_water_toc,
+  #   pluck_water(water5, "dosed_chem", "toc")$toc
+  # )) # since HCl added to water3, pH should be different
+})
 
 
 # note that this test only passes when chemdose_chlorine uses the original alpha0TOTNH and alpha1TOTNH
