@@ -37,8 +37,9 @@
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 #' water that has been coagulated or softened.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
-#' @param use_chlorine_slot Defaults to FALSE. When TRUE, uses either free_chlorine or combined_chlorine slot in water (depending on cl_type). If
-#' 'cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and and use_chlorine_slot is TRUE, all chlorine will be summed.
+#' @param use_chlorine_slot Defaults to FALSE. When TRUE, uses either free_chlorine or combined_chlorine slot in water (depending on cl_type).
+#' If cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and and use_chlorine_slot is TRUE,
+#' all chlorine will be summed.
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
 #'   chemdose_chlordecay(cl2_dose = 2, time = 8)
