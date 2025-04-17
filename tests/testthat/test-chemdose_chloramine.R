@@ -22,34 +22,33 @@ test_that("chemdose_chloramine returns free_chlorine = 0 when existing free chlo
   expect_equal(water2@free_chlorine, 0)
 })
 
-test_that("chemdose_chloramine warns when chloramine is present in the system in the form of combined_chlorine.", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5, combined_chlorine = 1, tot_nh3 = 1))
-
-  warnings <- capture_warnings(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1, cl_use_slot = TRUE, nh3_use_slot = TRUE, multi_nh3_source = 2))
-  expect_equal(length(warnings),3)
-})
-
-test_that("chemdose_chloramine warns when chloramine is present in the system.", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
+test_that("chemdose_chloramine warns when chloramine is already present in water.", {
+  # add one chloramine species
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65))
   water1@nh2cl <- 1
+
+  # add 2 chloramine species
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65))
   water2@nhcl2 <- 1
-  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
-  water3@ncl3 <- 1
-  water4 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 2, tot_nh3 = 2))
-  water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, tot_nh3 = 2))
+  water2@ncl3 <- 1
 
-  warnings1 <- capture_warnings(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1, cl_use_slot = TRUE, nh3_use_slot = TRUE, multi_nh3_source = 2))
-  expect_equal(length(warnings1),3)
-  warnings2 <- capture_warnings(chemdose_chloramine(water2, time = 5, cl2 = 1, nh3 = 2))
-  expect_equal(length(warnings2),1)
-  warnings3 <- capture_warnings(chemdose_chloramine(water3, time = 30, cl2 = 2, cl_use_slot = FALSE, nh3 = 2))
-  expect_equal(length(warnings3),3)
-  warnings4 <- capture_warnings(chemdose_chloramine(water4, time = 10, cl2 = 1, nh3 = 4, multi_cl_source = 1, multi_nh3_source = 2))
-  expect_equal(length(warnings4),2)
-  warnings5 <- capture_warnings(chemdose_chloramine(water5, time = 10, cl2 = 1, nh3 = 4, multi_cl_source = 1, multi_nh3_source = 2))
-  expect_equal(length(warnings5),1)
+  # combined chlorine
+  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, combined_chlorine = 1))
+
+
+  expect_warning(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1), "nh2cl")
+  expect_warning(chemdose_chloramine(water2, time = 20, cl2 = 3, nh3 = 1), "nh2cl")
+  expect_warning(chemdose_chloramine(water3, time = 20, cl2 = 3, nh3 = 1), "combined_")
+
 })
+
+test_that("chemdose_chloramine warns when existing free cl2 or nh3 is ignored.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 2))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, tot_nh3 = 2))
+
+  expect_warning(chemdose_chloramine(water1, time = 20, cl2 = 3, nh3 = 1), "ignored")
+  expect_warning(chemdose_chloramine(water2, time = 20, cl2 = 3, nh3 = 1), "ignored")
+  })
 
 test_that("chemdose_chloramine stops working when inputs are missing.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
@@ -57,29 +56,29 @@ test_that("chemdose_chloramine stops working when inputs are missing.", {
 
   # note suppressed warnings
   expect_no_error(suppressWarnings(chemdose_chloramine(water1, time = 20, cl2 = 1)))
-  expect_error(chemdose_chloramine(water2, cl2 = 4, cl_use_slot = TRUE)) # missing time
+  expect_error(chemdose_chloramine(water2, cl2 = 4, use_free_cl_slot = TRUE)) # missing time
 })
 
 test_that("chemdose_chloramine stops working when time input is set to less than 1 minute.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
 
-  expect_error(chemdose_chloramine(water1, time = 0.5, cl2 = 4, cl_use_slot = TRUE)) # time < 1 min
+  expect_error(chemdose_chloramine(water1, time = 0.5, cl2 = 4, use_free_cl_slot = TRUE)) # time < 1 min
 })
 
 test_that("chemdose_chloramine stops running when input multi_cl_source is set to an invalid value.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
   water2 <- suppressWarnings(define_water(ph = 9, temp = 25, alk = 75, free_chlorine = 5))
 
-  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, cl_use_slot = TRUE, multi_cl_source = 3))
-  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, nh3 = 2, cl_use_slot = TRUE, multi_cl_source = 4))
+  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, use_free_cl_slot = TRUE, multi_cl_source = 3))
+  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, nh3 = 2, use_free_cl_slot = TRUE, multi_cl_source = 4))
 })
 
 test_that("chemdose_chloramine stops running when input multi_nh3_source is set to an invalid value.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5,tot_nh3 = 1))
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 1,tot_nh3 = 1))
 
-  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, cl_use_slot = TRUE, multi_nh3_source = -1))
-  expect_error(chemdose_chloramine(water1, time = 10, nh3 = 2, nh3_use_slot = TRUE, multi_nh3_source = 10))
+  expect_error(chemdose_chloramine(water1, time = 40, cl2 = 2, use_free_cl_slot = TRUE, multi_nh3_source = -1))
+  expect_error(chemdose_chloramine(water1, time = 10, nh3 = 2, use_tot_nh3_slot = TRUE, multi_nh3_source = 10))
 })
 
 
