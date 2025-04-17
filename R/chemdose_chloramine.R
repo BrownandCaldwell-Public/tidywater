@@ -297,7 +297,10 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'     cl2 = seq(1,12,1),
 #'     nh3 = 2
 #'   ) %>%
-#'   chemdose_chloramine_chain(input_water = "balanced_water", use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE) %>%
+#'   chemdose_chloramine_chain(
+#'   input_water = "balanced_water",
+#'   use_free_cl_slot = TRUE,
+#'   use_tot_nh3_slot = TRUE) %>%
 #'   pluck_water("chlorinated_water", c("free_chlorine", "combined_chlorine"))
 #'
 #'
