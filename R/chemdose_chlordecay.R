@@ -37,22 +37,60 @@
 #' @param treatment Type of treatment applied to the water. Options include "raw" for no treatment (default), "coag" for
 #' water that has been coagulated or softened.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
+#' @param use_chlorine_slot Defaults to FALSE. When TRUE, uses either free_chlorine or combined_chlorine slot in water (depending on cl_type). If
+#' 'cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and and use_chlorine_slot is TRUE, all chlorine will be summed.
 #' @examples
 #' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
 #'   chemdose_chlordecay(cl2_dose = 2, time = 8)
+#'
+#' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) %>%
+#'   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE))
+#'
 #' @export
 #' @returns `chemdose_chlordecay` returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
 #' Use [convert_units] to convert to mg/L.
 #'
-chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine") {
-  validate_water(water, c("toc", "uv254"))
+chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine", use_chlorine_slot = FALSE) {
+
+
+  if (use_chlorine_slot & cl_type == "chlorine") {
+    validate_water(water, c("toc", "uv254", "free_chlorine"))
+  } else if (use_chlorine_slot & cl_type == "chloramine") {
+    validate_water(water, c("toc", "uv254", "combined_chlorine"))
+  } else {
+    validate_water(water, c("toc", "uv254"))
+  }
+
 
   toc <- water@toc
   uv254 <- water@uv254
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2_dose)) {
-    stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
+
+    if (!use_chlorine_slot) {
+      stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
+
+    } else if (use_chlorine_slot) {
+
+      if (cl_type == "chlorine") {
+        cl2_dose <- convert_units(water@free_chlorine, "cl", "M", "mg/L")
+        warning("Missing value for chlorine dose. Function used free_chlorine water slot instead.")
+
+      } else if (cl_type == "chloramine") {
+        cl2_dose <- convert_units(water@combined_chlorine, "cl", "M", "mg/L")
+        warning("Missing value for chlorine dose. Function used combined_chlorine water slot instead.")
+      }
+    }
+  } else if (cl2_dose > 0 & use_chlorine_slot) {
+    if (cl_type == "chlorine") {
+      cl2_dose <- cl2_dose + convert_units(water@free_chlorine, "cl", "M", "mg/L")
+      warning("Function summed both cl2_dose and free_chlorine water slot for input chlorine dose.")
+
+    } else if (cl_type == "chloramine") {
+      cl2_dose <- cl2_dose + convert_units(water@combined_chlorine, "cl", "M", "mg/L")
+      warning("Function summed both cl2_dose and combined_chlorine water slot for input chlorine dose.")
+    }
   }
 
   if (missing(time)) {
@@ -183,14 +221,15 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
+#'   mutate(br = 50,
+#'          free_chlorine = 2) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
 #'     cl2_dose = seq(2, 24, 2),
 #'     ClTime = 30
 #'   ) %>%
-#'   chemdose_chlordecay_chain(input_water = "balanced_water", time = ClTime)
+#'   chemdose_chlordecay_chain(input_water = "balanced_water", time = ClTime, use_chlorine_slot = TRUE)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 80) %>%
@@ -222,19 +261,21 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
 chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                       cl2_dose = "use_col", time = "use_col",
-                                      treatment = "use_col", cl_type = "use_col") {
+                                      treatment = "use_col", cl_type = "use_col",
+                                      use_chlorine_slot = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
   time <- tryCatch(time, error = function(e) enquo(time))
   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+  use_chlorine_slot <- tryCatch(use_chlorine_slot, error = function(e) enquo(use_chlorine_slot))
 
   validate_water_helpers(df, input_water)
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, list(
     "cl2_dose" = cl2_dose, "time" = time,
-    "treatment" = treatment, "cl_type" = cl_type
+    "treatment" = treatment, "cl_type" = cl_type, "use_chlorine_slot" = use_chlorine_slot
   ))
 
   # Only join inputs if they aren't in existing dataframe
@@ -249,7 +290,8 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
         cl2_dose = !!as.name(arguments$final_names$cl2_dose),
         time = !!as.name(arguments$final_names$time),
         treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
-        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.))
+        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.)),
+        use_chlorine_slot = if (arguments$final_names$use_chlorine_slot %in% names(.)) !!sym(arguments$final_names$use_chlorine_slot) else rep(FALSE, nrow(.))
       ),
       chemdose_chlordecay
     ))
