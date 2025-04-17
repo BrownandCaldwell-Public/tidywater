@@ -15,7 +15,7 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * dic now calculated in `define_water`
 * dic now available in `convert_units`
 * `chemdose_chloramine` now available
-* `chemdose_chlordecay` now as argument, `use_chlorine_slot`. Function can now use chlorine dose and/or free_chlorine or combined_chlorine slots.
+* `chemdose_chlordecay` now has argument, `use_chlorine_slot`. Function can now use chlorine dose and/or free_chlorine or combined_chlorine slots.
 
 # tidywater 0.7.0
 

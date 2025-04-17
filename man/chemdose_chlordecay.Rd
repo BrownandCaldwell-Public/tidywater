@@ -45,7 +45,7 @@ water that has been coagulated or softened.}
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
 
 \item{use_chlorine_slot}{Defaults to FALSE. When TRUE, uses either free_chlorine or combined_chlorine slot in water (depending on cl_type).
-If cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and and use_chlorine_slot is TRUE,
+If 'cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and use_chlorine_slot is TRUE,
 all chlorine will be summed.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
