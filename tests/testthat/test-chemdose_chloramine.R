@@ -185,18 +185,22 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
                                balance_ions_chain() %>%
                                chemdose_chloramine_chain(cl2 = c(5, 8), time = 30))
 
-  water4 <- water3 %>% slice(7) # same starting wq as water 5
+  water4 <- water3 %>%
+    slice(7) %>%  # same starting wq as water 5
+    pluck_water("chlorinated_water", c("combined_chlorine", "free_chlorine"))
 
-  water5 <- water1 %>% slice(8) # same starting wq as water 4
+  water5 <- water1 %>%
+    slice(4) %>%  # same starting wq as water 4
+    pluck_water("chlorinated_water", c("combined_chlorine", "free_chlorine"))
 
   expect_equal(
-    pluck_water(water1, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine,
-    pluck_water(water2, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine
+    water4$chlorinated_water_combined_chlorine,
+    water5$chlorinated_water_combined_chlorine
   )
 
  expect_equal(
-    pluck_water(water4, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine,
-    pluck_water(water5, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine
+   water4$chlorinated_water_free_chlorine,
+   water5$chlorinated_water_free_chlorine
   )
 
  water6 <- suppressWarnings(water_df %>%
