@@ -107,8 +107,10 @@ example_df <- water_df \%>\%
   chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
-  mutate(br = 50,
-         free_chlorine = 2) \%>\%
+  mutate(
+    br = 50,
+    free_chlorine = 2
+  ) \%>\%
   define_water_chain() \%>\%
   balance_ions_chain() \%>\%
   mutate(

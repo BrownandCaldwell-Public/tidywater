@@ -4,7 +4,7 @@ test_that("chemdose_chlordecay returns modeled chlorine/chloramine residual = 0 
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
   water2 <- suppressWarnings(chemdose_chlordecay(water1, cl2_dose = 0, time = 8))
   water3 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, free_chlorine = 2, combined_chlorine = 1) %>%
-                               chemdose_chlordecay(cl2_dose = 0, time = 8))
+    chemdose_chlordecay(cl2_dose = 0, time = 8))
 
   expect_equal(water2@free_chlorine, 0)
   expect_equal(water2@combined_chlorine, 0)
@@ -12,7 +12,6 @@ test_that("chemdose_chlordecay returns modeled chlorine/chloramine residual = 0 
   # should function change existing residuals to 0 if no chlorine dose supplied & slot = FALSE?
   expect_equal(water3@free_chlorine, 0)
   expect_equal(convert_units(water3@combined_chlorine, "cl2", "M", "mg/L"), 1)
-
 })
 
 test_that("chemdose_chlordecay does not run when treatment_type isn't supplied correctly.", {
@@ -60,15 +59,14 @@ test_that("chemdose_chlordecay stops working when inputs are missing", {
 })
 
 test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
-
   ###* CHLORINE ----
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2, combined_chlorine = 3) %>%
-                               chemdose_chlordecay(cl_type = "chlorine", time = 10, cl2_dose = 6))
+    chemdose_chlordecay(cl_type = "chlorine", time = 10, cl2_dose = 6))
 
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2, combined_chlorine = 3) %>%
-                               chemdose_chlordecay(cl_type = "chlorine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
+    chemdose_chlordecay(cl_type = "chlorine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
 
-  #compare output of using slot to not using slot
+  # compare output of using slot to not using slot
   expect_error(expect_equal(water2@free_chlorine, water1@free_chlorine))
   # check that free_chlorine was still calculated
   expect_error(expect_equal(water2@free_chlorine, 0))
@@ -79,9 +77,9 @@ test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
 
   # use slot but no dose
   water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2, combined_chlorine = 3) %>%
-                               chemdose_chlordecay(cl_type = "chlorine", time = 10, use_chlorine_slot = TRUE))
+    chemdose_chlordecay(cl_type = "chlorine", time = 10, use_chlorine_slot = TRUE))
 
-  #compare output of using slot w/o a dose to not using slot
+  # compare output of using slot w/o a dose to not using slot
   expect_error(expect_equal(water3@free_chlorine, water1@free_chlorine))
   # check that free_chlorine was still calculated
   expect_error(expect_equal(water3@free_chlorine, 0))
@@ -92,12 +90,12 @@ test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
 
   ###* CHLORAMINE ----
   water4 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2, combined_chlorine = 3) %>%
-                               chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6))
+    chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6))
 
   water5 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2, combined_chlorine = 3) %>%
-                               chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
+    chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
 
-  #compare output of using slot to not using slot
+  # compare output of using slot to not using slot
   expect_error(expect_equal(water5@combined_chlorine, water4@combined_chlorine))
 
   # check that combined_chlorine was still calculated
@@ -109,7 +107,7 @@ test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
 
   # what if water slot is NA - check that combined_chlor still calc'd correctly
   water6 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2) %>%
-                               chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
+    chemdose_chlordecay(cl_type = "chloramine", time = 10, cl2_dose = 6, use_chlorine_slot = TRUE))
 
   # check that output combined_chlor is the same as if not using the water slot (and that it doesn't accidentally use free_chlor instead)
   expect_equal(water4@combined_chlorine, water6@combined_chlorine)
@@ -164,7 +162,7 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
   water4 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
-    mutate(  free_chlorine = 2, combined_chlorine = 1) %>%
+    mutate(free_chlorine = 2, combined_chlorine = 1) %>%
     define_water_chain() %>%
     chemdose_chlordecay_chain(cl2_dose = 10, time = 8, output_water = "chlor", use_chlorine_slot = TRUE) %>%
     pluck_water("chlor", "free_chlorine")
@@ -187,7 +185,6 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
 
   water6 <- chemdose_chlordecay(water0, cl2_dose = 4, time = 4, cl_type = "chloramine")
   expect_equal(water6@combined_chlorine, water5$chlor_combined_chlorine[4])
-
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
@@ -219,8 +216,10 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
 test_that("chemdose_chlordecay_chain can use a column or function argument for chemical dose", {
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    mutate(br = 80,
-           free_chlorine = 2) %>%
+    mutate(
+      br = 80,
+      free_chlorine = 2
+    ) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
     chemdose_chlordecay_chain(input_water = "balanced_water", time = 120, cl2_dose = 10, use_chlorine_slot = TRUE) %>%
@@ -228,8 +227,10 @@ test_that("chemdose_chlordecay_chain can use a column or function argument for c
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    mutate(br = 80,
-           free_chlorine = 2) %>%
+    mutate(
+      br = 80,
+      free_chlorine = 2
+    ) %>%
     define_water_chain() %>%
     mutate(
       time = 120,
@@ -242,8 +243,10 @@ test_that("chemdose_chlordecay_chain can use a column or function argument for c
 
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    mutate(br = 80,
-           free_chlorine = 2) %>%
+    mutate(
+      br = 80,
+      free_chlorine = 2
+    ) %>%
     define_water_chain() %>%
     mutate(time = 120) %>%
     balance_ions_chain() %>%
@@ -260,10 +263,14 @@ test_that("chemdose_chlordecay_chain errors with argument + column for same para
     mutate(free_chlorine = 2) %>%
     define_water_chain("water")
   expect_error(water %>%
-    mutate(cl2_dose = 5,
-           use_chlorine_slot = TRUE) %>%
-    chemdose_chlordecay_chain(input_water = "water", time = 120, cl2_dose = 10,
-                              use_chlorine_slot = TRUE))
+    mutate(
+      cl2_dose = 5,
+      use_chlorine_slot = TRUE
+    ) %>%
+    chemdose_chlordecay_chain(
+      input_water = "water", time = 120, cl2_dose = 10,
+      use_chlorine_slot = TRUE
+    ))
   expect_error(water %>%
     mutate(time = 5) %>%
     chemdose_chlordecay_chain(input_water = "water", time = 120, cl2_dose = 10))
@@ -281,4 +288,3 @@ test_that("chemdose_chlordecay_chain correctly handles arguments with multiple n
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))
 })
-

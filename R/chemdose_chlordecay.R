@@ -52,8 +52,6 @@
 #' Use [convert_units] to convert to mg/L.
 #'
 chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine", use_chlorine_slot = FALSE) {
-
-
   if (use_chlorine_slot & cl_type == "chlorine") {
     validate_water(water, c("toc", "uv254", "free_chlorine"))
   } else if (use_chlorine_slot & cl_type == "chloramine") {
@@ -68,16 +66,12 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(cl2_dose)) {
-
     if (!use_chlorine_slot) {
       stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
-
     } else if (use_chlorine_slot) {
-
       if (cl_type == "chlorine") {
         cl2_dose <- convert_units(water@free_chlorine, "cl", "M", "mg/L")
         warning("Missing value for chlorine dose. Function used free_chlorine water slot instead.")
-
       } else if (cl_type == "chloramine") {
         cl2_dose <- convert_units(water@combined_chlorine, "cl", "M", "mg/L")
         warning("Missing value for chlorine dose. Function used combined_chlorine water slot instead.")
@@ -87,7 +81,6 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     if (cl_type == "chlorine") {
       cl2_dose <- cl2_dose + convert_units(water@free_chlorine, "cl", "M", "mg/L")
       warning("Function summed both cl2_dose and free_chlorine water slot for input chlorine dose.")
-
     } else if (cl_type == "chloramine") {
       cl2_dose <- cl2_dose + convert_units(water@combined_chlorine, "cl", "M", "mg/L")
       warning("Function summed both cl2_dose and combined_chlorine water slot for input chlorine dose.")
@@ -222,8 +215,10 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'   chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br = 50,
-#'          free_chlorine = 2) %>%
+#'   mutate(
+#'     br = 50,
+#'     free_chlorine = 2
+#'   ) %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
 #'   mutate(
