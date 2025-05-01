@@ -33,16 +33,58 @@ toc_regulations <- function(raw_toc, ph, alk, final_toc) {
 #   final_toc = 4
   removal <- (raw_toc- final_toc) / raw_toc *100
 
-if(toc >2 & toc <4 & alk < 60 & removal >=35) {
+if(raw_toc >2 & raw_toc <4 & alk < 60 & removal >=35) {
 
 print("In compliance")
   stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
   warning("sdfafd")
 
-} #else if () {
-
+} else if (raw_toc >4 & raw_toc <8 & alk <60 & removal>=45) {
+  
+  print("In compliance")
+  stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  
 #}
+  else if(raw_toc >8 & alk <60 & removal >=50) {
+    
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  }
 
+  else if(raw_toc >2 & raw_toc <4 & alk >60 & alk<120 & removal >=25) {
+    
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  }
+    
+  else if(raw_toc >4 & raw_toc <8 & alk >60 & alk <120 & removal >=35){
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  }
+  
+  else if(raw_toc >8 & alk >60 & alk<120 & removal >=40) {
+    
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    
+  }
+  else if(raw_toc >2 & raw_toc <4 & alk >120 & removal >=15) {
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    
+  }
+  else if(raw_toc >4 & raw_toc <8 & alk >120 & removal >=25) {
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  }
+  
+  else if(raw_toc >8 & alk >120 & removal >=30) {
+    print("In compliance")
+    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  
+  }
+  
+    
 }
 
 toc_regulations(5, 7, 60, 2)
