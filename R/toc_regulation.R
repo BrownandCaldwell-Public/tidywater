@@ -1,6 +1,6 @@
 #' @title Determine if TOC meets requirements
 #' @description This function takes a vector of waters defined by [define_water]
-#' and a vector of ratios and outputs a new water object with updated ions and pH.
+#' and a vector of ratios and outputs a new object with updated ions and pH.
 #' For a single blend use `blend_waters`; for a dataframe use `blend_waters_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #'
