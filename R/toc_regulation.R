@@ -29,62 +29,78 @@
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 toc_regulations <- function(raw_toc, ph, alk, final_toc) {
-# raw_toc = 8
-#   final_toc = 4
+  
+  # Input parameters for raw water:
+  print(paste("Raw TOC (mg/L):", raw_toc))
+  print(paste("pH:", ph))
+  print(paste("Alkalinity (mg/L as calcium carbonate):", alk))
+  print(paste("Final TOC (mg/L):", final_toc))
+  
+  #Calculate removal percentage for TOC:
   removal <- (raw_toc- final_toc) / raw_toc *100
+  print(paste("Removal percentage:", removal))
 
-if(raw_toc >2 & raw_toc <4 & alk < 60 & removal >=35) {
+  #Checking compliance considering inputs:
+  
+if(raw_toc >2 & raw_toc <4 & alk <= 60 & removal >=35) {
 
 print("In compliance")
-  stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
-  warning("sdfafd")
+  return()
 
-} else if (raw_toc >4 & raw_toc <8 & alk <60 & removal>=45) {
+} else if (raw_toc >4 & raw_toc <8 & alk <=60 & removal>=45) {
   
   print("In compliance")
-  stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+  return()
   
-#}
-  else if(raw_toc >8 & alk <60 & removal >=50) {
+}
+  else if(raw_toc >8 & alk <=60 & removal >=50) {
     
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    return()
   }
 
-  else if(raw_toc >2 & raw_toc <4 & alk >60 & alk<120 & removal >=25) {
+  else if(raw_toc >2 & raw_toc <4 & alk >60 & alk <=120 & removal >=25) {
     
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+   return()
   }
     
-  else if(raw_toc >4 & raw_toc <8 & alk >60 & alk <120 & removal >=35){
+  else if(raw_toc >4 & raw_toc <8 & alk >60 & alk <=120 & removal >=35){
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    return()
   }
   
-  else if(raw_toc >8 & alk >60 & alk<120 & removal >=40) {
+  else if(raw_toc >8 & alk >60 & alk <=120 & removal >=40) {
     
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    return()
     
   }
   else if(raw_toc >2 & raw_toc <4 & alk >120 & removal >=15) {
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    return()
     
   }
   else if(raw_toc >4 & raw_toc <8 & alk >120 & removal >=25) {
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
+    return()
   }
   
   else if(raw_toc >8 & alk >120 & removal >=30) {
     print("In compliance")
-    stop("Based on this Raw water TOC and alk, you have not removed the required TOC")
-  
+   return()
+
   }
   
-    
+  else {
+    print("Not in compliance")
+    stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
+  }
+
 }
 
+#test the function with raw water parameters
 toc_regulations(5, 7, 60, 2)
+
+
+
