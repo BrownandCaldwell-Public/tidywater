@@ -107,6 +107,7 @@ if(raw_toc >2 & raw_toc <4 & alk <= 60 & removal >=35) {
 
 }
 
+# devtools::load_all()
 #test the function with raw water parameters
 water <- define_water(ph = 8, alk=44, temp = 20)
 toc_regulations(water = water, 5, 7)
