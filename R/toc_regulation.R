@@ -28,7 +28,7 @@
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 toc_regulations <- function(water, raw_toc, final_toc) {
-  ph <-
+  ph <-water@ph
 
   # Input parameters for raw water:
   print(paste("Raw TOC (mg/L):", raw_toc))
@@ -108,7 +108,8 @@ if(raw_toc >2 & raw_toc <4 & alk <= 60 & removal >=35) {
 }
 
 #test the function with raw water parameters
-toc_regulations(5, 7, 60, 2)
+water <- define_water(ph = 8, alk=44, temp = 20)
+toc_regulations(water = water, 5, 7)
 
 
- 
+
