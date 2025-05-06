@@ -1,31 +1,30 @@
 #' @title Determine if TOC meets requirements
-#' @description This function takes a vector of waters defined by [define_water]
-#' and a vector of ratios and outputs a new object with updated ions and pH.
-#' For a single blend use `blend_waters`; for a dataframe use `blend_waters_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
-#'
-#' @details
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.#'
-#'
-#' @param waters Vector of source waters created by [define_water]. For `chain` function, this can include
-#' quoted column names and/or existing single water objects unquoted.
-#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` function,
-#' this can also be a list of quoted column names.
-#'
-#' @seealso \code{\link{define_water}}
-#'
+#' @description This function takes input parameters for raw water including TOC,
+#' pH, and alkalinity, and calculates the removal percentage for TOC. It then
+#' checks compliance with regulations based on these inputs.
+#' 
+#' @details The function prints the input parameters and the calculated removal
+#' percentage for TOC. It checks compliance with regulations considering the raw
+#' TOC, alkalinity, and removal percentage. If the conditions are met, it prints
+#' "In compliance"; otherwise, it prints "Not in compliance" and stops execution
+#' with an error message.
+#' @param raw_toc Numeric value representing the raw TOC (mg/L).
+#' 
+#' @param ph Numeric value representing the pH of the water.
+#' 
+#' @param alk Numeric value representing the alkalinity (mg/L as calcium carbonate).
+#' 
+#' @param final_toc Numeric value representing the final TOC (mg/L).
+#' 
 #' @examples
-#' water1 <- define_water(7, 20, 50)
-#' water2 <- define_water(7.5, 20, 100, tot_nh3 = 2)
-#' blend_waters(c(water1, water2), c(.4, .6))
-#'
+#' toc_regulations(5, 7, 60, 2)
+#' 
 #' @export
+#' 
+#' @returns The function return "In compliance" if the conditions are met,
+#' otherwise it stops execution with an error message.
 #'
-#' @returns `blend_waters` returns a water class object with blended water quality parameters.
+#'
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 toc_regulations <- function(raw_toc, ph, alk, final_toc) {
