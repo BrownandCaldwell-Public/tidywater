@@ -102,4 +102,4 @@ print("In compliance")
 toc_regulations(5, 7, 60, 2)
 
 
-
+ 
