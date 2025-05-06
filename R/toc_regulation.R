@@ -111,4 +111,4 @@ if(raw_toc >2 & raw_toc <4 & alk <= 60 & removal >=35) {
 toc_regulations(5, 7, 60, 2)
 
 
-
+ 
