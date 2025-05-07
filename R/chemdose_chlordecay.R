@@ -71,10 +71,8 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     } else if (use_chlorine_slot) {
       if (cl_type == "chlorine") {
         cl2_dose <- convert_units(water@free_chlorine, "cl", "M", "mg/L")
-        warning("Missing value for chlorine dose. Function used free_chlorine water slot instead.")
       } else if (cl_type == "chloramine") {
         cl2_dose <- convert_units(water@combined_chlorine, "cl", "M", "mg/L")
-        warning("Missing value for chlorine dose. Function used combined_chlorine water slot instead.")
       }
     }
   } else if (cl2_dose > 0 & use_chlorine_slot) {
