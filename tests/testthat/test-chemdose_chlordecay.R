@@ -140,8 +140,8 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
                          free_chlorine = 2, combined_chlorine = 1
   )
 
-  water1 <- water0 %>%
-    chemdose_chlordecay(cl2_dose = 10, time = 8)
+  water1 <- suppressWarnings(water0 %>%
+    chemdose_chlordecay(cl2_dose = 10, time = 8))
 
   water2 <- water_df %>%
     mutate(br = 50) %>%
@@ -178,7 +178,7 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
     chemdose_chlordecay_chain(time = 4, cl_type = free_mono, output_water = "chlor") %>%
     pluck_water("chlor", "combined_chlorine")
 
-  water6 <- chemdose_chlordecay(water0, cl2_dose = 4, time = 4, cl_type = "chloramine")
+  water6 <- suppressWarnings(chemdose_chlordecay(water0, cl2_dose = 4, time = 4, cl_type = "chloramine"))
   expect_equal(water6@combined_chlorine, water5$chlor_combined_chlorine[4])
 })
 
@@ -275,10 +275,10 @@ test_that("chemdose_chlordecay_chain correctly handles arguments with multiple n
   water <- water_df %>%
     define_water_chain("water")
 
-  water1 <- water %>%
-    chemdose_chlordecay_chain("water", time = c(60, 120), cl2_dose = 5)
-  water2 <- water %>%
-    chemdose_chlordecay_chain("water", time = 120, cl2_dose = seq(2, 4, 1))
+  water1 <-suppressWarnings(water %>%
+    chemdose_chlordecay_chain("water", time = c(60, 120), cl2_dose = 5))
+  water2 <- suppressWarnings(water %>%
+    chemdose_chlordecay_chain("water", time = 120, cl2_dose = seq(2, 4, 1)))
 
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))
