@@ -75,6 +75,19 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
         cl2_dose <- convert_units(water@combined_chlorine, "cl", "M", "mg/L")
       }
     }
+  }
+# can't do if (missing(cl2_dose) | cl2_dose ==0). Tried this and tests won't pass:
+  # Error in chemdose_chlordecay(., cl_type = "chlorine", time = 10, use_chlorine_slot = TRUE) : argument "cl2_dose" is missing, with no default
+  if (cl2_dose == 0) {
+    if (!use_chlorine_slot) {
+      stop("Missing value for chlorine dose. Please check the function inputs required to calculate chlorine/chloramine decay.")
+    } else if (use_chlorine_slot) {
+      if (cl_type == "chlorine") {
+        cl2_dose <- convert_units(water@free_chlorine, "cl", "M", "mg/L")
+      } else if (cl_type == "chloramine") {
+        cl2_dose <- convert_units(water@combined_chlorine, "cl", "M", "mg/L")
+      }
+    }
   } else if (cl2_dose > 0 & use_chlorine_slot) {
     if (cl_type == "chlorine") {
       cl2_dose <- cl2_dose + convert_units(water@free_chlorine, "cl", "M", "mg/L")
