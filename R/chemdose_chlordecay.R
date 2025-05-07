@@ -96,7 +96,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
       cl2_dose <- cl2_dose + convert_units(water@combined_chlorine, "cl", "M", "mg/L")
       warning("Function summed both cl2_dose and combined_chlorine water slot for input chlorine dose.")
     }
-  } else if (cl2_dose > 0 & !use_chlorine_slot){
+  } else if (cl2_dose > 0 & water@free_chlorine >0 & !use_chlorine_slot){
     warning("Chlorine residual in the water will be over-ridden by the calculated chlorine decay from the specified dose alone.
             To dose chlorine in water that already has a residual, specify 'use_cl_slot = TRUE'")
   }
