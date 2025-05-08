@@ -69,6 +69,10 @@ See tidyverse guide on [how to create a great issue](https://code-review.tidyver
    Contributions with test cases included are easier to accept.  
 
 
+## Licensing
+* This package and any contributions you make will be licensed under MIT and Apache 2.0.
+* See [GitHub's terms of service](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license) 
+to understand how your contribution will work with the existing licenses.
 
 
 ## Code of Conduct

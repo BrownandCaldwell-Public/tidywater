@@ -9,3 +9,7 @@
 ^README\.Rmd$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^COPYRIGHT\.md$
+^DISCLAIMER\.md$
+^GOVERNANCE\.md$
+^SECURITY\.md$

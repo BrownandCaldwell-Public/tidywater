@@ -80,3 +80,9 @@ a dataframe to a list of "waters".
 For more detailed examples on tidywater functions and how to use "water" class data, please see 
 the tidywater vignettes: `browseVignettes("tidywater")`
 
+## Limitations
+This project is maintained by volunteers and is provided without warranties or guarantees of any kind.  
+
+Use at your own risk. For official support, please contact Brown and Caldwell. 
+
+Please read our CONTRIBUTING.md and SECURITY.md before submitting issues or pull requests. 

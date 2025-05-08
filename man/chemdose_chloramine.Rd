@@ -82,9 +82,11 @@ library(dplyr)
 
 example_df1 <- water_df \%>\%
   define_water_chain() \%>\%
-  chemdose_chloramine_chain(time = 20,
-                            cl2 = 6,
-                            nh3 = 2)
+  chemdose_chloramine_chain(
+    time = 20,
+    cl2 = 6,
+    nh3 = 2
+  )
 
 example_df2 <- water_df \%>\%
   mutate(free_chlorine = 5, tot_nh3 = 1) \%>\%
@@ -92,13 +94,14 @@ example_df2 <- water_df \%>\%
   balance_ions_chain() \%>\%
   mutate(
     time = 8,
-    cl2 = seq(1,12,1),
+    cl2 = seq(1, 12, 1),
     nh3 = 2
   ) \%>\%
   chemdose_chloramine_chain(
-  input_water = "balanced_water",
-  use_free_cl_slot = TRUE,
-  use_tot_nh3_slot = TRUE) \%>\%
+    input_water = "balanced_water",
+    use_free_cl_slot = TRUE,
+    use_tot_nh3_slot = TRUE
+  ) \%>\%
   pluck_water("chlorinated_water", c("free_chlorine", "combined_chlorine"))
 
 
@@ -106,10 +109,11 @@ example_df3 <- water_df \%>\%
   mutate(tot_nh3 = 2) \%>\%
   define_water_chain() \%>\%
   mutate(time = 30) \%>\%
-  chemdose_chloramine_chain(cl2 = seq(2, 24, 2),
-                            use_tot_nh3_slot = TRUE) \%>\%
+  chemdose_chloramine_chain(
+    cl2 = seq(2, 24, 2),
+    use_tot_nh3_slot = TRUE
+  ) \%>\%
   pluck_water("chlorinated_water", c("free_chlorine", "combined_chlorine"))
-
 
 \donttest{
 # Initialize parallel processing
