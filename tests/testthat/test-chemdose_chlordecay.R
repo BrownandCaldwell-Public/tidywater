@@ -1,20 +1,25 @@
 # Chemdose chlorine/chloramine ----
 
 test_that("chemdose_chlordecay returns modeled chlorine/chloramine residual = 0 when chlorine dose is 0.", {
-  water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2))
-  water2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, free_chlorine = 2, combined_chlorine = 1))
+  water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2) %>%
+                               chemdose_chlordecay(cl2_dose = 0, time = 8))
+  water2 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, free_chlorine = 2, combined_chlorine = 1) %>%
+                               chemdose_chlordecay(cl2_dose = 0, time = 8, cl_type = "chloramine"))
 
-
-  expect_error(chemdose_chlordecay(water1, cl2_dose = 0, time = 8))
-  expect_error(chemdose_chlordecay(water2, cl2_dose = 0, time = 8))
+  expect_equal(water1@free_chlorine, 0)
+  expect_equal(water2@combined_chlorine, 0)
 
 })
 
-test_that("chemdose_chlordecay does not run when treatment_type isn't supplied correctly.", {
+test_that("chemdose_chlordecay does not run when arguments are supplied incorrectly.", {
   water1 <- suppressWarnings(define_water(ph = 7, toc = 3.5, uv254 = 0.1))
 
   expect_error(chemdose_chlordecay(water1, cl2_dose = 1, time = 1, treatment = "rw"))
   expect_error(chemdose_chlordecay(water1, cl2_dose = 1, time = 1, treatment = treated))
+  expect_error(chemdose_chlordecay(water1, cl2_dose = 1, time = 1, cl_type = "cl2"))
+  expect_error(chemdose_chlordecay(water1, cl2_dose = 1, time = 1, cl_type = 4))
+  expect_error(chemdose_chlordecay(water1, cl2_dose = 1, time = 1, use_chlorine_slot = 4))
+
 })
 
 test_that("chemdose_chlordecay warns when inputs are out of model range", {
