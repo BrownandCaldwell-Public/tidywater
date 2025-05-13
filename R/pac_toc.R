@@ -4,7 +4,8 @@
 #' @title Calculate DOC Concentration in PAC system
 #'
 #' @description Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-#' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+#' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+#' Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 #' For a single water use `pac_toc`; for a dataframe use `pac_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
@@ -99,11 +100,9 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   UVA <- .0376 * result - .041
 
-  toc_new <- result + org_carbon_undissolved
-
   water@doc <- result
+  water@toc <- result
   water@uv254 <- UVA
-  water@toc <- toc_new
 
   return(water)
 }

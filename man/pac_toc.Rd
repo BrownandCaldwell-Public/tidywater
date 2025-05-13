@@ -44,7 +44,8 @@ pac_toc_chain(
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper

@@ -1,7 +1,7 @@
 #' @title Determine TOC removal from biofiltration using Terry & Summers BDOC model
 #'
 #' @description This function applies the Terry model to a water created by [define_water] to determine biofiltered
-#' DOC (mg/L).
+#' DOC (mg/L). All particulate TOC is assumed to be removed so TOC = DOC.
 #' For a single water use `biofilter_toc`; for a dataframe use `biofilter_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
@@ -76,8 +76,8 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   BDOC_removed <- (BDOC_inf - BDOC_eff)
 
   # Update water object with new TOC and DOC values
-  water@toc <- water@toc - BDOC_removed
-  water@doc <- water@toc - BDOC_removed
+  water@doc <- water@doc - BDOC_removed
+  water@toc <- water@doc
   water@bdoc <- BDOC_eff
   water@applied_treatment <- paste(water@applied_treatment, "_biofilter", sep = "")
 

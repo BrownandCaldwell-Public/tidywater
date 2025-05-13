@@ -31,7 +31,7 @@ chemdose_toc_chain(
 )
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254}
+\item{water}{Source water object of class "water" created by \link{define_water}. Water must include ph, doc, and uv254}
 
 \item{alum}{Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
@@ -57,7 +57,8 @@ and a column named for the set of coefficients to use.}
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
-DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
+Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
 For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
@@ -108,5 +109,5 @@ plan(sequential)
 
 }
 \seealso{
-\code{\link{chemdose_ph}}
+\link{chemdose_ph}
 }
