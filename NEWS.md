@@ -1,3 +1,8 @@
+# tidywater 0.8.1
+
+* Pare down examples and vignettes to speed up CRAN checks
+* Minor updates to `chemdose_chloramine` warnings.
+
 # tidywater 0.8.0
 
 * `calculate_corrosion` expanded CCPP search range (fewer errors)
