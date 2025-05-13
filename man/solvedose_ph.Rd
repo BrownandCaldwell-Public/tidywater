@@ -77,19 +77,13 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
 
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(finpH = seq(9, 10.1, .1)) \%>\%
-  solvedose_ph_once(chemical = "naoh", target_ph = finpH)
-
 \donttest{
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(target_ph = seq(9, 10.1, .1)) \%>\%
-  solvedose_ph_once(chemical = "naoh")
+  mutate(finpH = seq(9, 10.1, .1)) \%>\%
+  solvedose_ph_once(chemical = "naoh", target_ph = finpH)
 
 # Optional: explicitly close multisession processing
 plan(sequential)
