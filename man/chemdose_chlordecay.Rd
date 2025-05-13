@@ -103,8 +103,7 @@ library(dplyr)
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+  chemdose_chlordecay_chain(input_water = "defined_water", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
   mutate(
@@ -112,20 +111,14 @@ example_df <- water_df \%>\%
     free_chlorine = 2
   ) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(
     cl2_dose = seq(2, 24, 2),
     ClTime = 30
   ) \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", time = ClTime, use_chlorine_slot = TRUE)
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(time = 8) \%>\%
   chemdose_chlordecay_chain(
-    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
+    time = ClTime,
+    use_chlorine_slot = TRUE,
+    treatment = "coag",
     cl_type = "chloramine"
   )
 
@@ -135,8 +128,7 @@ plan(multisession, workers = 2) # Remove the workers argument to use all availab
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+  chemdose_chlordecay_chain(cl2_dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
 plan(sequential)

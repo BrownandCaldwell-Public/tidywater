@@ -256,25 +256,23 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#'   chemdose_ph_chain(input_water = "defined_water", naoh = 5)
 #'
 #' example_df <- water_df %>%
+#'   slice_sample(n = 3) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   mutate(
-#'     hcl = seq(1, 12, 1),
+#'     hcl = c(2, 4, 6),
 #'     Caustic = 20
 #'   ) %>%
-#'   chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4, naoh = Caustic)
+#'   chemdose_ph_chain(mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 #'
 #' \donttest{
 #' # Initialize parallel processing
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+#'   chemdose_ph_chain(naoh = 5)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)

@@ -109,13 +109,13 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  dissolve_pb_once(input_water = "balanced_water")
+  dissolve_pb_once(input_water = "defined_water")
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 
+\donttest{
 # Initialize parallel processing
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
@@ -124,5 +124,6 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }

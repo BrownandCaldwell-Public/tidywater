@@ -99,28 +99,17 @@ library(dplyr)
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+  chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
 
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
+  slice_sample(n = 3) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(
-    cl2 = seq(2, 24, 2),
+    cl2_dose = c(2, 3, 4),
     time = 30
   ) \%>\%
-  chemdose_dbp_chain(input_water = "balanced_water")
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(time = 8) \%>\%
-  chemdose_dbp_chain(
-    input_water = "balanced_water", cl = 6, treatment = "coag",
-    location = "ds", cl_type = "chloramine"
-  )
+  chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
 
 \donttest{
 # Initialize parallel processing
@@ -128,8 +117,7 @@ plan(multisession, workers = 2) # Remove the workers argument to use all availab
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+  chemdose_dbp_chain(cl2 = 4, time = 8)
 
 # Optional: explicitly close multisession processing
 plan(sequential)

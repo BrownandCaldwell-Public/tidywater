@@ -170,8 +170,8 @@ blend_waters <- function(waters, ratios) {
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
+#'   slice_sample(n = 3) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   chemdose_ph_chain(naoh = 22) %>%
 #'   mutate(
 #'     ratios1 = .4,
@@ -181,13 +181,6 @@ blend_waters <- function(waters, ratios) {
 #'     waters = c("defined_water", "dosed_chem_water"),
 #'     ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals"
 #'   )
-#'
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
-#'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
 #' waterA <- define_water(7, 20, 100, tds = 100)
 #' example_df <- water_df %>%

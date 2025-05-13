@@ -63,18 +63,6 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    target_alk = 300,
-    chemical = rep(c("naoh", "na2co3"), 6)
-  ) \%>\%
-  solvedose_alk_once()
-
-# When the selected chemical can't raise the alkalinity, the dose_required will be NA
-# Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
   solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
 
 
