@@ -98,10 +98,6 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @examples
 #' library(dplyr)
 #' ct_calc <- water_df %>%
-#'   define_water_chain() %>%
-#'   solvect_o3_once(dose = 2, kd = -0.5, time = 10, baffle = .5)
-#'
-#' ct_calc <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   slice_sample(n = 3) %>%

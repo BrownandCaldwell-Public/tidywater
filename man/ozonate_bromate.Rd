@@ -69,9 +69,6 @@ example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -98,6 +95,7 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%

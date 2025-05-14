@@ -74,13 +74,10 @@ example_breakpoint2 <- suppressWarnings(define_water(8, 20, 65)) \%>\%
   chemdose_chloramine(time = 20, nh3 = 2, use_free_cl_slot = TRUE)
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
-
 example_df1 <- water_df \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   chemdose_chloramine_chain(
     time = 20,
@@ -90,7 +87,7 @@ example_df1 <- water_df \%>\%
 
 example_df2 <- water_df \%>\%
   mutate(free_chlorine = 5, tot_nh3 = 1) \%>\%
-  slice_sample(n = 3) \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   mutate(
     time = 8,
@@ -105,6 +102,7 @@ example_df2 <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 
 example_df <- water_df \%>\%

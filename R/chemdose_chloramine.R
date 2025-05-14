@@ -275,13 +275,10 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
-#'
 #' example_df1 <- water_df %>%
+#'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%
 #'   chemdose_chloramine_chain(
 #'     time = 20,
@@ -291,7 +288,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'
 #' example_df2 <- water_df %>%
 #'   mutate(free_chlorine = 5, tot_nh3 = 1) %>%
-#'   slice_sample(n = 3) %>%
+#'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%
 #'   mutate(
 #'     time = 8,
@@ -306,6 +303,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #'
 #' example_df <- water_df %>%
