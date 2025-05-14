@@ -65,7 +65,7 @@ modify_water <- function(water, slot, value, units) {
     stop(paste(slot, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
   }
 
-  slot(water, slot) <- new_value
+  methods::slot(water, slot) <- new_value
 
 }
 
