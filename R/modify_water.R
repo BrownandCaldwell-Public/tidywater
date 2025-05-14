@@ -1,12 +1,12 @@
 #' Modify a single slot in a `water` class object
 #'
 #' This function a single slot of a `water` class object without impacting the other parameters. For example, you can
-#' manually update "tthm" and the new speciation will be calculated. This function is designed to make sure all parameters
+#' manually update "tthm" and the new speciation will not be calculated. This function is designed to make sure all parameters
 #' are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
 #' they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update [define_water].
 #'
 #' @param water A water class object
-#' @param parameter A character string of the slot in the water to modify, eg, "tthm"
+#' @param slot A character string of the slot in the water to modify, eg, "tthm"
 #' @param value New value for the modified slot
 #' @param units Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
 #' are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".
