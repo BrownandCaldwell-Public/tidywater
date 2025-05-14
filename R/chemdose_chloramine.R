@@ -52,20 +52,22 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
   if (missing(cl2)) {
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2
-    message <- sprintf("Chlorine dose not specified, function used free_chlorine slot in water (%f mol/L) as the initial free chlorine.", water@free_chlorine)
-    warning(message)
-  } else {
-    if (use_free_cl_slot == FALSE) {
-      TOTCl_ini <- convert_units(cl2, "cl2")
-      if (water@free_chlorine > 0) {
-        message <- sprintf("Chlorine dose was used as the initial free chlorine. Free chlorine in water (%f mol/L) was ignored.
+    if (!use_free_cl_slot) {
+      message <- sprintf("Chlorine dose not specified, function used free_chlorine slot in water (%f mol/L) as the initial free chlorine.", water@free_chlorine)
+      warning(message)
+    }
+  } else if (!use_free_cl_slot) {
+    TOTCl_ini <- convert_units(cl2, "cl2")
+    if (water@free_chlorine > 0) {
+      message <- sprintf("Chlorine dose was used as the initial free chlorine. Free chlorine in water (%f mol/L) was ignored.
               If you want to use ONLY free chlorine in water, please set use_free_cl_slot to TRUE and remove chlorine dose.
               If want to use BOTH free chlorine in water and chlorine dose, please set use_free_cl_slot to TRUE.", water@free_chlorine)
-        warning(message)
-      }
-    } else if (use_free_cl_slot == TRUE) {
-      TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
-      # TOTCl_ini <- water@free_chlorine
+      warning(message)
+    }
+  } else if (use_free_cl_slot) {
+    TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
+    # TOTCl_ini <- water@free_chlorine
+    if (cl2 > 0) {
       message <- sprintf("Chlorine dose and free chlorine slot in water (%f mol/L) were BOTH used.
             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
             If you want to use ONLY the free chlorine water slot, remove chlorine dose.", water@free_chlorine)
@@ -73,22 +75,25 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     }
   }
 
+
   if (missing(nh3)) {
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3
-    message <- sprintf("Ammonia dose not specified, function used the tot_nh3 slot in water (%f mol/L) as the initial free ammonia.", water@tot_nh3)
-    warning(message)
-  } else {
-    if (use_tot_nh3_slot == FALSE) {
-      TOTNH_ini <- convert_units(nh3, "n")
-      if (water@tot_nh3 > 0) {
-        message <- sprintf("Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (%f mol/L) was ignored.
+    if (!use_tot_nh3_slot) {
+      message <- sprintf("Ammonia dose not specified, function used the tot_nh3 slot in water (%f mol/L) as the initial free ammonia.", water@tot_nh3)
+      warning(message)
+    }
+  } else if (!use_tot_nh3_slot) {
+    TOTNH_ini <- convert_units(nh3, "n")
+    if (water@tot_nh3 > 0) {
+      message <- sprintf("Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (%f mol/L) was ignored.
               If you want to use ONLY tot_nh3 slot in water, please set use_tot_nh3_slot to TRUE and remove ammonia dose.
               If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.", water@tot_nh3)
-        warning(message)
-      }
-    } else if (use_tot_nh3_slot == TRUE) {
-      TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
+      warning(message)
+    }
+  } else if (use_tot_nh3_slot) {
+    TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
+    if (nh3 > 0) {
       message <- sprintf("Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
             If you want to use ONLY ammonia dose, please set use_tot_nh3_slot to FALSE.
             If you want to use ONLY the tot_nh3 slot in water, remove ammonia dose.", water@tot_nh3)
@@ -96,12 +101,13 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     }
   }
 
+
   if (!is.na(water@nh2cl) | !is.na(water@nhcl2) | !is.na(water@ncl3)) {
     warning("Chloramine species present in water class object, check slots @nh2cl, @nhcl2, @ncl3. The present concentrations will be used as initial values in function calculation.")
   }
 
   if (water@combined_chlorine != 0) {
-    warning("Chloramine present in water as combined_chloramine. Breakdown of combined_chlorine is potentially based on pH but will be subject to future discussion. Ignore for now.")
+    warning("Chloramine present in water as combined_chloramine. Combined chlorine slot will be overridden.")
   }
 
   time <- time * 60
@@ -269,13 +275,10 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
-#'
 #' example_df1 <- water_df %>%
+#'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%
 #'   chemdose_chloramine_chain(
 #'     time = 20,
@@ -285,39 +288,29 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'
 #' example_df2 <- water_df %>%
 #'   mutate(free_chlorine = 5, tot_nh3 = 1) %>%
+#'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   mutate(
 #'     time = 8,
-#'     cl2 = seq(1, 12, 1),
-#'     nh3 = 2
+#'     cl2dose = c(2, 3, 4)
 #'   ) %>%
 #'   chemdose_chloramine_chain(
-#'     input_water = "balanced_water",
+#'     input_water = "defined_water",
+#'     cl2 = cl2dose,
 #'     use_free_cl_slot = TRUE,
 #'     use_tot_nh3_slot = TRUE
-#'   ) %>%
-#'   pluck_water("chlorinated_water", c("free_chlorine", "combined_chlorine"))
-#'
-#'
-#' example_df3 <- water_df %>%
-#'   mutate(tot_nh3 = 2) %>%
-#'   define_water_chain() %>%
-#'   mutate(time = 30) %>%
-#'   chemdose_chloramine_chain(
-#'     cl2 = seq(2, 24, 2),
-#'     use_tot_nh3_slot = TRUE
-#'   ) %>%
-#'   pluck_water("chlorinated_water", c("free_chlorine", "combined_chlorine"))
+#'   )
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_chloramine_chain(input_water = "balanced_water", cl2 = 4, nh3 = 2, time = 8)
+#'   chemdose_chloramine_chain(
+#'     input_water = "defined_water", cl2 = c(2, 4), nh3 = 2, time = 8
+#'   )
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)

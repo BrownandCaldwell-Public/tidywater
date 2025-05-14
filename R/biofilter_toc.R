@@ -94,7 +94,6 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @examples
 #'
 #' library(purrr)
-#' library(furrr)
 #' library(tidyr)
 #' library(dplyr)
 #'
@@ -110,7 +109,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #'   ) %>%
 #'   biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 #'
+#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -118,6 +119,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

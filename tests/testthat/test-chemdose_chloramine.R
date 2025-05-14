@@ -81,6 +81,20 @@ test_that("chemdose_chloramine uses both slot and dose when slots are set to TRU
   expect_equal(length(warnings), 2)
 })
 
+test_that("chemdose_chloramine uses slot only when dose is zero or missing or uses both when specified.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, tot_nh3 = 2))
+  # both
+  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 2, tot_nh3 = 2))
+
+  water4 <- chemdose_chloramine(water1, time = 40, nh3 = 2, use_free_cl_slot = TRUE)
+  water5 <- chemdose_chloramine(water2, time = 40, cl2 = 5, use_tot_nh3_slot = TRUE)
+  expect_warning(chemdose_chloramine(water2, time = 40, cl2 = 5), "slot")
+  expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE), "ignored")
+  expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE, use_free_cl_slot = TRUE), "BOTH")
+  expect_equal(water4@nh2cl, water5@nh2cl)
+})
+
 # chemdose_chloramine_chain ----
 # Test that chemdose_chloramine_chain outputs are the same as base function, chemdose_chloramine.
 test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chloramine", {

@@ -68,9 +68,6 @@ water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   pac_toc(dose = 15, time = 50, type = "wood")
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -89,7 +86,9 @@ example_df <- water_df \%>\%
     input_water = "raw", dose = 6, type = "wood"
   )
 
+\donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
@@ -97,4 +96,5 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 }

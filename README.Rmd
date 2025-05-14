@@ -65,7 +65,6 @@ coagulation <- water_df %>%
 ## To get out individual parameters, use `pluck_water`
 coagulation <- coagulation %>%
   pluck_water(input_waters = c("raw", "coag"), parameter = c("ph", "doc"))
-
 ```
 
 Note that these functions use a "water" class. The "water" class is the foundation of the package; 

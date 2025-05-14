@@ -181,9 +181,6 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -198,19 +195,14 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'   define_water_chain() %>%
 #'   solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
 #'
-#'
+#' \donttest{
+#' # Initialize parallel processing
+#' library(furrr)
+#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(finpH = seq(9, 10.1, .1)) %>%
 #'   solvedose_ph_once(chemical = "naoh", target_ph = finpH)
-#'
-#' \donttest{
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(target_ph = seq(9, 10.1, .1)) %>%
-#'   solvedose_ph_once(chemical = "naoh")
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
@@ -254,22 +246,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(
-#'     target_alk = 300,
-#'     chemical = rep(c("naoh", "na2co3"), 6)
-#'   ) %>%
-#'   solvedose_alk_once()
-#'
-#' # When the selected chemical can't raise the alkalinity, the dose_required will be NA
-#' # Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -283,6 +260,7 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%

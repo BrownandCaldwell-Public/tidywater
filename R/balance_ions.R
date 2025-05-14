@@ -146,30 +146,21 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #' @param output_water name of the output column storing updated water classes. Default is "balanced_water".
 #'
 #' @examples
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain(anion = "so4", cation = "ca") %>%
-#'   select(-defined_water, -balanced_water)
+#'   balance_ions_chain(anion = "so4", cation = "ca")
 #'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain(output_water = "balanced ions, balanced life") %>%
-#'   chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
-#'
+#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 5)
+#'   balance_ions_chain()
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

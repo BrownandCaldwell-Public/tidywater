@@ -29,32 +29,8 @@ This vignette assumes a basic understanding of `define_water` and the S4 `water`
 ## Blending Analysis Setup
 In this analysis, a hypothetical drinking water utility sources their water from a river and a lake, both of which have high hardness. The operators are investigating whether blending up to 5 MGD from two groundwater wells will reduce the total hardness below 200 mg/L as CaCO3. 
 
-## `define_water_once`
-First, let's take a look at the available groundwater data from Well A and Well B. Notice the use of `define_water_once`.
-
-```{r setup, warning=FALSE}
-# Example of how to use a tidywater "_once" function to define multiple waters in a single data frame
-data <- tibble(
-  Well = c("A", "B"),
-  ph = c(8, 9),
-  alk = c(100, 150),
-  temp = c(18, 19),
-  ca = c(5, 10),
-  cond = c(500, 900),
-  tds = c(300, 500),
-  na = c(100, 200),
-  k = c(0, 20),
-  cl = c(0, 30),
-  so4 = c(0, 0)
-) %>%
-  define_water_once()
-
-data
-```
-`define_water_once` is the first helper function we'll cover. This function does exactly what `define_water` does, but applies it to a data frame input. This means once your data has the proper column names, `define_water_once` can add the parameters to each `water` slot, calculate the carbonate balance (and other relevant calculations), and outputs all parameters in the `water` class as a data frame. Any function with the `_once` suffix in tidywater can be used in a piped code block. However, tidywater functions cannot be used directly downstream of these types of functions because the data is no longer in a `water` class format. 
-
 ## `define_water_chain`
-So what if you want to chain more tidywater functions together? In that case, you can use `define_water_chain`. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all tidywater functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many tidywater functions, such as `chemdose_ph`, `solvedose_alk`, etc. Most tidywater functions have a `_chain` or `_once` option.
+First, let's take a look at the available groundwater data from Well A and Well B. We use `define_water_chain` so that other models can be added to the dataframe. This function takes a dataframe input, then outputs all parameters in a `water` class column. This is true for all tidywater functions with the `_chain` suffix. `_chain` functions are handy in a piped code block where you'll need to use many tidywater functions, such as `chemdose_ph`, `chemdose_toc`, etc. Some tidywater functions output numbers instead of waters, those helpers have the `_once` suffix
 
 ```{r, warning=FALSE, echo=TRUE}
 # Read in data from Wells A and B
@@ -120,11 +96,11 @@ We will create a data frame of the blend scenarios we will be modeling, in this 
 groundwater <- tibble(Wells_flow = c(0, 2.5, 5))
 # Blending scenarios and the resulting source water ratios
 scenarios <- tibble(
-  surface_flow = seq(1, 20, 1),
-  River_flow = c(seq(1, 10, 1), rep(10, 10)),
-  Lake_flow = c(rep(0, 10), seq(1, 10, 1)),
-  group = seq(1, 20, 1)
+  surface_flow = seq(2, 20, 2),
+  River_flow = c(seq(2, 10, 2), rep(10, 5)),
+  Lake_flow = c(rep(0, 5), seq(2, 10, 2)),
 ) %>%
+  mutate(group = row_number()) %>%
   cross_join(groundwater) %>%
   mutate(
     total_flow = River_flow + Lake_flow + Wells_flow,
@@ -162,7 +138,7 @@ Lake_water <- tibble(
 ```
 
 ## `blend_waters_chain`
-Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This next code chunk showcases the power of tidywater. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
+Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This next code chunk showcases the power of working in a data frame. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
 
 ```{r, warning=FALSE}
 blend_water <- scenarios %>%
@@ -179,23 +155,14 @@ blend_water <- scenarios %>%
 With all three source waters blended for each tested scenario, we can pull out a parameter of interest. In this case, we're investigating how much we can dilute the total hardness. This brings us to our final helper function for this vignette: `pluck_water`. This function uses `purrr::pluck` to create a new column for one selected parameter from a `water` class object. You can choose which `water` column to pluck from using the `input_water` argument. Next, select the parameter of interest (which must match the water slot's name). Finally, the output column's name will default to the name of the plucked parameter, but there is an option to name it yourself using the `output_column` argument. If you want to view all the parameters as separate columns, it is better to use a `_once` function instead of `_chain` (i.e., we could have used `blend_water_once` above).
 ```{r, fig.width= 7}
 plotting_data <- blend_water %>%
-  pluck_water(input_water = "blended_water", "tot_hard") %>%
-  # Flag scenarios for plotting
-  mutate(Flagged = case_when(blended_water_tot_hard > 200 ~ "FLAG: Hardness > 200 mg/L CaCO3", TRUE ~ "Not Flagged"))
+  pluck_water(input_water = "blended_water", "tot_hard")
 
 # Plot the results!
-ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as.character(Wells_flow), shape = Flagged)) +
+ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as.character(Wells_flow))) +
   geom_point() +
-  scale_shape_manual(values = c(4, 16)) +
   labs(
-    y = "Hardness (mg/L as CaCO3)", color = "Contributions from new wells (MGD)",
-    shape = "Scenario Flags", x = "Total Plant Flow (MGD)"
-  ) +
-  theme_bw() +
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical",
-    legend.margin = margin(-5, 0, 0, 0)
+    y = "Hardness (mg/L as CaCO3)", color = "Well Flow (MGD)",
+    x = "Total Plant Flow (MGD)"
   )
 ```
 
@@ -204,7 +171,7 @@ As you use more tidywater helper functions with larger data sets, you'll notice 
 
 ```{r, warning=FALSE}
 # For most operating systems, especially Windows, use this at the beginning of your script
-# We recommend revmoving the `workers` argument to use your computer's full power.
+# We recommend removing the `workers` argument to use your computer's full power.
 plan(multisession, workers = 2)
 
 # rest of script
