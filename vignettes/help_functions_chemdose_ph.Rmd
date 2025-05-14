@@ -79,7 +79,7 @@ There are two ways to dose chemicals.
 
 1. You can specify the chemical in the function. 
 
-Let's look at both options.Using the alum doses from before and hydrochloric acid.
+Let's look at both options using the alum doses from before and hydrochloric acid.
 ```{r, warning=FALSE}
 dose_water <- raw_water %>%
   mutate(hcl = 10) %>%

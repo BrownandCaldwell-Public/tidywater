@@ -60,9 +60,6 @@ water <- define_water(ph = 7, temp = 25, alk = 10)
 solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -79,6 +76,7 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

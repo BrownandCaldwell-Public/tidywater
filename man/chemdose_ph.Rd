@@ -159,17 +159,15 @@ dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 dosed_water2@ph
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   chemdose_ph_chain(input_water = "defined_water", naoh = 5)
 
 example_df <- water_df \%>\%
-  slice_sample(n = 3) \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   mutate(
     hcl = c(2, 4, 6),
@@ -179,6 +177,7 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

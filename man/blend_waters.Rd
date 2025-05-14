@@ -44,13 +44,10 @@ water2 <- define_water(7.5, 20, 100, tot_nh3 = 2)
 blend_waters(c(water1, water2), c(.4, .6))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
-  slice_sample(n = 3) \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   chemdose_ph_chain(naoh = 22) \%>\%
   mutate(
@@ -64,11 +61,13 @@ example_df <- water_df \%>\%
 
 waterA <- define_water(7, 20, 100, tds = 100)
 example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

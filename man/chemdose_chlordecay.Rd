@@ -95,9 +95,6 @@ example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2, fr
   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -124,6 +121,7 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%

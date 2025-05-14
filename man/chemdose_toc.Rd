@@ -81,9 +81,6 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   ))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -97,6 +94,7 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
