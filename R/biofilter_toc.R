@@ -43,26 +43,22 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 
   # Determine BDOC fraction and rate constant k' based on temperature and ozonation
   if (ozonated) {
+    BDOC_fraction <- BDOC_fraction_ozonated
     if (temp <= 10) {
       k <- 0.03
-      BDOC_fraction <- BDOC_fraction_ozonated
     } else if (temp <= 20) {
       k <- 0.06
-      BDOC_fraction <- BDOC_fraction_ozonated
     } else {
       k <- 0.15
-      BDOC_fraction <- BDOC_fraction_ozonated
     }
   } else {
+    BDOC_fraction <- BDOC_fraction_nonozonated
     if (temp <= 10) {
       k <- 0.03
-      BDOC_fraction <- BDOC_fraction_nonozonated
     } else if (temp <= 20) {
       k <- 0.09
-      BDOC_fraction <- BDOC_fraction_nonozonated
     } else {
       k <- 0.11
-      BDOC_fraction <- BDOC_fraction_nonozonated
     }
   }
 
@@ -76,8 +72,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   BDOC_removed <- (BDOC_inf - BDOC_eff)
 
   # Update water object with new TOC and DOC values
-  water@doc <- water@doc - BDOC_removed
-  water@toc <- water@doc
+  doc_eff <- water@doc - BDOC_removed
+  water@doc <- doc_eff
+  water@toc <- doc_eff
   water@bdoc <- BDOC_eff
   water@applied_treatment <- paste(water@applied_treatment, "_biofilter", sep = "")
 
