@@ -97,9 +97,6 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -126,6 +123,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%

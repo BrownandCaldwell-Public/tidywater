@@ -230,4 +230,3 @@ test_that("define_water_chain correctly calculates dic", {
 
   expect_equal(dic_mol, water1$defined_water_dic)
 })
-

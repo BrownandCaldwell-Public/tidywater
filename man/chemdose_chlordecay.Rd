@@ -15,7 +15,8 @@ chemdose_chlordecay(
   cl2_dose,
   time,
   treatment = "raw",
-  cl_type = "chlorine"
+  cl_type = "chlorine",
+  use_chlorine_slot = FALSE
 )
 
 chemdose_chlordecay_chain(
@@ -25,7 +26,8 @@ chemdose_chlordecay_chain(
   cl2_dose = "use_col",
   time = "use_col",
   treatment = "use_col",
-  cl_type = "use_col"
+  cl_type = "use_col",
+  use_chlorine_slot = "use_col"
 )
 }
 \arguments{
@@ -41,6 +43,10 @@ does not have specified boundary conditions.}
 water that has been coagulated or softened.}
 
 \item{cl_type}{Type of chlorination applied, either "chlorine" (default) or "chloramine".}
+
+\item{use_chlorine_slot}{Defaults to FALSE. When TRUE, uses either free_chlorine or combined_chlorine slot in water (depending on cl_type).
+If 'cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and use_chlorine_slot is TRUE,
+all chlorine will be summed.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_once}. The df may include a column named for the applied chlorine dose (cl2),
@@ -85,45 +91,42 @@ shorter run times will not benefit from parallel processing.#'
 example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
   chemdose_chlordecay(cl2_dose = 2, time = 8)
 
-library(purrr)
-library(furrr)
-library(tidyr)
+example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) \%>\%
+  chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE))
+
+
 library(dplyr)
 
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+  chemdose_chlordecay_chain(input_water = "defined_water", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
+  mutate(
+    br = 50,
+    free_chlorine = 2
+  ) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(
     cl2_dose = seq(2, 24, 2),
     ClTime = 30
   ) \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", time = ClTime)
-
-example_df <- water_df \%>\%
-  mutate(br = 80) \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(time = 8) \%>\%
   chemdose_chlordecay_chain(
-    input_water = "balanced_water", cl2_dose = 6, treatment = "coag",
+    time = ClTime,
+    use_chlorine_slot = TRUE,
+    treatment = "coag",
     cl_type = "chloramine"
   )
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "balanced_water", cl2_dose = 4, time = 8)
+  chemdose_chlordecay_chain(cl2_dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
 plan(sequential)

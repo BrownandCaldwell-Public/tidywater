@@ -258,13 +258,13 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
     slice(11) # same starting wq as water 4
 
   expect_equal(
-    pluck_water(water1, "dosed_chem", "toc")$toc,
-    pluck_water(water2, "dosed_chem_water", "toc")$toc
+    pluck_water(water1, "dosed_chem", "toc")$dosed_chem_toc,
+    pluck_water(water2, "dosed_chem_water", "toc")$dosed_chem_water_toc
   ) # test different ways to input chemical
   expect_equal(ncol(water3), 5) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(
-    pluck_water(water4, "dosed_chem", "toc")$toc,
-    pluck_water(water5, "dosed_chem", "toc")$toc
+    pluck_water(water4, "dosed_chem_water", "ph")$dosed_chem_water_ph,
+    pluck_water(water5, "dosed_chem", "ph")$dosed_chem_ph
   )) # since HCl added to water3, pH should be different
 })

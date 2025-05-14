@@ -1,4 +1,9 @@
-# tidywater development version
+# tidywater 0.8.1
+
+* Pare down examples and vignettes to speed up CRAN checks
+* Minor updates to `chemdose_chloramine` warnings.
+
+# tidywater 0.8.0
 
 * `calculate_corrosion` expanded CCPP search range (fewer errors)
 
@@ -15,6 +20,8 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * User may now choose which cation or anion to use for balancing ions
 * dic now calculated in `define_water`
 * dic now available in `convert_units`
+* `chemdose_chloramine`: chloramine formation model given chlorine, ammonia, time
+* `chemdose_chlordecay` now has argument, `use_chlorine_slot`. Function can now use chlorine dose and/or free_chlorine or combined_chlorine slots.
 
 # tidywater 0.7.0
 
