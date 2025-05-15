@@ -1,9 +1,8 @@
 #' @title Add an ion to balance overall charge in a water
 #'
 #' @description This function takes a water defined by [define_water] and balances charge.
-#' For a single water use `balance_ions`; for a dataframe where you want to output a water for continued modeling use
-#' `balance_ions_chain`; for a dataframe where you want to output water parameters as columns use `balance_ions_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
+#' For a single water use `balance_ions`; for a dataframe use `balance_ions_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
 #'
 #' @details If more cations are needed, sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
 #' If calcium and magnesium are not specified when defining a water with
@@ -89,11 +88,11 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       add_k <- add_cat
       k_new <- ifelse(is.na(water@k), add_k, water@k + add_k)
       water@estimated <- paste(water@estimated, "k", sep = "_")
-    }else if (cation == "ca") {
+    } else if (cation == "ca") {
       add_ca <- add_cat / 2
       ca_new <- ifelse(is.na(water@ca), add_ca, water@ca + add_ca)
       water@estimated <- paste(water@estimated, "ca", sep = "_")
-    }else if (cation == "mg") {
+    } else if (cation == "mg") {
       add_mg <- add_cat / 2
       mg_new <- ifelse(is.na(water@mg), add_mg, water@mg + add_mg)
       water@estimated <- paste(water@estimated, "mg", sep = "_")
@@ -128,7 +127,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
     water@tds <- water@tds + convert_units(add_na, "na", "M", "mg/L") + convert_units(add_k, "k", "M", "mg/L") +
-      convert_units(add_ca, "ca", "M", "mg/L") +  convert_units(add_mg, "mg", "M", "mg/L") +
+      convert_units(add_ca, "ca", "M", "mg/L") + convert_units(add_mg, "mg", "M", "mg/L") +
 
       convert_units(add_cl, "cl", "M", "mg/L") + convert_units(add_so4, "so4", "M", "mg/L")
 
@@ -144,70 +143,24 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_once(anion = "so4", cation = "mg")
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain(output_water = "Different_defined_water_column") %>%
-#'   balance_ions_once(input_water = "Different_defined_water_column")
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest_wider
-#' @export
-#' @returns `balance_ions_once` returns a dataframe with updated ions to balance water charge
-
-balance_ions_once <- function(df, input_water = "defined_water",
-                              anion = "cl", cation = "na") {
-  balance_df <- balanced_water <- NULL # Quiet RCMD check global variable note
-  output <- df %>%
-    mutate(balanced_water = furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        anion = anion,
-        cation = cation
-        ), balance_ions)
-      ) %>%
-    mutate(balance_df = furrr::future_map(balanced_water, convert_water)) %>%
-    unnest_wider(balance_df) %>%
-    select(-balanced_water)
-}
-
-#' @rdname balance_ions
 #' @param output_water name of the output column storing updated water classes. Default is "balanced_water".
 #'
 #' @examples
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain(anion = "so4", cation = "ca") %>%
-#'   select(-defined_water, -balanced_water)
+#'   balance_ions_chain(anion = "so4", cation = "ca")
 #'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain(output_water = "balanced ions, balanced life") %>%
-#'   chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
-#'
+#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 5)
+#'   balance_ions_chain()
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export
@@ -222,6 +175,6 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
         water = !!as.name(input_water),
         anion = anion,
         cation = cation
-      ), balance_ions)
-    )
+      ), balance_ions
+    ))
 }

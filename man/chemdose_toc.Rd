@@ -2,7 +2,6 @@
 % Please edit documentation in R/chemdose_toc.R
 \name{chemdose_toc}
 \alias{chemdose_toc}
-\alias{chemdose_toc_once}
 \alias{chemdose_toc_chain}
 \title{Determine TOC removal from coagulation}
 \source{
@@ -19,15 +18,6 @@ chemdose_toc(
   ferricchloride = 0,
   ferricsulfate = 0,
   coeff = "Alum"
-)
-
-chemdose_toc_once(
-  df,
-  input_water = "defined_water",
-  alum = "use_col",
-  ferricchloride = "use_col",
-  ferricsulfate = "use_col",
-  coeff = "use_col"
 )
 
 chemdose_toc_chain(
@@ -63,18 +53,15 @@ and a column named for the set of coefficients to use.}
 \value{
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 
-\code{chemdose_toc_once} returns a data frame with columns for updated DOC, TOC, and UV254 concentration.
-
 \code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
 DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
-For a single water use \code{chemdose_toc}; for a dataframe where you want to output a water for continued modeling use
-\code{chemdose_toc_chain}; for a dataframe where you want to output water parameters as columns use \code{chemdose_toc_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -93,65 +80,25 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   ))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(alum = 30) \%>\%
-  chemdose_toc_once(input_water = "dosed_chem_water")
+  chemdose_toc_chain(input_water = "defined_water", alum = 30)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    ferricchloride = seq(1, 12, 1),
-    coeff = "Ferric"
-  ) \%>\%
-  chemdose_toc_once(input_water = "balanced_water")
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_toc_once(input_water = "balanced_water", alum = 40, coeff = "General Alum")
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(alum = 30) \%>\%
-  chemdose_toc_chain(input_water = "dosed_chem_water")
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    FerricDose = seq(1, 12, 1),
-    coeff = "Ferric"
-  ) \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", ferricchloride = FerricDose)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+  mutate(FerricDose = seq(1, 12, 1)) \%>\%
+  chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
+  chemdose_toc_chain(coeff = "Ferric")
 
 # Optional: explicitly close multisession processing
 plan(sequential)

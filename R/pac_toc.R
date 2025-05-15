@@ -5,10 +5,9 @@
 #'
 #' @description Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
 #' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
-#' For a single water use `pac_toc`; for a dataframe where you want to output a water for continued modeling use
-#' `pac_toc_chain`; for a dataframe where you want to output water parameters as columns use `pac_toc_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `pac_toc`; for a dataframe use `pac_toc_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -113,63 +112,10 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include columns named for the dose, time, and type
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   pac_toc_once(input_water = "raw", dose = 10, time = 20)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(11, 22, 1), time = 30) %>%
-#'   pac_toc_once(input_water = "raw")
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   mutate(time = 10) %>%
-#'   pac_toc_once(
-#'     input_water = "raw", dose = 6, type = "wood"
-#'   )
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `pac_toc_once` returns a data frame with an updated DOC, TOC, and UV254 concentration as columns.
-
-pac_toc_once <- function(df, input_water = "defined_water",
-                         dose = "use_col", time = "use_col", type = "use_col") {
-  temp_pac <- temp_df <- toc <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  dose <- tryCatch(dose, error = function(e) enquo(dose))
-  time <- tryCatch(time, error = function(e) enquo(time))
-  type <- tryCatch(type, error = function(e) enquo(type))
-
-  output <- df %>%
-    pac_toc_chain(
-      input_water = input_water, output_water = "temp_pac",
-      dose, time, type
-    ) %>%
-    mutate(toc = furrr::future_map(temp_pac, convert_water)) %>%
-    unnest(toc) %>%
-    select(-temp_pac)
-}
-
-#' @rdname pac_toc
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "pac_water".
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -188,7 +134,9 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'     input_water = "raw", dose = 6, type = "wood"
 #'   )
 #'
+#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
@@ -196,6 +144,7 @@ pac_toc_once <- function(df, input_water = "defined_water",
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #' @import dplyr
 #'
 #' @export
@@ -225,9 +174,7 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
         dose = !!as.name(arguments$final_names$dose),
         time = !!as.name(arguments$final_names$time),
         # This logic needed for any argument that has a default
-        type = ifelse(exists(as.name(arguments$final_names$type), where = .),
-          !!as.name(arguments$final_names$type), "bituminous"
-        )
+        type = if (arguments$final_names$type %in% names(.)) !!sym(arguments$final_names$type) else rep("bituminous", nrow(.))
       ),
       pac_toc
     ))

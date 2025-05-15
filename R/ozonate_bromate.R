@@ -8,10 +8,9 @@
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 #' optionally, ammonia (added when defining water using the `tot_nh3` argument.)
-#' For a single water use `ozonate_bromate`; for a dataframe where you want to output a water for continued modeling use
-#' `ozonate_bromate_chain`; for a dataframe where you want to output water parameters as columns use `ozonate_bromate_once`
-#' (note subsequent tidywater modeling functions will only work if `_chain` is used because a `water` is required).
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -95,68 +94,9 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time in minutes.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain("raw") %>%
-#'   ozonate_bromate_once(input_water = "raw", dose = 3, time = 8)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain("raw") %>%
-#'   mutate(
-#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
-#'     time = 10
-#'   ) %>%
-#'   ozonate_bromate_once(input_water = "raw")
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 80) %>%
-#'   define_water_chain("raw") %>%
-#'   mutate(time = 8) %>%
-#'   ozonate_bromate_once(
-#'     input_water = "raw", dose = 6, model = "Sohn"
-#'   )
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `ozonate_bromate_once` returns a data frame with updated bromate as a column.
-
-ozonate_bromate_once <- function(df, input_water = "defined_water",
-                                 dose = "use_col", time = "use_col", model = "use_col") {
-  temp_o3 <- ozone <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  dose <- tryCatch(dose, error = function(e) enquo(dose))
-  time <- tryCatch(time, error = function(e) enquo(time))
-  model <- tryCatch(model, error = function(e) enquo(model))
-
-  output <- df %>%
-    ozonate_bromate_chain(
-      input_water = input_water, output_water = "temp_o3",
-      dose, time, model
-    ) %>%
-    mutate(ozone = furrr::future_map(temp_o3, convert_water)) %>%
-    unnest(ozone) %>%
-    select(-temp_o3)
-}
-
-#' @rdname ozonate_bromate
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -183,6 +123,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water",
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
@@ -200,7 +141,7 @@ ozonate_bromate_once <- function(df, input_water = "defined_water",
 
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = "use_col", time = "use_col", model = "use_col") {
-validate_water_helpers(df, input_water)
+  validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -220,10 +161,7 @@ validate_water_helpers(df, input_water)
         water = !!as.name(input_water),
         dose = !!as.name(arguments$final_names$dose),
         time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        model = ifelse(exists(as.name(arguments$final_names$model), where = .),
-          !!as.name(arguments$final_names$model), "Ozekin"
-        )
+        model = if (arguments$final_names$model %in% names(.)) !!sym(arguments$final_names$model) else rep("Ozekin", nrow(.))
       ),
       ozonate_bromate
     ))

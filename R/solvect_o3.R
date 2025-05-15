@@ -98,18 +98,14 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @examples
 #' library(dplyr)
 #' ct_calc <- water_df %>%
-#'   define_water_chain() %>%
-#'   solvect_o3_once(dose = 2, kd = -0.5, time = 10, baffle = .5)
-#'
-#' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
+#'   slice_sample(n = 3) %>%
 #'   mutate(
-#'     dose = rep(seq(1, 4, 1), 3),
-#'     time = rep(seq(2, 8, 2), 3),
-#'     baffle = .5,
+#'     dose = c(1, 2, 3),
+#'     O3time = 10,
 #'   ) %>%
-#'   solvect_o3_once()
+#'   solvect_o3_once(time = O3time, baffle = .7)
 #'
 #' @import dplyr
 #' @export
@@ -141,9 +137,7 @@ solvect_o3_once <- function(df, input_water = "defined_water",
         water = !!as.name(input_water),
         time = !!as.name(arguments$final_names$time),
         dose = !!as.name(arguments$final_names$dose),
-        kd = ifelse(exists(as.name(arguments$final_names$kd), where = .),
-          !!as.name(arguments$final_names$kd), NA
-        ),
+        kd = if (arguments$final_names$kd %in% names(.)) !!sym(arguments$final_names$kd) else rep(NA, nrow(.)),
         baffle = !!as.name(arguments$final_names$baffle)
       ),
       solvect_o3

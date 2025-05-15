@@ -2,21 +2,18 @@
 % Please edit documentation in R/blend_waters.R
 \name{blend_waters}
 \alias{blend_waters}
-\alias{blend_waters_once}
 \alias{blend_waters_chain}
 \title{Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium}
 \usage{
 blend_waters(waters, ratios)
 
-blend_waters_once(df, waters, ratios)
-
 blend_waters_chain(df, waters, ratios, output_water = "blended_water")
 }
 \arguments{
-\item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} or \code{once} functions, this can include
+\item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} function, this can include
 quoted column names and/or existing single water objects unquoted.}
 
-\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} or \code{once} functions,
+\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} function,
 this can also be a list of quoted column names.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
@@ -26,16 +23,13 @@ this can also be a list of quoted column names.}
 \value{
 \code{blend_waters} returns a water class object with blended water quality parameters.
 
-\code{blend_waters_once} returns a data frame with blended water quality parameters as columns.
-
 \code{blend_waters_chain} returns a data frame with a water class column containing blended water quality
 }
 \description{
 This function takes a vector of waters defined by \link{define_water}
 and a vector of ratios and outputs a new water object with updated ions and pH.
-For a single blend use \code{blend_waters}; for a dataframe where you want to output a water for continued modeling use
-\code{blend_waters_chain}; for a dataframe where you want to output water parameters as columns use \code{blend_waters_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
+For a single blend use \code{blend_waters}; for a dataframe use \code{blend_waters_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
 }
 \details{
 For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
@@ -50,36 +44,11 @@ water2 <- define_water(7.5, 20, 100, tot_nh3 = 2)
 blend_waters(c(water1, water2), c(.4, .6))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
-  mutate(
-    ratios1 = .4,
-    ratios2 = .6
-  ) \%>\%
-  blend_waters_once(waters = c("defined_water", "dosed"), ratios = c("ratios1", "ratios2"))
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
-  blend_waters_once(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   chemdose_ph_chain(naoh = 22) \%>\%
   mutate(
     ratios1 = .4,
@@ -90,20 +59,15 @@ example_df <- water_df \%>\%
     ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals"
   )
 
-
+waterA <- define_water(7, 20, 100, tds = 100)
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 22, output_water = "dosed") \%>\%
-  blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
-
-waterA <- define_water(7,20,100,tds = 100)
-example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%

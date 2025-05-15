@@ -2,18 +2,10 @@
 % Please edit documentation in R/balance_ions.R
 \name{balance_ions}
 \alias{balance_ions}
-\alias{balance_ions_once}
 \alias{balance_ions_chain}
 \title{Add an ion to balance overall charge in a water}
 \usage{
 balance_ions(water, anion = "cl", cation = "na")
-
-balance_ions_once(
-  df,
-  input_water = "defined_water",
-  anion = "cl",
-  cation = "na"
-)
 
 balance_ions_chain(
   df,
@@ -39,15 +31,12 @@ balance_ions_chain(
 \value{
 \code{balance_ions} returns a single water class object with updated ions to balance water charge.
 
-\code{balance_ions_once} returns a dataframe with updated ions to balance water charge
-
 \code{balance_ions_chain} returns a dataframe with a new column with the ion balanced water
 }
 \description{
 This function takes a water defined by \link{define_water} and balances charge.
-For a single water use \code{balance_ions}; for a dataframe where you want to output a water for continued modeling use
-\code{balance_ions_chain}; for a dataframe where you want to output water parameters as columns use \code{balance_ions_once}
-(note subsequent tidywater modeling functions will only work if \verb{_chain} is used because a \code{water} is required).
+For a single water use \code{balance_ions}; for a dataframe use \code{balance_ions_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
 }
 \details{
 If more cations are needed, sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
@@ -70,42 +59,20 @@ water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10) \%>\%
 water_defined <- define_water(7, 20, 50, tot_hard = 150) \%>\%
   balance_ions(anion = "so4")
 
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_once(anion = "so4", cation = "mg")
+  balance_ions_chain(anion = "so4", cation = "ca")
 
-example_df <- water_df \%>\%
-  define_water_chain(output_water = "Different_defined_water_column") \%>\%
-  balance_ions_once(input_water = "Different_defined_water_column")
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain(anion = "so4", cation = "ca") \%>\%
-  select(-defined_water, -balanced_water)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain(output_water = "balanced ions, balanced life") \%>\%
-  chemdose_ph_chain(input_water = "balanced ions, balanced life", naoh = 5)
-
+\donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(naoh = 5)
+  balance_ions_chain()
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 
 }

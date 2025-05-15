@@ -35,6 +35,8 @@ single water quality scenario.
 ``` r
 library(tidywater)
 library(tidyverse)
+#> Warning: package 'purrr' was built under R version 4.4.3
+#> Warning: package 'lubridate' was built under R version 4.4.3
 ## Use base tidywater functions to model water quality for a single scenario.
 base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8, uv254 = 0.08) %>%
   chemdose_ph(alum = 30) %>%
@@ -48,19 +50,14 @@ functions (x_chain or x_once) to apply the models to a dataframe.
 ## x_chain functions apply models to a list of "waters", and output a list of "waters" so that
 ## the data can be piped into the next tidywater model.
 coagulation <- water_df %>%
-  define_water_chain() %>%
+  define_water_chain(output_water = "raw") %>%
   mutate(alum = 30) %>%
-  chemdose_ph_chain() %>%
-  chemdose_toc_chain()
+  chemdose_ph_chain(input_water = "raw", output_water = "phchange") %>%
+  chemdose_toc_chain(input_water = "phchange", output_water = "coag")
 
-## x_once functions apply models to a list of "waters", but output a data frame. The data can not be
-## piped to a downstream tidywater function, but all the "water" parameters are now visible and
-## can be manipulated as a typical data frame.
-
-enhanced_coagulation <- water_df %>%
-  define_water_chain() %>%
-  mutate(alum = seq(1, 12, 1)) %>%
-  chemdose_ph_once(hcl = 10)
+## To get out individual parameters, use `pluck_water`
+coagulation <- coagulation %>%
+  pluck_water(input_waters = c("raw", "coag"), parameter = c("ph", "doc"))
 ```
 
 Note that these functions use a “water” class. The “water” class is the
@@ -73,3 +70,14 @@ any order while maintaining water quality information. The
 For more detailed examples on tidywater functions and how to use “water”
 class data, please see the tidywater vignettes:
 `browseVignettes("tidywater")`
+
+## Limitations
+
+This project is maintained by volunteers and is provided without
+warranties or guarantees of any kind.
+
+Use at your own risk. For official support, please contact Brown and
+Caldwell.
+
+Please read our CONTRIBUTING.md and SECURITY.md before submitting issues
+or pull requests.

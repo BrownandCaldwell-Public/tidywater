@@ -8,11 +8,11 @@ pluck_water(df, input_waters = c("defined_water"), parameter)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already
-been computed using \code{\link{define_water}}}
+been computed using \link{define_water}}
 
 \item{input_waters}{vector of names of the columns of water class data to be used as the input for this function.}
 
-\item{parameter}{vector of water class parameters to view outside the water column}
+\item{parameter}{vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots.}
 }
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.
@@ -20,24 +20,16 @@ A data frame containing columns of selected parameters from a list of water clas
 \description{
 This function plucks one or more selected parameters from selected columns of \code{water} class objects.
 The names of the output columns will follow the form \code{water_parameter}
-To view all slots as columns, please use one of the \code{fn_once} functions or \code{\link{convert_water}}.
 }
 \examples{
 
-library(dplyr)
+pluck_example <- water_df \%>\%
+  define_water_chain("raw") \%>\%
+  chemdose_toc_chain("raw", "coag", alum = 10) \%>\%
+  pluck_water(input_waters = c("raw", "coag"), parameter = c("hco3", "doc"))
+
+\donttest{
 library(furrr)
-library(purrr)
-library(tidyr)
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  pluck_water(parameter = "tot_co3")
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
-
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
@@ -46,6 +38,7 @@ pluck_example <- water_df \%>\%
 # Optional: explicitly close multisession processing
 plan(sequential)
 }
+}
 \seealso{
-\code{\link{convert_water}}
+\link{convert_water}
 }
