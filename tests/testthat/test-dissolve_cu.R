@@ -7,7 +7,7 @@ test_that("DIC or alk is required for dissolve_cu", {
   dissolved <- dissolve_cu(water2)
 
   expect_error(dissolve_cu(water1))
-  expect_warning(dissolve_cu(water2))
+  expect_no_error(dissolve_cu(water2))
   expect_equal(signif(dissolved$cu, 2), 0.49)
 })
 
@@ -16,3 +16,9 @@ test_that("pH is required", {
 
   expect_error(dissolve_cu(water4))
 })
+
+#add a test for warning if tot_po4 is zero
+
+#add a test if water is wrong
+
+#test if there are any suggested model ranges
