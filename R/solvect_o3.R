@@ -103,7 +103,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     dose = c(1, 2, 3),
+#'     dose = 2,
 #'     O3time = 10,
 #'   ) %>%
 #'   solvect_o3_once(time = O3time, baffle = .7)
