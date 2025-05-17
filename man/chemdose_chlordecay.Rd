@@ -88,13 +88,14 @@ for the option to use parallel processing and speed things up. To initialize par
 shorter run times will not benefit from parallel processing.#'
 }
 \examples{
-example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) \%>\%
+example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2) \%>\%
   chemdose_chlordecay(cl2_dose = 2, time = 8)
 
-example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) \%>\%
-  chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE))
+example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) \%>\%
+  chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE)
 
 
+\donttest{
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -119,7 +120,6 @@ example_df <- water_df \%>\%
     cl_type = "chloramine"
   )
 
-\donttest{
 # Initialize parallel processing
 library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute

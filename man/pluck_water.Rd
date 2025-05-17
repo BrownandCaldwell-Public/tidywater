@@ -25,8 +25,7 @@ The names of the output columns will follow the form \code{water_parameter}
 
 pluck_example <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  chemdose_toc_chain("raw", "coag", alum = 10) \%>\%
-  pluck_water(input_waters = c("raw", "coag"), parameter = c("hco3", "doc"))
+  pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 
 \donttest{
 library(furrr)

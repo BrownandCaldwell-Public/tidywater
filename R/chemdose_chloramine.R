@@ -23,12 +23,8 @@
 #' @param use_tot_nh3_slot Defaults to FALSE. If TRUE, uses tot_nh3 slot in water. If TRUE AND there is a nh3 input, both the tot_nh3 water slot and ammonia dose will be used.
 #'
 #' @examples
-#' example_breakpoint1 <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) %>%
+#' breakpoint <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) %>%
 #'   chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, use_free_cl_slot = TRUE)
-#'
-#' example_breakpoint2 <- suppressWarnings(define_water(8, 20, 65)) %>%
-#'   chemdose_ph(naocl = 3) %>%
-#'   chemdose_chloramine(time = 20, nh3 = 2, use_free_cl_slot = TRUE)
 #'
 #' @importFrom deSolve ode
 #' @importFrom utils tail
@@ -277,16 +273,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'
 #' library(dplyr)
 #'
-#' example_df1 <- water_df %>%
-#'   slice_head(n = 3) %>%
-#'   define_water_chain() %>%
-#'   chemdose_chloramine_chain(
-#'     time = 20,
-#'     cl2 = 6,
-#'     nh3 = 2
-#'   )
-#'
-#' example_df2 <- water_df %>%
+#' breakpoint <- water_df %>%
 #'   mutate(free_chlorine = 5, tot_nh3 = 1) %>%
 #'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%

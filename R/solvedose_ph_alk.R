@@ -181,22 +181,13 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(
-#'     target_ph = 10,
-#'     chemical = rep(c("naoh", "mgoh2"), 6)
-#'   ) %>%
-#'   solvedose_ph_once(input_water = "defined_water")
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
 #'
 #' \donttest{
 #' # Initialize parallel processing
+#' library(dplyr)
 #' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
@@ -247,11 +238,6 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' @examples
 #'
 #' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
-#'
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%

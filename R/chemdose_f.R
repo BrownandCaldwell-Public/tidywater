@@ -9,8 +9,8 @@
 # @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 # @param coeff Model coefficients to use as vector of numbers.
 
- #@examples
- #dosed_water <- define_water(ph = 7, temp = 25, alk = 50, f = 4) %>%
+# @examples
+# dosed_water <- define_water(ph = 7, temp = 25, alk = 50, f = 4) %>%
 #   chemdose_ph(alum = 50) %>%
 #   chemdose_f(alum = 50)
 #

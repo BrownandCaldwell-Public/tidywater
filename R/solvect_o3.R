@@ -96,16 +96,18 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'
 #' @examples
+#'
+#' \donttest{
 #' library(dplyr)
 #' ct_calc <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   slice_sample(n = 3) %>%
 #'   mutate(
 #'     dose = c(1, 2, 3),
 #'     O3time = 10,
 #'   ) %>%
 #'   solvect_o3_once(time = O3time, baffle = .7)
+#'   }
 #'
 #' @import dplyr
 #' @export

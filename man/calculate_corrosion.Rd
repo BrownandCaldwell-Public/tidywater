@@ -125,14 +125,12 @@ example_df <- water_df \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
 
-library(dplyr)
+\donttest{
 
 example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_chain()
 
-\donttest{
 # Initialize parallel processing
 library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
