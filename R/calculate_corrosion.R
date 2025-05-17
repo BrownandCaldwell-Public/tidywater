@@ -292,7 +292,6 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' @param output_water name of output column storing updated indices with the class, water. Default is "corrosion_indices".
 #'
 #' @examples
-#'
 #' \donttest{
 #'
 #' example_df <- water_df %>%

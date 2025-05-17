@@ -58,6 +58,7 @@ test_that("dissolve_pb works.", {
 # Check dissolve_pb_once outputs are the same as base function, dissolve_pb
 
 test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
     ca = 13, mg = 4, na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
@@ -79,6 +80,7 @@ test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb",
 # Check that output column is numeric
 
 test_that("dissolve_pb_once outputs data frame", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
@@ -90,6 +92,7 @@ test_that("dissolve_pb_once outputs data frame", {
 
 # Check that outputs are different depending on selected source
 test_that("dissolve_pb_once processes different input constants", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(3) %>%
     define_water_chain() %>%
@@ -108,6 +111,7 @@ test_that("dissolve_pb_once processes different input constants", {
 
 # Check that the function stops due to errors in selected source
 test_that("dissolve_pb_once errors work", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain())

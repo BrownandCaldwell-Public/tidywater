@@ -290,7 +290,6 @@ define_water_once <- function(df) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#'
 #' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%

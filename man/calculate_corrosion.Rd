@@ -124,7 +124,6 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
-
 \donttest{
 
 example_df <- water_df \%>\%

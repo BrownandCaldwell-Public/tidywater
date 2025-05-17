@@ -204,7 +204,6 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #'
 #' @examples
-#'
 #' \donttest{
 #' library(dplyr)
 #'

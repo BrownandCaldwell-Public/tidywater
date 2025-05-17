@@ -90,8 +90,6 @@ example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 
-
-
 \donttest{
 library(dplyr)
 

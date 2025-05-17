@@ -226,8 +226,6 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @examples
-#'
-#'
 #' \donttest{
 #' library(dplyr)
 #'

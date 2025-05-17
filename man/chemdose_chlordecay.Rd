@@ -94,7 +94,6 @@ example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2) \%>\%
 example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) \%>\%
   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE)
 
-
 \donttest{
 library(dplyr)
 
