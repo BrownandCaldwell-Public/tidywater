@@ -28,7 +28,8 @@
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 toc_regulations <- function(water, raw_toc, final_toc) {
-  
+  ph <- water@ph
+  alk <- water@alk
 
   # Input parameters for raw water:
   print(paste("Raw TOC (mg/L):", raw_toc))
@@ -37,121 +38,46 @@ toc_regulations <- function(water, raw_toc, final_toc) {
   print(paste("Final TOC (mg/L):", final_toc))
 
   #Calculate removal percentage for TOC:
-  removal <- (raw_toc- final_toc) / raw_toc *100
-  print(paste("Removal percentage:", removal))
-
+  removal <- (raw_toc - final_toc) / raw_toc * 100
+  message("Removal percentage: ", removal)
+  
+  required_compliance <- NA
+  
   #Checking compliance considering inputs:
 
-if(raw_toc >2 & raw_toc <4 & alk <= 60 & removal >=35) {
-
-  output <- tibble(compliance_status = "In Compliance")
-else {
-  required_compliance <- 35 # will need to calc
-  actual <- removal # or your actual calculation
-  #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-  output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-}
-}
-  if (raw_toc >4 & raw_toc <8 & alk <=60 & removal>=45) {
-    
-    output <- tibble(compliance_status = "In Compliance")
-   else {
-    required_compliance <- 45 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
- 
+  if (raw_toc > 2 & raw_toc < 4) {
+    if (alk <= 60) required_compliance <- 35
+    else if (alk <= 120) required_compliance <- 25
+    else required_compliance <- 15
+  } else if (raw_toc > 4 & raw_toc < 8) {
+    if (alk <= 60) required_compliance <- 45
+    else if (alk <= 120) required_compliance <- 35
+    else required_compliance <- 25
+  } else if (raw_toc > 8) {
+    if (alk <= 60) required_compliance <- 50
+    else if (alk <= 120) required_compliance <- 40
+    else required_compliance <- 30
   }
   
-    if(raw_toc >8 & alk <=60 & removal >=50) {
-
-    output <- tibble(compliance_status = "In Compliance")
-   else {
-    required_compliance <- 50 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
+  if (!is.na(required_compliance) && removal >= required_compliance) {
+    return(tibble::tibble(compliance_status = "In Compliance"))
+  } else {
+    return(tibble::tibble(
+      compliance_status = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
+    ))
   }
-  }
-
-    if(raw_toc >2 & raw_toc <4 & alk >60 & alk <=120 & removal >=25) {
-    output <- tibble(compliance_status = "In Compliance")
-    else {
-    required_compliance <- 25 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
-    
-  }
-
-    if(raw_toc >4 & raw_toc <8 & alk >60 & alk <=120 & removal >=35){
-    output <- tibble(compliance_status = "In Compliance")
-    else {
-    required_compliance <- 35 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
-  }
-
-    if(raw_toc >8 & alk >60 & alk <=120 & removal >=40) {
-
-    output <- tibble(compliance_status = "In Compliance")
-    else {
-    required_compliance <- 40 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
-
-  }
-    if(raw_toc >2 & raw_toc <4 & alk >120 & removal >=15) {
-      output <- tibble(compliance_status = "In Compliance")
-     else {
-      required_compliance <- 15 # will need to calc
-      actual <- removal # or your actual calculation
-      #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-      output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-    }
-
-  }
-     if(raw_toc >4 & raw_toc <8 & alk >120 & removal >=25) {
-       output <- tibble(compliance_status = "In Compliance")
-      else {
-       required_compliance <- 25 # will need to calc
-       actual <- removal # or your actual calculation
-       #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-       output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-     }
-  }
-
-  else if(raw_toc >8 & alk >120 & removal >=30) {
-    output <- tibble(compliance_status = "In Compliance")
-   else {
-    required_compliance <- 30 # will need to calc
-    actual <- removal # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
-
-  }
-
-  else {
-    print("Not in compliance")
-    required_compliance <- 45 # will need to calc
-    actual <- 20 # or your actual calculation
-    #stop("Based on raw water TOC and Alkalinity values, you have not removed the required amount of TOC")
-    output <- tibble(compliance_status = paste0("Only ", actual, "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-  }
-
 }
 
+library(tidywater)
+library(tibble)
+
+#test the function with raw parameters:
+water <- define_water(ph = 8, alk = 44, temp = 20)
+toc_regulations(water = water, raw_toc = 5, final_toc = 3)
+
+
 # devtools::load_all()
-#test the function with raw water parameters
-water <- define_water(ph = 8, alk=44, temp = 20)
-toc_regulations(water = water, 5, 7)
+
 
 
 
