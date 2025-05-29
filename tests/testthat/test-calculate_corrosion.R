@@ -169,6 +169,7 @@ test_that("ccpp works", {
 # Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
 
 test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -191,6 +192,7 @@ test_that("calculate_corrosion_once outputs are the same as base function, calcu
 })
 
 test_that("function catches index typos", {
+  testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
     define_water_chain())
 
@@ -205,6 +207,7 @@ test_that("function catches index typos", {
 # Check that output is a data frame
 
 test_that("calculate_corrosion_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -217,6 +220,7 @@ test_that("calculate_corrosion_once is a data frame", {
 # Check calculate_corrosion_once outputs an appropriate number of indices
 
 test_that("calculate_corrosion_once outputs an appropriate number of indices", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -243,6 +247,7 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
 # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
 test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -264,6 +269,7 @@ test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosi
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("calculate_corrosion_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -285,6 +291,7 @@ test_that("calculate_corrosion_chain output is list of water class objects, and 
 
 # Check that variety of ways to input chemicals work
 test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%

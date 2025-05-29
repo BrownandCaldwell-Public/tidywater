@@ -60,11 +60,6 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
-
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
   mutate(finAlk = seq(100, 210, 10)) \%>\%
   solvedose_alk_once(chemical = "na2co3", target_alk = finAlk)
 

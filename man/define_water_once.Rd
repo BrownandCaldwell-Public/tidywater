@@ -25,19 +25,9 @@ for the option to use parallel processing and speed things up. To initialize par
 shorter run times will not benefit from parallel processing.
 }
 \examples{
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
 
-example_df <- water_df \%>\% define_water_once()
-
-# Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-example_df <- water_df \%>\% define_water_once()
-
-# Optional: explicitly close multisession processing
-plan(sequential)
+example_df <- water_df \%>\%
+  define_water_once()
 
 }
 \seealso{

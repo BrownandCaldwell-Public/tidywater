@@ -68,6 +68,7 @@ test_that("Error when an unaccepted PAC type is entered.", {
 # pac_toc helpers ----
 
 test_that("pac_toc_chain outputs are the same as base function, pac_toc", {
+  testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -103,6 +104,7 @@ test_that("pac_toc_chain outputs are the same as base function, pac_toc", {
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("pac_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -125,6 +127,7 @@ test_that("pac_toc_chain output is list of water class objects, and can handle a
 # Check pac_toc_chain can use a column or function argument for chemical dose
 
 test_that("pac_toc_chain can use a column or function argument for chemical dose", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -191,6 +194,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
 })
 
 test_that("pac_toc_chain errors with argument + column for same param", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     define_water_chain("raw")
   expect_error(water %>%
@@ -202,6 +206,7 @@ test_that("pac_toc_chain errors with argument + column for same param", {
 })
 
 test_that("pac_toc_chain correctly handles arguments with multiple numbers", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     define_water_chain("raw")
 

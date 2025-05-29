@@ -60,22 +60,13 @@ water <- define_water(ph = 7, temp = 25, alk = 10)
 solvedose_ph(water, target_ph = 8, chemical = "caoh2")
 
 
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(
-    target_ph = 10,
-    chemical = rep(c("naoh", "mgoh2"), 6)
-  ) \%>\%
-  solvedose_ph_once(input_water = "defined_water")
-
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   solvedose_ph_once(input_water = "defined_water", target_ph = 8.8, chemical = "naoh")
 
 \donttest{
 # Initialize parallel processing
+library(dplyr)
 library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%

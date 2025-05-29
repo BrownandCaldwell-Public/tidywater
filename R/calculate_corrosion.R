@@ -292,15 +292,12 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
 #' @param output_water name of output column storing updated indices with the class, water. Default is "corrosion_indices".
 #'
 #' @examples
-#'
-#' library(dplyr)
+#' \donttest{
 #'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # used to make example run faster
 #'   define_water_chain() %>%
 #'   calculate_corrosion_chain()
 #'
-#' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute

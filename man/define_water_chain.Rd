@@ -26,7 +26,7 @@ for the option to use parallel processing and speed things up. To initialize par
 shorter run times will not benefit from parallel processing.
 }
 \examples{
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   balance_ions_chain()
@@ -35,7 +35,6 @@ example_df <- water_df \%>\%
   define_water_chain(output_water = "This is a column of water") \%>\%
   balance_ions_chain(input_water = "This is a column of water")
 
-\donttest{
 # Initialize parallel processing
 library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute

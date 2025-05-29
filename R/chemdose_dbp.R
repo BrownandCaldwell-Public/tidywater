@@ -226,7 +226,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @examples
-#'
+#' \donttest{
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -244,7 +244,6 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'   ) %>%
 #'   chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
 #'
-#' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute

@@ -66,26 +66,13 @@ The function will calculate the chlorine and chloramine concentrations and updat
 class object proceed to the next steps of the treatment chain.
 }
 \examples{
-example_breakpoint1 <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) \%>\%
+breakpoint <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) \%>\%
   chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, use_free_cl_slot = TRUE)
-
-example_breakpoint2 <- suppressWarnings(define_water(8, 20, 65)) \%>\%
-  chemdose_ph(naocl = 3) \%>\%
-  chemdose_chloramine(time = 20, nh3 = 2, use_free_cl_slot = TRUE)
 
 
 library(dplyr)
 
-example_df1 <- water_df \%>\%
-  slice_head(n = 3) \%>\%
-  define_water_chain() \%>\%
-  chemdose_chloramine_chain(
-    time = 20,
-    cl2 = 6,
-    nh3 = 2
-  )
-
-example_df2 <- water_df \%>\%
+breakpoint <- water_df \%>\%
   mutate(free_chlorine = 5, tot_nh3 = 1) \%>\%
   slice_head(n = 3) \%>\%
   define_water_chain() \%>\%
