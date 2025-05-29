@@ -68,6 +68,33 @@ test_that("Define water gives missing value warnings.", {
   )
 })
 
+test_that("Define water warns about chloramines.", {
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      free_chlorine = 2, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      combined_chlorine = 2, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+
+  expect_warning(
+    define_water(
+      ph = 7, alk = 100, temp = 20, na = 10, k = 10, cl = 10, so4 = 10,
+      free_chlorine = 2, combined_chlorine = 4, tot_nh3 = 3
+    ),
+    "breakpoint+"
+  )
+})
+
+
 test_that("Define water doesn't output carbonate when pH or alk aren't provided.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
@@ -108,6 +135,13 @@ test_that("define_water correctly specifies when estimates are used.", {
   expect_false(grepl("ca", water3@estimated))
   expect_false(grepl("doc", water3@estimated))
   expect_true(grepl("cond", water3@estimated))
+})
+
+test_that("define_water correctly calculates dic", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
+
+  dic_mg <- calculate_dic(water1)
+  expect_equal(dic_mg, water1@dic)
 })
 
 # define_water helpers ----
@@ -180,4 +214,19 @@ test_that("define_water_chain can be piped", {
 
   expect_equal(names(water2[1]), "new_name")
   expect_equal(ncol(water3), 2)
+})
+
+test_that("define_water_chain correctly calculates dic", {
+  water1 <- water_df %>%
+    define_water_chain() %>%
+    pluck_water(parameter = "dic") %>%
+    slice(1)
+
+  dic_mol <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  )) %>%
+    calculate_dic()
+
+  expect_equal(dic_mol, water1$defined_water_dic)
 })

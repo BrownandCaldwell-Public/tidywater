@@ -1,7 +1,7 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Models for Drinking Water Treatment Processes
-Version: 0.7.0
+Version: 0.8.0
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
@@ -26,6 +26,7 @@ LazyData: true
 Imports:
     dplyr,
     tidyr,
+    forcats,
     knitr,
     ggplot2,
     ggrepel,
@@ -33,7 +34,9 @@ Imports:
     purrr,
     furrr,
     methods,
-    rlang
+    rlang,
+    deSolve
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 2.10)
@@ -42,4 +45,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2025-01-22
+Date: 2025-04-18
