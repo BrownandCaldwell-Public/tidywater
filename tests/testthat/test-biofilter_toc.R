@@ -171,7 +171,6 @@ test_that("biofilter_toc_chain errors with argument + column for same param", {
     mutate(ebct = 5) %>%
     biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = FALSE))
 
-  testthat::skip_on_cran()
   expect_error(water %>%
     mutate(ozonated = FALSE) %>%
     biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = TRUE))
