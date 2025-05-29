@@ -226,46 +226,31 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
+#' \donttest{
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
+#'   slice_sample(n = 3) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   mutate(
-#'     cl2 = seq(2, 24, 2),
+#'     cl2_dose = c(2, 3, 4),
 #'     time = 30
 #'   ) %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water")
+#'   chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
 #'
-#' example_df <- water_df %>%
-#'   mutate(br = 80) %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   mutate(time = 8) %>%
-#'   chemdose_dbp_chain(
-#'     input_water = "balanced_water", cl = 6, treatment = "coag",
-#'     location = "ds", cl_type = "chloramine"
-#'   )
-#'
-#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_dbp_chain(input_water = "balanced_water", cl2 = 4, time = 8)
+#'   chemdose_dbp_chain(cl2 = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)

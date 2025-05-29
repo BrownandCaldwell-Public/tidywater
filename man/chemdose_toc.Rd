@@ -80,39 +80,25 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   ))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(alum = 30) \%>\%
-  chemdose_toc_chain(input_water = "dosed_chem_water")
+  chemdose_toc_chain(input_water = "defined_water", alum = 30)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    FerricDose = seq(1, 12, 1),
-    coeff = "Ferric"
-  ) \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", ferricchloride = FerricDose)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", alum = 40, coeff = "General Alum")
+  mutate(FerricDose = seq(1, 12, 1)) \%>\%
+  chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
 \donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric")
+  chemdose_toc_chain(coeff = "Ferric")
 
 # Optional: explicitly close multisession processing
 plan(sequential)

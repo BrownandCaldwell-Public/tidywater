@@ -85,6 +85,7 @@ test_that("Blend waters warns about chloramines.", {
 # blend_waters helpers ----
 # Test that blend_waters_chain outputs are the same as base function, blend_waters
 test_that("blend_waters_chain outputs are the same as base function, blend_waters", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -114,6 +115,7 @@ test_that("blend_waters_chain outputs are the same as base function, blend_water
 
 # Test that output is a column of water class lists, and changing the output column name works
 test_that("blend_waters_chain outputs a column of water class lists, and output_water arg works", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -130,6 +132,7 @@ test_that("blend_waters_chain outputs a column of water class lists, and output_
 
 # Check that this function can handle different ways to input ratios
 test_that("blend_waters_chain can handle different ways to input ratios", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -156,6 +159,7 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
 })
 
 test_that("blend_waters_chain can handle water columns mixed with objects", {
+  testthat::skip_on_cran()
   water4 <- water_df %>%
     slice(1:3) %>%
     define_water_chain("A")

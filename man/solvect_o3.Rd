@@ -75,19 +75,16 @@ define_water(ph = 7.5, temp = 25) \%>\%
 define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
   solvect_o3(time = 10, dose = 2, baffle = 0.5)
 
+\donttest{
 library(dplyr)
 ct_calc <- water_df \%>\%
-  define_water_chain() \%>\%
-  solvect_o3_once(dose = 2, kd = -0.5, time = 10, baffle = .5)
-
-ozone_resid <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   mutate(
-    dose = rep(seq(1, 4, 1), 3),
-    time = rep(seq(2, 8, 2), 3),
-    baffle = .5,
+    dose = 2,
+    O3time = 10,
   ) \%>\%
-  solvect_o3_once()
+  solvect_o3_once(time = O3time, baffle = .7)
+}
 
 }

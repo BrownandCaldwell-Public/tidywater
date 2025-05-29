@@ -254,19 +254,9 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
 #'
-#' example_df <- water_df %>% define_water_once()
-#'
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>% define_water_once()
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' example_df <- water_df %>%
+#'   define_water_once()
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
@@ -300,12 +290,7 @@ define_water_once <- function(df) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain()
@@ -315,6 +300,7 @@ define_water_once <- function(df) {
 #'   balance_ions_chain(input_water = "This is a column of water")
 #'
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -322,6 +308,7 @@ define_water_once <- function(df) {
 #'
 #' #' #Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

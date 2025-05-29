@@ -23,25 +23,12 @@ The names of the output columns will follow the form \code{water_parameter}
 }
 \examples{
 
-library(dplyr)
-library(furrr)
-library(purrr)
-library(tidyr)
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  pluck_water(parameter = "tot_co3")
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
-
 pluck_example <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  chemdose_toc_chain("raw", "coag", alum = 10) \%>\%
-  pluck_water(c("raw", "coag"), "all")
+  pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 
+\donttest{
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
@@ -49,6 +36,7 @@ pluck_example <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 plan(sequential)
+}
 }
 \seealso{
 \link{convert_water}

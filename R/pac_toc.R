@@ -116,28 +116,16 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   pac_toc_chain(input_water = "raw", dose = 10, time = 20)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
 #'   mutate(dose = seq(11, 22, 1), PACTime = 30) %>%
-#'   pac_toc_chain(input_water = "raw", time = PACTime)
+#'   pac_toc_chain(input_water = "raw", time = PACTime, type = "wood")
 #'
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   mutate(time = 8) %>%
-#'   pac_toc_chain(
-#'     input_water = "raw", dose = 6, type = "wood"
-#'   )
-#'
+#' \donttest{
 #' # Initialize parallel processing
+#' library(furrr)
 #' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
@@ -145,6 +133,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #'
 #' # Optional: explicitly close multisession processing
 #' plan(sequential)
+#' }
 #' @import dplyr
 #'
 #' @export

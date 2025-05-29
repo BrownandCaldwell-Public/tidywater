@@ -69,6 +69,7 @@ test_that("chemdose_chloramine stops working when time input is set to less than
 })
 
 test_that("chemdose_chloramine uses both slot and dose when slots are set to TRUE.", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5))
   water2 <- suppressWarnings(define_water(ph = 9, temp = 25, alk = 75, tot_nh3 = 5))
   # both
@@ -81,9 +82,25 @@ test_that("chemdose_chloramine uses both slot and dose when slots are set to TRU
   expect_equal(length(warnings), 2)
 })
 
+test_that("chemdose_chloramine uses slot only when dose is zero or missing or uses both when specified.", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 5))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, tot_nh3 = 2))
+  # both
+  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 2, tot_nh3 = 2))
+
+  water4 <- chemdose_chloramine(water1, time = 40, nh3 = 2, use_free_cl_slot = TRUE)
+  water5 <- chemdose_chloramine(water2, time = 40, cl2 = 5, use_tot_nh3_slot = TRUE)
+  expect_warning(chemdose_chloramine(water2, time = 40, cl2 = 5), "slot")
+  expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE), "ignored")
+  expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE, use_free_cl_slot = TRUE), "BOTH")
+  expect_equal(water4@nh2cl, water5@nh2cl)
+})
+
 # chemdose_chloramine_chain ----
 # Test that chemdose_chloramine_chain outputs are the same as base function, chemdose_chloramine.
 test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chloramine", {
+  testthat::skip_on_cran()
   water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -124,6 +141,7 @@ test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chlorami
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_chloramine_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -144,6 +162,7 @@ test_that("chemdose_chloramine_chain output is list of water class objects, and 
 
 # Check that this function can be piped to the next one
 test_that("chemdose_chloramine_chain works", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     mutate(
@@ -159,6 +178,7 @@ test_that("chemdose_chloramine_chain works", {
 
 # Check that variety of ways to input chemicals work
 test_that("chemdose_chloramine_chain can handle different ways to input chem doses", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%

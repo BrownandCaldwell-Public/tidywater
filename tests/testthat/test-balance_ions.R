@@ -92,6 +92,7 @@ test_that("Balance ions only updates TDS/cond/IS when appropriate.", {
 # Test that balance_ions_chain outputs are the same as base function, balance_ions.
 
 test_that("balance_ions_chain outputs are the same as base function, balance_ions", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -122,6 +123,7 @@ test_that("balance_ions_chain outputs are the same as base function, balance_ion
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("balance_ions_chain output is a column of water class lists", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water_chain(slice(water_df, 1))) %>%
     balance_ions_chain()
   water2 <- purrr::pluck(water1, 2, 1)
@@ -131,6 +133,7 @@ test_that("balance_ions_chain output is a column of water class lists", {
 
 # Check that this function can be piped to the next one
 test_that("balance_ions_chain can be piped and handle an output_water argument", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water_chain(slice(water_df, 1))) %>%
     balance_ions_chain(output_water = "different_column") %>%
     chemdose_ph_chain(naoh = 20)

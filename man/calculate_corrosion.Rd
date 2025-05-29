@@ -117,39 +117,21 @@ water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) \%
   calculate_corrosion(index = c("aggressive", "ccpp"))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
-
-example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
-  define_water_chain() \%>\%
-  calculate_corrosion_once()
 
 example_df <- water_df \%>\%
   slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
+\donttest{
 
 example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_chain()
 
-example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
-  define_water_chain() \%>\%
-  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
-\donttest{
 # Initialize parallel processing
+library(furrr)
 plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
