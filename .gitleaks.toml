@@ -4,7 +4,7 @@ version = 3
 
 [allowlist]
 description = "ignore commit with old version of this toml"
-commits = ["f7540be"]
+commits = ["f7540be", "fe45f110d829608f0c6888f18768977e93a305ea"]
 
 # Define global settings for the scan
 [[rules]]
