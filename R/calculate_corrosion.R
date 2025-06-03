@@ -211,39 +211,77 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
 
     solve_x <- function(x, water) {
+      cat(paste(x, "mg/L\n"))
       water2 <- chemdose_ph(water, caco3 = x)
       K_so / (water2@co3 * gamma2) - water2@ca * gamma2
     }
+
+
+# #
+#     # Enter rabbit hole
+    # test <- data.frame(x = seq(-50, 50, 5)) %>%
+    #   mutate(water = c(water)) %>%
+    #   mutate(return = unlist(purrr::pmap(list(x,water), solve_x)))
+    #
+    # ggplot(test, aes(x = x, y = return)) +
+    #   geom_line() +
+    #   coord_cartesian(ylim = c(-1, 1))
+
 
     # Crazy nesting here to allow broader search without causing errors in the solve_ph uniroot.
     root_x <- tryCatch(
       {
         # First try with a restricted interval
+        cat("First Solver\n")
         stats::uniroot(solve_x,
-          water = water,
-          interval = c(-50, 50)
+                       water = water,
+                       interval = c(-50, 50)
         )
       },
       error = function(e) {
         tryCatch(
           {
+            cat("Big Scan\n")
+            # Initial check for search interval
+            x_range <- seq(-500,500,10)
+            vals <- sapply(x_range, function(x) solve_x(x, water))
+            # Find all sign changes
+            signs <- sign(vals)
+            interval_min <- which(diff(signs) != 0)
+            # Smallest difference between values indicates more stability
+            best <- which.min(abs(vals[interval_min] - vals[interval_min+1]))
+            lower <- x_range[interval_min[best]]
+            upper <- x_range[interval_min[best] +1]
+
+            # Run uniroot on idenfied interval
             stats::uniroot(solve_x,
-              water = water,
-              interval = c(-1, 1),
-              extendInt = "downX"
+                           water = water,
+                           interval = c(lower, upper)
             )
           },
           error = function(e) {
             tryCatch(
               {
+                cat("Extend int\n")
                 stats::uniroot(solve_x,
-                  water = water,
-                  interval = c(-1, 1),
-                  extendInt = "upX"
+                               water = water,
+                               interval = c(-1, 1),
+                               extendInt = "downX"
                 )
               },
               error = function(e) {
-                stop("Water outside range for CCPP solver.")
+                tryCatch(
+                  {
+                    stats::uniroot(solve_x,
+                                   water = water,
+                                   interval = c(-1, 1),
+                                   extendInt = "upX"
+                    )
+                  },
+                  error = function(e) {
+                    stop("Water outside range for CCPP solver.")
+                  }
+                )
               }
             )
           }
