@@ -2,9 +2,9 @@ title = "R Project Gitleaks Configuration"
 description = "Custom configuration for scanning secrets in an R program, including Azure keys and organization-specific passwords"
 version = 3
 
-add [rules.allowlist]
+[allowlist]
 description = "ignore commit with old version of this toml"
-commits = [ "f7540be"]
+commits = ["f7540be"]
 
 # Define global settings for the scan
 [[rules]]
