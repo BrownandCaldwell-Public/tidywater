@@ -290,7 +290,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -299,7 +299,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'   )
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

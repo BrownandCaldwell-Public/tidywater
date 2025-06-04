@@ -110,14 +110,14 @@ example_df <- water_df \%>\%
 
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   chemdose_dbp_chain(cl2 = 4, time = 8)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 
 }
