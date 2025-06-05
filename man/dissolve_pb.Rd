@@ -109,13 +109,13 @@ example_df <- water_df \%>\%
 \donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 
 }

@@ -75,7 +75,6 @@ test_that("solvect_chlorine_once is a data frame", {
     define_water_chain() %>%
     solvect_chlorine_once(time = 30, residual = 5, baffle = .5))
 
-
   expect_true(is.data.frame(water1))
 })
 

@@ -126,13 +126,13 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#'# plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
 #' }
 #' @import dplyr
 #'

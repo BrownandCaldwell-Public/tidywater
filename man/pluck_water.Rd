@@ -29,13 +29,13 @@ pluck_example <- water_df \%>\%
 
 \donttest{
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   pluck_water(parameter = c("ph", "alk"))
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 }
 \seealso{

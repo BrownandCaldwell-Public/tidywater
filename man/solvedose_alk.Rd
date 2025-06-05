@@ -66,14 +66,14 @@ example_df <- water_df \%>\%
 \donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(target_alk = seq(100, 210, 10)) \%>\%
   solvedose_alk_once(chemical = "na2co3")
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 
 }
