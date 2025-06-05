@@ -1,27 +1,19 @@
-test_that("solvect_chlorine returns 0's for ct_actual and giardia log when time is 0 or missing.", {
+test_that("solvect_chlorine returns 0's for ct_actual and giardia log when arguments are 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
-  ct <- solvect_chlorine(water1, time = 0, residual = 5, baffle = .2)
+  ct1 <- solvect_chlorine(water1, time = 0, residual = 5, baffle = .5)
+  ct2 <- solvect_chlorine(water1, time = 30, residual = 0, baffle = .5)
+  ct3 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0)
 
-  expect_equal(ct$ct_actual, 0)
-  expect_equal(ct$glog_removal, 0)
-  expect_error(solvect_chlorine(water1, residual = 5, baffle = .5))
+  expect_equal(ct1$ct_actual, 0)
+  expect_equal(ct2$glog_removal, 0)
+  expect_equal(ct3$glog_removal, 0)
 })
 
-test_that("solvect_chlorine returns 0's for ct_actual and giardia log when residual is 0 or missing.", {
+test_that("solvect_chlorine errors when arguments are missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
-  ct <- solvect_chlorine(water1, time = 30, residual = 0, baffle = .2)
 
-  expect_equal(ct$ct_actual, 0)
-  expect_equal(ct$glog_removal, 0)
   expect_error(solvect_chlorine(water1, time = 30, baffle = .5))
-})
-
-test_that("solvect_chlorine returns 0's for ct_actual and giardia log when baffle is 0 or missing.", {
-  water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
-  ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0)
-
-  expect_equal(ct$ct_actual, 0)
-  expect_equal(ct$glog_removal, 0)
+  expect_error(solvect_chlorine(water1, residual = 5, baffle = .5))
   expect_error(solvect_chlorine(water1, time = 30, residual = 5))
 })
 
@@ -31,6 +23,18 @@ test_that("solvect_chlorine fails without ph and temp.", {
 
   expect_error(solvect_chlorine(water_temp, time = 30, residual = 5, baffle = 0.2))
   expect_error(solvect_chlorine(water_ph, time = 30, residual = 5, baffle = 0.2))
+})
+
+test_that("solvect_chlorine correctly uses free_chlorine slot", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 1))
+  ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
+  ct_use <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
+  ct_use2 <- solvect_chlorine(water1, time = 30, baffle = 0.3, use_free_cl_slot = TRUE) # no residual argument
+
+
+  expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
+  expect_equal(round(ct_use2$ct_required), 10)
+  expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) # no residual argument or water slot
 })
 
 test_that("solvect_chlorine works.", {
@@ -45,6 +49,7 @@ test_that("solvect_chlorine works.", {
 
 # HELPERS ----
 test_that("solvect_chlorine_once outputs are the same as base function, solvect_chlorine", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
@@ -63,19 +68,20 @@ test_that("solvect_chlorine_once outputs are the same as base function, solvect_
 # Check that output is a data frame
 
 test_that("solvect_chlorine_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
-    solvect_chlorine_once(time = 30, residual = 5))
-
+    solvect_chlorine_once(time = 30, residual = 5, baffle = .5))
 
   expect_true(is.data.frame(water1))
 })
 
-# Check solvect_chlorine_once can use a column or function argument for chemical residual
+# Check solvect_chlorine_once can use column or function arguments
 
-test_that("solvect_chlorine_once can use a column and/or function argument for time and residual", {
+test_that("solvect_chlorine_once can use a column and/or function argument for time, residual, baffle", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_chain()
 
@@ -99,7 +105,8 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
     mutate(br = 50) %>%
     define_water_chain() %>%
     cross_join(time) %>%
-    solvect_chlorine_once(residual = c(5, 8), baffle = .5)
+    rename(ChlorTime = time) %>%
+    solvect_chlorine_once(residual = c(5, 8), baffle = .5, time = ChlorTime)
 
   expect_equal(water1$defined_water_ct_required, water2$defined_water_ct_required) # test different ways to input time
   expect_equal(ncol(water3), ncol(water0) + 6) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal
@@ -107,6 +114,7 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
 })
 
 test_that("solvect_chlorine_once correctly handles arguments with multiple values", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     slice(1:2) %>%
     define_water_chain()
@@ -118,4 +126,19 @@ test_that("solvect_chlorine_once correctly handles arguments with multiple value
 
   expect_equal(nrow(water) * 6, nrow(water1))
   expect_equal(nrow(water) * 4, nrow(water2))
+})
+
+test_that("solvect_chlorine_once correctly uses free_chlorine slot", {
+  testthat::skip_on_cran()
+  residual_df <- water_df %>%
+    define_water_chain() %>%
+    chemdose_ph_chain(naocl = 10) %>%
+    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3)
+
+  free_cl_slot_df <- water_df %>%
+    define_water_chain() %>%
+    chemdose_ph_chain(naocl = 10) %>%
+    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
+
+  expect_error(expect_equal(residual_df$defined_water_ct_required, free_cl_slot_df$defined_water_ct_required))
 })

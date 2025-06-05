@@ -24,7 +24,7 @@ test_that("function catches index typos", {
 
 test_that("warnings are present when parameters used in calculations are estimated by tidywater.", {
   water1 <- suppressWarnings(define_water(8, 25, 200, 200))
-  water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions()
+  water2 <- suppressWarnings(define_water(8, 25, 200, 200, na = 100, cl = 100)) %>% balance_ions(anion = "so4")
 
   expect_warning(calculate_corrosion(water1, index = "aggressive"))
   expect_warning(calculate_corrosion(water2, index = "csmr"))
@@ -150,11 +150,17 @@ test_that("ccpp works", {
   water5 <- suppressWarnings(define_water(ph = 6.85, temp = 25, alk = 80, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")
 
-  expect_equal(round(water1@ccpp), 17) # high alk
-  expect_equal(round(water2@ccpp, 1), -1.2) # low alk
+  water6 <- suppressWarnings(define_water(ph = 5, alk = 20, ca = 32, tds = 90)) %>%
+    calculate_corrosion(index = "ccpp")
+
+  expect_equal(round(water1@ccpp), 16) # high alk
+  expect_equal(round(water2@ccpp, 1), -1.3) # low alk
   expect_equal(round(water3@ccpp), 16) # use tot_hard to get ca
   expect_equal(round(water4@ccpp), -4) # low ca
-  expect_equal(round(water5@ccpp), -33) # low pH
+  expect_equal(round(water5@ccpp), -34) # low pH
+  expect_equal(round(water6@ccpp), -328) # extra low pH
+  expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
+    calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })
 
 ################################################################################*
@@ -163,6 +169,7 @@ test_that("ccpp works", {
 # Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
 
 test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -185,6 +192,7 @@ test_that("calculate_corrosion_once outputs are the same as base function, calcu
 })
 
 test_that("function catches index typos", {
+  testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
     define_water_chain())
 
@@ -199,6 +207,7 @@ test_that("function catches index typos", {
 # Check that output is a data frame
 
 test_that("calculate_corrosion_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -211,6 +220,7 @@ test_that("calculate_corrosion_once is a data frame", {
 # Check calculate_corrosion_once outputs an appropriate number of indices
 
 test_that("calculate_corrosion_once outputs an appropriate number of indices", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -237,6 +247,7 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
 
 # Test that calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
 test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosion", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -258,6 +269,7 @@ test_that("calculate_corrosion_chain outputs the same as base, calculate_corrosi
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("calculate_corrosion_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -279,6 +291,7 @@ test_that("calculate_corrosion_chain output is list of water class objects, and 
 
 # Check that variety of ways to input chemicals work
 test_that("calculate_corrosion_chain can handle different forms of CaCO3", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%

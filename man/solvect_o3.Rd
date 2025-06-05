@@ -2,6 +2,7 @@
 % Please edit documentation in R/solvect_o3.R
 \name{solvect_o3}
 \alias{solvect_o3}
+\alias{solvect_o3_once}
 \title{Determine disinfection credit from ozone.}
 \source{
 USEPA (2020) Equation 4-4 through 4-7
@@ -11,9 +12,19 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 }
 \usage{
 solvect_o3(water, time, dose, kd, baffle)
+
+solvect_o3_once(
+  df,
+  input_water = "defined_water",
+  time = "use_col",
+  dose = "use_col",
+  kd = "use_col",
+  baffle = "use_col",
+  water_prefix = TRUE
+)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and temp}
+\item{water}{Source water object of class "water" created by \code{\link[=define_water]{define_water()}}. Water must include ph and temp}
 
 \item{time}{Retention time of disinfection segment in minutes.}
 
@@ -22,18 +33,39 @@ solvect_o3(water, time, dose, kd, baffle)
 \item{kd}{First order decay constant. This parameter is optional. If not specified, the default ozone decay equations will be used.}
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
+
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link[=define_water_chain]{define_water_chain()}}}
+
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
-A data frame containing actual CT, giardia log removal, virus log removal, and crypto log removal.
+\code{solvect_o3} returns a data frame containing actual CT (mg/L*min), giardia log removal, virus log removal, and crypto log removal.
+
+\code{solvect_o3_once} returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 }
 \description{
-This function takes a water defined by \code{\link{define_water}} and the first order decay curve parameters
-from an ozone dose and outputs a dataframe of acutal CT, and log removal for giardia, virus, and crypto
+This function takes a water defined by \code{\link[=define_water]{define_water()}} and the first order decay curve parameters
+from an ozone dose and outputs a dataframe of actual CT, and log removal for giardia, virus, and crypto.
+For a single water, use \code{solvect_o3}; to apply the model to a dataframe, use \code{solvect_o3_once}.
+For most arguments, the \verb{_once} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \details{
-First order decay curve for ozone has the form: `residual = dose * exp(kd*time)`. kd should be a negative number.
+First order decay curve for ozone has the form: \code{residual = dose * exp(kd*time)}. kd should be a negative number.
 Actual CT is an integration of the first order curve. The first 30 seconds are removed from the integral to account for
 instantaneous demand.
+
+When \code{kd} is not specified, a default decay curve is used from the Water Treatment Plant Model (2002). This model does
+not perform well for ozone decay, so specifying the decay curve is recommended.
+
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
 
@@ -43,7 +75,16 @@ define_water(ph = 7.5, temp = 25) \%>\%
 define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
   solvect_o3(time = 10, dose = 2, baffle = 0.5)
 
+\donttest{
+library(dplyr)
+ct_calc <- water_df \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  mutate(
+    dose = 2,
+    O3time = 10,
+  ) \%>\%
+  solvect_o3_once(time = O3time, baffle = .7)
 }
-\seealso{
-\code{\link{define_water}}
+
 }

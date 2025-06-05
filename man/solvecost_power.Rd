@@ -19,7 +19,7 @@ solvecost_power(power, utilization = 100, cost, time = "day")
 A numeric value for power, $/time.
 }
 \description{
-This function takes kW, % utilization, $/kWhr and determines power cost.
+This function takes kW, \% utilization, $/kWhr and determines power cost.
 }
 \examples{
 powercost <- solvecost_power(50, 100, .08)

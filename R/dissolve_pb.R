@@ -34,17 +34,27 @@
 
 #' Simulate contributions of various lead solids to total soluble lead
 #'
-#' @description This function takes a water data frame defined by \code{\link{define_water}}
+#' @description This function takes a water data frame defined by [define_water]
 #' and outputs a dataframe of the controlling lead solid and total lead solubility.
 #' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
+#' For a single water, use `dissolve_pb`; to apply the model to a dataframe, use `dissolve_pb_once`.
+#' For most arguments, the `_chain` and `_once` helpers
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
+#'
+#' @details The solid with lowest solubility will form the lead scale (controlling lead solid).
 #' Some lead solids have two k-constant options. The function will default to the EPA's default constants.
 #' The user may change the constants to hydroxypyromorphite = "Zhu" or pyromorphite = "Xie" or laurionite = "Lothenbach"
 #'
-#' @details The solid with lowest solubility will form the lead scale (controlling lead solid).
-#'
 #' Make sure that total dissolved solids, conductivity, or
 #' ca, na, cl, so4 are used in `define_water` so that an ionic strength is calculated.
+#'
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
 #' which is licensed under MIT License:
@@ -58,12 +68,11 @@
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include alk and is.
+#' @param water Source water object of class "water" created by [define_water]. Water must include alk and is.
 #' If po4, cl, and so4 are known, those should also be included.
 #' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
 #' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
 #' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".
-#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
@@ -80,9 +89,8 @@
 #'
 #' @export
 #'
-#' @returns A data frame containing only the controlling lead solid and modeled dissolved lead concentration.
+#' @returns `dissolve_pb` returns a one row data frame containing only the controlling lead solid and modeled dissolved lead concentration.
 
-# water <-define_water(ph = 7, tds = 200)
 dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "Topolska", laurionite = "Nasanen") {
   constant_name <- log_value <- species_name <- K_num <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "alk", "is"))
@@ -198,69 +206,47 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   data.frame(controlling_solid, tot_dissolved_pb)
 }
 
-#' Apply `dissolve_pb` to a dataframe and create a new column with numeric dose
-#'
-#' This function allows \code{\link{dissolve_pb}} to be added to a piped data frame.
-#' Two additional columns will be added to the dataframe; the name of the controlling lead solid, and total dissolved lead (M).
-#'
-#' The data input comes from a `water` class column, initialized in \code{\link{define_water}} or \code{\link{balance_ions}}.
-#' Use the `output_col_solid` and `output_col_result` arguments to name the ouput columns for the controlling lead solid
-#' and total dissolved lead, respectively. The input `water` used for the calculation will be appended to the
-#' start of these output columns. Omit the input `water` in the output columns, set `water_prefix` to FALSE (default is TRUE).
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
+#' @rdname dissolve_pb
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' \code{\link{define_water_chain}}
+#' [define_water_chain]
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_col_solid name of the output column storing the controlling lead solid. Default is "controlling_solid".
 #' @param output_col_result name of the output column storing dissolved lead in M. Default is "pb".
 #' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-#' Chenge to FALSE to remove the water prefix from output column names.
-#' @param hydroxypyromorphite defaults to "Schock", the constant, K, developed by Schock et al (1996). Can also use "Zhu".
-#' @param pyromorphite defaults to "Topolska", the constant, K, developed by Topolska et al (2016). Can also use "Xie".
-#' @param laurionite defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".
-#' @seealso \code{\link{dissolve_pb}}
+#' Change to FALSE to remove the water prefix from output column names.
 #'
 #' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   dissolve_pb_once(input_water = "balanced_water")
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' library(furrr)
+#'# plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
 #' @export
 #'
-#' @returns A data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
+#' @returns `dissolve_pb_once` returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
 
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
                              output_col_result = "pb", hydroxypyromorphite = "Schock",
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
   calc <- tot_dissolved_pb <- controlling_solid <- NULL # Quiet RCMD check global variable note
+
+  validate_water_helpers(df, input_water)
+
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
     stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
   }

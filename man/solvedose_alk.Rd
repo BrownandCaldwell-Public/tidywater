@@ -2,9 +2,18 @@
 % Please edit documentation in R/solvedose_ph_alk.R
 \name{solvedose_alk}
 \alias{solvedose_alk}
+\alias{solvedose_alk_once}
 \title{Calculate a desired chemical dose for a target alkalinity}
 \usage{
 solvedose_alk(water, target_alk, chemical)
+
+solvedose_alk_once(
+  df,
+  input_water = "defined_water",
+  output_column = "dose_required",
+  target_alk = "use_col",
+  chemical = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water of class "water" created by \code{\link{define_water}}}
@@ -13,18 +22,61 @@ solvedose_alk(water, target_alk, chemical)
 
 \item{chemical}{The chemical to be added. Current supported chemicals include:
 acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_chain}. The df may include a column with names for each of the chemicals being dosed.}
+
+\item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
+
+\item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \value{
-A numeric value for the required chemical dose.
+\code{solvedose_alk} returns a numeric value for the required chemical dose.
+
+\code{solvedose_alk_once} returns a data frame containing the original data frame and columns for target alkalinity, chemical dosed, and required chemical dose.
 }
 \description{
 This function calculates the required amount of a chemical to dose based on a target alkalinity and existing water quality.
 Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function.
+For a single water, use \code{solvedose_alk}; to apply the model to a dataframe, use \code{solvedose_alk_once}.
+For most arguments, the \verb{_once} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
+}
+\details{
+\code{solvedose_alk} uses \code{\link[stats:uniroot]{stats::uniroot()}} on \link{chemdose_ph} to match the required dose for the requested alkalinity target.
+
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
 dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) \%>\%
   solvedose_alk(target_alk = 150, "naoh")
+
+library(dplyr)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(finAlk = seq(100, 210, 10)) \%>\%
+  solvedose_alk_once(chemical = "na2co3", target_alk = finAlk)
+
+\donttest{
+# Initialize parallel processing
+library(furrr)
+# plan(multisession)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(target_alk = seq(100, 210, 10)) \%>\%
+  solvedose_alk_once(chemical = "na2co3")
+
+# Optional: explicitly close multisession processing
+# plan(sequential)
+}
+
 }
 \seealso{
-\code{\link{define_water}}
+\link{solvedose_ph}
 }
