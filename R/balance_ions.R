@@ -11,7 +11,7 @@
 #' This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.
 #'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#' For large data sets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
 #'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
