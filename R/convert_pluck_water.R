@@ -4,14 +4,18 @@
 
 #' Convert `water` class object to a dataframe
 #'
-#' This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
+#' @description This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
 #' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
 #' there may be a `fn_once` tidywater function that provides a more efficient solution.
 #'
+#' Use [convert_water] to keep all slots in the same units as the water.
+#'
+#' Use [convert_watermg] to convert to more typical units. Converts the following slots from M to mg/L:
+#' na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.
+#' Converts these slots to ug/L: br, mn.  All other values remain unchanged.
+#'
 #'
 #' @param water A water class object
-#'
-#' @seealso \code{\link{define_water}}
 #'
 #' @examples
 #'
@@ -40,14 +44,7 @@ convert_water <- function(water) {
     select(where(~ any(!is.na(.))))
 }
 
-#' @title Convert a `water` class object to a dataframe with ions in mg/L or ug/L
-#'
-#' @description This function is the same as \code{\link{convert_water}} except it converts the units of following slots from
-#' M to mg/L: na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.  These slots are converted to
-#' ug/L: br, mn.  All other values remain unchanged.
-#'
-#' @param water A water class object
-#'
+#' @rdname convert_water
 #' @examples
 #' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
 #'   convert_watermg()
@@ -99,38 +96,30 @@ convert_watermg <- function(water) {
 #'
 #' This function plucks one or more selected parameters from selected columns of `water` class objects.
 #' The names of the output columns will follow the form `water_parameter`
-#' To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
 #'
 #' @param df a data frame containing a water class column, which has already
-#' been computed using \code{\link{define_water}}
+#' been computed using [define_water]
 #' @param input_waters vector of names of the columns of water class data to be used as the input for this function.
-#' @param parameter vector of water class parameters to view outside the water column
+#' @param parameter vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots.
 #'
-#' @seealso \code{\link{convert_water}}
+#' @seealso [convert_water]
 #'
 #' @examples
 #'
-#' library(dplyr)
+#' pluck_example <- water_df %>%
+#'   define_water_chain("raw") %>%
+#'   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
+#'
+#' \donttest{
 #' library(furrr)
-#' library(purrr)
-#' library(tidyr)
-#'
-#' pluck_example <- water_df %>%
-#'   define_water_chain() %>%
-#'   pluck_water(parameter = "tot_co3")
-#'
-#' pluck_example <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
-#'
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#'# plan(multisession)
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   pluck_water(parameter = c("ph", "alk"))
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
+#' }
 #' @import dplyr
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
@@ -139,28 +128,43 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
-  if (!any(parameter %in% methods::slotNames("water"))) {
-    stop("One or more parameters doesn't exist in water class.")
-  }
   if (!any(input_waters %in% colnames(df))) {
     stop("One or more specified waters doesn't exist in dataframe. Check column names.")
   }
 
-
   plucked <- data.frame(row.names = seq(1, nrow(df)))
-  for (water in input_waters) {
-    if (!methods::is(df[[water]][[1]], "water")) {
-      stop("All waters must be of class 'water'.")
-    }
-    output_column <- paste0(water, "_", parameter)
-    temp <- furrr::future_map2(parameter, output_column, ~ {
-      df %>%
-        mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
-        select(!!as.name(.y))
-    }) %>%
-      purrr::list_cbind()
 
-    plucked <- bind_cols(plucked, temp)
+  if (length(parameter) == 1 && parameter == "all") {
+    for (water in input_waters) {
+      if (!methods::is(df[[water]][[1]], "water")) {
+        stop("All waters must be of class 'water'.")
+      }
+      temp <- df %>%
+        mutate(!!as.name(water) := furrr::future_map(!!as.name(water), convert_water)) %>%
+        select(!!as.name(water)) %>%
+        unnest_wider(!!as.name(water), names_sep = "_")
+
+      plucked <- bind_cols(plucked, temp)
+    }
+  } else {
+    if (!any(parameter %in% methods::slotNames("water"))) {
+      stop("One or more parameters doesn't exist in water class.")
+    }
+
+    for (water in input_waters) {
+      if (!methods::is(df[[water]][[1]], "water")) {
+        stop("All waters must be of class 'water'.")
+      }
+      output_column <- paste0(water, "_", parameter)
+      temp <- furrr::future_map2(parameter, output_column, ~ {
+        df %>%
+          mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
+          select(!!as.name(.y))
+      }) %>%
+        purrr::list_cbind()
+
+      plucked <- bind_cols(plucked, temp)
+    }
   }
 
   bind_cols(df, plucked)

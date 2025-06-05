@@ -1,5 +1,6 @@
 # Generate data frames of data used across tidywater functions
 
+# mweights ----
 # List of molecular weights for different chemical additions
 mweights <- data.frame(
   na = 22.98977,
@@ -52,6 +53,7 @@ mweights <- data.frame(
 
 usethis::use_data(mweights, overwrite = TRUE)
 
+# discons ----
 # Acid dissociation constants and corresponding enthalpy
 # Carbonic acid
 discons <- data.frame(
@@ -72,8 +74,8 @@ rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
 
+# water_df ----
 # Dummy data frame for function examples
-
 water_df <- data.frame(
   ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
   temp = rep(c(20, 25, 19), 4),
@@ -97,8 +99,8 @@ water_df <- data.frame(
 
 usethis::use_data(water_df, overwrite = TRUE)
 
+# edwardscoeff ----
 # Data frame of Edwards model coefficients
-
 edwardscoeff <- data.frame(
   ID = "Alum",
   x3 = 4.91, x2 = -74.2, x1 = 284,
@@ -133,8 +135,8 @@ rownames(edwardscoeff) <- edwardscoeff$ID
 
 usethis::use_data(edwardscoeff, overwrite = TRUE)
 
+# leadsol_constants ----
 # Data frame of equilibrium constants for lead and copper solubility
-
 leadsol_constants <- data.frame(
   species_name = c("Lead Hydroxide", "Cerussite", "Hydrocerussite"),
   constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
@@ -205,8 +207,8 @@ rownames(leadsol_constants) <- leadsol_constants$constant_name
 
 usethis::use_data(leadsol_constants, overwrite = TRUE)
 
+# dbpcoeffs ----
 # Data frame of THM and HAA coefficients
-
 dbpcoeffs <- data.frame(
   # raw/untreated water
   # tthms
@@ -505,7 +507,6 @@ rownames(dbpcoeffs) <- dbpcoeffs$ID
 usethis::use_data(dbpcoeffs, overwrite = TRUE)
 
 # Data frame of DBP conversion factors for chloramines
-
 chloramine_conv <- data.frame(
   # tthms
   ID = "tthm",
@@ -600,7 +601,6 @@ usethis::use_data(chloramine_conv, overwrite = TRUE)
 
 # Data frame of DBP correction factors based on location from testing with ICR data
 # No correction factors developed for CDBAA, BDCAA, TBAA, and HAA9 since ICR plant data was used to develop these equations
-
 
 dbp_correction <- data.frame(
   # tthms
@@ -710,9 +710,8 @@ rownames(dbp_correction) <- dbp_correction$ID
 
 usethis::use_data(dbp_correction, overwrite = TRUE)
 
-
+# bromatecoeffs ----
 # Dataframe of bromate formation coefficients
-
 bromatecoeffs <- data.frame(
   model = rep("Ozekin", 2),
   ammonia = c(F, T),
@@ -790,8 +789,8 @@ bromatecoeffs <- data.frame(
   )
 usethis::use_data(bromatecoeffs, overwrite = TRUE)
 
+# cl2coeffs -----
 # Data frame of Cl2 decay coefficients
-
 cl2coeffs <- tibble(
   treatment = c("chlorine_raw", "chlorine_coag", "chloramine"),
   a = c(-0.8147, -0.8404, -0.99),
@@ -800,3 +799,15 @@ cl2coeffs <- tibble(
 )
 
 usethis::use_data(cl2coeffs, overwrite = TRUE)
+
+# pactoccoeffs -----
+# Data frame of PAC TOC removal coefficients
+pactoccoeffs <- tibble(
+  pactype = c("bituminous", "lignite", "wood"),
+  A = c(.1561, .4078, .3653),
+  a = c(.9114, .8516, .8692),
+  b = c(.0263, .0225, .0151),
+  c = c(.002, .002, .0025)
+)
+
+usethis::use_data(pactoccoeffs, overwrite = TRUE)

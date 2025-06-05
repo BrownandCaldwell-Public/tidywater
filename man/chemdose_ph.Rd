@@ -2,6 +2,7 @@
 % Please edit documentation in R/chemdose_ph.R
 \name{chemdose_ph}
 \alias{chemdose_ph}
+\alias{chemdose_ph_chain}
 \title{Calculate new pH and ion balance after chemical addition}
 \usage{
 chemdose_ph(
@@ -27,9 +28,35 @@ chemdose_ph(
   ach = 0,
   softening_correction = FALSE
 )
+
+chemdose_ph_chain(
+  df,
+  input_water = "defined_water",
+  output_water = "dosed_chem_water",
+  hcl = "use_col",
+  h2so4 = "use_col",
+  h3po4 = "use_col",
+  co2 = "use_col",
+  naoh = "use_col",
+  na2co3 = "use_col",
+  nahco3 = "use_col",
+  caoh2 = "use_col",
+  mgoh2 = "use_col",
+  cacl2 = "use_col",
+  cl2 = "use_col",
+  naocl = "use_col",
+  nh4oh = "use_col",
+  nh42so4 = "use_col",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  ach = "use_col",
+  caco3 = "use_col",
+  softening_correction = "use_col"
+)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water object of class "water" created by \link{define_water}}
 
 \item{hcl}{Amount of hydrochloric acid added in mg/L: HCl -> H + Cl}
 
@@ -70,13 +97,27 @@ chemdose_ph(
 \item{ach}{Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2}
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
+
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
 }
 \value{
-A water class object with updated pH, alkalinity, and ions post-chemical addition.
+\code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
+
+\code{chemdose_ph_chain} returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 }
 \description{
-\code{chemdose_ph} calculates the new pH, alkalinity, and ion balance of a water based on different chemical
+Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 additions.
+For a single water use \code{chemdose_ph}; for a dataframe use \code{chemdose_ph_chain}.
+Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_chain} helper
+"use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+function instead or an unquoted column name can be provided.
 }
 \details{
 The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
@@ -84,9 +125,15 @@ chemical additions and returns a new object of class "water" with updated water 
 Units of all chemical additions are in mg/L as chemical (not as product).
 
 \code{chemdose_ph} works by evaluating all the user-specified chemical additions and solving for what the new pH
-must be using \code{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
+must be using \link{uniroot} to satisfy the principle of electroneutrality in pure water while correcting for the existing alkalinity
 of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
 modeled independently through sequential doses.
+
+For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
+for the option to use parallel processing and speed things up. To initialize parallel processing, use
+\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
+\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 10)
@@ -110,6 +157,35 @@ dosed_water1 <- chemdose_ph(water2, caco3 = -100)
 dosed_water1@ph
 dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 dosed_water2@ph
+
+
+library(dplyr)
+
+example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
+  define_water_chain() \%>\%
+  chemdose_ph_chain(input_water = "defined_water", naoh = 5)
+
+example_df <- water_df \%>\%
+  slice_head(n = 3) \%>\%
+  define_water_chain() \%>\%
+  mutate(
+    hcl = c(2, 4, 6),
+    Caustic = 20
+  ) \%>\%
+  chemdose_ph_chain(mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+
+\donttest{
+# Initialize parallel processing
+library(furrr)
+# plan(multisession)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  chemdose_ph_chain(naoh = 5)
+
+# Optional: explicitly close multisession processing
+# plan(sequential)
+}
 
 }
 \seealso{

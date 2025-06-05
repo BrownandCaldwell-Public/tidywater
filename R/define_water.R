@@ -2,13 +2,13 @@
 #'
 #' @description This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
 #'
-#' @details Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity. Missing values are handled by defaulting to 0 or
-#' NA. Calcium hardness defaults to 65% of the total hardness because that falls within a typical range. For best results
-#' manually specify all ions in the define_water arguments. The following equations are used to determine ionic strength:
-#' Ionic strength (if TDS provided): Crittenden et al. (2012) equation 5-38
-#' Ionic strength (if electrical conductivity provided): Snoeyink & Jenkins (1980)
-#' Ionic strength (from ion concentrations): Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37
-#' Temperature correction of dielectric constant (relative permittivity): Harned and Owen (1958), Crittenden et al. (2012) equation 5-45.
+#' @details Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity.
+#' Missing values are handled by defaulting to 0 or NA.
+#' Calcium defaults to 65 percent of the total hardness when not specified. DOC defaults to 95 percent of TOC.
+#' @source Crittenden et al. (2012) equation 5-38 - ionic strength from TDS
+#' @source Snoeyink & Jenkins (1980) - ionic strength from conductivity
+#' @source Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37 - ionic strength from ion concentrations
+#' @source Harned and Owen (1958), Crittenden et al. (2012) equation 5-45 - Temperature correction of dielectric constant (relative permittivity)
 #'
 #' @param ph water pH
 #' @param temp Temperature in degree C
@@ -139,6 +139,10 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
     estimated <- paste(estimated, "doc", sep = "_")
   }
 
+  if (tot_nh3 > 0 & (free_chlorine > 0 | combined_chlorine > 0)) {
+    warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
+  }
+
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
@@ -147,8 +151,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
   kw <- 10^-pkw
 
-  h <- 10^-ph
-  oh <- kw / h
+  h <- 10^-ph # assume activity = concentration to start
+  oh <- kw / h # assume activity = concentration to start
 
   # convert alkalinity input to equivalents/L
   carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
@@ -198,12 +202,20 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   # Eq constants
   ks <- correct_k(water)
 
+  # Recalculate H and OH concentration (not activity)
+  gamma1 <- calculate_activity(1, water@is, water@temp)
+  h <- h / gamma1
+  oh <- oh / gamma1
+  water@h <- h
+  water@oh <- oh
+
   # Carbonate and phosphate ions and ocl ions
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
   water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
+  water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
@@ -242,19 +254,9 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
 #'
-#' example_df <- water_df %>% define_water_once()
-#'
-#' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-#' example_df <- water_df %>% define_water_once()
-#'
-#' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' example_df <- water_df %>%
+#'   define_water_once()
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider
@@ -288,28 +290,25 @@ define_water_once <- function(df) {
 #' @seealso \code{\link{define_water}}
 #'
 #' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_once()
+#'   balance_ions_chain()
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain(output_water = "This is a column of water") %>%
-#'   balance_ions_once(input_water = "This is a column of water")
+#'   balance_ions_chain(input_water = "This is a column of water")
 #'
 #' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' library(furrr)
+#'# plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_once()
+#'   balance_ions_chain()
 #'
 #' #' #Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

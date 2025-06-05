@@ -2,6 +2,7 @@
 
 # Test convertWater converts a water class input to a dataframe
 test_that("convert water creates a dataframe", {
+  testthat::skip_on_cran()
   water1 <- define_water(
     ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
     cl = 10, so4 = 10, toc = 3.5, doc = 3.2, uv254 = 0.1
@@ -21,10 +22,10 @@ test_that("convert water works", {
 })
 
 test_that("convert water mg works", {
-  water1 <- define_water(
+  water1 <- suppressWarnings(define_water(
     ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
     cl = 10, so4 = 50, tot_po4 = 3.2, tot_nh3 = 0.54, free_chlorine = 2.1
-  )
+  ))
   df_water <- convert_watermg(water1)
   expect_equal(6.7, df_water$ph)
   expect_equal(10, df_water$na)
@@ -57,6 +58,7 @@ test_that("pluck_water works", {
 })
 
 test_that("pluck_water inputs must be waters and water slots", {
+  testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_chain("raw") %>%
     mutate(ohno = "not a water")
@@ -65,4 +67,20 @@ test_that("pluck_water inputs must be waters and water slots", {
   expect_error(water1 %>% pluck_water("raw", c("oops", "ca")))
   expect_error(water2 %>% pluck_water("na", c("na", "ca")))
   expect_error(water1 %>% pluck_water(c("raw", "ohno"), c("na", "ca")))
+})
+
+test_that("pluck_water all works", {
+  testthat::skip_on_cran()
+  water1 <- water_df %>%
+    define_water_chain("raw") %>%
+    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    pluck_water(c("raw", "coag"), "all")
+
+  water2 <- water_df %>%
+    define_water_chain("raw") %>%
+    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    pluck_water(c("raw", "coag"), c("doc", "hco3"))
+
+  expect_equal(water1$raw_hco3, water2$raw_hco3)
+  expect_equal(water1$coag_doc, water2$coag_doc)
 })

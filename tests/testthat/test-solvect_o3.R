@@ -74,24 +74,42 @@ test_that("solvect_o3 works.", {
 
 # HELPERS ----
 test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
+  testthat::skip_on_cran()
+  water0 <- define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13, mg = 4,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  )
+  water1 <- water0 %>%
     solvect_o3(time = 10, dose = 5, kd = -0.5, baffle = .7)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
-    solvect_o3_once(time = 10, dose = 5, kd = -0.5, baffle = .7))
+    solvect_o3_once(time = 10, dose = 5, kd = -0.5, baffle = .7)
+
+  kds <- tibble(kd = seq(-.5, -.1, .1))
+  doses <- tibble(O3Dose = seq(1, 4, 1))
+  water3 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    cross_join(kds) %>%
+    cross_join(doses) %>%
+    solvect_o3_once(time = 10, dose = O3Dose, baffle = .7)
+
+  water4 <- solvect_o3(water0, dose = 2, time = 10, kd = -.3, baffle = .7)
 
   expect_equal(water1$glog_removal, water2$defined_water_glog_removal)
+  expect_equal(water4$ct_actual, water3$defined_water_ct_actual[10])
 })
 
 # Check that output is a data frame
 
 test_that("solvect_o3_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
@@ -105,6 +123,7 @@ test_that("solvect_o3_once is a data frame", {
 # Check solvect_o3_once can use a column or function argument for chemical residual
 
 test_that("solvect_o3_once can use a column and/or function argument for time and residual", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     slice(1:4) %>%
     define_water_chain()
