@@ -1,6 +1,6 @@
 #' @title Add an ion to balance overall charge in a water
 #'
-#' @description This function takes a water defined by [define_water] and balances charge.
+#' @description This function takes a water as defined by [define_water] and balances charge.
 #' For a single water use `balance_ions`; for a dataframe use `balance_ions_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #'
