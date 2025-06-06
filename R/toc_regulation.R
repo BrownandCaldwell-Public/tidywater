@@ -45,19 +45,21 @@ toc_regulations <- function(water, raw_toc, final_toc) {
   
   #Checking compliance considering inputs:
 
-  if (raw_toc > 2 & raw_toc < 4) {
+
+  if (raw_toc > 2 & raw_toc <= 4) {
     if (alk <= 60) required_compliance <- 35
-    else if (alk <= 120) required_compliance <- 25
-    else required_compliance <- 15
-  } else if (raw_toc > 4 & raw_toc < 8) {
+    else if (alk > 60 & alk <= 120) required_compliance <- 25
+    else if (alk > 120) required_compliance <- 15
+  } else if (raw_toc > 4 & raw_toc <= 8) {
     if (alk <= 60) required_compliance <- 45
-    else if (alk <= 120) required_compliance <- 35
-    else required_compliance <- 25
+    else if (alk > 60 & alk <= 120) required_compliance <- 35
+    else if (alk > 120) required_compliance <- 25
   } else if (raw_toc > 8) {
     if (alk <= 60) required_compliance <- 50
-    else if (alk <= 120) required_compliance <- 40
-    else required_compliance <- 30
+    else if (alk > 60 & alk <= 120) required_compliance <- 40
+    else if (alk > 120) required_compliance <- 30
   }
+  
   
   if (!is.na(required_compliance) && removal >= required_compliance) {
     return(tibble::tibble(compliance_status = "In Compliance"))
@@ -79,5 +81,5 @@ toc_regulations(water = water, raw_toc = 5, final_toc = 3)
 # devtools::load_all()
 
 
-
+ 
 
