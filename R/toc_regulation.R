@@ -27,10 +27,11 @@
 #'
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
-toc_regulations <- function(water, raw_toc, final_toc) {
+toc_regulations <- function(water, raw_toc) {
   ph <- water@ph
   alk <- water@alk
-
+  final_toc <- water@toc
+  
   # Input parameters for raw water:
   print(paste("Raw TOC (mg/L):", raw_toc))
   print(paste("pH:", ph))
@@ -61,7 +62,7 @@ toc_regulations <- function(water, raw_toc, final_toc) {
   }
   
   
-  if (!is.na(required_compliance) && removal >= required_compliance) {
+  if (!is.na(required_compliance) & removal >= required_compliance) {
     return(tibble::tibble(compliance_status = "In Compliance"))
   } else {
     return(tibble::tibble(
@@ -74,8 +75,10 @@ library(tidywater)
 library(tibble)
 
 #test the function with raw parameters:
-water <- define_water(ph = 8, alk = 44, temp = 20)
-toc_regulations(water = water, raw_toc = 5, final_toc = 3)
+
+water <- define_water(ph = 8, alk = 44, temp = 20, toc = 3, uv254 = 0.1) %>%
+  chemdose_toc(alum = 50)
+toc_regulations(water = water, raw_toc = 5)
 
 
 # devtools::load_all()
