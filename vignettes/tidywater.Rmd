@@ -59,6 +59,7 @@ The two functions `chemdose_ph` and `chemdose_toc` can also be chained together 
 piped_coag_water <- mywater %>%
   chemdose_ph(hcl = 5, alum = 20) %>%
   chemdose_toc(alum=20)
+
 piped_coag_water@ph
 piped_coag_water@doc
 ```
@@ -87,3 +88,4 @@ In this tutorial, we walked through how to set up influent water conditions by s
 Tidywater functions can also be applied to data frames using the `_chain` (output a water column) or `_once` (output numeric columns) suffixes. To learn more about those functions, look at the documentation or read the helper function vignette.
 
 If you want a more detailed introduction to tidywater, check out the intro vignette.
+
