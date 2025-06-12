@@ -99,7 +99,7 @@ convert_units(value = balanced_water@cl, formula = "cl", startunit = "M", enduni
 
 ### Ionic strength
 
-When possible, `define_water` will calculate ionic strength of the water, either based on TDS, conductivity, or the ions provided in the water. Most functions will work fine if you don't know the ionic strength, but especially when it comes to pH chemistry, it's good to include all the information you have. Note that in our original water, we didn't provide enough ions for the ionic strenth to be determined. We can remedy this in a few ways.
+When possible, `define_water` will calculate ionic strength of the water, either based on TDS, conductivity, or the ions provided in the water. Most functions will work fine if you don't know the ionic strength, but especially when it comes to pH chemistry, it's good to include all the information you have. Note that in our original water, we didn't provide enough ions for the ionic strength to be determined. We can remedy this in a few ways.
 
 ```{r}
 # The ionic strength slot was NA in the original water because we did not
@@ -138,6 +138,7 @@ convert_units(value = hard_water@ca, formula = "ca", startunit = "M", endunit = 
 # magnesium hardness
 convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3")
 ```
+
 ### Total and dissolved organic carbon
 
 TOC and DOC inputs operate similarly to hardness. TOC and DOC are important to know for modelling and predicting various water treatment processes. If you only know TOC, `define_water` applies a standard conversion to estimate DOC, and vice versa. If only `toc` is provided, `doc` is assumed to be 95% of the TOC. If only `doc` is provided, `toc` is assumed to be DOC/0.95. This ratio would generally be an acceptable estimate for most drinking water scenarios, but the amount of TOC that is dissolved in raw waters could vary widely. <a href = "https://doi.org/10.1016/S0022-1694(00)00292-4">Westerhoff and Anning, 2000</a> reported a range of 10-100% dissolved TOC in 25 surface waters, so keep in mind that the standard conversion may not be right for your context.
@@ -153,5 +154,11 @@ doc_water@toc # mg/L
 doc_water@doc # mg/L
 ```
 Overall, `tidywater` helps you model scenarios with as little information as possible because we often don't have all the data we would like, but the less you have to assume about your water, the better. It's important to understand and list the assumptions you are making during any modelling effort. 
+
+## Summary and Recommended Resources
+
+In this tutorial, we were introduced to the `water` object and the water quality parameters specified in it. We added water quality data using the `define_water` function, and modified the water to meet the electroneutrality principle by balancing ions with `balance_ions`. The change was also visualized using `plot_ions`. The built-in unit conversion function `convert_units` was also introduced.
+
+Next, we looked at some assumptions built into the model for ionic strength, hardness, and TOC/DOC that are able to fill in related water quality parameters based on accepted practice and empirical research in order to set up for future tidywater functions. Note that the fewer assumptions you have about your water, the better the prediction.
 
 Check out our other vignettes to learn more about tidywater's functions for modelling softening, coagulation, and DBP formation <a href = "https://github.com/BrownandCaldwell/tidywater/tree/main/vignettes"> here</a> .
