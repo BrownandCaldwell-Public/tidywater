@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Getting started
+The tidywater package allows you to quickly model complex water quality and treatment processes using the R programming language. First, install the tidywater package and load the library.
 
 ```{r setup}
 library(tidywater)
@@ -41,6 +43,7 @@ Even so, we successfully created our first water class! You can view the first f
 ```{r, echo=TRUE}
 print(empty_water)
 ```
+
 So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and the  sodium concentration. We can define each of these parameters as arguments in `define_water`, which accepts pH (unitless), alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L (with the exception of bromide and manganese, reported as ug/L). The function also refers to all chemical compounds by their chemical symbol or formula. Let's call the new water class `my_water.`
 
 Notice that the slots for `ph`, `alk`, `temp`, `na`, and `ca` are now populated, but we'll need to use slot names to see most of the information. The ions slots (`na`, `ca`) are output in units of mol/L (M).  We can also see that `define_water` automatically calculated the amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based on the alkalinity and pH. 
@@ -69,12 +72,14 @@ To check, you can use the `plot_ions` function on our `water` object to see what
 ```{r, echo=TRUE, fig.width=7}
 plot_ions(my_water)
 ```
+
 To correct this, the `balance_ions` function automatically adds in sodium, potassium, chloride, or sulfate until anions + cations = 0. Let's see what happens to the ion plot when we use `balance_ions` to estimate the missing ion concentrations. 
 
 ```{r, , warning=FALSE, fig.width=7}
 balanced_water <- my_water %>% balance_ions()
 plot_ions(balanced_water)
 ```
+
 Great! `balance_ions` added chloride to `my_water` so it is now electrically neutral. To see how much chloride was added, you can use the "@" symbol with a `water` class object to access the slot you want, in this case, chloride
 
 ```{r}
@@ -149,4 +154,4 @@ doc_water@doc # mg/L
 ```
 Overall, `tidywater` helps you model scenarios with as little information as possible because we often don't have all the data we would like, but the less you have to assume about your water, the better. It's important to understand and list the assumptions you are making during any modelling effort. 
 
-Check out our other vignettes to learn more about tidywater's functions for modelling softening, coagulation, DBP formation.... here ____.
+Check out our other vignettes to learn more about tidywater's functions for modelling softening, coagulation, and DBP formation <a href = "https://github.com/BrownandCaldwell/tidywater/tree/main/vignettes"> here</a> .
