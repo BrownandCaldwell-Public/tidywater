@@ -45,7 +45,7 @@ mywater@ph
 dosed_water@ph
 ```
 
-Now `dosed_water` has updated pH chemistry based on the hydrochloric acid and alum doses. However, other slots in the water, such as TOC, have not been updated. If we also want to know how the coagulant impacts TOC, we need to apply `chemdose_toc` as well. This function defaults to published model coefficients, but because it's an empirical moodel, you could also select your own coefficients.
+Now `dosed_water` has updated pH chemistry based on the hydrochloric acid and alum doses. However, other slots in the water, such as TOC, have not been updated. If we also want to know how the coagulant impacts TOC, we need to apply `chemdose_toc` as well. This function defaults to published model coefficients, but because it's an empirical model, you could also select your own coefficients.
 ```{r}
 coag_water <- chemdose_toc(dosed_water, alum = 20)
 
@@ -53,7 +53,17 @@ dosed_water@doc
 coag_water@doc
 ```
 
-We can also solve for chemical doses to change the pH with `solvedose_ph`. This function outputs a number instead of a water.
+The two functions `chemdose_ph` and `chemdose_toc` can also be chained together using the pipe operator `%>%` to calculate the changes to pH and TOC more compactly. Notice that the pH and DOC values returned from `piped_coag_water` are the same as those calculated above in `coag_water`.
+
+```{r}
+piped_coag_water <- mywater %>%
+  chemdose_ph(hcl = 5, alum = 20) %>%
+  chemdose_toc(alum=20)
+piped_coag_water@ph
+piped_coag_water@doc
+```
+
+We can also solve for chemical doses to achieve a target pH with `solvedose_ph`. This function outputs a number instead of a water.
 ```{r}
 caustic_req <- solvedose_ph(coag_water, target_ph = 8.6, chemical = "naoh")
 
@@ -69,6 +79,10 @@ dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
 
 summarize_wq(dist_water, "dbps")
 ```
+
+## Summary and Recommended Resources
+
+In this tutorial, we walked through how to set up influent water conditions by specifying water quality parameters using the `define_water` function. Then, we applied two common treatment models, coagulation and disinfection, and predicted the effect of the chemical addition on pH and TOC and/or DBPs. These functions return a water object with new water quality parameters, which represent effluent water conditions. It is important to note that there are individual functions that update each water quality parameter. Changes to pH and TOC, for example, require separate functions to calculate, which can be chained together using the pipe operator `%>%`. There are also functions that can solve for the required chemical dose, such as `solvedose_ph` which solves for the chemical dose needed to achieve a target pH value.
 
 Tidywater functions can also be applied to data frames using the `_chain` (output a water column) or `_once` (output numeric columns) suffixes. To learn more about those functions, look at the documentation or read the helper function vignette.
 
