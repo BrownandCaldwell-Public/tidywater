@@ -554,6 +554,12 @@ construct_helper <- function(df, all_args) {
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
+calculate_alpha0_carbonate <- function(h, k) {
+  k1 <- k$k1co3
+  k2 <- k$k2co3
+  1 / (1 + (k1/h) + (k1*k2 / h^2))
+}
+
 calculate_alpha1_carbonate <- function(h, k) {
   k1 <- k$k1co3
   k2 <- k$k2co3
