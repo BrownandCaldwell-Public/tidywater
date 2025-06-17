@@ -351,7 +351,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "bro3", "dic")) {
+  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "no3", "bro3", "dic")) {
     charge <- 1
   } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
     charge <- 2
@@ -557,7 +557,7 @@ construct_helper <- function(df, all_args) {
 calculate_alpha0_carbonate <- function(h, k) {
   k1 <- k$k1co3
   k2 <- k$k2co3
-  1 / (1 + (k1/h) + (k1*k2 / h^2))
+  1 / (1 + (k1 / h) + (k1 * k2 / h^2))
 }
 
 calculate_alpha1_carbonate <- function(h, k) {

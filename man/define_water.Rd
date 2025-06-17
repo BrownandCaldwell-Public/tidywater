@@ -37,7 +37,8 @@ define_water(
   f,
   fe,
   al,
-  mn
+  mn,
+  no3
 )
 }
 \arguments{
@@ -88,6 +89,8 @@ define_water(
 \item{al}{Aluminum in mg/L Al3+}
 
 \item{mn}{Manganese in ug/L Mn2+}
+
+\item{no3}{Nitrate in mg/L as N}
 }
 \value{
 A water class object where slots are filled or calculated based on input parameters.

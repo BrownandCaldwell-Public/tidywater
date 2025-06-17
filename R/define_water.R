@@ -34,6 +34,7 @@
 #' @param fe Iron in mg/L Fe3+
 #' @param al Aluminum in mg/L Al3+
 #' @param mn Manganese in ug/L Mn2+
+#' @param no3 Nitrate in mg/L as N
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -45,7 +46,7 @@
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
-                         toc, doc, uv254, br, f, fe, al, mn) {
+                         toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
@@ -121,6 +122,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   fe <- ifelse(missing(fe), NA_real_, convert_units(fe, "fe"))
   al <- ifelse(missing(al), NA_real_, convert_units(al, "al"))
   mn <- ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
+  no3 <- ifelse(missing(no3), NA_real_, convert_units(no3, "no3", "mg/L N", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc <- NA_real_
@@ -177,7 +179,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
-    br = br, f = f, fe = fe, al = al, mn = mn
+    br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )
 
   # Determine ionic strength
@@ -305,13 +307,13 @@ define_water_once <- function(df) {
 #'
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain()
 #'
 #' #' #Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

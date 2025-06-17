@@ -65,7 +65,7 @@ decarbonate_ph <- function(water, co2_removed) {
 #' @returns `decarbonate_ph_chain` returns a data frame with a column containing a water with updated pH, alk, etc.
 
 decarbonate_ph_chain <- function(df, input_water = "defined_water", output_water = "decarbonated_water",
-                                co2_removed = "use_col") {
+                                 co2_removed = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   co2_removed <- tryCatch(co2_removed, error = function(e) enquo(co2_removed))

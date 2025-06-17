@@ -41,6 +41,7 @@ mweights <- data.frame(
   mn = 54.938,
   nh4 = 18.04,
   nh3 = 17.031,
+  no3 = 62.005,
   nh2cl = 51.48,
   nhcl2 = 85.92,
   ncl3 = 120.365,
