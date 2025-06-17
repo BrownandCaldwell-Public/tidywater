@@ -41,7 +41,7 @@ For most arguments, the \verb{_chain} helper
 function instead or an unquoted column name can be provided.
 }
 \details{
-\code{decarbonate_ph} uses \link{water@h2co3} to determine the existing CO2 in water, then applies \link{chemdose_ph} to match the CO2 removal.
+\code{decarbonate_ph} uses \code{water@h2co3} to determine the existing CO2 in water, then applies \link{chemdose_ph} to match the CO2 removal.
 
 For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
 for the option to use parallel processing and speed things up. To initialize parallel processing, use

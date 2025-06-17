@@ -10,7 +10,7 @@
 #'
 #' @details
 #'
-#' `decarbonate_ph` uses [water@h2co3] to determine the existing CO2 in water, then applies [chemdose_ph] to match the CO2 removal.
+#' `decarbonate_ph` uses `water@h2co3` to determine the existing CO2 in water, then applies [chemdose_ph] to match the CO2 removal.
 #'
 #' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
