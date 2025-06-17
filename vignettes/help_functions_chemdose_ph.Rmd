@@ -73,8 +73,8 @@ alum_doses <- tibble(alum_dose =seq(20, 60, 10))
 #use tidywater's built-in synthetic data water_df, for this example
 raw_water <- water_df %>%
   slice_head(n = 2) %>%
-  define_water_chain(output_water="raw") %>%
-  balance_ions_chain(input_water="raw") %>%
+  define_water_chain(output_water = "raw") %>%
+  balance_ions_chain(input_water = "raw") %>%
   # join alum doses to create several dosing scenarios
   cross_join(alum_doses)
 
