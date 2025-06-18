@@ -33,6 +33,13 @@ modify_water <- function(water, slot, value, units) {
   haa5list <- c("mcaa", "dcaa", "tcaa", "mbaa", "dbaa")
   haa9list <- c("bcaa", "cdbaa" , "dcbaa", "baa")
 
+  if (missing(units)) {
+    stop("Units missing. Typical units include: 'mg/L', 'ug/L', 'M'")
+  }
+  if (!is.numeric(value)) {
+    stop("value must be numeric")
+  }
+
   # Check lists
   if(slot %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
     new_value <- convert_units(value, slot, units, "M")
@@ -67,5 +74,67 @@ modify_water <- function(water, slot, value, units) {
 
   methods::slot(water, slot) <- new_value
 
+  water
+
 }
+
+#' @rdname modify_water
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
+#'
+#' @examples
+#'
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   modify_water_chain("br", 50, "ug/L")
+#'
+#' \donttest{
+#' # Un-comment below to initialize parallel processing
+#' # library(furrr)
+#' # plan(multisession)
+#' example_df <- water_df %>%
+#'   define_water_chain()  %>%
+#'   mutate(bromide = rep(c(20, 30, 50), 4)) %>%
+#'   modify_water_chain("br", bromide, "ug/L")
+#'
+#' # Optional: explicitly close multisession processing
+#' # plan(sequential)
+#' }
+#' @import dplyr
+#'
+#' @export
+#'
+#' @returns `modify_water_chain` returns a data frame containing a water class column with updated slot
+
+modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
+                          slot = "use_col", value = "use_col", units = "use_col") {
+  validate_water_helpers(df, input_water)
+  # This allows for the function to process unquoted column names without erroring
+  slot <- tryCatch(slot, error = function(e) enquo(slot))
+  value <- tryCatch(value, error = function(e) enquo(value))
+  units <- tryCatch(units, error = function(e) enquo(units))
+
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
+  output <- df %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        slot = !!as.name(arguments$final_names$slot),
+        value = !!as.name(arguments$final_names$value),
+        units = !!as.name(arguments$final_names$units)
+      ),
+      modify_water
+    ))
+}
+
 
