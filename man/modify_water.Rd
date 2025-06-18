@@ -52,7 +52,7 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  modify_water_chain("br", 50, "ug/L")
+  modify_water_chain(slot = "br", value = 50, units = "ug/L")
 
 \donttest{
 # Un-comment below to initialize parallel processing
