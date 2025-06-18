@@ -33,57 +33,57 @@ test_that("warnings are present when parameters used in calculations are estimat
 
 test_that("aggressive index works", {
   suppressWarnings({
-    water1 <- define_water(ph = 8, temp = 25, alk = 200, ca = 80) %>%
-      calculate_corrosion(index = "aggressive")
+    water1 <- define_water(ph = 8, temp = 25, alk = 200, ca = 80)
+    index1 <- calculate_corrosion(index = "aggressive")
 
-    water2 <- define_water(ph = 8, temp = 25, alk = 15, ca = 80) %>%
-      calculate_corrosion(index = "aggressive")
+    water2 <- define_water(ph = 8, temp = 25, alk = 15, ca = 80)
+    index2 <- calculate_corrosion(index = "aggressive")
 
-    water3 <- define_water(ph = 8, temp = 25, alk = 15, ca = 60) %>%
-      calculate_corrosion(index = "aggressive")
+    water3 <- define_water(ph = 8, temp = 25, alk = 15, ca = 60)
+    index3 <- calculate_corrosion(index = "aggressive")
   })
 
-  expect_equal(round(water1@aggressive), 13) # high alk
-  expect_equal(round(water2@aggressive), 11) # low alk
-  expect_equal(round(water3@aggressive), 11) # use tot_hard instead of ca_hard
+  expect_equal(round(index1), 13) # high alk
+  expect_equal(round(index2), 11) # low alk
+  expect_equal(round(index3), 11) # use tot_hard instead of ca_hard
 })
 
 test_that("csmr works", {
   suppressWarnings({
-    water1 <- define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1) %>%
-      calculate_corrosion(index = "csmr")
+    water1 <- define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1)
+    index1 <- calculate_corrosion(index = "csmr")
 
-    water2 <- define_water(ph = 8, temp = 25, cl = 2, so4 = 150) %>%
-      calculate_corrosion(index = "csmr")
+    water2 <- define_water(ph = 8, temp = 25, cl = 2, so4 = 150)
+    index2 <- calculate_corrosion(index = "csmr")
 
     water3 <- define_water(ph = 8, temp = 25, alk = 15, tot_hard = 150, so4 = 5) %>%
-      balance_ions() %>%
-      calculate_corrosion(index = "csmr")
+      balance_ions()
+    index3 <- corrosion(index = "csmr")
   })
 
-  expect_equal(round(water1@csmr), 100) # high cl, low so4
-  expect_equal(round(water2@csmr, 2), 0.01) # low cl high so4
-  expect_equal(round(water3@csmr), 18) # use balance ions to get chloride
+  expect_equal(round(index1), 100) # high cl, low so4
+  expect_equal(round(index2,2), 0.01) # low cl high so4
+  expect_equal(round(index3),18) # use balance ions to get chloride
 })
 
 test_that("larsonskold works", {
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1)) %>%
-    calculate_corrosion(index = "larsonskold")
+  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 100, so4 = 1))
+  index1 <- calculate_corrosion(index = "larsonskold")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 2, so4 = 150)) %>%
-    calculate_corrosion(index = "larsonskold")
+  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, cl = 2, so4 = 150))
+  index2 <- calculate_corrosion(index = "larsonskold")
 
   water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, cl = 50, so4 = 30)) %>%
-    balance_ions() %>%
-    calculate_corrosion(index = "larsonskold")
+    balance_ions()
+  index3 <- calculate_corrosion(index = "larsonskold")
 
-  water4 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, cl = 150, so4 = 150)) %>%
-    calculate_corrosion(index = "larsonskold")
+  water4 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, cl = 150, so4 = 150))
+  index4 <- calculate_corrosion(index = "larsonskold")
 
-  expect_equal(round(water1@larsonskold, 1), 0.7) # high cl, low so4
-  expect_equal(round(water2@larsonskold, 1), 0.8) # low cl high so4
-  expect_equal(round(water3@larsonskold, 2), 0.51) # use balance ions to get chloride
-  expect_equal(round(water4@larsonskold), 74) # low alk
+  expect_equal(round(index1, 1), 0.7) # high cl, low so4
+  expect_equal(round(index2, 1), 0.8) # low cl high so4
+  expect_equal(round(index3, 2), 0.51) # use balance ions to get chloride
+  expect_equal(round(index4), 74) # low alk
 })
 
 test_that("Corrosion index calculations work when IS is NA.", {
@@ -95,70 +95,70 @@ test_that("Corrosion index calculations work when IS is NA.", {
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
 # tests will stay the same though
 test_that("langelier works", {
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
-    calculate_corrosion(index = "langelier")
+  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173))
+  index1 <- calculate_corrosion(index = "langelier")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56)) %>%
-    calculate_corrosion(index = "langelier")
+  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56))
+  index2 <- calculate_corrosion(index = "langelier")
 
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172)) %>%
-    calculate_corrosion(index = "langelier")
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172))
+  index3 <- calculate_corrosion(index = "langelier")
 
-  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30)) %>%
-    calculate_corrosion(index = "langelier")
+  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30))
+  index4 <- calculate_corrosion(index = "langelier")
 
-  expect_equal(round(water1@langelier, 1), 0.8) # high alk
-  expect_equal(round(water2@langelier, 1), -0.9) # low alk
-  expect_equal(round(water3@langelier, 1), 0.7) # use tot_hard to get ca
-  expect_equal(round(water4@langelier), -2) # low ph, alk, and hard to simulte highly corrosive water
+  expect_equal(round(index1, 1), 0.8) # high alk
+  expect_equal(round(index2, 1), -0.9) # low alk
+  expect_equal(round(index3, 1), 0.7) # use tot_hard to get ca
+  expect_equal(round(index4), -2) # low ph, alk, and hard to simulte highly corrosive water
 })
 
 # test answers will probably change as we figure out which ph_s to use. For now, I'm using MWH's ph_s.
 # tests will stay the same though
 test_that("ryznar works", {
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
-    calculate_corrosion(index = "ryznar")
+  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173))
+  index1 <- calculate_corrosion(index = "ryznar")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56)) %>%
-    calculate_corrosion(index = "ryznar")
+  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56))
+  index2 <- calculate_corrosion(index = "ryznar")
 
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172)) %>%
-    calculate_corrosion(index = "ryznar")
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172))
+  index3 <- calculate_corrosion(index = "ryznar")
 
-  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30)) %>%
-    calculate_corrosion(index = "ryznar")
+  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30))
+  index4 <- calculate_corrosion(index = "ryznar")
 
-  expect_equal(round(water1@ryznar), 6) # high alk
-  expect_equal(round(water2@ryznar), 10) # low alk
-  expect_equal(round(water3@ryznar), 7) # use tot_hard to get ca
-  expect_equal(round(water4@ryznar), 11) # low ph, alk, and hard to simulte highly corrosive water
+  expect_equal(round(index1), 6) # high alk
+  expect_equal(round(index2), 10) # low alk
+  expect_equal(round(index3), 7) # use tot_hard to get ca
+  expect_equal(round(index4), 11) # low ph, alk, and hard to simulte highly corrosive water
 })
 
 test_that("ccpp works", {
-  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173)) %>%
-    calculate_corrosion(index = "ccpp")
+  water1 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, ca = 40, tds = 173))
+  index1 <- calculate_corrosion(index = "ccpp")
 
-  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56)) %>%
-    calculate_corrosion(index = "ccpp")
+  water2 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 5, ca = 40, tds = 56))
+  index2 <- calculate_corrosion(index = "ccpp")
 
-  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172)) %>%
-    calculate_corrosion(index = "ccpp")
+  water3 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tot_hard = 150, tds = 172))
+  index3 <- calculate_corrosion(index = "ccpp")
 
-  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30)) %>%
-    calculate_corrosion(index = "ccpp")
+  water4 <- suppressWarnings(define_water(ph = 6.9, temp = 25, alk = 5, ca = 20, tds = 30))
+  index4 <- calculate_corrosion(index = "ccpp")
 
-  water5 <- suppressWarnings(define_water(ph = 6.85, temp = 25, alk = 80, ca = 32, tds = 90)) %>%
-    calculate_corrosion(index = "ccpp")
+  water5 <- suppressWarnings(define_water(ph = 6.85, temp = 25, alk = 80, ca = 32, tds = 90))
+  index5 <- calculate_corrosion(index = "ccpp")
 
-  water6 <- suppressWarnings(define_water(ph = 5, alk = 20, ca = 32, tds = 90)) %>%
-    calculate_corrosion(index = "ccpp")
+  water6 <- suppressWarnings(define_water(ph = 5, alk = 20, ca = 32, tds = 90))
+  index6 <- calculate_corrosion(index = "ccpp")
 
-  expect_equal(round(water1@ccpp), 16) # high alk
-  expect_equal(round(water2@ccpp, 1), -1.3) # low alk
-  expect_equal(round(water3@ccpp), 16) # use tot_hard to get ca
-  expect_equal(round(water4@ccpp), -4) # low ca
-  expect_equal(round(water5@ccpp), -34) # low pH
-  expect_equal(round(water6@ccpp), -328) # extra low pH
+  expect_equal(round(index1), 16) # high alk
+  expect_equal(round(index2, 1), -1.3) # low alk
+  expect_equal(round(index3), 16) # use tot_hard to get ca
+  expect_equal(round(index4), -4) # low ca
+  expect_equal(round(index5), -34) # low pH
+  expect_equal(round(index6), -328) # extra low pH
   expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })

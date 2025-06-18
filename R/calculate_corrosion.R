@@ -52,18 +52,18 @@
 #' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
 #'
 #' @examples
-#' water <- define_water(
-#'   ph = 8, temp = 25, alk = 200, tot_hard = 200,
-#'   tds = 576, cl = 150, so4 = 200
-#' ) %>%
-#'   calculate_corrosion()
+# water <- define_water(
+#   ph = 8, temp = 25, alk = 200, tot_hard = 200,
+#   tds = 576, cl = 150, so4 = 200
+# )
+# corrosion_indices <- calculate_corrosion(water)
 #'
-#' water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) %>%
-#'   calculate_corrosion(index = c("aggressive", "ccpp"))
+# water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
+# corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
 #'
 #' @export
 #'
-#' @returns `calculate_corrosion` returns a single water class object with updated corrosion and scaling index slots.
+#' @returns `calculate_corrosion` returns a data frame with corrosion and scaling indices as individual columns.
 #'
 calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
@@ -75,6 +75,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
+  
+  # Create the output tibble corrosion_indices
+  corrosion_indices <- data.frame(matrix(NA_real_, ncol=6, nrow=1))
+  colnames(corrosion_indices) <- c("AI", "RI", "LSI", "LI", "CSMR", "CCPP")
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
@@ -88,11 +92,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       water@estimated <- paste0(water@estimated, "_aggressive")
     }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
-    water@aggressive <- water@ph + log10(water@alk * ca_hard)
-
-    if (is.infinite(water@aggressive)) {
-      water@aggressive <- NA_real_
+    aggressive <- water@ph + log10(water@alk * ca_hard)
+    
+    if (is.infinite(aggressive)) {
+      aggressive <- NA_real_
     }
+    
+    corrosion_indices$AI <- aggressive
   }
 
   ###########################################################################################*
@@ -108,11 +114,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     }
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-    water@csmr <- cl / so4
-
-    if (is.nan(water@csmr) | is.infinite(water@csmr)) {
-      water@csmr <- NA_real_
+    cl_sulfate <- cl / so4
+    
+    if (is.nan(cl_sulfate) | is.infinite(cl_sulfate)) {
+      cl_sulfate <- NA_real_
     }
+    
+    corrosion_indices$CSMR <- cl_sulfate
   }
 
   ###########################################################################################*
@@ -132,7 +140,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     so4_meq <- convert_units(water@so4, "so4", "M", "meq/L")
     alk_meq <- water@alk_eq * 1000
 
-    water@larsonskold <- (cl_meq + so4_meq) / (alk_meq)
+    larsonskold <- (cl_meq + so4_meq) / (alk_meq)
+    
+    corrosion_indices$LI <- larsonskold
   }
 
   ###########################################################################################*
@@ -174,11 +184,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     # Langelier (1936)
 
     if ("langelier" %in% index) {
-      water@langelier <- water@ph - ph_s
+      langelier <- water@ph - ph_s
 
-      if (is.infinite(water@langelier)) {
-        water@langelier <- NA_real_
+      if (is.infinite(langelier)) {
+        langelier <- NA_real_
       }
+      
+      corrosion_indices$LSI <- langelier
     }
   }
 
@@ -188,11 +200,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Ryznar (1944)
 
   if ("ryznar" %in% index) {
-    water@ryznar <- 2 * ph_s - water@ph
+    ryznar <- 2 * ph_s - water@ph
 
-    if (is.infinite(water@ryznar)) {
-      water@ryznar <- NA_real_
+    if (is.infinite(ryznar)) {
+      ryznar <- NA_real_
     }
+    
+    corrosion_indices$RI <- ryznar
   }
 
   ###########################################################################################*
@@ -252,10 +266,14 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     )
 
 
-    water@ccpp <- -root_x$root
+    caco3_precip <- -root_x$root
+    
+    corrosion_indices$CCPP <- caco3_precip
   }
-
-  return(water)
+  
+  corrosion_indices <- corrosion_indices %>%
+    select_if(~ !any(is.na(.)))
+  return(corrosion_indices)
 }
 
 #' @rdname calculate_corrosion
@@ -266,72 +284,40 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'
 #' library(dplyr)
 #'
-#' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # used to make example run faster
-#'   define_water_chain() %>%
-#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
+# example_df <- water_df %>%
+#   slice_head(n = 2) %>% # used to make example run faster
+#   define_water_chain() %>%
+#   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns `calculate_corrosion_once` returns a data frame containing specified corrosion and scaling indices as columns.
+#' @returns `calculate_corrosion_once` returns the a data frame containing specified corrosion and scaling indices as columns.
 
 calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
   corrosion_indices <- NULL # Quiet RCMD check global variable note
-  output <- df %>%
-    calculate_corrosion_chain(input_water = input_water, index = index, form = form) %>%
-    mutate(index = furrr::future_map(corrosion_indices, convert_water)) %>%
-    unnest(index) %>%
-    select(-corrosion_indices) %>%
-    select_if(~ any(!is.na(.)))
-}
 
-#' @rdname calculate_corrosion
-#' @param output_water name of output column storing updated indices with the class, water. Default is "corrosion_indices".
-#'
-#' @examples
-#' \donttest{
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   calculate_corrosion_chain()
-#'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#'
-#' @import dplyr
-#' @export
-#'
-#' @returns `calculate_corrosion_chain` returns a data frame containing a water class column with updated corrosion and scaling index slots.
-
-calculate_corrosion_chain <- function(df, input_water = "defined_water", output_water = "corrosion_indices",
-                                      index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                      form = "calcite") {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
-
+  
   validate_water_helpers(df, input_water)
-
+  
   index <- list(index)
-
+  
   output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
+    mutate(index := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
         index = index,
         form = form
       ),
       calculate_corrosion
-    ))
+    )) %>%
+    unnest_wider(index) %>%
+    select_if(~ any(!is.na(.)))
 }
+
+
