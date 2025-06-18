@@ -4,6 +4,8 @@
 
 ## Breaking changes
 * `applied_treatment` slot removed from water. Was not providing any benefit and added complexity.
+* `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
+TOC is removed with other particulates, so models have been updated to return TOC = DOC
 
 # tidywater 0.8.2
 
