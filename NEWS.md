@@ -1,3 +1,11 @@
+# Development version
+
+* `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
+
+## Breaking changes
+
+* `h2co3` slot added to `water` class calculated based on {H} and total carbonate.
+
 # tidywater 0.8.2
 
 * Reduce examples for CRAN speed again.
