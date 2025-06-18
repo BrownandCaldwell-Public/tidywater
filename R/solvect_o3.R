@@ -51,7 +51,12 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
   if (!missing(kd)) {
     if (!is.na(kd)) {
-      use_kd <- TRUE
+      if (kd < 0) {
+        use_kd <- TRUE
+      } else {
+        use_kd <- FALSE
+        stop("kd must be less than zero for decay curve")
+      }
     } else {
       use_kd <- FALSE
     }
