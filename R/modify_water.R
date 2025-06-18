@@ -12,8 +12,8 @@
 #' are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".
 #'
 #' @examples
-#' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5)
-#' modify_water(water1, slot = "toc", value = 4, units = "mg/L")
+#' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) %>%
+#' modify_water( slot = "toc", value = 4, units = "mg/L")
 #'
 #' @import dplyr
 #' @export
