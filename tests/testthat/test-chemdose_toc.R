@@ -50,6 +50,7 @@ test_that("chemdose_toc works.", {
 # chemdose_toc helpers ----
 
 test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
+  testthat::skip_on_cran()
   water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -89,6 +90,7 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -110,6 +112,7 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
 # Check chemdose_toc_chain can use a column or function argument for chemical dose
 
 test_that("chemdose_toc_chain can use a column or function argument for chemical dose", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%

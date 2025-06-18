@@ -1,3 +1,7 @@
+# tidywater 0.8.2
+
+* Reduce examples for CRAN speed again.
+
 # tidywater 0.8.1
 
 * Pare down examples and vignettes to speed up CRAN checks

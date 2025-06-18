@@ -2,19 +2,25 @@ title = "R Project Gitleaks Configuration"
 description = "Custom configuration for scanning secrets in an R program, including Azure keys and organization-specific passwords"
 version = 3
 
+[allowlist]
+description = "ignore commit with old version of this toml"
+commits = ["f7540be", "fe45f110d829608f0c6888f18768977e93a305ea"]
+
 # Define global settings for the scan
 [[rules]]
+id = "aws-access-key"
 description = "AWS Access Key"
 regex = '''AKIA[0-9A-Z]{16}'''
 tags = ["key", "AWS"]
 
 [[rules]]
+id = "aws-secret-key"
 description = "AWS Secret Key"
 regex = '''(?i)aws(.{0,20})?(?-i)["'][0-9a-zA-Z\/+]{40}["']'''
 tags = ["key", "AWS"]
 
 [[rules]]
-id = "AWS"
+id = "aws-access-token"
 description = "AWS Access Token"
 regex = '''\bAKIA[0-9A-Z]{16}\b'''
 tags = ["aws", "revocation_type", "gitlab_blocking"]
@@ -23,100 +29,118 @@ keywords = [
 ]
 
 [[rules]]
+id = "generic-api-key"
 description = "Generic API Key"
 regex = '''(?i)(api_key|apiKey|apikey|api-key)["']?[=: ]["']?[a-zA-Z0-9]{16,45}["']?'''
 tags = ["key", "API"]
 
 [[rules]]
+id = "generic-secret"
 description = "Generic Secret"
 regex = '''(?i)(secret|password|passwd|pwd)["']?[=: ]["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["key", "secret"]
 
 [[rules]]
+id = "google-cloud-api-key"
 description = "Google Cloud API Key"
 regex = '''AIza[0-9A-Za-z\\-_]{35}'''
 tags = ["key", "Google"]
 
 [[rules]]
+id = "heroku-api-key"
 description = "Heroku API Key"
 regex = '''(?i)heroku[a-z0-9]{25,40}'''
 tags = ["key", "Heroku"]
 
 [[rules]]
+id = "slack-token"
 description = "Slack Token"
 regex = '''xox[baprs]-[0-9a-zA-Z]{10,48}'''
 tags = ["token", "Slack"]
 
 [[rules]]
+id = "rsa-private-key"
 description = "RSA Private Key"
 regex = '''-----BEGIN RSA PRIVATE KEY-----'''
 tags = ["key", "RSA"]
 
 [[rules]]
+id = "database-uri"
 description = "Database URI"
 regex = '''(?i)(jdbc|postgres|mysql|mongodb|db)([a-zA-Z]+:\/\/)([a-zA-Z0-9\-_]+:[a-zA-Z0-9\-_]+@)?[a-zA-Z0-9\-_\.]+:[0-9]{1,5}(\/[a-zA-Z0-9\-_\.]*)?'''
 tags = ["database", "credentials"]
 
 # Azure-specific rules
 [[rules]]
+id = "azure-storage-account-key"
 description = "Azure Storage Account Key"
 regex = '''(?i)accountkey[=: ]{1,3}[a-zA-Z0-9\/+]{88}'''
 tags = ["key", "Azure", "Storage"]
 
 [[rules]]
+id = "azure-connection-string"
 description = "Azure Connection String"
 regex = '''DefaultEndpointsProtocol=https;AccountName=[a-z0-9]{3,24};AccountKey=[a-zA-Z0-9\/+]{88};EndpointSuffix=core\.windows\.net'''
 tags = ["key", "Azure", "Storage"]
 
 [[rules]]
+id = "azure-sas"
 description = "Azure Shared Access Signature (SAS) Token"
 regex = '''(?i)se=[0-9T]{10,32}&sig=[a-zA-Z0-9%]{43,64}&sp=[rwdl]{1,4}&spr=https&sv=[0-9]{4}-[0-9]{2}-[0-9]{2}'''
 tags = ["token", "Azure", "SAS"]
 
 [[rules]]
+id = "azure-client"
 description = "Azure Client ID"
 regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'''
 tags = ["Azure", "Client ID"]
 
 [[rules]]
+id = "azure-tenant"
 description = "Azure Tenant ID"
 regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'''
 tags = ["Azure", "Tenant ID"]
 
 [[rules]]
+id = "azure-client-secret"
 description = "Azure Client Secret"
 regex = '''(?i)(client_secret|clientSecret)["']?[=: ]{1,3}["']?[a-zA-Z0-9\-_]{32,64}["']?'''
 tags = ["key", "Azure", "Client Secret"]
 
 # Organization-specific password rules
 [[rules]]
+id = "internal-pass"
 description = "Internal Service Password"
 regex = '''(?i)internal_service_password["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["password", "internal","s-","ServiceAccount"]
 
 [[rules]]
+id = "admin-password"
 description = "Admin Password"
 regex = '''(?i)(admin_password|admin_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["password", "admin","-"]
 
 [[rules]]
+id = "database-password"
 description = "Database Password"
 regex = '''(?i)(db_password|database_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["password", "database"]
 
 [[rules]]
+id = "ftp-password"
 description = "FTP Password"
 regex = '''(?i)(ftp_pass|ftp_password)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["password", "FTP"]
 
 [[rules]]
+id = "api-service-password"
 description = "API Service Password"
 regex = '''(?i)(api_service_password|service_pass)["']?[=: ]{1,3}["']?[a-zA-Z0-9!@#\$%\^&\*\(\)]{8,45}["']?'''
 tags = ["password", "API", "service"]
 
 # Cryptographic keys
 [[rules]]
-id = "PKCS8 private key"
+id = "PKCS8-private-key"
 description = "PKCS8 private key"
 regex = '''-----BEGIN PRIVATE KEY-----'''
 keywords = [
@@ -124,7 +148,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "RSA private key"
+id = "RSA-private-key"
 description = "RSA private key"
 regex = '''-----BEGIN RSA PRIVATE KEY-----'''
 keywords = [
@@ -132,7 +156,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "SSH private key"
+id = "SSH-private-key"
 description = "SSH private key"
 regex = '''-----BEGIN OPENSSH PRIVATE KEY-----'''
 keywords = [
@@ -140,7 +164,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "PGP private key"
+id = "PGP-private-key"
 description = "PGP private key"
 regex = '''-----BEGIN PGP PRIVATE KEY BLOCK-----'''
 keywords = [
@@ -155,7 +179,7 @@ regex = '''^[0-9a-f]{32}\n$'''
 entropy = 3.5
 
 [[rules]]
-id = "Github Personal Access Token"
+id = "Github-pat"
 description = "Github Personal Access Token"
 regex = '''ghp_[0-9a-zA-Z]{36}'''
 tags = ["gitlab_blocking"]
@@ -164,7 +188,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "Github OAuth Access Token"
+id = "Github-OAuth-Access-Token"
 description = "Github OAuth Access Token"
 regex = '''gho_[0-9a-zA-Z]{36}'''
 tags = ["gitlab_blocking"]
@@ -173,7 +197,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "SSH (DSA) private key"
+id = "SSH-private"
 description = "SSH (DSA) private key"
 regex = '''-----BEGIN DSA PRIVATE KEY-----'''
 keywords = [
@@ -181,7 +205,7 @@ keywords = [
 ]
 
 [[rules]]
-id = "SSH (EC) private key"
+id = "SSH-ec-key"
 description = "SSH (EC) private key"
 regex = '''-----BEGIN EC PRIVATE KEY-----'''
 keywords = [

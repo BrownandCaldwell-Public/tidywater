@@ -100,38 +100,26 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   ozonate_bromate_chain(dose = 4, time = 8)
-#'
-#' example_df <- water_df %>%
+#'   slice_head(n = 6) %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   mutate(
-#'     dose = c(seq(.5, 3, .5), seq(.5, 3, .5)),
+#'     dose = c(seq(.5, 3, .5)),
 #'     OzoneTime = 30
 #'   ) %>%
-#'   ozonate_bromate_chain(time = OzoneTime)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 80) %>%
-#'   define_water_chain() %>%
-#'   mutate(time = 8) %>%
-#'   ozonate_bromate_chain(
-#'     dose = 6, model = "Sohn"
-#'   )
+#'   ozonate_bromate_chain(time = OzoneTime, model = "Sohn")
 #'
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#'# plan(multisession)
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   ozonate_bromate_chain(dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
 #' }
 #'
 #' @import dplyr

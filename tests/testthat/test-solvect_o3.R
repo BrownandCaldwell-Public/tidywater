@@ -74,6 +74,7 @@ test_that("solvect_o3 works.", {
 
 # HELPERS ----
 test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
+  testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -108,6 +109,7 @@ test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
 # Check that output is a data frame
 
 test_that("solvect_o3_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
@@ -121,6 +123,7 @@ test_that("solvect_o3_once is a data frame", {
 # Check solvect_o3_once can use a column or function argument for chemical residual
 
 test_that("solvect_o3_once can use a column and/or function argument for time and residual", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     slice(1:4) %>%
     define_water_chain()

@@ -90,7 +90,7 @@ example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 
-
+\donttest{
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -108,17 +108,16 @@ example_df <- water_df \%>\%
   ) \%>\%
   chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
 
-\donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   chemdose_dbp_chain(cl2 = 4, time = 8)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 
 }

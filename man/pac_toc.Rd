@@ -72,29 +72,18 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  pac_toc_chain(input_water = "raw", dose = 10, time = 20)
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
   mutate(dose = seq(11, 22, 1), PACTime = 30) \%>\%
-  pac_toc_chain(input_water = "raw", time = PACTime)
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(time = 8) \%>\%
-  pac_toc_chain(
-    input_water = "raw", dose = 6, type = "wood"
-  )
+  pac_toc_chain(input_water = "raw", time = PACTime, type = "wood")
 
 \donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 }

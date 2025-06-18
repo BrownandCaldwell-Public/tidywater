@@ -49,6 +49,7 @@ test_that("solvect_chlorine works.", {
 
 # HELPERS ----
 test_that("solvect_chlorine_once outputs are the same as base function, solvect_chlorine", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
@@ -67,12 +68,12 @@ test_that("solvect_chlorine_once outputs are the same as base function, solvect_
 # Check that output is a data frame
 
 test_that("solvect_chlorine_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_chain() %>%
     solvect_chlorine_once(time = 30, residual = 5, baffle = .5))
-
 
   expect_true(is.data.frame(water1))
 })
@@ -80,6 +81,7 @@ test_that("solvect_chlorine_once is a data frame", {
 # Check solvect_chlorine_once can use column or function arguments
 
 test_that("solvect_chlorine_once can use a column and/or function argument for time, residual, baffle", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_chain()
 
@@ -112,6 +114,7 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
 })
 
 test_that("solvect_chlorine_once correctly handles arguments with multiple values", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     slice(1:2) %>%
     define_water_chain()
@@ -126,6 +129,7 @@ test_that("solvect_chlorine_once correctly handles arguments with multiple value
 })
 
 test_that("solvect_chlorine_once correctly uses free_chlorine slot", {
+  testthat::skip_on_cran()
   residual_df <- water_df %>%
     define_water_chain() %>%
     chemdose_ph_chain(naocl = 10) %>%

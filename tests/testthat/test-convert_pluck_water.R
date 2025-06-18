@@ -2,6 +2,7 @@
 
 # Test convertWater converts a water class input to a dataframe
 test_that("convert water creates a dataframe", {
+  testthat::skip_on_cran()
   water1 <- define_water(
     ph = 6.7, temp = 20, alk = 20, tot_hard = 70, ca = 10, mg = 10, na = 10, k = 10,
     cl = 10, so4 = 10, toc = 3.5, doc = 3.2, uv254 = 0.1
@@ -57,6 +58,7 @@ test_that("pluck_water works", {
 })
 
 test_that("pluck_water inputs must be waters and water slots", {
+  testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_chain("raw") %>%
     mutate(ohno = "not a water")
@@ -68,6 +70,7 @@ test_that("pluck_water inputs must be waters and water slots", {
 })
 
 test_that("pluck_water all works", {
+  testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_chain("raw") %>%
     chemdose_toc_chain("raw", "coag", alum = 10) %>%
