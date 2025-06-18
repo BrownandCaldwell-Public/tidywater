@@ -1,7 +1,8 @@
 #' @title Determine TOC removal from coagulation
 #'
 #' @description This function applies the Edwards (1997) model to a water created by [define_water] to determine coagulated
-#' DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+#' DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
+#' Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
 #' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
@@ -9,14 +10,14 @@
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254
+#' @param water Source water object of class "water" created by [define_water]. Water must include ph, doc, and uv254
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
-#' @seealso \code{\link{chemdose_ph}}
+#' @seealso [chemdose_ph]
 #'
 #' @source Edwards (1997)
 #' @source U.S. EPA (2001)
@@ -97,21 +98,10 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     water@doc <- water@doc
     water@uv254 <- water@uv254
   } else {
-    if (!is.na(water@toc) & water@toc >= water@doc) {
-      water@toc <- water@toc - water@doc + nonadsorb + adsorb
-    } else if (!is.na(water@toc) & water@toc < water@doc) {
-      warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
-      water@toc <- nonadsorb + adsorb
-    } else if (is.na(water@toc)) {
-      warning("Input water TOC not specified. Output water TOC will be NA.")
-      water@toc <- NA_real_
-    }
-
     water@doc <- nonadsorb + adsorb
+    water@toc <- nonadsorb + adsorb
     water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
   }
-
-  water@applied_treatment <- paste(water@applied_treatment, "_tocremoved", sep = "")
 
   return(water)
 }

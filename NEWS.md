@@ -1,9 +1,13 @@
 # Development version
 
 * `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
+* `modify_water`: function to modify individual slots in a water that handles unit conversions
 
 ## Breaking changes
 
+* `applied_treatment` slot removed from water. Was not providing any benefit and added complexity. Should be the responsibility of the user to track.
+* `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
+TOC is removed with other particulates, so models have been updated to return TOC = DOC
 * `h2co3` slot added to `water` class calculated based on {H} and total carbonate.
 
 # tidywater 0.8.2
