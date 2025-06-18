@@ -132,14 +132,14 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#'# plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(ferricchloride = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(coeff = "Ferric")
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#'# plan(sequential)
 #' }
 #'
 #' @import dplyr

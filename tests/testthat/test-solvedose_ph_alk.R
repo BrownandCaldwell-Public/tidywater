@@ -68,6 +68,7 @@ test_that("Solve dose alk works.", {
 # Check solvedose_ph_once outputs are the same as base function, solvedose_ph
 
 test_that("solvedose_ph_once outputs are the same as base function, solvedose_ph", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -87,6 +88,7 @@ test_that("solvedose_ph_once outputs are the same as base function, solvedose_ph
 # Check that output is a data frame
 
 test_that("solvedose_ph_once outputs data frame", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -98,6 +100,7 @@ test_that("solvedose_ph_once outputs data frame", {
 
 # test different ways to input chemical
 test_that("solvedose_ph_once can handle different input formats", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -123,6 +126,7 @@ test_that("solvedose_ph_once can handle different input formats", {
 # Check solvedose_alk_once outputs are the same as base function, solvedose_alk
 
 test_that("solvedose_alk_once outputs are the same as base function, solvedose_alk", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
     balance_ions() %>%
     solvedose_alk(target_alk = 100, chemical = "naoh")
@@ -139,6 +143,7 @@ test_that("solvedose_alk_once outputs are the same as base function, solvedose_a
 # Check that output is a data frame
 
 test_that("solvedose_alk_once outputs data frame", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -150,6 +155,7 @@ test_that("solvedose_alk_once outputs data frame", {
 
 # test different ways to input chemical
 test_that("solvedose_alk_once can handle different input formats", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%

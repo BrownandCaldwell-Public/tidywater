@@ -1,8 +1,14 @@
+<<<<<<< tocassumption
 # Development version
 
 ## Breaking changes
 * `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
 TOC is removed with other particulates, so models have been updated to return TOC = DOC
+=======
+# tidywater 0.8.2
+
+* Reduce examples for CRAN speed again.
+>>>>>>> main
 
 # tidywater 0.8.1
 

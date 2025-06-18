@@ -149,6 +149,7 @@ test_that("define_water correctly calculates dic", {
 # Test that define_water_once outputs are the same as base function, define_water.
 
 test_that("define_water_once output is the same as define_water", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -163,6 +164,7 @@ test_that("define_water_once output is the same as define_water", {
 # Test that define_water_once output is a dataframe
 
 test_that("define_water_once outputs a data frame", {
+  testthat::skip_on_cran()
   water3 <- suppressWarnings(define_water_once(slice(water_df, 1)))
 
   expect_true(is.data.frame(water3))
@@ -172,6 +174,7 @@ test_that("define_water_once outputs a data frame", {
 # Test that define_water_chain outputs are the same as base function, define_water.
 
 test_that("define_water_chain output is the same as define_water", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -187,6 +190,7 @@ test_that("define_water_chain output is the same as define_water", {
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("define_water_chain outputs a water class and the output water argument works", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -202,6 +206,7 @@ test_that("define_water_chain outputs a water class and the output water argumen
 # Check that this function can be piped to the next one and can handle a different output_water arg
 
 test_that("define_water_chain can be piped", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -217,6 +222,7 @@ test_that("define_water_chain can be piped", {
 })
 
 test_that("define_water_chain correctly calculates dic", {
+  testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_chain() %>%
     pluck_water(parameter = "dic") %>%
