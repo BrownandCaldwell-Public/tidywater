@@ -66,7 +66,6 @@ methods::setClass(
     csmr = "numeric",
 
     # Miscellaneous
-    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -153,7 +152,6 @@ methods::setClass(
     csmr = NA_real_,
 
     # Miscellaneous
-    applied_treatment = "defined",
     estimated = "",
 
     # DBPs
