@@ -72,8 +72,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
     warning("DOC concentration is outside the model bounds of 1.3 to 5.4 mg/L")
   }
 
-  # Calculate toc
-  org_carbon_undissolved <- toc - doc
   # make case insensitive
   type <- tolower(type)
   if (!type %in% c("bituminous", "wood", "lignite")) {
