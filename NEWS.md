@@ -3,7 +3,8 @@
 * `modify_water`: function to modify individual slots in a water that handles unit conversions
 
 ## Breaking changes
-* `applied_treatment` slot removed from water. Was not providing any benefit and added complexity.
+
+* `applied_treatment` slot removed from water. Was not providing any benefit and added complexity. Should be the responsibility of the user to track.
 * `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
 TOC is removed with other particulates, so models have been updated to return TOC = DOC
 
@@ -27,7 +28,6 @@ Refer to `pluck_water(parameter = "all")` for same behavior.
 * `pac_toc` now constrained to accept a smaller range of doses and times. The form of the equation was allowing negative TOC outputs.
 * `define_water`, `chemdose_ph`, `blend_waters`, and other pH related functions slightly impacted by a fix in concentration vs activity. 
 Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
-* Removed `applied_treatment` slot because it's not used by any functions and should be the responsibility of the user to track.
 
 ## New features
 * User may now choose which cation or anion to use for balancing ions
