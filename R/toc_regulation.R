@@ -31,7 +31,7 @@ toc_regulations <- function(water, raw_toc) {
   ph <- water@ph
   alk <- water@alk
   final_toc <- water@toc
-  
+   
   # Input parameters for raw water:
   print(paste("Raw TOC (mg/L):", raw_toc))
   print(paste("pH:", ph))
