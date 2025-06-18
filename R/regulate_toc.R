@@ -17,7 +17,7 @@
 #' @param final_toc Numeric value representing the final TOC (mg/L).
 #'
 #' @examples
-#' toc_regulations(5, 7, 60, 2)
+#' regulate_toc(5, 7, 60, 2)
 #'
 #' @export
 #'
@@ -27,11 +27,12 @@
 #'
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
-toc_regulations <- function(water, raw_toc) {
+regulate_toc <- function(water, raw_toc) {
   ph <- water@ph
   alk <- water@alk
   final_toc <- water@toc
-  
+
+  # Note from Libby: I don't think we need these print lines. tends to clutter up the console
   # Input parameters for raw water:
   print(paste("Raw TOC (mg/L):", raw_toc))
   print(paste("pH:", ph))
@@ -40,10 +41,11 @@ toc_regulations <- function(water, raw_toc) {
 
   #Calculate removal percentage for TOC:
   removal <- (raw_toc - final_toc) / raw_toc * 100
+  # Note from Libby:  instead of printing this message let's add it to the dataframe output
   message("Removal percentage: ", removal)
-  
+
   required_compliance <- NA
-  
+
   #Checking compliance considering inputs:
 
 
@@ -60,29 +62,34 @@ toc_regulations <- function(water, raw_toc) {
     else if (alk > 60 & alk <= 120) required_compliance <- 40
     else if (alk > 120) required_compliance <- 30
   }
-  
-  
+
+
   if (!is.na(required_compliance) & removal >= required_compliance) {
-    return(tibble::tibble(compliance_status = "In Compliance"))
+    return(tibble::tibble(toc_compliance_status = "In Compliance"
+                          # Note from Libby: add another column below showing the TOC removal percent
+
+                          ))
   } else {
     return(tibble::tibble(
-      compliance_status = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
+      toc_compliance_status = "Not Compliant",
+      # Note from Libby: add another column (same as the new column you made above), and add this note.
+        new_col = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
     ))
   }
 }
 
-library(tidywater)
-library(tibble)
+# library(tidywater)
+# library(tibble)
 
 #test the function with raw parameters:
-
-water <- define_water(ph = 8, alk = 44, temp = 20, toc = 3, uv254 = 0.1) %>%
-  chemdose_toc(alum = 50)
-toc_regulations(water = water, raw_toc = 5)
+#
+# water <- define_water(ph = 8, alk = 62, temp = 20, toc = 5, uv254 = 0.1) %>%
+#   chemdose_toc(alum = 50)
+# test <- regulate_toc(water = water, raw_toc = 5)
 
 
 # devtools::load_all()
 
 
- 
+
 
