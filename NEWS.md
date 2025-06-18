@@ -1,3 +1,10 @@
+# Development version
+
+* `modify_water`: function to modify individual slots in a water that handles unit conversions
+
+## Breaking changes
+* `applied_treatment` slot removed from water. Was not providing any benefit and added complexity.
+
 # tidywater 0.8.2
 
 * Reduce examples for CRAN speed again.
