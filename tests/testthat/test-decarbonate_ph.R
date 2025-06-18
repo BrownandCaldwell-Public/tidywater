@@ -34,5 +34,4 @@ test_that("Decarbonate chain takes and returns correct argument types and classe
   expect_error(decarbonate_ph_chain(water0))
   expect_s4_class(water1$decarb[[1]], "water")
   expect_equal(water1$decarb, water2$decarb)
-
 })
