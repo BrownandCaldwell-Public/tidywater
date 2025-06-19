@@ -102,7 +102,7 @@
 #'   \item{cdbaa}{chlorodibromoacetic acid, numeric, μg/L.}
 #'   \item{dcbaa}{dichlorobromoacetic acid, numeric, μg/L.}
 #'   \item{tbaa}{tribromoacetic acid, numeric, μg/L.}
-#' }
+#' 
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
