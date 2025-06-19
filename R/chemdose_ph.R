@@ -249,6 +249,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
+#' @param na_to_zero option to convert all NA values in the data frame to zeros. Default value is TRUE.
 #'
 #' @examples
 #'

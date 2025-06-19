@@ -109,6 +109,8 @@ chemdose_ph_chain(
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
+
+\item{na_to_zero}{option to convert all NA values in the data frame to zeros. Default value is TRUE.}
 }
 \value{
 \code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
