@@ -90,7 +90,68 @@ define_water(
 \item{mn}{Manganese in ug/L Mn2+}
 }
 \value{
-A water class object where slots are filled or calculated based on input parameters.
+define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
+\describe
+\item{pH}{pH, numeric, in standard units (SU).}
+\item{temp}{temperature, numeric, in °C.}
+\item{alk}{alkalinity, numeric, mg/L as CaCO₃.}
+\item{tds}{total dissolved solids, numeric, mg/L.}
+\item{cond}{electrical conductivity, numeric, uS/cm.}
+\item{tot_hard}{total hardness, numeric, mg/L as CaCO₃.}
+\item{kw}{ionization constant, numeric, mol²/kg².}
+\item{alk_eq}{alkalinity as equivalence, numeric, equivalence (eq).}
+\item{toc}{total organic carbon, numeric, mg/L.}
+\item{doc}{dissolved organic carbon, numeric, mg/L.}
+\item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
+\item{uv254}{light absorption at 254 nm, numeric, cm⁻¹.}
+\item{dic}{dissolved inorganic carbon, numeric, mg/L as C.}
+\item{is}{ionic strength, numeric, mol/L.}
+\item{na}{sodium, numeric, mols/L.}
+\item{ca}{calcium, numeric, mols/L.}
+\item{mg}{magnesium, numeric, mols/L.}
+\item{k}{potassium, numeric, mols/L.}
+\item{cl}{chloride, numeric, mols/L.}
+\item{so4}{sulfate, numeric, mols/L.}
+\item{no3}{nitrate, numeric, mols/L.}
+\item{hco3}{bicarbonate, numeric, mols/L.}
+\item{co3}{carbonate, numeric, mols/L.}
+\item{h2po4}{phosphoric acid, numeric, mols/L.}
+\item{hpo4}{hydrogen phosphate, numeric, mols/L.}
+\item{po4}{phosphate, numeric, mols/L.}
+\item{nh4}{ammonium, numeric, mol/L as N.}
+\item{h}{hydrogen ion, numeric, mol/L.}
+\item{oh}{hydroxide ion, numeric, mol/L.}
+\item{tot_po4}{total phosphates, numeric, mol/L.}
+\item{tot_nh3}{total ammonia, numeric, mol/L.}
+\item{tot_co3}{total carbonates, numeric, mol/L.}
+\item{br}{bromide, numeric, mol/L.}
+\item{bro3}{bromate, numeric, mol/L.}
+\item{f}{fluoride, numeric, mol/L.}
+\item{fe}{iron, numeric, mol/L.}
+\item{al}{aluminum, numeric, mol/L.}
+\item{mn}{manganese, numeric, mol/L.}
+\item{free_chlorine}{free chlorine, numeric, mol/L.}
+\item{ocl}{ion of free chlorine, numeric, mol/L.}
+\item{combined_chlorine}{sum of chloramines, numeric, mol/L.}
+\item{nh2cl}{monochloramine, numeric, mol/L.}
+\item{nhcl2}{dichloramine, numeric, mol/L.}
+\item{ncl3}{trichloramine, numeric, mol/L.}
+\item{chcl3}{chloroform, numeric, μg/L.}
+\item{chcl2br}{bromodichloromethane, numeric, μg/L.}
+\item{chbr2cl}{dibromodichloromethane, numeric, μg/L.}
+\item{chbr3}{bromoform, numeric, μg/L.}
+\item{tthm}{total trihalomethanes, numeric, μg/L.}
+\item{mcaa}{chloroacetic acid, numeric, μg/L.}
+\item{dmcaa}{dichloroacetic acid, numeric, μg/L.}
+\item{tcaa}{trichloroacetic acid, numeric, μg/L.}
+\item{mbaa}{bromoacetic acid, numeric, μg/L.}
+\item{dbaa}{dibromoacetic acid, numeric, μg/L.}
+\item{haa5}{sum of haloacetic acids, numeric, μg/L.}
+\item{bcaa}{bromochloroacetic acid, numeric, μg/L.}
+\item{cdbaa}{chlorodibromoacetic acid, numeric, μg/L.}
+\item{dcbaa}{dichlorobromoacetic acid, numeric, μg/L.}
+\item{tbaa}{tribromoacetic acid, numeric, μg/L.}
+}
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
