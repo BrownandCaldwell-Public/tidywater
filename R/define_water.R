@@ -72,9 +72,9 @@
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
 #'   \item{h}{hydrogen ion, numeric, mol/L.}
 #'   \item{oh}{hydroxide ion, numeric, mol/L.}
-#'   \item{tot_po4}{total phosphates, numeric, mol/L.}
+#'   \item{tot_po4}{total phosphate, numeric, mol/L.}
 #'   \item{tot_nh3}{total ammonia, numeric, mol/L.}
-#'   \item{tot_co3}{total carbonates, numeric, mol/L.}
+#'   \item{tot_co3}{total carbonate, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
 #'   \item{bro3}{bromate, numeric, mol/L.}
 #'   \item{f}{fluoride, numeric, mol/L.}
