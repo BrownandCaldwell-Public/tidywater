@@ -78,7 +78,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   
   # Create the output tibble corrosion_indices
   corrosion_indices <- data.frame(matrix(NA_real_, ncol=6, nrow=1))
-  colnames(corrosion_indices) <- c("AI", "RI", "LSI", "LI", "CSMR", "CCPP")
+  colnames(corrosion_indices) <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
@@ -98,7 +98,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       aggressive <- NA_real_
     }
     
-    corrosion_indices$AI <- aggressive
+    corrosion_indices$aggressive <- aggressive
   }
 
   ###########################################################################################*
@@ -120,7 +120,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       cl_sulfate <- NA_real_
     }
     
-    corrosion_indices$CSMR <- cl_sulfate
+    corrosion_indices$csmr <- cl_sulfate
   }
 
   ###########################################################################################*
@@ -142,7 +142,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 
     larsonskold <- (cl_meq + so4_meq) / (alk_meq)
     
-    corrosion_indices$LI <- larsonskold
+    corrosion_indices$larsonskold <- larsonskold
   }
 
   ###########################################################################################*
@@ -190,7 +190,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
         langelier <- NA_real_
       }
       
-      corrosion_indices$LSI <- langelier
+      corrosion_indices$langelier <- langelier
     }
   }
 
@@ -206,7 +206,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       ryznar <- NA_real_
     }
     
-    corrosion_indices$RI <- ryznar
+    corrosion_indices$ryznar <- ryznar
   }
 
   ###########################################################################################*
@@ -268,7 +268,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 
     caco3_precip <- -root_x$root
     
-    corrosion_indices$CCPP <- caco3_precip
+    corrosion_indices$ccpp <- caco3_precip
   }
   
   corrosion_indices <- corrosion_indices %>%
