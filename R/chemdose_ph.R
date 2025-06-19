@@ -51,7 +51,7 @@
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 10)
 #' # Dose 1 mg/L of hydrochloric acid
-#' dosed_water <- chemdose_ph(water, hcl = 1, caso4 = 1)
+#' dosed_water <- chemdose_ph(water, hcl = 1)
 #' dosed_water@ph
 #'
 #' # Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously

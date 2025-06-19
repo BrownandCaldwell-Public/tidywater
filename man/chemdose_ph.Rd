@@ -54,7 +54,8 @@ chemdose_ph_chain(
   ach = "use_col",
   caco3 = "use_col",
   caso4 = "use_col",
-  softening_correction = "use_col"
+  softening_correction = "use_col",
+  na_to_zero = TRUE
 )
 }
 \arguments{
