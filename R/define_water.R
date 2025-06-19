@@ -82,7 +82,7 @@
 #'   \item{al}{aluminum, numeric, mol/L.}
 #'   \item{mn}{manganese, numeric, mol/L.}
 #'   \item{free_chlorine}{free chlorine, numeric, mol/L.}
-#'   \item{ocl}{ion of free chlorine, numeric, mol/L.}
+#'   \item{ocl}{hypochlorite ion, numeric, mol/L.}
 #'   \item{combined_chlorine}{sum of chloramines, numeric, mol/L.}
 #'   \item{nh2cl}{monochloramine, numeric, mol/L.}
 #'   \item{nhcl2}{dichloramine, numeric, mol/L.}
