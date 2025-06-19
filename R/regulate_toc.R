@@ -36,7 +36,7 @@ regulate_toc <- function(water, raw_toc) {
   # Note from Libby: I don't think we need these print lines. tends to clutter up the console
 
   #Bengu: deleted the print lines
-  
+
   #Calculate removal percentage for TOC:
   removal <- (raw_toc - final_toc) / raw_toc * 100
   # Note from Libby:  instead of printing this message let's add it to the dataframe output (Bengu:I added it to the dataframe output)
@@ -73,17 +73,24 @@ regulate_toc <- function(water, raw_toc) {
   }
 }
 
-library(tidywater)
-library(tibble)
+# library(tidywater)
+# library(tibble)
 
 #test the function with raw parameters:
 
-water <- define_water(ph = 7, alk = 55, temp = 20, toc = 2, uv254 = 0.1) %>%
-   chemdose_toc(alum = 50)
- test <- regulate_toc(water = water, raw_toc = 5)
+# water <- define_water(ph = 7, alk = 55, temp = 20, toc = 2, uv254 = 0.1, cond = 50) %>%
+#    chemdose_toc(alum = 50) %>%
+#   dissolve_pb()
+#
+#  test <- regulate_toc(water = water, raw_toc = 5)
+
+
 
 #devtools::load_all()
 
+ # test2 <- water_df %>%
+ #   define_water_chain() %>%
+ #  regulate_toc_once()
 
 
 
