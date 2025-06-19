@@ -145,7 +145,7 @@ regulate_toc_once <- function(df, input_water = "defined_water", raw_toc_col = "
 }
 
 
-#devtools::load_all()
+devtools::load_all()
 
 test2 <- water_df %>%
   define_water_chain() %>%
