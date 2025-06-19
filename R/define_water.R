@@ -42,14 +42,14 @@
 #' @export
 #'
 #' @return define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
-#' \describe
+#' \describe {
 #'   \item{pH}{pH, numeric, in standard units (SU).}
 #'   \item{temp}{temperature, numeric, in °C.}
 #'   \item{alk}{alkalinity, numeric, mg/L as CaCO₃.}
 #'   \item{tds}{total dissolved solids, numeric, mg/L.}
 #'   \item{cond}{electrical conductivity, numeric, μS/cm.}
 #'   \item{tot_hard}{total hardness, numeric, mg/L as CaCO₃.}
-#'   \item{kw}{ionization constant, numeric, mol²/kg².}
+#'   \item{kw}{ionization constant, numeric, unitless.}
 #'   \item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{toc}{total organic carbon, numeric, mg/L.}
 #'   \item{doc}{dissolved organic carbon, numeric, mg/L.}
@@ -102,7 +102,7 @@
 #'   \item{cdbaa}{chlorodibromoacetic acid, numeric, μg/L.}
 #'   \item{dcbaa}{dichlorobromoacetic acid, numeric, μg/L.}
 #'   \item{tbaa}{tribromoacetic acid, numeric, μg/L.}
-#' 
+#' }
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
