@@ -42,7 +42,7 @@
 #' @export
 #'
 #' @return define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
-#' \describe {
+#' \describe{
 #'   \item{pH}{pH, numeric, in standard units (SU).}
 #'   \item{temp}{temperature, numeric, in °C.}
 #'   \item{alk}{alkalinity, numeric, mg/L as CaCO₃.}

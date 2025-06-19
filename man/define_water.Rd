@@ -91,15 +91,15 @@ define_water(
 }
 \value{
 define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
-\describe
+\describe{
 \item{pH}{pH, numeric, in standard units (SU).}
 \item{temp}{temperature, numeric, in °C.}
 \item{alk}{alkalinity, numeric, mg/L as CaCO₃.}
 \item{tds}{total dissolved solids, numeric, mg/L.}
-\item{cond}{electrical conductivity, numeric, uS/cm.}
+\item{cond}{electrical conductivity, numeric, μS/cm.}
 \item{tot_hard}{total hardness, numeric, mg/L as CaCO₃.}
-\item{kw}{ionization constant, numeric, mol²/kg².}
-\item{alk_eq}{alkalinity as equivalence, numeric, equivalence (eq).}
+\item{kw}{ionization constant, numeric, unitless.}
+\item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
 \item{toc}{total organic carbon, numeric, mg/L.}
 \item{doc}{dissolved organic carbon, numeric, mg/L.}
 \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -121,9 +121,9 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{nh4}{ammonium, numeric, mol/L as N.}
 \item{h}{hydrogen ion, numeric, mol/L.}
 \item{oh}{hydroxide ion, numeric, mol/L.}
-\item{tot_po4}{total phosphates, numeric, mol/L.}
+\item{tot_po4}{total phosphate, numeric, mol/L.}
 \item{tot_nh3}{total ammonia, numeric, mol/L.}
-\item{tot_co3}{total carbonates, numeric, mol/L.}
+\item{tot_co3}{total carbonate, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
 \item{f}{fluoride, numeric, mol/L.}
@@ -131,7 +131,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{al}{aluminum, numeric, mol/L.}
 \item{mn}{manganese, numeric, mol/L.}
 \item{free_chlorine}{free chlorine, numeric, mol/L.}
-\item{ocl}{ion of free chlorine, numeric, mol/L.}
+\item{ocl}{hypochlorite ion, numeric, mol/L.}
 \item{combined_chlorine}{sum of chloramines, numeric, mol/L.}
 \item{nh2cl}{monochloramine, numeric, mol/L.}
 \item{nhcl2}{dichloramine, numeric, mol/L.}
