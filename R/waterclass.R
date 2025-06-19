@@ -58,7 +58,6 @@ methods::setClass(
     ncl3 = "numeric", # trichloramine
 
     # Miscellaneous
-    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -137,7 +136,6 @@ methods::setClass(
     ncl3 = NA_real_, # trichloramine
 
     # Miscellaneous
-    applied_treatment = "defined",
     estimated = "",
 
     # DBPs

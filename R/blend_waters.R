@@ -74,7 +74,7 @@ blend_waters <- function(waters, ratios) {
   }
 
   not_averaged <- c(
-    "ph", "kw", "applied_treatment", "estimated"
+    "ph", "kw", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -97,21 +97,17 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  # Track treatments and estimated params
-  applied_treatment <- c()
+  # Track estimated params
   estimated <- c()
 
   for (i in 1:length(waters)) {
     # Create character vectors that just add the values from all the waters together
     temp_water <- waters[[i]]
-    new_treat <- unlist(strsplit(temp_water@applied_treatment, "_"))
-    applied_treatment <- c(applied_treatment, new_treat)
     new_est <- unlist(strsplit(temp_water@estimated, "_"))
     estimated <- c(estimated, new_est)
   }
 
-  # Keep only one of each treatment and estimated and paste back into string for the water.
-  blended_water@applied_treatment <- paste(unique(applied_treatment), collapse = "_")
+  # Keep only one of each estimated and paste back into string for the water.
   blended_water@estimated <- paste(unique(estimated), collapse = "_")
 
   # Calculate new pH, H+ and OH- concentrations
@@ -147,7 +143,6 @@ blend_waters <- function(waters, ratios) {
 
   blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
-  blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
   if (blended_water@tot_nh3 > 0 &
     (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
