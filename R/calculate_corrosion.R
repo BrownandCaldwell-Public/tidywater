@@ -52,14 +52,14 @@
 #' @param form Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"
 #'
 #' @examples
-# water <- define_water(
-#   ph = 8, temp = 25, alk = 200, tot_hard = 200,
-#   tds = 576, cl = 150, so4 = 200
-# )
-# corrosion_indices <- calculate_corrosion(water)
+#' water <- define_water(
+#'   ph = 8, temp = 25, alk = 200, tot_hard = 200,
+#'   tds = 576, cl = 150, so4 = 200
+#' )
+#' corrosion_indices <- calculate_corrosion(water)
 #'
-# water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
-# corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
+#' water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
+#' corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
 #'
 #' @export
 #'
@@ -284,10 +284,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'
 #' library(dplyr)
 #'
-# example_df <- water_df %>%
-#   slice_head(n = 2) %>% # used to make example run faster
-#   define_water_chain() %>%
-#   calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#' example_df <- water_df %>%
+#'   slice_head(n = 2) %>% # used to make example run faster
+#'   define_water_chain() %>%
+#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest

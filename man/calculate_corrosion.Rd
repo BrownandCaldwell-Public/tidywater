@@ -94,8 +94,21 @@ for the option to use parallel processing and speed things up. To initialize par
 shorter run times will not benefit from parallel processing.
 }
 \examples{
+water <- define_water(
+  ph = 8, temp = 25, alk = 200, tot_hard = 200,
+  tds = 576, cl = 150, so4 = 200
+)
+corrosion_indices <- calculate_corrosion(water)
+
+water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
+corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
+
 
 library(dplyr)
 
+example_df <- water_df \%>\%
+  slice_head(n = 2) \%>\% # used to make example run faster
+  define_water_chain() \%>\%
+  calculate_corrosion_once(index = c("aggressive", "ccpp"))
 
 }
