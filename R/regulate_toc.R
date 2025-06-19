@@ -86,11 +86,72 @@ regulate_toc <- function(water, raw_toc) {
 
 
 
+library(dplyr)
+library(tidyr)
+library(furrr)
+library(purrr)
+library(devtools)
+
+
+#' @rdname regulate_toc
+#'
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param raw_toc_col name of the column containing raw TOC values.
+#' @param output_col_status name of the output column storing the compliance status. Default is "toc_compliance_status".
+#' @param output_col_percent name of the output column storing TOC removal percent. Default is "toc_removal_percent".
+#' @param output_col_note name of the output column storing compliance note. Default is "new_col".
+#' @param water_prefix whether to prefix output columns with the input_water name. Default is TRUE.
+#'
+#' @export
+#'
+#' @returns A data frame with compliance status, removal percent, and optional note columns.
+
+regulate_toc_once <- function(df, input_water = "defined_water", raw_toc_col = "raw_toc",
+                              output_col_status = "toc_compliance_status",
+                              output_col_percent = "toc_removal_percent",
+                              output_col_note = "new_col", water_prefix = TRUE) {
+  calc <- NULL # Quiet RCMD check global variable note
+  
+  validate_water_helpers(df, input_water)
+  
+  output <- df %>%
+    mutate(calc = furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        raw_toc = !!as.name(raw_toc_col)
+      ),
+      regulate_toc
+    )) %>%
+    tidyr::unnest_wider(calc)
+  
+  if (water_prefix) {
+    output <- output %>%
+      rename(
+        !!paste(input_water, output_col_status, sep = "_") := toc_compliance_status,
+        !!paste(input_water, output_col_percent, sep = "_") := toc_removal_percent,
+        !!paste(input_water, output_col_note, sep = "_") := new_col
+      )
+  } else {
+    output <- output %>%
+      rename(
+        !!output_col_status := toc_compliance_status,
+        !!output_col_percent := toc_removal_percent,
+        !!output_col_note := new_col
+      )
+  }
+  
+  return(output)
+}
+
+
 #devtools::load_all()
 
- # test2 <- water_df %>%
- #   define_water_chain() %>%
- #  regulate_toc_once()
+test2 <- water_df %>%
+  define_water_chain() %>%
+  regulate_toc_once()
+
+
 
 
 
