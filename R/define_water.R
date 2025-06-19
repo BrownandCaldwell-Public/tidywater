@@ -47,7 +47,7 @@
 #'   \item{temp}{temperature, numeric, in °C.}
 #'   \item{alk}{alkalinity, numeric, mg/L as CaCO₃.}
 #'   \item{tds}{total dissolved solids, numeric, mg/L.}
-#'   \item{cond}{electrical conductivity, numeric, uS/cm.}
+#'   \item{cond}{electrical conductivity, numeric, μS/cm.}
 #'   \item{tot_hard}{total hardness, numeric, mg/L as CaCO₃.}
 #'   \item{kw}{ionization constant, numeric, mol²/kg².}
 #'   \item{alk_eq}{alkalinity as equivalence, numeric, equivalence (eq).}
