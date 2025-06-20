@@ -327,7 +327,7 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
   input_name <- deparse(substitute(input_water))
   cols_to_check <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
   
-  output <- reduce(cols_to_check, function(df, col) {
+  output <- purrr::reduce(cols_to_check, function(df, col) {
     if (col %in% colnames(df)) {
       new_name <- paste(input_water, col, sep = "_")
       df <- df %>%
