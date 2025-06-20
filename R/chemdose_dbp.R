@@ -46,7 +46,7 @@
 #'
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
-chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant") {
+chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", coeff) {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
@@ -146,13 +146,21 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
-    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
+    if (missing(coeff)) {
+      predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
+    } else {
+      predicted_dbp <- coeff
+    }
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
       temp^predicted_dbp$d * ph^predicted_dbp$e * time^predicted_dbp$f
   } else {
     treat <- treatment
-    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
+    if (missing(coeff)) {
+      predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
+    } else {
+      predicted_dbp <- coeff
+    }
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
       br^predicted_dbp$c * predicted_dbp$d^(ph - predicted_dbp$ph_const) * predicted_dbp$e^(temp - 20) * time^predicted_dbp$f

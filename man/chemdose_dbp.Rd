@@ -22,7 +22,8 @@ chemdose_dbp(
   time,
   treatment = "raw",
   cl_type = "chorine",
-  location = "plant"
+  location = "plant",
+  coeff
 )
 
 chemdose_dbp_chain(
