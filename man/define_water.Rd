@@ -98,7 +98,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{tds}{total dissolved solids, numeric, mg/L.}
 \item{cond}{electrical conductivity, numeric, μS/cm.}
 \item{tot_hard}{total hardness, numeric, mg/L as CaCO₃.}
-\item{kw}{ionization constant, numeric, unitless.}
+\item{kw}{dissociation constant for water, numeric, unitless.}
 \item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
 \item{toc}{total organic carbon, numeric, mg/L.}
 \item{doc}{dissolved organic carbon, numeric, mg/L.}
