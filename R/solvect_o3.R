@@ -36,7 +36,7 @@
 #' # Use kd from experimental data (recommended):
 #' define_water(ph = 7.5, temp = 25) %>%
 #'   solvect_o3(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
-# Use modeled decay curve:
+#' Use modeled decay curve:
 #' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
 #'   solvect_o3(time = 10, dose = 2, baffle = 0.5)
 #'
@@ -63,6 +63,14 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
   } else {
     use_kd <- FALSE
   }
+  
+  if (dose == 0) {
+    tibble(
+      "ct_actual" = 0, "glog_removal" = 0, "vlog_removal" = 0,
+      "clog_removal" = 0
+    )
+  }
+  
   # First order decay curve: y = dose * exp(k*t)
   # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
   if (use_kd) {

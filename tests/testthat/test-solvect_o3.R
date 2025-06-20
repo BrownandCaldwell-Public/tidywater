@@ -9,14 +9,14 @@ test_that("solvect_o3 returns 0's for all outputs when time is 0 or missing.", {
   expect_error(solvect_o3(water1, dose = 3, baffle = .2))
 })
 
-test_that("solvect_o3 returns NaNs for all outputs when dose is 0 or missing", {
+test_that("solvect_o3 returns 0 for all outputs when dose is 0 or error when dose is missing", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ozone <- solvect_o3(water1, time = 10, dose = 0, baffle = .2)
 
-  expect_equal(ozone$ct_actual, NaN)
-  expect_equal(ozone$glog_removal, NaN)
-  expect_equal(ozone$vlog_removal, NaN)
-  expect_equal(ozone$clog_removal, NaN)
+  expect_equal(ozone$ct_actual, 0)
+  expect_equal(ozone$glog_removal, 0)
+  expect_equal(ozone$vlog_removal, 0)
+  expect_equal(ozone$clog_removal, 0)
   expect_error(solvect_o3(water1, time = 10, baffle = .2))
 })
 
