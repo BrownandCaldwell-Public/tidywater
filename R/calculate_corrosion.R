@@ -76,9 +76,13 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
   
-  # Create the output tibble corrosion_indices
-  corrosion_indices <- data.frame(matrix(NA_real_, ncol=6, nrow=1))
-  colnames(corrosion_indices) <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
+  # Create the output data frame corrosion_indices
+  corrosion_indices <- data.frame(aggressive = NA_real_,
+                              ryznar = NA_real_,
+                              langelier = NA_real_,
+                              larsonskold = NA_real_,
+                              csmr = NA_real_,
+                              ccpp = NA_real_)
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
@@ -318,6 +322,19 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
     )) %>%
     unnest_wider(index) %>%
     select_if(~ any(!is.na(.)))
+  
+  # Renaming columns as input_water_index
+  input_name <- deparse(substitute(input_water))
+  cols_to_check <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
+  
+  output <- reduce(cols_to_check, function(df, col) {
+    if (col %in% colnames(df)) {
+      new_name <- paste(input_water, col, sep = "_")
+      df <- df %>%
+        rename(!!new_name := !!sym(col))
+    }
+    df
+  }, .init = output)
 }
 
 
