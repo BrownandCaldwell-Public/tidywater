@@ -104,7 +104,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
 #' @rdname solvect_o3
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain()]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain()].
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'

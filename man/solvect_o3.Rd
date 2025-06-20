@@ -34,7 +34,7 @@ solvect_o3_once(
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \code{\link[=define_water_chain]{define_water_chain()}}}
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link[=define_water_chain]{define_water_chain()}}.}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 
