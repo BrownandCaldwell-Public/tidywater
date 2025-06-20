@@ -190,11 +190,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
     convert_units(co3_dose, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
     convert_units(nh4_dose, "nh4", "M", "mg/L")
-  if(dosed_water@tds < 0) {
+  if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
   }
-
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
