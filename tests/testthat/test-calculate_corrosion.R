@@ -163,6 +163,19 @@ test_that("ccpp works", {
     calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })
 
+test_that("calculate_corrosion output is a data frame", {
+    water0 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238, ca =80, cl=30, so4 = 30))
+  water1 <- calculate_corrosion(water0)
+
+  expect_true(is.data.frame(water1))
+  expect_true("aggressive" %in%  colnames(water1))
+  expect_true("ryznar" %in%  colnames(water1))
+  expect_true("ccpp" %in%  colnames(water1))
+  expect_true("csmr" %in%  colnames(water1))
+  expect_true("larsonskold" %in%  colnames(water1))
+  expect_true("langelier" %in%  colnames(water1))
+})
+
 ################################################################################*
 ################################################################################*
 # calculate_corrosion helpers ----
@@ -215,6 +228,12 @@ test_that("calculate_corrosion_once is a data frame", {
     calculate_corrosion_once(input_water = "balanced_water"))
 
   expect_true(is.data.frame(water1))
+  expect_true("aggressive" %in%  colnames(water1))
+  expect_true("ryznar" %in%  colnames(water1))
+  expect_true("ccpp" %in%  colnames(water1))
+  expect_true("csmr" %in%  colnames(water1))
+  expect_true("larsonskold" %in%  colnames(water1))
+  expect_true("langelier" %in%  colnames(water1))
 })
 
 # Check calculate_corrosion_once outputs an appropriate number of indices
