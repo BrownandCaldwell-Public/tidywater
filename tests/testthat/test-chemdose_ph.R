@@ -272,3 +272,14 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
     pluck_water(water5, "dosed_chem", "ph")$dosed_chem_ph
   )) # since HCl added to water3, pH should be different
 })
+
+# Check that na_to_zero implementation works
+test_that("chemdose_ph_chain na_to_zero argument works", {
+  testthat::skip_on_cran()
+  water <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_ph_chain(input_water = "balanced_water", naoh = c(1,2,3,4,NA,6,7,8,NA,10,11,12)))
+  expect_equal(water$naoh[5], 0)
+  expect_equal(water$naoh[9], 0)
+})
