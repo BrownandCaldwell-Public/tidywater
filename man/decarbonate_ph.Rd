@@ -32,9 +32,8 @@ A water with updated pH/alk/etc.
 \code{decarbonate_ph_chain} returns a data frame with a column containing a water with updated pH, alk, etc.
 }
 \description{
-Calculates the required amount of a chemical to dose based on a target pH and existing water quality.
-The function takes an object of class "water", and user-specified chemical and target pH
-and returns a numeric value for the required dose in mg/L.
+Calculates the new water quality (pH, alkalinity, etc) after a specified amount of CO2 is removed (removed as bicarbonate).
+The function takes an object of class "water" and a fraction of CO2 removed, then returns a water class object with updated water slots.
 For a single water, use \code{decarbonate_ph}; to apply the model to a dataframe, use \code{decarbonate_ph_chain}.
 For most arguments, the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the

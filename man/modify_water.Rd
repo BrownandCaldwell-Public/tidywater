@@ -44,8 +44,8 @@ are stored in the correct units when manually updating a water. Some slots canno
 they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update \link{define_water}.
 }
 \examples{
-water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5)
-modify_water(water1, slot = "toc", value = 4, units = "mg/L")
+water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) \%>\%
+modify_water( slot = "toc", value = 4, units = "mg/L")
 
 
 library(dplyr)
