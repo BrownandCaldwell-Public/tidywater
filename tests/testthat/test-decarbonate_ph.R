@@ -10,9 +10,10 @@ test_that("Decarbonate errors when inputs are wrong", {
 })
 
 test_that("Decarbonate works", {
-  water0 <- suppressWarnings(define_water(ph = 4, temp = 25, alk = 5))
-  water1 <- water0 %>%
-    decarbonate_ph(co2_removed = .95)
+  water0 <- suppressWarnings(define_water(ph = 4, temp = 25, alk = 5, cond = 50))
+
+  water1 <- suppressWarnings(water0 %>%
+    decarbonate_ph(co2_removed = .95))
 
   expect_equal(round(water1@ph, 1), 5.0)
   expect_equal(water0@toc, water1@toc)
