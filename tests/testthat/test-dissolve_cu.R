@@ -1,8 +1,8 @@
 #dissolve_cu
 
 test_that("DIC or alk is required for dissolve_cu", {
-  water1 <- suppressWarnings(define_water(ph = 8, toc = 2.5))
-  water2 <- suppressWarnings(define_water(ph = 8, alk = 45))
+  water1 <- suppressWarnings(define_water(ph = 8, toc = 2.5, tot_po4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 8, alk = 45, tot_po4 = 2))
 
   dissolved <- dissolve_cu(water2)
 
@@ -12,12 +12,17 @@ test_that("DIC or alk is required for dissolve_cu", {
 })
 
 test_that("pH is required", {
-  water4 <- suppressWarnings(define_water(alk = 60, tds = 200))
+  water <- suppressWarnings(define_water(alk = 60, tds = 200, tot_po4 = 2))
 
-  expect_error(dissolve_cu(water4))
+  expect_error(dissolve_cu(water))
 })
 
 #add a test for warning if tot_po4 is zero
+test_that("warning when po4 is zero", {
+  water <- suppressWarnings(define_water(alk = 60, tds = 200))
+  
+  expect_warning(dissolve_cu(water))
+})
 
 #add a test if water is wrong
 

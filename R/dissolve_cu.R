@@ -29,11 +29,11 @@
 dissolve_cu <- function(water) {
   validate_water(water, c("ph", "alk", "dic"))
 
-  if (condition) {
-
-  }
-
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
+  
+  if (water@po4 == 0) {
+    warning("This model does not perform well when PO4 = 0.")
+  }
 
   cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (water@dic^0.59)
   data.frame(cu)
@@ -47,27 +47,32 @@ dissolve_cu <- function(water) {
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #'
-#'@examples
+#' @examples
 #' library(dplyr)
 #' cu_calc <- water_df %>%
+#'   mutate(tot_po4 = 10) %>%
 #'   define_water_chain() %>%
 #'   dissolve_cu_once()
 #'
-#' @returns `solvect_chlorine_once` returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
+#' @returns `dissolve_cu_once` returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
 #'
-#' #' @import dplyr
+#' @import dplyr
 #' @export
 #'
 
 #add construct helper and validate water helper to make sure there is a column input for dic
 
 dissolve_cu_once <- function(df, input_water = "defined_water") {
+  
+  df <- df %>%
+    construct_helper(input_water)
+  validate_water_helpers(df, input_water)
 
   output <- df %>%
     mutate(calc = furrr::future_pmap(
       list(
-        water = !!as.name(input_water),
-      ),
+        water = !!as.name(input_water)
+        ),
       dissolve_cu
     )) %>%
     unnest_wider(calc)
