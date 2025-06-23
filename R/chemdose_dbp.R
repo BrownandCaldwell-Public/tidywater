@@ -314,7 +314,26 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 }
 
 
-# Not currently in use, but could be modified to be useful again someday.
+#' @rdname chemdose_dbp
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water]. The df may include columns for the other function arguments.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @examples
+#' \donttest{
+#' library(dplyr)
+#'
+#' water <- water_df %>%
+#' slice(1) %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   chemdose_dbp_once(cl2 = 10, time = 8))
+#' }
+#'
+#' @import dplyr
+#' @export
+#'
+#' @returns `chemdose_dbp_once` returns a data frame containing predicted DBP concentrations as columns.
+#' 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
   temp_dbp <- dbps <- estimated <- NULL # Quiet RCMD check global variable note
