@@ -7,10 +7,10 @@ test_that("solveresid_o3 returns the input residual when time is 0, or an error 
   expect_error(solveresid_o3(water1, dose = 2))
 })
 
-test_that("solveresid_o3 returns NaN when dose is 0, or error when dose is missing.", {
+test_that("solveresid_o3 returns 0 when dose is 0, or error when dose is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
-  expect_equal(solveresid_o3(water1, time = 30, dose = 0), NaN)
+  expect_equal(solveresid_o3(water1, time = 30, dose = 0), 0)
   expect_error(solveresid_o3(water1, time = 30))
 })
 
