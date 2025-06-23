@@ -52,6 +52,8 @@ GAC treatment has also been used for estimating formation after membrane treatme
 
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
 
+\item{coeff}{Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: ID, alias, group, treatment, and the corresponding coefficients}
+
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water}. The df may include columns for the other function arguments.}
 

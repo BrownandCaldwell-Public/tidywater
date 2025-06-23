@@ -36,6 +36,8 @@
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
+#' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: ID, alias, group, treatment, and the corresponding coefficients
+#' 
 #' @examples
 #' example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   chemdose_dbp(cl2 = 2, time = 8)
