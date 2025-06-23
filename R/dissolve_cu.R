@@ -65,6 +65,7 @@ dissolve_cu <- function(water) {
 
 dissolve_cu_once <- function(df, input_water = "defined_water") {
   validate_water_helpers(df, input_water)
+  calc <- tot_dissolved_cu <- NULL # Quiet RCMD check global variable notes
 
   output <- df %>%
     mutate(calc = furrr::future_pmap(
