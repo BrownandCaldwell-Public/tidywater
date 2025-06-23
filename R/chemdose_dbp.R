@@ -326,7 +326,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #' slice(1) %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   chemdose_dbp_once(cl2 = 10, time = 8))
+#'   chemdose_dbp_once(cl2 = 10, time = 8)
 #' }
 #'
 #' @import dplyr
