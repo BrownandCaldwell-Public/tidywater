@@ -448,6 +448,6 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
   unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, temp, tds:estimated))
+    select(-c(dosed_chem_water, temp, tds:kw, toc:estimated))
 }
            

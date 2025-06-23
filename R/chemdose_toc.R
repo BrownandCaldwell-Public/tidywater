@@ -181,3 +181,48 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
       chemdose_toc
     ))
 }
+
+#' @rdname chemdose_toc
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   balance_ions_chain() %>%
+#'   chemdose_toc_once(input_water = "balanced_water")
+#'
+#' @import dplyr
+#' @importFrom tidyr unnest
+#' @export
+#'
+#' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
+#'
+
+chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
+                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                             coeff = "use_col") {
+  dose_chem <- dosed_chem_water <- ph <- alk_eq <- is <- estimated <- NULL # Quiet RCMD check global variable note
+  
+  # This allows for the function to process unquoted column names without erroring
+  alum <- tryCatch(alum, error = function(e) enquo(alum))
+  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
+  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  
+  output <- df %>%
+    chemdose_toc_chain(
+      input_water = input_water, output_water = "dosed_chem_water",
+      alum, ferricchloride, ferricsulfate, coeff
+    ) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    unnest(dose_chem) %>%
+    select(-c(dosed_chem_water, ph:alk_eq, is:estimated))
+}
