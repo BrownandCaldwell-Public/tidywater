@@ -52,6 +52,7 @@ test_that("dissolve_cu works.", {
 # Check dissolve_cu_once outputs are the same as base function, dissolve_cu
 
 test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
     ca = 13, mg = 4, na = 20, k = 20, cl = 30, tot_po4 = 2, tds = 200, cond = 100,
@@ -73,6 +74,7 @@ test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu",
 # Check that output column is numeric
 
 test_that("dissolve_cu_once outputs data frame", {
+  testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
                                mutate(tot_po4 = 2) %>%
                                define_water_chain() %>%

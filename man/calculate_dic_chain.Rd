@@ -2,12 +2,14 @@
 % Please edit documentation in R/general.R
 \name{calculate_dic_chain}
 \alias{calculate_dic_chain}
-\title{Calculate dissolved inorganic carbon (DIC) from total carbonate}
+\title{Calculate dissolved inorganic carbon (DIC) from total carbonate for a dataframe}
 \usage{
 calculate_dic_chain(df, input_water = "defined_water")
 }
 \arguments{
-\item{water}{a water class object containing columns with all the parameters listed in \code{\link{define_water}}}
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
+
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 }
 \value{
 A numeric value for the calculated DIC.
