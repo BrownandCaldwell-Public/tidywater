@@ -315,7 +315,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 # Not currently in use, but could be modified to be useful again someday.
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
-  temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
+  temp_dbp <- dbps <- estimated <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
