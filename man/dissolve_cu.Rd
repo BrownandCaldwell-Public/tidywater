@@ -7,7 +7,7 @@
 Lytle et al (2018)
 }
 \usage{
-dissolve_cu(water, dic)
+dissolve_cu(water)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and dic}

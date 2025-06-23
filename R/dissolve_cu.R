@@ -31,14 +31,18 @@ dissolve_cu <- function(water) {
 
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
   
+  # warnings if inputs are outside conditions the model was developed
   if (water@po4 == 0) {
     warning("This model does not perform well when PO4 = 0.")
   }
+  if (water@ph > 8.5 || water@ph < 6.5) {
+    warning("This model was not developed with pH values outside 6.5-8.5.")
+  }
+  
 
-  cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (water@dic^0.59)
-  data.frame(cu)
+  tot_dissolved_cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (water@dic^0.59)
+  data.frame(tot_dissolved_cu)
 }
-
 
 #' @rdname dissolve_cu_once
 #'
@@ -60,12 +64,7 @@ dissolve_cu <- function(water) {
 #' @export
 #'
 
-#add construct helper and validate water helper to make sure there is a column input for dic
-
 dissolve_cu_once <- function(df, input_water = "defined_water") {
-  
-  df <- df %>%
-    construct_helper(input_water)
   validate_water_helpers(df, input_water)
 
   output <- df %>%

@@ -4,7 +4,7 @@
 \alias{calculate_dic_chain}
 \title{calculate_dic_chain}
 \usage{
-calculate_dic_chain(df, input_water = "Finished")
+calculate_dic_chain(df, input_water = "defined_water")
 }
 \arguments{
 \item{water}{a water class object containing columns with all the parameters listed in \code{\link{define_water}}}

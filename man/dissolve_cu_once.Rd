@@ -4,7 +4,7 @@
 \alias{dissolve_cu_once}
 \title{Calculate Dissolved Copper Concentration}
 \usage{
-dissolve_cu_once(df, input_water = "defined_water", dic)
+dissolve_cu_once(df, input_water = "defined_water")
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
@@ -12,9 +12,7 @@ dissolve_cu_once(df, input_water = "defined_water", dic)
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 }
 \value{
-\code{solvect_chlorine_once} returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
-
-#' @import dplyr
+\code{dissolve_cu_once} returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
 }
 \description{
 Calculate Dissolved Copper Concentration
@@ -22,6 +20,7 @@ Calculate Dissolved Copper Concentration
 \examples{
 library(dplyr)
 cu_calc <- water_df \%>\%
+  mutate(tot_po4 = 10) \%>\%
   define_water_chain() \%>\%
   dissolve_cu_once()
 
