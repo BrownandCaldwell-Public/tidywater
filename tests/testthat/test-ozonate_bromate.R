@@ -68,6 +68,7 @@ test_that("ozonate_bromate works.", {
 # ozonate_bromate helpers ----
 
 test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_bromate", {
+  testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -116,6 +117,7 @@ test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("ozonate_bromate_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 60) %>%
@@ -140,6 +142,7 @@ test_that("ozonate_bromate_chain output is list of water class objects, and can 
 # Check ozonate_bromate_chain can use a column or function argument for chemical dose
 
 test_that("ozonate_bromate_chain can use a column or function argument for chemical dose, time", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
@@ -172,6 +175,7 @@ test_that("ozonate_bromate_chain can use a column or function argument for chemi
 })
 
 test_that("ozonate_bromate_chain multiple models", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
@@ -199,6 +203,7 @@ test_that("ozonate_bromate_chain multiple models", {
 })
 
 test_that("ozonate_bromate_chain errors with argument + column for same param", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     define_water_chain("water")
   expect_error(water %>%
@@ -210,6 +215,7 @@ test_that("ozonate_bromate_chain errors with argument + column for same param", 
 })
 
 test_that("ozonate_bromate_chain correctly handles arguments with multiple values", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     mutate(br = 10) %>%
     slice(1:2) %>%

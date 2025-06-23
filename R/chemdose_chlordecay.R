@@ -41,11 +41,11 @@
 #' If 'cl2_dose' argument, not specified, chlorine slot will be used. If 'cl2_dose' specified and use_chlorine_slot is TRUE,
 #' all chlorine will be summed.
 #' @examples
-#' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2)) %>%
+#' example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2) %>%
 #'   chemdose_chlordecay(cl2_dose = 2, time = 8)
 #'
-#' example_cl2 <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) %>%
-#'   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE))
+#' example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) %>%
+#'   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE)
 #'
 #' @export
 #' @returns `chemdose_chlordecay` returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
@@ -204,7 +204,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #'
 #' @examples
-#'
+#' \donttest{
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -229,17 +229,16 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'     cl_type = "chloramine"
 #'   )
 #'
-#' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   chemdose_chlordecay_chain(cl2_dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

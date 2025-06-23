@@ -32,8 +32,12 @@ solveresid_o3 <- function(water, dose, time) {
   br <- water@br
 
   # Model from WTP model
-  o3demand <- 0.995 * dose^1.312 * (dose / uv254)^-.386 * suva^-.184 * (time)^.068 * alk^.023 * ph^.229 * temp^.087
-  o3residual <- dose - o3demand
+  if (dose > 0) {
+    o3demand <- 0.995 * dose^1.312 * (dose / uv254)^-.386 * suva^-.184 * (time)^.068 * alk^.023 * ph^.229 * temp^.087
+    o3residual <- dose - o3demand
+  } else {
+    o3residual <- 0
+  }
   o3residual
 
   # residual <- A * exp(k * time)

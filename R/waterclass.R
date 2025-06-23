@@ -57,16 +57,7 @@ methods::setClass(
     nhcl2 = "numeric", # dichloramine
     ncl3 = "numeric", # trichloramine
 
-    # Corrosion indices
-    aggressive = "numeric",
-    ryznar = "numeric",
-    langelier = "numeric",
-    ccpp = "numeric",
-    larsonskold = "numeric",
-    csmr = "numeric",
-
     # Miscellaneous
-    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -144,16 +135,7 @@ methods::setClass(
     nhcl2 = NA_real_, # dichloramine
     ncl3 = NA_real_, # trichloramine
 
-    # Corrosion indices
-    aggressive = NA_real_,
-    ryznar = NA_real_,
-    langelier = NA_real_,
-    ccpp = NA_real_,
-    larsonskold = NA_real_,
-    csmr = NA_real_,
-
     # Miscellaneous
-    applied_treatment = "defined",
     estimated = "",
 
     # DBPs

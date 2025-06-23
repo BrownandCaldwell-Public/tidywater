@@ -141,6 +141,7 @@ test_that("chemdose_chlordecay works.", {
 # chemdose_chlordecay helpers ----
 
 test_that("chemdose_chlordecay_chain outputs are the same as base function, chemdose_chlordecay", {
+  testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -194,6 +195,7 @@ test_that("chemdose_chlordecay_chain outputs are the same as base function, chem
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_chlordecay_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- water_df %>%
     slice(1) %>%
     mutate(br = 60) %>%
@@ -218,6 +220,7 @@ test_that("chemdose_chlordecay_chain output is list of water class objects, and 
 # Check chemdose_chlordecay_chain can use a column or function argument for chemical dose
 
 test_that("chemdose_chlordecay_chain can use a column or function argument for chemical dose", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(
@@ -263,6 +266,7 @@ test_that("chemdose_chlordecay_chain can use a column or function argument for c
 })
 
 test_that("chemdose_chlordecay_chain errors with argument + column for same param", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     mutate(free_chlorine = 2) %>%
     define_water_chain("water")
@@ -281,6 +285,7 @@ test_that("chemdose_chlordecay_chain errors with argument + column for same para
 })
 
 test_that("chemdose_chlordecay_chain correctly handles arguments with multiple numbers", {
+  testthat::skip_on_cran()
   water <- water_df %>%
     define_water_chain("water")
 

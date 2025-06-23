@@ -9,14 +9,14 @@ test_that("solvect_o3 returns 0's for all outputs when time is 0 or missing.", {
   expect_error(solvect_o3(water1, dose = 3, baffle = .2))
 })
 
-test_that("solvect_o3 returns NaNs for all outputs when dose is 0 or missing", {
+test_that("solvect_o3 returns 0 for all outputs when dose is 0 or error when dose is missing", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ozone <- solvect_o3(water1, time = 10, dose = 0, baffle = .2)
 
-  expect_equal(ozone$ct_actual, NaN)
-  expect_equal(ozone$glog_removal, NaN)
-  expect_equal(ozone$vlog_removal, NaN)
-  expect_equal(ozone$clog_removal, NaN)
+  expect_equal(ozone$ct_actual, 0)
+  expect_equal(ozone$glog_removal, 0)
+  expect_equal(ozone$vlog_removal, 0)
+  expect_equal(ozone$clog_removal, 0)
   expect_error(solvect_o3(water1, time = 10, baffle = .2))
 })
 
@@ -30,13 +30,9 @@ test_that("solvect_o3 returns 0's for all outputs when baffle is 0 or missing", 
   expect_error(solvect_o3(water1, dose = 3, time = 10))
 })
 
-test_that("solvect_o3 returns NaNs for all outputs when kd is 0", {
+test_that("solvect_o3 throws an error when kd is 0", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
-  ozone <- solvect_o3(water1, time = 10, kd = 0, dose = 3, baffle = .2)
-  expect_equal(ozone$ct_actual, NaN)
-  expect_equal(ozone$glog_removal, NaN)
-  expect_equal(ozone$vlog_removal, NaN)
-  expect_equal(ozone$clog_removal, NaN)
+  expect_error(solvect_o3(water1, time = 10, kd = 0, dose = 3, baffle = .2), "kd must be less than zero for decay curve")
 })
 
 test_that("solvect_o3 fails without ph, temp, alk, doc, uv, and br.", {
@@ -74,6 +70,7 @@ test_that("solvect_o3 works.", {
 
 # HELPERS ----
 test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
+  testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
     na = 20, k = 20, cl = 30, so4 = 20,
@@ -108,6 +105,7 @@ test_that("solvect_o3_once outputs are the same as base function, solvect_o3", {
 # Check that output is a data frame
 
 test_that("solvect_o3_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
@@ -121,6 +119,7 @@ test_that("solvect_o3_once is a data frame", {
 # Check solvect_o3_once can use a column or function argument for chemical residual
 
 test_that("solvect_o3_once can use a column and/or function argument for time and residual", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     slice(1:4) %>%
     define_water_chain()

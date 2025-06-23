@@ -157,6 +157,7 @@ test_that("Warning when ammonia-based chemical is dosed into water containing ch
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
+  testthat::skip_on_cran()
   water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -203,6 +204,7 @@ test_that("chemdose_ph_chain outputs the same as base, chemdose_ph", {
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_ph_chain output is list of water class objects, and can handle an ouput_water arg", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -223,6 +225,7 @@ test_that("chemdose_ph_chain output is list of water class objects, and can hand
 
 # Check that this function can be piped to the next one
 test_that("chemdose_ph_chain works", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     mutate(naoh = 10) %>%
@@ -234,6 +237,7 @@ test_that("chemdose_ph_chain works", {
 
 # Check that variety of ways to input chemicals work
 test_that("chemdose_ph_chain can handle different ways to input chem doses", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
@@ -267,4 +271,15 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
     pluck_water(water4, "dosed_chem_water", "ph")$dosed_chem_water_ph,
     pluck_water(water5, "dosed_chem", "ph")$dosed_chem_ph
   )) # since HCl added to water3, pH should be different
+})
+
+# Check that na_to_zero implementation works
+test_that("chemdose_ph_chain na_to_zero argument works", {
+  testthat::skip_on_cran()
+  water <- suppressWarnings(water_df %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_ph_chain(input_water = "balanced_water", naoh = c(1,2,3,4,NA,6,7,8,NA,10,11,12)))
+  expect_equal(water$naoh[5], 0)
+  expect_equal(water$naoh[9], 0)
 })

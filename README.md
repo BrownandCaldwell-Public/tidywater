@@ -35,8 +35,6 @@ single water quality scenario.
 ``` r
 library(tidywater)
 library(tidyverse)
-#> Warning: package 'purrr' was built under R version 4.4.3
-#> Warning: package 'lubridate' was built under R version 4.4.3
 ## Use base tidywater functions to model water quality for a single scenario.
 base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8, uv254 = 0.08) %>%
   chemdose_ph(alum = 30) %>%
