@@ -17,6 +17,7 @@ chemdose_ph(
   na2co3 = 0,
   nahco3 = 0,
   caco3 = 0,
+  caso4 = 0,
   cacl2 = 0,
   cl2 = 0,
   naocl = 0,
@@ -52,7 +53,9 @@ chemdose_ph_chain(
   ferricsulfate = "use_col",
   ach = "use_col",
   caco3 = "use_col",
-  softening_correction = "use_col"
+  caso4 = "use_col",
+  softening_correction = "use_col",
+  na_to_zero = TRUE
 )
 }
 \arguments{
@@ -77,6 +80,8 @@ chemdose_ph_chain(
 \item{nahco3}{Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3}
 
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
+
+\item{caso4}{Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4}
 
 \item{cacl2}{Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-}
 
@@ -104,6 +109,8 @@ chemdose_ph_chain(
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
+
+\item{na_to_zero}{option to convert all NA values in the data frame to zeros. Default value is TRUE.}
 }
 \value{
 \code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
