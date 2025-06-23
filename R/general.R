@@ -8,10 +8,10 @@
 #'
 #' \code{summarise_wq()} and \code{summarize_wq()} are synonyms.
 #'
-#' @details Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.
+#' @details Use \code{\link{chemdose_dbp}} for modeled DBP concentrations.
 #'
 #' @param water Source water vector created by \code{\link{define_water}}.
-#' @param params List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.
+#' @param params List of water quality parameters to be summarized. Options include "general", "ions", and "dbps". Defaults to "general" only.
 #'
 #' @examples
 #' # Summarize general parameters
@@ -31,8 +31,8 @@ summarize_wq <- function(water, params = c("general")) {
   if (!methods::is(water, "water")) {
     stop("Input must be of class 'water'. Create a water using define_water.")
   }
-  if (any(!params %in% c("general", "ions", "corrosion", "dbps"))) {
-    stop("params must be one or more of c('general', 'ions', 'corrosion', 'dbps')")
+  if (any(!params %in% c("general", "ions", "dbps"))) {
+    stop("params must be one or more of c('general', 'ions', 'dbps')")
   }
 
   # Compile general WQ parameters
@@ -78,29 +78,6 @@ summarize_wq <- function(water, params = c("general")) {
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
     digits = 2
-  )
-
-  # Compile corrosion indices
-  corrosion <- data.frame(
-    `Aggressive Index` = water@aggressive,
-    `Ryznar Stability Index` = water@ryznar,
-    `Langelier Saturation Index (LSI)` = water@langelier,
-    `Larson Skold Index` = water@larsonskold,
-    `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
-    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp
-  )
-
-  corrosion <- corrosion %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(result, 2)) %>%
-    mutate(
-      units = c(rep("unitless", 5), "mg/L CaCO3"),
-      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
-    )
-
-  corr_tab <- knitr::kable(corrosion,
-    format = "simple",
-    col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
   )
 
   # Compile DBPs
@@ -153,9 +130,6 @@ summarize_wq <- function(water, params = c("general")) {
   }
   if ("ions" %in% params) {
     tables_list[[length(tables_list) + 1]] <- ions_tab
-  }
-  if ("corrosion" %in% params) {
-    tables_list[[length(tables_list) + 1]] <- corr_tab
   }
   if ("dbps" %in% params) {
     tables_list[[length(tables_list) + 1]] <- thm_tab
@@ -353,7 +327,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # Determine charge for equivalents
   if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "bro3", "dic")) {
     charge <- 1
-  } else if (formula %in% c("so4", "caco3", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
+  } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
     charge <- 2
   } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
     charge <- 3
