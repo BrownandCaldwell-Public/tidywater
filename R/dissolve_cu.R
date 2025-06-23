@@ -38,7 +38,6 @@ dissolve_cu <- function(water) {
   if (water@ph > 8.5 || water@ph < 6.5) {
     warning("This model was not developed with pH values outside 6.5-8.5.")
   }
-  
 
   tot_dissolved_cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (water@dic^0.59)
   data.frame(tot_dissolved_cu)

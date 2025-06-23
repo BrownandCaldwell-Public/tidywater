@@ -73,11 +73,11 @@ test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu",
 # Check that output column is numeric
 
 test_that("dissolve_cu_once outputs data frame", {
-  water1 <- suppressWarnings(water_df %>%
+  water <- suppressWarnings(water_df %>%
                                mutate(tot_po4 = 2) %>%
                                define_water_chain() %>%
                                balance_ions_chain() %>%
                                dissolve_cu_once(input_water = "balanced_water"))
   
-  expect_true(is.numeric(water1$tot_dissolved_cu))
+  expect_true(is.numeric(water$tot_dissolved_cu))
 })
