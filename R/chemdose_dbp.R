@@ -149,7 +149,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     if (missing(coeff)) {
       predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
     } else {
-      predicted_dbp <- coeff
+      predicted_dbp <- coeff %>%
+        bind_rows(filter(tidywater::dbpcoeffs, !(ID %in% coeff$ID), treatment == "raw"))
     }
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
@@ -159,7 +160,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     if (missing(coeff)) {
       predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
     } else {
-      predicted_dbp <- coeff
+      predicted_dbp <- coeff %>%
+        bind_rows(filter(tidywater::dbpcoeffs, !(ID %in% coeff$ID), treatment == "coag"))
     }
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
@@ -311,23 +313,23 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 
 
 # Not currently in use, but could be modified to be useful again someday.
-# chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
-#                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
-#   temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
-#
-#   # This allows for the function to process unquoted column names without erroring
-#   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
-#   time <- tryCatch(time, error = function(e) enquo(time))
-#   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
-#   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
-#   location <- tryCatch(location, error = function(e) enquo(location))
-#
-#   output <- df %>%
-#     chemdose_dbp_chain(
-#       input_water = input_water, output_water = "temp_dbp",
-#       cl2, time, treatment, cl_type, location
-#     ) %>%
-#     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
-#     unnest(dbps) %>%
-#     select(-temp_dbp)
-# }
+chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
+                              treatment = "use_col", cl_type = "use_col", location = "use_col") {
+  temp_dbp <- dbps <- NULL # Quiet RCMD check global variable note
+
+  # This allows for the function to process unquoted column names without erroring
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
+  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
+  location <- tryCatch(location, error = function(e) enquo(location))
+
+  output <- df %>%
+    chemdose_dbp_chain(
+      input_water = input_water, output_water = "temp_dbp",
+      cl2, time, treatment, cl_type, location
+    ) %>%
+    mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
+    unnest(dbps) %>%
+    select(-c(temp_dbp:estimated))
+}

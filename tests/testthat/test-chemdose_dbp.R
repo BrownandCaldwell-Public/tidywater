@@ -68,6 +68,26 @@ test_that("chemdose_dbp works.", {
   expect_equal(round(water6@haa5), 12)
 })
 
+test_that("users can provide their own dbp coefficients.", {
+  # generate random coefficients, set seed for reproducibility
+  set.seed(5)
+  coeff <- as.data.frame(matrix(sample(0:2, 2*12, replace = TRUE),
+                                nrow = 2, ncol = 12))
+  colnames(coeff) <- c("ID", "alias", "group", "treatment", "A", "a", "b", "c", "d", "e", "f", "ph_const")
+  coeff$ID <- c("chcl3", "mbaa")
+  coeff$alias <- c("chloroform", "monobromoacetic acid")
+  coeff$group <- c("tthm", "haa5")
+  coeff$treatment <- "raw"
+  
+  water <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
+    chemdose_dbp(cl2 = 2, time = 8, coeff = coeff)
+  
+  expect_equal(round(water@tthm), 64)
+  expect_equal(round(water@chcl3), 63)
+  expect_equal(round(water@haa5), 53)
+  expect_equal(round(water@mbaa), 53)
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_dbp helpers ----
@@ -237,46 +257,46 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
   expect_equal(nrow(water) * 3, nrow(water2))
 })
 
-# test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {
-#   water1 <- suppressWarnings(define_water(7.9, 20, 50,
-#     tot_hard = 50, ca = 13,
-#     na = 20, k = 20, cl = 30, so4 = 20,
-#     tds = 200, cond = 100,
-#     toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-#   )) %>%
-#     chemdose_dbp(cl2 = 10, time = 8)
-#
-#   water2 <- suppressWarnings(water_df %>%
-#     slice(1) %>%
-#     mutate(br = 50) %>%
-#     define_water_chain() %>%
-#     chemdose_dbp_once(cl2 = 10, time = 8))
-#
-#   expect_equal(water1@chcl3, water2$chcl3)
-#   expect_equal(water1@chcl2br, water2$chcl2br)
-#   expect_equal(water1@chbr2cl, water2$chbr2cl)
-#   expect_equal(water1@chbr3, water2$chbr3)
-#   expect_equal(water1@tthm, water2$tthm)
-#   expect_equal(water1@mcaa, water2$mcaa)
-#   expect_equal(water1@dcaa, water2$dcaa)
-#   expect_equal(water1@tcaa, water2$tcaa)
-#   expect_equal(water1@mbaa, water2$mbaa)
-#   expect_equal(water1@dbaa, water2$dbaa)
-#   expect_equal(water1@haa5, water2$haa5)
-# })
-#
-# # Check that output is a data frame
-#
-# test_that("chemdose_dbp_once is a data frame", {
-#   water1 <- suppressWarnings(water_df %>%
-#     slice(1) %>%
-#     mutate(br = 50) %>%
-#     define_water_chain() %>%
-#     balance_ions_chain() %>%
-#     chemdose_dbp_once(
-#       input_water = "balanced_water",
-#       cl2 = 5, time = 100
-#     ))
-#
-#   expect_true(is.data.frame(water1))
-# })
+test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {
+  water1 <- suppressWarnings(define_water(7.9, 20, 50,
+    tot_hard = 50, ca = 13,
+    na = 20, k = 20, cl = 30, so4 = 20,
+    tds = 200, cond = 100,
+    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  )) %>%
+    chemdose_dbp(cl2 = 10, time = 8)
+
+  water2 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    chemdose_dbp_once(cl2 = 10, time = 8))
+
+  expect_equal(water1@chcl3, water2$chcl3)
+  expect_equal(water1@chcl2br, water2$chcl2br)
+  expect_equal(water1@chbr2cl, water2$chbr2cl)
+  expect_equal(water1@chbr3, water2$chbr3)
+  expect_equal(water1@tthm, water2$tthm)
+  expect_equal(water1@mcaa, water2$mcaa)
+  expect_equal(water1@dcaa, water2$dcaa)
+  expect_equal(water1@tcaa, water2$tcaa)
+  expect_equal(water1@mbaa, water2$mbaa)
+  expect_equal(water1@dbaa, water2$dbaa)
+  expect_equal(water1@haa5, water2$haa5)
+})
+
+# Check that output is a data frame
+
+test_that("chemdose_dbp_once is a data frame", {
+  water1 <- suppressWarnings(water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_dbp_once(
+      input_water = "balanced_water",
+      cl2 = 5, time = 100
+    ))
+
+  expect_true(is.data.frame(water1))
+})
