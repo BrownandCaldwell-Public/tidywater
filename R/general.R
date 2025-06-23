@@ -432,12 +432,13 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
-#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate
+#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate for a dataframe
 #' 
 #' @description This function takes a water class object defined by \code{\link{define_water}}
 #' and outputs a DIC (mg/L). This function should be used when calculating DIC for multiple waters.
 #'
-#' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @seealso \code{\link{define_water}}
 #'
