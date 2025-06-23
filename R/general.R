@@ -409,7 +409,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   }
 }
 
-#' @ title Calculate dissolved inorganic carbon (DIC) from total carbonate
+#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate
 #'
 #' @description This function takes a water class object defined by \code{\link{define_water}}
 #' and outputs a DIC (mg/L).
@@ -433,6 +433,7 @@ calculate_dic <- function(water) {
 }
 
 #' @title Calculate dissolved inorganic carbon (DIC) from total carbonate
+#' 
 #' @description This function takes a water class object defined by \code{\link{define_water}}
 #' and outputs a DIC (mg/L). This function should be used when calculating DIC for multiple waters.
 #'
@@ -459,6 +460,7 @@ calculate_dic_chain <- function(df, input_water = "defined_water") {
       ),
       calculate_dic
     ))
+}
 
 #' @title Calculate activity coefficients
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/general.R
 \name{calculate_dic_chain}
 \alias{calculate_dic_chain}
-\title{calculate_dic_chain}
+\title{Calculate dissolved inorganic carbon (DIC) from total carbonate}
 \usage{
 calculate_dic_chain(df, input_water = "defined_water")
 }
@@ -13,8 +13,6 @@ calculate_dic_chain(df, input_water = "defined_water")
 A numeric value for the calculated DIC.
 }
 \description{
-Calculate dissolved inorganic carbon (DIC) from total carbonate
-
 This function takes a water class object defined by \code{\link{define_water}}
 and outputs a DIC (mg/L). This function should be used when calculating DIC for multiple waters.
 }
