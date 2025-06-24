@@ -413,7 +413,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
                              caco3 = "use_col") {
-  dose_chem <- dosed_chem_water <- temp <- estimated <- NULL # Quiet RCMD check global variable note
+  dose_chem <- dosed_chem_water <- temp <- tds <- kw <- toc <- estimated <- NULL # Quiet RCMD check global variable note
   
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
