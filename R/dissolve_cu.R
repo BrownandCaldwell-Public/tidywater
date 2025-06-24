@@ -27,7 +27,7 @@
 #'
 
 dissolve_cu <- function(water) {
-  validate_water(water, c("ph", "alk", "dic"))
+  validate_water(water, c("ph", "alk"))
 
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
   
