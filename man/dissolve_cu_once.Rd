@@ -20,7 +20,6 @@ Calculate Dissolved Copper Concentration
 \examples{
 library(dplyr)
 cu_calc <- water_df \%>\%
-  mutate(tot_po4 = 10) \%>\%
   define_water_chain() \%>\%
   dissolve_cu_once()
 

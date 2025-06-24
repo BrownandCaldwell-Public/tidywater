@@ -4,6 +4,8 @@
 
 ## Breaking changes
 
+* New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
+`dissolve_cu_once` can also predict copper for waters in a data frame.
 * Corrosion index slots removed from water. `calculate_corrosion` now outputs a data frame with the corrosion indices as columns. 
 `calculate_corrosion_chain` removed because the base function has a numeric output.
 * `solvect_o3` and `solveresid_o3` now return zero instead of NaN when the input dose is zero

@@ -2,11 +2,11 @@
 
 #' @title Calculate Dissolved Copper Concentration
 #' @description
-#' This function takes a water defined by defined_water and output a column of dissolved copper.
+#' This function takes a water defined by defined_water and output a column of dissolved copper. It is an empirical model developed
+#' based on bench-scale copper solubility testing that can be used to predict copper levels as a function of pH, DIC, and orthophosphate.
 #' For a single water, use `dissolve_cu`; to apply the model to a dataframe use `dissolve_cu_chain`.
 #'
-#' @details Dissolved copper is a function of pH, DIC, and PO4. Output units are in mg/L. You may need to calculate DIC upsteam of this function
-#' using calculate_dic.
+#' @details Dissolved copper is a function of pH, DIC, and PO4. Output units are in mg/L.
 #' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #' for the option to use parallel processing and speed things up. To initialize parallel processing, use
 #' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
@@ -19,8 +19,9 @@
 #'
 #' @examples
 #'
-#' example_cu <- define_water(ph = 7.5, alk = 125) %>%
+#' example_cu <- define_water(ph = 7.5, alk = 125, tot_po4 = 2) %>%
 #'   dissolve_cu()
+#'   
 #' @export
 #'
 #' @returns `dissolve_cu` returns a column containing dissolved copper concentration in mg/L.
@@ -28,19 +29,19 @@
 
 dissolve_cu <- function(water) {
   validate_water(water, c("ph", "alk"))
-
+  
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
   
   # warnings if inputs are outside conditions the model was developed
-  if (water@po4 == 0) {
-    warning("This model does not perform well when PO4 = 0.")
+  if (po4 < 0.2 || po4 > 3.1) {
+    warning("This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.")
   }
-  if (water@ph > 8.5 || water@ph < 6.5) {
-    warning("This model was not developed with pH values outside 6.5-8.5.")
+  if (water@ph > 8.52 || water@ph < 6.48) {
+    warning("This model was not developed with pH values outside 6.48-8.52.")
   }
 
-  tot_dissolved_cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * po4) * (water@dic^0.59)
-  data.frame(tot_dissolved_cu)
+  cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * water@tot_po4) * (water@dic^0.59)
+  data.frame(cu)
 }
 
 #' @rdname dissolve_cu_once
@@ -53,7 +54,6 @@ dissolve_cu <- function(water) {
 #' @examples
 #' library(dplyr)
 #' cu_calc <- water_df %>%
-#'   mutate(tot_po4 = 10) %>%
 #'   define_water_chain() %>%
 #'   dissolve_cu_once()
 #'
@@ -65,7 +65,7 @@ dissolve_cu <- function(water) {
 
 dissolve_cu_once <- function(df, input_water = "defined_water") {
   validate_water_helpers(df, input_water)
-  calc <- tot_dissolved_cu <- NULL # Quiet RCMD check global variable notes
+  calc <- NULL # Quiet RCMD check global variable notes
 
   output <- df %>%
     mutate(calc = furrr::future_pmap(

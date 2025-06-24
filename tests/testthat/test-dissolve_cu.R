@@ -8,7 +8,7 @@ test_that("DIC or alk is required for dissolve_cu", {
 
   expect_error(dissolve_cu(water1))
   expect_no_error(dissolve_cu(water2))
-  expect_equal(signif(dissolved$tot_dissolved_cu, 2), 0.33)
+  expect_equal(signif(dissolved$cu, 2), 0.49)
 })
 
 test_that("pH is required", {
@@ -37,13 +37,13 @@ test_that("dissolve_cu works.", {
   water3 <- suppressWarnings(define_water(ph = 7, alk = 80, temp = 25, tds = 200, tot_po4=2)) %>%
     dissolve_cu()
   
-  water4 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, ca = 100, tot_po4 = 5)) %>%
+  water4 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, ca = 100, tot_po4 = 0.5)) %>%
     dissolve_cu()
   
-  expect_equal(signif(water1$tot_dissolved_cu, 2), 1.2)
-  expect_equal(signif(water2$tot_dissolved_cu, 2), 0.52)
-  expect_equal(signif(water3$tot_dissolved_cu, 2), 1.1)
-  expect_equal(signif(water4$tot_dissolved_cu, 2), 0.68)
+  expect_equal(signif(water1$cu, 2), 1.9)
+  expect_equal(signif(water2$cu, 2), 0.79)
+  expect_equal(signif(water3$cu, 2), 1.7)
+  expect_equal(signif(water4$cu, 2), 1.9)
 })
 
 ################################################################################*
@@ -58,17 +58,15 @@ test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu",
     ca = 13, mg = 4, na = 20, k = 20, cl = 30, tot_po4 = 2, tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
-    balance_ions() %>%
     dissolve_cu()
   
   water2 <- suppressWarnings(water_df %>%
                                mutate(tot_po4 = 2) %>%
                                slice(1) %>%
                                define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               dissolve_cu_once(input_water = "balanced_water"))
+                               dissolve_cu_once(input_water = "defined_water"))
   
-  expect_equal(water1$tot_dissolved_cu, water2$tot_dissolved_cu)
+  expect_equal(water1$cu, water2$cu)
 })
 
 # Check that output column is numeric
@@ -78,8 +76,7 @@ test_that("dissolve_cu_once outputs data frame", {
   water <- suppressWarnings(water_df %>%
                                mutate(tot_po4 = 2) %>%
                                define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               dissolve_cu_once(input_water = "balanced_water"))
+                               dissolve_cu_once(input_water = "defined_water"))
   
-  expect_true(is.numeric(water$tot_dissolved_cu))
+  expect_true(is.numeric(water$cu))
 })
