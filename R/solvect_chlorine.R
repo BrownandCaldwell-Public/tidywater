@@ -30,7 +30,7 @@
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
-#' @param use_free_cl_slot Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.
+#' @param use_free_cl_slot Defaults to "false". When "true", uses free_chlorine slot in water instead of 'residual' argument. If "sum", it will use the sum of the residual argument and the free_chlorine slot.
 #'
 #' @examples
 #'
@@ -40,10 +40,13 @@
 #'
 #' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
 
-solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = FALSE) {
-  if (use_free_cl_slot) {
+solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = "false") {
+  if (use_free_cl_slot == "true") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
     residual <- water@free_chlorine
+  } else if (use_free_cl_slot == "sum") {
+    validate_water(water, c("ph", "temp", "free_chlorine"))
+    residual <- residual + water@free_chlorine
   } else {
     validate_water(water, c("ph", "temp"))
   }
@@ -95,7 +98,7 @@ solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = F
 
 solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
-                                  use_free_cl_slot = FALSE,
+                                  use_free_cl_slot = "false",
                                   water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
 

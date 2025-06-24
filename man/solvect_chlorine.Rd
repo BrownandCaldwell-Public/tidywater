@@ -12,7 +12,7 @@ USEPA (2020)
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
-solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = FALSE)
+solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = "false")
 
 solvect_chlorine_once(
   df,
@@ -20,7 +20,7 @@ solvect_chlorine_once(
   time = "use_col",
   residual = "use_col",
   baffle = "use_col",
-  use_free_cl_slot = FALSE,
+  use_free_cl_slot = "false",
   water_prefix = TRUE
 )
 }
@@ -33,7 +33,7 @@ solvect_chlorine_once(
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{use_free_cl_slot}{Defaults to FALSE. When TRUE, uses free_chlorine slot in water instead of 'residual' argument.}
+\item{use_free_cl_slot}{Defaults to "false". When "true", uses free_chlorine slot in water instead of 'residual' argument. If "sum", it will use the sum of the residual argument and the free_chlorine slot.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
