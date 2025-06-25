@@ -289,6 +289,7 @@ test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp
 # Check that output is a data frame
 
 test_that("chemdose_dbp_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
