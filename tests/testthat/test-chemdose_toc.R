@@ -49,6 +49,76 @@ test_that("chemdose_toc works.", {
 ################################################################################*
 # chemdose_toc helpers ----
 
+# Check chemdose_toc_once outputs are the same as base function, chemdose_toc
+# Check that output is a data frame
+
+test_that("chemdose_toc_once outputs are the same as base function, chemdose_toc", {
+  water1 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05) %>%
+    balance_ions() %>%
+    chemdose_toc())
+  
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_toc_once(input_water = "balanced_water"))
+  
+  expect_equal(water1@toc, water2$toc)
+  expect_equal(water1@doc, water2$doc)
+  expect_equal(water1@uv254, water2$uv254)
+})
+
+# Check that output is a data frame
+
+test_that("chemdose_toc_once is a data frame", {
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_toc_once(input_water = "balanced_water"))
+  
+  
+  expect_true(is.data.frame(water1))
+  expect_equal(colnames(water1), c("defined_water", "balanced_water", "toc", "doc", "uv254"))
+})
+
+# Check chemdose_toc_once can use a column or function argument for chemical dose
+
+test_that("chemdose_toc_once can use a column and/or function argument for chemical dose", {
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               balance_ions_chain() %>%
+                               chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric"))
+  
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               mutate(
+                                 ferricchloride = 40,
+                                 coeff = "Ferric"
+                               ) %>%
+                               balance_ions_chain() %>%
+                               chemdose_toc_once(input_water = "balanced_water"))
+  
+  water3 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               mutate(ferricchloride = 40) %>%
+                               balance_ions_chain() %>%
+                               chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric"))
+  
+  expect_equal(water1$toc, water2$toc) # test different ways to input chemical
+  expect_equal(water1$doc, water2$doc)
+  expect_equal(water1$uv254, water2$uv254)
+  expect_equal(water2$toc, water3$toc)
+  expect_equal(water2$doc, water3$doc)
+  expect_equal(water2$uv254, water3$uv254)
+  expect_equal(ncol(water3), ncol(water1))
+})
+
 test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
   testthat::skip_on_cran()
   water0 <- define_water(
