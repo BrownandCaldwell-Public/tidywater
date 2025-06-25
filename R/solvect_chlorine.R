@@ -30,7 +30,7 @@
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
-#' @param use_free_cl_slot Defaults to "residual_only". When "true", uses free_chlorine slot in water instead of 'residual' argument. 
+#' @param free_cl_slot Defaults to "residual_only". When "true", uses free_chlorine slot in water instead of 'residual' argument. 
 #' If "slot_only", the model will use the free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.
 #'
 #' @examples
