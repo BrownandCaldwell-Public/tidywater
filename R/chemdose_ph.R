@@ -378,9 +378,6 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
       ),
       chemdose_ph
     ))
-<<<<<<< fit_dbp_coeff
-}
-=======
 }
 
 #' @rdname chemdose_ph
@@ -457,5 +454,3 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   unnest(dose_chem) %>%
     select(-c(dosed_chem_water, temp, tds:estimated))
 }
-           
->>>>>>> main

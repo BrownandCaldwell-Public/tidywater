@@ -24,7 +24,8 @@ chemdose_dbp(
   treatment = "raw",
   cl_type = "chorine",
   location = "plant",
-  coeff
+  correction = TRUE,
+  coeff = NULL
 )
 
 chemdose_dbp_chain(
@@ -35,7 +36,9 @@ chemdose_dbp_chain(
   time = "use_col",
   treatment = "use_col",
   cl_type = "use_col",
-  location = "use_col"
+  location = "use_col",
+  correction = TRUE,
+  coeff = NULL
 )
 
 chemdose_dbp_once(
@@ -45,7 +48,9 @@ chemdose_dbp_once(
   time = "use_col",
   treatment = "use_col",
   cl_type = "use_col",
-  location = "use_col"
+  location = "use_col",
+  correction = TRUE,
+  coeff = NULL
 )
 }
 \arguments{
@@ -63,7 +68,10 @@ GAC treatment has also been used for estimating formation after membrane treatme
 
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
 
-\item{coeff}{Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: ID, alias, group, treatment, and the corresponding coefficients}
+\item{correction}{Model calculations are adjusted based on location and cl_type. Default value is TRUE.}
+
+\item{coeff}{Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns:
+ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest. Default value is NULL.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water}. The df may include columns for the other function arguments.}

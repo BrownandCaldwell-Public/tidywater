@@ -37,7 +37,7 @@
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
 #' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: 
-#' ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest.
+#' ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest. Default value is NULL.
 #' @param correction Model calculations are adjusted based on location and cl_type. Default value is TRUE.
 #' 
 #' @examples
@@ -50,7 +50,7 @@
 #'
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
-chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff) {
+chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff = NULL) {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
@@ -151,10 +151,10 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
-    if (!missing(coeff)) {
+    if (!is.null(coeff)) {
       columns_to_update <- c("A", "a", "b", "c", "d", "e", "f", "ph_const")
       # Merge default data frame with coeff on "ID"
-      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", suffixes = c("", ".new"))
+      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", all.x = TRUE, suffixes = c("", ".new"))
       # Replace values in df1 with those from df2 where IDs match
       for (col in columns_to_update) {
         predicted_dbp[[col]] <- ifelse(!is.na(predicted_dbp[[paste0(col, ".new")]]),
@@ -169,10 +169,10 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   } else {
     treat <- treatment
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
-    if (!missing(coeff)) {
+    if (!is.null(coeff)) {
       columns_to_update <- c("A", "a", "b", "c", "d", "e", "f", "ph_const")
       # Merge default data frame with coeff on "ID"
-      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", suffixes = c("", ".new"))
+      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", all.x = TRUE, suffixes = c("", ".new"))
       # Replace values in df1 with those from df2 where IDs match
       for (col in columns_to_update) {
         predicted_dbp[[col]] <- ifelse(!is.na(predicted_dbp[[paste0(col, ".new")]]),
@@ -295,13 +295,15 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
 chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
                                cl2 = "use_col", time = "use_col",
-                               treatment = "use_col", cl_type = "use_col", location = "use_col") {
+                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   time <- tryCatch(time, error = function(e) enquo(time))
   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
+  correction <- tryCatch(correction, error = function(e) enquo(correction))
+  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   validate_water_helpers(df, input_water)
 
@@ -309,7 +311,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
   arguments <- construct_helper(
     df, list(
       "cl2" = cl2, "time" = time, "treatment" = treatment,
-      "cl_type" = cl_type, "location" = location
+      "cl_type" = cl_type, "location" = location, "correction" = correction
     )
   )
 
@@ -327,10 +329,13 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
         # This logic needed for any argument that has a default
         treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
         cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.)),
-        location = if (arguments$final_names$location %in% names(.)) !!sym(arguments$final_names$location) else rep("plant", nrow(.))
+        location = if (arguments$final_names$location %in% names(.)) !!sym(arguments$final_names$location) else rep("plant", nrow(.)),
+        correction = if (arguments$final_names$correction %in% names(.)) !!sym(arguments$final_names$correction) else rep(TRUE, nrow(.)),
+        coeff = replicate(nrow(.), coeff, simplify = FALSE)
       ),
       chemdose_dbp
-    ))
+    )) %>%
+    select(-correction)
 }
 
 
@@ -338,6 +343,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water]. The df may include columns for the other function arguments.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param water_prefix option to add the input_water name to generated dbp columns. Default value is TRUE.
 #' @examples
 #' \donttest{
 #' library(dplyr)
@@ -355,7 +361,8 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #' @returns `chemdose_dbp_once` returns a data frame containing predicted DBP concentrations as columns.
 #' 
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
-                              treatment = "use_col", cl_type = "use_col", location = "use_col") {
+                              treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
+                              water_prefix = TRUE) {
   temp_dbp <- dbps <- estimated <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -364,25 +371,29 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
   treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
+  correction <- tryCatch(correction, error = function(e) enquo(correction))
+  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
-  args <- list(
-    df,
-    input_water = input_water,
-    output_water = "temp_dbp",
-    cl2 = cl2,
-    time = time,
-    treatment = treatment,
-    cl_type = cl_type,
-    location = location
-  )
-  
-  if (exists("coeff")) {
-    args$coeff <- coeff
-  }
-  
-  output <- do.call(chemdose_dbp_chain, args) %>%
+  output <- df %>%
+    chemdose_dbp_chain(
+      input_water = input_water,
+      output_water = "temp_dbp",
+      cl2 = cl2,
+      time = time,
+      treatment = treatment,
+      cl_type = cl_type,
+      location = location,
+      coeff = coeff
+    ) %>%
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dbps) %>%
     select(-c(temp_dbp:estimated))
   
+  if (water_prefix) {
+    output <- output %>%
+      rename_with(
+        ~ paste0(input_water, "_", .x),
+        .cols = (match("time", names(.)) + 1):ncol(.)
+      )
+  }
 }

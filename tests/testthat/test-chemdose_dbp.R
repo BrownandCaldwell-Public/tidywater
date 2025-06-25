@@ -71,21 +71,21 @@ test_that("chemdose_dbp works.", {
 test_that("users can provide their own dbp coefficients.", {
   # generate random coefficients, set seed for reproducibility
   set.seed(5)
-  coeff <- as.data.frame(matrix(sample(0:2, 2*12, replace = TRUE),
-                                nrow = 2, ncol = 12))
-  colnames(coeff) <- c("ID", "alias", "group", "treatment", "A", "a", "b", "c", "d", "e", "f", "ph_const")
+  coeff <- as.data.frame(matrix(sample(0:2, 2*9, replace = TRUE),
+                                nrow = 2, ncol = 9))
+  colnames(coeff) <- c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const")
   coeff$ID <- c("chcl3", "mbaa")
-  coeff$alias <- c("chloroform", "monobromoacetic acid")
-  coeff$group <- c("tthm", "haa5")
-  coeff$treatment <- "raw"
   
-  water <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
+    chemdose_dbp(cl2 = 2, time = 8)
+  
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8, coeff = coeff)
   
-  expect_equal(round(water@tthm), 64)
-  expect_equal(round(water@chcl3), 63)
-  expect_equal(round(water@haa5), 53)
-  expect_equal(round(water@mbaa), 53)
+  expect_true(water1@tthm == water2@tthm) # did not use custom coeff for tthm
+  expect_false(water1@chcl3 == water2@chcl3)
+  expect_true(water1@haa5 == water2@haa5)
+  expect_false(water1@mbaa == water2@mbaa)
 })
 
 ################################################################################*
@@ -257,6 +257,32 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
   expect_equal(nrow(water) * 3, nrow(water2))
 })
 
+test_that("users can provide their own dbp coefficients to chemdose_dbp_chain.", {
+  # generate random coefficients, set seed for reproducibility
+  set.seed(5)
+  coeff <- as.data.frame(matrix(sample(0:2, 2*9, replace = TRUE),
+                                nrow = 2, ncol = 9))
+  colnames(coeff) <- c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const")
+  coeff$ID <- c("chcl3", "mbaa")
+  
+  water1 <- water_df %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    chemdose_dbp_chain("defined_water", cl2 = 2, time = 120) %>%
+    pluck_water("disinfected_water", c("tthm", "chcl3", "haa5", "mbaa"))
+  
+  water2 <- water_df %>%
+    mutate(br = 80) %>%
+    define_water_chain() %>%
+    chemdose_dbp_chain("defined_water", cl2 = 2, time = 120, coeff = coeff) %>%
+    pluck_water("disinfected_water", c("tthm", "chcl3", "haa5", "mbaa"))
+  
+  expect_equal(water1$disinfected_water_tthm, water2$disinfected_water_tthm) # no custom coeff inputted for tthm
+  expect_false(identical(water1$disinfected_water_chcl3, water2$disinfected_water_chcl3))
+  expect_equal(water1$disinfected_water_haa5, water2$disinfected_water_haa5)
+  expect_false(identical(water1$disinfected_water_mbaa, water2$disinfected_water_mbaa))
+})
+
 test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
@@ -273,17 +299,17 @@ test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp
     define_water_chain() %>%
     chemdose_dbp_once(cl2 = 10, time = 8))
 
-  expect_equal(water1@chcl3, water2$chcl3)
-  expect_equal(water1@chcl2br, water2$chcl2br)
-  expect_equal(water1@chbr2cl, water2$chbr2cl)
-  expect_equal(water1@chbr3, water2$chbr3)
-  expect_equal(water1@tthm, water2$tthm)
-  expect_equal(water1@mcaa, water2$mcaa)
-  expect_equal(water1@dcaa, water2$dcaa)
-  expect_equal(water1@tcaa, water2$tcaa)
-  expect_equal(water1@mbaa, water2$mbaa)
-  expect_equal(water1@dbaa, water2$dbaa)
-  expect_equal(water1@haa5, water2$haa5)
+  expect_equal(water1@chcl3, water2$defined_water_chcl3)
+  expect_equal(water1@chcl2br, water2$defined_water_chcl2br)
+  expect_equal(water1@chbr2cl, water2$defined_water_chbr2cl)
+  expect_equal(water1@chbr3, water2$defined_water_chbr3)
+  expect_equal(water1@tthm, water2$defined_water_tthm)
+  expect_equal(water1@mcaa, water2$defined_water_mcaa)
+  expect_equal(water1@dcaa, water2$defined_water_dcaa)
+  expect_equal(water1@tcaa, water2$defined_water_tcaa)
+  expect_equal(water1@mbaa, water2$defined_water_mbaa)
+  expect_equal(water1@dbaa, water2$defined_water_dbaa)
+  expect_equal(water1@haa5, water2$defined_water_haa5)
 })
 
 # Check that output is a data frame
