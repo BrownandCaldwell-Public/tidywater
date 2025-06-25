@@ -325,7 +325,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "bro3", "dic")) {
+  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "no3", "bro3", "dic")) {
     charge <- 1
   } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
     charge <- 2
@@ -446,17 +446,17 @@ calculate_dic <- function(water) {
 #' @export
 #'
 #' @returns A numeric value for the activity coefficient.
-#' 
+#'
 calculate_activity <- function(z, is, temp) {
   if (!is.na(is)) {
     tempa <- temp + 273.15 # absolute temperature (K)
-    
+
     # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
     de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
-    
+
     # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
     a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
-    
+
     # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
     activity <- 10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
   } else {
@@ -478,7 +478,7 @@ calculate_activity <- function(z, is, temp) {
 #' @export
 #'
 #' @returns A dataframe with equilibrium constants for co3, po4, so4, ocl, and nh4.
-#' 
+#'
 # Dissociation constants corrected for non-ideal solutions following Benjamin (2010) example 3.14.
 # See k_temp_adjust for temperature correction equation.
 correct_k <- function(water) {
@@ -492,7 +492,7 @@ correct_k <- function(water) {
     activity_z2 <- calculate_activity(2, water@is, water@temp)
     activity_z3 <- calculate_activity(3, water@is, water@temp)
   }
-  
+
   temp <- water@temp
   discons <- tidywater::discons
   # Eq constants
@@ -512,7 +512,7 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-  
+
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
@@ -615,6 +615,12 @@ construct_helper <- function(df, all_args) {
 # View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
+calculate_alpha0_carbonate <- function(h, k) {
+  k1 <- k$k1co3
+  k2 <- k$k2co3
+  1 / (1 + (k1 / h) + (k1 * k2 / h^2))
+}
+
 calculate_alpha1_carbonate <- function(h, k) {
   k1 <- k$k1co3
   k2 <- k$k2co3
