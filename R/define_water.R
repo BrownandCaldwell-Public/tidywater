@@ -34,6 +34,7 @@
 #' @param fe Iron in mg/L Fe3+
 #' @param al Aluminum in mg/L Al3+
 #' @param mn Manganese in ug/L Mn2+
+#' @param no3 Nitrate in mg/L as N
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -106,7 +107,7 @@
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
-                         toc, doc, uv254, br, f, fe, al, mn) {
+                         toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
@@ -182,6 +183,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   fe <- ifelse(missing(fe), NA_real_, convert_units(fe, "fe"))
   al <- ifelse(missing(al), NA_real_, convert_units(al, "al"))
   mn <- ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
+  no3 <- ifelse(missing(no3), NA_real_, convert_units(no3, "no3", "mg/L N", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc <- NA_real_
@@ -223,6 +225,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
   k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
 
+  alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
   tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
@@ -231,12 +234,13 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
-    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
+    h2co3 = tot_co3 * alpha0, hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2,
+    h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
     h = h, oh = oh,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
-    br = br, f = f, fe = fe, al = al, mn = mn
+    br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )
 
   # Determine ionic strength
@@ -271,9 +275,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water@oh <- oh
 
   # Carbonate and phosphate ions and ocl ions
+  alpha0 <- calculate_alpha0_carbonate(h, ks)
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
   water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  water@h2co3 <- water@tot_co3 * alpha0
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
   water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
@@ -362,13 +368,13 @@ define_water_once <- function(df) {
 #'
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain()
 #'
 #' #' #Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

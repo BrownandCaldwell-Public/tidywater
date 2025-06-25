@@ -191,9 +191,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@tds <- water@tds + convert_units(na_dose, "na", "M", "mg/L") +
     convert_units(cl_dose, "cl", "M", "mg/L") + convert_units(k_dose, "k", "M", "mg/L") +
     convert_units(ca_dose, "ca", "M", "mg/L") + convert_units(mg_dose, "mg", "M", "mg/L") +
-    convert_units(co3_dose, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
+    convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
     convert_units(nh4_dose, "nh4", "M", "mg/L")
+  if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
+    warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
+    dosed_water@tds <- 0
+  }
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
@@ -213,8 +217,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   ks <- correct_k(dosed_water)
 
   # Carbonate and phosphate ions and ocl ions
+  alpha0 <- calculate_alpha0_carbonate(h, ks) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
@@ -272,13 +278,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   chemdose_ph_chain(naoh = 5)
 #'
 #' # Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

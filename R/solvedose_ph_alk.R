@@ -130,7 +130,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
   }
 
   if ((chemical %in% c(
-    "hcl", "h2so4", "h3po4", "co2",
+    "hcl", "h2so4", "h3po4",
     "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
   )) == FALSE) {
     stop("Selected chemical addition not supported.")
@@ -162,7 +162,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
   # Target alkalinity can't be met
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
     target_alk <= water@alk) |
-    (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
+    (chemical %in% c("hcl", "h2so4", "h3po4") &
       target_alk >= water@alk) |
     is.na(target_alk)) {
     warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
@@ -189,14 +189,14 @@ solvedose_alk <- function(water, target_alk, chemical) {
 #' # Initialize parallel processing
 #' library(dplyr)
 #' library(furrr)
-#'#  plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' #  plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(finpH = seq(9, 10.1, .1)) %>%
 #'   solvedose_ph_once(chemical = "naoh", target_ph = finpH)
 #'
 #' # Optional: explicitly close multisession processing
-#'#  plan(sequential)
+#' #  plan(sequential)
 #' }
 #'
 #' @import dplyr
@@ -247,14 +247,14 @@ solvedose_ph_once <- function(df, input_water = "defined_water", output_column =
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(target_alk = seq(100, 210, 10)) %>%
 #'   solvedose_alk_once(chemical = "na2co3")
 #'
 #' # Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr
