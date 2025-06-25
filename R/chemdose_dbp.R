@@ -365,12 +365,24 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
 
-  output <- df %>%
-    chemdose_dbp_chain(
-      input_water = input_water, output_water = "temp_dbp",
-      cl2, time, treatment, cl_type, location
-    ) %>%
+  args <- list(
+    df,
+    input_water = input_water,
+    output_water = "temp_dbp",
+    cl2 = cl2,
+    time = time,
+    treatment = treatment,
+    cl_type = cl_type,
+    location = location
+  )
+  
+  if (exists("coeff")) {
+    args$coeff <- coeff
+  }
+  
+  output <- do.call(chemdose_dbp_chain, args) %>%
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dbps) %>%
     select(-c(temp_dbp:estimated))
+  
 }
