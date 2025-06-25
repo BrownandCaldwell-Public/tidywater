@@ -432,37 +432,6 @@ calculate_dic <- function(water) {
   return(dic)
 }
 
-#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate for a dataframe
-#' 
-#' @description This function takes a water class object defined by \code{\link{define_water}}
-#' and outputs a DIC (mg/L). This function should be used when calculating DIC for multiple waters.
-#'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @seealso \code{\link{define_water}}
-#'
-#' @examples
-#'
-#' example_dic <- water_df %>%
-#' define_water_chain() %>%
-#' calculate_dic_chain()
-#'
-#'
-#' @export
-#' @returns A numeric value for the calculated DIC.
-
-calculate_dic_chain <- function(df, input_water = "defined_water") {
-
-  output <- df %>%
-    mutate(dic = furrr::future_pmap(
-      list(
-        water = !!as.name(input_water)
-      ),
-      calculate_dic
-    ))
-}
-
 #' @title Calculate activity coefficients
 #'
 #' @description This function calculates activity coefficients at a given temperature based on equation 5-43 from Davies (1967), Crittenden et al. (2012)
