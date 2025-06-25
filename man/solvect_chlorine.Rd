@@ -12,7 +12,7 @@ USEPA (2020)
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
-solvect_chlorine(water, time, residual, baffle, use_free_cl_slot = "false")
+solvect_chlorine(water, time, residual, baffle, free_cl_slot = "residual_only")
 
 solvect_chlorine_once(
   df,
@@ -20,7 +20,7 @@ solvect_chlorine_once(
   time = "use_col",
   residual = "use_col",
   baffle = "use_col",
-  use_free_cl_slot = "false",
+  free_cl_slot = "residual_only",
   water_prefix = TRUE
 )
 }
@@ -33,13 +33,14 @@ solvect_chlorine_once(
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{use_free_cl_slot}{Defaults to "false". When "true", uses free_chlorine slot in water instead of 'residual' argument. If "sum", it will use the sum of the residual argument and the free_chlorine slot.}
-
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
+
+\item{use_free_cl_slot}{Defaults to "residual_only". When "true", uses free_chlorine slot in water instead of 'residual' argument.
+If "slot_only", the model will use the free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.}
 }
 \value{
 \code{solvect_chlorine} returns a data frame containing required CT (mg/L\emph{min), actual CT (mg/L}min), and giardia log removal.

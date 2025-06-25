@@ -30,7 +30,8 @@
 #' @param time Retention time of disinfection segment in minutes.
 #' @param residual Minimum chlorine residual in disinfection segment in mg/L as Cl2.
 #' @param baffle Baffle factor - unitless value between 0 and 1.
-#' @param use_free_cl_slot Defaults to "false". When "true", uses free_chlorine slot in water instead of 'residual' argument. If "sum", it will use the sum of the residual argument and the free_chlorine slot.
+#' @param use_free_cl_slot Defaults to "residual_only". When "true", uses free_chlorine slot in water instead of 'residual' argument. 
+#' If "slot_only", the model will use the free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.
 #'
 #' @examples
 #'
@@ -40,11 +41,11 @@
 #'
 #' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
 
-solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = "false") {
-  if (use_free_cl_slot == "true") {
+solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "residual_only") {
+  if (free_cl_slot == "slot_only") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
     residual <- water@free_chlorine
-  } else if (use_free_cl_slot == "sum") {
+  } else if (free_cl_slot == "sum_with_residual") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
     residual <- residual + water@free_chlorine
   } else {
@@ -98,7 +99,7 @@ solvect_chlorine <- function(water, time, residual, baffle, use_free_cl_slot = "
 
 solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
-                                  use_free_cl_slot = "false",
+                                  free_cl_slot = "residual_only",
                                   water_prefix = TRUE) {
   calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
 
@@ -122,7 +123,7 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
         time = !!as.name(arguments$final_names$time),
         residual = !!as.name(arguments$final_names$residual),
         baffle = !!as.name(arguments$final_names$baffle),
-        use_free_cl_slot = use_free_cl_slot
+        free_cl_slot = free_cl_slot
       ),
       solvect_chlorine
     )) %>%
