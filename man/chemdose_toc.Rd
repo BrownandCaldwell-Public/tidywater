@@ -125,8 +125,7 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_toc_once(input_water = "balanced_water")
+  chemdose_toc_once(input_water = "defined_water", alum = 30)
 
 }
 \seealso{

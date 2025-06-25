@@ -228,17 +228,15 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+  chemdose_ph_once(input_water = "defined_water", naoh = 5)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
   mutate(
     hcl = seq(1, 12, 1),
     naoh = 20
   ) \%>\%
-  chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+  chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
 
 }
 \seealso{
