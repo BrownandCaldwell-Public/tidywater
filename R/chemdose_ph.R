@@ -191,9 +191,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@tds <- water@tds + convert_units(na_dose, "na", "M", "mg/L") +
     convert_units(cl_dose, "cl", "M", "mg/L") + convert_units(k_dose, "k", "M", "mg/L") +
     convert_units(ca_dose, "ca", "M", "mg/L") + convert_units(mg_dose, "mg", "M", "mg/L") +
-    convert_units(co3_dose, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
+    convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
     convert_units(nh4_dose, "nh4", "M", "mg/L")
+  if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
+    warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
+    dosed_water@tds <- 0
+  }
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
@@ -213,8 +217,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   ks <- correct_k(dosed_water)
 
   # Carbonate and phosphate ions and ocl ions
+  alpha0 <- calculate_alpha0_carbonate(h, ks) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
@@ -272,13 +278,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   chemdose_ph_chain(naoh = 5)
 #'
 #' # Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr
@@ -372,4 +378,84 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
       ),
       chemdose_ph
     ))
+<<<<<<< fit_dbp_coeff
 }
+=======
+}
+
+#' @rdname chemdose_ph
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   chemdose_ph_once(input_water = "defined_water", naoh = 5)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(
+#'     hcl = seq(1, 12, 1),
+#'     naoh = 20
+#'   ) %>%
+#'   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
+#'
+#' @import dplyr
+#' @importFrom tidyr unnest
+#' @export
+#'
+#' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
+#'
+
+chemdose_ph_once <- function(df, input_water = "defined_water",
+                             hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", co2 = "use_col", naoh = "use_col",
+                             na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
+                             cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
+                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
+                             caco3 = "use_col") {
+  dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- NULL # Quiet RCMD check global variable note
+  
+  # This allows for the function to process unquoted column names without erroring
+  hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
+  h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
+  h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
+  co2 <- tryCatch(co2, error = function(e) enquo(co2))
+  naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
+  
+  na2co3 <- tryCatch(na2co3, error = function(e) enquo(na2co3))
+  nahco3 <- tryCatch(nahco3, error = function(e) enquo(nahco3))
+  caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
+  mgoh2 <- tryCatch(mgoh2, error = function(e) enquo(mgoh2))
+  
+  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
+  naocl <- tryCatch(naocl, error = function(e) enquo(naocl))
+  nh4oh <- tryCatch(nh4oh, error = function(e) enquo(nh4oh))
+  nh42so4 <- tryCatch(nh42so4, error = function(e) enquo(nh42so4))
+  
+  alum <- tryCatch(alum, error = function(e) enquo(alum))
+  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
+  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  ach <- tryCatch(ach, error = function(e) enquo(ach))
+  caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
+  
+  output <- df %>%
+    chemdose_ph_chain(
+      input_water = input_water, output_water = "dosed_chem_water",
+      hcl, h2so4, h3po4, co2, naoh,
+      na2co3, nahco3, caoh2, mgoh2,
+      cl2, naocl, nh4oh, nh42so4,
+      alum, ferricchloride, ferricsulfate, ach, caco3
+    ) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+  unnest(dose_chem) %>%
+    select(-c(dosed_chem_water, temp, tds:estimated))
+}
+           
+>>>>>>> main
