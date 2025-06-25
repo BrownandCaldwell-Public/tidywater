@@ -162,16 +162,15 @@ test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph",
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
-    balance_ions() %>%
     chemdose_ph(naoh = 5)
   
   water2 <- suppressWarnings(water_df %>%
                                slice(1) %>%
                                define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_ph_once(input_water = "balanced_water", naoh = 5))
+                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
   
   expect_equal(water1@ph, water2$ph)
+  expect_equal(water1@alk, water2$alk)
 })
 
 # Check that output is a data frame
@@ -180,11 +179,11 @@ test_that("chemdose_ph_once is a data frame", {
   water1 <- suppressWarnings(water_df %>%
                                slice(1) %>%
                                define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_ph_once(input_water = "balanced_water", naoh = 5))
+                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
   
   
   expect_true(is.data.frame(water1))
+  expect_equal(colnames(water1), c("defined_water", "naoh", "ph", "alk"))
 })
 
 # Check chemdose_ph_once can use a column or function argument for chemical dose
@@ -195,14 +194,12 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
   
   water1 <- suppressWarnings(water_df %>%
                                define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_ph_once(input_water = "balanced_water", naoh = 5))
+                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
   
   water2 <- suppressWarnings(water_df %>%
                                define_water_chain() %>%
                                mutate(naoh = 5) %>%
-                               balance_ions_chain() %>%
-                               chemdose_ph_once(input_water = "balanced_water"))
+                               chemdose_ph_once(input_water = "defined_water"))
   
   water3 <- water_df %>%
     define_water_chain() %>%
@@ -216,6 +213,7 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
     slice(6) # same starting wq as water 4
   
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
+  expect_equal(water1$alk, water2$alk)
   expect_equal(ncol(water3), ncol(water0) - 28) # both naoh and hcl dosed, but excess columns removed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different

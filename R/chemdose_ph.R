@@ -388,17 +388,15 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_once(input_water = "balanced_water", naoh = 5)
+#'   chemdose_ph_once(input_water = "defined_water", naoh = 5)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
 #'   mutate(
 #'     hcl = seq(1, 12, 1),
 #'     naoh = 20
 #'   ) %>%
-#'   chemdose_ph_once(input_water = "balanced_water", mgoh2 = 55, co2 = 4)
+#'   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -413,7 +411,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              cl2 = "use_col", naocl = "use_col", nh4oh = "use_col", nh42so4 = "use_col",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
                              caco3 = "use_col") {
-  dose_chem <- dosed_chem_water <- temp <- tds <- kw <- toc <- estimated <- NULL # Quiet RCMD check global variable note
+  dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- NULL # Quiet RCMD check global variable note
   
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
@@ -448,6 +446,6 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
   unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, temp, tds:kw, toc:estimated))
+    select(-c(dosed_chem_water, temp, tds:estimated))
 }
            
