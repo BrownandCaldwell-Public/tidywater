@@ -258,6 +258,7 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
 })
 
 test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13,
     na = 20, k = 20, cl = 30, so4 = 20,
