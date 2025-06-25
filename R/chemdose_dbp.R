@@ -36,7 +36,9 @@
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
-#' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: ID, alias, group, treatment, and the corresponding coefficients
+#' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: 
+#' ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest.
+#' @param correction Model calculations are adjusted based on location and cl_type. Default value is TRUE.
 #' 
 #' @examples
 #' example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
@@ -48,7 +50,7 @@
 #'
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
-chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", coeff) {
+chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff) {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
@@ -148,22 +150,36 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
-    if (missing(coeff)) {
-      predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
-    } else {
-      predicted_dbp <- coeff %>%
-        bind_rows(filter(tidywater::dbpcoeffs, !(ID %in% coeff$ID), treatment == "raw"))
+    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
+    if (!missing(coeff)) {
+      columns_to_update <- c("A", "a", "b", "c", "d", "e", "f", "ph_const")
+      # Merge default data frame with coeff on "ID"
+      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", suffixes = c("", ".new"))
+      # Replace values in df1 with those from df2 where IDs match
+      for (col in columns_to_update) {
+        predicted_dbp[[col]] <- ifelse(!is.na(predicted_dbp[[paste0(col, ".new")]]),
+                                       predicted_dbp[[paste0(col, ".new")]],
+                                       predicted_dbp[[col]])
+      }
+      predicted_dbp <- predicted_dbp[, !(names(predicted_dbp) %in% paste0(columns_to_update, ".new"))]
     }
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
       temp^predicted_dbp$d * ph^predicted_dbp$e * time^predicted_dbp$f
   } else {
     treat <- treatment
-    if (missing(coeff)) {
-      predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
-    } else {
-      predicted_dbp <- coeff %>%
-        bind_rows(filter(tidywater::dbpcoeffs, !(ID %in% coeff$ID), treatment == "coag"))
+    predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
+    if (!missing(coeff)) {
+      columns_to_update <- c("A", "a", "b", "c", "d", "e", "f", "ph_const")
+      # Merge default data frame with coeff on "ID"
+      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", suffixes = c("", ".new"))
+      # Replace values in df1 with those from df2 where IDs match
+      for (col in columns_to_update) {
+        predicted_dbp[[col]] <- ifelse(!is.na(predicted_dbp[[paste0(col, ".new")]]),
+                                       predicted_dbp[[paste0(col, ".new")]],
+                                       predicted_dbp[[col]])
+      }
+      predicted_dbp <- predicted_dbp[, !(names(predicted_dbp) %in% paste0(columns_to_update, ".new"))]
     }
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
@@ -171,19 +187,23 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   }
 
   # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
-  if (location == "plant" & treatment != "gac") {
-    corrected_dbp_1 <- predicted_dbp %>%
-      dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = modeled_dbp / .data$plant) %>%
-      dplyr::select(ID, group, modeled_dbp)
-  } else if (location == "ds" & treatment != "gac") {
-    corrected_dbp_1 <- predicted_dbp %>%
-      dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = modeled_dbp / .data$ds) %>%
-      dplyr::select(ID, group, modeled_dbp)
+  if (correction == TRUE) {
+    if (location == "plant" & treatment != "gac") {
+      corrected_dbp_1 <- predicted_dbp %>%
+        dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
+        dplyr::mutate(modeled_dbp = modeled_dbp / .data$plant) %>%
+        dplyr::select(ID, group, modeled_dbp)
+    } else if (location == "ds" & treatment != "gac") {
+      corrected_dbp_1 <- predicted_dbp %>%
+        dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
+        dplyr::mutate(modeled_dbp = modeled_dbp / .data$ds) %>%
+        dplyr::select(ID, group, modeled_dbp)
+    } else {
+      corrected_dbp_1 <- predicted_dbp %>%
+        dplyr::select(ID, group, modeled_dbp)
+    }
   } else {
-    corrected_dbp_1 <- predicted_dbp %>%
-      dplyr::select(ID, group, modeled_dbp)
+    corrected_dbp_1 <- predicted_dbp
   }
 
   # only model tthm and haa5, problems with haa6 and haa9 model outputs being <haa5 with low Br or Cl2

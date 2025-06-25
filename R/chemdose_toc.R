@@ -15,7 +15,7 @@
 #' @param ferricchloride Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
+#' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
 #' @seealso [chemdose_ph]
 #'
@@ -32,41 +32,38 @@
 #'   chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
 #'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
-#'   chemdose_toc(alum = 10, coeff = c(
-#'     "x1" = 280, "x2" = -73.9, "x3" = 4.96,
-#'     "k1" = -0.028, "k2" = 0.23, "b" = 0.068
+#'   chemdose_toc(alum = 10, coeffs = data.frame(
+#'   x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068 
 #'   ))
 #'
 #' @export
 #'
 #' @returns `chemdose_toc` returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 #'
-chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeffs = "Alum") {
   validate_water(water, c("ph", "doc", "uv254"))
 
-  if (is.character(coeff)) {
+  if (is.character(coeffs)) {
     edwardscoeff <- tidywater::edwardscoeff
-    coeffs <- subset(edwardscoeff, edwardscoeff$ID == coeff)
+    coeffs <- subset(edwardscoeff, edwardscoeff$ID == coeffs)
     if (nrow(coeffs) != 1) {
       stop("coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector.")
     }
-  } else if (is.numeric(coeff)) {
-    coeffs <- data.frame(k1 = coeff["k1"], k2 = coeff["k2"], x1 = coeff["x1"], x2 = coeff["x2"], x3 = coeff["x3"], b = coeff["b"])
-    if (any(is.na(coeffs))) {
-      stop("coeff must be specified as a named vector and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
-    }
-  } else {
-    stop("coeffs must be specified with a string or named vector. See documentation for acceptable formats.")
+  } else if (is.data.frame(coeffs)) {
+     if (any(is.na(coeffs))) {
+      stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
+  }} else {
+    stop("coeffs must be specified with a string or data frame. See documentation for acceptable formats.")
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0) {
     warning("No coagulants dosed. Final water will equal input water.")
   } else if (alum > 0 & (ferricchloride > 0 | ferricsulfate > 0)) {
     warning("Both alum and ferric coagulants entered.")
-  } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeff' argument.")
-  } else if (alum > 0 & any(grepl("Ferric", coeff))) {
-    warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
+  } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeffs))) {
+    warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeffs' argument.")
+  } else if (alum > 0 & any(grepl("Ferric", coeffs))) {
+    warning("Alum used with coefficients fit on Ferric. Check 'coeffs' argument.")
   }
 
 
@@ -147,19 +144,19 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                                alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                               coeff = "use_col") {
+                               coeffs = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  coeffs <- tryCatch(coeffs, error = function(e) enquo(coeffs))
 
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
     "alum" = alum, "ferricchloride" = ferricchloride,
     "ferricsulfate" = ferricsulfate,
-    "coeff" = coeff
+    "coeffs" = coeffs
   ))
   final_names <- arguments$final_names
 
@@ -176,7 +173,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
         alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
         ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
         ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
-        coeff = if (final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
+        coeffs = if (final_names$coeffs %in% names(.)) !!sym(final_names$coeffs) else (rep("Alum", nrow(.)))
       ),
       chemdose_toc
     ))
