@@ -33,8 +33,7 @@ test_that("chemdose_toc works.", {
   water3 <- suppressWarnings(chemdose_toc(water1, ferricchloride = 50, coeffs = "Ferric"))
   water4 <- suppressWarnings(chemdose_toc(water1,
     ferricchloride = 50,
-    coeffs = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
-  ))
+    coeffs = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)))
 
   # Used to generate expected outputs cross check with edwards97 package
   # data = data.frame(DOC = 3.5, dose = convert_units(50, "ferricchloride", endunit = "mM"), pH = 7, UV254 = .1)
@@ -91,14 +90,14 @@ test_that("chemdose_toc_once can use a column and/or function argument for chemi
                                slice(1) %>%
                                define_water_chain() %>%
                                balance_ions_chain() %>%
-                               chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric"))
+                               chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeffs = "Ferric"))
   
   water2 <- suppressWarnings(water_df %>%
                                slice(1) %>%
                                define_water_chain() %>%
                                mutate(
                                  ferricchloride = 40,
-                                 coeff = "Ferric"
+                                 coeffs = "Ferric"
                                ) %>%
                                balance_ions_chain() %>%
                                chemdose_toc_once(input_water = "balanced_water"))
@@ -108,7 +107,7 @@ test_that("chemdose_toc_once can use a column and/or function argument for chemi
                                define_water_chain() %>%
                                mutate(ferricchloride = 40) %>%
                                balance_ions_chain() %>%
-                               chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric"))
+                               chemdose_toc_once(input_water = "balanced_water", coeffs = "Ferric"))
   
   expect_equal(water1$toc, water2$toc) # test different ways to input chemical
   expect_equal(water1$doc, water2$doc)
@@ -213,7 +212,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
   expect_equal(water1$coagulated_water_doc, water2$coagulated_water_doc)
   expect_equal(water1$coagulated_water_uv254, water2$coagulated_water_uv254)
 
-  # Test that inputting chemical and coeffss separately (in column and as an argument)  gives save results
+  # Test that inputting chemical and coeffs separately (in column and as an argument)  gives save results
   expect_equal(water1$coagulated_water_toc, water3$coagulated_water_toc)
   expect_equal(water2$coagulated_water_doc, water3$coagulated_water_doc)
   expect_equal(water2$coagulated_water_uv254, water3$coagulated_water_uv254)

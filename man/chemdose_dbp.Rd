@@ -50,7 +50,8 @@ chemdose_dbp_once(
   cl_type = "use_col",
   location = "use_col",
   correction = TRUE,
-  coeff = NULL
+  coeff = NULL,
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -79,6 +80,8 @@ ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for eac
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
+
+\item{water_prefix}{option to add the input_water name to generated dbp columns. Default value is TRUE.}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.

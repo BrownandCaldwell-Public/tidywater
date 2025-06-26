@@ -204,21 +204,28 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                             coeff = "use_col") {
+                             coeffs = "use_col") {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- estimated <- NULL # Quiet RCMD check global variable note
   
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  coeffs <- tryCatch(coeffs, error = function(e) enquo(coeffs))
   
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "dosed_chem_water",
-      alum, ferricchloride, ferricsulfate, coeff
+      alum, ferricchloride, ferricsulfate, coeffs
     ) %>%
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-c(dosed_chem_water, ph:alk_eq, dic:estimated))
+  
+  if ("coeff.x1" %in% colnames(output)) {
+    output <- output %>%
+      select(-c(coeffs.x1:coeffs.b,))
+  }
+  
+  return(output)
 }

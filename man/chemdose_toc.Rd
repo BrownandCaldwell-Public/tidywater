@@ -38,7 +38,7 @@ chemdose_toc_once(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
-  coeff = "use_col"
+  coeffs = "use_col"
 )
 }
 \arguments{
