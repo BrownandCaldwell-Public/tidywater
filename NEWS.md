@@ -3,18 +3,18 @@
 * `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
 * `modify_water`: function to modify individual slots in a water that handles unit conversions
 
-## Breaking changes
+## New features
 
-<<<<<<< dissolve_cu
 * New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
 `dissolve_cu_once` can also predict copper for waters in a data frame.
-=======
-* `chemdose_ph_once` and `chemdose_toc_once` functions are back, and only return relevant water slots as new columns
->>>>>>> main
+* `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
+* CaSO4 added as an input option to `chemdose_ph`
+
+## Breaking changes
+
 * Corrosion index slots removed from water. `calculate_corrosion` now outputs a data frame with the corrosion indices as columns. 
 `calculate_corrosion_chain` removed because the base function has a numeric output.
 * `solvect_o3` and `solveresid_o3` now return zero instead of NaN when the input dose is zero
-* CaSO4 added as an input option to `chemdose_ph`
 * `applied_treatment` slot removed from water. Was not providing any benefit and added complexity. Should be the responsibility of the user to track.
 * `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
 TOC is removed with other particulates, so models have been updated to return TOC = DOC
