@@ -41,13 +41,11 @@ test_that("Modify water chain takes and returns correct argument types and class
     define_water_chain("test") %>%
     mutate(bromide = 50)
 
-  water1 <- modify_water_chain(water0, "test", "modified", "br", 50, "ug/L")
-  water2 <- modify_water_chain(water0, "test", "modified", "br", "bromide", "ug/L")
+  water1 <- modify_water_chain(water0, "test", "modified", "br", "bromide", "ug/L")
 
   expect_error(modify_water_chain(water_df, "br", 50, "ug/L"))
   expect_error(modify_water_chain(water0, 50, "ug/L"))
   expect_s4_class(water1$modified[[1]], "water")
-  expect_equal(water1$modified, water2$modified)
 })
 
 test_that("Modify water chain works with multiple inputs.", {

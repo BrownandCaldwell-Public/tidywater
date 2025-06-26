@@ -123,8 +123,7 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
   for (water in input_water) {
     df[[output_water]] <- furrr::future_map2(df[[water]], seq_len(nrow(df)), function(w, i) {
       for (j in seq_along(slot)) {
-        # Check if value[j] is a column name in df
-        val <- if (value[j] %in% names(df)) df[[value[j]]][i] else value[j]
+        val <- df[[value[j]]][i]
         w <- modify_water(w, slot = slot[j], value = val, units = units[j])
       }
       w
