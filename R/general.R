@@ -409,9 +409,9 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   }
 }
 
-#' Calculate dissolved inorganic carbon (DIC) from total carbonate
+#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate
 #'
-#' This function takes a water class object defined by \code{\link{define_water}}
+#' @description This function takes a water class object defined by \code{\link{define_water}}
 #' and outputs a DIC (mg/L).
 #'
 #' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
