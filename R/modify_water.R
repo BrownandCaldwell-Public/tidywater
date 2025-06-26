@@ -49,10 +49,10 @@ modify_water <- function(water, slot, value, units) {
     
     # Check lists
     if(s %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
-      new_value <- convert_units(value, slot, units, "M")
+      new_value <- convert_units(v, s, u, "M")
     } else if (s %in% c("toc", "doc", "bdoc")) {
       if (u == "mg/L") {
-        new_value <- value
+        new_value <- v
       } else if(u == "ug/L") {
         new_value <- v * 10^3
       } else {
@@ -118,30 +118,17 @@ modify_water <- function(water, slot, value, units) {
 modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
                           slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
-  # This allows for the function to process unquoted column names without erroring
-  slot <- tryCatch(slot, error = function(e) enquo(slot))
-  value <- tryCatch(value, error = function(e) enquo(value))
-  units <- tryCatch(units, error = function(e) enquo(units))
-
-  # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
-
-  # Only join inputs if they aren't in existing dataframe
-  if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
-  }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        slot = !!as.name(arguments$final_names$slot),
-        value = !!as.name(arguments$final_names$value),
-        units = !!as.name(arguments$final_names$units)
-      ),
-      modify_water
-    ))
-}
   
-
-
+  # Apply modify_water to each row of parameters
+  for (water in input_water) {
+    df[[output_water]] <- furrr::future_map2(df[[water]], seq_len(nrow(df)), function(w, i) {
+      for (j in seq_along(slot)) {
+        # Check if value[j] is a column name in df
+        val <- if (value[j] %in% names(df)) df[[value[j]]][i] else value[j]
+        w <- modify_water(w, slot = slot[j], value = val, units = units[j])
+      }
+      w
+    })
+  }
+  output <- df
+}

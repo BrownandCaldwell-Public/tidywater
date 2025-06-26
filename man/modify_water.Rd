@@ -19,11 +19,11 @@ modify_water_chain(
 \arguments{
 \item{water}{A water class object}
 
-\item{slot}{A character string of the slot in the water to modify, eg, "tthm"}
+\item{slot}{A list of slots in the water to modify, eg, "tthm"}
 
-\item{value}{New value for the modified slot}
+\item{value}{A list of new values for the modified slots}
 
-\item{units}{Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
+\item{units}{A list of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
 are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
