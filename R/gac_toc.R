@@ -27,7 +27,8 @@
 #' @param water Source water object of class "water" created by [define_water]
 #' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.
-#' @param option Specifies the type of output.
+#' @param option Specifies the type of output: plot produces the breakthrough curve, fin_water outputs a water with updated toc/doc, and
+#' bvs will calculate bed volume required for target final doc. Argument can take multiple inputs.
 #' @param bed_vol Optional input to calculate breakthrough for a given bed volume
 #' @param target_doc Optional input to set a target DOC concentration and calculate necessary bed volume
 #'
@@ -40,7 +41,7 @@
 #' @returns `gac_toc` returns a water class object with updated DOC, TOC, and UV254 slots.
 #'
 
-gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "plot", bed_vol, target_doc) {
+gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "fin_water", bed_vol, target_doc) {
   validate_water(water, c("ph", "toc"))
   
   x_norm <- seq(20, 70, 0.5) # x_norm represents the normalized effluent TOC concentration
@@ -58,6 +59,7 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "plot", bed
   
   bv <- A * water@toc^-1 * water@ph^-1.5
   
+  output <- list()
   if ("plot" %in% options) {
     # plot the breakthrough curve
     breakthrough <- data.frame(bv = bv, x_norm = x_norm/100)
@@ -88,7 +90,7 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "plot", bed
     
     # output_water@UVA <- .0376 * output_water@doc - .041
     
-    return(output_water)
+    output <- append(output, output_water)
   }
   
   if ("bvs" %in% options) {
@@ -98,13 +100,15 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "plot", bed
     
     x_index <- sapply(target_doc/0.95, function(x) which.min(abs(x_norm-x))) # should work with input of multiple target DOCs
     output_bv <- bv[x_index]
-    return(output_bv)
+    output <- append(output, output_bv)
   }
+  
+  return(output)
 }
 
 #' @rdname gac_toc
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]. The df may include columns named for the media_size, time, and type
+#' [define_water_chain]. The df may include columns named for the media_size, ebct, and bed volume.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "gac_water".
 #'
