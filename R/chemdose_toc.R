@@ -224,7 +224,7 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
   
   if ("coeff.x1" %in% colnames(output)) {
     output <- output %>%
-      select(-c(coeffs.x1:coeffs.b,))
+      select(-c(coeffs.x1:coeffs.b))
   }
   
   return(output)
