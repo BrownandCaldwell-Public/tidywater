@@ -6,9 +6,9 @@
 #' they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update [define_water].
 #'
 #' @param water A water class object
-#' @param slot A character string of the slot in the water to modify, eg, "tthm"
-#' @param value New value for the modified slot
-#' @param units Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
+#' @param slot A list of slots in the water to modify, eg, "tthm"
+#' @param value A list of new values for the modified slots
+#' @param units A list of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
 #' are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".
 #'
 #' @examples
@@ -36,46 +36,52 @@ modify_water <- function(water, slot, value, units) {
   if (missing(units)) {
     stop("Units missing. Typical units include: 'mg/L', 'ug/L', 'M'")
   }
-  if (!is.numeric(value)) {
-    stop("value must be numeric")
+  
+  
+  for (i in seq_along(slot)) {
+    s <- slot[i]
+    v <- value[i]
+    u <- units[i]
+    
+    if (!is.numeric(v)) {
+      stop("value must be numeric")
+    }
+    
+    # Check lists
+    if(s %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
+      new_value <- convert_units(value, slot, units, "M")
+    } else if (s %in% c("toc", "doc", "bdoc")) {
+      if (u == "mg/L") {
+        new_value <- value
+      } else if(u == "ug/L") {
+        new_value <- v * 10^3
+      } else {
+        stop(paste(s, "must be specified in mg/L or ug/L"))
+      }
+    } else if (s %in% c("uv254")) {
+      if (u == "cm-1") {
+        new_value <- v
+      } else if (units == "m-1") {
+        new_value <- v / 100
+      } else {
+        stop(paste(s, "must be specified in cm-1 or m-1"))
+      }
+    } else if (s %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
+      if (u == "ug/L") {
+        new_value <- v
+      } else if (u == "mg/L") {
+        new_value <- v / 10^3
+      } else {
+        stop(paste(s, "must be specified in ug/L or mg/L"))
+      }
+    } else {
+      stop(paste(s, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
+    }
+    
+    methods::slot(water, s) <- new_value 
   }
 
-  # Check lists
-  if(slot %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
-    new_value <- convert_units(value, slot, units, "M")
-  } else if (slot %in% c("toc", "doc", "bdoc")) {
-    if (units == "mg/L") {
-      new_value <- value
-    } else if(units == "ug/L") {
-      new_value <- value * 10^3
-    } else {
-      stop(paste(slot, "must be specified in mg/L or ug/L"))
-    }
-  } else if (slot %in% c("uv254")) {
-    if (units == "cm-1") {
-      new_value <- value
-    } else if (units == "m-1") {
-      new_value <- value / 100
-    } else {
-      stop(paste(slot, "must be specified in cm-1 or m-1"))
-    }
-  } else if (slot %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
-    if (units == "ug/L") {
-      new_value <- value
-    } else if (units == "mg/L") {
-      new_value <- value / 10^3
-    } else {
-      stop(paste(slot, "must be specified in ug/L or mg/L"))
-    }
-
-  } else {
-    stop(paste(slot, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
-  }
-
-  methods::slot(water, slot) <- new_value
-
-  water
-
+  return(water)
 }
 
 #' @rdname modify_water
@@ -136,5 +142,6 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
       modify_water
     ))
 }
+  
 
 
