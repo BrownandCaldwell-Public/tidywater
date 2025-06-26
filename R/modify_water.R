@@ -104,7 +104,7 @@ modify_water <- function(water, slot, value, units) {
 #' example_df <- water_df %>%
 #'   define_water_chain()  %>%
 #' mutate(bromide = rep(c(20, 30, 50), 4)) %>%
-#' modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+#' modify_water_chain(slot = "br", value = "bromide", units = "ug/L")
 #'
 #' # Optional: explicitly close multisession processing
 #' # plan(sequential)
