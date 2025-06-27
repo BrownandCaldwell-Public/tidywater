@@ -34,7 +34,7 @@
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
-#'   gac_toc(media_size = "8x30", ebct = 20, option = "fin_water")
+#'   gac_toc(media_size = "8x30", ebct = 20, option = "plot")
 #'
 #' @export
 #'
@@ -43,6 +43,19 @@
 
 gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "fin_water", bed_vol, target_doc) {
   validate_water(water, c("ph", "toc"))
+  
+  # check that media_size, ebct, and option are inputted correctly
+  if (media_size != "12x40" && media_size != "8x30") {
+    stop("GAC media size must be either 12x40 or 8x30.")
+  }
+  
+  if (ebct != 10 && ebct != 20) {
+    stop("Model only applies for GAC reactors with ebct of 10 or 20 minutes.")
+  }
+  
+  if (!all(option %in% c("fin_water", "plot", "bvs"))) {
+    stop("Please choose from the three options: fin_water, plot, and bvs.")
+  }
   
   x_norm <- seq(20, 70, 0.5) # x_norm represents the normalized effluent TOC concentration
   
@@ -84,10 +97,10 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "fin_water"
     output_water@toc = x_norm[bv_index] * water@toc # calculate toc from predicted breakthrough curve
     
     # Predict DOC concentration via UV absorbance
-    
+
     # UVA can be a good indicator to predict DOC concentration by PAC adsorption
     # can be predicted through relationship of DOC and UVA removal --> dimensionless unit (C/C0)
-    
+
     # output_water@UVA <- .0376 * output_water@doc - .041
     
     output <- append(output, output_water)
@@ -106,6 +119,7 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "fin_water"
   return(output)
 }
 
+# Currently gac_toc_chain function is copied from pac_toc_chain -- may not be implemented
 #' @rdname gac_toc
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include columns named for the media_size, ebct, and bed volume.
@@ -137,30 +151,30 @@ gac_toc <- function(water, media_size = "12x40", ebct = 10, option = "fin_water"
 #'
 #' @returns `gac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
-gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac_water",
-                          media_size = "use_col", ebct = "use_col", bed_vol = "use_col") {
-  validate_water_helpers(df, input_water)
-  # This allows for the function to process unquoted column names without erroring
-  media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
-  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
-  bed_vol <- tryCatch(bed_vol, error = function(e) enquo(bed_vol))
-  
-  # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list("media_size" = media_size, "ebct" = ebct, "bed_vol" = bed_vol))
-  
-  # Only join inputs if they aren't in existing dataframe
-  if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
-  }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        media_size = !!as.name(arguments$final_names$media_size),
-        ebct = !!as.name(arguments$final_names$ebct),
-        bed_vol = !!as.name(arguments$final_names$bed_vol)
-      ),
-      gac_toc(option = "fin_water")
-    ))
-}
+# gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac_water",
+#                           media_size = "use_col", ebct = "use_col", bed_vol = "use_col") {
+#   validate_water_helpers(df, input_water)
+#   # This allows for the function to process unquoted column names without erroring
+#   media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
+#   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
+#   bed_vol <- tryCatch(bed_vol, error = function(e) enquo(bed_vol))
+# 
+#   # This returns a dataframe of the input arguments and the correct column names for the others
+#   arguments <- construct_helper(df, all_args = list("media_size" = media_size, "ebct" = ebct, "bed_vol" = bed_vol))
+# 
+#   # Only join inputs if they aren't in existing dataframe
+#   if (length(arguments$new_cols) > 0) {
+#     df <- df %>%
+#       cross_join(as.data.frame(arguments$new_cols))
+#   }
+#   output <- df %>%
+#     mutate(!!output_water := furrr::future_pmap(
+#       list(
+#         water = !!as.name(input_water),
+#         media_size = !!as.name(arguments$final_names$media_size),
+#         ebct = !!as.name(arguments$final_names$ebct),
+#         bed_vol = !!as.name(arguments$final_names$bed_vol)
+#       ),
+#       gac_toc(option = "fin_water")
+#     ))
+# }
