@@ -75,11 +75,12 @@
 #'
 #' @returns `chemdose_ph` returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
-                        na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, cacl2 = 0,
+                        na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, caocl2 = 0, cacl2 = 0,
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
+                        kmno4 = 0, naf = 0, na3po4 = 0,
                         softening_correction = FALSE) {
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
     warning("Both chlorine- and ammonia-based chemicals were dosed and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
@@ -102,6 +103,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   h2so4 <- convert_units(h2so4, "h2so4")
   # Phosphoric acid (H3PO4) dose
   h3po4 <- convert_units(h3po4, "h3po4")
+  # Nitric acid (HNO3) dose
+  hno3 <- convert_units(hno3, "hno3")
+  # Hexafluorosilicic acid (H2SiF6)
+  h2sif6 <- convert_units(h2sif6, "h2sif6")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
@@ -120,6 +125,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   cacl2 <- convert_units(cacl2, "cacl2")
   # Chlorine gas (Cl2)
   cl2 <- convert_units(cl2, "cl2")
+  
   # Sodium hypochlorite (NaOCl) as Cl2
   naocl <- convert_units(naocl, "cl2")
 
@@ -142,16 +148,24 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate")
   # ACH
   ach <- convert_units(ach, "ach")
+  
+  # Potassium permanganate (KMnO4) dose
+  kmno4 <- convert_units(kmno4, "kmno4")
+  # Sodium fluoride (NaF) dose
+  naf <- convert_units(naf, "naf")
+  # Trisodium phosphate (Na3PO4) dose
+  na3po4 <- convert_units(na3po4, "na3po4")
+  
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
   dosed_water <- water
 
   # Total sodium
-  na_dose <- naoh + 2 * na2co3 + nahco3 + naocl
+  na_dose <- naoh + 2 * na2co3 + nahco3 + naocl + naf + 3 * na3po4
   dosed_water@na <- water@na + na_dose
 
   # Total calcium
-  ca_dose <- caoh2 + cacl2 + caco3 + caso4
+  ca_dose <- caoh2 + caocl2 / 2 + cacl2 + caco3 + caso4
   dosed_water@ca <- water@ca + ca_dose
 
   # Total magnesium
@@ -159,7 +173,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@mg <- water@mg + mg_dose
 
   # Total potassium
-  k_dose <- 0
+  k_dose <- kmno4
   dosed_water@k <- water@k + k_dose
 
   # Total chloride
@@ -171,7 +185,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
   dosed_water@so4 <- water@so4 + so4_dose
 
   # Total phosphate
-  po4_dose <- h3po4
+  po4_dose <- h3po4 + na3po4
   dosed_water@tot_po4 <- water@tot_po4 + po4_dose
 
   # Total hypochlorite
