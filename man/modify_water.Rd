@@ -3,7 +3,7 @@
 \name{modify_water}
 \alias{modify_water}
 \alias{modify_water_chain}
-\title{Modify a single slot in a \code{water} class object}
+\title{Modify slots in a \code{water} class object}
 \usage{
 modify_water(water, slot, value, units)
 
@@ -19,11 +19,11 @@ modify_water_chain(
 \arguments{
 \item{water}{A water class object}
 
-\item{slot}{A list of slots in the water to modify, eg, "tthm"}
+\item{slot}{A vector of slots in the water to modify, eg, "tthm"}
 
-\item{value}{A list of new values for the modified slots}
+\item{value}{A vector of new values for the modified slots}
 
-\item{units}{A list of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
+\item{units}{A vector of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
 are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
@@ -38,21 +38,22 @@ A data frame containing columns of selected parameters from a list of water clas
 \code{modify_water_chain} returns a data frame containing a water class column with updated slot
 }
 \description{
-This function a single slot of a \code{water} class object without impacting the other parameters. For example, you can
+This function modifies selected slots of a \code{water} class object without impacting the other parameters. For example, you can
 manually update "tthm" and the new speciation will not be calculated. This function is designed to make sure all parameters
 are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
 they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update \link{define_water}.
 }
 \examples{
 water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) \%>\%
-modify_water( slot = "toc", value = 4, units = "mg/L")
+  modify_water( slot = "toc", value = 4, units = "mg/L")
 
 
 library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  modify_water_chain(slot = "br", value = 50, units = "ug/L")
+  mutate(bromide = 50) \%>\%
+  modify_water_chain(slot = "br", value = "bromide", units = "ug/L")
 
 \donttest{
 # Un-comment below to initialize parallel processing
