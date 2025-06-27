@@ -1,19 +1,19 @@
-#' Modify a single slot in a `water` class object
+#' Modify slots in a `water` class object
 #'
-#' This function a single slot of a `water` class object without impacting the other parameters. For example, you can
+#' This function modifies selected slots of a `water` class object without impacting the other parameters. For example, you can
 #' manually update "tthm" and the new speciation will not be calculated. This function is designed to make sure all parameters
 #' are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
 #' they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update [define_water].
 #'
 #' @param water A water class object
-#' @param slot A list of slots in the water to modify, eg, "tthm"
-#' @param value A list of new values for the modified slots
-#' @param units A list of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
+#' @param slot A vector of slots in the water to modify, eg, "tthm"
+#' @param value A vector of new values for the modified slots
+#' @param units A vector of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
 #' are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".
 #'
 #' @examples
 #' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) %>%
-#' modify_water( slot = "toc", value = 4, units = "mg/L")
+#'   modify_water( slot = "toc", value = 4, units = "mg/L")
 #'
 #' @import dplyr
 #' @export
@@ -92,10 +92,11 @@ modify_water <- function(water, slot, value, units) {
 #' @examples
 #'
 #' library(dplyr)
-#'
+#' 
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   modify_water_chain(slot = "br", value = 50, units = "ug/L")
+#'   mutate(bromide = 50) %>%
+#'   modify_water_chain(slot = "br", value = "bromide", units = "ug/L")
 #'
 #' \donttest{
 #' # Un-comment below to initialize parallel processing
