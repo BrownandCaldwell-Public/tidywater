@@ -33,8 +33,8 @@ solvect_chlorine_once(
 
 \item{baffle}{Baffle factor - unitless value between 0 and 1.}
 
-\item{free_cl_slot}{Defaults to "residual_only". When "true", uses free_chlorine slot in water instead of 'residual' argument.
-If "slot_only", the model will use the free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.}
+\item{free_cl_slot}{Defaults to "residual_only", which uses the residual argument. If "slot_only", the model will use the
+free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
 
