@@ -198,7 +198,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 =
   dosed_water@tot_po4 <- water@tot_po4 + po4_dose
 
   # Total hypochlorite
-  ocl_dose <- cl2 + naocl + 2 * caocl2
+  ocl_dose <- cl2 + naocl + caocl2
   dosed_water@free_chlorine <- water@free_chlorine + ocl_dose
 
   # Total ammonia
