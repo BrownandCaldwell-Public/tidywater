@@ -49,7 +49,7 @@
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param kmno4 Amount of potassium permanganate added in mg/L: KMnO4 -> K + MnO4
 #' @param naf Amount of sodium fluoride added in mg/L: NaF -> Na + F
-#' @param na3po4 Amount of sodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
+#' @param na3po4 Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
