@@ -12,7 +12,6 @@ chemdose_ph(
   h2so4 = 0,
   h3po4 = 0,
   hno3 = 0,
-  h2sif6 = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -44,23 +43,28 @@ chemdose_ph_chain(
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
+  hno3 = "use_col",
   co2 = "use_col",
   naoh = "use_col",
   na2co3 = "use_col",
   nahco3 = "use_col",
   caoh2 = "use_col",
   mgoh2 = "use_col",
+  caocl2 = "use_col",
   cacl2 = "use_col",
   cl2 = "use_col",
   naocl = "use_col",
   nh4oh = "use_col",
   nh42so4 = "use_col",
+  caco3 = "use_col",
+  caso4 = "use_col",
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
-  caco3 = "use_col",
-  caso4 = "use_col",
+  kmno4 = "use_col",
+  naf = "use_col",
+  na3po4 = "use_col",
   softening_correction = "use_col",
   na_to_zero = TRUE
 )
@@ -71,21 +75,28 @@ chemdose_ph_once(
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
+  hno3 = "use_col",
   co2 = "use_col",
   naoh = "use_col",
   na2co3 = "use_col",
   nahco3 = "use_col",
   caoh2 = "use_col",
   mgoh2 = "use_col",
+  caocl2 = "use_col",
+  cacl2 = "use_col",
   cl2 = "use_col",
   naocl = "use_col",
   nh4oh = "use_col",
   nh42so4 = "use_col",
+  caco3 = "use_col",
+  caso4 = "use_col",
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
-  caco3 = "use_col"
+  kmno4 = "use_col",
+  naf = "use_col",
+  na3po4 = "use_col"
 )
 }
 \arguments{
@@ -99,15 +110,13 @@ chemdose_ph_once(
 
 \item{hno3}{Amount of nitric acid added in mg/L: HNO3 -> H + NO3}
 
-\item{h2sif6}{Amount of hexofluorosilicic acid added in mg/L}
-
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
 \item{naoh}{Amount of caustic added in mg/L: NaOH -> Na + OH}
 
 \item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 
-\item{mgoh2}{Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
+\item{mgoh2}{Amount of magnesium hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
 
 \item{na2co3}{Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3}
 
@@ -117,7 +126,7 @@ chemdose_ph_once(
 
 \item{caso4}{Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4}
 
-\item{caocl2}{Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + OCl2}
+\item{caocl2}{Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + 2OCl}
 
 \item{cacl2}{Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-}
 
@@ -141,7 +150,7 @@ chemdose_ph_once(
 
 \item{naf}{Amount of sodium fluoride added in mg/L: NaF -> Na + F}
 
-\item{na3po4}{Amount of sodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4}
+\item{na3po4}{Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4}
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 
