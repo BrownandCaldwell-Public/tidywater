@@ -186,7 +186,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 =
   dosed_water@k <- water@k + k_dose
 
   # Total chloride
-  cl_dose <- hcl + 2 * cl2 + 2 * cacl2 + 3 * ferricchloride + ach
+  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach
   dosed_water@cl <- water@cl + cl_dose
 
   # Total sulfate
