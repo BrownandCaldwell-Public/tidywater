@@ -37,7 +37,7 @@
 #' @param nahco3 Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #' @param caso4 Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4
-#' @param caocl2 Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + OCl2
+#' @param caocl2 Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + 2OCl
 #' @param cacl2 Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-
 #' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
