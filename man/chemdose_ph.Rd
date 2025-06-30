@@ -11,6 +11,8 @@ chemdose_ph(
   hcl = 0,
   h2so4 = 0,
   h3po4 = 0,
+  hno3 = 0,
+  h2sif6 = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -19,6 +21,7 @@ chemdose_ph(
   nahco3 = 0,
   caco3 = 0,
   caso4 = 0,
+  caocl2 = 0,
   cacl2 = 0,
   cl2 = 0,
   naocl = 0,
@@ -28,6 +31,9 @@ chemdose_ph(
   ferricchloride = 0,
   ferricsulfate = 0,
   ach = 0,
+  kmno4 = 0,
+  naf = 0,
+  na3po4 = 0,
   softening_correction = FALSE
 )
 
