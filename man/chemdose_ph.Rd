@@ -97,6 +97,10 @@ chemdose_ph_once(
 
 \item{h3po4}{Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4}
 
+\item{hno3}{Amount of nitric acid added in mg/L: HNO3 -> H + NO3}
+
+\item{h2sif6}{Amount of hexofluorosilicic acid added in mg/L}
+
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
 \item{naoh}{Amount of caustic added in mg/L: NaOH -> Na + OH}
@@ -112,6 +116,8 @@ chemdose_ph_once(
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
 
 \item{caso4}{Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4}
+
+\item{caocl2}{Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + OCl2}
 
 \item{cacl2}{Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-}
 
@@ -130,6 +136,12 @@ chemdose_ph_once(
 \item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{ach}{Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2}
+
+\item{kmno4}{Amount of potassium permanganate added in mg/L: KMnO4 -> K + MnO4}
+
+\item{naf}{Amount of sodium fluoride added in mg/L: NaF -> Na + F}
+
+\item{na3po4}{Amount of sodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4}
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 

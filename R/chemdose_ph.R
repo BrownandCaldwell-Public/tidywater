@@ -27,14 +27,17 @@
 #' @param hcl Amount of hydrochloric acid added in mg/L: HCl -> H + Cl
 #' @param h2so4 Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4
 #' @param h3po4 Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4
+#' @param hno3 Amount of nitric acid added in mg/L: HNO3 -> H + NO3
+#' @param h2sif6 Amount of hexofluorosilicic acid added in mg/L
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
-#' @param mgoh2  Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
+#' @param mgoh2  Amount of magnesium hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH
 #' @param na2co3 Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3
 #' @param nahco3 Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3
 #' @param caco3 Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3
 #' @param caso4 Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4
+#' @param caocl2 Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + OCl2
 #' @param cacl2 Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-
 #' @param cl2 Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -> HOCl + H + Cl
 #' @param naocl Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -> Na + OCl
@@ -44,6 +47,9 @@
 #' @param ferricchloride Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
+#' @param kmno4 Amount of potassium permanganate added in mg/L: KMnO4 -> K + MnO4
+#' @param naf Amount of sodium fluoride added in mg/L: NaF -> Na + F
+#' @param na3po4 Amount of sodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
 #' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
