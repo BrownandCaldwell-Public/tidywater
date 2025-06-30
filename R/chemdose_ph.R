@@ -128,6 +128,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 =
   
   # Sodium hypochlorite (NaOCl) as Cl2
   naocl <- convert_units(naocl, "cl2")
+  
+  # Calcium hypochlorite (CaOCl2) 
+  caocl2 <- convert_units(caocl2, "cl2")
 
   # CaCO3
   caco3 <- convert_units(caco3, "caco3")
@@ -177,7 +180,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 =
   dosed_water@k <- water@k + k_dose
 
   # Total chloride
-  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach
+  cl_dose <- hcl + 2 * cl2 + 2 * cacl2 + 3 * ferricchloride + ach
   dosed_water@cl <- water@cl + cl_dose
 
   # Total sulfate
@@ -189,7 +192,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, h2sif6 =
   dosed_water@tot_po4 <- water@tot_po4 + po4_dose
 
   # Total hypochlorite
-  ocl_dose <- cl2 + naocl
+  ocl_dose <- cl2 + naocl + 2 * caocl2
   dosed_water@free_chlorine <- water@free_chlorine + ocl_dose
 
   # Total ammonia
