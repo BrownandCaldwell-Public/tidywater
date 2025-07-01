@@ -182,7 +182,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   k_dose <- kmno4
   dosed_water@k <- water@k + k_dose
   
-  # Total manganese oxide
+  # Total permanganate
   mno4_dose <- kmno4
 
   # Total chloride
