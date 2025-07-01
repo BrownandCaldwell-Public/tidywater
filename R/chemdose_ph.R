@@ -184,6 +184,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   
   # Total permanganate
   mno4_dose <- kmno4
+  dosed_water@mno4 <- water@mno4 + mno4_dose
 
   # Total chloride
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach

@@ -18,7 +18,8 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
-      cl_dose -
+      cl_dose +
+      mno4_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose +
         tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
       alk_eq -
