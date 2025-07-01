@@ -5,7 +5,7 @@
 
 ## New features
 
-* CaSO4, HNO3, KMnO4, H2SiF6, NaF, and Na3PO4 added as input chemicals to `chemdose_ph`. CaOCl2 also added back to the model.
+* CaOCl2, CaSO4, HNO3, KMnO4, NaF, and Na3PO4 added as input chemicals to `chemdose_ph`.
 * New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
 `dissolve_cu_once` can also predict copper for waters in a data frame.
 * `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
