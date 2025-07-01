@@ -51,7 +51,7 @@
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff = NULL) {
-  modeled_dbp <- ID <- group <- ID_ind <- percent <- NULL # Quiet RCMD check global variable note
+  modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
   toc <- water@toc
