@@ -74,7 +74,7 @@ blend_waters <- function(waters, ratios) {
   }
 
   not_averaged <- c(
-    "ph", "kw", "applied_treatment", "estimated"
+    "ph", "kw", "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -97,21 +97,17 @@ blend_waters <- function(waters, ratios) {
     }
   }
 
-  # Track treatments and estimated params
-  applied_treatment <- c()
+  # Track estimated params
   estimated <- c()
 
   for (i in 1:length(waters)) {
     # Create character vectors that just add the values from all the waters together
     temp_water <- waters[[i]]
-    new_treat <- unlist(strsplit(temp_water@applied_treatment, "_"))
-    applied_treatment <- c(applied_treatment, new_treat)
     new_est <- unlist(strsplit(temp_water@estimated, "_"))
     estimated <- c(estimated, new_est)
   }
 
-  # Keep only one of each treatment and estimated and paste back into string for the water.
-  blended_water@applied_treatment <- paste(unique(applied_treatment), collapse = "_")
+  # Keep only one of each estimated and paste back into string for the water.
   blended_water@estimated <- paste(unique(estimated), collapse = "_")
 
   # Calculate new pH, H+ and OH- concentrations
@@ -131,11 +127,15 @@ blend_waters <- function(waters, ratios) {
   # Correct eq constants
   k <- correct_k(blended_water)
 
-  # Recalculate carbonate, phosphate, ocl, and nh4 speciation given new pH
+  # Recalculate carbonate, dic, phosphate, ocl, and nh4 speciation given new pH
+  alpha0 <- calculate_alpha0_carbonate(h, k) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
+  blended_water@h2co3 <- blended_water@tot_co3 * alpha0
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
+  
+  blended_water@dic <- blended_water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, k) # proportion of total phosphate as H2PO4-
   alpha2p <- calculate_alpha2_phosphate(h, k) # proportion of total phosphate as HPO42-
@@ -147,7 +147,6 @@ blend_waters <- function(waters, ratios) {
 
   blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
-  blended_water@applied_treatment <- paste(blended_water@applied_treatment, "_blended", sep = "")
 
   if (blended_water@tot_nh3 > 0 &
     (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
@@ -188,7 +187,7 @@ blend_waters <- function(waters, ratios) {
 #'
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain() %>%
@@ -196,7 +195,7 @@ blend_waters <- function(waters, ratios) {
 #'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

@@ -28,12 +28,16 @@ test_that("solvect_chlorine fails without ph and temp.", {
 test_that("solvect_chlorine correctly uses free_chlorine slot", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 1))
   ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
-  ct_use <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
-  ct_use2 <- solvect_chlorine(water1, time = 30, baffle = 0.3, use_free_cl_slot = TRUE) # no residual argument
+  ct_use <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only")
+  ct_use2 <- solvect_chlorine(water1, time = 30, baffle = 0.3, free_cl_slot = "slot_only") # no residual argument
+  ct_use3 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, free_cl_slot = "sum_with_residual")
 
 
   expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
   expect_equal(round(ct_use2$ct_required), 10)
+  expect_equal(round(ct_use$ct_required, 2), round(ct_use2$ct_required, 2))
+  expect_error(expect_equal(round(ct_use$ct_required, 2), round(ct_use3$ct_required, 2)))
+  expect_equal(round(ct_use3$ct_required), 19)
   expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) # no residual argument or water slot
 })
 
@@ -74,7 +78,6 @@ test_that("solvect_chlorine_once is a data frame", {
     mutate(br = 50) %>%
     define_water_chain() %>%
     solvect_chlorine_once(time = 30, residual = 5, baffle = .5))
-
 
   expect_true(is.data.frame(water1))
 })
@@ -139,7 +142,7 @@ test_that("solvect_chlorine_once correctly uses free_chlorine slot", {
   free_cl_slot_df <- water_df %>%
     define_water_chain() %>%
     chemdose_ph_chain(naocl = 10) %>%
-    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3, use_free_cl_slot = TRUE)
+    solvect_chlorine_once(time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only")
 
   expect_error(expect_equal(residual_df$defined_water_ct_required, free_cl_slot_df$defined_water_ct_required))
 })

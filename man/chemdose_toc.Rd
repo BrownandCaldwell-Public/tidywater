@@ -3,6 +3,7 @@
 \name{chemdose_toc}
 \alias{chemdose_toc}
 \alias{chemdose_toc_chain}
+\alias{chemdose_toc_once}
 \title{Determine TOC removal from coagulation}
 \source{
 Edwards (1997)
@@ -29,9 +30,19 @@ chemdose_toc_chain(
   ferricsulfate = "use_col",
   coeff = "use_col"
 )
+
+chemdose_toc_once(
+  df,
+  input_water = "defined_water",
+  output_water = "coagulated_water",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  coeff = "use_col"
+)
 }
 \arguments{
-\item{water}{Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254}
+\item{water}{Source water object of class "water" created by \link{define_water}. Water must include ph, doc, and uv254}
 
 \item{alum}{Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2}
 
@@ -43,10 +54,9 @@ chemdose_toc_chain(
 named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column named for the coagulant being dosed,
-and a column named for the set of coefficients to use.}
+\link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".}
 }
@@ -54,10 +64,13 @@ and a column named for the set of coefficients to use.}
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 
 \code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+
+\code{chemdose_ph_once} returns a data frame with columns for pH and alkalinity post-chemical addition.
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
-DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
+Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
 For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
@@ -94,17 +107,27 @@ example_df <- water_df \%>\%
 \donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(ferricchloride = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(coeff = "Ferric")
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
+
+
+library(purrr)
+library(furrr)
+library(tidyr)
+library(dplyr)
+
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  chemdose_toc_once(input_water = "defined_water", alum = 30)
 
 }
 \seealso{
-\code{\link{chemdose_ph}}
+\link{chemdose_ph}
 }

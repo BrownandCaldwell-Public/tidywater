@@ -121,8 +121,6 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   water@cl <- cl_new
   water@so4 <- so4_new
 
-  water@applied_treatment <- paste(water@applied_treatment, "_balanced", sep = "")
-
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
     # Update TDS and cond if they were estimated from IS. Otherwise, assume initial values were measured.
@@ -153,13 +151,13 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain()
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr

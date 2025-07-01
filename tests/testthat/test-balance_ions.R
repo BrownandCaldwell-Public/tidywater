@@ -50,7 +50,6 @@ test_that("Balance ions results in neutral charge.", {
     (water2@cl + 2 * water2@so4 + water2@hco3 + 2 * water2@co3 + water2@h2po4 + 2 * water2@hpo4 + 3 * water2@po4) +
     water2@h - water2@oh - water2@ocl, 0)
 
-
   water3 <- define_water(ph = 7, temp = 25, alk = 100, 70, 10, 10, 10, 10, 10, 10, free_chlorine = 2, tot_po4 = 1, toc = 5, doc = 4.8, uv254 = .1, br = 50)
   water4 <- balance_ions(water3)
   expect_equal(water4@na + water4@ca * 2 + water4@mg * 2 + water4@k -

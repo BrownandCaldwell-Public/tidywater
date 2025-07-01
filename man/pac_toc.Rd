@@ -44,7 +44,8 @@ pac_toc_chain(
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
@@ -78,12 +79,12 @@ example_df <- water_df \%>\%
 \donttest{
 # Initialize parallel processing
 library(furrr)
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 }

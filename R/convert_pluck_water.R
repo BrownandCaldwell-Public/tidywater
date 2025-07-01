@@ -69,8 +69,10 @@ convert_watermg <- function(water) {
   water@k <- convert_units(water@k, "k", "M", "mg/L")
   water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
   water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@h2co3 <- convert_units(water@h2co3, "h2co3", "M", "mg/L")
   water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
   water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
+  water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
   water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
@@ -79,6 +81,8 @@ convert_watermg <- function(water) {
   water@free_chlorine <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   water@combined_chlorine <- convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
+  water@no3 <- convert_units(water@no3, "no3", "M", "mg/L N")
+  water@nh4 <- convert_units(water@nh4, "nh4", "M", "mg/L N")
 
   water@f <- convert_units(water@f, "f", "M", "mg/L")
   water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
@@ -112,13 +116,13 @@ convert_watermg <- function(water) {
 #'
 #' \donttest{
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #' pluck_example <- water_df %>%
 #'   define_water_chain() %>%
 #'   pluck_water(parameter = c("ph", "alk"))
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #' @import dplyr
 #' @export

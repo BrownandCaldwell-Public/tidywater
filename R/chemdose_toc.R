@@ -1,7 +1,8 @@
 #' @title Determine TOC removal from coagulation
 #'
 #' @description This function applies the Edwards (1997) model to a water created by [define_water] to determine coagulated
-#' DOC. Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+#' DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
+#' Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
 #' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
@@ -9,14 +10,14 @@
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph, doc, and uv254
+#' @param water Source water object of class "water" created by [define_water]. Water must include ph, doc, and uv254
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' named vector of coefficients, which must include: k1, k2, x1, x2, x3, b
 #'
-#' @seealso \code{\link{chemdose_ph}}
+#' @seealso [chemdose_ph]
 #'
 #' @source Edwards (1997)
 #' @source U.S. EPA (2001)
@@ -97,21 +98,10 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     water@doc <- water@doc
     water@uv254 <- water@uv254
   } else {
-    if (!is.na(water@toc) & water@toc >= water@doc) {
-      water@toc <- water@toc - water@doc + nonadsorb + adsorb
-    } else if (!is.na(water@toc) & water@toc < water@doc) {
-      warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
-      water@toc <- nonadsorb + adsorb
-    } else if (is.na(water@toc)) {
-      warning("Input water TOC not specified. Output water TOC will be NA.")
-      water@toc <- NA_real_
-    }
-
     water@doc <- nonadsorb + adsorb
+    water@toc <- nonadsorb + adsorb
     water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
   }
-
-  water@applied_treatment <- paste(water@applied_treatment, "_tocremoved", sep = "")
 
   return(water)
 }
@@ -140,14 +130,14 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(ferricchloride = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(coeff = "Ferric")
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr
@@ -190,4 +180,48 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
       ),
       chemdose_toc
     ))
+}
+
+#' @rdname chemdose_toc
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#'
+#' @examples
+#'
+#' library(purrr)
+#' library(furrr)
+#' library(tidyr)
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   chemdose_toc_once(input_water = "defined_water", alum = 30)
+#'
+#' @import dplyr
+#' @importFrom tidyr unnest
+#' @export
+#'
+#' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
+#'
+
+chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
+                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                             coeff = "use_col") {
+  dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- estimated <- NULL # Quiet RCMD check global variable note
+  
+  # This allows for the function to process unquoted column names without erroring
+  alum <- tryCatch(alum, error = function(e) enquo(alum))
+  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
+  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  
+  output <- df %>%
+    chemdose_toc_chain(
+      input_water = input_water, output_water = "dosed_chem_water",
+      alum, ferricchloride, ferricsulfate, coeff
+    ) %>%
+    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    unnest(dose_chem) %>%
+    select(-c(dosed_chem_water, ph:alk_eq, dic:estimated))
 }

@@ -12,7 +12,7 @@ summarise_wq(water, params = c("general"))
 \arguments{
 \item{water}{Source water vector created by \code{\link{define_water}}.}
 
-\item{params}{List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.}
+\item{params}{List of water quality parameters to be summarized. Options include "general", "ions", and "dbps". Defaults to "general" only.}
 }
 \value{
 A knitr_kable table of specified water quality parameters.
@@ -24,7 +24,7 @@ specified water quality parameters.
 \code{summarise_wq()} and \code{summarize_wq()} are synonyms.
 }
 \details{
-Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.
+Use \code{\link{chemdose_dbp}} for modeled DBP concentrations.
 }
 \examples{
 # Summarize general parameters
