@@ -188,19 +188,16 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
   if (correction == TRUE) {
+    corrected_dbp_1 <- merge(predicted_dbp, tidywater::dbp_correction, by = "ID")
+
     if (location == "plant" & treatment != "gac") {
-      corrected_dbp_1 <- predicted_dbp %>%
-        dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-        dplyr::mutate(modeled_dbp = modeled_dbp / .data$plant) %>%
-        dplyr::select(ID, group, modeled_dbp)
+      corrected_dbp_1$modeled_dbp <- corrected_dbp_1$modeled_dbp / corrected_dbp_1$plant
     } else if (location == "ds" & treatment != "gac") {
-      corrected_dbp_1 <- predicted_dbp %>%
-        dplyr::left_join(tidywater::dbp_correction, by = "ID") %>%
-        dplyr::mutate(modeled_dbp = modeled_dbp / .data$ds) %>%
-        dplyr::select(ID, group, modeled_dbp)
-    } else {
-      corrected_dbp_1 <- predicted_dbp %>%
-        dplyr::select(ID, group, modeled_dbp)
+      corrected_dbp_1$modeled_dbp <- corrected_dbp_1$modeled_dbp / corrected_dbp_1$ds
+    }
+
+    corrected_dbp_1 <- subset(corrected_dbp_1, select = c(ID, group, modeled_dbp))
+
     }
   } else {
     corrected_dbp_1 <- predicted_dbp
