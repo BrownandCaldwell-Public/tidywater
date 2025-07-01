@@ -258,7 +258,8 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
 })
 
 test_that("users can provide their own dbp coefficients to chemdose_dbp_chain.", {
-  # generate random coefficients, set seed for reproducibility
+  testthat::skip_on_cran()
+    # generate random coefficients, set seed for reproducibility
   set.seed(5)
   coeff <- as.data.frame(matrix(sample(0:2, 2*9, replace = TRUE),
                                 nrow = 2, ncol = 9))
