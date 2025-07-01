@@ -168,16 +168,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
     if (!is.null(coeff)) {
-      columns_to_update <- c("A", "a", "b", "c", "d", "e", "f", "ph_const")
-      # Merge default data frame with coeff on "ID"
-      predicted_dbp <- merge(predicted_dbp, coeff, by = "ID", all.x = TRUE, suffixes = c("", ".new"))
-      # Replace values in df1 with those from df2 where IDs match
-      for (col in columns_to_update) {
-        predicted_dbp[[col]] <- ifelse(!is.na(predicted_dbp[[paste0(col, ".new")]]),
-                                       predicted_dbp[[paste0(col, ".new")]],
-                                       predicted_dbp[[col]])
-      }
-      predicted_dbp <- predicted_dbp[, !(names(predicted_dbp) %in% paste0(columns_to_update, ".new"))]
+      predicted_dbp <- subset(predicted_dbp, !ID %in% changecoeff)
+      predicted_dbp <- rbind(predicted_dbp, coeff)
     }
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
     predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
