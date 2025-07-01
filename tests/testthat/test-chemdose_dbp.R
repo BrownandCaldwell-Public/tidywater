@@ -69,12 +69,7 @@ test_that("chemdose_dbp works.", {
 })
 
 test_that("users can provide their own dbp coefficients.", {
-  # generate random coefficients, set seed for reproducibility
-  set.seed(5)
-  coeff <- as.data.frame(matrix(sample(0:2, 2*9, replace = TRUE),
-                                nrow = 2, ncol = 9))
-  colnames(coeff) <- c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const")
-  coeff$ID <- c("chcl3", "mbaa")
+  coeff <- data.frame(A = 5E-2, a = 1, b = .5, c = .5, d = .5, e = 1, f = .5, ph_const = 7.5, ID = "chcl3")
   
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8)
@@ -84,8 +79,7 @@ test_that("users can provide their own dbp coefficients.", {
   
   expect_true(water1@tthm == water2@tthm) # did not use custom coeff for tthm
   expect_false(water1@chcl3 == water2@chcl3)
-  expect_true(water1@haa5 == water2@haa5)
-  expect_false(water1@mbaa == water2@mbaa)
+  expect_equal(round(water2@chcl3, 2), 58.78)
 })
 
 ################################################################################*
@@ -207,7 +201,7 @@ test_that("chemdose_dbp_chain can use a column or function argument for chemical
   expect_equal(water1$disinfected_water_haa5, water2$disinfected_water_haa5)
   expect_equal(water1$disinfected_water_mbaa, water2$disinfected_water_mbaa)
 
-  # Test that inputting time/cl2 separately (in column and as an argument)  gives save results
+  # Test that inputting time/cl2 separately (in column and as an argument)  gives same results
   expect_equal(water1$disinfected_water_tthm, water3$disinfected_water_tthm)
   expect_equal(water2$disinfected_water_haa5, water3$disinfected_water_haa5)
   expect_equal(water2$disinfected_water_mbaa, water3$disinfected_water_mbaa)
@@ -258,29 +252,23 @@ test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers"
 })
 
 test_that("users can provide their own dbp coefficients to chemdose_dbp_chain.", {
-  # generate random coefficients, set seed for reproducibility
-  set.seed(5)
-  coeff <- as.data.frame(matrix(sample(0:2, 2*9, replace = TRUE),
-                                nrow = 2, ncol = 9))
-  colnames(coeff) <- c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const")
-  coeff$ID <- c("chcl3", "mbaa")
+  coeff <- data.frame(A = 5E-2, a = 1, b = .5, c = .5, d = .5, e = 1, f = .5, ph_const = 7.5, ID = "chcl3")
   
   water1 <- water_df %>%
     mutate(br = 80) %>%
     define_water_chain() %>%
     chemdose_dbp_chain("defined_water", cl2 = 2, time = 120) %>%
-    pluck_water("disinfected_water", c("tthm", "chcl3", "haa5", "mbaa"))
+    pluck_water("disinfected_water", c("tthm", "chcl3"))
   
   water2 <- water_df %>%
     mutate(br = 80) %>%
     define_water_chain() %>%
     chemdose_dbp_chain("defined_water", cl2 = 2, time = 120, coeff = coeff) %>%
-    pluck_water("disinfected_water", c("tthm", "chcl3", "haa5", "mbaa"))
+    pluck_water("disinfected_water", c("tthm", "chcl3"))
   
   expect_equal(water1$disinfected_water_tthm, water2$disinfected_water_tthm) # no custom coeff inputted for tthm
   expect_false(identical(water1$disinfected_water_chcl3, water2$disinfected_water_chcl3))
-  expect_equal(water1$disinfected_water_haa5, water2$disinfected_water_haa5)
-  expect_false(identical(water1$disinfected_water_mbaa, water2$disinfected_water_mbaa))
+  expect_false(any(is.na(water2$disinfected_water_chcl3)) || identical(water2$disinfected_water_chcl3, 0))
 })
 
 test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {

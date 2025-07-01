@@ -197,8 +197,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     }
 
     corrected_dbp_1 <- subset(corrected_dbp_1, select = c(ID, group, modeled_dbp))
-
-    }
+    
   } else {
     corrected_dbp_1 <- predicted_dbp
   }
