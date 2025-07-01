@@ -148,6 +148,22 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
 
+  # check coeff
+  if (!is.null(coeff)) {
+    if(!is.data.frame(coeff)) stop("coeff must be a dataframe.")
+    if(!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
+    if(!coeff$ID %in% tidywater::dbpcoeffs$ID) {
+      stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
+    } else if (any(duplicated(coeff$ID))){
+      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _chain or _once function.")
+    } else {
+      changecoeff <- coeff$ID
+      newcoeff <- unique(subset(tidywater::dbpcoeffs, ID %in% changecoeff, select = c(ID, alias, group)))
+      coeff <- merge(coeff, newcoeff)
+      coeff$treatment <- treatment
+    }
+  }
+  
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
