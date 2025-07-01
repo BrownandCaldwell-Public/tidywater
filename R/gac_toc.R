@@ -42,7 +42,7 @@
 #' @returns `gac_toc` returns a water class object with updated DOC, TOC, and UV254 slots.
 #'
 
-gac_toc <- function(water, ebct = 10, model, media_size = "12x40", bed_vol, pretreatment = "coag_only") {
+gac_toc <- function(water, ebct = 10, model, media_size = "12x40", bed_vol, pretreat = "coag_only") {
   validate_water(water, c("ph", "toc"))
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
   
@@ -56,7 +56,7 @@ gac_toc <- function(water, ebct = 10, model, media_size = "12x40", bed_vol, pret
   output_water@doc <- 0.95 * output_water@toc
   
   # UV254 removal from WTP manual model:
-  if (pretreatment == "coag_only") {
+  if (pretreat == "coag_only") {
     # if only coagulation before gac, 0.1 < x_norm*toc_inf < 14.7
     output_water@uv254 <- 0.0195 * output_water@toc - 0.0077 
   } else {
@@ -104,30 +104,36 @@ gac_toc <- function(water, ebct = 10, model, media_size = "12x40", bed_vol, pret
 #' @returns `gac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac_water", model = "use_col",
-                          media_size = "use_col", ebct = "use_col", bed_vol = "use_col") {
+                          media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))
   media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   bed_vol <- tryCatch(bed_vol, error = function(e) enquo(bed_vol))
+  pretreat <- tryCatch(pretreat, error = function(e) enquo(pretreat))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list("model" = model, "media_size" = media_size, "ebct" = ebct, "bed_vol" = bed_vol))
+  arguments <- construct_helper(df, all_args = list("model" = model, "media_size" = media_size, "ebct" = ebct, 
+                                                    "bed_vol" = bed_vol, "pretreat" = pretreat))
+  
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- df %>%
       cross_join(as.data.frame(arguments$new_cols))
   }
+  
   output <- df %>%
     mutate(!!output_water := furrr::future_pmap(
       list(
         water = !!as.name(input_water),
-        model = !!as.name(arguments$final_names$model),
-        media_size = !!as.name(arguments$final_names$media_size),
-        ebct = !!as.name(arguments$final_names$ebct),
-        bed_vol = !!as.name(arguments$final_names$bed_vol)
+        model = !!as.name(final_names$model),
+        media_size = if (final_names$media_size %in% names(.)) !!sym(final_names$media_size) else rep("12x40", nrow(.)),
+        ebct = if (final_names$ebct %in% names(.)) !!sym(final_names$ebct) else rep(10, nrow(.)),
+        bed_vol = !!as.name(final_names$bed_vol),
+        pretreat = if (final_names$pretreat %in% names(.)) !!sym(final_names$pretreat) else rep("coag_only", nrow(.))
       ),
       gac_toc
     ))
@@ -161,7 +167,7 @@ gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac
 #'
 
 gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
-                              media_size = "use_col", ebct = "use_col", bed_vol = "use_col") {
+                              media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
   validate_water_helpers(df, input_water)
   ph <- alk_eq <- dic <- estimated <- NULL # Quiet RCMD check global variable note
   
@@ -170,14 +176,15 @@ gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
   media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   bed_vol <- tryCatch(bed_vol, error = function(e) enquo(bed_vol))
+  pretreat <- tryCatch(pretreat, error = function(e) enquo(pretreat))
     
   output <- df %>%
     gac_toc_chain(
       input_water = input_water, output_water = "gac_water", model,
-      media_size, ebct, bed_vol
+      media_size, ebct, bed_vol, pretreat
     ) %>%
-    mutate(dose_chem = furrr::future_map(gac_water, convert_water)) %>%
-    unnest(dose_chem) %>%
+    mutate(gac_chem = furrr::future_map(gac_water, convert_water)) %>%
+    unnest(gac_chem) %>%
     select(-c(gac_water, ph:alk_eq, dic:estimated))
     
   return(output)
