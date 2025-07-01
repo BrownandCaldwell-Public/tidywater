@@ -3,7 +3,7 @@
 #' @title Calculate TOC Concentration in GAC system
 #'
 #' @description Calculates TOC concentration after passing through GAC treatment according to the model developed in 
-#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the WTP model.
+#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
 #'
 #' Water must contain DOC or TOC value.
 #'
@@ -31,7 +31,7 @@
 gacrun_toc <- function(water, ebct = 10, model, media_size = "12x40") {
   validate_water(water, c("ph", "toc"))
   
-  # check that media_size, ebct, and option are inputted correctly
+  # check that media_sizeand ebct are inputted correctly
   if (media_size != "12x40" && media_size != "8x30") {
     stop("GAC media size must be either 12x40 or 8x30.")
   }
