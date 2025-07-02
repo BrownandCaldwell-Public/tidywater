@@ -53,7 +53,6 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
   # This is the function to minimize
   match_ph <- function(root_dose, chemical, target_ph, water) {
-    # cat(root_dose, "mg/L\n")
     hcl <- ifelse(chemical == "hcl", root_dose, 0)
     h2so4 <- ifelse(chemical == "h2so4", root_dose, 0)
     h3po4 <- ifelse(chemical == "h3po4", root_dose, 0)

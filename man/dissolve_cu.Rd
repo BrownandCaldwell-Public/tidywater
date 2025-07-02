@@ -32,5 +32,5 @@ shorter run times will not benefit from parallel processing.
 
 example_cu <- define_water(ph = 7.5, alk = 125, tot_po4 = 2) \%>\%
   dissolve_cu()
-  
+
 }

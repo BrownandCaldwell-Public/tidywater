@@ -231,7 +231,6 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
 
     solve_x <- function(x, water) {
-      cat(paste(x, "mg/L\n"))
       water2 <- suppressWarnings(chemdose_ph(water, caco3 = x))
       K_so / (water2@co3 * gamma2) - water2@ca * gamma2
     }
