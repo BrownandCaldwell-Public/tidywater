@@ -58,7 +58,7 @@ The two functions `chemdose_ph` and `chemdose_toc` can also be chained together 
 ```{r}
 piped_coag_water <- mywater %>%
   chemdose_ph(hcl = 5, alum = 20) %>%
-  chemdose_toc(alum=20)
+  chemdose_toc(alum = 20)
 
 piped_coag_water@ph
 piped_coag_water@doc

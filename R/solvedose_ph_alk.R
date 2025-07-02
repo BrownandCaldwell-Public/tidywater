@@ -53,6 +53,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
   # This is the function to minimize
   match_ph <- function(root_dose, chemical, target_ph, water) {
+    # cat(root_dose, "mg/L\n")
     hcl <- ifelse(chemical == "hcl", root_dose, 0)
     h2so4 <- ifelse(chemical == "h2so4", root_dose, 0)
     h3po4 <- ifelse(chemical == "h3po4", root_dose, 0)
@@ -72,7 +73,11 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
     phfin <- waterfin@ph
 
-    (target_ph - phfin)
+    if (chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) {
+      (phfin - target_ph)
+    } else {
+      (target_ph - phfin)
+    }
   }
 
   # Target pH can't be met
@@ -85,7 +90,11 @@ solvedose_ph <- function(water, target_ph, chemical) {
     warning("Target pH cannot be reached with selected chemical. NA returned.")
     return(NA)
   } else {
-    chemdose <- stats::uniroot(match_ph, interval = c(0, 1000), chemical = chemical, target_ph = target_ph, water = water)
+    chemdose <- stats::uniroot(match_ph,
+      interval = c(0, 200),
+      chemical = chemical, target_ph = target_ph, water = water,
+      extendInt = "up"
+    )
     round(chemdose$root, 1)
   }
 }

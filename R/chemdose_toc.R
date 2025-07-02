@@ -206,16 +206,16 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #'
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                             coeff = "use_col") {
+                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                              coeff = "use_col") {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- estimated <- NULL # Quiet RCMD check global variable note
-  
+
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
-  
+
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "dosed_chem_water",
