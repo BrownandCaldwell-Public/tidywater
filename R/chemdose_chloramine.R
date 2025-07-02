@@ -46,6 +46,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
   }
 
   if (missing(cl2)) {
+    validate_water(water, "free_chlorine")
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2
     if (!use_free_cl_slot) {
@@ -61,6 +62,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
       warning(message)
     }
   } else if (use_free_cl_slot) {
+    validate_water(water, "free_chlorine")
     TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
     # TOTCl_ini <- water@free_chlorine
     if (cl2 > 0) {
@@ -73,6 +75,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
 
   if (missing(nh3)) {
+    validate_water(water, "tot_nh3")
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3
     if (!use_tot_nh3_slot) {
@@ -88,6 +91,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
       warning(message)
     }
   } else if (use_tot_nh3_slot) {
+    validate_water(water, "tot_nh3")
     TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
     if (nh3 > 0) {
       message <- sprintf("Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
