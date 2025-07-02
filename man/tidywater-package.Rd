@@ -31,6 +31,7 @@ Other contributors:
   \item Rachel Merrifield [contributor]
   \item Mayuri Namasivayam [contributor]
   \item Phoebe Chen [contributor]
+  \item Jiaming Yuan [contributor]
   \item USEPA (Copyright holder of included TELSS fragments (dissolve_pb function)) [copyright holder]
   \item Brown and Caldwell [funder, copyright holder]
 }
