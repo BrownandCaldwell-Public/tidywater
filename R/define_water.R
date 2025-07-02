@@ -20,6 +20,7 @@
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
+#' @param mno4 Permanganate in mg/L MnO4-
 #' @param free_chlorine Free chlorine in mg/L as Cl2. Used when a starting water has a free chlorine residual.
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
@@ -64,6 +65,7 @@
 #'   \item{k}{potassium, numeric, mols/L.}
 #'   \item{cl}{chloride, numeric, mols/L.}
 #'   \item{so4}{sulfate, numeric, mols/L.}
+#'   \item{mno4}{permanganate, numeric, mols/L.}
 #'   \item{no3}{nitrate, numeric, mols/L.}
 #'   \item{hco3}{bicarbonate, numeric, mols/L.}
 #'   \item{co3}{carbonate, numeric, mols/L.}
@@ -105,7 +107,7 @@
 #'   \item{tbaa}{tribromoacetic acid, numeric, μg/L.}
 #' }
 
-define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
+define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, mno4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
                          toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
@@ -173,6 +175,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   k <- ifelse(missing(k), NA_real_, convert_units(k, "k"))
   cl <- ifelse(missing(cl), NA_real_, convert_units(cl, "cl"))
   so4 <- ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
+  mno4 <- ifelse(missing(mno4), NA_real_, convert_units(mno4, "mno4"))
   tot_po4 <- convert_units(tot_po4, "po4")
   free_chlorine <- convert_units(free_chlorine, "cl2")
   combined_chlorine <- convert_units(combined_chlorine, "cl2")
@@ -233,7 +236,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
-    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
+    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, mno4 = mno4,
     h2co3 = tot_co3 * alpha0, hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2,
     h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
     h = h, oh = oh,
@@ -383,7 +386,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )

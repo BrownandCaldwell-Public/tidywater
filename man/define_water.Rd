@@ -24,6 +24,7 @@ define_water(
   k,
   cl,
   so4,
+  mno4,
   free_chlorine = 0,
   combined_chlorine = 0,
   tot_po4 = 0,
@@ -61,6 +62,8 @@ define_water(
 \item{cl}{Chloride in mg/L Cl-}
 
 \item{so4}{Sulfate in mg/L SO42-}
+
+\item{mno4}{Permanganate in mg/L MnO4-}
 
 \item{free_chlorine}{Free chlorine in mg/L as Cl2. Used when a starting water has a free chlorine residual.}
 
@@ -115,6 +118,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{k}{potassium, numeric, mols/L.}
 \item{cl}{chloride, numeric, mols/L.}
 \item{so4}{sulfate, numeric, mols/L.}
+\item{mno4}{permanganate, numeric, mols/L.}
 \item{no3}{nitrate, numeric, mols/L.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
