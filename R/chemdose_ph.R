@@ -128,11 +128,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   cacl2 <- convert_units(cacl2, "cacl2")
   # Chlorine gas (Cl2)
   cl2 <- convert_units(cl2, "cl2")
-  
+
   # Sodium hypochlorite (NaOCl) as Cl2
   naocl <- convert_units(naocl, "cl2")
-  
-  # Calcium hypochlorite (CaOCl2) 
+
+  # Calcium hypochlorite (CaOCl2)
   caocl2 <- convert_units(caocl2, "cl2")
 
   # CaCO3
@@ -154,31 +154,31 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate")
   # ACH
   ach <- convert_units(ach, "ach")
-  
+
   # Potassium permanganate (KMnO4) dose
   kmno4 <- convert_units(kmno4, "kmno4")
   # Sodium fluoride (NaF) dose
   naf <- convert_units(naf, "naf")
   # Trisodium phosphate (Na3PO4) dose
   na3po4 <- convert_units(na3po4, "na3po4")
-  
+
 
   #### CALCULATE NEW ION BALANCE FROM ALL CHEMICAL ADDITIONS ####
 
   dosed_water <- water
 
   # Total sodium
-  if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0) & is.na(water@na)) {
+  if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0 | naf > 0| na3po4 > 0) & is.na(water@na)) {
     warning("Sodium-containing chemical dosed, but na water slot is NA. Slot not updated because background na unknown.")
   }
-  na_dose <- naoh + 2 * na2co3 + nahco3 + naocl
+  na_dose <- naoh + 2 * na2co3 + nahco3 + naocl + naf + 3 * na3po4
   dosed_water@na <- water@na + na_dose
 
   # Total calcium
-  if ((caoh2 > 0 | cacl2 > 0 | caco3 > 0 | caso4 > 0) & is.na(water@ca)) {
+  if ((caoh2 > 0 | cacl2 > 0 | caco3 > 0 | caso4 > 0 | caocl2 > 0) & is.na(water@ca)) {
     warning("Calcium-containing chemical dosed, but ca water slot is NA. Slot not updated because background ca unknown.")
   }
-  ca_dose <- caoh2 + cacl2 + caco3 + caso4
+  ca_dose <- caoh2 + caocl2 / 2 + cacl2 + caco3 + caso4
   dosed_water@ca <- water@ca + ca_dose
 
   # Total magnesium
@@ -190,13 +190,16 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 
   # Total potassium
 
-  if (kmno4> 0 & is.na(water@k)) {
+  if (kmno4 > 0 & is.na(water@k)) {
     warning("Potassium-containing chemical dosed, but k water slot is NA. Slot not updated because background k unknown.")
   }
   k_dose <- kmno4
   dosed_water@k <- water@k + k_dose
-  
+
   # Total permanganate
+  if (kmno4 > 0 & is.na(water@mno4)) {
+    warning("Permanganate-containing chemical dosed, but mno4 water slot is NA. Slot not updated because background mno4 unknown.")
+  }
   mno4_dose <- kmno4
   dosed_water@mno4 <- water@mno4 + mno4_dose
 
@@ -374,7 +377,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
   ach <- tryCatch(ach, error = function(e) enquo(ach))
   caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
   caso4 <- tryCatch(caso4, error = function(e) enquo(caso4))
-  
+
   kmno4 <- tryCatch(kmno4, error = function(e) enquo(kmno4))
   naf <- tryCatch(naf, error = function(e) enquo(naf))
   na3po4 <- tryCatch(na3po4, error = function(e) enquo(na3po4))
@@ -495,7 +498,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   cacl2 <- tryCatch(cacl2, error = function(e) enquo(cacl2))
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   naocl <- tryCatch(naocl, error = function(e) enquo(naocl))
-  
+
   nh4oh <- tryCatch(nh4oh, error = function(e) enquo(nh4oh))
   nh42so4 <- tryCatch(nh42so4, error = function(e) enquo(nh42so4))
 
