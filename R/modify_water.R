@@ -39,46 +39,46 @@ modify_water <- function(water, slot, value, units) {
   
   
   for (i in seq_along(slot)) {
-    s <- slot[i]
-    v <- value[i]
-    u <- units[i]
+    slot_n <- slot[i]
+    value_n <- value[i]
+    units_n <- units[i]
     
-    if (!is.numeric(v)) {
+    if (!is.numeric(value_n)) {
       stop("value must be numeric")
     }
     
     # Check lists
-    if(s %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
-      new_value <- convert_units(v, s, u, "M")
-    } else if (s %in% c("toc", "doc", "bdoc")) {
-      if (u == "mg/L") {
-        new_value <- v
-      } else if(u == "ug/L") {
-        new_value <- v * 10^3
+    if(slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
+      new_value <- convert_units(value_n, slot_n, units_n, "M")
+    } else if (slot_n %in% c("toc", "doc", "bdoc")) {
+      if (units_n == "mg/L") {
+        new_value <- value_n
+      } else if(units_n == "ug/L") {
+        new_value <- value_n * 10^3
       } else {
-        stop(paste(s, "must be specified in mg/L or ug/L"))
+        stop(paste(slot_n, "must be specified in mg/L or ug/L"))
       }
-    } else if (s %in% c("uv254")) {
-      if (u == "cm-1") {
-        new_value <- v
-      } else if (units == "m-1") {
-        new_value <- v / 100
+    } else if (slot_n %in% c("uv254")) {
+      if (units_n == "cm-1") {
+        new_value <- value_n
+      } else if (units_n == "m-1") {
+        new_value <- value_n / 100
       } else {
-        stop(paste(s, "must be specified in cm-1 or m-1"))
+        stop(paste(slot_n, "must be specified in cm-1 or m-1"))
       }
-    } else if (s %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
-      if (u == "ug/L") {
-        new_value <- v
-      } else if (u == "mg/L") {
-        new_value <- v / 10^3
+    } else if (slot_n %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
+      if (units_n == "ug/L") {
+        new_value <- value_n
+      } else if (units_n == "mg/L") {
+        new_value <- value_n / 10^3
       } else {
-        stop(paste(s, "must be specified in ug/L or mg/L"))
+        stop(paste(slot_n, "must be specified in ug/L or mg/L"))
       }
     } else {
-      stop(paste(s, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
+      stop(paste(slot_n, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
     }
     
-    methods::slot(water, s) <- new_value 
+    methods::slot(water, slot_n) <- new_value 
   }
 
   return(water)
@@ -96,7 +96,7 @@ modify_water <- function(water, slot, value, units) {
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   mutate(bromide = 50) %>%
-#'   modify_water_chain(slot = "br", value = "bromide", units = "ug/L")
+#'   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
 #'
 #' \donttest{
 #' # Un-comment below to initialize parallel processing
@@ -105,7 +105,7 @@ modify_water <- function(water, slot, value, units) {
 #' example_df <- water_df %>%
 #'   define_water_chain()  %>%
 #' mutate(bromide = rep(c(20, 30, 50), 4)) %>%
-#' modify_water_chain(slot = "br", value = "bromide", units = "ug/L")
+#' modify_water_chain(slot = "br", value = bromide, units = "ug/L")
 #'
 #' # Optional: explicitly close multisession processing
 #' # plan(sequential)
@@ -120,15 +120,38 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
                           slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
   
-  # Apply modify_water to each row of parameters
+  
+  # Capture value as quosure if it's passed unquoted
+  value_quo <- rlang::enquo(value)
+  
+  
+  # If value is a symbol (unquoted column), convert to string
+  if (rlang::quo_is_symbol(value_quo)) {
+    value <- rlang::as_name(value_quo)
+    value_type <- "column"
+  } else if (is.character(value)) {
+    value_type <- "column"
+  } else {
+    value_type <- "literal"
+  }
+  
   for (water in input_water) {
     df[[output_water]] <- furrr::future_map2(df[[water]], seq_len(nrow(df)), function(w, i) {
       for (j in seq_along(slot)) {
-        val <- df[[value[j]]][i]
+        val <- if (value_type == "column") {
+          df[[value[j]]][i]
+        } else {
+          value[min(j, length(value))] # support scalar or vector
+        }
+        
         w <- modify_water(w, slot = slot[j], value = val, units = units[j])
       }
       w
     })
   }
-  output <- df
+  
+  df
+  
 }
+
+
