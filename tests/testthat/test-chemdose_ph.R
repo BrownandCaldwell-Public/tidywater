@@ -33,14 +33,14 @@ test_that("chemdose ph works", {
   water3 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
-  test1 <- chemdose_ph(water1, alum = 30)
-  test2 <- chemdose_ph(water2, alum = 30)
-  test3 <- chemdose_ph(water2, alum = 50, h2so4 = 20)
-  test4 <- chemdose_ph(water3, alum = 50, naoh = 10)
-  test5 <- chemdose_ph(water4, alum = 50)
-  test6 <- chemdose_ph(water4, naoh = 80)
-  test7 <- chemdose_ph(water1, nh42so4 = 5)
-  test8 <- chemdose_ph(water4, nh4oh = 5)
+  test1 <- suppressWarnings(chemdose_ph(water1, alum = 30))
+  test2 <- suppressWarnings(chemdose_ph(water2, alum = 30))
+  test3 <- suppressWarnings(chemdose_ph(water2, alum = 50, h2so4 = 20))
+  test4 <- suppressWarnings(chemdose_ph(water3, alum = 50, naoh = 10))
+  test5 <- suppressWarnings(chemdose_ph(water4, alum = 50))
+  test6 <- suppressWarnings(chemdose_ph(water4, naoh = 80))
+  test7 <- suppressWarnings(chemdose_ph(water1, nh42so4 = 5))
+  test8 <- suppressWarnings(chemdose_ph(water4, nh4oh = 5))
 
   # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
@@ -119,7 +119,7 @@ test_that("Starting ammonia does not affect starting pH.", {
 })
 
 test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2))
 
   expect_warning(chemdose_ph(water1, cl2 = 30, nh42so4 = 20))
   expect_warning(chemdose_ph(water1, naocl = 30, nh42so4 = 20))
@@ -130,8 +130,8 @@ test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
 })
 
 test_that("Warning when chlorine-based chemical is dosed into water containing ammonia", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3))
-  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3, na = 2, cl = 2, so4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2)) %>%
     chemdose_ph(nh4oh = 4)
 
   expect_warning(chemdose_ph(water1, cl2 = 30))
@@ -141,8 +141,8 @@ test_that("Warning when chlorine-based chemical is dosed into water containing a
 })
 
 test_that("Warning when ammonia-based chemical is dosed into water containing chlorine", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3))
-  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3, na = 2, cl = 2, so4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2)) %>%
     chemdose_ph(naocl = 4)
 
   expect_warning(chemdose_ph(water1, nh42so4 = 30))
