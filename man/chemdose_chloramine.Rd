@@ -55,7 +55,7 @@ The df may include a column named for the applied chlorine dose (cl2_dose), and 
 }
 \description{
 \code{\link{chemdose_chloramine}}, adopted from the U.S. EPA's Chlorine Breakpoint Curve Simulator,
-calculates chlorine and chlorinamine concentrations based on the two papers Jafvert & Valentine
+calculates chlorine and chloramine concentrations based on the two papers Jafvert & Valentine
 (Environ. Sci. Technol., 1992, 26 (3), pp 577-586) and Vikesland et al. (Water Res., 2001, 35 (7), pp 1766-1776).
 Required arguments include an object of class "water" created by \code{\link{define_water}}, chlorine dose, and reaction time.
 The function also requires additional water quality parameters defined in \code{\link{define_water}}
