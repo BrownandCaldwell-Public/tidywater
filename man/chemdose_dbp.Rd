@@ -81,7 +81,8 @@ ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for eac
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
 
-\item{water_prefix}{option to add the input_water name to generated dbp columns. Default value is TRUE.}
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Change to FALSE to remove the water prefix from output column names.}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.

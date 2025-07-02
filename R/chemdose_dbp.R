@@ -390,4 +390,6 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
         .cols = (match("time", names(.)) + 1):ncol(.)
       )
   }
+  
+  return(output)
 }

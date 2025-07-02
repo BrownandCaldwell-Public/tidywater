@@ -316,3 +316,22 @@ test_that("chemdose_dbp_once is a data frame", {
 
   expect_true(is.data.frame(water1))
 })
+
+# check that chemdose_dbp_once works when water_prefix is false
+test_that("chemdose_dbp_once works when water_prefix is false", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_chain() %>%
+                               chemdose_dbp_once(cl2 = 10, time = 8))
+  
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_chain() %>%
+                               chemdose_dbp_once(cl2 = 10, time = 8, water_prefix = FALSE))
+  
+  expect_equal(water1$defined_water_tthm, water2$tthm)
+  expect_equal(water1$defined_water_haa5, water2$haa5)
+})
