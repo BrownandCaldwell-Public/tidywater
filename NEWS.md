@@ -9,6 +9,7 @@
 `dissolve_cu_once` can also predict copper for waters in a data frame.
 * `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
 * CaSO4 added as an input option to `chemdose_ph`
+* `chemdose_ph` warns when ion water slots aren't updated due to NA slots.
 
 ## Breaking changes
 
