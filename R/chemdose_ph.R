@@ -246,6 +246,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, co2 = 0,
 
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
+  
+  # update dic
+  dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
 
   return(dosed_water)
 }
