@@ -505,4 +505,3 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   unnest(dose_chem) %>%
     select(-c(dosed_chem_water, temp, tds:estimated))
 }
-           

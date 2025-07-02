@@ -8,10 +8,12 @@
 * CaOCl2, CaSO4, HNO3, KMnO4, NaF, and Na3PO4 added as input chemicals to `chemdose_ph`.
 * New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
 `dissolve_cu_once` can also predict copper for waters in a data frame.
+* `chemdose_dbp` can now input custom fitting coefficients as a data frame
 * `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
 
 ## Breaking changes
 
+* Custom coefficient input in `chemdose_toc` now accepts a data frame instead of a named list
 * Corrosion index slots removed from water. `calculate_corrosion` now outputs a data frame with the corrosion indices as columns. 
 `calculate_corrosion_chain` removed because the base function has a numeric output.
 * `solvect_o3` and `solveresid_o3` now return zero instead of NaN when the input dose is zero

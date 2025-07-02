@@ -38,7 +38,7 @@
 #' @source Merrill and Sanks (1978)
 #' @source Nguyen et al. (2011)
 #' @source Plummer and Busenberg (1982)
-#' @source Ryznar (1946)
+#' @source Ryznar (1944)
 #' @source Schock (1984)
 #' @source Trussell (1998)
 #' @source U.S. EPA (1980)
