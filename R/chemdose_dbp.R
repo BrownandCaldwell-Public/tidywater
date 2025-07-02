@@ -336,7 +336,8 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 
 
 #' @rdname chemdose_dbp
-#' @param water_prefix option to add the input_water name to generated dbp columns. Default value is TRUE.
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Change to FALSE to remove the water prefix from output column names.
 #' @examples
 #' \donttest{
 #' library(dplyr)
