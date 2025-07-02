@@ -325,11 +325,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "na", "nh4", "nh3", "f", "br", "no3", "bro3", "dic")) {
+  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "naf", "hno3", "nh4", "nh3", "f", "br", "no3", "bro3", "kmno4", "dic")) {
     charge <- 1
-  } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "mn")) {
+  } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "caocl2", "mn")) {
     charge <- 2
-  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "po4")) {
+  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "na3po4", "po4")) {
     charge <- 3
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     # This is included so that charge can be in equations later without impacting results
@@ -407,29 +407,6 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   } else {
     stop("Unsupported type. Specify 'total' or 'ca'")
   }
-}
-
-#' @title Calculate dissolved inorganic carbon (DIC) from total carbonate
-#'
-#' @description This function takes a water class object defined by \code{\link{define_water}}
-#' and outputs a DIC (mg/L).
-#'
-#' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
-#'
-#' @seealso \code{\link{define_water}}
-#'
-#' @examples
-#'
-#' example_dic <- define_water(8, 15, 200) %>%
-#'   calculate_dic()
-#'
-#' @export
-#' @returns A numeric value for the calculated DIC.
-#'
-calculate_dic <- function(water) {
-  dic <- water@tot_co3 * tidywater::mweights$dic * 1000
-
-  return(dic)
 }
 
 #' @title Calculate activity coefficients

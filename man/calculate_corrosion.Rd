@@ -23,7 +23,7 @@ Nguyen et al. (2011)
 
 Plummer and Busenberg (1982)
 
-Ryznar (1946)
+Ryznar (1944)
 
 Schock (1984)
 
