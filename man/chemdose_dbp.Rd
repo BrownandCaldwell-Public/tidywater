@@ -152,7 +152,7 @@ example_df <- water_df \%>\%
 library(dplyr)
 
 water <- water_df \%>\%
-slice(1) \%>\%
+  slice(1) \%>\%
   mutate(br = 50) \%>\%
   define_water_chain() \%>\%
   chemdose_dbp_once(cl2 = 10, time = 8)

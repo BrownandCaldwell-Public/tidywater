@@ -45,7 +45,7 @@ they are interconnected with too many others (usually pH dependent, eg, hco3). F
 }
 \examples{
 water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) \%>\%
-modify_water( slot = "toc", value = 4, units = "mg/L")
+  modify_water(slot = "toc", value = 4, units = "mg/L")
 
 
 library(dplyr)
@@ -59,9 +59,9 @@ example_df <- water_df \%>\%
 # library(furrr)
 # plan(multisession)
 example_df <- water_df \%>\%
-  define_water_chain()  \%>\%
-mutate(bromide = rep(c(20, 30, 50), 4)) \%>\%
-modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+  define_water_chain() \%>\%
+  mutate(bromide = rep(c(20, 30, 50), 4)) \%>\%
+  modify_water_chain(slot = "br", value = bromide, units = "ug/L")
 
 # Optional: explicitly close multisession processing
 # plan(sequential)

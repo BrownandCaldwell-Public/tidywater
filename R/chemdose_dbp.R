@@ -36,10 +36,10 @@
 #' GAC treatment has also been used for estimating formation after membrane treatment with good results.
 #' @param cl_type Type of chlorination applied, either "chlorine" (default) or "chloramine".
 #' @param location Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".
-#' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns: 
+#' @param coeff Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns:
 #' ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest. Default value is NULL.
 #' @param correction Model calculations are adjusted based on location and cl_type. Default value is TRUE.
-#' 
+#'
 #' @examples
 #' example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   chemdose_dbp(cl2 = 2, time = 8)
@@ -150,11 +150,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # check coeff
   if (!is.null(coeff)) {
-    if(!is.data.frame(coeff)) stop("coeff must be a dataframe.")
-    if(!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
-    if(!coeff$ID %in% tidywater::dbpcoeffs$ID) {
+    if (!is.data.frame(coeff)) stop("coeff must be a dataframe.")
+    if (!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
+    if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
       stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
-    } else if (any(duplicated(coeff$ID))){
+    } else if (any(duplicated(coeff$ID))) {
       stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _chain or _once function.")
     } else {
       changecoeff <- coeff$ID
@@ -163,7 +163,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       coeff$treatment <- treatment
     }
   }
-  
+
   # estimate formation based on level of treatment - results in ug/L
   if (treatment == "raw") {
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == "raw")
@@ -197,7 +197,6 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     }
 
     corrected_dbp_1 <- subset(corrected_dbp_1, select = c(ID, group, modeled_dbp))
-    
   } else {
     corrected_dbp_1 <- predicted_dbp
   }
@@ -343,7 +342,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #' library(dplyr)
 #'
 #' water <- water_df %>%
-#' slice(1) %>%
+#'   slice(1) %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   chemdose_dbp_once(cl2 = 10, time = 8)
@@ -353,7 +352,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #' @export
 #'
 #' @returns `chemdose_dbp_once` returns a data frame containing predicted DBP concentrations as columns.
-#' 
+#'
 chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
                               water_prefix = TRUE) {
@@ -382,7 +381,7 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dbps) %>%
     select(-c(temp_dbp:estimated))
-  
+
   if (water_prefix) {
     output <- output %>%
       rename_with(
@@ -390,6 +389,6 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
         .cols = (match("time", names(.)) + 1):ncol(.)
       )
   }
-  
+
   return(output)
 }

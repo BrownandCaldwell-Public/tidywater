@@ -63,14 +63,14 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
   } else {
     use_kd <- FALSE
   }
-  
+
   if (dose == 0) {
     tibble(
       "ct_actual" = 0, "glog_removal" = 0, "vlog_removal" = 0,
       "clog_removal" = 0
     )
   }
-  
+
   # First order decay curve: y = dose * exp(k*t)
   # Integral from 0 to t of curve above: dose * (exp(kt) - 1) / k
   if (use_kd) {
