@@ -1,14 +1,13 @@
 # Development version
 
-* `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
-* `modify_water`: function to modify individual slots in a water that handles unit conversions
-
 ## New features
 
 * New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
 `dissolve_cu_once` can also predict copper for waters in a data frame.
 * `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
 * CaSO4 added as an input option to `chemdose_ph`
+* `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
+* `modify_water`: function to modify individual slots in a water that handles unit conversions
 
 ## Breaking changes
 
@@ -19,6 +18,8 @@
 * `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
 TOC is removed with other particulates, so models have been updated to return TOC = DOC
 * `h2co3` slot added to `water` class calculated based on {H} and total carbonate.
+* `solvedose_ph` updated search range to allow for more water qualities without erroring. Updated search process results in slightly different outputs.
+* `calculate_corrosion` updated CCPP search range to allow for more water qualities without erroring.
 
 # tidywater 0.8.2
 
