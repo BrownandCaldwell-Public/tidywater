@@ -210,6 +210,7 @@ dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
+  dplyr::slice_head(n = 3) \%>\%
   dplyr::mutate(
     hcl = c(2, 4, 6),
     Caustic = 20

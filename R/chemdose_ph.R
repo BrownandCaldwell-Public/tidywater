@@ -300,6 +300,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
+#'   dplyr::slice_head(n = 3) %>%
 #'   dplyr::mutate(
 #'     hcl = c(2, 4, 6),
 #'     Caustic = 20
