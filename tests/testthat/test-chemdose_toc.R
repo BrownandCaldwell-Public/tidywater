@@ -33,7 +33,8 @@ test_that("chemdose_toc works.", {
   water3 <- suppressWarnings(chemdose_toc(water1, ferricchloride = 50, coeff = "Ferric"))
   water4 <- suppressWarnings(chemdose_toc(water1,
     ferricchloride = 50,
-    coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)))
+    coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
+  ))
 
   # Used to generate expected outputs cross check with edwards97 package
   # data = data.frame(DOC = 3.5, dose = convert_units(50, "ferricchloride", endunit = "mM"), pH = 7, UV254 = .1)

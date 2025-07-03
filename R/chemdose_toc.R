@@ -33,7 +33,7 @@
 #'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
 #'   chemdose_toc(alum = 10, coeff = data.frame(
-#'   x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
+#'     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
 #'   ))
 #'
 #' @export
@@ -51,9 +51,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     }
   } else if (is.data.frame(coeff)) {
     expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
-     if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-       stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
-     }
+    if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
+      stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
+    }
   } else {
     stop("coeff must be specified with a string or data frame. See documentation for acceptable formats.")
   }
@@ -205,8 +205,8 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #'
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                             coeff = "use_col") {
+                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                              coeff = "use_col") {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring

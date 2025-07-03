@@ -232,7 +232,6 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
   expect_equal(ncol(water3), ncol(water0) - 30) # both naoh and hcl dosed, but excess columns removed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
-
 })
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.

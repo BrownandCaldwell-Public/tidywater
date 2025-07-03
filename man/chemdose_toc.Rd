@@ -88,7 +88,7 @@ dosed_water <- chemdose_ph(water, ferricsulfate = 30) \%>\%
 
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   chemdose_toc(alum = 10, coeff = data.frame(
-  x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068 
+    x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
 

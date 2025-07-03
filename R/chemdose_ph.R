@@ -168,7 +168,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water <- water
 
   # Total sodium
-  if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0 | naf > 0| na3po4 > 0) & is.na(water@na)) {
+  if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0 | naf > 0 | na3po4 > 0) & is.na(water@na)) {
     warning("Sodium-containing chemical dosed, but na water slot is NA. Slot not updated because background na unknown.")
   }
   na_dose <- naoh + 2 * na2co3 + nahco3 + naocl + naf + 3 * na3po4
@@ -204,7 +204,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@mno4 <- water@mno4 + mno4_dose
 
   # Total chloride
-  if ((hcl > 0 | cl2 > 0 | cacl2 > 0  | ferricchloride > 0 | ach > 0) & is.na(water@cl)) {
+  if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0) & is.na(water@cl)) {
     warning("Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.")
   }
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach
@@ -510,7 +510,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   ach <- tryCatch(ach, error = function(e) enquo(ach))
   caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
   caso4 <- tryCatch(caso4, error = function(e) enquo(caso4))
-   kmno4 <- tryCatch(kmno4, error = function(e) enquo(kmno4))
+  kmno4 <- tryCatch(kmno4, error = function(e) enquo(kmno4))
   naf <- tryCatch(naf, error = function(e) enquo(naf))
   na3po4 <- tryCatch(na3po4, error = function(e) enquo(na3po4))
 
