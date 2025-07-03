@@ -27,8 +27,10 @@ methods::setClass(
     k = "numeric",
     cl = "numeric",
     so4 = "numeric",
+    mno4 = "numeric",
     no3 = "numeric",
     # pH dependent ions
+    h2co3 = "numeric",
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",
@@ -57,16 +59,7 @@ methods::setClass(
     nhcl2 = "numeric", # dichloramine
     ncl3 = "numeric", # trichloramine
 
-    # Corrosion indices
-    aggressive = "numeric",
-    ryznar = "numeric",
-    langelier = "numeric",
-    ccpp = "numeric",
-    larsonskold = "numeric",
-    csmr = "numeric",
-
     # Miscellaneous
-    applied_treatment = "character",
     estimated = "character",
 
     # DBPs
@@ -113,8 +106,10 @@ methods::setClass(
     k = NA_real_,
     cl = NA_real_,
     so4 = NA_real_,
+    mno4 = NA_real_,
     no3 = NA_real_,
     # pH dependent ions
+    h2co3 = NA_real_,
     hco3 = NA_real_,
     co3 = NA_real_,
     h2po4 = NA_real_,
@@ -144,16 +139,7 @@ methods::setClass(
     nhcl2 = NA_real_, # dichloramine
     ncl3 = NA_real_, # trichloramine
 
-    # Corrosion indices
-    aggressive = NA_real_,
-    ryznar = NA_real_,
-    langelier = NA_real_,
-    ccpp = NA_real_,
-    larsonskold = NA_real_,
-    csmr = NA_real_,
-
     # Miscellaneous
-    applied_treatment = "defined",
     estimated = "",
 
     # DBPs

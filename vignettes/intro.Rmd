@@ -1,5 +1,5 @@
 ---
-title: "Introduction to tidywater: Basic functions"
+title:  "Introduction to tidywater: Basic functions"
 description: "This vignette will detail how to use the tidywater base functions for basic water quality analysis."
 output: rmarkdown::html_vignette
 vignette: >
@@ -15,6 +15,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Getting started
+The tidywater package allows you to quickly model complex water quality and treatment processes using the R programming language. First, install the tidywater package and load the library.
 
 ```{r setup}
 library(tidywater)
@@ -41,6 +43,7 @@ Even so, we successfully created our first water class! You can view the first f
 ```{r, echo=TRUE}
 print(empty_water)
 ```
+
 So let's add some things to this water that we already know. Let's say we know pH, alkalinity, temperature, and the  sodium concentration. We can define each of these parameters as arguments in `define_water`, which accepts pH (unitless), alkalinity in units of mg/L CaCO3, temperature in degrees C, and ions in mg/L (with the exception of bromide and manganese, reported as ug/L). The function also refers to all chemical compounds by their chemical symbol or formula. Let's call the new water class `my_water.`
 
 Notice that the slots for `ph`, `alk`, `temp`, `na`, and `ca` are now populated, but we'll need to use slot names to see most of the information. The ions slots (`na`, `ca`) are output in units of mol/L (M).  We can also see that `define_water` automatically calculated the amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based on the alkalinity and pH. 
@@ -69,12 +72,14 @@ To check, you can use the `plot_ions` function on our `water` object to see what
 ```{r, echo=TRUE, fig.width=7}
 plot_ions(my_water)
 ```
+
 To correct this, the `balance_ions` function automatically adds in sodium, potassium, chloride, or sulfate until anions + cations = 0. Let's see what happens to the ion plot when we use `balance_ions` to estimate the missing ion concentrations. 
 
 ```{r, , warning=FALSE, fig.width=7}
 balanced_water <- my_water %>% balance_ions()
 plot_ions(balanced_water)
 ```
+
 Great! `balance_ions` added chloride to `my_water` so it is now electrically neutral. To see how much chloride was added, you can use the "@" symbol with a `water` class object to access the slot you want, in this case, chloride
 
 ```{r}
@@ -94,7 +99,7 @@ convert_units(value = balanced_water@cl, formula = "cl", startunit = "M", enduni
 
 ### Ionic strength
 
-When possible, `define_water` will calculate ionic strength of the water, either based on TDS, conductivity, or the ions provided in the water. Most functions will work fine if you don't know the ionic strength, but especially when it comes to pH chemistry, it's good to include all the information you have. Note that in our original water, we didn't provide enough ions for the ionic strenth to be determined. We can remedy this in a few ways.
+When possible, `define_water` will calculate ionic strength of the water, either based on TDS, conductivity, or the ions provided in the water. Most functions will work fine if you don't know the ionic strength, but especially when it comes to pH chemistry, it's good to include all the information you have. Note that in our original water, we didn't provide enough ions for the ionic strength to be determined. We can remedy this in a few ways.
 
 ```{r}
 # The ionic strength slot was NA in the original water because we did not
@@ -133,6 +138,7 @@ convert_units(value = hard_water@ca, formula = "ca", startunit = "M", endunit = 
 # magnesium hardness
 convert_units(value = hard_water@mg, formula = "mg", startunit = "M", endunit = "mg/L CaCO3")
 ```
+
 ### Total and dissolved organic carbon
 
 TOC and DOC inputs operate similarly to hardness. TOC and DOC are important to know for modelling and predicting various water treatment processes. If you only know TOC, `define_water` applies a standard conversion to estimate DOC, and vice versa. If only `toc` is provided, `doc` is assumed to be 95% of the TOC. If only `doc` is provided, `toc` is assumed to be DOC/0.95. This ratio would generally be an acceptable estimate for most drinking water scenarios, but the amount of TOC that is dissolved in raw waters could vary widely. <a href = "https://doi.org/10.1016/S0022-1694(00)00292-4">Westerhoff and Anning, 2000</a> reported a range of 10-100% dissolved TOC in 25 surface waters, so keep in mind that the standard conversion may not be right for your context.
@@ -149,4 +155,10 @@ doc_water@doc # mg/L
 ```
 Overall, `tidywater` helps you model scenarios with as little information as possible because we often don't have all the data we would like, but the less you have to assume about your water, the better. It's important to understand and list the assumptions you are making during any modelling effort. 
 
-Check out our other vignettes to learn more about tidywater's functions for modelling softening, coagulation, DBP formation.... here ____.
+## Summary and Recommended Resources
+
+In this tutorial, we were introduced to the `water` object and the water quality parameters specified in it. We added water quality data using the `define_water` function, and modified the water to meet the electroneutrality principle by balancing ions with `balance_ions`. The change was also visualized using `plot_ions`. The built-in unit conversion function `convert_units` was also introduced.
+
+Next, we looked at some assumptions built into the model for ionic strength, hardness, and TOC/DOC that are able to fill in related water quality parameters based on accepted practice and empirical research in order to set up for future tidywater functions. Note that the fewer assumptions you have about your water, the better the prediction.
+
+Check out our other vignettes to learn more about tidywater's functions for modelling softening, coagulation, and DBP formation. Please note that as many models have been included as possible, however, users should be aware that models have varying degrees of accuracy and applicability. To learn more, read the references provided in the Description file for the models implemented.

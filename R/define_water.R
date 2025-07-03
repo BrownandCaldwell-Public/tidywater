@@ -20,6 +20,7 @@
 #' @param k Potassium in mg/L K+
 #' @param cl Chloride in mg/L Cl-
 #' @param so4 Sulfate in mg/L SO42-
+#' @param mno4 Permanganate in mg/L MnO4-
 #' @param free_chlorine Free chlorine in mg/L as Cl2. Used when a starting water has a free chlorine residual.
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
@@ -34,6 +35,7 @@
 #' @param fe Iron in mg/L Fe3+
 #' @param al Aluminum in mg/L Al3+
 #' @param mn Manganese in ug/L Mn2+
+#' @param no3 Nitrate in mg/L as N
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -41,11 +43,73 @@
 #'
 #' @export
 #'
-#' @returns A water class object where slots are filled or calculated based on input parameters.
+#' @return define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
+#' \describe{
+#'   \item{pH}{pH, numeric, in standard units (SU).}
+#'   \item{temp}{temperature, numeric, in °C.}
+#'   \item{alk}{alkalinity, numeric, mg/L as CaCO3.}
+#'   \item{tds}{total dissolved solids, numeric, mg/L.}
+#'   \item{cond}{electrical conductivity, numeric, uS/cm.}
+#'   \item{tot_hard}{total hardness, numeric, mg/L as CaCO3.}
+#'   \item{kw}{dissociation constant for water, numeric, unitless.}
+#'   \item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{toc}{total organic carbon, numeric, mg/L.}
+#'   \item{doc}{dissolved organic carbon, numeric, mg/L.}
+#'   \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
+#'   \item{uv254}{light absorption at 254 nm, numeric, cm-1.}
+#'   \item{dic}{dissolved inorganic carbon, numeric, mg/L as C.}
+#'   \item{is}{ionic strength, numeric, mol/L.}
+#'   \item{na}{sodium, numeric, mols/L.}
+#'   \item{ca}{calcium, numeric, mols/L.}
+#'   \item{mg}{magnesium, numeric, mols/L.}
+#'   \item{k}{potassium, numeric, mols/L.}
+#'   \item{cl}{chloride, numeric, mols/L.}
+#'   \item{so4}{sulfate, numeric, mols/L.}
+#'   \item{mno4}{permanganate, numeric, mols/L.}
+#'   \item{no3}{nitrate, numeric, mols/L.}
+#'   \item{hco3}{bicarbonate, numeric, mols/L.}
+#'   \item{co3}{carbonate, numeric, mols/L.}
+#'   \item{h2po4}{phosphoric acid, numeric, mols/L.}
+#'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
+#'   \item{po4}{phosphate, numeric, mols/L.}
+#'   \item{nh4}{ammonium, numeric, mol/L as N.}
+#'   \item{h}{hydrogen ion, numeric, mol/L.}
+#'   \item{oh}{hydroxide ion, numeric, mol/L.}
+#'   \item{tot_po4}{total phosphate, numeric, mol/L.}
+#'   \item{tot_nh3}{total ammonia, numeric, mol/L.}
+#'   \item{tot_co3}{total carbonate, numeric, mol/L.}
+#'   \item{br}{bromide, numeric, mol/L.}
+#'   \item{bro3}{bromate, numeric, mol/L.}
+#'   \item{f}{fluoride, numeric, mol/L.}
+#'   \item{fe}{iron, numeric, mol/L.}
+#'   \item{al}{aluminum, numeric, mol/L.}
+#'   \item{mn}{manganese, numeric, mol/L.}
+#'   \item{free_chlorine}{free chlorine, numeric, mol/L.}
+#'   \item{ocl}{hypochlorite ion, numeric, mol/L.}
+#'   \item{combined_chlorine}{sum of chloramines, numeric, mol/L.}
+#'   \item{nh2cl}{monochloramine, numeric, mol/L.}
+#'   \item{nhcl2}{dichloramine, numeric, mol/L.}
+#'   \item{ncl3}{trichloramine, numeric, mol/L.}
+#'   \item{chcl3}{chloroform, numeric, ug/L.}
+#'   \item{chcl2br}{bromodichloromethane, numeric, ug/L.}
+#'   \item{chbr2cl}{dibromodichloromethane, numeric, ug/L.}
+#'   \item{chbr3}{bromoform, numeric, ug/L.}
+#'   \item{tthm}{total trihalomethanes, numeric, ug/L.}
+#'   \item{mcaa}{chloroacetic acid, numeric, ug/L.}
+#'   \item{dmcaa}{dichloroacetic acid, numeric, ug/L.}
+#'   \item{tcaa}{trichloroacetic acid, numeric, ug/L.}
+#'   \item{mbaa}{bromoacetic acid, numeric, ug/L.}
+#'   \item{dbaa}{dibromoacetic acid, numeric, ug/L.}
+#'   \item{haa5}{sum of haloacetic acids, numeric, ug/L.}
+#'   \item{bcaa}{bromochloroacetic acid, numeric, ug/L.}
+#'   \item{cdbaa}{chlorodibromoacetic acid, numeric, ug/L.}
+#'   \item{dcbaa}{dichlorobromoacetic acid, numeric, ug/L.}
+#'   \item{tbaa}{tribromoacetic acid, numeric, ug/L.}
+#' }
 
-define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
+define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, mno4,
                          free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
-                         toc, doc, uv254, br, f, fe, al, mn) {
+                         toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
@@ -111,6 +175,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   k <- ifelse(missing(k), NA_real_, convert_units(k, "k"))
   cl <- ifelse(missing(cl), NA_real_, convert_units(cl, "cl"))
   so4 <- ifelse(missing(so4), NA_real_, convert_units(so4, "so4"))
+  mno4 <- ifelse(missing(mno4), NA_real_, convert_units(mno4, "mno4"))
   tot_po4 <- convert_units(tot_po4, "po4")
   free_chlorine <- convert_units(free_chlorine, "cl2")
   combined_chlorine <- convert_units(combined_chlorine, "cl2")
@@ -121,6 +186,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   fe <- ifelse(missing(fe), NA_real_, convert_units(fe, "fe"))
   al <- ifelse(missing(al), NA_real_, convert_units(al, "al"))
   mn <- ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
+  no3 <- ifelse(missing(no3), NA_real_, convert_units(no3, "no3", "mg/L N", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc <- NA_real_
@@ -162,6 +228,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
   k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
 
+  alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
   tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
@@ -169,13 +236,14 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
-    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4,
-    hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2, h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
+    na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, mno4 = mno4,
+    h2co3 = tot_co3 * alpha0, hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2,
+    h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
     h = h, oh = oh,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
     kw = kw, is = 0, alk_eq = carb_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
-    br = br, f = f, fe = fe, al = al, mn = mn
+    br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )
 
   # Determine ionic strength
@@ -210,9 +278,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4,
   water@oh <- oh
 
   # Carbonate and phosphate ions and ocl ions
+  alpha0 <- calculate_alpha0_carbonate(h, ks)
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
   water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  water@h2co3 <- water@tot_co3 * alpha0
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
   water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
@@ -301,13 +371,13 @@ define_water_once <- function(df) {
 #'
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   balance_ions_chain()
 #'
 #' #' #Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #'
 #' @import dplyr
@@ -316,7 +386,7 @@ define_water_once <- function(df) {
 
 define_water_chain <- function(df, output_water = "defined_water") {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
