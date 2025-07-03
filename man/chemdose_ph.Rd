@@ -232,10 +232,7 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  dplyr::mutate(
-    hcl = seq(1, 12, 1),
-    naoh = 20
-  ) \%>\%
+  dplyr::slice_head(n = 3) \%>\%
   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
 
 }
