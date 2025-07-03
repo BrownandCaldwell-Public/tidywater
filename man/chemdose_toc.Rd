@@ -83,24 +83,15 @@ water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 
 dosed_water <- chemdose_ph(water, alum = 30) \%>\%
   chemdose_toc(alum = 30, coeff = "Alum")
 
-dosed_water <- chemdose_ph(water, ferricsulfate = 30) \%>\%
-  chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
-
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
   chemdose_toc(alum = 10, coeff = data.frame(
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
 
-library(dplyr)
-
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  chemdose_toc_chain(input_water = "defined_water", alum = 30)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(FerricDose = seq(1, 12, 1)) \%>\%
+  dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
 \donttest{
@@ -116,11 +107,6 @@ example_df <- water_df \%>\%
 # plan(sequential)
 }
 
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
