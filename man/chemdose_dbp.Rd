@@ -3,6 +3,7 @@
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
 \alias{chemdose_dbp_chain}
+\alias{chemdose_dbp_once}
 \title{Calculate DBP formation}
 \source{
 TTHMs, raw: U.S. EPA (2001) equation 5-131
@@ -22,7 +23,9 @@ chemdose_dbp(
   time,
   treatment = "raw",
   cl_type = "chorine",
-  location = "plant"
+  location = "plant",
+  correction = TRUE,
+  coeff = NULL
 )
 
 chemdose_dbp_chain(
@@ -33,7 +36,22 @@ chemdose_dbp_chain(
   time = "use_col",
   treatment = "use_col",
   cl_type = "use_col",
-  location = "use_col"
+  location = "use_col",
+  correction = TRUE,
+  coeff = NULL
+)
+
+chemdose_dbp_once(
+  df,
+  input_water = "defined_water",
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col",
+  correction = TRUE,
+  coeff = NULL,
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -51,17 +69,27 @@ GAC treatment has also been used for estimating formation after membrane treatme
 
 \item{location}{Location for DBP formation, either in the "plant" (default), or in the distributions system, "ds".}
 
+\item{correction}{Model calculations are adjusted based on location and cl_type. Default value is TRUE.}
+
+\item{coeff}{Optional input to specify custom coefficients to the dbp model. Must be a data frame with the following columns:
+ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for each dbp of interest. Default value is NULL.}
+
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water}. The df may include columns for the other function arguments.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
+
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Change to FALSE to remove the water prefix from output column names.}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
 
 \code{chemdose_dbp_chain} returns a data frame containing a water class column with predicted DBP concentrations.
+
+\code{chemdose_dbp_once} returns a data frame containing predicted DBP concentrations as columns.
 }
 \description{
 Calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
@@ -118,6 +146,16 @@ example_df <- water_df \%>\%
 
 # Optional: explicitly close multisession processing
 # plan(sequential)
+}
+
+\donttest{
+library(dplyr)
+
+water <- water_df \%>\%
+slice(1) \%>\%
+  mutate(br = 50) \%>\%
+  define_water_chain() \%>\%
+  chemdose_dbp_once(cl2 = 10, time = 8)
 }
 
 }
