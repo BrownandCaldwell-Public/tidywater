@@ -207,7 +207,7 @@ dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
 water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
 dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dplyr::slice_head(n = 3) \%>\%
@@ -217,7 +217,6 @@ example_df <- water_df \%>\%
   ) \%>\%
   chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 
-\donttest{
 # Initialize parallel processing
 library(furrr)
 # plan(multisession)
@@ -229,11 +228,12 @@ example_df <- water_df \%>\%
 # plan(sequential)
 }
 
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dplyr::slice_head(n = 3) \%>\%
   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
+}
 
 }
 \seealso{

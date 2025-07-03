@@ -297,7 +297,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #' @param na_to_zero option to convert all NA values in the data frame to zeros. Default value is TRUE.
 #'
 #' @examples
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dplyr::slice_head(n = 3) %>%
@@ -307,7 +307,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #'   ) %>%
 #'   chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 #'
-#' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
 #' # plan(multisession)
@@ -430,11 +429,12 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @examples
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dplyr::slice_head(n = 3) %>%
 #'   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
