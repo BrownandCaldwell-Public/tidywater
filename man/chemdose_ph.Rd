@@ -205,12 +205,6 @@ dosed_water@ph
 dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
 dosed_water@ph
 
-# Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
-dosed_water1 <- chemdose_ph(water, hcl = 1)
-dosed_water1@ph
-dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
-dosed_water2@ph
-
 # Softening:
 water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
 dosed_water1 <- chemdose_ph(water2, caco3 = -100)
@@ -248,14 +242,7 @@ example_df <- water_df \%>\%
 }
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  chemdose_ph_once(input_water = "defined_water", naoh = 5)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
@@ -267,5 +254,5 @@ example_df <- water_df \%>\%
 
 }
 \seealso{
-\code{\link{define_water}}, \code{\link{convert_units}}
+\link{define_water}, \link{convert_units}
 }
