@@ -51,30 +51,19 @@
 #' @param na3po4 Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
 #'
-#' @seealso \code{\link{define_water}}, \code{\link{convert_units}}
+#' @seealso [define_water], [convert_units]
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 10)
 #' # Dose 1 mg/L of hydrochloric acid
 #' dosed_water <- chemdose_ph(water, hcl = 1)
-#' dosed_water@ph
 #'
 #' # Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
 #' dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
-#' dosed_water@ph
-#'
-#' # Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
-#' dosed_water1 <- chemdose_ph(water, hcl = 1)
-#' dosed_water1@ph
-#' dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
-#' dosed_water2@ph
 #'
 #' # Softening:
 #' water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
-#' dosed_water1 <- chemdose_ph(water2, caco3 = -100)
-#' dosed_water1@ph
 #' dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
-#' dosed_water2@ph
 #'
 #' @export
 #'
@@ -309,21 +298,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
-#'   slice_head(n = 3) %>%
 #'   define_water_chain() %>%
-#'   chemdose_ph_chain(input_water = "defined_water", naoh = 5)
-#'
-#' example_df <- water_df %>%
-#'   slice_head(n = 3) %>%
-#'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::slice_head(n = 3) %>%
+#'   dplyr::mutate(
 #'     hcl = c(2, 4, 6),
 #'     Caustic = 20
 #'   ) %>%
-#'   chemdose_ph_chain(mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+#'   chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 #'
 #' \donttest{
 #' # Initialize parallel processing
@@ -449,21 +431,9 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   chemdose_ph_once(input_water = "defined_water", naoh = 5)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(
-#'     hcl = seq(1, 12, 1),
-#'     naoh = 20
-#'   ) %>%
+#'   dplyr::slice_head(n = 3) %>%
 #'   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
 #'
 #' @import dplyr
