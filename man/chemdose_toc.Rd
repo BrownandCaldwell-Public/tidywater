@@ -88,15 +88,14 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
-\donttest{
-# Initialize parallel processing
-library(furrr)
+# Uncomment below to initialize parallel processing
+# library(furrr)
 # plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
@@ -107,10 +106,11 @@ example_df <- water_df \%>\%
 # plan(sequential)
 }
 
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   chemdose_toc_once(input_water = "defined_water", alum = 30)
+}
 
 }
 \seealso{

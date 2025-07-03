@@ -111,15 +111,14 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
 #'
 #' @examples
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
+#' # Uncomment below to initialize parallel processing
+#' # library(furrr)
 #' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -178,10 +177,11 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @examples
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   chemdose_toc_once(input_water = "defined_water", alum = 30)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
