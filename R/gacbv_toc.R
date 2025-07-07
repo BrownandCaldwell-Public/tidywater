@@ -83,6 +83,7 @@ gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc)
 gacbv_toc_once <- function(df, input_water = "defined_water", model = "use_col",
                          media_size = "use_col", ebct = "use_col", target_doc = "use_col") {
   validate_water_helpers(df, input_water)
+  bed_volume <- NULL # Quiet RCMD check global variable note
   
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))

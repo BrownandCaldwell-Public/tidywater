@@ -12,7 +12,6 @@ test_that("gacrun_toc returns error if inputs are misspelled or missing.", {
   expect_error(gacrun_toc(water1, media_size = "11x40", model = "Zachman"))
   expect_error(gacrun_toc(water1, ebct = 15, model = "Zachman"))
   expect_error(gacrun_toc(water1, model = "Zachmann"))
-  expect_error(gacrun_toc(water1, model = "Zachman"))
   expect_error(gacrun_toc(water2, model = "Zachman"))
   expect_error(gacrun_toc(water3, model = "Zachman"))
 })

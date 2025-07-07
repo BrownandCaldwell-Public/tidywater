@@ -8,7 +8,7 @@
 #' Water must contain DOC or TOC value.
 #'
 #' @details The function will calculate bed volumes and normalized TOC breakthrough (TOCeff/TOCinf) given model type.
-#' ## should I include model limitations in the details?
+#' should I include model limitations in the details?
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source Zachman and Summers (2010)

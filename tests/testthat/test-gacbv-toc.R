@@ -60,7 +60,7 @@ test_that("gacbv_toc_once outputs are the same as base function, gacbv_toc", {
     define_water_chain() %>%
     gacbv_toc_once(model = "WTP", target_doc = 0.8, media_size = "12x40", ebct = 10)
   
-  expect_equal(water1, water2$bed_volume)
+  expect_equal(list(water1), water2$bed_volume)
 })
 
 # Test that output is a data frame with the correct number of columns

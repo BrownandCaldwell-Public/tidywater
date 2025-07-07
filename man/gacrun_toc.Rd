@@ -35,8 +35,7 @@ Water must contain DOC or TOC value.
 GAC model for TOC removal
 
 The function will calculate bed volumes and normalized TOC breakthrough (TOCeff/TOCinf) given model type.
-\subsection{should I include model limitations in the details?}{
-}
+should I include model limitations in the details?
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
