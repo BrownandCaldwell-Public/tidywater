@@ -51,7 +51,7 @@ chemdose_toc_once(
 \item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
+data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
@@ -65,7 +65,7 @@ named vector of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 
-\code{chemdose_ph_once} returns a data frame with columns for pH and alkalinity post-chemical addition.
+\code{chemdose_toc_once} returns a data frame with columns for updated TOC, DOC, and UV254.
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
@@ -83,49 +83,34 @@ water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 
 dosed_water <- chemdose_ph(water, alum = 30) \%>\%
   chemdose_toc(alum = 30, coeff = "Alum")
 
-dosed_water <- chemdose_ph(water, ferricsulfate = 30) \%>\%
-  chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
-
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
-  chemdose_toc(alum = 10, coeff = c(
-    "x1" = 280, "x2" = -73.9, "x3" = 4.96,
-    "k1" = -0.028, "k2" = 0.23, "b" = 0.068
+  chemdose_toc(alum = 10, coeff = data.frame(
+    x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
-
-library(dplyr)
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  chemdose_toc_chain(input_water = "defined_water", alum = 30)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(FerricDose = seq(1, 12, 1)) \%>\%
+  dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
-\donttest{
-# Initialize parallel processing
-library(furrr)
+# Uncomment below to initialize parallel processing
+# library(furrr)
 # plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(ferricchloride = seq(1, 12, 1)) \%>\%
+  dplyr::mutate(ferricchloride = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(coeff = "Ferric")
 
 # Optional: explicitly close multisession processing
 # plan(sequential)
 }
 
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   chemdose_toc_once(input_water = "defined_water", alum = 30)
+}
 
 }
 \seealso{

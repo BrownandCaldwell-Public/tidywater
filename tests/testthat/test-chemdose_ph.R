@@ -33,14 +33,14 @@ test_that("chemdose ph works", {
   water3 <- define_water(7.5, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
 
-  test1 <- chemdose_ph(water1, alum = 30)
-  test2 <- chemdose_ph(water2, alum = 30)
-  test3 <- chemdose_ph(water2, alum = 50, h2so4 = 20)
-  test4 <- chemdose_ph(water3, alum = 50, naoh = 10)
-  test5 <- chemdose_ph(water4, alum = 50)
-  test6 <- chemdose_ph(water4, naoh = 80)
-  test7 <- chemdose_ph(water1, nh42so4 = 5)
-  test8 <- chemdose_ph(water4, nh4oh = 5)
+  test1 <- suppressWarnings(chemdose_ph(water1, alum = 30))
+  test2 <- suppressWarnings(chemdose_ph(water2, alum = 30))
+  test3 <- suppressWarnings(chemdose_ph(water2, alum = 50, h2so4 = 20))
+  test4 <- suppressWarnings(chemdose_ph(water3, alum = 50, naoh = 10))
+  test5 <- suppressWarnings(chemdose_ph(water4, alum = 50))
+  test6 <- suppressWarnings(chemdose_ph(water4, naoh = 80))
+  test7 <- suppressWarnings(chemdose_ph(water1, nh42so4 = 5))
+  test8 <- suppressWarnings(chemdose_ph(water4, nh4oh = 5))
 
   # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
@@ -119,7 +119,7 @@ test_that("Starting ammonia does not affect starting pH.", {
 })
 
 test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2))
 
   expect_warning(chemdose_ph(water1, cl2 = 30, nh42so4 = 20))
   expect_warning(chemdose_ph(water1, naocl = 30, nh42so4 = 20))
@@ -130,8 +130,8 @@ test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {
 })
 
 test_that("Warning when chlorine-based chemical is dosed into water containing ammonia", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3))
-  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 3, na = 2, cl = 2, so4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2)) %>%
     chemdose_ph(nh4oh = 4)
 
   expect_warning(chemdose_ph(water1, cl2 = 30))
@@ -141,8 +141,8 @@ test_that("Warning when chlorine-based chemical is dosed into water containing a
 })
 
 test_that("Warning when ammonia-based chemical is dosed into water containing chlorine", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3))
-  water2 <- suppressWarnings(define_water(ph = 7, alk = 10)) %>%
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 3, na = 2, cl = 2, so4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7, alk = 10, na = 2, cl = 2, so4 = 2)) %>%
     chemdose_ph(naocl = 4)
 
   expect_warning(chemdose_ph(water1, nh42so4 = 30))
@@ -150,6 +150,21 @@ test_that("Warning when ammonia-based chemical is dosed into water containing ch
   expect_no_warning(chemdose_ph(water1, cl2 = 20))
   expect_no_warning(chemdose_ph(water1, hcl = 20))
 })
+
+test_that("Warning when water slot is NA", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
+  water2 <- suppressWarnings(chemdose_ph(water1, naoh = 30))
+
+  expect_warning(chemdose_ph(water1, naoh = 30), "Sodium")
+  expect_equal(water2@na, NA_real_)
+
+  expect_warning(chemdose_ph(water1, caoh = 30), "Calcium")
+  expect_warning(chemdose_ph(water1, mgoh = 30), "Magne")
+  expect_warning(chemdose_ph(water1, cl2 = 30), "Chloride")
+  expect_warning(chemdose_ph(water1, h2so4 = 30), "Sulf")
+  # expect_warning(chemdose_ph(water1, kmno4 = 30), "Potas")
+})
+
 
 ################################################################################*
 ################################################################################*
@@ -163,12 +178,12 @@ test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph",
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
     chemdose_ph(naoh = 5)
-  
+
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
-  
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+
   expect_equal(water1@ph, water2$ph)
   expect_equal(water1@alk, water2$alk)
 })
@@ -177,11 +192,11 @@ test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph",
 
 test_that("chemdose_ph_once is a data frame", {
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
-  
-  
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+
+
   expect_true(is.data.frame(water1))
   expect_equal(colnames(water1), c("defined_water", "naoh", "ph", "alk"))
 })
@@ -191,33 +206,32 @@ test_that("chemdose_ph_once is a data frame", {
 test_that("chemdose_ph_once can use a column and/or function argument for chemical dose", {
   water0 <- water_df %>%
     define_water_once()
-  
+
   water1 <- suppressWarnings(water_df %>%
-                               define_water_chain() %>%
-                               chemdose_ph_once(input_water = "defined_water", naoh = 5))
-  
+    define_water_chain() %>%
+    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+
   water2 <- suppressWarnings(water_df %>%
-                               define_water_chain() %>%
-                               mutate(naoh = 5) %>%
-                               chemdose_ph_once(input_water = "defined_water"))
-  
+    define_water_chain() %>%
+    mutate(naoh = 5) %>%
+    chemdose_ph_once(input_water = "defined_water"))
+
   water3 <- water_df %>%
     define_water_chain() %>%
     mutate(naoh = seq(0, 11, 1)) %>%
     chemdose_ph_once(hcl = c(5, 8))
-  
+
   water4 <- water3 %>%
     slice(11) # same starting wq as water 5
-  
+
   water5 <- water1 %>%
     slice(6) # same starting wq as water 4
-  
+
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
   expect_equal(water1$alk, water2$alk)
   expect_equal(ncol(water3), ncol(water0) - 30) # both naoh and hcl dosed, but excess columns removed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
-  
 })
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.
@@ -342,9 +356,9 @@ test_that("chemdose_ph_chain can handle different ways to input chem doses", {
 test_that("chemdose_ph_chain na_to_zero argument works", {
   testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
-                               define_water_chain() %>%
-                               balance_ions_chain() %>%
-                               chemdose_ph_chain(input_water = "balanced_water", naoh = c(1,2,3,4,NA,6,7,8,NA,10,11,12)))
+    define_water_chain() %>%
+    balance_ions_chain() %>%
+    chemdose_ph_chain(input_water = "balanced_water", naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12)))
   expect_equal(water$naoh[5], 0)
   expect_equal(water$naoh[9], 0)
 })

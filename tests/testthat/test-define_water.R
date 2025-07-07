@@ -233,7 +233,7 @@ test_that("define_water_chain correctly calculates dic", {
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   )
   dic_mol <- water2@tot_co3 * tidywater::mweights$dic * 1000
-    
+
 
   expect_equal(dic_mol, water1$defined_water_dic)
 })

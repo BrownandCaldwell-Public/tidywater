@@ -134,7 +134,7 @@ blend_waters <- function(waters, ratios) {
   blended_water@h2co3 <- blended_water@tot_co3 * alpha0
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
-  
+
   blended_water@dic <- blended_water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, k) # proportion of total phosphate as H2PO4-

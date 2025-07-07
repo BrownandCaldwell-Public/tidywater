@@ -21,7 +21,7 @@
 #'
 #' example_cu <- define_water(ph = 7.5, alk = 125, tot_po4 = 2) %>%
 #'   dissolve_cu()
-#'   
+#'
 #' @export
 #'
 #' @returns `dissolve_cu` returns a column containing dissolved copper concentration in mg/L.
@@ -29,9 +29,9 @@
 
 dissolve_cu <- function(water) {
   validate_water(water, c("ph", "alk"))
-  
+
   po4 <- convert_units(water@tot_po4, "h3po4", "M", "mg/L")
-  
+
   # warnings if inputs are outside conditions the model was developed
   if (po4 < 0.2 || po4 > 3.1) {
     warning("This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.")
@@ -71,18 +71,8 @@ dissolve_cu_once <- function(df, input_water = "defined_water") {
     mutate(calc = furrr::future_pmap(
       list(
         water = !!as.name(input_water)
-        ),
+      ),
       dissolve_cu
     )) %>%
     unnest_wider(calc)
 }
-
-
-
-
-
-
-
-
-
-

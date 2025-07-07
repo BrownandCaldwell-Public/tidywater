@@ -38,7 +38,7 @@
 #' @source Merrill and Sanks (1978)
 #' @source Nguyen et al. (2011)
 #' @source Plummer and Busenberg (1982)
-#' @source Ryznar (1946)
+#' @source Ryznar (1944)
 #' @source Schock (1984)
 #' @source Trussell (1998)
 #' @source U.S. EPA (1980)
@@ -75,14 +75,16 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
-  
+
   # Create the output data frame corrosion_indices
-  corrosion_indices <- data.frame(aggressive = NA_real_,
-                              ryznar = NA_real_,
-                              langelier = NA_real_,
-                              larsonskold = NA_real_,
-                              csmr = NA_real_,
-                              ccpp = NA_real_)
+  corrosion_indices <- data.frame(
+    aggressive = NA_real_,
+    ryznar = NA_real_,
+    langelier = NA_real_,
+    larsonskold = NA_real_,
+    csmr = NA_real_,
+    ccpp = NA_real_
+  )
 
   ###########################################################################################*
   # AGGRESSIVE ------------------------------
@@ -97,11 +99,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
     aggressive <- water@ph + log10(water@alk * ca_hard)
-    
+
     if (is.infinite(aggressive)) {
       aggressive <- NA_real_
     }
-    
+
     corrosion_indices$aggressive <- aggressive
   }
 
@@ -119,11 +121,11 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
     so4 <- convert_units(water@so4, "so4", "M", "mg/L")
     cl_sulfate <- cl / so4
-    
+
     if (is.nan(cl_sulfate) | is.infinite(cl_sulfate)) {
       cl_sulfate <- NA_real_
     }
-    
+
     corrosion_indices$csmr <- cl_sulfate
   }
 
@@ -145,7 +147,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     alk_meq <- water@alk_eq * 1000
 
     larsonskold <- (cl_meq + so4_meq) / (alk_meq)
-    
+
     corrosion_indices$larsonskold <- larsonskold
   }
 
@@ -193,7 +195,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       if (is.infinite(langelier)) {
         langelier <- NA_real_
       }
-      
+
       corrosion_indices$langelier <- langelier
     }
   }
@@ -209,7 +211,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     if (is.infinite(ryznar)) {
       ryznar <- NA_real_
     }
-    
+
     corrosion_indices$ryznar <- ryznar
   }
 
@@ -233,10 +235,12 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       K_so / (water2@co3 * gamma2) - water2@ca * gamma2
     }
 
-    # Crazy nesting here to allow broader search without causing errors in the solve_ph uniroot.
+    # Nesting here to allow broader search without causing errors in the solve_ph uniroot.
+    # A programming expert could probably clean this up somewhat
     root_x <- tryCatch(
       {
         # First try with a restricted interval
+        # cat("\nFirst Solver\n")
         stats::uniroot(solve_x,
           water = water,
           interval = c(-50, 50)
@@ -245,23 +249,48 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       error = function(e) {
         tryCatch(
           {
+            # cat("Big Scan\n")
+            # Initial check for search interval
+            x_range <- seq(-500, 500, 10)
+            vals <- sapply(x_range, function(x) solve_x(x, water))
+            # Find all sign changes
+            signs <- sign(vals)
+            interval_min <- which(diff(signs) != 0)
+            # Smallest difference between values indicates more stability
+            best <- which.min(abs(vals[interval_min] - vals[interval_min + 1]))
+            lower <- x_range[interval_min[best]]
+            upper <- x_range[interval_min[best] + 1]
+
+            # Run uniroot on idenfied interval
             stats::uniroot(solve_x,
               water = water,
-              interval = c(-1, 1),
-              extendInt = "downX"
+              interval = c(lower, upper)
             )
           },
           error = function(e) {
             tryCatch(
               {
+                # cat("Extend int down\n")
                 stats::uniroot(solve_x,
                   water = water,
-                  interval = c(-1, 1),
-                  extendInt = "upX"
+                  interval = c(-1300, -100),
+                  extendInt = "downX"
                 )
               },
               error = function(e) {
-                stop("Water outside range for CCPP solver.")
+                tryCatch(
+                  {
+                    # cat("Extend int up\n")
+                    stats::uniroot(solve_x,
+                      water = water,
+                      interval = c(-1, 500),
+                      extendInt = "upX"
+                    )
+                  },
+                  error = function(e) {
+                    stop("Water outside range for CCPP solver.")
+                  }
+                )
               }
             )
           }
@@ -271,10 +300,10 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 
 
     caco3_precip <- -root_x$root
-    
+
     corrosion_indices$ccpp <- caco3_precip
   }
-  
+
   corrosion_indices <- corrosion_indices %>%
     select_if(~ !any(is.na(.)))
   return(corrosion_indices)
@@ -306,11 +335,11 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
-  
+
   validate_water_helpers(df, input_water)
-  
+
   index <- list(index)
-  
+
   output <- df %>%
     mutate(index := furrr::future_pmap(
       list(
@@ -322,11 +351,11 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
     )) %>%
     unnest_wider(index) %>%
     select_if(~ any(!is.na(.)))
-  
+
   # Renaming columns as input_water_index
   input_name <- deparse(substitute(input_water))
   cols_to_check <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
-  
+
   output <- purrr::reduce(cols_to_check, function(df, col) {
     if (col %in% colnames(df)) {
       new_name <- paste(input_water, col, sep = "_")
@@ -336,5 +365,3 @@ calculate_corrosion_once <- function(df, input_water = "defined_water", index = 
     df
   }, .init = output)
 }
-
-
