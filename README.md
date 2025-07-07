@@ -39,6 +39,8 @@ library(tidyverse)
 base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8, uv254 = 0.08) %>%
   chemdose_ph(alum = 30) %>%
   chemdose_toc(alum = 30)
+#> Warning in chemdose_ph(., alum = 30): Sulfate-containing chemical dosed, but
+#> so4 water slot is NA. Slot not updated because background so4 unknown.
 ```
 
 To model multiple water quality scenarios, use tidywater’s helper

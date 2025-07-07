@@ -127,11 +127,15 @@ blend_waters <- function(waters, ratios) {
   # Correct eq constants
   k <- correct_k(blended_water)
 
-  # Recalculate carbonate, phosphate, ocl, and nh4 speciation given new pH
+  # Recalculate carbonate, dic, phosphate, ocl, and nh4 speciation given new pH
+  alpha0 <- calculate_alpha0_carbonate(h, k) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
+  blended_water@h2co3 <- blended_water@tot_co3 * alpha0
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
+
+  blended_water@dic <- blended_water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, k) # proportion of total phosphate as H2PO4-
   alpha2p <- calculate_alpha2_phosphate(h, k) # proportion of total phosphate as HPO42-
