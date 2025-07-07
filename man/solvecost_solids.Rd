@@ -12,6 +12,8 @@ solvecost_solids(
   ferricchloride = 0,
   ferricsulfate = 0,
   flow,
+  toc_removed = 0,
+  caco3_removed = 0,
   turb,
   b = 1.5,
   cost,
@@ -26,6 +28,10 @@ solvecost_solids(
 \item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
 
 \item{flow}{Plant flow in MGD}
+
+\item{toc_removed}{Amount of total organic carbon removed by the treatment process}
+
+\item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
 
 \item{turb}{Turbidity removed in NTU}
 

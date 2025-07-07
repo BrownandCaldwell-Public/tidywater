@@ -78,6 +78,8 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @param ferricchloride Ferric Chloride FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
+#' @param toc_removed Amount of total organic carbon removed by the treatment process
+#' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
 #' @param cost Disposal cost in $/lb
@@ -97,8 +99,8 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @export
 #' @returns A numeric value for disposal costs, $/time.
 #'
-solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5, cost, time = "day") {
-  lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, turb, b)
+solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, toc_removed = 0, caco3_removed = 0, turb, b = 1.5, cost, time = "day") {
+  lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, toc_removed, caco3_removed, turb, b)
   cost_day <- cost * lb_day # $/lb * lb/day
 
   if (time == "day") {
