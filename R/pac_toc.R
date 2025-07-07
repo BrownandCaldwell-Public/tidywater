@@ -4,7 +4,8 @@
 #' @title Calculate DOC Concentration in PAC system
 #'
 #' @description Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-#' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+#' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+#' Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 #' For a single water use `pac_toc`; for a dataframe use `pac_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
@@ -71,8 +72,6 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
     warning("DOC concentration is outside the model bounds of 1.3 to 5.4 mg/L")
   }
 
-  # Calculate toc
-  org_carbon_undissolved <- toc - doc
   # make case insensitive
   type <- tolower(type)
   if (!type %in% c("bituminous", "wood", "lignite")) {
@@ -99,11 +98,9 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   UVA <- .0376 * result - .041
 
-  toc_new <- result + org_carbon_undissolved
-
   water@doc <- result
+  water@toc <- result
   water@uv254 <- UVA
-  water@toc <- toc_new
 
   return(water)
 }
@@ -126,13 +123,13 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
-#'# plan(multisession)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
 #'   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
 #'
 #' # Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #' @import dplyr
 #'

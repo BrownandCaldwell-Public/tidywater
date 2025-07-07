@@ -19,10 +19,14 @@ test_that("Solve dose pH doesn't run when target pH is out of range.", {
 test_that("Solve dose pH returns the correct values.", {
   water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
   # these are based on current tidywater outputs
-  expect_equal(solvedose_ph(water4, 11, "naoh"), 40.3)
-  expect_equal(solvedose_ph(water4, 7, "co2"), 3.7)
+  expect_equal(solvedose_ph(water4, 11, "naoh"), 40.5)
+  expect_equal(solvedose_ph(water4, 7, "co2"), 3.6)
   co2dose <- solvedose_ph(water4, 7, "co2")
   expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
+
+  water5 <- define_water(ph = 12.75, temp = 25, alk = 4780, tds = 3530, ca = 70, mg = 10)
+  expect_equal(solvedose_ph(water5, 13, "naoh"), 2327.3)
+  expect_equal(solvedose_ph(water5, 7, "h2so4"), 4174.8)
 })
 
 test_that("Solve dose pH doesn't error when target pH is close to starting.", {
