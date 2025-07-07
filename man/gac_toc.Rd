@@ -115,7 +115,9 @@ library(furrr)
 # plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  gac_toc_chain(input_water = "raw", model = "WTP")
+  mutate(model = "WTP",
+         bed_vol = 15000) \%>\%
+  gac_toc_chain(input_water = "raw")
 
 # Optional: explicitly close multisession processing
 # plan(sequential)
