@@ -62,8 +62,8 @@ test_that("csmr works", {
   })
 
   expect_equal(round(index1$csmr), 100) # high cl, low so4
-  expect_equal(round(index2$csmr,2), 0.01) # low cl high so4
-  expect_equal(round(index3$csmr),18) # use balance ions to get chloride
+  expect_equal(round(index2$csmr, 2), 0.01) # low cl high so4
+  expect_equal(round(index3$csmr), 18) # use balance ions to get chloride
 })
 
 test_that("larsonskold works", {
@@ -153,27 +153,38 @@ test_that("ccpp works", {
   water6 <- suppressWarnings(define_water(ph = 5, alk = 20, ca = 32, tds = 90))
   index6 <- calculate_corrosion(water6, index = "ccpp")
 
+  water7 <- define_water(
+    ph = 10.4, alk = 250, ca = 116, na = 300, mg = 2.5, k = 4.5, cl = 200, so4 = 420,
+    tot_nh3 = 12, tot_po4 = 6
+  )
+  index7 <- calculate_corrosion(water7, index = "ccpp")
+
+  water8 <- define_water(ph = 12, alk = 5000, ca = 500, mg = 100, tds = 10000)
+  index8 <- calculate_corrosion(water8, index = "ccpp")
+
   expect_equal(round(index1$ccpp), 16) # high alk
   expect_equal(round(index2$ccpp, 1), -1.3) # low alk
   expect_equal(round(index3$ccpp), 16) # use tot_hard to get ca
   expect_equal(round(index4$ccpp), -4) # low ca
   expect_equal(round(index5$ccpp), -34) # low pH
   expect_equal(round(index6$ccpp), -328) # extra low pH
+  expect_equal(round(index7$ccpp), 251)
+  expect_equal(round(index8$ccpp), 1249)
   expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
 })
 
 test_that("calculate_corrosion output is a data frame", {
-    water0 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238, ca =80, cl=30, so4 = 30))
+  water0 <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238, ca = 80, cl = 30, so4 = 30))
   water1 <- calculate_corrosion(water0)
 
   expect_true(is.data.frame(water1))
-  expect_true("aggressive" %in%  colnames(water1))
-  expect_true("ryznar" %in%  colnames(water1))
-  expect_true("ccpp" %in%  colnames(water1))
-  expect_true("csmr" %in%  colnames(water1))
-  expect_true("larsonskold" %in%  colnames(water1))
-  expect_true("langelier" %in%  colnames(water1))
+  expect_true("aggressive" %in% colnames(water1))
+  expect_true("ryznar" %in% colnames(water1))
+  expect_true("ccpp" %in% colnames(water1))
+  expect_true("csmr" %in% colnames(water1))
+  expect_true("larsonskold" %in% colnames(water1))
+  expect_true("langelier" %in% colnames(water1))
 })
 
 ################################################################################*
@@ -228,12 +239,12 @@ test_that("calculate_corrosion_once is a data frame", {
     calculate_corrosion_once(input_water = "balanced_water"))
 
   expect_true(is.data.frame(water1))
-  expect_true("balanced_water_aggressive" %in%  colnames(water1))
-  expect_true("balanced_water_ryznar" %in%  colnames(water1))
-  expect_true("balanced_water_ccpp" %in%  colnames(water1))
-  expect_true("balanced_water_csmr" %in%  colnames(water1))
-  expect_true("balanced_water_larsonskold" %in%  colnames(water1))
-  expect_true("balanced_water_langelier" %in%  colnames(water1))
+  expect_true("balanced_water_aggressive" %in% colnames(water1))
+  expect_true("balanced_water_ryznar" %in% colnames(water1))
+  expect_true("balanced_water_ccpp" %in% colnames(water1))
+  expect_true("balanced_water_csmr" %in% colnames(water1))
+  expect_true("balanced_water_larsonskold" %in% colnames(water1))
+  expect_true("balanced_water_langelier" %in% colnames(water1))
 })
 
 # Check calculate_corrosion_once outputs an appropriate number of indices
@@ -254,12 +265,16 @@ test_that("calculate_corrosion_once outputs an appropriate number of indices", {
     calculate_corrosion_once(input_water = "balanced_water"))
 
   water3 <- water1 %>%
-    select_if(names(water1) %in% c("balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier", 
-                                   "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"))
-  
+    select_if(names(water1) %in% c(
+      "balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier",
+      "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"
+    ))
+
   water4 <- water2 %>%
-    select_if(names(water2) %in% c("balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier", 
-                                   "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"))
+    select_if(names(water2) %in% c(
+      "balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier",
+      "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"
+    ))
 
   expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
   expect_equal(length(water3), 2) # indices selected in fn should match # of output index columns

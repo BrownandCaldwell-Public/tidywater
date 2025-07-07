@@ -60,9 +60,9 @@ example_df <- water_df \%>\%
 # library(furrr)
 # plan(multisession)
 example_df <- water_df \%>\%
-  define_water_chain()  \%>\%
-mutate(bromide = rep(c(20, 30, 50), 4)) \%>\%
-modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+  define_water_chain() \%>\%
+  mutate(bromide = rep(c(20, 30, 50), 4)) \%>\%
+  modify_water_chain(slot = "br", value = bromide, units = "ug/L")
 
 # Optional: explicitly close multisession processing
 # plan(sequential)

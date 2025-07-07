@@ -1,5 +1,4 @@
 test_that("Modify water errors when arguments are wrong", {
-
   water0 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   expect_error(modify_water(water0, "br", 50))
@@ -7,7 +6,6 @@ test_that("Modify water errors when arguments are wrong", {
   expect_error(modify_water(water0, "br", "50", "ug/L"))
   expect_error(modify_water(water0, "bromide", 50, "ug/L"))
   expect_error(modify_water(water_df, "br", 50, "ug/L"))
-
 })
 
 

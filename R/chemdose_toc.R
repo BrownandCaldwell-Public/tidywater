@@ -28,12 +28,9 @@
 #' dosed_water <- chemdose_ph(water, alum = 30) %>%
 #'   chemdose_toc(alum = 30, coeff = "Alum")
 #'
-#' dosed_water <- chemdose_ph(water, ferricsulfate = 30) %>%
-#'   chemdose_toc(ferricsulfate = 30, coeff = "Ferric")
-#'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
 #'   chemdose_toc(alum = 10, coeff = data.frame(
-#'   x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068 
+#'     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
 #'   ))
 #'
 #' @export
@@ -51,9 +48,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
     }
   } else if (is.data.frame(coeff)) {
     expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
-     if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-       stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
-     }
+    if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
+      stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
+    }
   } else {
     stop("coeff must be specified with a string or data frame. See documentation for acceptable formats.")
   }
@@ -114,25 +111,18 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
 #'
 #' @examples
-#'
-#' library(dplyr)
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   chemdose_toc_chain(input_water = "defined_water", alum = 30)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(FerricDose = seq(1, 12, 1)) %>%
+#'   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
+#' # Uncomment below to initialize parallel processing
+#' # library(furrr)
 #' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(ferricchloride = seq(1, 12, 1)) %>%
+#'   dplyr::mutate(ferricchloride = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(coeff = "Ferric")
 #'
 #' # Optional: explicitly close multisession processing
@@ -187,15 +177,11 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @examples
-#'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   chemdose_toc_once(input_water = "defined_water", alum = 30)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -205,16 +191,16 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #'
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                             coeff = "use_col") {
+                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                              coeff = "use_col") {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- NULL # Quiet RCMD check global variable note
-  
+
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
-  
+
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "dosed_chem_water",
@@ -223,11 +209,11 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
     mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
     unnest(dose_chem) %>%
     select(-c(dosed_chem_water, ph:alk_eq, dic:estimated))
-  
+
   if ("coeff.x1" %in% colnames(output)) {
     output <- output %>%
       select(-c(coeff.x1:coeff.b))
   }
-  
+
   return(output)
 }
