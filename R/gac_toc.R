@@ -92,7 +92,7 @@ gac_toc <- function(water, ebct = 10, model, media_size = "12x40", bed_vol, pret
 #'# plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   gac_toc_chain(input_water = "raw")
+#'   gac_toc_chain(input_water = "raw", model = "WTP")
 #'
 #' # Optional: explicitly close multisession processing
 #'# plan(sequential)

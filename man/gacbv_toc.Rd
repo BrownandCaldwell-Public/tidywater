@@ -68,7 +68,7 @@ shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
-bed_volume <- gacbv_toc(media_size = "8x30", ebct = 20, model = "Zachman", target_doc = 0.8)
+bed_volume <- gacbv_toc(warwe, media_size = "8x30", ebct = 20, model = "Zachman", target_doc = 0.8)
 
 
 library(purrr)
