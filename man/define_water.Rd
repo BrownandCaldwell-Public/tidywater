@@ -29,6 +29,7 @@ define_water(
   combined_chlorine = 0,
   tot_po4 = 0,
   tot_nh3 = 0,
+  tot_ch3cooh = 0,
   tds,
   cond,
   toc,
@@ -72,6 +73,8 @@ define_water(
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 
 \item{tot_nh3}{Total ammonia in mg/L as N}
+
+\item{tot_ch3cooh}{Total acetic acid in mg/L}
 
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
@@ -126,11 +129,13 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 \item{po4}{phosphate, numeric, mols/L.}
 \item{nh4}{ammonium, numeric, mol/L as N.}
+\item{ch3coo}{acetic acid, numeric, mol/L.}
 \item{h}{hydrogen ion, numeric, mol/L.}
 \item{oh}{hydroxide ion, numeric, mol/L.}
 \item{tot_po4}{total phosphate, numeric, mol/L.}
 \item{tot_nh3}{total ammonia, numeric, mol/L.}
 \item{tot_co3}{total carbonate, numeric, mol/L.}
+\item{tot_ch3cooh}{total acetate, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
 \item{f}{fluoride, numeric, mol/L.}

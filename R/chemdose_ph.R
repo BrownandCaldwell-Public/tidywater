@@ -333,7 +333,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
 #' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
+                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", ch3cooh = "use_col", co2 = "use_col", naoh = "use_col",
                               na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                               caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                               nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
@@ -345,6 +345,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
   h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
   h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
   hno3 <- tryCatch(hno3, error = function(e) enquo(hno3))
+  ch3cooh <- tryCatch(ch3cooh, error = function(e) enquo(ch3cooh))
   co2 <- tryCatch(co2, error = function(e) enquo(co2))
   naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
 
@@ -376,7 +377,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
-    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "co2" = co2, "naoh" = naoh,
+    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "ch3cooh" = ch3cooh, "co2" = co2, "naoh" = naoh,
     "na2co3" = na2co3, "nahco3" = nahco3, "caoh2" = caoh2, "mgoh2" = mgoh2,
     "caocl2" = caocl2, "cacl2" = cacl2, "cl2" = cl2, "naocl" = naocl,
     "nh4oh" = nh4oh, "nh42so4" = nh42so4, "caco3" = caco3, "caso4" = caso4,
@@ -405,6 +406,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         h2so4 = if (final_names$h2so4 %in% names(.)) !!sym(final_names$h2so4) else rep(0, nrow(.)),
         h3po4 = if (final_names$h3po4 %in% names(.)) !!sym(final_names$h3po4) else rep(0, nrow(.)),
         hno3 = if (final_names$hno3 %in% names(.)) !!sym(final_names$hno3) else rep(0, nrow(.)),
+        ch3cooh = if (final_names$ch3cooh %in% names(.)) !!sym(final_names$ch3cooh) else rep(0, nrow(.)),
         co2 = if (final_names$co2 %in% names(.)) !!sym(final_names$co2) else rep(0, nrow(.)),
         naoh = if (final_names$naoh %in% names(.)) !!sym(final_names$naoh) else rep(0, nrow(.)),
         na2co3 = if (final_names$na2co3 %in% names(.)) !!sym(final_names$na2co3) else rep(0, nrow(.)),
@@ -453,7 +455,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #'
 
 chemdose_ph_once <- function(df, input_water = "defined_water",
-                             hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
+                             hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", ch3cooh = "use_col", co2 = "use_col", naoh = "use_col",
                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                              nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
@@ -466,6 +468,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
   h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
   hno3 <- tryCatch(hno3, error = function(e) enquo(hno3))
+  ch3cooh <- tryCatch(ch3cooh, error = function(e) enquo(ch3cooh))
   co2 <- tryCatch(co2, error = function(e) enquo(co2))
   naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
 
@@ -496,7 +499,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
   output <- df %>%
     chemdose_ph_chain(
       input_water = input_water, output_water = "dosed_chem_water",
-      hcl, h2so4, h3po4, hno3, co2, naoh,
+      hcl, h2so4, h3po4, hno3, ch3cooh, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
       caocl2, cacl2, cl2, naocl,
       nh4oh, nh42so4, caco3, caso4,
