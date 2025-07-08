@@ -227,7 +227,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   
   # Total acetate
   ch3cooh_dose <- ch3cooh
-  dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
+  dosed_water@tot_ch3cooh <- water@tot_ch3cooh + ch3cooh_dose
 
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
