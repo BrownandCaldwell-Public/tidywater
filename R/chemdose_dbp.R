@@ -21,6 +21,8 @@
 #'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
+#'  
+#' @importFrom stats ave
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
@@ -51,7 +53,7 @@
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff = NULL) {
-  modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- NULL # Quiet RCMD check global variable note
+  modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- ave <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
   toc <- water@toc
