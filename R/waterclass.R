@@ -37,12 +37,14 @@ methods::setClass(
     hpo4 = "numeric",
     po4 = "numeric",
     nh4 = "numeric",
+    ch3coo = "numeric",
     h = "numeric",
     oh = "numeric",
     # total of pH dependent ions
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
+    tot_ch3cooh = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",
@@ -116,12 +118,14 @@ methods::setClass(
     hpo4 = NA_real_,
     po4 = NA_real_,
     nh4 = NA_real_,
+    ch3coo = NA_real_,
     h = NA_real_,
     oh = NA_real_,
     # total of pH dependent ions
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
+    tot_ch3cooh = NA_real_,
 
     # Additional ions
     br = NA_real_,

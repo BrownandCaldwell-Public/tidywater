@@ -649,6 +649,11 @@ calculate_alpha1_ammonia <- function(h, k) { # NH4+
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
 
+calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+  k1 <- k$kch3coo
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17
