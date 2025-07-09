@@ -80,7 +80,7 @@ discons <- data.frame(
   # Ammonia
   add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
   # Acetate
-  add_row(ID = "kch3coo", k = 10^-4.757, deltah = 400) # CH3COOH <--> H+ + CH3COO-
+  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) # CH3COOH <--> H+ + CH3COO-
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
