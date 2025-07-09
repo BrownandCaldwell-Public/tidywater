@@ -27,7 +27,7 @@ solvemass_solids(
 
 \item{flow}{Plant flow in MGD}
 
-\item{toc_removed}{Amount of total organic carbon removed by the treatment process}
+\item{toc_removed}{Amount of total organic carbon removed by the treatment process in mg/L}
 
 \item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
 
