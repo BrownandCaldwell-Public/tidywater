@@ -200,11 +200,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
     corrected_dbp_1 <- subset(corrected_dbp_1, select = c(ID, group, modeled_dbp))
   } else {
-    corrected_dbp_1 <- predicted_dbp
+    corrected_dbp_1 <- subset(predicted_dbp, select = c(ID, group, modeled_dbp))
   }
 
   # only model tthm and haa5, problems with haa6 and haa9 model outputs being <haa5 with low Br or Cl2
-  bulk_dbp <- corrected_dbp_1[corrected_dbp_1$ID %in% c("tthm", "haa5"), ]
+  bulk_dbp <- subset(corrected_dbp_1, corrected_dbp_1$ID %in% c("tthm", "haa5"))
   # proportional corrections following U.S. EPA (2001), section 5.7.3
   individual_dbp <- corrected_dbp_1[
     !(corrected_dbp_1$ID %in% c("tthm", "haa5")) &

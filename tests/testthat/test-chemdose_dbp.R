@@ -82,6 +82,18 @@ test_that("users can provide their own dbp coefficients.", {
   expect_equal(round(water2@chcl3, 2), 58.78)
 })
 
+test_that("chemdose_dbp works when correction is T/F", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
+    chemdose_dbp(cl2 = 2, time = 8)
+  
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
+    chemdose_dbp(cl2 = 2, time = 8, correction = FALSE)
+  
+  expect_true(identical(water1@tthm, water2@tthm)) # correction factor is 1
+  expect_false(identical(water1@chbr2cl, water2@chbr2cl)) # these compounds have other correction factors
+  expect_false(identical(water1@haa5, water2@haa5))
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_dbp helpers ----
