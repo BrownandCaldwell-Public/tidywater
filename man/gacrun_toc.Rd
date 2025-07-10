@@ -26,7 +26,7 @@ gacrun_toc(water, ebct = 10, model, media_size = "12x40")
 \code{gacrun_toc} returns a data frame with bed volumes and breakthrough TOC values.
 }
 \description{
-Calculates TOC concentration after passing through GAC treatment according to the model developed in
+Returns a data frame with a breakthrough curve based on the TOC concentration after passing through GAC treatment, according to the model developed in
 "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
 
 Water must contain DOC or TOC value.
@@ -35,7 +35,9 @@ Water must contain DOC or TOC value.
 GAC model for TOC removal
 
 The function will calculate bed volumes and normalized TOC breakthrough (TOCeff/TOCinf) given model type.
-should I include model limitations in the details?
+Both models were developed using data sets from bench-scale GAC treatment studies using bituminous GAC and EBCTs of either 10 or 20 minutes.
+The specific mesh sizes used to develop the Zachman and Summers model were 12x40 or 8x30.
+The models were also developed using influent pH and TOC between specific ranges. Refer to the papers included in the references for more details.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
