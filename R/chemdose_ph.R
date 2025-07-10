@@ -278,7 +278,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
 
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
-  dosed_water@ch3coo <- dosed_water@tot_ch3cooh * calculate_alpha_acetate(h, ks)
+  dosed_water@ch3coo <- dosed_water@tot_ch3cooh * calculate_alpha1_acetate(h, ks)
 
   # Calculate new alkalinity
   dosed_water@alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
