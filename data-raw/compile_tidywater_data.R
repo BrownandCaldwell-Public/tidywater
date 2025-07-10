@@ -819,3 +819,79 @@ pactoccoeffs <- tibble(
 )
 
 usethis::use_data(pactoccoeffs, overwrite = TRUE)
+
+# vlog_removalcts -----
+vlog_removalcts <- data.frame(
+    ph_range = "6-9",
+    temp = 0.5,
+    ct_range = "6-9",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp = 0.5,
+    ct_range = "9-12",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp = 0.5,
+    ct_range = "12",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 0.5,
+    ct_range = "45-66",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 0.5,
+    ct_range = "66-90",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 0.5,
+    ct_range = "90",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp = 5,
+    ct_range = "4-6",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp = 5,
+    ct_range = "6-8",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp = 5,
+    ct_range = "8",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 5,
+    ct_range = "30-44",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 5,
+    ct_range = "44-60",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp = 5,
+    ct_range = "60",
+    vlog_removal = 4.0
+  )
+
+usethis::use_data(vlog_removalcts, overwrite = TRUE)

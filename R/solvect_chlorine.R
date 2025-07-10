@@ -39,7 +39,7 @@
 #'   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
 #' @export
 #'
-#' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
+#' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), giardia log removal, and virus log removal.
 
 solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "residual_only") {
   if (free_cl_slot == "slot_only") {
@@ -65,6 +65,45 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   } else {
     ct_required <- (.361 * 0.5) * (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph))
     giardia_log_removal <- ct_actual / (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph)) / .361
+  }
+  
+  # determine virus log removal based on EPA Guidance Manual Table E-7
+  if (6 <= ph && ph <= 9) {
+    vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "6-9")
+    if (temp == 0.5) {
+      vlog_table <- subset(vlog_table, temp == 0.5)
+      ct_category <- as.character(cut(ct_actual, breaks = c(6, 9, 12, Inf), labels = c("6-9", "9-12", "12"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
+    } else if (temp == 5) {
+      vlog_table <- subset(vlog_table, temp == 5)
+    } else if (temp == 10) {
+      vlog_table <- subset(vlog_table, temp == 10)
+    } else if (temp == 15) {
+      vlog_table <- subset(vlog_table, temp == 15)
+    } else if (temp == 20) {
+      vlog_table <- subset(vlog_table, temp == 20)
+    } else if (temp == 25) {
+      vlog_table <- subset(vlog_table, temp == 25)
+    }
+  } else if (ph == 10) {
+    vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "10")
+    if (temp == 0.5) {
+      vlog_table <- subset(vlog_table, temp == 0.5)
+      ct_category <- as.character(cut(ct_actual, breaks = c(45, 66, 90, Inf), labels = c("45-66", "66-90", "90"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
+    } else if (temp == 5) {
+      vlog_table <- subset(vlog_table, temp == 5)
+    } else if (temp == 10) {
+      vlog_table <- subset(vlog_table, temp == 10)
+    } else if (temp == 15) {
+      vlog_table <- subset(vlog_table, temp == 15)
+    } else if (temp == 20) {
+      vlog_table <- subset(vlog_table, temp == 20)
+    } else if (temp == 25) {
+      vlog_table <- subset(vlog_table, temp == 25)
+    }
+  } else {
+    vlog_removal <- NA #table only includes ct values for pH range between 6-10
   }
 
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)

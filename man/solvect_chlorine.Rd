@@ -43,7 +43,7 @@ free_chlorine slot in the input water. "sum_with_residual", will use the sum of 
 \item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
-\code{solvect_chlorine} returns a data frame containing required CT (mg/L\emph{min), actual CT (mg/L}min), and giardia log removal.
+\code{solvect_chlorine} returns a data frame containing required CT (mg/L\emph{min), actual CT (mg/L}min), giardia log removal, and virus log removal.
 
 \code{solvect_chlorine_once} returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 }
