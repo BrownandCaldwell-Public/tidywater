@@ -26,4 +26,11 @@ This function takes a chemical dose in mg/L, plant flow, chemical strength, and 
 \examples{
 alum_cost <- solvecost_chem(dose = 20, flow = 10, strength = 49, cost = .22)
 
+library(dplyr)
+cost_data <- tibble(
+  dose = seq(10, 50, 10),
+  flow = 10
+) \%>\%
+  mutate(costs = solvecost_chem(dose = dose, flow = flow, strength = 49, cost = .22))
+
 }

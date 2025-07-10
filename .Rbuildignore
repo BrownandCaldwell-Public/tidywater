@@ -3,7 +3,13 @@
 ^\.github$
 ^LICENSE\.md$
 ^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
 ^data-raw$
 ^.*\.toml
 ^README\.Rmd$
 ^cran-comments\.md$
+^CRAN-SUBMISSION$
+^COPYRIGHT\.md$
+^DISCLAIMER\.md$
+^GOVERNANCE\.md$
+^SECURITY\.md$

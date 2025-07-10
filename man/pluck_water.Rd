@@ -2,50 +2,42 @@
 % Please edit documentation in R/convert_pluck_water.R
 \name{pluck_water}
 \alias{pluck_water}
-\title{Pluck out a single parameter from a `water` class object}
+\title{Pluck out a single parameter from a \code{water} class object}
 \usage{
 pluck_water(df, input_waters = c("defined_water"), parameter)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already
-been computed using \code{\link{define_water}}}
+been computed using \link{define_water}}
 
 \item{input_waters}{vector of names of the columns of water class data to be used as the input for this function.}
 
-\item{parameter}{vector of water class parameters to view outside the water column}
+\item{parameter}{vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots.}
 }
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.
 }
 \description{
-This function plucks one or more selected parameters from selected columns of `water` class objects.
-The names of the output columns will follow the form `water_parameter`
-To view all slots as columns, please use one of the `fn_once` functions or \code{\link{convert_water}}.
+This function plucks one or more selected parameters from selected columns of \code{water} class objects.
+The names of the output columns will follow the form \code{water_parameter}
 }
 \examples{
 
-library(dplyr)
+pluck_example <- water_df \%>\%
+  define_water_chain("raw") \%>\%
+  pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
+
+\donttest{
 library(furrr)
-library(purrr)
-library(tidyr)
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  pluck_water(parameter = "tot_co3")
-
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  pluck_water(input_waters = c("defined_water", "balanced_water"), parameter = c("na", "cl"))
-
-plan(multisession)
+# plan(multisession)
 pluck_example <- water_df \%>\%
   define_water_chain() \%>\%
   pluck_water(parameter = c("ph", "alk"))
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
+}
 }
 \seealso{
-\code{\link{convert_water}}
+\link{convert_water}
 }

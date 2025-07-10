@@ -1,5 +1,6 @@
 # Generate data frames of data used across tidywater functions
 
+# mweights ----
 # List of molecular weights for different chemical additions
 mweights <- data.frame(
   na = 22.98977,
@@ -7,6 +8,7 @@ mweights <- data.frame(
   cl = 35.453,
   so4 = 96.0626,
   caco3 = 100.0869,
+  caso4 = 136.141,
   hcl = 36.46094,
   h2so4 = 98.079,
   h3po4 = 97.995181,
@@ -28,8 +30,10 @@ mweights <- data.frame(
   mg = 24.305,
   ca = 40.078,
   po4 = 94.97,
+  na3po4 = 163.939,
   hpo4 = 95.98,
   h2po4 = 96.99,
+  h2co3 = 62.024,
   hco3 = 61.0168,
   co3 = 60.0089,
   ocl = 16 + 35.453,
@@ -37,17 +41,27 @@ mweights <- data.frame(
   br = 79.904,
   bro3 = 79.904 + 3 * 15.999,
   f = 18.9984,
+  naf = 41.9882,
   mn = 54.938,
   nh4 = 18.04,
+  nh3 = 17.031,
+  no3 = 62.005,
+  hno3 = 63.0128,
+  nh2cl = 51.48,
+  nhcl2 = 85.92,
+  ncl3 = 120.365,
   n = 14.0067,
   nh4oh = 18.04 + 17.008,
   nh42so4 = 18.04 * 2 + 96.0626,
   oh = 17.008,
+  kmno4 = 158.032,
+  mno4 = 158.032 - 39.0983,
   dic = 12.011
 )
 
 usethis::use_data(mweights, overwrite = TRUE)
 
+# discons ----
 # Acid dissociation constants and corresponding enthalpy
 # Carbonic acid
 discons <- data.frame(
@@ -68,8 +82,8 @@ rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
 
+# water_df ----
 # Dummy data frame for function examples
-
 water_df <- data.frame(
   ph = rep(c(7.9, 8.5, 8.1, 7.8), 3),
   temp = rep(c(20, 25, 19), 4),
@@ -81,7 +95,7 @@ water_df <- data.frame(
   k = rep(c(20, 90), 6),
   cl = rep(c(30, 92), 6),
   so4 = rep(c(20, 40, 60, 80), 3),
-  tot_ocl = rep(c(0, 1), 6),
+  free_chlorine = rep(c(0, 1), 6),
   tot_po4 = rep(c(0, 0, 1), 4),
   tds = rep(c(200, 100, NA), 4),
   cond = rep(c(100, 150, NA), 4),
@@ -93,8 +107,8 @@ water_df <- data.frame(
 
 usethis::use_data(water_df, overwrite = TRUE)
 
+# edwardscoeff ----
 # Data frame of Edwards model coefficients
-
 edwardscoeff <- data.frame(
   ID = "Alum",
   x3 = 4.91, x2 = -74.2, x1 = 284,
@@ -129,8 +143,8 @@ rownames(edwardscoeff) <- edwardscoeff$ID
 
 usethis::use_data(edwardscoeff, overwrite = TRUE)
 
+# leadsol_constants ----
 # Data frame of equilibrium constants for lead and copper solubility
-
 leadsol_constants <- data.frame(
   species_name = c("Lead Hydroxide", "Cerussite", "Hydrocerussite"),
   constant_name = c("K_solid_lead_hydroxide", "K_solid_cerussite", "K_solid_hydrocerussite"),
@@ -201,8 +215,8 @@ rownames(leadsol_constants) <- leadsol_constants$constant_name
 
 usethis::use_data(leadsol_constants, overwrite = TRUE)
 
+# dbpcoeffs ----
 # Data frame of THM and HAA coefficients
-
 dbpcoeffs <- data.frame(
   # raw/untreated water
   # tthms
@@ -501,7 +515,6 @@ rownames(dbpcoeffs) <- dbpcoeffs$ID
 usethis::use_data(dbpcoeffs, overwrite = TRUE)
 
 # Data frame of DBP conversion factors for chloramines
-
 chloramine_conv <- data.frame(
   # tthms
   ID = "tthm",
@@ -596,7 +609,6 @@ usethis::use_data(chloramine_conv, overwrite = TRUE)
 
 # Data frame of DBP correction factors based on location from testing with ICR data
 # No correction factors developed for CDBAA, BDCAA, TBAA, and HAA9 since ICR plant data was used to develop these equations
-
 
 dbp_correction <- data.frame(
   # tthms
@@ -706,9 +718,8 @@ rownames(dbp_correction) <- dbp_correction$ID
 
 usethis::use_data(dbp_correction, overwrite = TRUE)
 
-
+# bromatecoeffs ----
 # Dataframe of bromate formation coefficients
-
 bromatecoeffs <- data.frame(
   model = rep("Ozekin", 2),
   ammonia = c(F, T),
@@ -880,3 +891,26 @@ generate_unit_conversions_cache <- function() {
 convert_units_cache <- generate_unit_conversions_cache()
 
 usethis::use_data(unit_multipliers, formula_to_charge, convert_units_cache, overwrite = TRUE, internal = TRUE)
+
+# cl2coeffs -----
+# Data frame of Cl2 decay coefficients
+cl2coeffs <- tibble(
+  treatment = c("chlorine_raw", "chlorine_coag", "chloramine"),
+  a = c(-0.8147, -0.8404, -0.99),
+  b = c(-2.2808, -0.404, -0.015),
+  c = c(-1.2971, -0.9108, NA)
+)
+
+usethis::use_data(cl2coeffs, overwrite = TRUE)
+
+# pactoccoeffs -----
+# Data frame of PAC TOC removal coefficients
+pactoccoeffs <- tibble(
+  pactype = c("bituminous", "lignite", "wood"),
+  A = c(.1561, .4078, .3653),
+  a = c(.9114, .8516, .8692),
+  b = c(.0263, .0225, .0151),
+  c = c(.002, .002, .0025)
+)
+
+usethis::use_data(pactoccoeffs, overwrite = TRUE)

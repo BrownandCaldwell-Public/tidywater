@@ -4,27 +4,38 @@
 #' @title Calculate bromate formation
 #'
 #' @description Calculates bromate (BrO3-, ug/L) formation based on selected model. Required arguments include an object of class "water"
-#' created by \code{\link{define_water}} ozone dose, reaction time, and desired model.
-#' The function also requires additional water quality parameters defined in \code{define_water}
+#' created by [define_water] ozone dose, reaction time, and desired model.
+#' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 #' optionally, ammonia (added when defining water using the `tot_nh3` argument.)
+#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_chain`.
+#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
+#' @details
+#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
+#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
+#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
+#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
+#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
-#' @source See references list at: \url{https://github.com/BrownandCaldwell/tidywater/wiki/References}
+#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
-#' @param water Source water object of class "water" created by \code{\link{define_water}}
+#' @param water Source water object of class "water" created by [define_water]
 #' @param dose Applied ozone dose (mg/L as O3). Results typically valid for 1-10 mg/L, but varies depending on model.
 #' @param time Reaction time (minutes). Results typically valid for 1-120 minutes, but varies depending on model.
 #' @param model Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")
 #' @examples
-#' example_dbp <- suppressWarnings(define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   ozonate_bromate(dose = 1.5, time = 5, model = "Ozekin")
-#' example_dbp <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50)) %>%
+#' example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
 #'   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
 #'
 #' @export
-#' @returns A water class object with calculated bromate (ug/L).
+#' @returns `ozonate_bromate` returns a single water class object with calculated bromate (ug/L).
 #'
 ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   ammonia <- NULL # Quiet RCMD check global variable note
@@ -76,4 +87,70 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
     alk^solve_bro3$e * dose^solve_bro3$f * time^solve_bro3$g * nh4^solve_bro3$h * temp^solve_bro3$i * solve_bro3$I^(temp - 20)
 
   return(water)
+}
+
+#' @rdname ozonate_bromate
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
+#' and a column for time in minutes.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
+#' @examples
+#'
+#' library(dplyr)
+#'
+#' example_df <- water_df %>%
+#'   slice_head(n = 6) %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   mutate(
+#'     dose = c(seq(.5, 3, .5)),
+#'     OzoneTime = 30
+#'   ) %>%
+#'   ozonate_bromate_chain(time = OzoneTime, model = "Sohn")
+#'
+#' \donttest{
+#' # Initialize parallel processing
+#' library(furrr)
+#' # plan(multisession)
+#' example_df <- water_df %>%
+#'   mutate(br = 50) %>%
+#'   define_water_chain() %>%
+#'   ozonate_bromate_chain(dose = 4, time = 8)
+#'
+#' # Optional: explicitly close multisession processing
+#' # plan(sequential)
+#' }
+#'
+#' @import dplyr
+#' @export
+#'
+#' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro3.
+
+ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
+                                  dose = "use_col", time = "use_col", model = "use_col") {
+  validate_water_helpers(df, input_water)
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  time <- tryCatch(time, error = function(e) enquo(time))
+  model <- tryCatch(model, error = function(e) enquo(model))
+
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "model" = model))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
+  output <- df %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        dose = !!as.name(arguments$final_names$dose),
+        time = !!as.name(arguments$final_names$time),
+        model = if (arguments$final_names$model %in% names(.)) !!sym(arguments$final_names$model) else rep("Ozekin", nrow(.))
+      ),
+      ozonate_bromate
+    ))
 }

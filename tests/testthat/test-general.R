@@ -73,29 +73,6 @@ test_that("Calcium hardness calculation works.", {
   expect_equal(calculate_hardness(.002, 0, startunit = "M", type = "ca"), .002 * mweights$caco3 * 1000)
 })
 
-# calculate_dic----
-test_that("calculate _dic doesn't work without ph or alkalinity.", {
-  water1 <- suppressWarnings(define_water(ph = 7)) %>%
-    calculate_dic()
-  water2 <- suppressWarnings(define_water(alk = 70)) %>%
-    calculate_dic()
-
-  expect_equal(water1, NA_real_)
-  expect_equal(water2, NA_real_)
-})
-
-test_that("calculate _dic works.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 200)) %>%
-    calculate_dic()
-
-  water2 <- suppressWarnings(define_water(ph = 6.5, alk = 5)) %>%
-    calculate_dic()
-
-  expect_equal(round(water1), 59)
-  expect_equal(round(water2), 2)
-})
-
-
 # Calculate alpha carbonate ----
 
 test_that("Carbonate alpha calculations work.", {
@@ -137,7 +114,7 @@ test_that("K temp correction returns a value close to K.", {
 test_that("Ionic strength calc in define water works.", {
   water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
 
-  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@tot_ocl) * 1^2 +
+  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl) * 1^2 +
     (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
     (water@po4) * 3^2)
   expect_equal(signif(water@is, 3), signif(is_calced, 3))

@@ -1,4 +1,4 @@
-# ozone decay tests here
+# BASE FUNCTION ----
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
@@ -7,10 +7,10 @@ test_that("solveresid_o3 returns the input residual when time is 0, or an error 
   expect_error(solveresid_o3(water1, dose = 2))
 })
 
-test_that("solveresid_o3 returns NaN when dose is 0, or error when dose is missing.", {
+test_that("solveresid_o3 returns 0 when dose is 0, or error when dose is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
-  expect_equal(solveresid_o3(water1, time = 30, dose = 0), NaN)
+  expect_equal(solveresid_o3(water1, time = 30, dose = 0), 0)
   expect_error(solveresid_o3(water1, time = 30))
 })
 
@@ -37,8 +37,9 @@ test_that("solveresid_o3 works.", {
 })
 
 
-
+# HELPERS ----
 test_that("solveresid_o3_once outputs are the same as base function, solveresid_o3", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
@@ -59,6 +60,7 @@ test_that("solveresid_o3_once outputs are the same as base function, solveresid_
 # Check that output is a data frame
 
 test_that("solveresid_o3_once is a data frame", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
@@ -73,6 +75,7 @@ test_that("solveresid_o3_once is a data frame", {
 # Check solveresid_o3_once can use a column or function argument for chemical dose
 
 test_that("solveresid_o3_once can use a column and/or function argument for time and dose", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_chain()
 

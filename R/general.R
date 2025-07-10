@@ -8,10 +8,10 @@
 #'
 #' \code{summarise_wq()} and \code{summarize_wq()} are synonyms.
 #'
-#' @details Use \code{\link{calculate_corrosion}} for corrosivity indicators and \code{\link{chemdose_dbp}} for modeled DBP concentrations.
+#' @details Use \code{\link{chemdose_dbp}} for modeled DBP concentrations.
 #'
 #' @param water Source water vector created by \code{\link{define_water}}.
-#' @param params List of water quality parameters to be summarized. Options include "general", "ions", "corrosion", and "dbps". Defaults to "general" only.
+#' @param params List of water quality parameters to be summarized. Options include "general", "ions", and "dbps". Defaults to "general" only.
 #'
 #' @examples
 #' # Summarize general parameters
@@ -27,11 +27,12 @@
 #' @returns A knitr_kable table of specified water quality parameters.
 #'
 summarize_wq <- function(water, params = c("general")) {
+  pH <- TOC <- Na <- CO3 <- result <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input must be of class 'water'. Create a water using define_water.")
   }
-  if (any(!params %in% c("general", "ions", "corrosion", "dbps"))) {
-    stop("params must be one or more of c('general', 'ions', 'corrosion', 'dbps')")
+  if (any(!params %in% c("general", "ions", "dbps"))) {
+    stop("params must be one or more of c('general', 'ions', 'dbps')")
   }
 
   # Compile general WQ parameters
@@ -46,7 +47,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(.data$pH:.data$TOC), names_to = "param", values_to = "result") %>%
+    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
       "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
       "mg/L", "uS/cm", "mg/L"
@@ -70,36 +71,13 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(.data$Na:.data$CO3), names_to = "ion", values_to = "c_mg")
+    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
     digits = 2
-  )
-
-  # Compile corrosion indices
-  corrosion <- data.frame(
-    `Aggressive Index` = water@aggressive,
-    `Ryznar Stability Index` = water@ryznar,
-    `Langelier Saturation Index (LSI)` = water@langelier,
-    `Larson Skold Index` = water@larsonskold,
-    `Chloride to sulfate mass ratio (CSMR)` = water@csmr,
-    `Calcium carbonate precipitation potential (CCPP)` = water@ccpp
-  )
-
-  corrosion <- corrosion %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2)) %>%
-    mutate(
-      units = c(rep("unitless", 5), "mg/L CaCO3"),
-      Recommended = c(">12", "6.5 - 7.0", ">0", "<0.8", "<0.2", "4 - 10")
-    )
-
-  corr_tab <- knitr::kable(corrosion,
-    format = "simple",
-    col.names = c("Corrosion Indices", "Result", "Units", "Recommended")
   )
 
   # Compile DBPs
@@ -129,11 +107,11 @@ summarize_wq <- function(water, params = c("general")) {
 
   tthm <- tthm %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2))
+    mutate(result = round(result, 2))
 
   haa5 <- haa5 %>%
     pivot_longer(everything(), names_to = "param", values_to = "result") %>%
-    mutate(result = round(.data$result, 2))
+    mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,
     format = "simple",
@@ -152,9 +130,6 @@ summarize_wq <- function(water, params = c("general")) {
   }
   if ("ions" %in% params) {
     tables_list[[length(tables_list) + 1]] <- ions_tab
-  }
-  if ("corrosion" %in% params) {
-    tables_list[[length(tables_list) + 1]] <- corr_tab
   }
   if ("dbps" %in% params) {
     tables_list[[length(tables_list) + 1]] <- thm_tab
@@ -176,15 +151,15 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
-#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#' plot_ions(water_defined)
+#' water <- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
+#' plot_ions(water)
 #'
 #' @export
 #'
 #' @returns A ggplot object displaying the water's ion balance.
 #'
 plot_ions <- function(water) {
-  type <- concentration <- label_pos <- ion <- label_y <- NULL # Quiet RCMD check global variable note
+  type <- concentration <- label_pos <- ion <- label_y <- label <- repel_label <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
     stop("Input water must be of class 'water'. Create a water using define_water.")
   }
@@ -208,28 +183,41 @@ plot_ions <- function(water) {
     OH = water@oh
   )
 
-  ions %>%
-    pivot_longer(c(.data$Na:.data$OH), names_to = "ion", values_to = "concentration") %>%
-    mutate(type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions")) %>%
-    arrange(type, concentration) %>%
-    mutate(
+  plot <- ions %>%
+    tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
+    dplyr::mutate(
+      type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
+      ion = factor(ion, levels = c(
+        "Ca", "Mg", "Na", "K", "NH4", "H",
+        "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH"
+      )),
+      concentration = case_when(is.na(concentration) ~ 0, TRUE ~ concentration)
+    ) %>%
+    dplyr::arrange(ion) %>%
+    dplyr::mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
       label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
     ) %>%
-    ggplot(aes(x = concentration, y = type, fill = stats::reorder(ion, -concentration))) +
-    geom_bar(
-      stat = "identity",
-      width = 0.5,
-      alpha = 0.5,
-      color = "black"
-    ) +
-    geom_text(aes(x = label_pos, label = ifelse(concentration > 10e-5, ion, ""), fontface = "bold", angle = 90),
-      size = 3.5
+    dplyr::filter(
+      !is.na(concentration),
+      concentration > 0
+    ) %>%
+    dplyr::mutate(
+      label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
+      repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ "")
+    ) %>%
+    dplyr::mutate(ion = forcats::fct_rev(ion))
+
+  plot %>%
+    ggplot(aes(x = concentration, y = type, fill = ion)) +
+    geom_bar(stat = "identity", width = 0.5, alpha = 0.5, color = "black") +
+    geom_text(aes(label = label, fontface = "bold", angle = 90),
+      size = 3.5, position = position_stack(vjust = 0.5)
     ) +
     ggrepel::geom_text_repel(
       aes(
         x = label_pos, y = label_y,
-        label = ifelse(concentration <= 10e-5 & concentration > 0, ion, ""),
+        label = repel_label,
         fontface = "bold"
       ),
       size = 3.5,
@@ -237,13 +225,14 @@ plot_ions <- function(water) {
       seed = 555
     ) +
     theme_bw() +
-    theme(axis.title = element_text(face = "bold")) +
-    labs(
-      x = "Concentration (eq/L)",
-      y = "Major Cations and Anions",
-      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
+    theme(
+      axis.title = element_text(face = "bold"),
+      legend.position = "none"
     ) +
-    guides(fill = "none")
+    labs(
+      x = "Concentration (eq/L)", y = "Major Cations and Anions",
+      subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
+    )
 }
 
 # Internal conversion function
@@ -410,46 +399,92 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   }
 }
 
-#' Calculate dissolved inorganic carbon (DIC) from total carbonate
+#' @title Calculate activity coefficients
 #'
-#' This function takes a water class object defined by \code{\link{define_water}}
-#' and outputs a DIC (mg/L).
+#' @description This function calculates activity coefficients at a given temperature based on equation 5-43 from Davies (1967), Crittenden et al. (2012)
 #'
-#' @param water a water class object containing columns with all the parameters listed in \code{\link{define_water}}
-#'
-#' @seealso \code{\link{define_water}}
+#' @param z Charge of ions in the solution
+#' @param is Ionic strength of the solution
+#' @param temp Temperature of the solution in Celsius
 #'
 #' @examples
-#'
-#' example_dic <- define_water(8, 15, 200) %>%
-#'   calculate_dic()
+#' calculate_activity(2, 0.1, 25)
 #'
 #' @export
-#' @returns A numeric value for the calculated DIC.
 #'
+#' @returns A numeric value for the activity coefficient.
+#'
+calculate_activity <- function(z, is, temp) {
+  if (!is.na(is)) {
+    tempa <- temp + 273.15 # absolute temperature (K)
 
-calculate_dic <- function(water) {
-  dic <- water@tot_co3 * tidywater::mweights$dic * 1000
+    # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
+    de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
 
-  return(dic)
+    # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
+    a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
+
+    # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
+    activity <- 10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
+  } else {
+    activity <- 1
+  }
+  return(activity)
 }
 
-#' Convert mg/L of chemical to lb/day
+#' @title Correct acid dissociation constants
 #'
-#' This function takes a chemical dose in mg/L, plant flow, and chemical strength and calculates lb/day of product
+#' @description This function calculates the corrected equilibrium constant for temperature and ionic strength
 #'
-#' @param dose Chemical dose in mg/L as chemical
-#' @param flow Plant flow in MGD
-#' @param strength Chemical product strength in percent. Defaults to 100 percent.
+#' @param water Defined water with values for temperature and ion concentrations
 #'
 #' @examples
-#' alum_mass <- solvemass_chem(dose = 20, flow = 10, strength = 49)
+#' water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
+#' correct_k(water_defined)
 #'
 #' @export
-#' @returns  A numeric value for the chemical mass in lb/day.
 #'
-solvemass_chem <- function(dose, flow, strength = 100) {
-  dose * flow * 8.34 / (strength / 100) # 8.34 lb/mg/L/MG
+#' @returns A dataframe with equilibrium constants for co3, po4, so4, ocl, and nh4.
+#'
+# Dissociation constants corrected for non-ideal solutions following Benjamin (2010) example 3.14.
+# See k_temp_adjust for temperature correction equation.
+correct_k <- function(water) {
+  # Determine activity coefficients
+  if (is.na(water@is)) {
+    activity_z1 <- 1
+    activity_z2 <- 1
+    activity_z3 <- 1
+  } else {
+    activity_z1 <- calculate_activity(1, water@is, water@temp)
+    activity_z2 <- calculate_activity(2, water@is, water@temp)
+    activity_z3 <- calculate_activity(3, water@is, water@temp)
+  }
+
+  temp <- water@temp
+  discons <- tidywater::discons
+  # Eq constants
+  # k1co3 = {h+}{hco3-}/{h2co3}
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
+  # k2co3 = {h+}{co32-}/{hco3-}
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
+  # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
+  kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
+  # k1po4 = {h+}{h2po4-}/{h3po4}
+  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
+  # k2po4 = {h+}{hpo42-}/{h2po4-}
+  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
+  # k3po4 = {h+}{po43-}/{hpo42-}
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  # kocl = {h+}{ocl-}/{hocl}
+  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
+  # knh4 = {h+}{nh3}/{nh4+}
+  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+
+  return(data.frame(
+    "k1co3" = k1co3, "k2co3" = k2co3,
+    "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
+  ))
 }
 
 # Non-exported functions -----
@@ -475,9 +510,84 @@ validate_water <- function(water, slots) {
   }
 }
 
-# View reference list at https://github.com/BrownandCaldwell/tidywater/wiki/References
+validate_water_helpers <- function(df, input_water) {
+  # Make sure input_water column is in the dataframe and is a water class.
+
+  if (!(input_water %in% colnames(df))) {
+    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_chain().")
+  }
+  if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
+    stop("Specified input_water does not contain water class objects. Use define_water_chain() or specify a different column.")
+  }
+}
+
+validate_args <- function(num_args = list(), str_args = list(), log_args = list(), misc_args = list()) {
+  all_args <- c(num_args, str_args, log_args, misc_args)
+  for (arg in names(all_args)) {
+    if (is.null(all_args[[arg]])) {
+      stop("argument '", arg, "' is missing, with no default")
+    }
+  }
+  for (arg in names(num_args)) {
+    if (!is.numeric(num_args[[arg]])) {
+      stop("argument '", arg, "' must be numeric.")
+    }
+  }
+  for (arg in names(str_args)) {
+    if (!is.character(str_args[[arg]])) {
+      stop("argument '", arg, "' must be specified as a string.")
+    }
+  }
+  for (arg in names(log_args)) {
+    if (!is.logical(log_args[[arg]])) {
+      stop("argument '", arg, "' must be either TRUE or FALSE.")
+    }
+  }
+}
+
+construct_helper <- function(df, all_args) {
+  # Get the names of each argument type
+  all_arguments <- names(all_args)
+  from_df <- names(all_args[all_args == "use_col"])
+
+  from_new <- all_args[all_args != "use_col"]
+  if (length(from_new) > 0) {
+    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
+  } else {
+    from_columns <- list()
+  }
+
+  from_inputs <- setdiff(names(from_new), names(from_columns))
+
+  inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
+
+
+  if (any(colnames(df) %in% colnames(inputs_arg))) {
+    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
+  }
+
+  # Get the new names for relevant columns
+  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
+  for (arg in names(from_columns)) {
+    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
+  }
+
+  return(list(
+    "new_cols" = as.list(inputs_arg),
+    "final_names" = as.list(final_names)
+  ))
+}
+
+
+# View reference list at https://github.com/BrownandCaldwell-Public/tidywater/wiki/References
 
 # Functions to determine alpha from H+ and dissociation constants for carbonate
+calculate_alpha0_carbonate <- function(h, k) {
+  k1 <- k$k1co3
+  k2 <- k$k2co3
+  1 / (1 + (k1 / h) + (k1 * k2 / h^2))
+}
+
 calculate_alpha1_carbonate <- function(h, k) {
   k1 <- k$k1co3
   k2 <- k$k2co3
@@ -541,7 +651,6 @@ K_temp_adjust <- function(deltah, ka, temp) {
   exp((deltah / R * (1 / 298.15 - 1 / tempa)) + lnK)
 }
 
-
 # Ionic strength calculation
 # Crittenden et al (2012) equation 5-37
 
@@ -574,67 +683,6 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
     stop("from and to arguments must be one of 'is', 'tds', or 'cond'.")
   }
 }
-
-# Calculate activity coefficients
-# Activity coefficients: Davies (1967), Crittenden et al. (2012) equation 5-43
-# Activity coefficient constant A: Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
-
-calculate_activity <- function(z, is, temp) {
-  tempa <- temp + 273.15 # absolute temperature (K)
-
-  # dielectric constant (relative permittivity) based on temperature from Harned and Owen (1958), Crittenden et al. (2012) equation 5-45
-  de <- 78.54 * (1 - (0.004579 * (tempa - 298)) + 11.9E-6 * (tempa - 298)^2 + 28E-9 * (tempa - 298)^3)
-
-  # constant for use in calculating activity coefficients from Stumm and Morgan (1996), Trussell (1998), Crittenden et al. (2012) equation 5-44
-  a <- 1.29E6 * (sqrt(2) / ((de * tempa)^1.5))
-
-  # Davies equation, Davies (1967), Crittenden et al. (2012) equation 5-43
-  10^(-a * z^2 * ((is^0.5 / (1 + is^0.5)) - 0.3 * is))
-}
-
-
-# Correct acid dissociation constants for temperature and ionic strength
-# Dissociation constants corrected for non-ideal solutions following Benjamin (2010) example 3.14.
-# See k_temp_adjust for temperature correction equation.
-correct_k <- function(water) {
-  # Determine activity coefficients
-  if (is.na(water@is)) {
-    activity_z1 <- 1
-    activity_z2 <- 1
-    activity_z3 <- 1
-  } else {
-    activity_z1 <- calculate_activity(1, water@is, water@temp)
-    activity_z2 <- calculate_activity(2, water@is, water@temp)
-    activity_z3 <- calculate_activity(3, water@is, water@temp)
-  }
-
-  temp <- water@temp
-  discons <- tidywater::discons
-  # Eq constants
-  # k1co3 = {h+}{hco3-}/{h2co3}
-  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp) / activity_z1^2
-  # k2co3 = {h+}{co32-}/{hco3-}
-  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp) / activity_z2
-  # kso4 = {h+}{so42-}/{hso4-} Only one relevant dissociation for sulfuric acid in natural waters.
-  kso4 <- K_temp_adjust(discons["kso4", ]$deltah, discons["kso4", ]$k, temp) / activity_z2
-  # k1po4 = {h+}{h2po4-}/{h3po4}
-  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp) / activity_z1^2
-  # k2po4 = {h+}{hpo42-}/{h2po4-}
-  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
-  # k3po4 = {h+}{po43-}/{hpo42-}
-  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
-  # kocl = {h+}{ocl-}/{hocl}
-  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
-  # knh4 = {h+}{nh3}/{nh4+}
-  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-
-  return(data.frame(
-    "k1co3" = k1co3, "k2co3" = k2co3,
-    "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
-  ))
-}
-
 
 # SUVA calc
 calc_suva <- function(doc, uv254) {
