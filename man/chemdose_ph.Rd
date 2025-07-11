@@ -33,7 +33,8 @@ chemdose_ph(
   kmno4 = 0,
   naf = 0,
   na3po4 = 0,
-  softening_correction = FALSE
+  softening_correction = FALSE,
+  opensys = FALSE
 )
 
 chemdose_ph_chain(
@@ -153,6 +154,8 @@ chemdose_ph_once(
 \item{na3po4}{Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4}
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
+
+\item{opensys}{Set to TRUE to solve pH in an open system to atmospheric CO2. Default is FALSE.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}

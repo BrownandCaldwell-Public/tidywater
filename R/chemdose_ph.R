@@ -51,7 +51,11 @@
 #' @param naf Amount of sodium fluoride added in mg/L: NaF -> Na + F
 #' @param na3po4 Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
+<<<<<<< Updated upstream
 #' @param open_sys Set to TRUE to consider an open system with impacts of atmospheric CO2. Default is FALSE.
+=======
+#' @param opensys Set to TRUE to solve pH in an open system to atmospheric CO2. Default is FALSE.
+>>>>>>> Stashed changes
 #'
 #' @seealso [define_water], [convert_units]
 #'
@@ -77,7 +81,11 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
                         kmno4 = 0, naf = 0, na3po4 = 0,
+<<<<<<< Updated upstream
                         softening_correction = FALSE, open_sys = FALSE) {
+=======
+                        softening_correction = FALSE, opensys = FALSE) {
+>>>>>>> Stashed changes
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
     warning("Both chlorine- and ammonia-based chemicals were dosed and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
   }
@@ -247,7 +255,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
   # Calculate new pH, H+ and OH- concentrations
-  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose)
+  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose, opensys)
 
   if (softening_correction == TRUE & caco3 < 0) {
     ph_corrected <- (ph - 1.86) / 0.71 # WTP Model eq 5-62
