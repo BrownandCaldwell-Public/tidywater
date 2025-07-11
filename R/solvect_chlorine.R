@@ -69,62 +69,42 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   }
   
   # determine virus log removal based on EPA Guidance Manual Table E-7
-  vlog_removal <- NA_real_
-  if (6 <= ph && ph <= 9) {
-    vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "6-9")
-    if (temp == 0.5) {
-      vlog_table <- subset(vlog_table, temp == 0.5)
-      ct_category <- as.character(cut(ct_actual, breaks = c(6, 9, 12, Inf), labels = c("6-9", "9-12", "12"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 5) {
-      vlog_table <- subset(vlog_table, temp == 5)
-      ct_category <- as.character(cut(ct_actual, breaks = c(4, 6, 8, Inf), labels = c("4-6", "6-8", "8"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 10) {
-      vlog_table <- subset(vlog_table, temp == 10)
-      ct_category <- as.character(cut(ct_actual, breaks = c(3, 4, 5, Inf), labels = c("3-4", "4-5", "5"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 15) {
-      vlog_table <- subset(vlog_table, temp == 15)
-      ct_category <- as.character(cut(ct_actual, breaks = c(2, 3, 4, Inf), labels = c("2-3", "3-4", "4"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 20) {
-      vlog_table <- subset(vlog_table, temp == 20)
-      ct_category <- as.character(cut(ct_actual, breaks = c(1, 2, 3, Inf), labels = c("1-2", "2-3", "3"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 25) {
-      vlog_table <- subset(vlog_table, temp == 25)
-      ct_category <- as.character(cut(ct_actual, breaks = c(1, 2, Inf), labels = c("1-2", "2"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
+    vlog_removal <- NA_real_
+    
+    # Define mapping of ph and temp to breaks and labels
+    ph_temp_mapping <- list(
+      `6-9` = list(
+        `0.5` = list(breaks = c(6, 9, 12, Inf), labels = c("6-9", "9-12", "12")),
+        `5`   = list(breaks = c(4, 6, 8, Inf), labels = c("4-6", "6-8", "8")),
+        `10`  = list(breaks = c(3, 4, 5, Inf), labels = c("3-4", "4-5", "5")),
+        `15`  = list(breaks = c(2, 3, 4, Inf), labels = c("2-3", "3-4", "4")),
+        `20`  = list(breaks = c(1, 2, 3, Inf), labels = c("1-2", "2-3", "3")),
+        `25`  = list(breaks = c(1, 2, Inf), labels = c("1-2", "2"))
+      ),
+      `10` = list(
+        `0.5` = list(breaks = c(45, 66, 90, Inf), labels = c("45-66", "66-90", "90")),
+        `5`   = list(breaks = c(30, 44, 60, Inf), labels = c("30-44", "44-60", "60")),
+        `10`  = list(breaks = c(22, 33, 45, Inf), labels = c("22-33", "33-45", "45")),
+        `15`  = list(breaks = c(15, 22, 30, Inf), labels = c("15-22", "22-30", "30")),
+        `20`  = list(breaks = c(11, 16, 22, Inf), labels = c("11-16", "16-22", "22")),
+        `25`  = list(breaks = c(7, 11, 15, Inf), labels = c("7-11", "11-15", "15"))
+      )
+    )
+    
+    # Determine ph_range key
+    ph_key <- if (ph >= 6 && ph <= 9) "6-9" else if (ph == 10) "10" else NULL
+    
+    if (!is.null(ph_key) && !is.null(ph_temp_mapping[[ph_key]][[as.character(temp)]])) {
+      mapping <- ph_temp_mapping[[ph_key]][[as.character(temp)]]
+      ct_category <- cut(ct_actual, breaks = mapping$breaks, labels = mapping$labels, right = FALSE)
+      
+      vlog_table <- subset(vlog_removalcts, ph_range == ph_key & temp == temp)
+      match_row <- subset(vlog_table, ct_range == as.character(ct_category))
+      
+      if (nrow(match_row) > 0) {
+        vlog_removal <- as.numeric(match_row$vlog_removal[1])
+      }
     }
-  } else if (ph == 10) {
-    vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "10")
-    if (temp == 0.5) {
-      vlog_table <- subset(vlog_table, temp == 0.5)
-      ct_category <- as.character(cut(ct_actual, breaks = c(45, 66, 90, Inf), labels = c("45-66", "66-90", "90"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 5) {
-      vlog_table <- subset(vlog_table, temp == 5)
-      ct_category <- as.character(cut(ct_actual, breaks = c(30, 44, 60, Inf), labels = c("30-44", "44-60", "60"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 10) {
-      vlog_table <- subset(vlog_table, temp == 10)
-      ct_category <- as.character(cut(ct_actual, breaks = c(22, 33, 45, Inf), labels = c("22-33", "33-45", "45"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 15) {
-      vlog_table <- subset(vlog_table, temp == 15)
-      ct_category <- as.character(cut(ct_actual, breaks = c(15, 22, 30, Inf), labels = c("15-22", "22-30", "30"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 20) {
-      vlog_table <- subset(vlog_table, temp == 20)
-      ct_category <- as.character(cut(ct_actual, breaks = c(11, 16, 22, Inf), labels = c("11-16", "16-22", "22"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    } else if (temp == 25) {
-      vlog_table <- subset(vlog_table, temp == 25)
-      ct_category <- as.character(cut(ct_actual, breaks = c(7, 11, 15, Inf), labels = c("7-11", "11-15", "15"), right = FALSE))
-      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
-    }
-  }
 
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
 }
