@@ -34,7 +34,7 @@ chemdose_ph(
   naf = 0,
   na3po4 = 0,
   softening_correction = FALSE,
-  open_sys = FALSE
+  opensys = FALSE
 )
 
 chemdose_ph_chain(
@@ -156,7 +156,7 @@ chemdose_ph_once(
 
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 
-\item{open_sys}{Set to TRUE to consider an open system with impacts of atmospheric CO2. Default is FALSE.}
+\item{opensys}{Set to TRUE to consider an open system with impacts of atmospheric CO2. Default is FALSE.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
