@@ -21,8 +21,6 @@
 #'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
-#'  
-#' @importFrom stats ave
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
@@ -209,11 +207,10 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   individual_dbp <- corrected_dbp_1[
     !(corrected_dbp_1$ID %in% c("tthm", "haa5")) &
       !(corrected_dbp_1$group %in% c("haa6", "haa9")), ]
-  individual_dbp$sum_group <- ave(individual_dbp$modeled_dbp, individual_dbp$group, FUN = sum)
+  individual_dbp$sum_group <- stats::ave(individual_dbp$modeled_dbp, individual_dbp$group, FUN = sum)
   individual_dbp$proportion_group <- individual_dbp$modeled_dbp / individual_dbp$sum_group
   individual_dbp <- merge(individual_dbp, bulk_dbp, by = "group", suffixes = c("_ind", "_bulk"))
   individual_dbp$modeled_dbp <- individual_dbp$proportion_group * individual_dbp$modeled_dbp_bulk
-  
   
   corrected_dbp_2 <- individual_dbp[, c("ID_ind", "group", "modeled_dbp")]
   names(corrected_dbp_2)[names(corrected_dbp_2) == "ID_ind"] <- "ID"
