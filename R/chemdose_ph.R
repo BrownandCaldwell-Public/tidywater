@@ -262,19 +262,12 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   ks <- correct_k(dosed_water)
 
   # Carbonate and phosphate ions and ocl ions
-  if (open_sys) {
-    dosed_water@h2co3 <- 10^-5 # in equilibrium with CO2(aq), constant
-    dosed_water@hco3 <- 10^-5 * ks$k1co3 / h
-    dosed_water@co3 <- ( 10^-5 * ks$k1co3 * ks$k2co3) / h^2
-    dosed_water@tot_co3 <- dosed_water@h2co3 + dosed_water@hco3 + dosed_water@co3
-  } else {
-    alpha0 <- calculate_alpha0_carbonate(h, ks) # proportion of total carbonate as H2CO3
-    alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
-    alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
-    dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
-    dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
-    dosed_water@co3 <- dosed_water@tot_co3 * alpha2 
-  }
+  alpha0 <- calculate_alpha0_carbonate(h, ks) # proportion of total carbonate as H2CO3
+  alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
+  dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
+  dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
