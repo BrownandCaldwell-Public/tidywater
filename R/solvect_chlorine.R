@@ -98,7 +98,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
       mapping <- ph_temp_mapping[[ph_key]][[as.character(temp)]]
       ct_category <- cut(ct_actual, breaks = mapping$breaks, labels = mapping$labels, right = FALSE)
       
-      vlog_table <- subset(vlog_removalcts, ph_range == ph_key & temp == temp)
+      vlog_table <- subset(tidywater::vlog_removalcts, ph_range == ph_key & temp_value == temp)
       match_row <- subset(vlog_table, ct_range == as.character(ct_category))
       
       if (nrow(match_row) > 0) {
@@ -140,7 +140,7 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
                                   free_cl_slot = "residual_only",
                                   water_prefix = TRUE) {
-  calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
+  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- NULL # Quiet RCMD check global variable note
 
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
