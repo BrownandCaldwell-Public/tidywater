@@ -97,14 +97,10 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     
     if (!is.null(ph_key) && !is.null(ph_temp_mapping[[ph_key]][[as.character(temp)]])) {
       mapping <- ph_temp_mapping[[ph_key]][[as.character(temp)]]
-      ct_category <- cut(ct_actual, breaks = mapping$breaks, labels = mapping$labels, right = FALSE)
+      ct_category <- as.numeric(cut(ct_actual, breaks = mapping$breaks, labels = mapping$labels, right = FALSE))
       
       vlog_table <- subset(tidywater::vlog_removalcts, tidywater::vlog_removalcts$ph_range == ph_key & tidywater::vlog_removalcts$temp_value == temp)
-      match_row <- subset(vlog_table, tidywater::vlog_removalcts$dect_range == as.character(ct_category))
-      
-      if (nrow(match_row) > 0) {
-        vlog_removal <- as.numeric(match_row$vlog_removal[1])
-      }
+      vlog_removal <- vlog_table[ct_category, 4]
     }
 
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
