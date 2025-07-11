@@ -23,6 +23,7 @@
 #'
 #' @source Smith et al. (1995)
 #' @source USEPA (2020)
+#' @source USEPA (1991)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
@@ -68,6 +69,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   }
   
   # determine virus log removal based on EPA Guidance Manual Table E-7
+  vlog_removal <- NA_real_
   if (6 <= ph && ph <= 9) {
     vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "6-9")
     if (temp == 0.5) {
@@ -76,14 +78,24 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
       vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 5) {
       vlog_table <- subset(vlog_table, temp == 5)
+      ct_category <- as.character(cut(ct_actual, breaks = c(4, 6, 8, Inf), labels = c("4-6", "6-8", "8"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 10) {
       vlog_table <- subset(vlog_table, temp == 10)
+      ct_category <- as.character(cut(ct_actual, breaks = c(3, 4, 5, Inf), labels = c("3-4", "4-5", "5"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 15) {
       vlog_table <- subset(vlog_table, temp == 15)
+      ct_category <- as.character(cut(ct_actual, breaks = c(2, 3, 4, Inf), labels = c("2-3", "3-4", "4"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 20) {
       vlog_table <- subset(vlog_table, temp == 20)
+      ct_category <- as.character(cut(ct_actual, breaks = c(1, 2, 3, Inf), labels = c("1-2", "2-3", "3"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 25) {
       vlog_table <- subset(vlog_table, temp == 25)
+      ct_category <- as.character(cut(ct_actual, breaks = c(1, 2, Inf), labels = c("1-2", "2"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     }
   } else if (ph == 10) {
     vlog_table <- subset(tidywater::vlog_removalcts, ph_range == "10")
@@ -93,20 +105,28 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
       vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 5) {
       vlog_table <- subset(vlog_table, temp == 5)
+      ct_category <- as.character(cut(ct_actual, breaks = c(30, 44, 60, Inf), labels = c("30-44", "44-60", "60"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 10) {
       vlog_table <- subset(vlog_table, temp == 10)
+      ct_category <- as.character(cut(ct_actual, breaks = c(22, 33, 45, Inf), labels = c("22-33", "33-45", "45"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 15) {
       vlog_table <- subset(vlog_table, temp == 15)
+      ct_category <- as.character(cut(ct_actual, breaks = c(15, 22, 30, Inf), labels = c("15-22", "22-30", "30"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 20) {
       vlog_table <- subset(vlog_table, temp == 20)
+      ct_category <- as.character(cut(ct_actual, breaks = c(11, 16, 22, Inf), labels = c("11-16", "16-22", "22"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     } else if (temp == 25) {
       vlog_table <- subset(vlog_table, temp == 25)
+      ct_category <- as.character(cut(ct_actual, breaks = c(7, 11, 15, Inf), labels = c("7-11", "11-15", "15"), right = FALSE))
+      vlog_removal <- as.numeric(subset(vlog_table, ct_range == ct_category, select = vlog_removal))
     }
-  } else {
-    vlog_removal <- NA #table only includes ct values for pH range between 6-10
   }
 
-  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)
+  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
 }
 
 
@@ -173,7 +193,8 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
       rename(
         !!paste(input_water, "ct_required", sep = "_") := ct_required,
         !!paste(input_water, "ct_actual", sep = "_") := ct_actual,
-        !!paste(input_water, "glog_removal", sep = "_") := glog_removal
+        !!paste(input_water, "glog_removal", sep = "_") := glog_removal,
+        !!paste(input_water, "vlog_removal", sep = "_") := vlog_removal
       )
   }
 }

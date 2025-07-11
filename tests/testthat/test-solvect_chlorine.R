@@ -51,6 +51,28 @@ test_that("solvect_chlorine works.", {
   expect_equal(round(ct$glog_removal, 2), 1.21)
 })
 
+test_that("solvect_chlorine determines virus log removal", {
+  water1 <- suppressWarnings(define_water(ph=7.5, temp=20, toc=3.5, uv254=0.1, br=50))
+  water2 <- suppressWarnings(define_water(ph=10, temp=15, toc=3.5, uv254=0.1, br=50))
+  water3 <- suppressWarnings(define_water(ph=7.5, temp=5, toc=3.5, uv254=0.1, br=50))
+  water4 <- suppressWarnings(define_water(ph=12, temp=20, toc=3.5, uv254=0.1, br=50))
+  water5 <- suppressWarnings(define_water(ph=7.5, temp=22, toc=3.5, uv254=0.1, br=50))
+  
+  ct1 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
+  ct2 <- solvect_chlorine(water1, time = 0.5, residual = 1, baffle = 0.3) # ct is too short for virus removal
+  ct3 <- solvect_chlorine(water2, time = 30, residual = 5, baffle = 0.3)
+  ct4 <- solvect_chlorine(water3, time = 10, residual = 2, baffle = 0.3)
+  ct5 <- solvect_chlorine(water4, time = 30, residual = 5, baffle = 0.3)
+  ct6 <- solvect_chlorine(water5, time = 30, residual = 5, baffle = 0.3)
+  
+  expect_equal(ct1$vlog_removal, 4.0)
+  expect_true(is.na(ct2$vlog_removal))
+  expect_equal(ct3$vlog_removal, 4.0)
+  expect_equal(ct4$vlog_removal, 3.0)
+  expect_true(is.na(ct5$vlog_removal))
+  expect_true(is.na(ct6$vlog_removal))
+})
+
 # HELPERS ----
 test_that("solvect_chlorine_once outputs are the same as base function, solvect_chlorine", {
   testthat::skip_on_cran()
@@ -113,7 +135,7 @@ test_that("solvect_chlorine_once can use a column and/or function argument for t
     solvect_chlorine_once(residual = c(5, 8), baffle = .5, time = ChlorTime)
 
   expect_equal(water1$defined_water_ct_required, water2$defined_water_ct_required) # test different ways to input time
-  expect_equal(ncol(water3), ncol(water0) + 6) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal
+  expect_equal(ncol(water3), ncol(water0) + 7) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal, vlog_removal
   expect_equal(nrow(water3), 288) # joined correctly
 })
 

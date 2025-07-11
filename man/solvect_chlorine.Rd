@@ -9,6 +9,8 @@ Smith et al. (1995)
 
 USEPA (2020)
 
+USEPA (1991)
+
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
