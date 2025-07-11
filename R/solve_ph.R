@@ -10,23 +10,6 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
-<<<<<<< Updated upstream
-                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose) {
-      kw / (h * gamma1^2) +
-        2 * so4_dose +
-        tot_po4 * (calculate_alpha1_phosphate(h, ks) +
-                     2 * calculate_alpha2_phosphate(h, ks) +
-                     3 * calculate_alpha3_phosphate(h, ks)) +
-        tot_co3 * (calculate_alpha1_carbonate(h, ks) +
-                     2 * calculate_alpha2_carbonate(h, ks)) +
-        tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
-        cl_dose +
-        mno4_dose -
-        (h + na_dose + 2 * ca_dose + 2 * mg_dose +
-           tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
-        alk_eq -
-        3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i + nh4_i 
-=======
                       alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, opensys) {
     charge_balance <- kw / (h * gamma1^2) +
       2 * so4_dose +
@@ -50,7 +33,6 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       charge_balance <- charge_balance + penalty
     }
     return(charge_balance)
->>>>>>> Stashed changes
   }
 
   root_h <- stats::uniroot(solve_h,
