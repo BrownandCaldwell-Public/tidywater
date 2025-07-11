@@ -797,6 +797,7 @@ bromatecoeffs <- data.frame(
   )
 usethis::use_data(bromatecoeffs, overwrite = TRUE)
 
+# Convert units ----
 # For all units accepted by the convert_units function
 # provide their SI base multipliers
 unit_multipliers <- data.frame(
@@ -837,10 +838,21 @@ formula_to_charge <- data.frame(
   "hcl" = 1,
   "naoh" = 1,
   "nahco3" = 1,
+  "naf" = 1,
+  "hno3" = 1,
   "nh4" = 1,
+  "nh3" = 1,
   "f" = 1,
   "br" = 1,
+  "no3" = 1,
   "bro3" = 1,
+  "hco3" = 1,
+  "ocl" = 1,
+  "oh" = 1,
+  "kmno4" = 1,
+  "mno4" = 1,
+  "h2po4" = 1,
+
   "so4" = 2,
   "caco3" = 2,
   "h2so4" = 2,
@@ -851,15 +863,20 @@ formula_to_charge <- data.frame(
   "ca" = 2,
   "pb" = 2,
   "cacl2" = 2,
+  "caocl2" = 2,
   "mn" = 2,
+  "co3" = 2,
+  "hpo4" = 2,
+
   "h3po4" = 3,
   "al" = 3,
   "fe" = 3,
   "alum" = 3,
   "fecl3" = 3,
-  # TODO ASK SIERRA (fe2so43 is not in mweights)
-  # "fe2so43"= 3,
-  "po4" = 3
+  "fe2so43"= 3,
+  "po4" = 3,
+  "na3po4" = 3
+
 )
 
 # This function is used to generate a fast lookup table to speed up unit conversions.

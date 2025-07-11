@@ -34,7 +34,7 @@ balance_ions_chain(
 \code{balance_ions_chain} returns a dataframe with a new column with the ion balanced water
 }
 \description{
-This function takes a water defined by \link{define_water} and balances charge.
+This function takes a water as defined by \link{define_water} and balances charge.
 For a single water use \code{balance_ions}; for a dataframe use \code{balance_ions_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 }
