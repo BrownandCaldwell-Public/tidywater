@@ -51,13 +51,17 @@ test_that("Modify water chain works with multiple inputs.", {
   testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_chain("test") %>%
-    mutate(bromide = 50, sodium = 50)
+    mutate(br = 50, na = 60)
   
-  water1 <- modify_water_chain(water0, "test", "modified", 
-                               slot = c("br", "na"), value = c("bromide", "sodium"), units = c("ug/L", "mg/L")) %>%
-    pluck_water(input_waters = "modified", parameter = c("br", "na"))
+  water1 <- water_df %>%
+    define_water_chain() %>%
+    mutate(slot=list(c("br", "na")),
+           value=list(c(50,60)),
+           units=list(c("ug/L", "mg/L"))) %>%
+    modify_water_chain() %>%
+    pluck_water(input_water = "modified_water", parameter=c("br", "na"))
   
-  expect_s4_class(water1$modified[[1]], "water")
-  expect_true(all.equal(convert_units(water1$modified_br, "br", "M", "ug/L"), water0$bromide))
-  expect_true(all.equal(convert_units(water1$modified_na, "na", "M", "mg/L"), water0$sodium))
+  expect_s4_class(water1$modified_water[[1]], "water")
+  expect_true(all.equal(convert_units(water1$modified_water_br, "br", "M", "ug/L"), water0$br))
+  expect_true(all.equal(convert_units(water1$modified_water_na, "na", "M", "mg/L"), water0$na))
 })

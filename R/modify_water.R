@@ -114,39 +114,31 @@ modify_water <- function(water, slot, value, units) {
 #' @returns `modify_water_chain` returns a data frame containing a water class column with updated slot
 
 modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
-                               slot = "use_col", value = "use_col", units = "use_col") {
+                                 slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
-  
-  
-  # Capture value as quosure if it's passed unquoted
-  value_quo <- rlang::enquo(value)
-  
-  
-  # If value is a symbol (unquoted column), convert to string
-  if (rlang::quo_is_symbol(value_quo)) {
-    value <- rlang::as_name(value_quo)
-    value_type <- "column"
-  } else if (is.character(value)) {
-    value_type <- "column"
-  } else {
-    value_type <- "literal"
+
+  slot <- tryCatch(slot, error = function(e) enquo(slot))
+  value <- tryCatch(value, error = function(e) enquo(value))
+  units <- tryCatch(units, error = function(e) enquo(units))
+
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
   }
-  
-  for (water in input_water) {
-    df[[output_water]] <- furrr::future_map2(df[[water]], seq_len(nrow(df)), function(w, i) {
-      for (j in seq_along(slot)) {
-        val <- if (value_type == "column") {
-          df[[value[j]]][i]
-        } else {
-          value[min(j, length(value))] # support scalar or vector
-        }
-        
-        w <- modify_water(w, slot = slot[j], value = val, units = units[j])
-      }
-      w
-    })
-  }
-  
-  df
-  
+
+  output <- df %>%
+    mutate(!!output_water := furrr::future_pmap(
+      list(
+        water = !!as.name(input_water),
+        slot = !!as.name(arguments$final_names$slot),
+        value = !!as.name(arguments$final_names$value),
+        units = !!as.name(arguments$final_names$units)
+      ),
+      modify_water
+    ))
 }
+
