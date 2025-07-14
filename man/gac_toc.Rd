@@ -10,16 +10,16 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 
 Zachman and Summers (2010)
 
-BC WTP Model v. 2.0 Manual (2001)
+U.S. EPA (2001)
 }
 \usage{
 gac_toc(
   water,
   ebct = 10,
-  model,
+  model = "Zachman",
   media_size = "12x40",
   bed_vol,
-  pretreat = "coag_only"
+  pretreat = "coag"
 )
 
 gac_toc_chain(
@@ -40,22 +40,23 @@ gac_toc_once(
   media_size = "use_col",
   ebct = "use_col",
   bed_vol = "use_col",
-  pretreat = "use_col"
+  pretreat = "use_col",
+  water_prefix = TRUE
 )
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \link{define_water}}
 
-\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.}
+\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Defaults to 10 minutes.}
 
-\item{model}{Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.}
+\item{model}{Specifies which GAC TOC removal model to apply. Options are Zachman and WTP. Defaults to Zachman.}
 
-\item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.}
+\item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Defaults to 12x40.}
 
 \item{bed_vol}{Bed volume of GAC filter to predict effluent TOC for.}
 
-\item{pretreat}{Specifies the level of pretreatment prior to GAC treatment. Defaults to "coag_only".
-Other option is coagulant, ozonation, and biotreatment, called "coag_plus".}
+\item{pretreat}{Specifies the level of pretreatment prior to GAC treatment. Defaults to "coag".
+Other option is coagulant, ozonation, and biotreatment, called "o3biof".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
@@ -63,6 +64,8 @@ Other option is coagulant, ozonation, and biotreatment, called "coag_plus".}
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "gac_water".}
+
+\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
 \code{gac_toc} returns a water class object with updated DOC, TOC, and UV254 slots.
@@ -73,7 +76,7 @@ Other option is coagulant, ozonation, and biotreatment, called "coag_plus".}
 }
 \description{
 Calculates TOC concentration after passing through GAC treatment according to the model developed in
-"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
+"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the logistics curve approach in EPA WTP Model v. 2.0 Manual (2001).
 For a single water use \code{gac_toc}; for a dataframe use \code{gac_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
@@ -86,7 +89,7 @@ Water must contain DOC or TOC value.
 GAC model for TOC removal
 
 The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
-UV254 concentrations are predicted based on a linear relationship with DOC.
+UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
 
 For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
 for the option to use parallel processing and speed things up. To initialize parallel processing, use
@@ -99,7 +102,11 @@ water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   gac_toc(media_size = "8x30", ebct = 20, model = "Zachman", bed_vol = 15000)
 
 
+\donttest{
+# Initialize parallel processing
+library(furrr)
 library(dplyr)
+# plan(multisession)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
@@ -109,10 +116,6 @@ example_df <- water_df \%>\%
          bed_vol = rep(c(12000, 15000, 18000), 4)) \%>\%
   gac_toc_chain()
 
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
   mutate(model = "WTP",
@@ -122,10 +125,7 @@ example_df <- water_df \%>\%
 # Optional: explicitly close multisession processing
 # plan(sequential)
 }
-
-library(purrr)
-library(furrr)
-library(tidyr)
+\donttest{
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -135,5 +135,6 @@ example_df <- water_df \%>\%
          ebct = 10, 
          bed_vol = rep(c(12000, 15000, 18000), 4)) \%>\%
   gac_toc_once()
+}
 
 }

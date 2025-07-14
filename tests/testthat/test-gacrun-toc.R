@@ -1,7 +1,10 @@
 # GACRUN-TOC ----
 
 test_that("No water defined, no default listed", {
-  expect_error(gacrun_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
+  water <- water_df[1,]
+  
+  expect_error(gac_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
+  expect_error(gac_toc(water)) # water is not a defined water object
 })
 
 test_that("gacrun_toc returns error if inputs are misspelled or missing.", {
@@ -19,8 +22,8 @@ test_that("gacrun_toc returns error if inputs are misspelled or missing.", {
 test_that("gacrun_toc defaults to correct values.", {
   water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5))
   
-  plot1 <- gacrun_toc(water, model = "WTP")
-  plot2 <- gacrun_toc(water, ebct = 10, model = "WTP", media_size = "12x40")
+  plot1 <- gacrun_toc(water)
+  plot2 <- gacrun_toc(water, ebct = 10, model = "Zachman", media_size = "12x40")
   
   expect_true(identical(plot1, plot2))
 })

@@ -1,7 +1,10 @@
 # GACBV-TOC ----
 
 test_that("No water defined, no default listed", {
-  expect_error(gacbv_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
+  water <- water_df[1,]
+  
+  expect_error(gac_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
+  expect_error(gac_toc(water)) # water is not a defined water object
 })
 
 test_that("gacbv_toc returns error if inputs are misspelled or missing.", {
@@ -20,8 +23,8 @@ test_that("gacbv_toc returns error if inputs are misspelled or missing.", {
 test_that("gacbv_toc defaults to correct values.", {
   water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5))
   
-  bv1 <- gacbv_toc(water, model = "WTP", target_doc = 0.8)
-  bv2 <- gacbv_toc(water, ebct = 10, model = "WTP", media_size = "12x40", target_doc = 0.8)
+  bv1 <- gacbv_toc(water, target_doc = 0.8)
+  bv2 <- gacbv_toc(water, ebct = 10, model = "Zachman", media_size = "12x40", target_doc = 0.8)
   
   expect_equal(bv1, bv2)
 })
@@ -37,6 +40,7 @@ test_that("gacbv_toc works.", {
   expect_equal(bv1, 20000)
   expect_false(identical(bv1, bv2))
   expect_true(is.vector(bv3))
+  expect_error(gacbv_toc(water, target_doc = 0))
 })
 
 ################################################################################*
@@ -60,7 +64,7 @@ test_that("gacbv_toc_once outputs are the same as base function, gacbv_toc", {
     define_water_chain() %>%
     gacbv_toc_once(model = "WTP", target_doc = 0.8, media_size = "12x40", ebct = 10)
   
-  expect_equal(list(water1), water2$bed_volume)
+  expect_equal(list(water1), water2$defined_water_bed_volume)
 })
 
 # Test that output is a data frame with the correct number of columns

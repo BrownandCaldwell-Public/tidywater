@@ -1,7 +1,10 @@
 # GAC_TOC ----
 
 test_that("No water defined, no default listed", {
+  water <- water_df[1,]
+  
   expect_error(gac_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
+  expect_error(gac_toc(water)) # water is not a defined water object
 })
 
 test_that("gac_toc returns error if inputs are misspelled or missing.", {
@@ -20,8 +23,8 @@ test_that("gac_toc returns error if inputs are misspelled or missing.", {
 test_that("gac_toc defaults to correct values.", {
   water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5))
   
-  dosed1 <- gac_toc(water, model = "WTP", bed_vol = 15000)
-  dosed2 <- gac_toc(water, ebct = 10, model = "WTP", media_size = "12x40", bed_vol = 15000, pretreat = "coag_only")
+  dosed1 <- gac_toc(water, bed_vol = 15000)
+  dosed2 <- gac_toc(water, ebct = 10, model = "Zachman", media_size = "12x40", bed_vol = 15000, pretreat = "coag")
   
   expect_equal(dosed1@toc, dosed2@toc)
   expect_equal(dosed1@doc, dosed2@doc)
@@ -37,14 +40,14 @@ test_that("Output water is s4 class", {
 test_that("gac_toc works", {
   
   water1 <- suppressWarnings(define_water(ph = 7.5, toc = 3.5))
-  water2 <- gac_toc(water1, model = "Zachman", bed_vol = 10000) 
+  water2 <- gac_toc(water1, model = "Zachman", bed_vol = 8000) 
   water3 <- gac_toc(water1, model = "WTP", bed_vol = 10000)
-  water4 <- gac_toc(water1, model = "Zachman", bed_vol = 8000)
-  water5 <- gac_toc(water1, model = "Zachman", bed_vol = 10000, pretreat = "coag_plus")
+  water4 <- gac_toc(water1, model = "Zachman", bed_vol = 10000)
+  water5 <- gac_toc(water1, model = "Zachman", bed_vol = 10000, pretreat = "o3biof")
   water6 <- gac_toc(water1, ebct = 20, model = "Zachman", bed_vol = 10000)
-  water7 <- gac_toc(water1, media_size = "8x30", model = "Zachman", bed_vol = 10000)
+  water7 <- gac_toc(water1, media_size = "8x30", model = "Zachman", bed_vol = 8000)
   
-  expect_equal(round(water2@doc, 2), 2.16)
+  expect_equal(round(water2@doc, 2), 1.90)
   expect_false(identical(water2@doc, water3@doc))
   expect_false(identical(water2@doc, water4@doc))
   expect_false(identical(water2@uv254, water5@uv254))
@@ -73,9 +76,9 @@ test_that("gac_toc_once outputs are the same as base function, gac_toc", {
     define_water_chain() %>%
     gac_toc_once(model = "WTP", bed_vol = 15000, media_size = "12x40", ebct = 10)
   
-  expect_equal(water1@toc, water2$toc)
-  expect_equal(water1@doc, water2$doc)
-  expect_equal(water1@uv254, water2$uv254)
+  expect_equal(water1@toc, water2$defined_water_toc)
+  expect_equal(water1@doc, water2$defined_water_doc)
+  expect_equal(water1@uv254, water2$defined_water_uv254)
 })
 
 # Test that output is a data frame with the correct number of columns
@@ -88,7 +91,7 @@ test_that("gac_toc_once output is data frame", {
                                       media_size = "12x40",
                                       ebct = 10,
                                       bed_vol = 10000,
-                                      pretreat = "coag_only"))
+                                      pretreat = "coag"))
   
   water1 <- water0 %>%
     gac_toc_once(input_water = "raw")
@@ -130,7 +133,7 @@ test_that("gac_toc_chain output is list of water class objects", {
                                       media_size = "12x40",
                                       ebct = 10,
                                       bed_vol = 10000,
-                                      pretreat = "coag_only") %>%
+                                      pretreat = "coag") %>%
                                gac_toc_chain(input_water = "raw"))
   
   water2 <- purrr::pluck(water1, "gac_water", 1)

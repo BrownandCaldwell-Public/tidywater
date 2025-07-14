@@ -8,26 +8,26 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 
 Zachman and Summers (2010)
 
-BC WTP Model v. 2.0 Manual (2001)
+USEPA (2001)
 }
 \usage{
-gacrun_toc(water, ebct = 10, model, media_size = "12x40")
+gacrun_toc(water, ebct = 10, model = "Zachman", media_size = "12x40")
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \link{define_water}}
 
-\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.}
+\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.}
 
 \item{model}{Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.}
 
-\item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.}
+\item{media_size}{Size of GAC filter mesh. If model is Zachman, can choose between 12x40 and 8x30 mesh sizes, otherwise leave as default. Defaults to 12x40.}
 }
 \value{
 \code{gacrun_toc} returns a data frame with bed volumes and breakthrough TOC values.
 }
 \description{
 Returns a data frame with a breakthrough curve based on the TOC concentration after passing through GAC treatment, according to the model developed in
-"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
+"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
 
 Water must contain DOC or TOC value.
 }

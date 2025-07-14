@@ -17,9 +17,9 @@
 #' @source USEPA (2001)
 #' 
 #' @param water Source water object of class "water" created by [define_water]
-#' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.
+#' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
-#' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.
+#' @param media_size Size of GAC filter mesh. If model is Zachman, can choose between 12x40 and 8x30 mesh sizes, otherwise leave as default. Defaults to 12x40.
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
@@ -30,19 +30,18 @@
 #' @returns `gacrun_toc` returns a data frame with bed volumes and breakthrough TOC values.
 #'
 
-gacrun_toc <- function(water, ebct = 10, model, media_size = "12x40") {
-  validate_water(water, c("ph", "toc"))
-  
-  # check that media_sizeand ebct are inputted correctly
-  if (media_size != "12x40" && media_size != "8x30") {
-    stop("GAC media size must be either 12x40 or 8x30.")
-  }
-  
-  if (ebct != 10 && ebct != 20) {
-    stop("Models only apply for GAC reactors with ebct of 10 or 20 minutes.")
-  }
+gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40") {
+  validate_water(water, c("ph", "doc"))
   
   if (model == "Zachman") {
+    # check that media_size and ebct are inputted correctly
+    if (media_size != "12x40" && media_size != "8x30") {
+      stop("GAC media size must be either 12x40 or 8x30.")
+    }
+    if (ebct != 10 && ebct != 20) {
+      stop("Zachman model only apply for GAC reactors with ebct of 10 or 20 minutes.")
+    }
+    
     x_norm <- seq(20, 70, 0.5) # x_norm represents the normalized effluent TOC concentration
     ### Implementation with the Zachman and Summers model
     # Equations for A and BV according to Zachman and Summers 2010

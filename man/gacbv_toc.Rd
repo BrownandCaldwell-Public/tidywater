@@ -3,16 +3,22 @@
 \name{gacbv_toc}
 \alias{gacbv_toc}
 \alias{gacbv_toc_once}
-\title{Calculate bed volume to achieve target DOC}
+\title{Calculate maximum bed volumes to stay below target DOC}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
 Zachman and Summers (2010)
 
-BC WTP Model v. 2.0 Manual (2001)
+USEPA (2001)
 }
 \usage{
-gacbv_toc(water, ebct = 10, model, media_size = "12x40", target_doc)
+gacbv_toc(
+  water,
+  ebct = 10,
+  model = "Zachman",
+  media_size = "12x40",
+  target_doc
+)
 
 gacbv_toc_once(
   df,
@@ -20,17 +26,18 @@ gacbv_toc_once(
   model = "use_col",
   media_size = "use_col",
   ebct = "use_col",
-  target_doc = "use_col"
+  target_doc = "use_col",
+  water_prefix = TRUE
 )
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \link{define_water}}
 
-\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.}
+\item{ebct}{Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.}
 
 \item{model}{Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.}
 
-\item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.}
+\item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Default is 12x40.}
 
 \item{target_doc}{Optional input to set a target DOC concentration and calculate necessary bed volume}
 
@@ -38,6 +45,8 @@ gacbv_toc_once(
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
 \code{gacbv_toc} returns a data frame of bed volumes that achieve the target DOC.
@@ -46,9 +55,8 @@ gacbv_toc_once(
 }
 \description{
 Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in
-"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
+"Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
 For a single water use \code{gacbv_toc}; for a dataframe use \code{gacbv_toc_once}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_once} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
@@ -70,10 +78,7 @@ shorter run times will not benefit from parallel processing.
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
 bed_volume <- gacbv_toc(water, media_size = "8x30", ebct = 20, model = "Zachman", target_doc = 0.8)
 
-
-library(purrr)
-library(furrr)
-library(tidyr)
+\donttest {
 library(dplyr)
 
 example_df <- water_df \%>\%
@@ -83,5 +88,6 @@ example_df <- water_df \%>\%
          ebct = 10, 
          target_doc = rep(c(0.5, 0.8, 1), 4)) \%>\%
   gacbv_toc_once()
+}
 
 }

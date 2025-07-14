@@ -38,15 +38,20 @@
 #' @returns `gacbv_toc` returns a data frame of bed volumes that achieve the target DOC.
 #'
 
-gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc) {
-  validate_water(water, c("ph", "toc"))
+gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", target_doc) {
+  validate_water(water, c("ph", "doc"))
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
   
   if (missing(target_doc)) {
     stop("Target DOC is a required argument to predict bed volumes.")
   }
+  
+  if (any((target_doc / water@doc) < min(breakthrough_df$x_norm) | 
+         (target_doc / water@doc) > max(breakthrough_df$x_norm))) {
+    error("Target DOC is outside of range for the chosen model. Use `gacrun_toc` for complete breakthrough curve.")
+  }
     
-  x_index <- sapply(target_doc/0.95, function(x) which.min(abs(breakthrough_df$x_norm-x))) # should work with input of multiple target DOCs
+  x_index <- sapply((target_doc/0.95) * water@toc, function(x) which.min(abs(breakthrough_df$x_norm-x))) # should work with input of multiple target DOCs
   output_bv <- breakthrough_df$bv[x_index]
   
   return(output_bv)
@@ -56,9 +61,10 @@ gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc)
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
+#' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'
 #' @examples
-#'
+#'\donttest {
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -68,6 +74,7 @@ gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc)
 #'          ebct = 10, 
 #'          target_doc = rep(c(0.5, 0.8, 1), 4)) %>%
 #'   gacbv_toc_once()
+#'}
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
@@ -77,7 +84,7 @@ gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc)
 #'
 
 gacbv_toc_once <- function(df, input_water = "defined_water", model = "use_col",
-                         media_size = "use_col", ebct = "use_col", target_doc = "use_col") {
+                         media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
   bed_volume <- NULL # Quiet RCMD check global variable note
   
@@ -106,6 +113,14 @@ gacbv_toc_once <- function(df, input_water = "defined_water", model = "use_col",
       ),
       gacbv_toc
     ))
+  
+  if (water_prefix) {
+    output <- output %>%
+      rename(
+        !!paste(input_water, "target_doc", sep = "_") := target_doc,
+        !!paste(input_water, "bed_volume", sep = "_") := bed_volume,
+      )
+  }
   
   return(output)
 }
