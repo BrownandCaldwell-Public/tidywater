@@ -18,7 +18,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
-      tot_ch3cooh * calculate_alpha1_acetate(h, ks) +
+      tot_ch3coo * calculate_alpha1_acetate(h, ks) +
       cl_dose +
       mno4_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose +
@@ -40,7 +40,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     ocl_i = water@ocl,
     tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
-    tot_ch3cooh = water@tot_ch3coo,
+    tot_ch3coo = water@tot_ch3coo,
     ch3coo_i = water@ch3coo,
     alk_eq = water@alk_eq,
     na_dose = na_dose,
