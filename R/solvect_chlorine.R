@@ -70,7 +70,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   }
   
   # determine virus log removal based on EPA Guidance Manual Table E-7
-  if (ph < 6 || ph > 12) {
+  if (ph < 6 || ph > 10) {
     vlog_removal <- NA_real_
   } else {
     if (ph > 9 && ph < 10) {

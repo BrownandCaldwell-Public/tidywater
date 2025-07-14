@@ -56,7 +56,7 @@ test_that("solvect_chlorine determines virus log removal", {
   water2 <- suppressWarnings(define_water(ph=10, temp=15, toc=3.5, uv254=0.1, br=50))
   water3 <- suppressWarnings(define_water(ph=7.5, temp=5, toc=3.5, uv254=0.1, br=50))
   water4 <- suppressWarnings(define_water(ph=12, temp=20, toc=3.5, uv254=0.1, br=50))
-  water5 <- suppressWarnings(define_water(ph=7.5, temp=22, toc=3.5, uv254=0.1, br=50))
+  water5 <- suppressWarnings(define_water(ph=5, temp=22, toc=3.5, uv254=0.1, br=50))
   
   ct1 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
   ct2 <- solvect_chlorine(water1, time = 0.5, residual = 1, baffle = 0.3) # ct is too short for virus removal
