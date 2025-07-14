@@ -64,7 +64,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'
 #' @examples
-#'\donttest {
+#' \donttest{
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
@@ -74,7 +74,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #'          ebct = 10, 
 #'          target_doc = rep(c(0.5, 0.8, 1), 4)) %>%
 #'   gacbv_toc_once()
-#'}
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest

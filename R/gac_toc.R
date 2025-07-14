@@ -76,11 +76,11 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'
 #' @examples
 #'
-#'\donttest{
+#' \donttest{
 #' # Initialize parallel processing
 #' library(furrr)
 #' library(dplyr)
-#'# plan(multisession)
+#' # plan(multisession)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
@@ -97,7 +97,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'   gac_toc_chain(input_water = "raw")
 #'
 #' # Optional: explicitly close multisession processing
-#'# plan(sequential)
+#' # plan(sequential)
 #' }
 #' @import dplyr
 #'
