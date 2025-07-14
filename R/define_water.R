@@ -25,7 +25,7 @@
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tot_nh3 Total ammonia in mg/L as N
-#' @param tot_ch3cooh Total acetic acid in mg/L
+#' @param tot_ch3coo Total acetate in mg/L
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #' @param toc Total organic carbon (TOC) in mg/L
@@ -74,13 +74,13 @@
 #'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 #'   \item{po4}{phosphate, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
-#'   \item{ch3coo}{acetic acid, numeric, mol/L.}
+#'   \item{ch3coo}{acetate, numeric, mol/L.}
 #'   \item{h}{hydrogen ion, numeric, mol/L.}
 #'   \item{oh}{hydroxide ion, numeric, mol/L.}
 #'   \item{tot_po4}{total phosphate, numeric, mol/L.}
 #'   \item{tot_nh3}{total ammonia, numeric, mol/L.}
 #'   \item{tot_co3}{total carbonate, numeric, mol/L.}
-#'   \item{tot_ch3cooh}{total acetate, numeric, mol/L.}
+#'   \item{tot_ch3coo}{total acetate, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
 #'   \item{bro3}{bromate, numeric, mol/L.}
 #'   \item{f}{fluoride, numeric, mol/L.}
