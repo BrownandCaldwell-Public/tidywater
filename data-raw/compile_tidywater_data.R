@@ -1004,6 +1004,12 @@ vlog_removalcts <- data.frame(
   add_row(
     ph_range = "6-9",
     temp_value = 25,
+    ct_range = "1",
+    vlog_removal =2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
     ct_range = "1-2",
     vlog_removal = 3.0
   ) %>%
