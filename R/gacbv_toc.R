@@ -1,6 +1,6 @@
 #' GAC model for TOC removal
 #' 
-#' @title Calculate bed volume to achieve target DOC
+#' @title Calculate maximum bed volumes to stay below target DOC
 #'
 #' @description Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in 
 #' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
