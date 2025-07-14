@@ -3,7 +3,7 @@
 #' @title Calculate TOC Concentration in GAC system
 #'
 #' @description Calculates TOC concentration after passing through GAC treatment according to the model developed in 
-#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
+#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the logistics curve approach in EPA WTP Model v. 2.0 Manual (2001).
 #' For a single water use `gac_toc`; for a dataframe use `gac_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
