@@ -5,7 +5,6 @@
 #' @description Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in 
 #' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
 #' For a single water use `gacbv_toc`; for a dataframe use `gacbv_toc_once`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_once` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
