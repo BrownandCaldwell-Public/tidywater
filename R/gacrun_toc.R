@@ -3,7 +3,7 @@
 #' @title Calculate TOC Concentration in GAC system
 #'
 #' @description Returns a data frame with a breakthrough curve based on the TOC concentration after passing through GAC treatment, according to the model developed in 
-#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the BC WTP Model v. 2.0 Manual.
+#' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
 #'
 #' Water must contain DOC or TOC value.
 #'
