@@ -21,7 +21,7 @@
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source Zachman and Summers (2010)
-#' @source BC WTP Model v. 2.0 Manual (2001)
+#' @source USEPA (2001)
 #' 
 #' @param water Source water object of class "water" created by [define_water]
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.
