@@ -26,7 +26,7 @@
 #' @source U.S. EPA (2001)
 #' 
 #' @param water Source water object of class "water" created by [define_water]
-#' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes.
+#' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Defaults to 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes.
 #' @param bed_vol Bed volume of GAC filter to predict effluent TOC for.
