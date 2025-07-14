@@ -44,7 +44,7 @@ methods::setClass(
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
-    tot_ch3cooh = "numeric",
+    tot_ch3coo = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",
@@ -125,7 +125,7 @@ methods::setClass(
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
-    tot_ch3cooh = NA_real_,
+    tot_ch3coo = NA_real_,
 
     # Additional ions
     br = NA_real_,

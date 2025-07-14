@@ -9,7 +9,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
-                      tot_ch3cooh, ch3coo_i, alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose) {
+                      tot_ch3coo, ch3coo_i, alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose) {
     kw / (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 * (calculate_alpha1_phosphate(h, ks) +
@@ -40,7 +40,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     ocl_i = water@ocl,
     tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
-    tot_ch3cooh = water@tot_ch3cooh,
+    tot_ch3cooh = water@tot_ch3coo,
     ch3coo_i = water@ch3coo,
     alk_eq = water@alk_eq,
     na_dose = na_dose,
