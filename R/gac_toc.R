@@ -148,9 +148,6 @@ gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
