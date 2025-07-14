@@ -87,7 +87,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     
     # Filter the relevant rows
     vlog_table <- subset(tidywater::vlog_removalcts, 
-                         ph_range == ph_key & temp_value == tempr)
+                         tidywater::vlog_removalcts$ph_range == ph_key & tidywater::vlog_removalcts$temp_value == tempr)
     # Extract correct ct_range
     ct_labels <- vlog_table$ct_range
     get_breaks <- function(ranges) {
