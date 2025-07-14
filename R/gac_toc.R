@@ -170,7 +170,7 @@ gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac
 gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
                               media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
-  gac_chem <- gac_water <- ph <- alk_eq <- dic <- estimated <- NULL # Quiet RCMD check global variable note
+  gac_chem <- gac_water <- ph <- alk_eq <- dic <- estimated <- toc <- doc <- uv254 <- NULL # Quiet RCMD check global variable note
   
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))
