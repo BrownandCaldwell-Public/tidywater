@@ -61,7 +61,16 @@ test_that("Modify water chain works with multiple inputs.", {
     modify_water_chain() %>%
     pluck_water(input_water = "modified_water", parameter=c("br", "na"))
   
+  water2 <- water_df %>%
+     define_water_chain() %>%
+     modify_water_chain(slot=c("br", "na"),
+                        value=c(50,60),
+                        units=c("ug/L", "mg/L")) %>%
+     pluck_water(input_water = c("modified_water", "defined_water"), parameter=c("br", "na"))
+  
   expect_s4_class(water1$modified_water[[1]], "water")
   expect_true(all.equal(convert_units(water1$modified_water_br, "br", "M", "ug/L"), water0$br))
   expect_true(all.equal(convert_units(water1$modified_water_na, "na", "M", "mg/L"), water0$na))
+  # expect_true(identical(water1$modified_water_br, water2$modified_water_br))
+  # expect_true(identical(water1$modified_water_na, water2$modified_water_na))
 })
