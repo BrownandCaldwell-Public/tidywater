@@ -14,6 +14,9 @@
 #' @examples
 #' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) %>%
 #'   modify_water( slot = "toc", value = 4, units = "mg/L")
+#'   
+#' water2 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5, ca = 10) %>%
+#'   modify_water(slot = c("ca", "toc"), value = c(20, 10), units = c("mg/L", "mg/L"))
 #'
 #' @import dplyr
 #' @export
@@ -94,6 +97,19 @@ modify_water <- function(water, slot, value, units) {
 #'   define_water_chain() %>%
 #'   mutate(bromide = 50) %>%
 #'   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+#'   
+#' multislot_example_df1 <- water_df %>%
+#'   define_water_chain() %>%
+#'   mutate(slot=list(c("br", "na")),
+#'   value=list(c(50,60)),
+#'   units=list(c("ug/L", "mg/L"))) %>%
+#'   modify_water_chain()
+#'   
+#' multislot_example_df2 <- water_df %>%
+#'   define_water_chain() %>%
+#'   modify_water_chain(slot=list(c("br", "na")),
+#'                       value=list(c(50,60)),
+#'                       units=list(c("ug/L", "mg/L")))
 #'
 #' \donttest{
 #' # Un-comment below to initialize parallel processing
@@ -123,12 +139,6 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
-
-  # Only join inputs if they aren't in existing dataframe
-  if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
-  }
 
   output <- df %>%
     mutate(!!output_water := furrr::future_pmap(
