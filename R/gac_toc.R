@@ -13,7 +13,7 @@
 #' Water must contain DOC or TOC value.
 #'
 #' @details The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
-#' UV254 concentrations are predicted based on a linear relationship with DOC.
+#' UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
 #'
 #' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
 #'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
