@@ -249,19 +249,18 @@ NULL
 
 #' Data frame of virus log removal CT values
 #'
-#' A dataset containing coefficients for calculating PAC TOC removal
+#' A table of virus log removal by disinfection with free chlorine, based on pH, temperature, and contact time
 #'
 #' @docType data
 #' @keywords datasets
 #' @name vlog_removalcts
 #' @format A dataframe with 35 rows and 4 columns
 #' \describe{
-#' \item{ph_range}{Specifies PAC type}
-#' \item{A}{Constant in the PAC model}
-#' \item{a}{Coefficient in PAC model, associated with DOC0}
-#' \item{b}{Coefficient in PAC model, associated with dose}
-#' \item{c}{Coefficient in PAC model, associated with time}
+#' \item{ph_range}{Specifies the pH of the input water}
+#' \item{temp_value}{Specifies the temperature of the input water}
+#' \item{ct_range}{Specifies the range of contact times to achieve virus removal}
+#' \item{vlog_removal}{Level of log virus removal corresponding to ph, temp, and ct}
 #' }
 #'
-#' @source Cho (2007)
+#' @source US EPA (1991) Table E-7
 "vlog_removalcts"

@@ -70,38 +70,40 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   }
   
   # determine virus log removal based on EPA Guidance Manual Table E-7
+  if (ph < 6 || ph > 12) {
     vlog_removal <- NA_real_
-    
-    # Define mapping of ph and temp to breaks and labels
-    ph_temp_mapping <- list(
-      `6-9` = list(
-        `0.5` = list(breaks = c(6, 9, 12, Inf), labels = c("6-9", "9-12", "12")),
-        `5`   = list(breaks = c(4, 6, 8, Inf), labels = c("4-6", "6-8", "8")),
-        `10`  = list(breaks = c(3, 4, 5, Inf), labels = c("3-4", "4-5", "5")),
-        `15`  = list(breaks = c(2, 3, 4, Inf), labels = c("2-3", "3-4", "4")),
-        `20`  = list(breaks = c(1, 2, 3, Inf), labels = c("1-2", "2-3", "3")),
-        `25`  = list(breaks = c(1, 2, Inf), labels = c("1-2", "2"))
-      ),
-      `10` = list(
-        `0.5` = list(breaks = c(45, 66, 90, Inf), labels = c("45-66", "66-90", "90")),
-        `5`   = list(breaks = c(30, 44, 60, Inf), labels = c("30-44", "44-60", "60")),
-        `10`  = list(breaks = c(22, 33, 45, Inf), labels = c("22-33", "33-45", "45")),
-        `15`  = list(breaks = c(15, 22, 30, Inf), labels = c("15-22", "22-30", "30")),
-        `20`  = list(breaks = c(11, 16, 22, Inf), labels = c("11-16", "16-22", "22")),
-        `25`  = list(breaks = c(7, 11, 15, Inf), labels = c("7-11", "11-15", "15"))
-      )
-    )
+  } else {
+    if (ph > 9 && ph < 10) {
+      ph <- round(ph)
+      warning("Virus log removal estimated to closest pH in EPA Guidance Manual Table E-7")
+    }
+    tempr <- tidywater::vlog_removalcts$temp_value[which.min(abs(tidywater::vlog_removalcts$temp_value - temp))]
+    if (temp != tempr) {
+      warning("Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7")
+    }
     
     # Determine ph_range key
     ph_key <- if (ph >= 6 && ph <= 9) "6-9" else if (ph == 10) "10" else NULL
     
-    if (!is.null(ph_key) && !is.null(ph_temp_mapping[[ph_key]][[as.character(temp)]])) {
-      mapping <- ph_temp_mapping[[ph_key]][[as.character(temp)]]
-      ct_category <- as.numeric(cut(ct_actual, breaks = mapping$breaks, labels = mapping$labels, right = FALSE))
-      
-      vlog_table <- subset(tidywater::vlog_removalcts, tidywater::vlog_removalcts$ph_range == ph_key & tidywater::vlog_removalcts$temp_value == temp)
-      vlog_removal <- vlog_table[ct_category, 4]
+    # Filter the relevant rows
+    vlog_table <- subset(tidywater::vlog_removalcts, 
+                         ph_range == ph_key & temp_value == tempr)
+    # Extract correct ct_range
+    ct_labels <- vlog_table$ct_range
+    get_breaks <- function(ranges) {
+      nums <- unlist(strsplit(ranges, "-"))
+      as.numeric(nums)
     }
+    breaks <- sort(unique(unlist(lapply(ct_labels, get_breaks))))
+    breaks <- c(breaks, Inf)  # Add Inf for the upper bound
+    ct_category <- cut(ct_actual, breaks = breaks, labels = ct_labels, right = FALSE)
+    
+    vlog_removal <- vlog_table[vlog_table$ct_range == as.character(ct_category), "vlog_removal"] 
+    
+    if (any(is.na(vlog_removal))) {
+      vlog_removal <- NA_real_
+    }
+  }
 
   tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
 }
