@@ -59,9 +59,6 @@ gacbv_toc <- function(water, ebct = 10, model, media_size = "12x40", target_doc)
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
