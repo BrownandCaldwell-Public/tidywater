@@ -192,7 +192,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                              coeff = "use_col") {
+                              coeff = "use_col", water_prefix = TRUE) {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -203,16 +203,25 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
 
   output <- df %>%
     chemdose_toc_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
+      input_water = input_water, output_water = "temp_dbp",
       alum, ferricchloride, ferricsulfate, coeff
     ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, ph:alk_eq, dic:estimated))
+    select(-c(ph:alk_eq, dic:estimated)) %>%
+    rename(!!output_water := temp_dbp)
 
   if ("coeff.x1" %in% colnames(output)) {
     output <- output %>%
       select(-c(coeff.x1:coeff.b))
+  }
+
+  if (water_prefix) {
+    output <- output %>%
+      rename_with(
+        ~ paste0(output_water, "_", .x),
+        .cols = (match(output_water, names(.)) + 1):ncol(.)
+      )
   }
 
   return(output)
