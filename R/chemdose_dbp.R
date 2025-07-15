@@ -51,7 +51,7 @@
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
 chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff = NULL) {
-  modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- NULL # Quiet RCMD check global variable note
+  modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- ave <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
   toc <- water@toc
@@ -198,35 +198,28 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
     corrected_dbp_1 <- subset(corrected_dbp_1, select = c(ID, group, modeled_dbp))
   } else {
-    corrected_dbp_1 <- predicted_dbp
+    corrected_dbp_1 <- subset(predicted_dbp, select = c(ID, group, modeled_dbp))
   }
 
   # only model tthm and haa5, problems with haa6 and haa9 model outputs being <haa5 with low Br or Cl2
   bulk_dbp <- subset(corrected_dbp_1, corrected_dbp_1$ID %in% c("tthm", "haa5"))
   # proportional corrections following U.S. EPA (2001), section 5.7.3
-  individual_dbp <- corrected_dbp_1 %>%
-    dplyr::filter(
-      !(ID %in% c("tthm", "haa5")),
-      !(group %in% c("haa6", "haa9"))
-    ) %>%
-    dplyr::group_by(group) %>%
-    dplyr::mutate(
-      sum_group = sum(modeled_dbp),
-      proportion_group = modeled_dbp / .data$sum_group
-    ) %>%
-    dplyr::left_join(bulk_dbp, by = "group", suffix = c("_ind", "_bulk")) %>%
-    dplyr::mutate(modeled_dbp = .data$proportion_group * .data$modeled_dbp_bulk)
-
-  corrected_dbp_2 <- individual_dbp %>%
-    dplyr::select(ID_ind, group, modeled_dbp) %>%
-    dplyr::rename(ID = ID_ind) %>%
-    rbind(bulk_dbp)
-
+  individual_dbp <- corrected_dbp_1[
+    !(corrected_dbp_1$ID %in% c("tthm", "haa5")) &
+      !(corrected_dbp_1$group %in% c("haa6", "haa9")), ]
+  individual_dbp$sum_group <- stats::ave(individual_dbp$modeled_dbp, individual_dbp$group, FUN = sum)
+  individual_dbp$proportion_group <- individual_dbp$modeled_dbp / individual_dbp$sum_group
+  individual_dbp <- merge(individual_dbp, bulk_dbp, by = "group", suffixes = c("_ind", "_bulk"))
+  individual_dbp$modeled_dbp <- individual_dbp$proportion_group * individual_dbp$modeled_dbp_bulk
+  
+  corrected_dbp_2 <- individual_dbp[, c("ID_ind", "group", "modeled_dbp")]
+  names(corrected_dbp_2)[names(corrected_dbp_2) == "ID_ind"] <- "ID"
+  corrected_dbp_2 <- rbind(corrected_dbp_2, bulk_dbp)
+  
   # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
   if (cl_type == "chloramine") {
-    corrected_dbp_2 <- corrected_dbp_2 %>%
-      dplyr::left_join(tidywater::chloramine_conv, by = "ID") %>%
-      dplyr::mutate(modeled_dbp = modeled_dbp * percent)
+    corrected_dbp_2 <- merge(corrected_dbp_2, tidywater::chloramine_conv, by = "ID", all.x = TRUE)
+    corrected_dbp_2$modeled_dbp <- corrected_dbp_2$modeled_dbp * corrected_dbp_2$percent
   }
   corrected_dbp_2 <- as.data.frame(corrected_dbp_2)
   rownames(corrected_dbp_2) <- corrected_dbp_2$ID
