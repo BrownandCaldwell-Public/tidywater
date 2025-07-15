@@ -186,7 +186,7 @@ gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
     ) %>%
     mutate(gac_chem = furrr::future_map(gac_water, convert_water)) %>%
     unnest(gac_chem) %>%
-    select(c(input_Water, model:bed_vol, toc:uv254))
+    select(c(input_water, model:bed_vol, toc:uv254))
   
   if (water_prefix) {
     output <- output %>%
