@@ -185,8 +185,13 @@ gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
       media_size, ebct, bed_vol, pretreat
     ) %>%
     mutate(gac_chem = furrr::future_map(gac_water, convert_water)) %>%
-    unnest(gac_chem) %>%
-    select(c(input_water, model:bed_vol, toc:uv254))
+    unnest(gac_chem) 
+  
+  cols_base <- c(input_water, "model", "media_size", "ebct", "bed_vol", "toc", "doc", "uv254")
+  pretreat_cols <- intersect("pretreat", colnames(output))
+  
+  output <- output %>%
+    select(any_of(c(input_water, "model", "media_size", "ebct", "bed_vol", pretreat_cols, "toc", "doc", "uv254")))
   
   if (water_prefix) {
     output <- output %>%
