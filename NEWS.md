@@ -3,9 +3,9 @@
 ## New features
 
 * `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
+* Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
 
 ## Breaking changes
-
 
 # tidywater 0.9.0
 
