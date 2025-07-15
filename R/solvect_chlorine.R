@@ -70,10 +70,11 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   }
   
   # determine virus log removal based on EPA Guidance Manual Table E-7
-  if (ph < 6 || ph > 10) {
+  if (ph < 6 | ph > 10) {
     vlog_removal <- NA_real_
+    warning("pH is out of range: virus log removal calculation only valid when pH is between 6-10.")
   } else {
-    if (ph > 9 && ph < 10) {
+    if (ph > 9 & ph < 10) {
       ph <- round(ph)
       warning("Virus log removal estimated to closest pH in EPA Guidance Manual Table E-7")
     }
@@ -102,6 +103,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     
     if (any(is.na(vlog_removal))) {
       vlog_removal <- NA_real_
+      warning("pH or contact time out of range for virus log removal calculation. See EPA Guidance Manual Table E-7 for valid ranges.")
     }
   }
 

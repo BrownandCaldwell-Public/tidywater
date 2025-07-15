@@ -1,3 +1,11 @@
+# Dev version
+
+## New features
+
+* Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
+
+## Breaking changes
+
 # tidywater 0.9.0
 
 ## New features
