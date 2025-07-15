@@ -191,7 +191,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   }
   mno4_dose <- kmno4
   dosed_water@mno4 <- water@mno4 + mno4_dose
-  
+
   # Total nitrate
   if (hno3 > 0 & is.na(water@no3)) {
     warning("Nitrate-containing chemical dosed, but no3 water slot is NA. Slot not updated because background no3 unknown.")
@@ -451,13 +451,13 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
 #'
 
-chemdose_ph_once <- function(df, input_water = "defined_water",
+chemdose_ph_once <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                              nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                             kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
+                             kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", water_prefix = TRUE) {
   dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
@@ -494,7 +494,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     chemdose_ph_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
+      input_water = input_water, output_water = "temp_water",
       hcl, h2so4, h3po4, hno3, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
       caocl2, cacl2, cl2, naocl,
@@ -502,7 +502,17 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       alum, ferricchloride, ferricsulfate, ach,
       kmno4, naf, na3po4
     ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(temp_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, temp, tds:estimated))
+    select(-c(temp, tds:estimated),!!output_water := temp_water)
+
+  if (water_prefix) {
+    output <- output %>%
+      rename_with(
+        ~ paste0(output_water, "_", .x),
+        .cols = (match(output_water, names(.)) + 1):ncol(.)
+      )
+  }
+
+  return(output)
 }

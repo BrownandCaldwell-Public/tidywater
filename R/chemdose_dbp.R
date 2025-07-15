@@ -211,11 +211,11 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   individual_dbp$proportion_group <- individual_dbp$modeled_dbp / individual_dbp$sum_group
   individual_dbp <- merge(individual_dbp, bulk_dbp, by = "group", suffixes = c("_ind", "_bulk"))
   individual_dbp$modeled_dbp <- individual_dbp$proportion_group * individual_dbp$modeled_dbp_bulk
-  
+
   corrected_dbp_2 <- individual_dbp[, c("ID_ind", "group", "modeled_dbp")]
   names(corrected_dbp_2)[names(corrected_dbp_2) == "ID_ind"] <- "ID"
   corrected_dbp_2 <- rbind(corrected_dbp_2, bulk_dbp)
-  
+
   # estimate reduced formation if using chloramines, U.S. EPA (2001) Table 5-10
   if (cl_type == "chloramine") {
     corrected_dbp_2 <- merge(corrected_dbp_2, tidywater::chloramine_conv, by = "ID", all.x = TRUE)
@@ -346,7 +346,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 #'
 #' @returns `chemdose_dbp_once` returns a data frame containing predicted DBP concentrations as columns.
 #'
-chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col", time = "use_col",
+chemdose_dbp_once <- function(df, input_water = "defined_water", output_water = "disinfected_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
                               water_prefix = TRUE) {
   temp_dbp <- dbps <- estimated <- NULL # Quiet RCMD check global variable note
@@ -373,13 +373,14 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
     ) %>%
     mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dbps) %>%
-    select(-c(temp_dbp:estimated))
+    select(-c(ph:estimated)) %>%
+    rename(!!output_water := temp_dbp)
 
   if (water_prefix) {
     output <- output %>%
       rename_with(
-        ~ paste0(input_water, "_", .x),
-        .cols = (match("time", names(.)) + 1):ncol(.)
+        ~ paste0(output_water, "_", .x),
+        .cols = (match(output_water, names(.)) + 1):ncol(.)
       )
   }
 

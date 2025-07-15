@@ -1,3 +1,12 @@
+# Developer Version
+
+## New features
+
+* `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
+
+## Breaking changes
+
+
 # tidywater 0.9.0
 
 ## New features
