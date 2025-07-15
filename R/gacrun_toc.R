@@ -70,7 +70,12 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
     D <- water@toc * ((-1.079 * 10^-5 * ebct_adj) + 4.457 * 10^-4) + 1.861 * 10^-5 * ebct_adj - 2.809 * 10^-4
     B = 100
     # bv <- 1440 * RT / ebct_adj
-    bv <- seq(2000, 20000, 100)
+    if (water@toc <= 1.5) {
+      bv_max <- 40000
+    } else {
+      bv_max <- 20000
+    }
+    bv <- seq(2000, bv_max, 100)
     
     toc_eff <- A0 + Af/(1 + B * exp(-D * bv))
     x_norm <- toc_eff / water@toc # ranges 10 to 72.5%
