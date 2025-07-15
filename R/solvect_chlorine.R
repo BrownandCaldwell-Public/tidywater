@@ -23,6 +23,7 @@
 #'
 #' @source Smith et al. (1995)
 #' @source USEPA (2020)
+#' @source USEPA (1991)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
 #'
@@ -39,9 +40,10 @@
 #'   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
 #' @export
 #'
-#' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), and giardia log removal.
+#' @returns `solvect_chlorine` returns a data frame containing required CT (mg/L*min), actual CT (mg/L*min), giardia log removal, and virus log removal.
 
 solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "residual_only") {
+  
   if (free_cl_slot == "slot_only") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
     residual <- water@free_chlorine
@@ -66,8 +68,46 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     ct_required <- (.361 * 0.5) * (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph))
     giardia_log_removal <- ct_actual / (-2.216 + exp(2.69 - .065 * temp + .111 * residual + .361 * ph)) / .361
   }
+  
+  # determine virus log removal based on EPA Guidance Manual Table E-7
+  if (ph < 6 | ph > 10) {
+    vlog_removal <- NA_real_
+    warning("pH is out of range: virus log removal calculation only valid when pH is between 6-10.")
+  } else {
+    if (ph > 9 & ph < 10) {
+      ph <- round(ph)
+      warning("Virus log removal estimated to closest pH in EPA Guidance Manual Table E-7")
+    }
+    tempr <- tidywater::vlog_removalcts$temp_value[which.min(abs(tidywater::vlog_removalcts$temp_value - temp))]
+    if (temp != tempr) {
+      warning("Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7")
+    }
+    
+    # Determine ph_range key
+    ph_key <- if (ph >= 6 && ph <= 9) "6-9" else if (ph == 10) "10" else NULL
+    
+    # Filter the relevant rows
+    vlog_table <- subset(tidywater::vlog_removalcts, 
+                         tidywater::vlog_removalcts$ph_range == ph_key & tidywater::vlog_removalcts$temp_value == tempr)
+    # Extract correct ct_range
+    ct_labels <- vlog_table$ct_range
+    get_breaks <- function(ranges) {
+      nums <- unlist(strsplit(ranges, "-"))
+      as.numeric(nums)
+    }
+    breaks <- sort(unique(unlist(lapply(ct_labels, get_breaks))))
+    breaks <- c(breaks, Inf)  # Add Inf for the upper bound
+    ct_category <- cut(ct_actual, breaks = breaks, labels = ct_labels, right = FALSE)
+    
+    vlog_removal <- vlog_table[vlog_table$ct_range == as.character(ct_category), "vlog_removal"] 
+    
+    if (any(is.na(vlog_removal))) {
+      vlog_removal <- NA_real_
+      warning("pH or contact time out of range for virus log removal calculation. See EPA Guidance Manual Table E-7 for valid ranges.")
+    }
+  }
 
-  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal)
+  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
 }
 
 
@@ -101,7 +141,7 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   time = "use_col", residual = "use_col", baffle = "use_col",
                                   free_cl_slot = "residual_only",
                                   water_prefix = TRUE) {
-  calc <- ct_required <- ct_actual <- glog_removal <- NULL # Quiet RCMD check global variable note
+  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- NULL # Quiet RCMD check global variable note
 
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -134,7 +174,8 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
       rename(
         !!paste(input_water, "ct_required", sep = "_") := ct_required,
         !!paste(input_water, "ct_actual", sep = "_") := ct_actual,
-        !!paste(input_water, "glog_removal", sep = "_") := glog_removal
+        !!paste(input_water, "glog_removal", sep = "_") := glog_removal,
+        !!paste(input_water, "vlog_removal", sep = "_") := vlog_removal
       )
   }
 }
