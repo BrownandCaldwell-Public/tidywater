@@ -299,17 +299,17 @@ test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp
     define_water_chain() %>%
     chemdose_dbp_once(cl2 = 10, time = 8))
 
-  expect_equal(water1@chcl3, water2$defined_water_chcl3)
-  expect_equal(water1@chcl2br, water2$defined_water_chcl2br)
-  expect_equal(water1@chbr2cl, water2$defined_water_chbr2cl)
-  expect_equal(water1@chbr3, water2$defined_water_chbr3)
-  expect_equal(water1@tthm, water2$defined_water_tthm)
-  expect_equal(water1@mcaa, water2$defined_water_mcaa)
-  expect_equal(water1@dcaa, water2$defined_water_dcaa)
-  expect_equal(water1@tcaa, water2$defined_water_tcaa)
-  expect_equal(water1@mbaa, water2$defined_water_mbaa)
-  expect_equal(water1@dbaa, water2$defined_water_dbaa)
-  expect_equal(water1@haa5, water2$defined_water_haa5)
+  expect_equal(water1@chcl3, water2$disinfected_water_chcl3)
+  expect_equal(water1@chcl2br, water2$disinfected_water_chcl2br)
+  expect_equal(water1@chbr2cl, water2$disinfected_water_chbr2cl)
+  expect_equal(water1@chbr3, water2$disinfected_water_chbr3)
+  expect_equal(water1@tthm, water2$disinfected_water_tthm)
+  expect_equal(water1@mcaa, water2$disinfected_water_mcaa)
+  expect_equal(water1@dcaa, water2$disinfected_water_dcaa)
+  expect_equal(water1@tcaa, water2$disinfected_water_tcaa)
+  expect_equal(water1@mbaa, water2$disinfected_water_mbaa)
+  expect_equal(water1@dbaa, water2$disinfected_water_dbaa)
+  expect_equal(water1@haa5, water2$disinfected_water_haa5)
 })
 
 # Check that output is a data frame

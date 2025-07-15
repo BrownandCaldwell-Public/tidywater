@@ -328,6 +328,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 
 
 #' @rdname chemdose_dbp
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
 #' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
 #' Change to FALSE to remove the water prefix from output column names.
 #' @examples
@@ -349,7 +350,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
 chemdose_dbp_once <- function(df, input_water = "defined_water", output_water = "disinfected_water", cl2 = "use_col", time = "use_col",
                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
                               water_prefix = TRUE) {
-  temp_dbp <- dbps <- estimated <- NULL # Quiet RCMD check global variable note
+  temp_dbp <- dbps <- estimated <-ph <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))

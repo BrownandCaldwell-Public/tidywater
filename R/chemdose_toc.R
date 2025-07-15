@@ -175,7 +175,9 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
+#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Change to FALSE to remove the water prefix from output column names.
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
@@ -193,7 +195,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
                               coeff = "use_col", water_prefix = TRUE) {
-  dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- NULL # Quiet RCMD check global variable note
+  dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- temp_dbp <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
