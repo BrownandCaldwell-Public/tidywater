@@ -246,3 +246,21 @@ NULL
 #'
 #' @source Cho (2007)
 "pactoccoeffs"
+
+#' Data frame of virus log removal CT values
+#'
+#' A table of virus log removal by disinfection with free chlorine, based on pH, temperature, and contact time
+#'
+#' @docType data
+#' @keywords datasets
+#' @name vlog_removalcts
+#' @format A dataframe with 35 rows and 4 columns
+#' \describe{
+#' \item{ph_range}{Specifies the pH of the input water}
+#' \item{temp_value}{Specifies the temperature of the input water}
+#' \item{ct_range}{Specifies the range of contact times to achieve virus removal}
+#' \item{vlog_removal}{Level of log virus removal corresponding to ph, temp, and ct}
+#' }
+#'
+#' @source US EPA (1991) Table E-7
+"vlog_removalcts"
