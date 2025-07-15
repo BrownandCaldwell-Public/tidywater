@@ -46,6 +46,9 @@ they are interconnected with too many others (usually pH dependent, eg, hco3). F
 \examples{
 water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) \%>\%
   modify_water( slot = "toc", value = 4, units = "mg/L")
+  
+water2 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5, ca = 10) \%>\%
+  modify_water(slot = c("ca", "toc"), value = c(20, 10), units = c("mg/L", "mg/L"))
 
 
 library(dplyr)
@@ -54,6 +57,19 @@ example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(bromide = 50) \%>\%
   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+  
+multislot_example_df1 <- water_df \%>\%
+  define_water_chain() \%>\%
+  mutate(slot=list(c("br", "na")),
+  value=list(c(50,60)),
+  units=list(c("ug/L", "mg/L"))) \%>\%
+  modify_water_chain()
+  
+multislot_example_df2 <- water_df \%>\%
+  define_water_chain() \%>\%
+  modify_water_chain(slot=list(c("br", "na")),
+                      value=list(c(50,60)),
+                      units=list(c("ug/L", "mg/L")))
 
 \donttest{
 # Un-comment below to initialize parallel processing

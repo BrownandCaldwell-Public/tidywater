@@ -44,6 +44,7 @@ test_that("Modify water chain takes and returns correct argument types and class
 
   expect_error(modify_water_chain(water_df, "br", 50, "ug/L"))
   expect_error(modify_water_chain(water0, 50, "ug/L"))
+  expect_equal(water1$modified[[1]]@br, water2$modified[[1]]@br)
   expect_s4_class(water1$modified[[1]], "water")
 })
 

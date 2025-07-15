@@ -3,6 +3,7 @@
 ## New features
 
 * Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
+* `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
 
 ## Breaking changes
 
