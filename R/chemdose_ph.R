@@ -231,7 +231,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   # Total carbonate
   co3_dose <- na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 <- water@tot_co3 + co3_dose
-  
+
   # Total acetate
   ch3cooh_dose <- ch3cooh
   dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
@@ -244,7 +244,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
     convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
     convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L") +
-    convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") + 
+    convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") +
     convert_units(no3_dose, "no3", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
@@ -463,7 +463,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
 #'
 
-chemdose_ph_once <- function(df, input_water = "defined_water", output_water = "dosed_chem_water"
+chemdose_ph_once <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", ch3cooh = "use_col", co2 = "use_col", naoh = "use_col",
                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
