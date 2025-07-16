@@ -11,6 +11,11 @@ methods::setClass(
     tot_hard = "numeric",
     kw = "numeric",
     alk_eq = "numeric",
+    carbonate_alk_eq = "numeric",
+    phosphate_alk_eq = "numeric",
+    ammonium_alk_eq = "numeric",
+    borate_alk_eq = "numeric",
+    silicate_alk_eq = "numeric",
 
     # Carbon
     toc = "numeric",
@@ -95,6 +100,11 @@ methods::setClass(
     tot_hard = NA_real_,
     kw = NA_real_,
     alk_eq = NA_real_,
+    carbonate_alk_eq = NA_real_,
+    phosphate_alk_eq = NA_real_,
+    ammonium_alk_eq = NA_real_,
+    borate_alk_eq = NA_real_,
+    silicate_alk_eq = NA_real_,
 
     # Carbon
     toc = NA_real_,

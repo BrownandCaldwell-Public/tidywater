@@ -649,6 +649,23 @@ calculate_alpha1_ammonia <- function(h, k) { # NH4+
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
 
+calculate_alpha1_borate <- function(h, k) { # H4BO4- 
+  k1 <- k$kbo3
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha1_silicate <- function(h, k) { # H3SiO4-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k1 + k2 / h) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha2_silicate <- function(h, k) { # H2SiO4 2-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k2 + h^2 / (k1 * k2)) # calculating how much is deprotonated with -2 charge
+}
+
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17

@@ -54,7 +54,12 @@
 #'   \item{cond}{electrical conductivity, numeric, uS/cm.}
 #'   \item{tot_hard}{total hardness, numeric, mg/L as CaCO3.}
 #'   \item{kw}{dissociation constant for water, numeric, unitless.}
-#'   \item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{alk_eq}{total alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{carbonate_alk_eq}{carbonate alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{phosphate_alk_eq}{phosphate alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{ammonium_alk_eq}{ammonium alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{toc}{total organic carbon, numeric, mg/L.}
 #'   \item{doc}{dissolved organic carbon, numeric, mg/L.}
 #'   \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -306,6 +311,10 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
+  
+  water@bo3 <- tot_bo3 * calculate_alpha1_borate(h, ks)
+  water@h3sio4 <- tot_sio4 * calculate_alpha1_silicate(h, ks)
+  water@h2sio4 <- tot_sio4 * calculate_alpha2_silicate(h, ks)
 
   # Calculate individual and total alkalinity
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4) # right now, eq/L --> is convert_units preferred or is this okay?
