@@ -46,10 +46,11 @@ test_that("pluck_water works", {
   tot_co3_water <- purrr::pluck(water1, 1, 4)
   tot_co3_pluck <- water1 %>% slice(4)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
+    slice(1:3) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = "na"))
+    balance_ions_chain()%>%
+    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = c("na", "cl", "ph"))
 
   expect_equal(ncol(water1), 2)
   expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)
