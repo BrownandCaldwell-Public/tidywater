@@ -64,7 +64,7 @@ test_that("chemdose_toc_once outputs are the same as base function, chemdose_toc
     slice(1) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water"))
+    chemdose_toc_once(input_water = "balanced_water", water_prefix = FALSE))
 
   expect_equal(water1@toc, water2$toc)
   expect_equal(water1@doc, water2$doc)
@@ -73,16 +73,16 @@ test_that("chemdose_toc_once outputs are the same as base function, chemdose_toc
 
 # Check that output is a data frame
 
-test_that("chemdose_toc_once is a data frame", {
+test_that("chemdose_toc_once is a data frame and still has output water class column", {
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water"))
+    chemdose_toc_once(water_prefix = FALSE))
 
 
   expect_true(is.data.frame(water1))
-  expect_equal(colnames(water1), c("defined_water", "balanced_water", "toc", "doc", "uv254"))
+  expect_equal(colnames(water1), c("defined_water", "coagulated_water", "toc", "doc", "uv254"))
+  expect_s4_class(water1$coagulated_water[[1]], "water")
 })
 
 # Check chemdose_toc_once can use a column or function argument for chemical dose
@@ -91,8 +91,7 @@ test_that("chemdose_toc_once can use a column and/or function argument for chemi
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric"))
+    chemdose_toc_once(ferricchloride = 40, coeff = "Ferric", water_prefix = FALSE))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
@@ -101,15 +100,13 @@ test_that("chemdose_toc_once can use a column and/or function argument for chemi
       ferricchloride = 40,
       coeff = "Ferric"
     ) %>%
-    balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water"))
+    chemdose_toc_once(, water_prefix = FALSE))
 
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     mutate(ferricchloride = 40) %>%
-    balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", coeff = "Ferric"))
+    chemdose_toc_once(coeff = "Ferric", water_prefix = FALSE))
 
   expect_equal(water1$toc, water2$toc) # test different ways to input chemical
   expect_equal(water1$doc, water2$doc)
@@ -118,6 +115,23 @@ test_that("chemdose_toc_once can use a column and/or function argument for chemi
   expect_equal(water2$doc, water3$doc)
   expect_equal(water2$uv254, water3$uv254)
   expect_equal(ncol(water3), ncol(water1))
+})
+
+# check that chemdose_toc_once works when water_prefix is false
+test_that("chemdose_toc_once works when water_prefix is false", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_toc_once(ferricsulfate = 23))
+
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_toc_once(ferricsulfate = 23, water_prefix = FALSE))
+
+  expect_equal(water1$coagulated_water_toc, water2$toc)
+  expect_equal(water1$coagulated_water_uv254, water2$uv254)
 })
 
 test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {

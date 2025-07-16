@@ -85,10 +85,10 @@ test_that("users can provide their own dbp coefficients.", {
 test_that("chemdose_dbp works when correction is T/F", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8)
-  
+
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8, correction = FALSE)
-  
+
   expect_true(identical(water1@tthm, water2@tthm)) # correction factor is 1
   expect_false(identical(water1@chbr2cl, water2@chbr2cl)) # these compounds have other correction factors
   expect_false(identical(water1@haa5, water2@haa5))
@@ -299,22 +299,22 @@ test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp
     define_water_chain() %>%
     chemdose_dbp_once(cl2 = 10, time = 8))
 
-  expect_equal(water1@chcl3, water2$defined_water_chcl3)
-  expect_equal(water1@chcl2br, water2$defined_water_chcl2br)
-  expect_equal(water1@chbr2cl, water2$defined_water_chbr2cl)
-  expect_equal(water1@chbr3, water2$defined_water_chbr3)
-  expect_equal(water1@tthm, water2$defined_water_tthm)
-  expect_equal(water1@mcaa, water2$defined_water_mcaa)
-  expect_equal(water1@dcaa, water2$defined_water_dcaa)
-  expect_equal(water1@tcaa, water2$defined_water_tcaa)
-  expect_equal(water1@mbaa, water2$defined_water_mbaa)
-  expect_equal(water1@dbaa, water2$defined_water_dbaa)
-  expect_equal(water1@haa5, water2$defined_water_haa5)
+  expect_equal(water1@chcl3, water2$disinfected_water_chcl3)
+  expect_equal(water1@chcl2br, water2$disinfected_water_chcl2br)
+  expect_equal(water1@chbr2cl, water2$disinfected_water_chbr2cl)
+  expect_equal(water1@chbr3, water2$disinfected_water_chbr3)
+  expect_equal(water1@tthm, water2$disinfected_water_tthm)
+  expect_equal(water1@mcaa, water2$disinfected_water_mcaa)
+  expect_equal(water1@dcaa, water2$disinfected_water_dcaa)
+  expect_equal(water1@tcaa, water2$disinfected_water_tcaa)
+  expect_equal(water1@mbaa, water2$disinfected_water_mbaa)
+  expect_equal(water1@dbaa, water2$disinfected_water_dbaa)
+  expect_equal(water1@haa5, water2$disinfected_water_haa5)
 })
 
 # Check that output is a data frame
 
-test_that("chemdose_dbp_once is a data frame", {
+test_that("chemdose_dbp_once is a data frame and still has output water class column", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
@@ -327,6 +327,8 @@ test_that("chemdose_dbp_once is a data frame", {
     ))
 
   expect_true(is.data.frame(water1))
+  expect_s4_class(water1$disinfected_water[[1]], "water")
+
 })
 
 # check that chemdose_dbp_once works when water_prefix is false
@@ -344,6 +346,6 @@ test_that("chemdose_dbp_once works when water_prefix is false", {
     define_water_chain() %>%
     chemdose_dbp_once(cl2 = 10, time = 8, water_prefix = FALSE))
 
-  expect_equal(water1$defined_water_tthm, water2$tthm)
-  expect_equal(water1$defined_water_haa5, water2$haa5)
+  expect_equal(water1$disinfected_water_tthm, water2$tthm)
+  expect_equal(water1$disinfected_water_haa5, water2$haa5)
 })
