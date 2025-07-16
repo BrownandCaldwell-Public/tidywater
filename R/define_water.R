@@ -221,8 +221,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   oh <- kw / h # assume activity = concentration to start
 
   # convert alkalinity input to equivalents/L
-  carb_alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
-  # calculate total carbonate concentration
+  alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
+  # What is happening here before the IS calculations? calculate all initial total carbonate, ammonium, borate, silicate, and phosphate concentrations?
   # Initial alpha values (not corrected for IS)
   discons <- tidywater::discons
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
@@ -231,7 +231,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-  tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
+  tot_co3 <- carb_alk_eq / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
@@ -294,12 +294,23 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@h2po4 <- tot_po4 * alpha1p
   water@hpo4 <- tot_po4 * alpha2p
   water@po4 <- tot_po4 * alpha3p
+  h3po4 <- tot_po4 - (water@h2po4 + water@hpo4 + water@po4)
 
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
-  # Calculate total alkalinity (set equal to carbonate alkalinity for now)
-  water@alk_eq <- carb_alk_eq
+  # Calculate individual and total alkalinity
+  water@alk_eq <- alk_eq
+  h_alk_eq <- water@h # 1 M H+ = 1 eq/L H+
+  oh_alk_eq <- water@oh
+  
+  phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4) # right now, eq/L --> is convert_units preferred or is this okay?
+  ammonium_alk_eq <- (1 * water@nh4)
+  borate_alk_eq <- (1 * water@bo3)
+  silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
+  carbonate_alk_eq <- alk - (nh3_alk + bo3_alk + po4_alk + sio4_alk + oh_alk) + h_alk
+  
+  water@alk_eq <- carbonate_alk_eq + phosphate_alk_eq + ammonium_alk_eq + borate_alk_eq + silicate_alk_eq - h_alk_eq + oh_alk_eq
 
   # Add all estimated values to water slot
   water@estimated <- estimated
