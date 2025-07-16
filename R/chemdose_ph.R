@@ -435,7 +435,6 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
 #' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
 #' Change to FALSE to remove the water prefix from output column names.
 #' @examples
