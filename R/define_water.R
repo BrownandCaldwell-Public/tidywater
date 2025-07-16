@@ -25,6 +25,8 @@
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tot_nh3 Total ammonia in mg/L as N
+#' @param tot_bo3 Total borate in mg/L as B
+#' @param tot_sio4 Total silicate in mg/L as SiO2
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #' @param toc Total organic carbon (TOC) in mg/L
@@ -73,11 +75,16 @@
 #'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 #'   \item{po4}{phosphate, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
+#'   \item{bo3}{borate, numeric, mol/L.}
+#'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.} 
+#'   \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
 #'   \item{h}{hydrogen ion, numeric, mol/L.}
 #'   \item{oh}{hydroxide ion, numeric, mol/L.}
 #'   \item{tot_po4}{total phosphate, numeric, mol/L.}
 #'   \item{tot_nh3}{total ammonia, numeric, mol/L.}
 #'   \item{tot_co3}{total carbonate, numeric, mol/L.}
+#'   \item{tot_bo3}{total borate, numeric, mol/L.}
+#'   \item{tot_sio4}{total silicate, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
 #'   \item{bro3}{bromate, numeric, mol/L.}
 #'   \item{f}{fluoride, numeric, mol/L.}
@@ -180,6 +187,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   free_chlorine <- convert_units(free_chlorine, "cl2")
   combined_chlorine <- convert_units(combined_chlorine, "cl2")
   tot_nh3 <- convert_units(tot_nh3, "n")
+  tot_bo3 <- convert_units(tot_bo3, "b")
+  tot_sio4 <- convert_units(tot_sio4, "sio2")
 
   br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
   f <- ifelse(missing(f), NA_real_, convert_units(f, "f"))
@@ -281,7 +290,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   alpha0 <- calculate_alpha0_carbonate(h, ks)
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
-  water@tot_co3 <- (carb_alk_eq + h - oh) / (alpha1 + 2 * alpha2)
   water@h2co3 <- water@tot_co3 * alpha0
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
@@ -300,17 +308,14 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
   # Calculate individual and total alkalinity
-  water@alk_eq <- alk_eq
-  h_alk_eq <- water@h # 1 M H+ = 1 eq/L H+
-  oh_alk_eq <- water@oh
+  water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4) # right now, eq/L --> is convert_units preferred or is this okay?
+  water@ammonium_alk_eq <- (1 * water@nh4)
+  water@borate_alk_eq <- (1 * water@bo3)
+  water@silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
+  water@carbonate_alk_eq <- alk - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
   
-  phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4) # right now, eq/L --> is convert_units preferred or is this okay?
-  ammonium_alk_eq <- (1 * water@nh4)
-  borate_alk_eq <- (1 * water@bo3)
-  silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
-  carbonate_alk_eq <- alk - (nh3_alk + bo3_alk + po4_alk + sio4_alk + oh_alk) + h_alk
-  
-  water@alk_eq <- carbonate_alk_eq + phosphate_alk_eq + ammonium_alk_eq + borate_alk_eq + silicate_alk_eq - h_alk_eq + oh_alk_eq
+  water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2) ### Do tot_bo3, tot_sio4 also need to be updated like this? Or do we want to include them as inputs like tot_po4 and tot_nh3?
+  water@alk_eq <- water@carbonate_alk_eq + water@phosphate_alk_eq + water@ammonium_alk_eq + water@borate_alk_eq + water@silicate_alk_eq - water@h + water@oh
 
   # Add all estimated values to water slot
   water@estimated <- estimated
