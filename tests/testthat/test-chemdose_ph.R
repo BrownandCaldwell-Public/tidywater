@@ -182,7 +182,7 @@ test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph",
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+    chemdose_ph_once(input_water = "defined_water", naoh = 5, water_prefix = FALSE))
 
   expect_equal(water1@ph, water2$ph)
   expect_equal(water1@alk, water2$alk)
@@ -190,15 +190,17 @@ test_that("chemdose_ph_once outputs are the same as base function, chemdose_ph",
 
 # Check that output is a data frame
 
-test_that("chemdose_ph_once is a data frame", {
+test_that("chemdose_ph_once is a data frame and still has output water class column", {
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+    chemdose_ph_once(input_water = "defined_water", naoh = 5, water_prefix = FALSE))
 
 
   expect_true(is.data.frame(water1))
-  expect_equal(colnames(water1), c("defined_water", "naoh", "ph", "alk"))
+  expect_equal(colnames(water1), c("defined_water", "naoh", "dosed_chem_water", "ph", "alk"))
+
+  expect_s4_class(water1$dosed_chem_water[[1]], "water")
 })
 
 # Check chemdose_ph_once can use a column or function argument for chemical dose
@@ -209,17 +211,17 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
 
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
-    chemdose_ph_once(input_water = "defined_water", naoh = 5))
+    chemdose_ph_once(input_water = "defined_water", naoh = 5, water_prefix = FALSE))
 
   water2 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     mutate(naoh = 5) %>%
-    chemdose_ph_once(input_water = "defined_water"))
+    chemdose_ph_once(input_water = "defined_water", water_prefix = FALSE))
 
   water3 <- water_df %>%
     define_water_chain() %>%
     mutate(naoh = seq(0, 11, 1)) %>%
-    chemdose_ph_once(hcl = c(5, 8))
+    chemdose_ph_once(hcl = c(5, 8), water_prefix = FALSE)
 
   water4 <- water3 %>%
     slice(11) # same starting wq as water 5
@@ -229,9 +231,26 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
 
   expect_equal(water1$ph, water2$ph) # test different ways to input chemical
   expect_equal(water1$alk, water2$alk)
-  expect_equal(ncol(water3), ncol(water0) - 32) # both naoh and hcl dosed, but excess columns removed
+  expect_equal(ncol(water3), ncol(water0) - 29) # both naoh and hcl dosed, but excess columns removed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(water4$ph, water5$ph)) # since HCl added to water3, pH should be different
+})
+
+# check that chemdose_ph_once works when water_prefix is false
+test_that("chemdose_ph_once works when water_prefix is true/false", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_ph_once(hcl = 10))
+
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_ph_once(hcl = 10, water_prefix = FALSE))
+
+  expect_equal(water1$dosed_chem_water_ph, water2$ph)
+  expect_equal(water1$dosed_chem_water_alk, water2$alk)
 })
 
 # Test that chemdose_ph_chain outputs are the same as base function, chemdose_ph.

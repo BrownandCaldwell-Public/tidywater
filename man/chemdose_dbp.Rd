@@ -44,6 +44,7 @@ chemdose_dbp_chain(
 chemdose_dbp_once(
   df,
   input_water = "defined_water",
+  output_water = "disinfected_water",
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
