@@ -120,7 +120,7 @@
 #' }
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, mno4,
-                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tds, cond,
+                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tot_bo3 = 0, tot_sio4 = 0, tds, cond,
                          toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
@@ -317,13 +317,13 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@h2sio4 <- tot_sio4 * calculate_alpha2_silicate(h, ks)
 
   # Calculate individual and total alkalinity
-  water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4) # right now, eq/L --> is convert_units preferred or is this okay?
+  water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
   water@ammonium_alk_eq <- (1 * water@nh4)
   water@borate_alk_eq <- (1 * water@bo3)
   water@silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
   water@carbonate_alk_eq <- alk - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
   
-  water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2) ### Do tot_bo3, tot_sio4 also need to be updated like this? Or do we want to include them as inputs like tot_po4 and tot_nh3?
+  water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   water@alk_eq <- water@carbonate_alk_eq + water@phosphate_alk_eq + water@ammonium_alk_eq + water@borate_alk_eq + water@silicate_alk_eq - water@h + water@oh
 
   # Add all estimated values to water slot
