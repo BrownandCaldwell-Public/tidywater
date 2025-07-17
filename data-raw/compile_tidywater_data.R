@@ -8,6 +8,7 @@ mweights <- data.frame(
   cl = 35.453,
   so4 = 96.0626,
   caco3 = 100.0869,
+  caso4 = 136.141,
   hcl = 36.46094,
   h2so4 = 98.079,
   h3po4 = 97.995181,
@@ -29,8 +30,10 @@ mweights <- data.frame(
   mg = 24.305,
   ca = 40.078,
   po4 = 94.97,
+  na3po4 = 163.939,
   hpo4 = 95.98,
   h2po4 = 96.99,
+  h2co3 = 62.024,
   hco3 = 61.0168,
   co3 = 60.0089,
   ocl = 16 + 35.453,
@@ -38,9 +41,12 @@ mweights <- data.frame(
   br = 79.904,
   bro3 = 79.904 + 3 * 15.999,
   f = 18.9984,
+  naf = 41.9882,
   mn = 54.938,
   nh4 = 18.04,
   nh3 = 17.031,
+  no3 = 62.005,
+  hno3 = 63.0128,
   nh2cl = 51.48,
   nhcl2 = 85.92,
   ncl3 = 120.365,
@@ -48,6 +54,8 @@ mweights <- data.frame(
   nh4oh = 18.04 + 17.008,
   nh42so4 = 18.04 * 2 + 96.0626,
   oh = 17.008,
+  kmno4 = 158.032,
+  mno4 = 158.032 - 39.0983,
   dic = 12.011
 )
 
@@ -812,7 +820,6 @@ pactoccoeffs <- tibble(
 
 usethis::use_data(pactoccoeffs, overwrite = TRUE)
 
-
 # toc_compliance_table -----
 # Data frame of PAC TOC removal coefficients
 
@@ -825,3 +832,223 @@ toc_compliance_table <- data.frame(
 )
 
 usethis::use_data(toc_compliance_table, overwrite = TRUE)
+
+# vlog_removalcts -----
+vlog_removalcts <- data.frame(
+    ph_range = "6-9",
+    temp_value = 0.5,
+    ct_range = "6-9",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 0.5,
+    ct_range = "9-12",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 0.5,
+    ct_range = "12",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "45-66",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "66-90",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "90",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "4-6",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "6-8",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "8",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "30-44",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "44-60",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "60",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "3-4",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "4-6",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "6",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "22-33",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "33-45",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "45",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "2-3",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "3-4",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "4",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "15-22",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "22-30",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "30",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "1-2",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "2-3",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "3",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "11-16",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "16-22",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "22",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "1",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "1-2",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "2",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "7-11",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "11-15",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "15",
+    vlog_removal = 4.0
+  )
+
+usethis::use_data(vlog_removalcts, overwrite = TRUE)

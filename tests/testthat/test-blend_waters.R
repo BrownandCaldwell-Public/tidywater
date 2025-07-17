@@ -15,14 +15,11 @@ test_that("Blend waters outputs same water when ratio is 1 or the blending water
   water3 <- define_water(ph = 10, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
-  blend1@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
-  blend2@applied_treatment <- "defined" # set treatments to be the same to avoid an error
   expect_equal(water1, blend1)
   expect_equal(water3, blend2)
 
   blend3 <- blend_waters(c(water1, water2), c(.5, .5))
-  blend3@applied_treatment <- "defined"
   expect_equal(water1, blend3)
 })
 
@@ -43,7 +40,7 @@ test_that("Blend waters conserves DOC.", {
   expect_equal(blend1@doc, 4)
 })
 
-test_that("Blend waters correctly handles treatment and list of estimated parameters.", {
+test_that("Blend waters correctly handles list of estimated parameters.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
     chemdose_ph(naoh = 5)
   water2 <- define_water(ph = 7, temp = 25, alk = 100, cond = 100) %>%
@@ -54,8 +51,6 @@ test_that("Blend waters correctly handles treatment and list of estimated parame
   blend2 <- suppressWarnings(blend_waters(c(water2, water3), c(.5, .5)))
   blend3 <- blend_waters(c(water1), c(1))
 
-  expect_equal(blend1@applied_treatment, "defined_chemdosed_balanced_blended")
-  expect_equal(blend2@applied_treatment, "defined_balanced_blended")
   expect_equal(blend1@estimated, "_cond_tds_na")
   expect_equal(blend2@estimated, "_tds_na_ca_mg_cond")
   expect_equal(blend3@estimated, water1@estimated)
@@ -85,6 +80,7 @@ test_that("Blend waters warns about chloramines.", {
 # blend_waters helpers ----
 # Test that blend_waters_chain outputs are the same as base function, blend_waters
 test_that("blend_waters_chain outputs are the same as base function, blend_waters", {
+  testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
@@ -114,6 +110,7 @@ test_that("blend_waters_chain outputs are the same as base function, blend_water
 
 # Test that output is a column of water class lists, and changing the output column name works
 test_that("blend_waters_chain outputs a column of water class lists, and output_water arg works", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -130,6 +127,7 @@ test_that("blend_waters_chain outputs a column of water class lists, and output_
 
 # Check that this function can handle different ways to input ratios
 test_that("blend_waters_chain can handle different ways to input ratios", {
+  testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
@@ -156,6 +154,7 @@ test_that("blend_waters_chain can handle different ways to input ratios", {
 })
 
 test_that("blend_waters_chain can handle water columns mixed with objects", {
+  testthat::skip_on_cran()
   water4 <- water_df %>%
     slice(1:3) %>%
     define_water_chain("A")

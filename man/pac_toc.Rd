@@ -44,7 +44,8 @@ pac_toc_chain(
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
-ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007)
+ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
+Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
@@ -68,33 +69,22 @@ water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   pac_toc(dose = 15, time = 50, type = "wood")
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  pac_toc_chain(input_water = "raw", dose = 10, time = 20)
-
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
   mutate(dose = seq(11, 22, 1), PACTime = 30) \%>\%
-  pac_toc_chain(input_water = "raw", time = PACTime)
+  pac_toc_chain(input_water = "raw", time = PACTime, type = "wood")
 
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(time = 8) \%>\%
-  pac_toc_chain(
-    input_water = "raw", dose = 6, type = "wood"
-  )
-
+\donttest{
 # Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+library(furrr)
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
+}
 }

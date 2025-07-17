@@ -218,28 +218,21 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(furrr)
-#' library(tidyr)
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   dissolve_pb_once(input_water = "balanced_water")
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' library(furrr)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest_wider

@@ -1,7 +1,7 @@
 #' @title Determine TOC removal from biofiltration using Terry & Summers BDOC model
 #'
 #' @description This function applies the Terry model to a water created by [define_water] to determine biofiltered
-#' DOC (mg/L).
+#' DOC (mg/L). All particulate TOC is assumed to be removed so TOC = DOC.
 #' For a single water use `biofilter_toc`; for a dataframe use `biofilter_toc_chain`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
@@ -43,26 +43,22 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 
   # Determine BDOC fraction and rate constant k' based on temperature and ozonation
   if (ozonated) {
+    BDOC_fraction <- BDOC_fraction_ozonated
     if (temp <= 10) {
       k <- 0.03
-      BDOC_fraction <- BDOC_fraction_ozonated
     } else if (temp <= 20) {
       k <- 0.06
-      BDOC_fraction <- BDOC_fraction_ozonated
     } else {
       k <- 0.15
-      BDOC_fraction <- BDOC_fraction_ozonated
     }
   } else {
+    BDOC_fraction <- BDOC_fraction_nonozonated
     if (temp <= 10) {
       k <- 0.03
-      BDOC_fraction <- BDOC_fraction_nonozonated
     } else if (temp <= 20) {
       k <- 0.09
-      BDOC_fraction <- BDOC_fraction_nonozonated
     } else {
       k <- 0.11
-      BDOC_fraction <- BDOC_fraction_nonozonated
     }
   }
 
@@ -76,10 +72,10 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   BDOC_removed <- (BDOC_inf - BDOC_eff)
 
   # Update water object with new TOC and DOC values
-  water@toc <- water@toc - BDOC_removed
-  water@doc <- water@toc - BDOC_removed
+  doc_eff <- water@doc - BDOC_removed
+  water@doc <- doc_eff
+  water@toc <- doc_eff
   water@bdoc <- BDOC_eff
-  water@applied_treatment <- paste(water@applied_treatment, "_biofilter", sep = "")
 
   return(water)
 }
@@ -94,7 +90,6 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @examples
 #'
 #' library(purrr)
-#' library(furrr)
 #' library(tidyr)
 #' library(dplyr)
 #'
@@ -110,14 +105,17 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #'   ) %>%
 #'   biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 #'
+#' \donttest{
 #' # Initialize parallel processing
-#' plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+#' library(furrr)
+#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 20))
 #'
 #' # Optional: explicitly close multisession processing
-#' plan(sequential)
+#' # plan(sequential)
+#' }
 #'
 #' @import dplyr
 #' @export

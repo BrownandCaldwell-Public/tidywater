@@ -3,7 +3,6 @@
 \name{calculate_corrosion}
 \alias{calculate_corrosion}
 \alias{calculate_corrosion_once}
-\alias{calculate_corrosion_chain}
 \title{Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR, CCPP)}
 \source{
 AWWA (1977)
@@ -24,7 +23,7 @@ Nguyen et al. (2011)
 
 Plummer and Busenberg (1982)
 
-Ryznar (1946)
+Ryznar (1944)
 
 Schock (1984)
 
@@ -47,14 +46,6 @@ calculate_corrosion_once(
   index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
   form = "calcite"
 )
-
-calculate_corrosion_chain(
-  df,
-  input_water = "defined_water",
-  output_water = "corrosion_indices",
-  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-  form = "calcite"
-)
 }
 \arguments{
 \item{water}{Source water of class "water" created by \link{define_water}}
@@ -68,15 +59,11 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 \item{df}{a data frame containing a water class column, created using \link{define_water}}
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
-
-\item{output_water}{name of output column storing updated indices with the class, water. Default is "corrosion_indices".}
 }
 \value{
-\code{calculate_corrosion} returns a single water class object with updated corrosion and scaling index slots.
+\code{calculate_corrosion} returns a data frame with corrosion and scaling indices as individual columns.
 
-\code{calculate_corrosion_once} returns a data frame containing specified corrosion and scaling indices as columns.
-
-\code{calculate_corrosion_chain} returns a data frame containing a water class column with updated corrosion and scaling index slots.
+\code{calculate_corrosion_once} returns the a data frame containing specified corrosion and scaling indices as columns.
 }
 \description{
 This function takes an object created by \link{define_water} and calculates
@@ -110,53 +97,18 @@ shorter run times will not benefit from parallel processing.
 water <- define_water(
   ph = 8, temp = 25, alk = 200, tot_hard = 200,
   tds = 576, cl = 150, so4 = 200
-) \%>\%
-  calculate_corrosion()
+)
+corrosion_indices <- calculate_corrosion(water)
 
-water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200) \%>\%
-  calculate_corrosion(index = c("aggressive", "ccpp"))
+water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
+corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
 
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
-
-example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
-  define_water_chain() \%>\%
-  calculate_corrosion_once()
 
 example_df <- water_df \%>\%
   slice_head(n = 2) \%>\% # used to make example run faster
   define_water_chain() \%>\%
   calculate_corrosion_once(index = c("aggressive", "ccpp"))
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
-  define_water_chain() \%>\%
-  calculate_corrosion_chain()
-
-example_df <- water_df \%>\%
-  slice_head(n = 2) \%>\% # used to make example run faster
-  define_water_chain() \%>\%
-  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
-\donttest{
-# Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
-
-# Optional: explicitly close multisession processing
-plan(sequential)
-}
 
 }

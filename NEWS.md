@@ -1,4 +1,50 @@
-# tidywater development version
+# Development Version
+
+## New features
+
+* `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
+* Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
+* `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
+
+## Breaking changes
+
+# tidywater 0.9.0
+
+## New features
+
+* New `chemdose_ph` chemicals: CaOCl2, CaSO4, HNO3, KMnO4, NaF, and Na3PO4
+* New model `dissolve_cu` predicts the concentration of copper given pH, DIC, and phosphate based on the empirical model described in Lytle et al. (2018). 
+`dissolve_cu_once` can also predict copper for waters in a data frame.
+* `chemdose_dbp` can now input custom fitting coefficients as a data frame
+* `chemdose_ph_once` and `chemdose_toc_once` are back and only return relevant waters slots in its output.
+* `decarbonate_ph`: function to remove CO2 (H2CO3) from a water and determine the new pH (and division of ions)
+* `modify_water`: function to modify individual slots in a water that handles unit conversions
+
+## Breaking changes
+
+* `applied_treatment` slot removed from water. Was not providing any benefit and added complexity. Should be the responsibility of the user to track.
+* `h2co3` slot added to `water` class calculated based on {H} and total carbonate.
+* `chemdose_ph` warns when ion water slots aren't updated due to NA slots.
+* `solvedose_ph` updated search range to allow for more water qualities without erroring. Updated search process results in slightly different outputs.
+* `_toc` functions are DOC-based and previously assumed no particulate TOC removal. In reality, virtually all particulate 
+TOC is removed with other particulates, so models have been updated to return TOC = DOC
+* `chemdose_toc` custom coeff now accepts a data frame instead of a named list
+* Corrosion index slots removed from `water` class. 
+* `calculate_corrosion` now outputs a data frame with the corrosion indices as columns. 
+`calculate_corrosion_chain` removed because the base function has a numeric output.
+* `calculate_corrosion` updated CCPP search range to allow for more water qualities without erroring.
+* `solvect_o3` and `solveresid_o3` now return zero instead of NaN when the input dose is zero
+
+# tidywater 0.8.2
+
+* Reduce examples for CRAN speed again.
+
+# tidywater 0.8.1
+
+* Pare down examples and vignettes to speed up CRAN checks
+* Minor updates to `chemdose_chloramine` warnings.
+
+# tidywater 0.8.0
 
 * `calculate_corrosion` expanded CCPP search range (fewer errors)
 
@@ -14,7 +60,8 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * User may now choose which cation or anion to use for balancing ions
 * dic now calculated in `define_water`
 * dic now available in `convert_units`
-* `chemdose_chloramine` now available
+* `chemdose_chloramine`: chloramine formation model given chlorine, ammonia, time
+* `chemdose_chlordecay` now has argument, `use_chlorine_slot`. Function can now use chlorine dose and/or free_chlorine or combined_chlorine slots.
 * `regulate_toc` now available for calculating TOC removal compliance
 
 # tidywater 0.7.0

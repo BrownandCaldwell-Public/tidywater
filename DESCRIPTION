@@ -1,7 +1,7 @@
 Package: tidywater
 Type: Package
 Title: Water Quality Models for Drinking Water Treatment Processes
-Version: 0.7.0
+Version: 0.9.0
 Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role = c("aut", "cre")),
     person("Libby", "McKenna", email = "lmckenna@brwncald.com", role = c("aut")),
     person("Riley", "Mulhern", email = "rmulhern@brwncald.com", role = c("aut"), comment = c(ORCID = "0000-0001-6293-3672")),
@@ -9,12 +9,15 @@ Authors@R: c(person("Sierra", "Johnson", email = "sjohnson2@brwncald.com", role 
     person("Rachel", "Merrifield", role = "ctb"),
     person("Mayuri", "Namasivayam", role = "ctb"),
     person("Phoebe", "Chen", role = "ctb"),
+    person("Jiaming", "Yuan", role = "ctb"),
     person("USEPA", role = "cph", comment = "Copyright holder of included TELSS fragments (dissolve_pb function)"),
     person("Brown and Caldwell", role = c("fnd", "cph")
     ))
 URL: https://github.com/BrownandCaldwell-Public/tidywater
 BugReports: https://github.com/BrownandCaldwell-Public/tidywater/issues
 Description: Provides multiple water chemistry-based models and published empirical models in one standard format.
+    As many models have been included as possible, however, users should be aware that models have varying degrees of accuracy and applicability.
+    To learn more, read the references provided below for the models implemented.
     Functions can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow.
     Models are primarily based on these sources:
     Benjamin, M. M. (2002, ISBN:147862308X),
@@ -45,4 +48,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-Date: 2025-01-22
+Date: 2025-07-03

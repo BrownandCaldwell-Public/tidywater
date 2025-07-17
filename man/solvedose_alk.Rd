@@ -56,27 +56,7 @@ shorter run times will not benefit from parallel processing.
 dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) \%>\%
   solvedose_alk(target_alk = 150, "naoh")
 
-library(purrr)
-library(furrr)
-library(tidyr)
 library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    target_alk = 300,
-    chemical = rep(c("naoh", "na2co3"), 6)
-  ) \%>\%
-  solvedose_alk_once()
-
-# When the selected chemical can't raise the alkalinity, the dose_required will be NA
-# Eg,soda ash can't bring the alkalinity to 100 when the water's alkalinity is already at 200.
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  solvedose_alk_once(input_water = "defined_water", target_alk = 100, chemical = "na2co3")
-
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
@@ -85,14 +65,15 @@ example_df <- water_df \%>\%
 
 \donttest{
 # Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+library(furrr)
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   mutate(target_alk = seq(100, 210, 10)) \%>\%
   solvedose_alk_once(chemical = "na2co3")
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
 }
 
 }

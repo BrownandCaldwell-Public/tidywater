@@ -3,6 +3,7 @@
 \name{chemdose_ph}
 \alias{chemdose_ph}
 \alias{chemdose_ph_chain}
+\alias{chemdose_ph_once}
 \title{Calculate new pH and ion balance after chemical addition}
 \usage{
 chemdose_ph(
@@ -10,6 +11,7 @@ chemdose_ph(
   hcl = 0,
   h2so4 = 0,
   h3po4 = 0,
+  hno3 = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -17,6 +19,8 @@ chemdose_ph(
   na2co3 = 0,
   nahco3 = 0,
   caco3 = 0,
+  caso4 = 0,
+  caocl2 = 0,
   cacl2 = 0,
   cl2 = 0,
   naocl = 0,
@@ -26,6 +30,9 @@ chemdose_ph(
   ferricchloride = 0,
   ferricsulfate = 0,
   ach = 0,
+  kmno4 = 0,
+  naf = 0,
+  na3po4 = 0,
   softening_correction = FALSE
 )
 
@@ -36,23 +43,62 @@ chemdose_ph_chain(
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
+  hno3 = "use_col",
   co2 = "use_col",
   naoh = "use_col",
   na2co3 = "use_col",
   nahco3 = "use_col",
   caoh2 = "use_col",
   mgoh2 = "use_col",
+  caocl2 = "use_col",
   cacl2 = "use_col",
   cl2 = "use_col",
   naocl = "use_col",
   nh4oh = "use_col",
   nh42so4 = "use_col",
+  caco3 = "use_col",
+  caso4 = "use_col",
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
+  kmno4 = "use_col",
+  naf = "use_col",
+  na3po4 = "use_col",
+  softening_correction = "use_col",
+  na_to_zero = TRUE
+)
+
+chemdose_ph_once(
+  df,
+  input_water = "defined_water",
+  output_water = "dosed_chem_water",
+  hcl = "use_col",
+  h2so4 = "use_col",
+  h3po4 = "use_col",
+  hno3 = "use_col",
+  co2 = "use_col",
+  naoh = "use_col",
+  na2co3 = "use_col",
+  nahco3 = "use_col",
+  caoh2 = "use_col",
+  mgoh2 = "use_col",
+  caocl2 = "use_col",
+  cacl2 = "use_col",
+  cl2 = "use_col",
+  naocl = "use_col",
+  nh4oh = "use_col",
+  nh42so4 = "use_col",
   caco3 = "use_col",
-  softening_correction = "use_col"
+  caso4 = "use_col",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  ach = "use_col",
+  kmno4 = "use_col",
+  naf = "use_col",
+  na3po4 = "use_col",
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -64,19 +110,25 @@ chemdose_ph_chain(
 
 \item{h3po4}{Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4}
 
+\item{hno3}{Amount of nitric acid added in mg/L: HNO3 -> H + NO3}
+
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
 \item{naoh}{Amount of caustic added in mg/L: NaOH -> Na + OH}
 
 \item{caoh2}{Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH}
 
-\item{mgoh2}{Amount of magneisum hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
+\item{mgoh2}{Amount of magnesium hydroxide added in mg/L: Mg(OH)2 -> Mg + 2OH}
 
 \item{na2co3}{Amount of soda ash added in mg/L: Na2CO3 -> 2Na + CO3}
 
 \item{nahco3}{Amount of sodium bicarbonate added in mg/L: NaHCO3 -> Na + H + CO3}
 
 \item{caco3}{Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -> Ca + CO3}
+
+\item{caso4}{Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4 -> Ca + SO4}
+
+\item{caocl2}{Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -> Ca + 2OCl}
 
 \item{cacl2}{Amount of calcium chloride added in mg/L: CaCl2 -> Ca2+ + 2Cl-}
 
@@ -96,6 +148,12 @@ chemdose_ph_chain(
 
 \item{ach}{Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2}
 
+\item{kmno4}{Amount of potassium permanganate added in mg/L: KMnO4 -> K + MnO4}
+
+\item{naf}{Amount of sodium fluoride added in mg/L: NaF -> Na + F}
+
+\item{na3po4}{Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4}
+
 \item{softening_correction}{Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
@@ -104,11 +162,18 @@ chemdose_ph_chain(
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
+
+\item{na_to_zero}{option to convert all NA values in the data frame to zeros. Default value is TRUE.}
+
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Change to FALSE to remove the water prefix from output column names.}
 }
 \value{
 \code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 
 \code{chemdose_ph_chain} returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
+
+\code{chemdose_ph_once} returns a data frame with columns for pH and alkalinity post-chemical addition.
 }
 \description{
 Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
@@ -139,58 +204,43 @@ shorter run times will not benefit from parallel processing.
 water <- define_water(ph = 7, temp = 25, alk = 10)
 # Dose 1 mg/L of hydrochloric acid
 dosed_water <- chemdose_ph(water, hcl = 1)
-dosed_water@ph
 
 # Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
 dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
-dosed_water@ph
-
-# Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum sequentially
-dosed_water1 <- chemdose_ph(water, hcl = 1)
-dosed_water1@ph
-dosed_water2 <- chemdose_ph(dosed_water1, alum = 5)
-dosed_water2@ph
 
 # Softening:
 water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
-dosed_water1 <- chemdose_ph(water2, caco3 = -100)
-dosed_water1@ph
 dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
-dosed_water2@ph
-
-
-library(purrr)
-library(furrr)
-library(tidyr)
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  mutate(
-    hcl = seq(1, 12, 1),
-    Caustic = 20
-  ) \%>\%
-  chemdose_ph_chain(input_water = "balanced_water", mgoh2 = 55, co2 = 4, naoh = Caustic)
 
 \donttest{
-# Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  balance_ions_chain() \%>\%
-  chemdose_ph_chain(input_water = "balanced_water", naoh = 5)
+  dplyr::slice_head(n = 3) \%>\%
+  dplyr::mutate(
+    hcl = c(2, 4, 6),
+    Caustic = 20
+  ) \%>\%
+  chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+
+# Initialize parallel processing
+library(furrr)
+# plan(multisession)
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  chemdose_ph_chain(naoh = 5)
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
+}
+
+\donttest{
+example_df <- water_df \%>\%
+  define_water_chain() \%>\%
+  dplyr::slice_head(n = 3) \%>\%
+  chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
 }
 
 }
 \seealso{
-\code{\link{define_water}}, \code{\link{convert_units}}
+\link{define_water}, \link{convert_units}
 }

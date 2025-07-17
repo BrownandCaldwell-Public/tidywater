@@ -39,7 +39,7 @@ biofilter_toc_chain(
 }
 \description{
 This function applies the Terry model to a water created by \link{define_water} to determine biofiltered
-DOC (mg/L).
+DOC (mg/L). All particulate TOC is assumed to be removed so TOC = DOC.
 For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_chain}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
@@ -60,7 +60,6 @@ water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 
 
 
 library(purrr)
-library(furrr)
 library(tidyr)
 library(dplyr)
 
@@ -76,13 +75,16 @@ example_df <- water_df \%>\%
   ) \%>\%
   biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 
+\donttest{
 # Initialize parallel processing
-plan(multisession, workers = 2) # Remove the workers argument to use all available compute
+library(furrr)
+# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 20))
 
 # Optional: explicitly close multisession processing
-plan(sequential)
+# plan(sequential)
+}
 
 }

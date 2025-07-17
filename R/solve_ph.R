@@ -2,14 +2,14 @@
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0) {
+solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, no3_dose = 0) {
   # Correct eq constants
   ks <- correct_k(water)
   gamma1 <- calculate_activity(1, water@is, water@temp)
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
-                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose) {
+                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose) {
     kw / (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 * (calculate_alpha1_phosphate(h, ks) +
@@ -18,7 +18,9 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
-      cl_dose -
+      cl_dose +
+      mno4_dose +
+      no3_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose +
         tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
       alk_eq -
@@ -43,6 +45,8 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     ca_dose = ca_dose,
     mg_dose = mg_dose,
     cl_dose = cl_dose,
+    mno4_dose = mno4_dose,
+    no3_dose = no3_dose,
     tol = 1e-14
   )
   phfinal <- -log10(root_h$root * gamma1)
