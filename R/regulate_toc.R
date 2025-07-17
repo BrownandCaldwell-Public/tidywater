@@ -21,7 +21,7 @@
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
-  required_compliance <- toc_compliance_table <-  NA
+  required_compliance <- NA
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
   if (removal <= 0){
@@ -44,7 +44,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
                       alk_raw > alk_min & alk_raw <= alk_max
   )
 
-  required_compliance <- toc_compliance_table$required_compliance[match_row]
+  required_compliance <- tidywater::toc_compliance_table$required_compliance[match_row]
 
   if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
     return(data.frame(
