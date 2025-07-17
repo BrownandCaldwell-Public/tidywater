@@ -72,6 +72,7 @@ chemdose_ph_chain(
 chemdose_ph_once(
   df,
   input_water = "defined_water",
+  output_water = "dosed_chem_water",
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
@@ -96,7 +97,8 @@ chemdose_ph_once(
   ach = "use_col",
   kmno4 = "use_col",
   naf = "use_col",
-  na3po4 = "use_col"
+  na3po4 = "use_col",
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -162,6 +164,9 @@ chemdose_ph_once(
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
 
 \item{na_to_zero}{option to convert all NA values in the data frame to zeros. Default value is TRUE.}
+
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Change to FALSE to remove the water prefix from output column names.}
 }
 \value{
 \code{chemdose_ph} returns a water class object with updated pH, alkalinity, and ions post-chemical addition.

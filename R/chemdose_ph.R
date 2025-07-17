@@ -192,6 +192,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   mno4_dose <- kmno4
   dosed_water@mno4 <- water@mno4 + mno4_dose
 
+  # Total nitrate
+  if (hno3 > 0 & is.na(water@no3)) {
+    warning("Nitrate-containing chemical dosed, but no3 water slot is NA. Slot not updated because background no3 unknown.")
+  }
+  no3_dose <- hno3
+  dosed_water@no3 <- water@no3 + no3_dose
+
   # Total chloride
   if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0) & is.na(water@cl)) {
     warning("Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.")
@@ -229,7 +236,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
     convert_units(ca_dose, "ca", "M", "mg/L") + convert_units(mg_dose, "mg", "M", "mg/L") +
     convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
-    convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L")
+    convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L") +
+    convert_units(no3_dose, "no3", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
@@ -238,7 +246,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
   # Calculate new pH, H+ and OH- concentrations
-  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose)
+  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose, no3_dose = no3_dose)
 
   if (softening_correction == TRUE & caco3 < 0) {
     ph_corrected <- (ph - 1.86) / 0.71 # WTP Model eq 5-62
@@ -427,7 +435,8 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Change to FALSE to remove the water prefix from output column names.
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
@@ -443,14 +452,14 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 #' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
 #'
 
-chemdose_ph_once <- function(df, input_water = "defined_water",
+chemdose_ph_once <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                              nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                             kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
-  dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- NULL # Quiet RCMD check global variable note
+                             kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", water_prefix = TRUE) {
+  dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- temp_water <- NULL # Quiet RCMD check global variable note
 
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
@@ -486,7 +495,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
 
   output <- df %>%
     chemdose_ph_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
+      input_water = input_water, output_water = "temp_water",
       hcl, h2so4, h3po4, hno3, co2, naoh,
       na2co3, nahco3, caoh2, mgoh2,
       caocl2, cacl2, cl2, naocl,
@@ -494,7 +503,17 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
       alum, ferricchloride, ferricsulfate, ach,
       kmno4, naf, na3po4
     ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
+    mutate(dose_chem = furrr::future_map(temp_water, convert_water)) %>%
     unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, temp, tds:estimated))
+    select(-c(temp, tds:estimated),!!output_water := temp_water)
+
+  if (water_prefix) {
+    output <- output %>%
+      rename_with(
+        ~ paste0(output_water, "_", .x),
+        .cols = (match(output_water, names(.)) + 1):ncol(.)
+      )
+  }
+
+  return(output)
 }
