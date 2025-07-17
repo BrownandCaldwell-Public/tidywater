@@ -236,26 +236,65 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 
   # convert alkalinity input to equivalents/L
   alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
-  # What is happening here before the IS calculations? calculate all initial total carbonate, ammonium, borate, silicate, and phosphate concentrations?
   # Initial alpha values (not corrected for IS)
   discons <- tidywater::discons
+  
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
   k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
-
+  k1po4 <- K_temp_adjust(discons["k1po4",]$deltah, discons["k1po4",]$k, temp)
+  k2po4 <- K_temp_adjust(discons["k2po4",]$deltah, discons["k2po4",]$k, temp)
+  k3po4 <- K_temp_adjust(discons["k3po4",]$deltah, discons["k3po4",]$k, temp)
+  knh4 <- K_temp_adjust(discons["knh4",]$deltah, discons["knh4",]$k, temp)
+  kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3",]$k, temp)
+  k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4",]$k, temp)
+  k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4",]$k, temp)
+  
   alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-  tot_co3 <- carb_alk_eq / (alpha1 + 2 * alpha2)
+  
+  alpha1p <- calculate_alpha1_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as H2PO4-
+  alpha2p <- calculate_alpha2_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as HPO4 2-
+  alpha3p <- calculate_alpha3_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as PO4 3-
+  
+  alpha1n <- calculate_alpha1_ammonia(h, data.frame("knh4" = knh4))
+  alpha1b <- calculate_alpha1_borate(h, data.frame("kbo3" = kbo3))
+  alpha1s <- calculate_alpha1_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
+  alpha2s <- calculate_alpha2_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
+  
+  # Update total ion values
+  h2po4 <- tot_po4 * alpha1p
+  hpo4 <- tot_po4 * alpha2p
+  po4 <- tot_po4 * alpha3p
+  h3po4 <- tot_po4 - (h2po4 + hpo4 + po4)
+  nh4 <- tot_nh3 * alpha1n
+  
+  bo3 <- tot_bo3 * alpha1b
+  h3sio4 <- tot_sio4 * alpha1s
+  h2sio4 <- tot_sio4 * alpha2s
+  
+  phosphate_alk_eq <- (-1 * h3po4 + 0 * h2po4 + 1 * hpo4 + 2 * po4)
+  ammonium_alk_eq <- (1 * nh4)
+  borate_alk_eq <- (1 * bo3)
+  silicate_alk_eq <- (1 * h3sio4 + 2 * h2sio4)
+  carbonate_alk_eq <- alk - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + oh) + h
+
+  tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
+  tot_po4 <- phosphate_alk_eq / (alpha1p + 2 * alpha2p + 3 * alpha3p)
+  tot_nh3 <- ammonium_alk_eq / alpha1n
+  tot_bo3 <- borate_alk_eq / alpha1b
+  tot_sio4 <- silicate_alk_eq / (alpha1s + 2 * alpha2s)
 
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, mno4 = mno4,
     h2co3 = tot_co3 * alpha0, hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2,
-    h2po4 = 0, hpo4 = 0, po4 = 0, ocl = 0, nh4 = 0,
+    h2po4 = h2po4, hpo4 = hpo4, po4 = po4, ocl = 0, nh4 = nh4,
+    bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
-    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
-    kw = kw, is = 0, alk_eq = carb_alk_eq,
+    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, tot_bo3 = tot_bo3, tot_sio4 = tot_sio4,
+    kw = kw, is = 0, alk_eq = alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )

@@ -29,6 +29,8 @@ define_water(
   combined_chlorine = 0,
   tot_po4 = 0,
   tot_nh3 = 0,
+  tot_bo3 = 0,
+  tot_sio4 = 0,
   tds,
   cond,
   toc,
@@ -73,6 +75,10 @@ define_water(
 
 \item{tot_nh3}{Total ammonia in mg/L as N}
 
+\item{tot_bo3}{Total borate in mg/L as B}
+
+\item{tot_sio4}{Total silicate in mg/L as SiO2}
+
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
 \item{cond}{Electrical conductivity in uS/cm (optional if ions are known)}
@@ -94,10 +100,6 @@ define_water(
 \item{mn}{Manganese in ug/L Mn2+}
 
 \item{no3}{Nitrate in mg/L as N}
-
-\item{tot_bo3}{Total borate in mg/L as B}
-
-\item{tot_sio4}{Total silicate in mg/L as SiO2}
 }
 \value{
 define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
