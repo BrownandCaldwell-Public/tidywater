@@ -21,7 +21,7 @@
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
-
+  required_compliance <- toc_compliance_table <-  NA
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
   if (removal <= 0){
@@ -39,8 +39,6 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
       toc_removal_percent = "Not Calculated"))
   }
 
-  required_compliance <- NA
-
   match_row <- with(tidywater::toc_compliance_table,
                     toc_raw > toc_min & toc_raw <= toc_max &
                       alk_raw > alk_min & alk_raw <= alk_max
@@ -49,12 +47,12 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
   required_compliance <- toc_compliance_table$required_compliance[match_row]
 
   if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
-    return(tibble::tibble(
+    return(data.frame(
       toc_compliance_status = "In Compliance",
       toc_removal_percent = round(removal, 1)
                           ))
   } else {
-    return(tibble::tibble(
+    return(data.frame(
       toc_compliance_status = "Not Compliant",
       toc_removal_percent = as.character(round(removal, 1)),
       comment = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
