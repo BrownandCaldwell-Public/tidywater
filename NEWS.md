@@ -15,6 +15,7 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * dic now calculated in `define_water`
 * dic now available in `convert_units`
 * `chemdose_chloramine` now available
+* `regulate_toc` now available for calculating TOC removal compliance
 
 # tidywater 0.7.0
 

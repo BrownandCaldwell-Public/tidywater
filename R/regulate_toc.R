@@ -1,157 +1,117 @@
-#' @title Determine if TOC meets requirements
-#' @description This function takes input parameters for raw water including TOC,
-#' pH, and alkalinity, and calculates the removal percentage for TOC. It then
-#' checks compliance with regulations based on these inputs.
+#' @title Determine if TOC removal meets Stage 1 DBP Rule requirements
+#' @description This function takes raw water alkalinity, raw water TOC, and finished water TOC.
+#' It then calculates the TOC removal percentage and checks compliance with the Stage 1 DBP Rule.
 #'
 #' @details The function prints the input parameters and the calculated removal
 #' percentage for TOC. It checks compliance with regulations considering the raw
 #' TOC, alkalinity, and removal percentage. If the conditions are met, it prints
 #' "In compliance"; otherwise, it prints "Not in compliance" and stops execution
 #' with an error message.
-#' @param raw_toc Numeric value representing the raw TOC (mg/L).
-#'
-#' @param ph Numeric value representing the pH of the water.
-#'
-#' @param alk Numeric value representing the alkalinity (mg/L as calcium carbonate).
-#'
-#' @param final_toc Numeric value representing the final TOC (mg/L).
+
+#' @param alk_raw Raw water alkalinity (mg/L as calcium carbonate).
+#' @param toc_raw Raw water total organic carbon (mg/L).
+#' @param toc_finished Finished water total organic carbon (mg/L).
 #'
 #' @examples
-#' regulate_toc(5, 7, 60, 2)
+#' regulate_toc(50, 5, 2)
 #'
 #' @export
 #'
-#' @returns The function return "In compliance" if the conditions are met,
-#' otherwise it stops execution with an error message.
-#'
-#'
+#' @returns A data frame containing the TOC removal compliance status.
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
-regulate_toc <- function(water, raw_toc) {
-  ph <- water@ph
-  alk <- water@alk
-  final_toc <- water@toc
+regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 
+  removal <- (toc_raw - toc_finished) / toc_raw * 100
 
-  # Note from Libby: I don't think we need these print lines. tends to clutter up the console
-
-  #Bengu: deleted the print lines
-
-  #Calculate removal percentage for TOC:
-  removal <- (raw_toc - final_toc) / raw_toc * 100
-  # Note from Libby:  instead of printing this message let's add it to the dataframe output (Bengu:I added it to the dataframe output)
-  required_compliance <- NA
-
-  #Checking compliance considering inputs:
-
-  if (raw_toc > 2 & raw_toc <= 4) {
-    if (alk <= 60) required_compliance <- 35
-    else if (alk > 60 & alk <= 120) required_compliance <- 25
-    else if (alk > 120) required_compliance <- 15
-  } else if (raw_toc > 4 & raw_toc <= 8) {
-    if (alk <= 60) required_compliance <- 45
-    else if (alk > 60 & alk <= 120) required_compliance <- 35
-    else if (alk > 120) required_compliance <- 25
-  } else if (raw_toc > 8) {
-    if (alk <= 60) required_compliance <- 50
-    else if (alk > 60 & alk <= 120) required_compliance <- 40
-    else if (alk > 120) required_compliance <- 30
+  if (removal <= 0){
+    warning("Finished water TOC is greater than or equal raw TOC. No removal ocurred.")
+    return(tibble::tibble(
+      toc_compliance_status = "Not Calculated",
+      toc_removal_percent = "Not Calculated"
+    ))
   }
 
+  if (toc_raw <= 2 ){
+    warning("Raw water TOC < 2 mg/L. No regulation applies.")
+    return(tibble::tibble(
+      toc_compliance_status = "Not Calculated",
+      toc_removal_percent = "Not Calculated"))
+  }
 
-  if (!is.na(required_compliance) & removal >= required_compliance) {
-    return(tibble::tibble(toc_compliance_status = "In Compliance", toc_removal_percent = round(removal, 1)
-                          # Note from Libby: add another column below showing the TOC removal percent (Bengu: column is added)
+  required_compliance <- NA
 
+  match_row <- with(tidywater::toc_compliance_table,
+                    toc_raw > toc_min & toc_raw <= toc_max &
+                      alk_raw > alk_min & alk_raw <= alk_max
+  )
+
+  required_compliance <- toc_compliance_table$required_compliance[match_row]
+
+  if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
+    return(tibble::tibble(
+      toc_compliance_status = "In Compliance",
+      toc_removal_percent = round(removal, 1)
                           ))
   } else {
     return(tibble::tibble(
-      toc_compliance_status = "Not Compliant", toc_removal_percent = round(removal, 1),
-      # Note from Libby: add another column (same as the new column you made above), and add this note. (Bengu: column is added))
-        new_col = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
-    ))
+      toc_compliance_status = "Not Compliant",
+      toc_removal_percent = as.character(round(removal, 1)),
+      comment = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
+    )
+    )
   }
 }
 
-# library(tidywater)
-# library(tibble)
-
-#test the function with raw parameters:
-
-# water <- define_water(ph = 7, alk = 55, temp = 20, toc = 2, uv254 = 0.1, cond = 50) %>%
-#    chemdose_toc(alum = 50) %>%
-#   dissolve_pb()
-#
-#  test <- regulate_toc(water = water, raw_toc = 5)
-
-
-
-library(dplyr)
-library(tidyr)
-library(furrr)
-library(purrr)
-library(devtools)
-
-
 #' @rdname regulate_toc
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
-#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
-#' @param raw_toc_col name of the column containing raw TOC values.
-#' @param output_col_status name of the output column storing the compliance status. Default is "toc_compliance_status".
-#' @param output_col_percent name of the output column storing TOC removal percent. Default is "toc_removal_percent".
-#' @param output_col_note name of the output column storing compliance note. Default is "new_col".
-#' @param water_prefix whether to prefix output columns with the input_water name. Default is TRUE.
+#' @param df a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
+#'
+#'  @examples
+#'
+#' regulated <- water_df %>%
+#'   select(toc_raw = toc, alk_raw = alk) %>%
+#'   regulate_toc_once(toc_finished = seq(0,1.2, 0.1))
+#'
+#' regulated <- water_df %>%
+#'   define_water_chain() %>%
+#'   chemdose_ph_chain(alum = 30, output_water = "dosed") %>%
+#'   chemdose_toc_chain("dosed") %>%
+#'   pluck_water(c("coagulated_water", "defined_water"), c("toc", "alk")) %>%
+#'   select(toc_finished = coagulated_water_toc, toc_raw = defined_water_toc, alk_raw = defined_water_alk) %>%
+#'   regulate_toc_once()
 #'
 #' @export
 #'
 #' @returns A data frame with compliance status, removal percent, and optional note columns.
 
-regulate_toc_once <- function(df, input_water = "defined_water", raw_toc_col = "raw_toc",
-                              output_col_status = "toc_compliance_status",
-                              output_col_percent = "toc_removal_percent",
-                              output_col_note = "new_col", water_prefix = TRUE) {
+regulate_toc_once <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_finished = "use_col") {
   calc <- NULL # Quiet RCMD check global variable note
-  
-  validate_water_helpers(df, input_water)
-  
+
+  alk_raw <- tryCatch(alk_raw, error = function(e) enquo(alk_raw))
+  toc_raw <- tryCatch(toc_raw, error = function(e) enquo(toc_raw))
+  toc_finished <- tryCatch(toc_finished, error = function(e) enquo(toc_finished))
+
+  arguments <- construct_helper(df, all_args = list(
+    "alk_raw" = alk_raw, "toc_raw" = toc_raw, "toc_finished" = toc_finished
+    ))
+  final_names <- arguments$final_names
+
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- df %>%
+      cross_join(as.data.frame(arguments$new_cols))
+  }
+
   output <- df %>%
     mutate(calc = furrr::future_pmap(
       list(
-        water = !!as.name(input_water),
-        raw_toc = !!as.name(raw_toc_col)
+        alk_raw = if (final_names$alk_raw %in% names(.)) !!sym(final_names$alk_raw) else rep(0, nrow(.)),
+        toc_raw = if (final_names$toc_raw %in% names(.)) !!sym(final_names$toc_raw) else rep(0, nrow(.)),
+        toc_finished = if (final_names$toc_finished %in% names(.)) !!sym(final_names$toc_finished) else rep(0, nrow(.))
       ),
       regulate_toc
     )) %>%
     tidyr::unnest_wider(calc)
-  
-  if (water_prefix) {
-    output <- output %>%
-      rename(
-        !!paste(input_water, output_col_status, sep = "_") := toc_compliance_status,
-        !!paste(input_water, output_col_percent, sep = "_") := toc_removal_percent,
-        !!paste(input_water, output_col_note, sep = "_") := new_col
-      )
-  } else {
-    output <- output %>%
-      rename(
-        !!output_col_status := toc_compliance_status,
-        !!output_col_percent := toc_removal_percent,
-        !!output_col_note := new_col
-      )
-  }
-  
-  return(output)
+
 }
-
-
-devtools::load_all()
-
-test2 <- water_df %>%
-  define_water_chain() %>%
-  regulate_toc_once()
-
-
-
-
-

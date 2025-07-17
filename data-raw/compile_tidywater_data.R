@@ -811,3 +811,17 @@ pactoccoeffs <- tibble(
 )
 
 usethis::use_data(pactoccoeffs, overwrite = TRUE)
+
+
+# toc_compliance_table -----
+# Data frame of PAC TOC removal coefficients
+
+toc_compliance_table <- data.frame(
+  toc_min = c(2, 2, 2, 4, 4, 4, 8, 8, 8),
+  toc_max = c(4, 4, 4, 8, 8, 8, Inf, Inf, Inf),
+  alk_min = c(0, 60, 120, 0, 60, 120, 0, 60, 120),
+  alk_max = c(60, 120, Inf, 60, 120, Inf, 60, 120, Inf),
+  required_compliance = c(35, 25, 15, 45, 35, 25, 50, 40, 30)
+)
+
+usethis::use_data(toc_compliance_table, overwrite = TRUE)
