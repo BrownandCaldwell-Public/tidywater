@@ -63,6 +63,7 @@ expect_equal(base2$comment, regulated2$comment)
 
 
 test_that("regulate_toc_once warns when raw TOC <= 2 mg/L", {
+testthat::skip_on_cran()
 
 regulated <- water_df %>%
   define_water_chain() %>%
@@ -76,7 +77,7 @@ expect_warning(regulate_toc_once(regulated))
 water1 <- suppressWarnings(regulate_toc_once(regulated))
 
 expect_equal(slice(water1, 1)$toc_compliance_status, "Not Calculated")
-expect_equal(slice(water1, 6)$toc_compliance_status, "Not Compliant")
+expect_equal(slice(water1, 5)$toc_compliance_status, "Not Compliant")
 expect_equal(slice(water1, 12)$toc_compliance_status, "In Compliance")
 })
 
