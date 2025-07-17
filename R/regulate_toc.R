@@ -25,8 +25,8 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
   if (removal <= 0){
-    warning("Finished water TOC is greater than or equal raw TOC. No removal ocurred.")
-    return(tibble::tibble(
+    warning("Finished water TOC is greater than or equal to raw TOC. No removal ocurred.")
+    return(data.frame(
       toc_compliance_status = "Not Calculated",
       toc_removal_percent = "Not Calculated"
     ))
@@ -34,7 +34,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 
   if (toc_raw <= 2 ){
     warning("Raw water TOC < 2 mg/L. No regulation applies.")
-    return(tibble::tibble(
+    return(data.frame(
       toc_compliance_status = "Not Calculated",
       toc_removal_percent = "Not Calculated"))
   }
