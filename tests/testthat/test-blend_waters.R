@@ -41,8 +41,8 @@ test_that("Blend waters conserves DOC.", {
 })
 
 test_that("Blend waters correctly handles list of estimated parameters.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
-    chemdose_ph(naoh = 5)
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
+    chemdose_ph(naoh = 5))
   water2 <- define_water(ph = 7, temp = 25, alk = 100, cond = 100) %>%
     balance_ions()
   water3 <- suppressWarnings(define_water(ph = 10, temp = 10, alk = 200, tot_hard = 100, cl = 100, na = 100))

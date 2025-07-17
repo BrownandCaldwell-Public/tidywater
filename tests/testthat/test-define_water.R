@@ -228,10 +228,10 @@ test_that("define_water_chain correctly calculates dic", {
     pluck_water(parameter = "dic") %>%
     slice(1)
 
-  water2 <- define_water(
+  water2 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )
+  ))
   dic_mol <- water2@tot_co3 * tidywater::mweights$dic * 1000
 
 
