@@ -5,6 +5,9 @@
 * `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
 * Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
 * `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
+* New model added to predict TOC removal from GAC treatment using either the EPA WTP model (2001) or the Zachman and Summers (2018) model. There are three functions that implement 
+the model: gacrun_toc, gac_toc, and gacbv_toc. Together the model can output a data frame of the TOC breakthrough curve, update the TOC, DOC, and UV254 water slots, or output the 
+necessary bed volume to stay below the target effluent TOC. See individual functions for more in depth documentation.
 
 ## Breaking changes
 
