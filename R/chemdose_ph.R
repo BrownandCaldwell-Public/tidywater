@@ -300,6 +300,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
 
+  # update toc and doc from ch3cooh
+  if (ch3cooh_dose != 0) {
+    ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "C", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
+    water@toc <- water@toc + ch3cooh_dose
+    water@doc <-  water@doc + ch3cooh_dose
+    warning("TOC and DOC changed in addition to pH due to acetic acid dose.")
+  }
+  
   # update dic
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
 
