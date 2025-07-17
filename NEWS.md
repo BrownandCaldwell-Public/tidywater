@@ -5,6 +5,7 @@
 * `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
 * Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
 * `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
+* `regulate_toc` now available for calculating TOC removal compliance
 
 ## Breaking changes
 
@@ -62,7 +63,6 @@ Previous code assumed pH = 10^-[H+], code has been corrected to pH = 10^-{H+}
 * dic now available in `convert_units`
 * `chemdose_chloramine`: chloramine formation model given chlorine, ammonia, time
 * `chemdose_chlordecay` now has argument, `use_chlorine_slot`. Function can now use chlorine dose and/or free_chlorine or combined_chlorine slots.
-* `regulate_toc` now available for calculating TOC removal compliance
 
 # tidywater 0.7.0
 
