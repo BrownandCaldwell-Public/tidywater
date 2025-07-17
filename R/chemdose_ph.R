@@ -50,7 +50,6 @@
 #' @param naf Amount of sodium fluoride added in mg/L: NaF -> Na + F
 #' @param na3po4 Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
 #' @param softening_correction Set to TRUE to correct post-softening pH (caco3 must be < 0). Default is FALSE. Based on WTP model equation 5-62
-#' @param opensys Set to TRUE to consider an open system with impacts of atmospheric CO2. Default is FALSE.
 #'
 #' @seealso [define_water], [convert_units]
 #'
@@ -76,7 +75,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
                         alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
                         kmno4 = 0, naf = 0, na3po4 = 0,
-                        softening_correction = FALSE, opensys = FALSE) {
+                        softening_correction = FALSE) {
 
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
     warning("Both chlorine- and ammonia-based chemicals were dosed and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
@@ -240,7 +239,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
   # Calculate new pH, H+ and OH- concentrations
-  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose, opensys)
+  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose)
 
   if (softening_correction == TRUE & caco3 < 0) {
     ph_corrected <- (ph - 1.86) / 0.71 # WTP Model eq 5-62
@@ -331,7 +330,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                               nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col", opensys = "use_col", na_to_zero = TRUE) {
+                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col", na_to_zero = TRUE) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
@@ -366,8 +365,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
   na3po4 <- tryCatch(na3po4, error = function(e) enquo(na3po4))
 
   softening_correction <- tryCatch(softening_correction, error = function(e) enquo(softening_correction))
-  opensys <- tryCatch(opensys, error = function(e) enquo(opensys))
-
+  
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
     "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "co2" = co2, "naoh" = naoh,
@@ -376,7 +374,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
     "nh4oh" = nh4oh, "nh42so4" = nh42so4, "caco3" = caco3, "caso4" = caso4,
     "alum" = alum, "ferricchloride" = ferricchloride, "ferricsulfate" = ferricsulfate, "ach" = ach,
     "kmno4" = kmno4, "naf" = naf, "na3po4" = na3po4,
-    "softening_correction" = softening_correction, "opensys" = opensys
+    "softening_correction" = softening_correction
   ))
   final_names <- arguments$final_names
 
@@ -419,8 +417,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
         kmno4 = if (final_names$kmno4 %in% names(.)) !!sym(final_names$kmno4) else rep(0, nrow(.)),
         naf = if (final_names$naf %in% names(.)) !!sym(final_names$naf) else rep(0, nrow(.)),
         na3po4 = if (final_names$na3po4 %in% names(.)) !!sym(final_names$na3po4) else rep(0, nrow(.)),
-        softening_correction = if (final_names$softening_correction %in% names(.)) !!sym(final_names$softening_correction) else rep(FALSE, nrow(.)),
-        opensys = if (final_names$opensys %in% names(.)) !!sym(final_names$opensys) else rep(FALSE, nrow(.))
+        softening_correction = if (final_names$softening_correction %in% names(.)) !!sym(final_names$softening_correction) else rep(FALSE, nrow(.))
       ),
       chemdose_ph
     ))

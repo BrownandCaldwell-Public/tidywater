@@ -2,7 +2,7 @@
 
 #### Function to calculate the pH from a given water quality vector. Not exported in namespace.
 
-solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, opensys) {
+solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0) {
   # Correct eq constants
   ks <- correct_k(water)
   gamma1 <- calculate_activity(1, water@is, water@temp)
@@ -10,8 +10,8 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
-                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, opensys) {
-    charge_balance <- kw / (h * gamma1^2) +
+                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose) {
+    kw / (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 * (calculate_alpha1_phosphate(h, ks) +
         2 * calculate_alpha2_phosphate(h, ks) +
@@ -25,14 +25,6 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
         tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
       alk_eq -
       3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i + nh4_i
-    
-    if (opensys) {
-      # Additional condition: tot_co3 * alpha0_carbonate ≈ 1e-5
-      alpha0 <- calculate_alpha0_carbonate(h, ks)
-      penalty <- (tot_co3 * alpha0 - 1e-5)^2 * 1e3 # penalty if condition not met
-      charge_balance <- charge_balance + penalty
-    }
-    return(charge_balance)
   }
 
   root_h <- stats::uniroot(solve_h,
@@ -54,7 +46,6 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     mg_dose = mg_dose,
     cl_dose = cl_dose,
     mno4_dose = mno4_dose,
-    opensys = opensys,
     tol = 1e-14
   )
   phfinal <- -log10(root_h$root * gamma1)
