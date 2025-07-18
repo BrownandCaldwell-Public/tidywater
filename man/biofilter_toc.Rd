@@ -59,7 +59,6 @@ for the option to use parallel processing and speed things up. To initialize par
 shorter run times will not benefit from parallel processing.
 }
 \examples{
-library(tidywater)
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) \%>\%
   biofilter_toc(ebct = 10, ozonated = FALSE)
 

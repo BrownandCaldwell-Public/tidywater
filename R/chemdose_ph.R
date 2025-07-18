@@ -316,7 +316,6 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #'   chemdose_ph_chain(naoh = 5, pluck_cols = TRUE)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
 #' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.

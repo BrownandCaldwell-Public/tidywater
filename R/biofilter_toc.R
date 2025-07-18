@@ -21,7 +21,6 @@
 #'
 #' @source Terry and Summers 2018
 #' @examples
-#' library(tidywater)
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) %>%
 #'   biofilter_toc(ebct = 10, ozonated = FALSE)
 #'

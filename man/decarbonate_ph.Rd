@@ -9,7 +9,7 @@ decarbonate_ph(water, co2_removed)
 
 decarbonate_ph_chain(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   output_water = "decarbonated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
