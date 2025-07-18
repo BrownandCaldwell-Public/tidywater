@@ -84,45 +84,31 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @rdname biofilter_toc
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include a column indicating the EBCT or whether the water is ozonated.
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "biofiltered_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "biofiltered".
+#' @param pluck_cols Extract water slots modified by the function (doc, toc, bdoc) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #'
-#' library(purrr)
-#' library(tidyr)
-#' library(dplyr)
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 15), ozonated = FALSE)
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   biofilter_toc_chain(input_water = "defined_water", ebct = 10, ozonated = FALSE)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     BiofEBCT = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
 #'     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
 #'   ) %>%
 #'   biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 20))
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#'
-#' @import dplyr
 #' @export
 #'
-#' @returns `biofilter_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and BDOC water slots.
+#' @returns `biofilter_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and BDOC
+#' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
+biofilter_toc_chain <- function(df, input_water = "defined", output_water = "biofiltered",
                                 ebct = "use_col", ozonated = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -148,38 +134,13 @@ biofilter_toc_chain <- function(df, input_water = "defined_water", output_water 
   })
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
-}
 
-
-#' @rdname biofilter_toc
-#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-#' Change to FALSE to remove the water prefix from output column names.
-#' @examples
-#' \donttest{
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   biofilter_toc_once(input_water = "defined_water", ebct = 30)
-#' }
-#'
-#' @export
-#'
-#' @returns `biofilter_toc_once` returns a data frame containing a water class column with updated DOC, TOC, and BDOC concentrations, it also pulls out the updated slots into separate numeric columns.
-#'
-
-biofilter_toc_once <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
-                               ebct = "use_col", ozonated = "use_col", water_prefix = TRUE) {
-  # This allows for the function to process unquoted column names without erroring
-  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
-  ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
-
-  output <- df |>
-    chemdose_toc_chain(
-      input_water = input_water, output_water = output_water,
-      alum, ferricchloride, ferricsulfate, coeff
-    ) |>
-    pluck_water(c(output_water), c("toc", "doc", "bdoc"))
-  if (!water_prefix) {
-    names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("toc", "doc", "bdoc"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
   }
 
   return(output)

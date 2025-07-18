@@ -64,7 +64,7 @@ decarbonate_ph <- function(water, co2_removed) {
 #' @returns `decarbonate_ph_chain` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
-decarbonate_ph_chain <- function(df, input_water = "defined_water", output_water = "decarbonated",
+decarbonate_ph_chain <- function(df, input_water = "defined", output_water = "decarbonated",
                                  pluck_cols = FALSE, water_prefix = TRUE,
                                  co2_removed = "use_col") {
   validate_water_helpers(df, input_water)
