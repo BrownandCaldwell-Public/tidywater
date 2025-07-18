@@ -7,7 +7,7 @@
 #' ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
 #' Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
 #' For a single water use `pac_toc`; for a dataframe use `pac_toc_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
@@ -16,12 +16,6 @@
 #'
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
 #' UV254 concentrations are predicted based on a linear relationship with DOC.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
@@ -108,36 +102,24 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' @rdname pac_toc
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include columns named for the dose, time, and type
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "pac_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "paced". Pronouced P.A.ceed (not ideal we know).
+#' @param pluck_cols Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
-#'   mutate(dose = seq(11, 22, 1), PACTime = 30) %>%
-#'   pac_toc_chain(input_water = "raw", time = PACTime, type = "wood")
-#'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
-#'   pac_toc_chain(input_water = "raw", dose = 4, time = 8)
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#' @import dplyr
+#'   dplyr::mutate(dose = seq(11, 22, 1), PACTime = 30) %>%
+#'   pac_toc_chain(input_water = "raw", time = PACTime, type = "wood", pluck_cols = TRUE)
 #'
 #' @export
 #'
-#' @returns `pac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
+#' @returns `pac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254
+#' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
+pac_toc_chain <- function(df, input_water = "defined", output_water = "paced",
                           dose = "use_col", time = "use_col", type = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -150,18 +132,33 @@ pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        dose = !!as.name(arguments$final_names$dose),
-        time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        type = if (arguments$final_names$type %in% names(.)) !!sym(arguments$final_names$type) else rep("bituminous", nrow(.))
-      ),
-      pac_toc
-    ))
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(type = "bituminous")
+  )
+  df <- defaults_added$data
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    pac_toc(
+      water = df[[input_water]][[i]],
+      dose = df[[final_names$dose]][i],
+      time = df[[final_names$time]][i],
+      type = df[[final_names$type]][i]
+    )
+  })
+
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
+
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("toc", "doc", "uv254"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
+
+  return(output)
 }

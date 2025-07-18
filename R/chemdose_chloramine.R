@@ -322,13 +322,13 @@ chemdose_chloramine_chain <- function(df, input_water = "defined", output_water 
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
   # Add columns with default arguments
-  defaults_added <- handle_defaults(df,final_names,
-                                    list(cl2 = 0,nh3 = 0,use_free_cl_slot = FALSE,use_tot_nh3_slot = FALSE)
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(cl2 = 0, nh3 = 0, use_free_cl_slot = FALSE, use_tot_nh3_slot = FALSE)
   )
   df <- defaults_added$data
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-
     chemdose_chloramine(
       water = df[[input_water]][[i]],
       cl2 = df[[final_names$cl2]][i],
@@ -339,9 +339,9 @@ chemdose_chloramine_chain <- function(df, input_water = "defined", output_water 
     )
   })
 
-  output <- df[,!names(df) %in% defaults_added$defaults_used]
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
 
-  if(pluck_cols) {
+  if (pluck_cols) {
     output <- output |>
       pluck_water(c(output_water), c("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3"))
     if (!water_prefix) {
@@ -350,5 +350,4 @@ chemdose_chloramine_chain <- function(df, input_water = "defined", output_water 
   }
 
   return(output)
-
 }

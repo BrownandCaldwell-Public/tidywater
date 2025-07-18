@@ -14,8 +14,8 @@ ozonate_bromate(water, dose, time, model = "Ozekin")
 
 ozonate_bromate_chain(
   df,
-  input_water = "defined_water",
-  output_water = "ozonated_water",
+  input_water = "defined",
+  output_water = "ozonated",
   dose = "use_col",
   time = "use_col",
   model = "use_col"
@@ -34,14 +34,19 @@ ozonate_bromate_chain(
 \link{define_water_once}. The df may include a column named for the applied chlorine dose (cl2),
 and a column for time in minutes.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "ozonated_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "ozonated".}
+
+\item{pluck_cols}{Extract water slots modified by the function (bro4) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{ozonate_bromate} returns a single water class object with calculated bromate (ug/L).
 
-\code{ozonate_bromate_chain} returns a data frame containing a water class column with updated bro3.
+\code{ozonate_bromate_chain} returns a data frame containing a water class column with updated bro4
+concentration. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates bromate (BrO3-, ug/L) formation based on selected model. Required arguments include an object of class "water"
@@ -50,17 +55,10 @@ The function also requires additional water quality parameters defined in \link{
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 optionally, ammonia (added when defining water using the \code{tot_nh3} argument.)
 For a single water use \code{ozonate_bromate}; for a dataframe use \code{ozonate_bromate_chain}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
-}
-\details{
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
@@ -69,29 +67,14 @@ example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
 
 
-library(dplyr)
-
 example_df <- water_df \%>\%
-  slice_head(n = 6) \%>\%
-  mutate(br = 50) \%>\%
+  dplyr::slice_head(n = 6) \%>\%
+  dplyr::mutate(br = 50) \%>\%
   define_water_chain() \%>\%
-  mutate(
+  dplyr::mutate(
     dose = c(seq(.5, 3, .5)),
     OzoneTime = 30
   ) \%>\%
-  ozonate_bromate_chain(time = OzoneTime, model = "Sohn")
-
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  ozonate_bromate_chain(dose = 4, time = 8)
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
+  ozonate_bromate_chain(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
 
 }

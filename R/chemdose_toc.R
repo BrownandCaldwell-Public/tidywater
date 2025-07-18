@@ -129,9 +129,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'
 #' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
-
-chemdose_toc_chain <- function(df, input_water = "defined", output_water = "coagulated", pluck_cols = FALSE,
-                               water_prefix = TRUE,
+#'
+chemdose_toc_chain <- function(df, input_water = "defined", output_water = "coagulated",
+                               pluck_cols = FALSE, water_prefix = TRUE,
                                alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
                                coeff = "use_col") {
   # This allows for the function to process unquoted column names without erroring
