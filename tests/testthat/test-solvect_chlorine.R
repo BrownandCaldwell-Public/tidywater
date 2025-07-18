@@ -52,14 +52,14 @@ test_that("solvect_chlorine works.", {
 })
 
 test_that("solvect_chlorine determines virus log removal", {
-  water1 <- suppressWarnings(define_water(ph=7.5, temp=20, toc=3.5, uv254=0.1, br=50))
-  water2 <- suppressWarnings(define_water(ph=7.5, temp=5, toc=3.5, uv254=0.1, br=50))
-  water3 <- suppressWarnings(define_water(ph=7.5, temp=22, toc=3.5, uv254=0.1, br=50))
-  water4 <- suppressWarnings(define_water(ph=9.5, temp=20, toc=3.5, uv254=0.1, br=50))
-  
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 5, toc = 3.5, uv254 = 0.1, br = 50))
+  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 22, toc = 3.5, uv254 = 0.1, br = 50))
+  water4 <- suppressWarnings(define_water(ph = 9.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+
   ct1 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
   ct2 <- solvect_chlorine(water2, time = 10, residual = 2, baffle = 0.3)
-  
+
   expect_equal(ct1$vlog_removal, 4.0)
   expect_equal(ct2$vlog_removal, 3.0)
   expect_warning(solvect_chlorine(water3, time = 10, residual = 2, baffle = 0.3))
@@ -67,10 +67,10 @@ test_that("solvect_chlorine determines virus log removal", {
 })
 
 test_that("solvect_chlorine warns appropriately about virus log removal", {
-  water1 <- suppressWarnings(define_water(ph=7.5, temp=15, toc=3.5, uv254=0.1, br=50))
-  water2 <- suppressWarnings(define_water(ph=5, temp=20, toc=3.5, uv254=0.1, br=50))
-  water3 <- suppressWarnings(define_water(ph=12, temp=20, toc=3.5, uv254=0.1, br=50))
-  
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 15, toc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- suppressWarnings(define_water(ph = 5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+  water3 <- suppressWarnings(define_water(ph = 12, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+
   expect_warning(solvect_chlorine(water1, time = 0.5, residual = 1, baffle = 0.3)) # contact time out of range
   expect_warning(solvect_chlorine(water2, time = 30, residual = 5, baffle = 0.3)) # pH out of range
   expect_warning(solvect_chlorine(water3, time = 30, residual = 5, baffle = 0.3))

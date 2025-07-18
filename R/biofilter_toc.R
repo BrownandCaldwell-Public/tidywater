@@ -120,7 +120,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @import dplyr
 #' @export
 #'
-#' @returns `biofilter_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
+#' @returns `biofilter_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and BDOC water slots.
 
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
                                 ebct = "use_col", ozonated = "use_col") {
@@ -133,17 +133,54 @@ biofilter_toc_chain <- function(df, input_water = "defined_water", output_water 
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        ebct = !!as.name(arguments$final_names$ebct),
-        # This logic needed for any argument that has a default
-        ozonated = if (arguments$final_names$ozonated %in% names(.)) !!sym(arguments$final_names$ozonated) else rep(TRUE, nrow(.))
-      ),
-      biofilter_toc
-    ))
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(df, final_names, list(ozonated = TRUE))
+  df <- defaults_added$data
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    chemdose_toc(
+      water = df[[input_water]][[i]],
+      ebct = df[[final_names$ebct]][i],
+      ozonated = df[[final_names$ozonated]][i]
+    )
+  })
+
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
+}
+
+
+#' @rdname biofilter_toc
+#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+#' Change to FALSE to remove the water prefix from output column names.
+#' @examples
+#' \donttest{
+#' example_df <- water_df %>%
+#'   define_water_chain() %>%
+#'   biofilter_toc_once(input_water = "defined_water", ebct = 30)
+#' }
+#'
+#' @export
+#'
+#' @returns `biofilter_toc_once` returns a data frame containing a water class column with updated DOC, TOC, and BDOC concentrations, it also pulls out the updated slots into separate numeric columns.
+#'
+
+biofilter_toc_once <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
+                               ebct = "use_col", ozonated = "use_col", water_prefix = TRUE) {
+  # This allows for the function to process unquoted column names without erroring
+  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
+  ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
+
+  output <- df |>
+    chemdose_toc_chain(
+      input_water = input_water, output_water = output_water,
+      alum, ferricchloride, ferricsulfate, coeff
+    ) |>
+    pluck_water(c(output_water), c("toc", "doc", "bdoc"))
+  if (!water_prefix) {
+    names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+  }
+
+  return(output)
 }

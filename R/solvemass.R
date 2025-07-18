@@ -55,6 +55,6 @@ solvemass_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
   suspended <- turb * b
   # 2 mol of Fe added per mol of ferric sulfate
   fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
-  
+
   8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended + toc_removed + caco3_removed)
 }

@@ -328,7 +328,6 @@ test_that("chemdose_dbp_once is a data frame and still has output water class co
 
   expect_true(is.data.frame(water1))
   expect_s4_class(water1$disinfected_water[[1]], "water")
-
 })
 
 # check that chemdose_dbp_once works when water_prefix is false

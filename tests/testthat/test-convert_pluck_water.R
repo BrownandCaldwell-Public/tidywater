@@ -49,7 +49,7 @@ test_that("pluck_water works", {
   water2 <- water_df %>%
     slice(4) %>%
     define_water_chain() %>%
-    balance_ions_chain()%>%
+    balance_ions_chain() %>%
     pluck_water(input_water = c("defined_water", "balanced_water"), parameter = c("na", "cl", "ph"))
 
   expect_equal(ncol(water1), 2)

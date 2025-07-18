@@ -147,7 +147,6 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
       temp <- do.call(rbind, lapply(df[[water]], convert_water))
       colnames(temp) <- paste0(water, "_", colnames(temp))
       plucked <- cbind(plucked, temp)
-
     }
   } else {
     if (!any(parameter %in% methods::slotNames("water"))) {
@@ -160,12 +159,14 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
       }
       output_column <- paste0(water, "_", parameter)
 
-      temp <- mapply(function(param, out) {
-        values <- data.frame(sapply(df[[water]], function(z) methods::slot(z, param)))
-        names(values) <- out
-        values
-      },
-      param = parameter, out = output_column, SIMPLIFY = FALSE)
+      temp <- mapply(
+        function(param, out) {
+          values <- data.frame(sapply(df[[water]], function(z) methods::slot(z, param)))
+          names(values) <- out
+          values
+        },
+        param = parameter, out = output_column, SIMPLIFY = FALSE
+      )
 
       temp <- do.call(cbind, temp)
 

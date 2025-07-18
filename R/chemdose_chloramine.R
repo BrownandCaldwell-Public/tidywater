@@ -3,19 +3,21 @@
 
 #' @title Calculate chlorine and chloramine Concentrations with the breakpoint cblorination approach
 #'
-#' @description \code{\link{chemdose_chloramine}}, adopted from the U.S. EPA's Chlorine Breakpoint Curve Simulator,
+#' @description [chemdose_chloramine], adopted from the U.S. EPA's Chlorine Breakpoint Curve Simulator,
 #' calculates chlorine and chloramine concentrations based on the two papers Jafvert & Valentine
 #' (Environ. Sci. Technol., 1992, 26 (3), pp 577-586) and Vikesland et al. (Water Res., 2001, 35 (7), pp 1766-1776).
-#' Required arguments include an object of class "water" created by \code{\link{define_water}}, chlorine dose, and reaction time.
-#' The function also requires additional water quality parameters defined in \code{\link{define_water}}
+#' Required arguments include an object of class "water" created by [define_water], chlorine dose, and reaction time.
+#' The function also requires additional water quality parameters defined in [define_water]
 #' including temperature, pH, and alkalinity.
-#'
-#' @details The function will calculate the chlorine and chloramine concentrations and update the "water"
-#' class object proceed to the next steps of the treatment chain.
+#' For a single water use `chemdose_chloramine`; for a dataframe use `chemdose_chloramine_chain`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
+#' For most arguments in the `_chain` helper
+#' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
+#' function instead or an unquoted column name can be provided.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-
-#' @param water Source water object of class "water" created by \code{\link{define_water}}
+#'
+#' @param water Source water object of class "water" created by [define_water]
 #' @param time Reaction time (minutes). Time defined needs to be greater or equal to 1 minute.
 #' @param cl2 Applied chlorine dose (mg/L as Cl2), defaults to 0.If not specified, use free_chlorine slot in water.
 #' @param nh3 Applied ammonia dose (mg/L as N), defaults to 0. If not specified, use tot_nh3 slot in water.
@@ -32,8 +34,6 @@
 #'
 #' @returns `chemdose_chloramine` returns a water class object with predicted chlorine and chloramine concentrations.
 #'
-#'
-#
 chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot = FALSE, use_tot_nh3_slot = FALSE) {
   validate_water(water, c("ph", "alk", "temp"))
 
@@ -266,53 +266,38 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
 
 #' @rdname chemdose_chloramine
-
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_chain].
 #' The df may include a column named for the applied chlorine dose (cl2_dose), and a column for time in hours.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "chlorinated_water".
-
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "chloraminated".
+#' @param pluck_cols Extract water slots modified by the function ("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3") into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#'
 #' @examples
-#'
-#' library(dplyr)
-#'
+#' \donttest{
 #' breakpoint <- water_df %>%
-#'   mutate(free_chlorine = 5, tot_nh3 = 1) %>%
-#'   slice_head(n = 3) %>%
+#'   dplyr::mutate(free_chlorine = 5, tot_nh3 = 1) %>%
 #'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     time = 8,
 #'     cl2dose = c(2, 3, 4)
 #'   ) %>%
 #'   chemdose_chloramine_chain(
-#'     input_water = "defined_water",
+#'     output_water = "final",
 #'     cl2 = cl2dose,
 #'     use_free_cl_slot = TRUE,
-#'     use_tot_nh3_slot = TRUE
+#'     use_tot_nh3_slot = TRUE,
+#'     pluck_cols = TRUE
 #'   )
-#'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   chemdose_chloramine_chain(
-#'     input_water = "defined_water", cl2 = c(2, 4), nh3 = 2, time = 8
-#'   )
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
-#' @returns `chemdose_chloramine_chain` returns a data frame containing water class column with updated chlorine residuals.
-
-
-chemdose_chloramine_chain <- function(df, input_water = "defined_water", output_water = "chlorinated_water",
+#' @returns `chemdose_chloramine_chain` returns a data frame containing water class column with updated chlorine/chloramine slots:
+#' free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it also adds columns for each of those slots individually.
+#'
+chemdose_chloramine_chain <- function(df, input_water = "defined", output_water = "chloraminated",
+                                      pluck_cols = FALSE, water_prefix = TRUE,
                                       time = "use_col", cl2 = "use_col", nh3 = "use_col",
                                       use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {
   validate_water_helpers(df, input_water)
@@ -334,20 +319,36 @@ chemdose_chloramine_chain <- function(df, input_water = "defined_water", output_
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
+  }
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(df,final_names,
+                                    list(cl2 = 0,nh3 = 0,use_free_cl_slot = FALSE,use_tot_nh3_slot = FALSE)
+  )
+  df <- defaults_added$data
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+
+    chemdose_chloramine(
+      water = df[[input_water]][[i]],
+      cl2 = df[[final_names$cl2]][i],
+      nh3 = df[[final_names$nh3]][i],
+      time = df[[final_names$time]][i],
+      use_free_cl_slot = df[[final_names$use_free_cl_slot]][i],
+      use_tot_nh3_slot = df[[final_names$use_tot_nh3_slot]][i]
+    )
+  })
+
+  output <- df[,!names(df) %in% defaults_added$defaults_used]
+
+  if(pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
   }
 
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        cl2 = if (final_names$cl2 %in% names(.)) !!sym(final_names$cl2) else rep(0, nrow(.)),
-        nh3 = if (final_names$nh3 %in% names(.)) !!sym(final_names$nh3) else rep(0, nrow(.)),
-        time = !!as.name(arguments$final_names$time),
-        use_free_cl_slot = if (final_names$use_free_cl_slot %in% names(.)) !!sym(final_names$use_free_cl_slot) else rep(FALSE, nrow(.)),
-        use_tot_nh3_slot = if (final_names$use_tot_nh3_slot %in% names(.)) !!sym(final_names$use_tot_nh3_slot) else rep(FALSE, nrow(.))
-      ),
-      chemdose_chloramine
-    ))
+  return(output)
+
 }

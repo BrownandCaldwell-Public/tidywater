@@ -5,7 +5,7 @@
 #' Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
 #' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
 #' For most arguments in the `_chain` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
@@ -107,8 +107,10 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_chain]. The df may include a column named for the coagulant being dosed,
 #' and a column named for the set of coefficients to use.
-#' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "coagulated".
+#' @param pluck_cols Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
@@ -117,24 +119,19 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #'   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
 #'   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 #'
-#' # Uncomment below to initialize parallel processing
-#' # library(furrr)
-#' # plan(multisession)
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
 #'   dplyr::mutate(ferricchloride = seq(1, 12, 1)) %>%
-#'   chemdose_toc_chain(coeff = "Ferric")
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
+#'   chemdose_toc_chain(coeff = "Ferric", pluck_cols = TRUE)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
-#' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
+#' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254
+#' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
+chemdose_toc_chain <- function(df, input_water = "defined", output_water = "coagulated", pluck_cols = FALSE,
+                               water_prefix = TRUE,
                                alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
                                coeff = "use_col") {
   # This allows for the function to process unquoted column names without erroring
@@ -154,75 +151,33 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        # This logic needed for any argument that has a default
-        alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
-        ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
-        ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
-        coeff = if (final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
-      ),
-      chemdose_toc
-    ))
-}
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum")
+  )
+  df <- defaults_added$data
 
-#' @rdname chemdose_toc
-#' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-#' Change to FALSE to remove the water prefix from output column names.
-#' @examples
-#' \donttest{
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   chemdose_toc_once(input_water = "defined_water", alum = 30)
-#' }
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `chemdose_toc_once` returns a data frame with columns for updated TOC, DOC, and UV254.
-#'
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    chemdose_toc(
+      water = df[[input_water]][[i]],
+      alum = df[[final_names$alum]][i],
+      ferricchloride = df[[final_names$ferricchloride]][i],
+      ferricsulfate = df[[final_names$ferricsulfate]][i],
+      coeff = df[[final_names$coeff]][i]
+    )
+  })
 
-chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                              coeff = "use_col", water_prefix = TRUE) {
-  dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- temp_dbp <- NULL # Quiet RCMD check global variable note
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
 
-  # This allows for the function to process unquoted column names without erroring
-  alum <- tryCatch(alum, error = function(e) enquo(alum))
-  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
-  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
-
-  output <- df %>%
-    chemdose_toc_chain(
-      input_water = input_water, output_water = "temp_dbp",
-      alum, ferricchloride, ferricsulfate, coeff
-    ) %>%
-    mutate(dose_chem = furrr::future_map(temp_dbp, convert_water)) %>%
-    unnest(dose_chem) %>%
-    select(-c(ph:alk_eq, dic:estimated)) %>%
-    rename(!!output_water := temp_dbp)
-
-  if ("coeff.x1" %in% colnames(output)) {
-    output <- output %>%
-      select(-c(coeff.x1:coeff.b))
-  }
-
-  if (water_prefix) {
-    output <- output %>%
-      rename_with(
-        ~ paste0(output_water, "_", .x),
-        .cols = (match(output_water, names(.)) + 1):ncol(.)
-      )
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("toc", "doc", "uv254"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
   }
 
   return(output)

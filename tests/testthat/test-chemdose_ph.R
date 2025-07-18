@@ -240,14 +240,14 @@ test_that("chemdose_ph_once can use a column and/or function argument for chemic
 test_that("chemdose_ph_once works when water_prefix is true/false", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_ph_once(hcl = 10))
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_ph_once(hcl = 10))
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_ph_once(hcl = 10, water_prefix = FALSE))
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_ph_once(hcl = 10, water_prefix = FALSE))
 
   expect_equal(water1$dosed_chem_water_ph, water2$ph)
   expect_equal(water1$dosed_chem_water_alk, water2$alk)

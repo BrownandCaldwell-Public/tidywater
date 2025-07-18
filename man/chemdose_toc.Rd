@@ -3,7 +3,6 @@
 \name{chemdose_toc}
 \alias{chemdose_toc}
 \alias{chemdose_toc_chain}
-\alias{chemdose_toc_once}
 \title{Determine TOC removal from coagulation}
 \source{
 Edwards (1997)
@@ -23,23 +22,14 @@ chemdose_toc(
 
 chemdose_toc_chain(
   df,
-  input_water = "defined_water",
-  output_water = "coagulated_water",
+  input_water = "defined",
+  output_water = "coagulated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   coeff = "use_col"
-)
-
-chemdose_toc_once(
-  df,
-  input_water = "defined_water",
-  output_water = "coagulated_water",
-  alum = "use_col",
-  ferricchloride = "use_col",
-  ferricsulfate = "use_col",
-  coeff = "use_col",
-  water_prefix = TRUE
 )
 }
 \arguments{
@@ -55,21 +45,22 @@ chemdose_toc_once(
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
+\link{define_water_chain}. The df may include a column named for the coagulant being dosed,
+and a column named for the set of coefficients to use.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "coagulated".}
 
-\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-Change to FALSE to remove the water prefix from output column names.}
+\item{pluck_cols}{Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 
-\code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
-
-\code{chemdose_toc_once} returns a data frame with columns for updated TOC, DOC, and UV254.
+\code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254
+concentrations. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
@@ -77,7 +68,7 @@ DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output
 Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
 For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_chain} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
@@ -98,22 +89,10 @@ example_df <- water_df \%>\%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
 
-# Uncomment below to initialize parallel processing
-# library(furrr)
-# plan(multisession)
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   dplyr::mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_chain(coeff = "Ferric")
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
-
-\donttest{
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  chemdose_toc_once(input_water = "defined_water", alum = 30)
+  chemdose_toc_chain(coeff = "Ferric", pluck_cols = TRUE)
 }
 
 }
