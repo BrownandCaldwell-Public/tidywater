@@ -354,8 +354,8 @@ define_water_once <- function(df) {
 #'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
 #'  shorter run times will not benefit from parallel processing.
 #'
-#' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined_water".
+#' @param df a data frame containing columns with all the desired parameters with column names matching argument names in define_water
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -384,7 +384,7 @@ define_water_once <- function(df) {
 #' @export
 #' @returns A data frame containing a water class column.
 
-define_water_chain <- function(df, output_water = "defined_water") {
+define_water_chain <- function(df, output_water = "defined") {
   define_water_args <- c(
     "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",

@@ -49,93 +49,21 @@ test_that("chemdose_toc works.", {
 ################################################################################*
 # chemdose_toc helpers ----
 
-# Check chemdose_toc_once outputs are the same as base function, chemdose_toc
-# Check that output is a data frame
-
-test_that("chemdose_toc_once outputs are the same as base function, chemdose_toc", {
+test_that("chemdose_toc_chain is a data frame and has correct classes in output columns", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  ) %>%
-    balance_ions() %>%
-    chemdose_toc())
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- water_df %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_toc_once(input_water = "balanced_water", water_prefix = FALSE))
-
-  expect_equal(water1@toc, water2$toc)
-  expect_equal(water1@doc, water2$doc)
-  expect_equal(water1@uv254, water2$uv254)
-})
-
-# Check that output is a data frame
-
-test_that("chemdose_toc_once is a data frame and still has output water class column", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_once(water_prefix = FALSE))
+      chemdose_toc_chain(alum = 20, output_water = "coag",
+                         pluck_cols = T, water_prefix = FALSE)
 
 
   expect_true(is.data.frame(water1))
-  expect_equal(colnames(water1), c("defined_water", "coagulated_water", "toc", "doc", "uv254"))
-  expect_s4_class(water1$coagulated_water[[1]], "water")
+  expect_equal(colnames(water1), c("defined", "alum", "coag", "toc", "doc", "uv254"))
+  expect_s4_class(water1$coag[[1]], "water")
+  expect_true(is.numeric(water1$toc[1]))
 })
 
-# Check chemdose_toc_once can use a column or function argument for chemical dose
 
-test_that("chemdose_toc_once can use a column and/or function argument for chemical dose", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_once(ferricchloride = 40, coeff = "Ferric", water_prefix = FALSE))
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    mutate(
-      ferricchloride = 40,
-      coeff = "Ferric"
-    ) %>%
-    chemdose_toc_once(, water_prefix = FALSE))
-
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    mutate(ferricchloride = 40) %>%
-    chemdose_toc_once(coeff = "Ferric", water_prefix = FALSE))
-
-  expect_equal(water1$toc, water2$toc) # test different ways to input chemical
-  expect_equal(water1$doc, water2$doc)
-  expect_equal(water1$uv254, water2$uv254)
-  expect_equal(water2$toc, water3$toc)
-  expect_equal(water2$doc, water3$doc)
-  expect_equal(water2$uv254, water3$uv254)
-  expect_equal(ncol(water3), ncol(water1))
-})
-
-# check that chemdose_toc_once works when water_prefix is false
-test_that("chemdose_toc_once works when water_prefix is false", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_once(ferricsulfate = 23))
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_once(ferricsulfate = 23, water_prefix = FALSE))
-
-  expect_equal(water1$coagulated_water_toc, water2$toc)
-  expect_equal(water1$coagulated_water_uv254, water2$uv254)
-})
 
 test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
   testthat::skip_on_cran()
@@ -182,15 +110,13 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water", ferricsulfate = 30, coeff = "Ferric"))
+    chemdose_toc_chain(input_water = "defined", ferricsulfate = 30, coeff = "Ferric"))
 
-  water2 <- purrr::pluck(water1, "coagulated_water", 1)
+  water2 <- purrr::pluck(water1, "coagulated", 1)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     mutate(alum = 10) %>%
-    balance_ions_chain() %>%
     chemdose_toc_chain(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
@@ -201,38 +127,51 @@ test_that("chemdose_toc_chain output is list of water class objects, and can han
 
 test_that("chemdose_toc_chain can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
+  water1 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water", ferricchloride = 40, coeff = "Ferric") %>%
-    pluck_water(input_waters = "coagulated_water", c("toc", "doc", "uv254")))
+    chemdose_toc_chain(input_water = "defined", ferricchloride = 40, coeff = "Ferric",
+                       pluck_cols = TRUE)
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
     mutate(
       ferricchloride = 40,
       coeff = "Ferric"
     ) %>%
-    balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water") %>%
-    pluck_water(input_waters = "coagulated_water", c("toc", "doc", "uv254")))
+    chemdose_toc_chain(pluck_cols = T)
 
-  water3 <- suppressWarnings(water_df %>%
+  # Test that pluck_cols does the same think as pluck_water function
+  water3 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_chain("raw") %>%
     mutate(ferricchloride = 40) %>%
-    balance_ions_chain() %>%
-    chemdose_toc_chain(input_water = "balanced_water", coeff = "Ferric") %>%
-    pluck_water(input_waters = "coagulated_water", c("toc", "doc", "uv254")))
+    chemdose_toc_chain(input_water = "raw", output_water = "final", coeff = "Ferric") %>%
+    pluck_water(input_waters = "final", c("toc", "doc", "uv254"))
 
-  expect_equal(water1$coagulated_water_toc, water2$coagulated_water_toc) # test different ways to input chemical
-  expect_equal(water1$coagulated_water_doc, water2$coagulated_water_doc)
-  expect_equal(water1$coagulated_water_uv254, water2$coagulated_water_uv254)
+  expect_equal(water1$coagulated_toc, water2$coagulated_toc) # test different ways to input chemical
+  expect_equal(water1$coagulated_doc, water2$coagulated_doc)
+  expect_equal(water1$coagulated_uv254, water2$coagulated_uv254)
 
   # Test that inputting chemical and coeff separately (in column and as an argument)  gives save results
-  expect_equal(water1$coagulated_water_toc, water3$coagulated_water_toc)
-  expect_equal(water2$coagulated_water_doc, water3$coagulated_water_doc)
-  expect_equal(water2$coagulated_water_uv254, water3$coagulated_water_uv254)
+  expect_equal(water1$coagulated_toc, water3$final_toc)
+  expect_equal(water1$coagulated_doc, water3$final_doc)
+  expect_equal(water1$coagulated_uv254, water3$final_uv254)
+})
+
+test_that("chemdose_toc_chain works when water_prefix is false", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_toc_chain(ferricsulfate = 23, pluck_cols = TRUE))
+
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               chemdose_toc_chain(ferricsulfate = 23, water_prefix = FALSE))
+
+  expect_equal(water1$coagulated_water_toc, water2$toc)
+  expect_equal(water1$coagulated_water_uv254, water2$uv254)
 })

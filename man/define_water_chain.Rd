@@ -4,12 +4,12 @@
 \alias{define_water_chain}
 \title{Apply \code{define_water} within a dataframe and output a column of \code{water} class to be chained to other tidywater functions}
 \usage{
-define_water_chain(df, output_water = "defined_water")
+define_water_chain(df, output_water = "defined")
 }
 \arguments{
-\item{df}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
+\item{df}{a data frame containing columns with all the desired parameters with column names matching argument names in define_water}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
 }
 \value{
 A data frame containing a water class column.
