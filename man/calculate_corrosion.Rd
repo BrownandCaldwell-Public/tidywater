@@ -89,12 +89,6 @@ Chloride-to-sulfate mass ratio (CSMR), mg Cl/mg SO4 - indicator of galvanic corr
 Calcium carbonate precipitation potential (CCPP), mg/L as CaCO3 - a prediction of the mass of calcium carbonate that will precipitate at equilibrium.
 A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate.
 A negative CCPP indicates how much CaCO3 can be dissolved in the water.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(
