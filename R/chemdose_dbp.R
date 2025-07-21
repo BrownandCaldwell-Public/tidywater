@@ -269,7 +269,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @returns `chemdose_dbp_chain` returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
 #' concentrations. Optionally, it also adds columns for those slots individually.
 
-chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected",
+chemdose_dbp_chain <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
                                cl2 = "use_col", time = "use_col",
                                treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   # This allows for the function to process unquoted column names without erroring
@@ -290,6 +290,7 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
       "cl_type" = cl_type, "location" = location, "correction" = correction
     )
   )
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
@@ -311,13 +312,13 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
       cl_type = df[[final_names$cl_type]][i],
       location = df[[final_names$location]][i],
       correction = df[[final_names$correction]][i],
-      coeff = df[[final_names$coeff]][i]
+      coeff = if (!is.null(coeff)) coeff else NULL
     )
   })
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
-  if (pluck_cols) {
+  if (pluck_cols == TRUE) {
     output <- output |>
       pluck_water(c(output_water), c("tthm", "haa5"))
     if (!water_prefix) {

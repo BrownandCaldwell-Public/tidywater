@@ -9,7 +9,7 @@ balance_ions(water, anion = "cl", cation = "na")
 
 balance_ions_chain(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   output_water = "balanced_water",
   anion = "cl",
   cation = "na"
