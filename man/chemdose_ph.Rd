@@ -37,7 +37,7 @@ chemdose_ph(
 
 chemdose_ph_chain(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   output_water = "dosed_chem_water",
   na_to_zero = TRUE,
   pluck_cols = FALSE,
