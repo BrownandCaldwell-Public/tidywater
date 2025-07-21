@@ -164,7 +164,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #' @export
 #' @returns `balance_ions_chain` returns a dataframe with a new column with the ion balanced water
 
-balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water",
+balance_ions_chain <- function(df, input_water = "defined", output_water = "balanced_water",
                                anion = "cl", cation = "na") {
   validate_water_helpers(df, input_water)
   output <- df %>%

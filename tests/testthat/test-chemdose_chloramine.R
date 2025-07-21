@@ -112,11 +112,18 @@ test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chlorami
     slice(1) %>%
     define_water_chain() %>%
     chemdose_chloramine_chain(nh3 = 1, cl2 = 1, time = 20) %>%
-    pluck_water(c("chlorinated_water"), c("ph", "free_chlorine", "combined_chlorine"))
+    pluck_water(c("chloraminated"), c("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3"))
+  
+  # check that pluck_cols does the same thing as pluck_Water
+  water3 <- water_df %>%
+    slice(1) %>%
+    define_water_chain() %>%
+    chemdose_chloramine_chain(nh3 = 1, cl2 = 1, time = 20, pluck_cols = TRUE)
 
-  expect_equal(water2$chlorinated_water_ph[1], water1@ph)
-  expect_equal(water2$chlorinated_water_free_chlorine[1], water1@free_chlorine)
-  expect_equal(water2$chlorinated_water_combined_chlorine[1], water1@combined_chlorine)
+  expect_equal(water2$chloraminated_free_chlorine[1], water1@free_chlorine)
+  expect_equal(water2$chloraminated_combined_chlorine[1], water1@combined_chlorine)
+  expect_equal(ncol(water2), ncol(water3))
+  expect_equal(water2$chloraminated_combined_chlorine[1], water3$chloraminated_combined_chlorine[1])
 
   water3 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
@@ -129,13 +136,10 @@ test_that("chemdose_chloramine_chain outputs the same as base, chemdose_chlorami
     slice(1) %>%
     mutate(free_chlorine = 2, tot_nh3 = 2) %>%
     define_water_chain() %>%
-    chemdose_chloramine_chain(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE) %>%
-    pluck_water(c("chlorinated_water"), c("ph", "free_chlorine", "combined_chlorine")))
+    chemdose_chloramine_chain(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE, pluck_cols = TRUE))
 
-
-  expect_equal(water4$chlorinated_water_ph[1], water3@ph)
-  expect_equal(water4$chlorinated_water_free_chlorine[1], water3@free_chlorine)
-  expect_equal(water4$chlorinated_water_combined_chlorine[1], water3@combined_chlorine)
+  expect_equal(water4$chloraminated_free_chlorine[1], water3@free_chlorine)
+  expect_equal(water4$chloraminated_combined_chlorine[1], water3@combined_chlorine)
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
@@ -182,7 +186,7 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
   water1 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    chemdose_chloramine_chain(input_water = "balanced_water", nh3 = 3, cl2 = 5, time = 30))
+    chemdose_chloramine_chain(input_water = "balanced_water", nh3 = 3, cl2 = 5, time = 30, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
     mutate(tot_nh3 = 2) %>%
@@ -193,36 +197,31 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
       time = 30
     ) %>%
     balance_ions_chain() %>%
-    chemdose_chloramine_chain(input_water = "balanced_water"))
+    chemdose_chloramine_chain(input_water = "balanced_water", pluck_cols = TRUE))
 
   # test different ways to input chemical
-  expect_equal(
-    pluck_water(water1, "chlorinated_water", "free_chlorine")$chlorinated_water_free_chlorine,
-    pluck_water(water2, "chlorinated_water", "free_chlorine")$chlorinated_water_free_chlorine
-  )
+  expect_equal(water1$chloraminated_free_chlorine, water2$chloraminated_free_chlorine)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain() %>%
     mutate(nh3 = seq(0, 11, 1)) %>%
     balance_ions_chain() %>%
-    chemdose_chloramine_chain(cl2 = c(5, 8), time = 30))
+    chemdose_chloramine_chain(cl2 = c(5, 8), time = 30, pluck_cols = TRUE))
 
   water4 <- water3 %>%
-    slice(7) %>% # same starting wq as water 5
-    pluck_water("chlorinated_water", c("combined_chlorine", "free_chlorine"))
+    slice(4) # same starting wq as water 5
 
   water5 <- water1 %>%
-    slice(4) %>% # same starting wq as water 4
-    pluck_water("chlorinated_water", c("combined_chlorine", "free_chlorine"))
+    slice(4) # same starting wq as water 4
 
   expect_equal(
-    water4$chlorinated_water_combined_chlorine,
-    water5$chlorinated_water_combined_chlorine
+    water4$chloraminated_combined_chlorine,
+    water5$chloraminated_combined_chlorine
   )
 
   expect_equal(
-    water4$chlorinated_water_free_chlorine,
-    water5$chlorinated_water_free_chlorine
+    water4$chloraminated_free_chlorine,
+    water5$chloraminated_free_chlorine
   )
 
   water6 <- suppressWarnings(water_df %>%
@@ -230,7 +229,7 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
     define_water_chain() %>%
     balance_ions_chain() %>%
     mutate(nh3 = 3) %>%
-    chemdose_chloramine_chain(input_water = "balanced_water", use_tot_nh3_slot = TRUE, cl2 = 5, time = 30))
+    chemdose_chloramine_chain(input_water = "balanced_water", use_tot_nh3_slot = TRUE, cl2 = 5, time = 30, pluck_cols = TRUE))
 
   water7 <- suppressWarnings(water_df %>%
     mutate(tot_nh3 = 2) %>%
@@ -240,18 +239,14 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
       use_tot_nh3_slot = TRUE
     ) %>%
     balance_ions_chain() %>%
-    chemdose_chloramine_chain(input_water = "balanced_water", cl2 = 5, time = 30))
+    chemdose_chloramine_chain(input_water = "balanced_water", cl2 = 5, time = 30, pluck_cols = TRUE))
+  
   # test different ways to call use_slot
-  expect_equal(
-    pluck_water(water6, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine,
-    pluck_water(water7, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine
-  )
+  expect_equal(water6$chloraminated_combined_chlorine, water7$chloraminated_combined_chlorine)
+  
   # both waters 2 and 7 have starting tot_nh3, but only water 7 has use_tot_nh3_slot set to TRUE
   expect_error(
-    expect_equal(
-      pluck_water(water2, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine,
-      pluck_water(water7, "chlorinated_water", "combined_chlorine")$chlorinated_water_combined_chlorine
-    )
+    expect_equal(water2$chloraminated_combined_chlorine, water7$chloraminated_combined_chlorine)
   )
 })
 
@@ -523,11 +518,11 @@ test_that("chemdose_chloramine_chain can handle different ways to input chem dos
 #                             cl2 = seq(2, 24, 2),
 #                             nh3 = 2)
 #
-# test1 <- pluck_water(example_df1,input_waters = c('chlorinated_water'),'tot_nh3')
-# test2 <- pluck_water(example_df2,input_waters = c('chlorinated_water'),'tot_nh3')
+# test1 <- pluck_water(example_df1,input_waters = c('chloraminated'),'tot_nh3')
+# test2 <- pluck_water(example_df2,input_waters = c('chloraminated'),'tot_nh3')
 #
-# test1 <- convert_units(test1$chlorinated_water_tot_nh3, 'n','M','mg/L')
-# test2 <- convert_units(test2$chlorinated_water_tot_nh3, 'n', 'M','mg/L')
+# test1 <- convert_units(test1$chloraminated_tot_nh3, 'n','M','mg/L')
+# test2 <- convert_units(test2$chloraminated_tot_nh3, 'n', 'M','mg/L')
 #
 # plot(test1,test2, xlim=c(0,7),ylim=c(0,7))
 #

@@ -251,6 +251,7 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined", output_water 
     "cl2_dose" = cl2_dose, "time" = time,
     "treatment" = treatment, "cl_type" = cl_type, "use_chlorine_slot" = use_chlorine_slot
   ))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {

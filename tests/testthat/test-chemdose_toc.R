@@ -142,7 +142,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
     ) %>%
     chemdose_toc_chain(pluck_cols = T)
 
-  # Test that pluck_cols does the same think as pluck_water function
+  # Test that pluck_cols does the same thing as pluck_water function
   water3 <- water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
@@ -154,7 +154,7 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
   expect_equal(water1$coagulated_doc, water2$coagulated_doc)
   expect_equal(water1$coagulated_uv254, water2$coagulated_uv254)
 
-  # Test that inputting chemical and coeff separately (in column and as an argument)  gives save results
+  # Test that inputting chemical and coeff separately (in column and as an argument)  gives same results
   expect_equal(water1$coagulated_toc, water3$final_toc)
   expect_equal(water1$coagulated_doc, water3$final_doc)
   expect_equal(water1$coagulated_uv254, water3$final_uv254)
