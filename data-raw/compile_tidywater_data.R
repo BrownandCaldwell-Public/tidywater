@@ -19,6 +19,7 @@ mweights <- data.frame(
   mgoh2 = 58.31968,
   cacl2 = 110.98,
   cl2 = 70.906,
+  c = 12.01,
   co2 = 44.009,
   ch3cooh = 60.05,
   al = 26.981539,

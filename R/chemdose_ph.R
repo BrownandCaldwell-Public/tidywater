@@ -302,7 +302,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
 
   # update toc and doc from ch3cooh
   if (ch3cooh_dose != 0) {
-    ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "C", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
+    ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "c", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
     water@toc <- water@toc + ch3cooh_dose
     water@doc <-  water@doc + ch3cooh_dose
     warning("TOC and DOC changed in addition to pH due to acetic acid dose.")
