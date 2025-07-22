@@ -61,7 +61,7 @@ water <- define_water(ph = 7, temp = 25, alk = 5) \%>\%
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
   opensys_ph_chain(
-    input_water = "defined", output_water = "opensys",
+    input_water = "defined_water", output_water = "opensys",
     partialpressure = 10^-4, pluck_cols = TRUE
   )
 
