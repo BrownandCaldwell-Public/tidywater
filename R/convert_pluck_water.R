@@ -143,12 +143,11 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
       if (!methods::is(df[[water]][[1]], "water")) {
         stop("All waters must be of class 'water'.")
       }
-      temp <- df %>%
-        mutate(!!as.name(water) := furrr::future_map(!!as.name(water), convert_water)) %>%
-        select(!!as.name(water)) %>%
-        unnest_wider(!!as.name(water), names_sep = "_")
 
-      plucked <- bind_cols(plucked, temp)
+      temp <- do.call(rbind, lapply(df[[water]], convert_water))
+      colnames(temp) <- paste0(water, "_", colnames(temp))
+      plucked <- cbind(plucked, temp)
+
     }
   } else {
     if (!any(parameter %in% methods::slotNames("water"))) {
@@ -160,14 +159,17 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
         stop("All waters must be of class 'water'.")
       }
       output_column <- paste0(water, "_", parameter)
-      temp <- furrr::future_map2(parameter, output_column, ~ {
-        df %>%
-          mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
-          select(!!as.name(.y))
-      }) %>%
-        purrr::list_cbind()
 
-      plucked <- bind_cols(plucked, temp)
+      temp <- mapply(function(param, out) {
+        values <- data.frame(sapply(df[[water]], function(z) methods::slot(z, param)))
+        names(values) <- out
+        values
+      },
+      param = parameter, out = output_column, SIMPLIFY = FALSE)
+
+      temp <- do.call(cbind, temp)
+
+      plucked <- cbind(plucked, temp)
     }
   }
 
