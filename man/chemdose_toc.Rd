@@ -38,7 +38,8 @@ chemdose_toc_once(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
-  coeff = "use_col"
+  coeff = "use_col",
+  water_prefix = TRUE
 )
 }
 \arguments{
@@ -59,6 +60,9 @@ data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "coagulated_water".}
+
+\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
+Change to FALSE to remove the water prefix from output column names.}
 }
 \value{
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
