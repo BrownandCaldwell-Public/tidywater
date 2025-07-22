@@ -119,7 +119,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' @returns `pac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-pac_toc_chain <- function(df, input_water = "defined", output_water = "paced",
+pac_toc_chain <- function(df, input_water = "defined", output_water = "paced", pluck_cols = FALSE, water_prefix = TRUE,
                           dose = "use_col", time = "use_col", type = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -129,6 +129,7 @@ pac_toc_chain <- function(df, input_water = "defined", output_water = "paced",
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "type" = type))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {

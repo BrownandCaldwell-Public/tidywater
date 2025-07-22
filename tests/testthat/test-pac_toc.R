@@ -81,8 +81,7 @@ test_that("pac_toc_chain outputs are the same as base function, pac_toc", {
   water2 <- water_df %>%
     slice(1) %>%
     define_water_chain() %>%
-    pac_toc_chain(dose = 10, time = 10, output_water = "pac") %>%
-    pluck_water("pac", c("doc", "toc", "uv254"))
+    pac_toc_chain(dose = 10, time = 10, output_water = "pac", pluck_cols = TRUE)
 
   types <- tibble(type = c("wood", "lignite"))
   doses <- tibble(PACDose = seq(10, 16, 2))
@@ -110,7 +109,7 @@ test_that("pac_toc_chain output is list of water class objects, and can handle a
     define_water_chain("raw") %>%
     pac_toc_chain(input_water = "raw", time = 10, dose = 4))
 
-  water2 <- purrr::pluck(water1, "pac_water", 1)
+  water2 <- purrr::pluck(water1, "paced", 1)
 
   water3 <- suppressWarnings(water_df %>%
     define_water_chain("raw") %>%
@@ -131,8 +130,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
-    pac_toc_chain(input_water = "raw", time = 50, dose = 10) %>%
-    pluck_water("pac_water", c("doc", "uv254")))
+    pac_toc_chain(input_water = "raw", time = 50, dose = 10, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
@@ -141,21 +139,21 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
       time = 50,
       dose = 10,
     ) %>%
-    pac_toc_chain(input_water = "raw") %>%
-    pluck_water("pac_water", c("doc", "uv254")))
+    pac_toc_chain(input_water = "raw", pluck_cols = TRUE))
 
+  # test that pluck_col does the same as pluck_water
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     define_water_chain("raw") %>%
     mutate(time = 50) %>%
     pac_toc_chain(input_water = "raw", dose = 10) %>%
-    pluck_water("pac_water", c("doc", "uv254")))
+    pluck_water("paced", c("toc", "doc", "uv254")))
 
-  expect_equal(water1$pac_water_doc, water2$pac_water_doc) # test different ways to input args
-  expect_equal(water1$pac_water_uv254, water2$pac_water_uv254)
+  expect_equal(water1$paced_doc, water2$paced_doc) # test different ways to input args
+  expect_equal(water1$paced_uv254, water2$paced_uv254)
 
   # Test that inputting time/dose separately (in column and as an argument)  gives same results
-  expect_equal(water1$pac_water_doc, water3$pac_water_doc)
+  expect_equal(water1$paced_doc, water3$paced_doc)
 
 
   water4 <- water_df %>%
@@ -177,6 +175,7 @@ test_that("pac_toc_chain can use a column or function argument for chemical dose
     define_water_chain("raw") %>%
     mutate(time = c(20, 20, 50, 50)) %>%
     cross_join(tibble(dose = c(10, 20))) %>%
+    arrange(dose, time) %>%
     pac_toc_chain(input_water = "raw", output_water = "pac")
 
   water7 <- water_df %>%

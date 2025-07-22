@@ -50,13 +50,13 @@ test_that("pluck_water works", {
     slice(4) %>%
     define_water_chain() %>%
     balance_ions_chain() %>%
-    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = c("na", "cl", "ph"))
+    pluck_water(input_water = c("defined", "balanced_water"), parameter = c("na", "cl", "ph"))
 
   expect_equal(ncol(water1), 2)
-  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)
+  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_tot_co3)
   expect_equal(ncol(water2), 8)
-  expect_equal(water_df$ph[4], water2$defined_water_ph[1])
-  expect_failure(expect_equal(water2$defined_water_na, water2$balanced_water_na)) # check that Na is being plucked from 2 different waters
+  expect_equal(water_df$ph[4], water2$defined_ph[1])
+  expect_failure(expect_equal(water2$defined_na, water2$balanced_water_na)) # check that Na is being plucked from 2 different waters
 })
 
 test_that("pluck_water inputs must be waters and water slots", {

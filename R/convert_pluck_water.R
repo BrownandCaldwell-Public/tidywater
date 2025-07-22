@@ -28,9 +28,9 @@
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(to_dataframe = map(defined_water, convert_water)) %>%
+#'   mutate(to_dataframe = map(defined, convert_water)) %>%
 #'   unnest(to_dataframe) %>%
-#'   select(-defined_water)
+#'   select(-defined)
 #'
 #' @import dplyr
 #' @export
@@ -128,7 +128,7 @@ convert_watermg <- function(water) {
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
-pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
+pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }

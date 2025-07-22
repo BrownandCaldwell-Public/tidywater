@@ -72,6 +72,7 @@ decarbonate_ph_chain <- function(df, input_water = "defined", output_water = "de
   co2_removed <- tryCatch(co2_removed, error = function(e) enquo(co2_removed))
 
   arguments <- construct_helper(df, list("co2_removed" = co2_removed))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
@@ -85,7 +86,7 @@ decarbonate_ph_chain <- function(df, input_water = "defined", output_water = "de
     )
   })
 
-  output <- df[, !names(df) %in% defaults_added$defaults_used]
+  output <- df
 
   if (pluck_cols) {
     output <- output |>

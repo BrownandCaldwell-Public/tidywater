@@ -82,8 +82,7 @@ test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_
     mutate(br = 50) %>%
     slice(1) %>%
     define_water_chain() %>%
-    ozonate_bromate_chain(dose = 3, time = 5, output_water = "ozone") %>%
-    pluck_water("ozone", "bro3")
+    ozonate_bromate_chain(dose = 3, time = 5, output_water = "ozone", pluck_cols = TRUE)
 
   models <- tibble(bromate_model = c("Ozekin", "Sohn", "Galey", "Siddiqui"))
   doses <- tibble(dose = seq(1, 3, .5))
@@ -93,8 +92,7 @@ test_that("ozonate_bromate_chain outputs are the same as base function, ozonate_
     define_water_chain() %>%
     cross_join(models) %>%
     cross_join(doses) %>%
-    ozonate_bromate_chain(time = 5, model = bromate_model, output_water = "ozone") %>%
-    pluck_water("ozone", "bro3")
+    ozonate_bromate_chain(time = 5, model = bromate_model, output_water = "ozone", pluck_cols = TRUE)
 
   water4 <- ozonate_bromate(water0, dose = 2.5, time = 5, model = "Galey")
 
@@ -124,7 +122,7 @@ test_that("ozonate_bromate_chain output is list of water class objects, and can 
     define_water_chain() %>%
     ozonate_bromate_chain(time = 5, dose = 3))
 
-  water2 <- purrr::pluck(water1, "ozonated_water", 1)
+  water2 <- purrr::pluck(water1, "ozonated", 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
@@ -147,8 +145,7 @@ test_that("ozonate_bromate_chain can use a column or function argument for chemi
     slice(1) %>%
     mutate(br = 80) %>%
     define_water_chain("watta") %>%
-    ozonate_bromate_chain(input_water = "watta", time = 5, dose = 3) %>%
-    pluck_water("ozonated_water", c("bro3")))
+    ozonate_bromate_chain(input_water = "watta", time = 5, dose = 3, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
@@ -158,20 +155,20 @@ test_that("ozonate_bromate_chain can use a column or function argument for chemi
       time = 5,
       dose = 3,
     ) %>%
-    ozonate_bromate_chain() %>%
-    pluck_water("ozonated_water", c("bro3")))
+    ozonate_bromate_chain(pluck_cols = TRUE))
 
+  # pluck_cols does the same thing as pluck_water
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
     define_water_chain() %>%
     mutate(time = 5) %>%
     ozonate_bromate_chain(dose = 3) %>%
-    pluck_water("ozonated_water", c("bro3")))
+    pluck_water("ozonated", c("bro3")))
 
-  expect_equal(water1$ozonated_water_bro3, water2$ozonated_water_bro3) # test different ways to input args
+  expect_equal(water1$ozonated_bro3, water2$ozonated_bro3) # test different ways to input args
   # Test that inputting time/dose separately (in column and as an argument) gives same results
-  expect_equal(water1$ozonated_water_bro3, water3$ozonated_water_bro3)
+  expect_equal(water1$ozonated_bro3, water3$ozonated_bro3)
 })
 
 test_that("ozonate_bromate_chain multiple models", {
@@ -182,24 +179,24 @@ test_that("ozonate_bromate_chain multiple models", {
     define_water_chain() %>%
     cross_join(tibble(model = c("Sohn", "Galey"))) %>%
     ozonate_bromate_chain(time = 5, dose = 3) %>%
-    pluck_water("ozonated_water", c("bro3")))
+    pluck_water("ozonated", c("bro3")))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
     define_water_chain() %>%
     ozonate_bromate_chain(time = 5, dose = 3, model = "Sohn") %>%
-    pluck_water("ozonated_water", c("bro3")))
+    pluck_water("ozonated", c("bro3")))
 
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
     define_water_chain() %>%
     ozonate_bromate_chain(time = 5, dose = 3, model = c("Sohn", "Galey")) %>%
-    pluck_water("ozonated_water", c("bro3")))
+    pluck_water("ozonated", c("bro3")))
 
-  expect_equal(water1$ozonated_water_bro3[1], water2$ozonated_water_bro3) # test different ways to input args
-  expect_equal(water1$ozonated_water_bro3, water3$ozonated_water_bro3)
+  expect_equal(water1$ozonated_bro3[1], water2$ozonated_bro3) # test different ways to input args
+  expect_equal(water1$ozonated_bro3, water3$ozonated_bro3)
 })
 
 test_that("ozonate_bromate_chain errors with argument + column for same param", {

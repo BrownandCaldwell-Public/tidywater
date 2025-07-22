@@ -88,7 +88,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' and a column for time in minutes.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "ozonated".
-#' @param pluck_cols Extract water slots modified by the function (bro4) into new numeric columns for easy access. Default to FALSE.
+#' @param pluck_cols Extract water slots modified by the function (bro3) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #' @examples
 #'
@@ -104,10 +104,10 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #'
 #' @export
 #'
-#' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro4
+#' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro3
 #' concentration. Optionally, it also adds columns for each of those slots individually.
 
-ozonate_bromate_chain <- function(df, input_water = "defined", output_water = "ozonated",
+ozonate_bromate_chain <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
                                   dose = "use_col", time = "use_col", model = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -117,6 +117,7 @@ ozonate_bromate_chain <- function(df, input_water = "defined", output_water = "o
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "model" = model))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
@@ -142,7 +143,7 @@ ozonate_bromate_chain <- function(df, input_water = "defined", output_water = "o
 
   if (pluck_cols) {
     output <- output |>
-      pluck_water(c(output_water), c("bro4"))
+      pluck_water(c(output_water), c("bro3"))
     if (!water_prefix) {
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
