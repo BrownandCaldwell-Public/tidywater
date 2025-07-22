@@ -40,13 +40,14 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
   output_water@h <- 10^-output_water@ph
   output_water@oh <- 10^-14 / 10^-output_water@ph  # using Kw = 10^-14 for now but let me know if I should do temp conversion/activity calcs to get oh and h
 
+  alpha0 <- calculate_alpha0_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
   
   output_water@h2co3 <- co2_M
-  output_water@hco3 <- (co2_M*k1co3) / output_water@h
-  output_water@co3 <- (co2_M*k1co3*k2co3) / output_water@h^2
-  output_water@tot_co3 <- output_water@h2co3 + output_water@hco3 + output_water@co3
+  output_water@tot_co3 <- output_water@h2co3 / alpha0
+  output_water@hco3 <- alpha1 * output_water@tot_co3
+  output_water@co3 <- alpha2 * output_water@tot_co3
   output_water@dic <- output_water@tot_co3 * tidywater::mweights$dic * 1000
   carb_alk_eq <- output_water@tot_co3 * (alpha1 + 2 * alpha2) - output_water@h + output_water@oh
   output_water@alk <- water@alk + convert_units(carb_alk_eq, formula = "caco3", "eq/L", "mg/L CaCO3")
