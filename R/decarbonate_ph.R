@@ -2,10 +2,10 @@
 #'
 #' @description Calculates the new water quality (pH, alkalinity, etc) after a specified amount of CO2 is removed (removed as bicarbonate).
 #' The function takes an object of class "water" and a fraction of CO2 removed, then returns a water class object with updated water slots.
-#' For a single water, use `decarbonate_ph`; to apply the model to a dataframe, use `decarbonate_ph_chain`.
-#' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
+#' For a single water, use `decarbonate_ph`; to apply the model to a dataframe, use `decarbonate_ph_df`.
+#' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -13,7 +13,7 @@
 #'
 #' `decarbonate_ph` uses `water@h2co3` to determine the existing CO2 in water, then applies [chemdose_ph] to match the CO2 removal.
 #'
-#' @param water Source water of class "water" created by \code{\link{define_water}}
+#' @param water Source water of class "water" created by [define_water]
 #' @param co2_removed Fraction of CO2 removed
 #'
 #' @seealso [chemdose_ph]
@@ -45,7 +45,7 @@ decarbonate_ph <- function(water, co2_removed) {
 
 #' @rdname decarbonate_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]. The df may include a column with names for each of the chemicals being dosed.
+#' [define_water_df]. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "decarbonated".
 #' @param pluck_cols Extract water slots modified by the function (ph, alk) into new numeric columns for easy access. Default to FALSE.
@@ -54,17 +54,17 @@ decarbonate_ph <- function(water, co2_removed) {
 #' @examples
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   decarbonate_ph_chain(
+#'   define_water_df() %>%
+#'   decarbonate_ph_df(
 #'     input_water = "defined", output_water = "decarb",
 #'     co2_removed = .95, pluck_cols = TRUE
 #'   )
 #'
 #' @export
-#' @returns `decarbonate_ph_chain` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
+#' @returns `decarbonate_ph_df` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
-decarbonate_ph_chain <- function(df, input_water = "defined", output_water = "decarbonated",
+decarbonate_ph_df <- function(df, input_water = "defined", output_water = "decarbonated",
                                  pluck_cols = FALSE, water_prefix = TRUE,
                                  co2_removed = "use_col") {
   validate_water_helpers(df, input_water)

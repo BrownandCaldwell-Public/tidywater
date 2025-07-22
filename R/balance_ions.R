@@ -1,8 +1,8 @@
 #' @title Add an ion to balance overall charge in a water
 #'
 #' @description This function takes a water defined by [define_water] and balances charge.
-#' For a single water use `balance_ions`; for a dataframe use `balance_ions_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
+#' For a single water use `balance_ions`; for a dataframe use `balance_ions_df`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
 #'
 #' @details If more cations are needed, sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
 #' If calcium and magnesium are not specified when defining a water with
@@ -10,12 +10,6 @@
 #' Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing.
 #' This function is purely mathematical.
 #' User should always check the outputs to make sure values are reasonable for the input source water.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param water Water created with [define_water], which may have some ions set to 0 when unknown
 #' @param anion Selected anion to use to for ion balance when more cations are present. Defaults to "cl". Choose one of c("cl", "so4").
@@ -139,40 +133,40 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
 #' @rdname balance_ions
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated water classes. Default is "balanced_water".
+#' @param pluck_cols Extract water slots modified by the function (doc, toc, bdoc) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain(anion = "so4", cation = "ca")
+#'   define_water_df() %>%
+#'   balance_ions_df(anion = "so4", cation = "ca")
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain()
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#'
-#' @import dplyr
 #' @export
-#' @returns `balance_ions_chain` returns a dataframe with a new column with the ion balanced water
+#' @returns `balance_ions_df` returns a dataframe with a new column with the ion balanced water
 
-balance_ions_chain <- function(df, input_water = "defined", output_water = "balanced_water",
+balance_ions_df <- function(df, input_water = "defined", output_water = "balanced",
+                               pluck_cols = FALSE, water_prefix = TRUE,
                                anion = "cl", cation = "na") {
   validate_water_helpers(df, input_water)
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        anion = anion,
-        cation = cation
-      ), balance_ions
-    ))
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    balance_ions(
+      water = df[[input_water]][[i]],
+      anion = anion,
+      cation = cation
+    )
+  })
+
+  if (pluck_cols) {
+    df <- df |>
+      pluck_water(c(output_water), c(anion, cation))
+    if (!water_prefix) {
+      names(df) <- gsub(paste0(output_water, "_"), "", names(df))
+    }
+  }
+
+  return(df)
 }

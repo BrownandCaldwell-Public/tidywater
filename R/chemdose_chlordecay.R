@@ -5,9 +5,9 @@
 #'
 #' @description calculates the decay of chlorine or chloramine based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001).
-#' For a single water use `chemdose_chlordecay`; for a dataframe use `chemdose_chlordecay_chain`.
+#' For a single water use `chemdose_chlordecay`; for a dataframe use `chemdose_chlordecay_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -205,20 +205,20 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_chlordecay_chain(input_water = "defined_water", cl2_dose = 4, time = 8)
+#'   define_water_df() %>%
+#'   chemdose_chlordecay_df(input_water = "defined_water", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   dplyr::mutate(
 #'     br = 50,
 #'     free_chlorine = 2
 #'   ) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     cl2_dose = seq(2, 24, 2),
 #'     ClTime = 30
 #'   ) %>%
-#'   chemdose_chlordecay_chain(
+#'   chemdose_chlordecay_df(
 #'     time = ClTime,
 #'     use_chlorine_slot = TRUE,
 #'     treatment = "coag",
@@ -229,10 +229,10 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'
 #' @export
 #'
-#' @returns `chemdose_chlordecay_chain` returns a data frame containing a water class column with updated free_chlorine or
+#' @returns `chemdose_chlordecay_df` returns a data frame containing a water class column with updated free_chlorine or
 #'  combined_chlorine residuals. Optionally, it also adds columns for each of those slots individually.
 
-chemdose_chlordecay_chain <- function(df, input_water = "defined", output_water = "disinfected",
+chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "disinfected",
                                       pluck_cols = FALSE, water_prefix = TRUE,
                                       cl2_dose = "use_col", time = "use_col",
                                       treatment = "use_col", cl_type = "use_col",

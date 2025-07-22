@@ -313,13 +313,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 #' It outputs all carbonate calculations and other parameters in a data frame.
 #' tidywater functions cannot be added after this function because they require a `water` class input.
 #'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
-#' @param df a data frame containing columns with all the parameters listed in \code{\link{define_water}}
+#' @param df a data frame containing columns with all the parameters listed in [define_water]
 #'
 #' @seealso \code{\link{define_water}}
 #'
@@ -334,9 +328,10 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 #' @returns A data frame containing columns that were filled or calculated based on define_water.
 
 define_water_once <- function(df) {
+  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df() and convert_water()")
   defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
   df %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
     unnest_wider(defined_df) %>%
     select(-defined_water) %>%
@@ -345,58 +340,42 @@ define_water_once <- function(df) {
 
 #' Apply `define_water` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
-#' This function allows \code{\link{define_water}} to be added to a piped data frame.
+#' This function allows [define_water] to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
-#'
-#'  For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @param df a data frame containing columns with all the desired parameters with column names matching argument names in define_water
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #'
-#' @seealso \code{\link{define_water}}
+#' @seealso [define_water]
 #'
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain()
+#'   define_water_df() %>%
+#'   balance_ions_df()
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain(output_water = "This is a column of water") %>%
-#'   balance_ions_chain(input_water = "This is a column of water")
-#'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain()
-#'
-#' #' #Optional: explicitly close multisession processing
-#' # plan(sequential)
+#'   define_water_df(output_water = "This is a column of water") %>%
+#'   balance_ions_df(input_water = "This is a column of water")
 #' }
 #'
-#' @import dplyr
 #' @export
 #' @returns A data frame containing a water class column.
 
-define_water_chain <- function(df, output_water = "defined") {
+define_water_df <- function(df, output_water = "defined") {
   define_water_args <- c(
     "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
 
-  extras <- df %>%
-    select(!any_of(define_water_args))
+  water_input <- df[ , names(df) %in% define_water_args]
 
-  output <- df %>%
-    select(any_of(define_water_args)) %>%
-    mutate(!!output_water := furrr::future_pmap(., define_water)) %>%
-    select(!any_of(define_water_args)) %>%
-    cbind(extras)
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    do.call(define_water, water_input[i, ])
+  })
+
+  output <- df[ , !names(df) %in% define_water_args, drop = FALSE]
+  return(output)
+
 }

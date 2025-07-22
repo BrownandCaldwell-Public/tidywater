@@ -19,7 +19,8 @@ NULL
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water",
                                anion = "cl", cation = "na") {
   lifecycle::deprecate_warn("0.10.0", "balance_ions_chain()", "balance_ions_df()")
-  balance_ions_df(df, input_water, output_water, anion, cation)
+  balance_ions_df(df, input_water, output_water, pluck_cols = FALSE, water_prefix = TRUE,
+                  anion, cation)
 }
 
 #' @rdname rename_helpers
@@ -202,13 +203,6 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
                   pluck_cols = TRUE, water_prefix = FALSE,
                   alum, ferricchloride, ferricsulfate,
                   coeff)
-}
-
-#' @rdname rename_helpers
-#' @export
-define_water_once <- function(df) {
-  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df()")
-  define_water_df(df)
 }
 
 #' @rdname rename_helpers

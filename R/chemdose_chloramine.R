@@ -9,9 +9,9 @@
 #' Required arguments include an object of class "water" created by [define_water], chlorine dose, and reaction time.
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including temperature, pH, and alkalinity.
-#' For a single water use `chemdose_chloramine`; for a dataframe use `chemdose_chloramine_chain`.
+#' For a single water use `chemdose_chloramine`; for a dataframe use `chemdose_chloramine_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -266,7 +266,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
 
 #' @rdname chemdose_chloramine
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain].
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df].
 #' The df may include a column named for the applied chlorine dose (cl2_dose), and a column for time in hours.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "chloraminated".
@@ -277,12 +277,12 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #' \donttest{
 #' breakpoint <- water_df %>%
 #'   dplyr::mutate(free_chlorine = 5, tot_nh3 = 1) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     time = 8,
 #'     cl2dose = c(2, 3, 4)
 #'   ) %>%
-#'   chemdose_chloramine_chain(
+#'   chemdose_chloramine_df(
 #'     output_water = "final",
 #'     cl2 = cl2dose,
 #'     use_free_cl_slot = TRUE,
@@ -293,10 +293,10 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'
 #' @export
 #'
-#' @returns `chemdose_chloramine_chain` returns a data frame containing water class column with updated chlorine/chloramine slots:
+#' @returns `chemdose_chloramine_df` returns a data frame containing water class column with updated chlorine/chloramine slots:
 #' free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it also adds columns for each of those slots individually.
 #'
-chemdose_chloramine_chain <- function(df, input_water = "defined", output_water = "chloraminated",
+chemdose_chloramine_df <- function(df, input_water = "defined", output_water = "chloraminated",
                                       pluck_cols = FALSE, water_prefix = TRUE,
                                       time = "use_col", cl2 = "use_col", nh3 = "use_col",
                                       use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {

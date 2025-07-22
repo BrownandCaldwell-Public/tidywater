@@ -2,9 +2,9 @@
 #'
 #' @description Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 #' additions.
-#' For a single water use `chemdose_ph`; for a dataframe use `chemdose_ph_chain`.
+#' For a single water use `chemdose_ph`; for a dataframe use `chemdose_ph_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -293,7 +293,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 
 #' @rdname chemdose_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
+#' [define_water_df] The df may include columns named for the chemical(s) being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "dosed".
 #' @param na_to_zero option to convert all NA values in the data frame to zeros. Default value is TRUE.
@@ -303,24 +303,24 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::slice_head(n = 3) %>%
 #'   dplyr::mutate(
 #'     hcl = c(2, 4, 6),
 #'     Caustic = 20
 #'   ) %>%
-#'   chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+#'   chemdose_ph_df(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   chemdose_ph_chain(naoh = 5, pluck_cols = TRUE)
+#'   define_water_df() %>%
+#'   chemdose_ph_df(naoh = 5, pluck_cols = TRUE)
 #' }
 #'
 #' @export
 #'
-#' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
+#' @returns `chemdose_ph_df` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
-chemdose_ph_chain <- function(df, input_water = "defined", output_water = "dosed_chem_water",
+chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem_water",
                               na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
                               hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
                               na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",

@@ -8,9 +8,9 @@
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 #' optionally, ammonia (added when defining water using the `tot_nh3` argument.)
-#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_chain`.
+#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -95,19 +95,19 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' example_df <- water_df %>%
 #'   dplyr::slice_head(n = 6) %>%
 #'   dplyr::mutate(br = 50) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     dose = c(seq(.5, 3, .5)),
 #'     OzoneTime = 30
 #'   ) %>%
-#'   ozonate_bromate_chain(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
+#'   ozonate_bromate_df(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
 #'
 #' @export
 #'
-#' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro3
+#' @returns `ozonate_bromate_df` returns a data frame containing a water class column with updated bro3
 #' concentration. Optionally, it also adds columns for each of those slots individually.
 
-ozonate_bromate_chain <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
+ozonate_bromate_df <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
                                   dose = "use_col", time = "use_col", model = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring

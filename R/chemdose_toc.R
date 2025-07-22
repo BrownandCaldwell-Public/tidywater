@@ -4,9 +4,9 @@
 #' DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
 #' Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
-#' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_chain`.
+#' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -105,7 +105,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
 #' @rdname chemdose_toc
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]. The df may include a column named for the coagulant being dosed,
+#' [define_water_df]. The df may include a column named for the coagulant being dosed,
 #' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "coagulated".
@@ -115,22 +115,22 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
-#'   chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
+#'   chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(ferricchloride = seq(1, 12, 1)) %>%
-#'   chemdose_toc_chain(coeff = "Ferric", pluck_cols = TRUE)
+#'   chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
 #' }
 #'
 #' @export
 #'
-#' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254
+#' @returns `chemdose_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 #'
-chemdose_toc_chain <- function(df, input_water = "defined", output_water = "coagulated",
+chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagulated",
                                pluck_cols = FALSE, water_prefix = TRUE,
                                alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
                                coeff = "use_col") {

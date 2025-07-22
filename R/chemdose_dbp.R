@@ -9,9 +9,9 @@
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, TOC, UV254, temperature, and pH.
 #'
-#' For a single water use `chemdose_dbp`; for a dataframe use `chemdose_dbp_chain`.
+#' For a single water use `chemdose_dbp`; for a dataframe use `chemdose_dbp_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -151,7 +151,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
       stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
     } else if (any(duplicated(coeff$ID))) {
-      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _chain or _once function.")
+      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _df or _once function.")
     } else {
       changecoeff <- coeff$ID
       newcoeff <- unique(subset(tidywater::dbpcoeffs, ID %in% changecoeff, select = c(ID, alias, group)))
@@ -250,26 +250,26 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' \donttest{
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
+#'   define_water_df() %>%
+#'   chemdose_dbp_df(input_water = "defined_water", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
 #'   dplyr::slice_sample(n = 3) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     cl2_dose = c(2, 3, 4),
 #'     time = 30
 #'   ) %>%
-#'   chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine", pluck_cols = TRUE)
+#'   chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine", pluck_cols = TRUE)
 #' }
 #'
 #' @export
 #'
-#' @returns `chemdose_dbp_chain` returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
+#' @returns `chemdose_dbp_df` returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
 #' concentrations. Optionally, it also adds columns for those slots individually.
 
-chemdose_dbp_chain <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
+chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
                                cl2 = "use_col", time = "use_col",
                                treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   # This allows for the function to process unquoted column names without erroring

@@ -5,7 +5,7 @@
 #'
 #' @description This function takes an object created by [define_water] and calculates
 #' corrosion and scaling indices. For a single water, use `calculate_corrosion`; to apply the calculations to a
-#' dataframe, use `calculate_corrosion_once`.
+#' dataframe, use `calculate_corrosion_df`.
 #'
 #' @details Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
 #'
@@ -311,14 +311,14 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' @examples
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+#'   define_water_df() %>%
+#'   calculate_corrosion_df(index = c("aggressive", "ccpp"))
 #'
 #' @export
 #'
-#' @returns `calculate_corrosion_chain` returns the a data frame containing specified corrosion and scaling indices as columns.
+#' @returns `calculate_corrosion_df` returns the a data frame containing specified corrosion and scaling indices as columns.
 
-calculate_corrosion_chain <- function(df, input_water = "defined", water_prefix = TRUE,
+calculate_corrosion_df <- function(df, input_water = "defined", water_prefix = TRUE,
                                      index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
                                      form = "calcite") {
 

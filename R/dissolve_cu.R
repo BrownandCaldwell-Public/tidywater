@@ -4,14 +4,9 @@
 #' @description
 #' This function takes a water defined by defined_water and output a column of dissolved copper. It is an empirical model developed
 #' based on bench-scale copper solubility testing that can be used to predict copper levels as a function of pH, DIC, and orthophosphate.
-#' For a single water, use `dissolve_cu`; to apply the model to a dataframe use `dissolve_cu_chain`.
+#' For a single water, use `dissolve_cu`; to apply the model to a dataframe use `dissolve_cu_df`.
 #'
 #' @details Dissolved copper is a function of pH, DIC, and PO4. Output units are in mg/L.
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#' for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#' `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#' `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#' shorter run times will not benefit from parallel processing.
 #'
 #' @source Lytle et al (2018)
 #'
@@ -44,35 +39,39 @@ dissolve_cu <- function(water) {
   data.frame(cu)
 }
 
-#' @rdname dissolve_cu_once
+#' @rdname dissolve_cu_df
 #'
 #' @title Calculate Dissolved Copper Concentration
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #'
 #' @examples
 #' library(dplyr)
 #' cu_calc <- water_df %>%
-#'   define_water_chain() %>%
-#'   dissolve_cu_once()
+#'   define_water_df() %>%
+#'   dissolve_cu_df()
 #'
-#' @returns `dissolve_cu_once` returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
+#' @returns `dissolve_cu_df` returns a data frame containing the original data frame and a column for dissolved copper in mg/L.
 #'
-#' @import dplyr
 #' @export
 #'
 
-dissolve_cu_once <- function(df, input_water = "defined_water") {
-  validate_water_helpers(df, input_water)
-  calc <- NULL # Quiet RCMD check global variable notes
+dissolve_cu_df <- function(df, input_water = "defined", water_prefix = TRUE) {
 
-  output <- df %>%
-    mutate(calc = furrr::future_pmap(
-      list(
-        water = !!as.name(input_water)
-      ),
-      dissolve_cu
-    )) %>%
-    unnest_wider(calc)
+  validate_water_helpers(df, input_water)
+
+  cu_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    dissolve_cu(
+      water = df[[input_water]][[i]]
+    )
+  }))
+
+  if(water_prefix) {
+    names(cu_df) <- paste0(input_water, "_", names(cu_df))
+  }
+
+  output <- cbind(df, cu_df)
+  return(output)
+
 }

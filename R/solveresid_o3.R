@@ -2,8 +2,8 @@
 #'
 #' @description This function applies the ozone decay model to a `water`
 #' from U.S. EPA (2001) equation 5-128.
-#' For a single water, use `solveresid_o3`; to apply the model to a dataframe, use `solveresid_o3_once`.
-#' For most arguments, the `_once` helper
+#' For a single water, use `solveresid_o3`; to apply the model to a dataframe, use `solveresid_o3_df`.
+#' For most arguments, the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -55,7 +55,7 @@ solveresid_o3 <- function(water, dose, time) {
 #' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   solveresid_o3_once(dose = 2, time = 10)
+#'   solveresid_o3_df(dose = 2, time = 10)
 #'
 #' ozone_resid <- water_df %>%
 #'   mutate(br = 50) %>%
@@ -64,13 +64,13 @@ solveresid_o3 <- function(water, dose, time) {
 #'     dose = seq(1, 12, 1),
 #'     time = seq(2, 24, 2)
 #'   ) %>%
-#'   solveresid_o3_once()
+#'   solveresid_o3_df()
 #'
 #' @import dplyr
 #' @export
-#' @returns `solveresid_o3_once` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
+#' @returns `solveresid_o3_df` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
-solveresid_o3_once <- function(df, input_water = "defined_water", output_column = "o3resid",
+solveresid_o3_df <- function(df, input_water = "defined_water", output_column = "o3resid",
                                dose = "use_col", time = "use_col") {
   ID <- NULL # Quiet RCMD check global variable note
   validate_water_helpers(df, input_water)

@@ -2,15 +2,8 @@
 #'
 #' @description This function takes a vector of waters defined by [define_water]
 #' and a vector of ratios and outputs a new water object with updated ions and pH.
-#' For a single blend use `blend_waters`; for a dataframe use `blend_waters_chain`.
+#' For a single blend use `blend_waters`; for a dataframe use `blend_waters_df`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
-#'
-#' @details
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.#'
 #'
 #' @param waters Vector of source waters created by [define_water]. For `chain` function, this can include
 #' quoted column names and/or existing single water objects unquoted.
@@ -158,7 +151,7 @@ blend_waters <- function(waters, ratios) {
 
 #' @rdname blend_waters
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param output_water name of output column storing updated parameters with the class, water. Default is "blended_water".
 #'
 #' @examples
@@ -167,13 +160,13 @@ blend_waters <- function(waters, ratios) {
 #'
 #' example_df <- water_df %>%
 #'   slice_head(n = 3) %>%
-#'   define_water_chain() %>%
-#'   chemdose_ph_chain(naoh = 22) %>%
+#'   define_water_df() %>%
+#'   chemdose_ph_df(naoh = 22) %>%
 #'   mutate(
 #'     ratios1 = .4,
 #'     ratios2 = .6
 #'   ) %>%
-#'   blend_waters_chain(
+#'   blend_waters_df(
 #'     waters = c("defined_water", "dosed_chem_water"),
 #'     ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals"
 #'   )
@@ -182,17 +175,17 @@ blend_waters <- function(waters, ratios) {
 #' waterA <- define_water(7, 20, 100, tds = 100)
 #' example_df <- water_df %>%
 #'   slice_head(n = 3) %>%
-#'   define_water_chain() %>%
-#'   blend_waters_chain(waters = c("defined_water", waterA), ratios = c(.8, .2))
+#'   define_water_df() %>%
+#'   blend_waters_df(waters = c("defined_water", waterA), ratios = c(.8, .2))
 #'
 #' # Initialize parallel processing
 #' library(furrr)
 #' # plan(multisession)
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   balance_ions_chain() %>%
-#'   chemdose_ph_chain(naoh = 22, output_water = "dosed") %>%
-#'   blend_waters_chain(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
+#'   define_water_df() %>%
+#'   balance_ions_df() %>%
+#'   chemdose_ph_df(naoh = 22, output_water = "dosed") %>%
+#'   blend_waters_df(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
 #'
 #' # Optional: explicitly close multisession processing
 #' # plan(sequential)
@@ -201,9 +194,9 @@ blend_waters <- function(waters, ratios) {
 #' @import dplyr
 #' @export
 #'
-#' @returns `blend_waters_chain` returns a data frame with a water class column containing blended water quality
+#' @returns `blend_waters_df` returns a data frame with a water class column containing blended water quality
 
-blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water") {
+blend_waters_df <- function(df, waters, ratios, output_water = "blended_water") {
   n <- 0
   water_names <- list()
   for (water in waters) {
@@ -223,12 +216,12 @@ blend_waters_chain <- function(df, waters, ratios, output_water = "blended_water
   for (water_col in waters) {
     if (is.character(water_col)) {
       if (!(water_col %in% colnames(df))) {
-        stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_chain()."))
+        stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_df()."))
       } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
-        stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+        stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_df() or specify a different column."))
       }
     } else if (!is.character(water_col) & !methods::is(water_col, "water")) {
-      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_chain() or specify a different column."))
+      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_df() or specify a different column."))
     }
   }
 
