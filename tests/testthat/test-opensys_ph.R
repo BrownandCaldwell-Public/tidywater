@@ -1,9 +1,89 @@
 # opensys_ph ----
 
+test_that("opensys_ph errors without correct inputs", {
+  water <- suppressWarnings(define_water(ph = 7, alk = 10))
+  
+  expect_error(opensys_ph(partialpressure = 10^-4)) # no water input
+  expect_error(opensys_ph(partpressure = 10^-4))
+  expect_no_error(opensys_ph(water))
+})
+
 test_that("opensys_ph preserves carbonate balance", {
-  water1 <- define_water(ph = 7, alk = 10)
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 10))
   water2 <- opensys_ph(water1)
   
   expect_equal(water2@tot_co3, sum(water2@h2co3, water2@hco3, water2@co3))
   expect_equal(water2@h2co3, 10^-5)
+})
+
+test_that("opensys_ph works", {
+  water0 <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 50))
+  
+  water1 <- opensys_ph(water0)
+  water2 <- opensys_ph(water0, partialpressure = 10^-4)
+  
+  expect_s4_class(water1, "water")
+  expect_false(identical(water1@ph, water0@ph))
+  expect_false(identical(water1@ph, water2@ph))
+  expect_false(identical(water1@alk, water0@alk))
+  expect_false(identical(water1@dic, water0@dic))
+  expect_true(water1@ph < water0@ph)
+  expect_true(water1@ph < water2@ph)
+})
+
+test_that("opensys_ph_chain outputs are the same as base function, opensys_ph.", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50))
+  
+  water1 <- opensys_ph(water0)
+  
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               opensys_ph_chain(pluck_cols = TRUE))
+  
+  # test that pluck_cols does the same thing as pluck_water
+  water3 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_chain() %>%
+                               opensys_ph_chain() %>%
+                               pluck_water(c("opensys"), c("ph", "alk")))
+  
+  expect_equal(water1@ph, water2$opensys_ph)
+  expect_equal(water1@alk, water2$opensys_alk)
+  expect_equal(water2$opensys_ph, water3$opensys_ph)
+  expect_equal(ncol(water2), ncol(water3))
+})
+
+test_that("opensys chain takes and returns correct argument types and classes.", {
+  testthat::skip_on_cran()
+  water0 <- water_df %>%
+    define_water_chain("test")
+  
+  water1 <- opensys_ph_chain(water0, "test", "opensys", partialpressure = 10^-4)
+  water2 <- water0 %>%
+    mutate(partialp = 10^-4) %>%
+    opensys_ph_chain("test", "opensys", partialpressure = partialp)
+  
+  expect_error(opensys_ph_chain(water_df, partialpressure = .9))
+  expect_error(opensys_ph_chain(water0))
+  expect_s4_class(water1$opensys[[1]], "water")
+  expect_equal(water1$opensys, water2$opensys)
+})
+
+test_that("opensys_ph_chain can use a column or function argument for chemical dose", {
+  testthat::skip_on_cran()
+  water0 <- water_df %>%
+    define_water_chain()
+  
+  water1 <- opensys_ph_chain(water0, partialpressure = 10^-4, pluck_cols = TRUE)
+  water2 <- water0 %>%
+    mutate(partialp = 10^-4) %>%
+    opensys_ph_chain(partialpressure = partialp, pluck_cols = TRUE)
+  water3 <- water0 %>%
+    opensys_ph_chain(output_water = "opensys_water", partialpressure = 10^-4, pluck_cols = TRUE)
+  
+  expect_equal(water1$opensys_ph, water2$opensys_ph)
+  expect_equal(water1$opensys_ph, water3$opensys_water_ph)
+  expect_equal(water1$opensys_alk, water2$opensys_alk)
 })
