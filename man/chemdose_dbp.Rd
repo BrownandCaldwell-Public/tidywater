@@ -2,7 +2,7 @@
 % Please edit documentation in R/chemdose_dbp.R
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
-\alias{chemdose_dbp_chain}
+\alias{chemdose_dbp_df}
 \title{Calculate DBP formation}
 \source{
 TTHMs, raw: U.S. EPA (2001) equation 5-131
@@ -27,7 +27,7 @@ chemdose_dbp(
   coeff = NULL
 )
 
-chemdose_dbp_chain(
+chemdose_dbp_df(
   df,
   input_water = "defined",
   output_water = "disinfected",
@@ -78,7 +78,7 @@ Defaults to FALSE.}
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
 
-\code{chemdose_dbp_chain} returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
+\code{chemdose_dbp_df} returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
 concentrations. Optionally, it also adds columns for those slots individually.
 }
 \description{
@@ -88,9 +88,9 @@ created by \link{define_water} chlorine dose, type, reaction time, and treatment
 The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, TOC, UV254, temperature, and pH.
 
-For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_chain}.
+For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -107,18 +107,18 @@ example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
 \donttest{
 example_df <- water_df \%>\%
   dplyr::mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
+  define_water_df() \%>\%
+  chemdose_dbp_df(input_water = "defined_water", cl2 = 4, time = 8)
 
 example_df <- water_df \%>\%
   dplyr::mutate(br = 50) \%>\%
   dplyr::slice_sample(n = 3) \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(
     cl2_dose = c(2, 3, 4),
     time = 30
   ) \%>\%
-  chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine", pluck_cols = TRUE)
+  chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine", pluck_cols = TRUE)
 }
 
 }

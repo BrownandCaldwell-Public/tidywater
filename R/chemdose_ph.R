@@ -320,7 +320,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #'
 #' @returns `chemdose_ph_df` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
-chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem_water",
+chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem",
                               na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
                               hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
                               na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",

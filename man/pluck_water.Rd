@@ -4,7 +4,7 @@
 \alias{pluck_water}
 \title{Pluck out a single parameter from a \code{water} class object}
 \usage{
-pluck_water(df, input_waters = c("defined_water"), parameter)
+pluck_water(df, input_waters = c("defined"), parameter)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already

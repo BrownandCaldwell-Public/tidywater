@@ -2,15 +2,15 @@
 % Please edit documentation in R/modify_water.R
 \name{modify_water}
 \alias{modify_water}
-\alias{modify_water_chain}
+\alias{modify_water_df}
 \title{Modify slots in a \code{water} class object}
 \usage{
 modify_water(water, slot, value, units)
 
-modify_water_chain(
+modify_water_df(
   df,
-  input_water = "defined_water",
-  output_water = "modified_water",
+  input_water = "defined",
+  output_water = "modified",
   slot = "use_col",
   value = "use_col",
   units = "use_col"
@@ -26,7 +26,7 @@ modify_water_chain(
 \item{units}{A vector of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by \link{convert_units}
 are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
@@ -35,7 +35,7 @@ are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1",
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.
 
-\code{modify_water_chain} returns a data frame containing a water class column with updated slot
+\code{modify_water_df} returns a data frame containing a water class column with updated slot
 }
 \description{
 This function modifies selected slots of a \code{water} class object without impacting the other parameters. For example, you can
@@ -51,40 +51,26 @@ water2 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5, ca = 10) \%>\%
   modify_water(slot = c("ca", "toc"), value = c(20, 10), units = c("mg/L", "mg/L"))
 
 
-library(dplyr)
-
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(bromide = 50) \%>\%
-  modify_water_chain(slot = "br", value = bromide, units = "ug/L")
+  define_water_df() \%>\%
+  dplyr::mutate(bromide = 50) \%>\%
+  modify_water_df(slot = "br", value = bromide, units = "ug/L")
 
 multislot_example_df1 <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(
+  define_water_df() \%>\%
+  dplyr::mutate(
     slot = list(c("br", "na")),
     value = list(c(50, 60)),
     units = list(c("ug/L", "mg/L"))
   ) \%>\%
-  modify_water_chain()
+  modify_water_df()
 
 multislot_example_df2 <- water_df \%>\%
-  define_water_chain() \%>\%
-  modify_water_chain(
+  define_water_df() \%>\%
+  modify_water_df(
     slot = list(c("br", "na")),
     value = list(c(50, 60)),
     units = list(c("ug/L", "mg/L"))
   )
 
-\donttest{
-# Un-comment below to initialize parallel processing
-# library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(bromide = rep(c(20, 30, 50), 4)) \%>\%
-  modify_water_chain(slot = "br", value = bromide, units = "ug/L")
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
 }

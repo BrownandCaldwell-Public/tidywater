@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculate_corrosion.R
 \name{calculate_corrosion}
 \alias{calculate_corrosion}
-\alias{calculate_corrosion_chain}
+\alias{calculate_corrosion_df}
 \title{Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR, CCPP)}
 \source{
 AWWA (1977)
@@ -40,7 +40,7 @@ calculate_corrosion(
   form = "calcite"
 )
 
-calculate_corrosion_chain(
+calculate_corrosion_df(
   df,
   input_water = "defined",
   water_prefix = TRUE,
@@ -66,12 +66,12 @@ CCPP may not be able to be calculated sometimes, so it may be advantageous to le
 \value{
 \code{calculate_corrosion} returns a data frame with corrosion and scaling indices as individual columns.
 
-\code{calculate_corrosion_chain} returns the a data frame containing specified corrosion and scaling indices as columns.
+\code{calculate_corrosion_df} returns the a data frame containing specified corrosion and scaling indices as columns.
 }
 \description{
 This function takes an object created by \link{define_water} and calculates
 corrosion and scaling indices. For a single water, use \code{calculate_corrosion}; to apply the calculations to a
-dataframe, use \code{calculate_corrosion_once}.
+dataframe, use \code{calculate_corrosion_df}.
 }
 \details{
 Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
@@ -102,7 +102,7 @@ corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
 
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  calculate_corrosion_chain(index = c("aggressive", "ccpp"))
+  define_water_df() \%>\%
+  calculate_corrosion_df(index = c("aggressive", "ccpp"))
 
 }

@@ -51,28 +51,25 @@ solveresid_o3 <- function(water, dose, time) {
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #'
 #' @examples
-#' library(dplyr)
 #' ozone_resid <- water_df %>%
-#'   mutate(br = 50) %>%
+#'   dplyr::mutate(br = 50) %>%
 #'   define_water_chain() %>%
 #'   solveresid_o3_df(dose = 2, time = 10)
 #'
 #' ozone_resid <- water_df %>%
-#'   mutate(br = 50) %>%
+#'   dplyr::mutate(br = 50) %>%
 #'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     dose = seq(1, 12, 1),
 #'     time = seq(2, 24, 2)
 #'   ) %>%
 #'   solveresid_o3_df()
 #'
-#' @import dplyr
 #' @export
 #' @returns `solveresid_o3_df` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
-solveresid_o3_df <- function(df, input_water = "defined_water", output_column = "o3resid",
+solveresid_o3_df <- function(df, input_water = "defined", output_column = "o3resid",
                                dose = "use_col", time = "use_col") {
-  ID <- NULL # Quiet RCMD check global variable note
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
@@ -80,20 +77,19 @@ solveresid_o3_df <- function(df, input_water = "defined_water", output_column = 
   dose <- tryCatch(dose, error = function(e) enquo(dose))
 
   arguments <- construct_helper(df, list("time" = time, "dose" = dose))
-
+  final_names <- arguments$final_names
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_column := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        time = !!as.name(arguments$final_names$time),
-        dose = !!as.name(arguments$final_names$dose)
-      ),
-      solveresid_o3
-    ) %>%
-      as.numeric())
+
+  df[[output_column]] <- lapply(seq_len(nrow(df)), function(i) {
+    solvedose_alk(
+      water = df[[input_water]][[i]],
+      time = df[[final_names$time]][i],
+      dose = df[[final_names$dose]][i]
+    )
+  })
+
+  return(df)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/chemdose_chlordecay.R
 \name{chemdose_chlordecay}
 \alias{chemdose_chlordecay}
-\alias{chemdose_chlordecay_chain}
+\alias{chemdose_chlordecay_df}
 \title{Calculate chlorine decay}
 \source{
 U.S. EPA (2001)
@@ -19,7 +19,7 @@ chemdose_chlordecay(
   use_chlorine_slot = FALSE
 )
 
-chemdose_chlordecay_chain(
+chemdose_chlordecay_df(
   df,
   input_water = "defined",
   output_water = "disinfected",
@@ -66,15 +66,15 @@ and a column for time in hours.}
 \code{chemdose_chlordecay} returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
 Use \link{convert_units} to convert to mg/L.
 
-\code{chemdose_chlordecay_chain} returns a data frame containing a water class column with updated free_chlorine or
+\code{chemdose_chlordecay_df} returns a data frame containing a water class column with updated free_chlorine or
 combined_chlorine residuals. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 calculates the decay of chlorine or chloramine based on the U.S. EPA's
 Water Treatment Plant Model (U.S. EPA, 2001).
-For a single water use \code{chemdose_chlordecay}; for a dataframe use \code{chemdose_chlordecay_chain}.
+For a single water use \code{chemdose_chlordecay}; for a dataframe use \code{chemdose_chlordecay_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -100,20 +100,20 @@ example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) 
 
 example_df <- water_df \%>\%
   dplyr::mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  chemdose_chlordecay_chain(input_water = "defined_water", cl2_dose = 4, time = 8)
+  define_water_df() \%>\%
+  chemdose_chlordecay_df(input_water = "defined_water", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
   dplyr::mutate(
     br = 50,
     free_chlorine = 2
   ) \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(
     cl2_dose = seq(2, 24, 2),
     ClTime = 30
   ) \%>\%
-  chemdose_chlordecay_chain(
+  chemdose_chlordecay_df(
     time = ClTime,
     use_chlorine_slot = TRUE,
     treatment = "coag",

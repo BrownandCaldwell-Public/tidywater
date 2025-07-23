@@ -7,7 +7,7 @@
 define_water_once(df)
 }
 \arguments{
-\item{df}{a data frame containing columns with all the parameters listed in \code{\link{define_water}}}
+\item{df}{a data frame containing columns with all the parameters listed in \link{define_water}}
 }
 \value{
 A data frame containing columns that were filled or calculated based on define_water.
@@ -16,13 +16,6 @@ A data frame containing columns that were filled or calculated based on define_w
 This function allows \code{\link{define_water}} to be added to a piped data frame.
 It outputs all carbonate calculations and other parameters in a data frame.
 tidywater functions cannot be added after this function because they require a \code{water} class input.
-}
-\details{
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/chemdose_toc.R
 \name{chemdose_toc}
 \alias{chemdose_toc}
-\alias{chemdose_toc_chain}
+\alias{chemdose_toc_df}
 \title{Determine TOC removal from coagulation}
 \source{
 Edwards (1997)
@@ -20,7 +20,7 @@ chemdose_toc(
   coeff = "Alum"
 )
 
-chemdose_toc_chain(
+chemdose_toc_df(
   df,
   input_water = "defined",
   output_water = "coagulated",
@@ -45,7 +45,7 @@ chemdose_toc_chain(
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column named for the coagulant being dosed,
+\link{define_water_df}. The df may include a column named for the coagulant being dosed,
 and a column named for the set of coefficients to use.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
@@ -59,7 +59,7 @@ and a column named for the set of coefficients to use.}
 \value{
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 
-\code{chemdose_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254
+\code{chemdose_toc_df} returns a data frame containing a water class column with updated DOC, TOC, and UV254
 concentrations. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
@@ -67,9 +67,9 @@ This function applies the Edwards (1997) model to a water created by \link{defin
 DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
 Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
-For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
+For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -85,14 +85,14 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
 
 \donttest{
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
-  chemdose_toc_chain(ferricchloride = FerricDose, coeff = "Ferric")
+  chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_chain(coeff = "Ferric", pluck_cols = TRUE)
+  chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
 }
 
 }

@@ -34,8 +34,6 @@ Imports:
     ggplot2,
     ggrepel,
     magrittr,
-    purrr,
-    furrr,
     methods,
     rlang,
     deSolve
@@ -45,6 +43,7 @@ Depends:
     R (>= 3.5)
 Suggests: 
     rmarkdown,
+    purrr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr

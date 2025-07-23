@@ -2,7 +2,7 @@
 % Please edit documentation in R/ozonate_bromate.R
 \name{ozonate_bromate}
 \alias{ozonate_bromate}
-\alias{ozonate_bromate_chain}
+\alias{ozonate_bromate_df}
 \title{Calculate bromate formation}
 \source{
 Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
@@ -12,10 +12,12 @@ See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywate
 \usage{
 ozonate_bromate(water, dose, time, model = "Ozekin")
 
-ozonate_bromate_chain(
+ozonate_bromate_df(
   df,
   input_water = "defined",
   output_water = "ozonated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   dose = "use_col",
   time = "use_col",
   model = "use_col"
@@ -38,14 +40,14 @@ and a column for time in minutes.}
 
 \item{output_water}{name of the output column storing updated water class object. Default is "ozonated".}
 
-\item{pluck_cols}{Extract water slots modified by the function (bro4) into new numeric columns for easy access. Default to FALSE.}
+\item{pluck_cols}{Extract water slots modified by the function (bro3) into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{ozonate_bromate} returns a single water class object with calculated bromate (ug/L).
 
-\code{ozonate_bromate_chain} returns a data frame containing a water class column with updated bro4
+\code{ozonate_bromate_df} returns a data frame containing a water class column with updated bro3
 concentration. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
@@ -54,9 +56,9 @@ created by \link{define_water} ozone dose, reaction time, and desired model.
 The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 optionally, ammonia (added when defining water using the \code{tot_nh3} argument.)
-For a single water use \code{ozonate_bromate}; for a dataframe use \code{ozonate_bromate_chain}.
+For a single water use \code{ozonate_bromate}; for a dataframe use \code{ozonate_bromate_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -70,11 +72,11 @@ example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
 example_df <- water_df \%>\%
   dplyr::slice_head(n = 6) \%>\%
   dplyr::mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(
     dose = c(seq(.5, 3, .5)),
     OzoneTime = 30
   ) \%>\%
-  ozonate_bromate_chain(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
+  ozonate_bromate_df(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
 
 }

@@ -156,47 +156,33 @@ blend_waters <- function(waters, ratios) {
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
-#'   slice_head(n = 3) %>%
+#'   dplyr::slice_head(n = 3) %>%
 #'   define_water_df() %>%
 #'   chemdose_ph_df(naoh = 22) %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     ratios1 = .4,
 #'     ratios2 = .6
 #'   ) %>%
 #'   blend_waters_df(
-#'     waters = c("defined_water", "dosed_chem_water"),
+#'     waters = c("defined", "dosed_chem"),
 #'     ratios = c("ratios1", "ratios2"), output_water = "Blending_after_chemicals"
 #'   )
 #'
 #' \donttest{
 #' waterA <- define_water(7, 20, 100, tds = 100)
 #' example_df <- water_df %>%
-#'   slice_head(n = 3) %>%
+#'   dplyr::slice_head(n = 3) %>%
 #'   define_water_df() %>%
-#'   blend_waters_df(waters = c("defined_water", waterA), ratios = c(.8, .2))
+#'   blend_waters_df(waters = c("defined", waterA), ratios = c(.8, .2))
 #'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_df() %>%
-#'   balance_ions_df() %>%
-#'   chemdose_ph_df(naoh = 22, output_water = "dosed") %>%
-#'   blend_waters_df(waters = c("defined_water", "dosed", "balanced_water"), ratios = c(.2, .3, .5))
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
 #' @returns `blend_waters_df` returns a data frame with a water class column containing blended water quality
 
-blend_waters_df <- function(df, waters, ratios, output_water = "blended_water") {
+blend_waters_df <- function(df, waters, ratios, output_water = "blended") {
   n <- 0
   water_names <- list()
   for (water in waters) {
@@ -204,8 +190,7 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended_water") 
 
     if (!is.character(water)) {
       output <- paste0("merging_water_", n)
-      df <- df %>%
-        mutate(!!output := list(water))
+      df[[output]] <- list(water)
       water_names[n] <- output
     } else {
       water_names[n] <- water
@@ -225,18 +210,27 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended_water") 
     }
   }
 
+  output <- df
+  output$waters <- apply(output[, water_names], 1, function(row) as.list(row))
 
-  output <- df %>%
-    rowwise() %>%
-    mutate(
-      waters = furrr::future_pmap(across(all_of(water_names)), list),
-      ratios = ifelse(
-        is.numeric(ratios),
-        list(ratios),
-        (list(c_across(all_of(ratios))))
-      )
-    ) %>%
-    ungroup() %>%
-    mutate(!!output_water := furrr::future_pmap(list(waters = waters, ratios = ratios), blend_waters)) %>%
-    select(-c(waters, ratios, contains("merging_water_")))
+  if (is.numeric(ratios)) {
+    output$ratios <- replicate(nrow(output), ratios, simplify = FALSE) # vector of ratios
+  } else {
+    output$ratios <- lapply(seq_len(nrow(output)), function(i) { # column names
+      as.numeric(unlist(output[i, ratios]))
+    })
+  }
+
+  output[[output_water]] <- lapply(seq_len(nrow(output)), function(i) {
+    blend_waters(
+      waters = output$waters[[i]],
+      ratios = output$ratios[[i]]
+    )
+  })
+
+  cols_to_remove <- c("waters", "ratios", grep("merging_water_", names(output), value = TRUE))
+  output <- output[, !(names(output) %in% cols_to_remove)]
+
+  return(output)
+
 }

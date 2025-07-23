@@ -2,12 +2,12 @@
 % Please edit documentation in R/decarbonate_ph.R
 \name{decarbonate_ph}
 \alias{decarbonate_ph}
-\alias{decarbonate_ph_chain}
+\alias{decarbonate_ph_df}
 \title{Apply decarbonation to a water}
 \usage{
 decarbonate_ph(water, co2_removed)
 
-decarbonate_ph_chain(
+decarbonate_ph_df(
   df,
   input_water = "defined",
   output_water = "decarbonated",
@@ -17,12 +17,12 @@ decarbonate_ph_chain(
 )
 }
 \arguments{
-\item{water}{Source water of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water of class "water" created by \link{define_water}}
 
 \item{co2_removed}{Fraction of CO2 removed}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column with names for each of the chemicals being dosed.}
+\link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
@@ -35,16 +35,16 @@ decarbonate_ph_chain(
 \value{
 A water with updated pH/alk/etc.
 
-\code{decarbonate_ph_chain} returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
+\code{decarbonate_ph_df} returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates the new water quality (pH, alkalinity, etc) after a specified amount of CO2 is removed (removed as bicarbonate).
 The function takes an object of class "water" and a fraction of CO2 removed, then returns a water class object with updated water slots.
-For a single water, use \code{decarbonate_ph}; to apply the model to a dataframe, use \code{decarbonate_ph_chain}.
-For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_chain}.
+For a single water, use \code{decarbonate_ph}; to apply the model to a dataframe, use \code{decarbonate_ph_df}.
+For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -57,8 +57,8 @@ water <- define_water(ph = 4, temp = 25, alk = 5) \%>\%
 
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  decarbonate_ph_chain(
+  define_water_df() \%>\%
+  decarbonate_ph_df(
     input_water = "defined", output_water = "decarb",
     co2_removed = .95, pluck_cols = TRUE
   )

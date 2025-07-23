@@ -2,8 +2,8 @@
 #'
 #' @description This function takes a water defined by [define_water()] and the first order decay curve parameters
 #' from an ozone dose and outputs a dataframe of actual CT, and log removal for giardia, virus, and crypto.
-#' For a single water, use `solvect_o3`; to apply the model to a dataframe, use `solvect_o3_once`.
-#' For most arguments, the `_once` helper
+#' For a single water, use `solvect_o3`; to apply the model to a dataframe, use `solvect_o3_df`.
+#' For most arguments, the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -13,12 +13,6 @@
 #'
 #' When `kd` is not specified, a default decay curve is used from the Water Treatment Plant Model (2002). This model does
 #' not perform well for ozone decay, so specifying the decay curve is recommended.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source USEPA (2020) Equation 4-4 through 4-7
 #' https://www.epa.gov/system/files/documents/2022-02/disprof_bench_3rules_final_508.pdf
@@ -85,7 +79,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
         defined_water = list(water),
         dose = dose
       ) %>%
-      solveresid_o3_once() %>%
+      solveresid_o3_df() %>%
       dplyr::mutate(ct = .data$o3resid * .5) %>%
       dplyr::filter(time != 0)
     ct_tot <- sum(decaycurve$ct)
@@ -104,7 +98,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
 #' @rdname solvect_o3
 #'
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain()].
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df()].
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
 #' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
 #'
@@ -113,22 +107,20 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' library(dplyr)
 #' ct_calc <- water_df %>%
 #'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   mutate(
 #'     dose = 2,
 #'     O3time = 10,
 #'   ) %>%
-#'   solvect_o3_once(time = O3time, baffle = .7)
+#'   solvect_o3_df(time = O3time, baffle = .7)
 #' }
 #'
-#' @import dplyr
 #' @export
-#' @returns `solvect_o3_once` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
+#' @returns `solvect_o3_df` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
-solvect_o3_once <- function(df, input_water = "defined_water",
+solvect_o3_df <- function(df, input_water = "defined",
                             time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
                             water_prefix = TRUE) {
-  calc <- ct_required <- ct_actual <- glog_removal <- vlog_removal <- clog_removal <- NULL # Quiet RCMD check global variable note
 
   validate_water_helpers(df, input_water)
 
@@ -139,32 +131,27 @@ solvect_o3_once <- function(df, input_water = "defined_water",
   baffle <- tryCatch(baffle, error = function(e) enquo(baffle))
 
   arguments <- construct_helper(df, list("time" = time, "dose" = dose, "kd" = kd, "baffle" = baffle))
-
+  final_names <- arguments$final_names
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(calc := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        time = !!as.name(arguments$final_names$time),
-        dose = !!as.name(arguments$final_names$dose),
-        kd = if (arguments$final_names$kd %in% names(.)) !!sym(arguments$final_names$kd) else rep(NA, nrow(.)),
-        baffle = !!as.name(arguments$final_names$baffle)
-      ),
-      solvect_o3
-    )) %>%
-    unnest_wider(calc)
 
-  if (water_prefix) {
-    output <- output %>%
-      rename(
-        !!paste(input_water, "ct_actual", sep = "_") := ct_actual,
-        !!paste(input_water, "glog_removal", sep = "_") := glog_removal,
-        !!paste(input_water, "vlog_removal", sep = "_") := vlog_removal,
-        !!paste(input_water, "clog_removal", sep = "_") := clog_removal
-      )
+  ct_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    solvect_o3(
+      water = df[[input_water]][[i]],
+      time = df[[final_names$time]][i],
+      dose = df[[final_names$dose]][i],
+      kd = df[[final_names$kd]][i],
+      baffle = df[[final_names$baffle]][i]
+    )
+  }))
+
+  if(water_prefix) {
+    names(ct_df) <- paste0(input_water, "_", names(ct_df))
   }
+
+  output <- cbind(df, ct_df)
+  return(output)
+
 }

@@ -5,8 +5,8 @@
 #' Convert `water` class object to a dataframe
 #'
 #' @description This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
-#' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
-#' there may be a `fn_once` tidywater function that provides a more efficient solution.
+#' This is useful for one-off checks. For typical applications,
+#' use `pluck_cols = TRUE` in any `_df` function or `pluck_water` to choose relevant slots.
 #'
 #' Use [convert_water] to keep all slots in the same units as the water.
 #'
@@ -19,20 +19,16 @@
 #'
 #' @examples
 #'
-#' library(dplyr)
-#' library(tidyr)
-#'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
 #'   convert_water()
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain() %>%
-#'   mutate(to_dataframe = map(defined, convert_water)) %>%
-#'   unnest(to_dataframe) %>%
+#'   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) %>%
+#'   tidyr::unnest(to_dataframe) %>%
 #'   select(-defined)
 #'
-#' @import dplyr
 #' @export
 #'
 #' @returns A data frame containing columns for all non-NA water slots.
@@ -40,8 +36,11 @@
 convert_water <- function(water) {
   nms <- methods::slotNames(water)
   lst <- lapply(nms, function(nm) methods::slot(water, nm))
-  as.data.frame(stats::setNames(lst, nms)) %>%
-    select(where(~ any(!is.na(.))))
+  df <- as.data.frame(lst)
+  names(df) <- nms
+
+  df[, sapply(df, function(col) any(!is.na(col)))]
+
 }
 
 #' @rdname convert_water

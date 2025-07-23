@@ -2,7 +2,7 @@
 % Please edit documentation in R/chemdose_chloramine.R
 \name{chemdose_chloramine}
 \alias{chemdose_chloramine}
-\alias{chemdose_chloramine_chain}
+\alias{chemdose_chloramine_df}
 \title{Calculate chlorine and chloramine Concentrations with the breakpoint cblorination approach}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -17,7 +17,7 @@ chemdose_chloramine(
   use_tot_nh3_slot = FALSE
 )
 
-chemdose_chloramine_chain(
+chemdose_chloramine_df(
   df,
   input_water = "defined",
   output_water = "chloraminated",
@@ -43,7 +43,7 @@ chemdose_chloramine_chain(
 
 \item{use_tot_nh3_slot}{Defaults to FALSE. If TRUE, uses tot_nh3 slot in water. If TRUE AND there is a nh3 input, both the tot_nh3 water slot and ammonia dose will be used.}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}.
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}.
 The df may include a column named for the applied chlorine dose (cl2_dose), and a column for time in hours.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
@@ -57,7 +57,7 @@ The df may include a column named for the applied chlorine dose (cl2_dose), and 
 \value{
 \code{chemdose_chloramine} returns a water class object with predicted chlorine and chloramine concentrations.
 
-\code{chemdose_chloramine_chain} returns a data frame containing water class column with updated chlorine/chloramine slots:
+\code{chemdose_chloramine_df} returns a data frame containing water class column with updated chlorine/chloramine slots:
 free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
@@ -67,9 +67,9 @@ calculates chlorine and chloramine concentrations based on the two papers Jafver
 Required arguments include an object of class "water" created by \link{define_water}, chlorine dose, and reaction time.
 The function also requires additional water quality parameters defined in \link{define_water}
 including temperature, pH, and alkalinity.
-For a single water use \code{chemdose_chloramine}; for a dataframe use \code{chemdose_chloramine_chain}.
+For a single water use \code{chemdose_chloramine}; for a dataframe use \code{chemdose_chloramine_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -80,12 +80,12 @@ breakpoint <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) \%>\%
 \donttest{
 breakpoint <- water_df \%>\%
   dplyr::mutate(free_chlorine = 5, tot_nh3 = 1) \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(
     time = 8,
     cl2dose = c(2, 3, 4)
   ) \%>\%
-  chemdose_chloramine_chain(
+  chemdose_chloramine_df(
     output_water = "final",
     cl2 = cl2dose,
     use_free_cl_slot = TRUE,
