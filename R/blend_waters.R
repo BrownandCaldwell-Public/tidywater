@@ -10,7 +10,7 @@
 #' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` function,
 #' this can also be a list of quoted column names.
 #'
-#' @seealso \code{\link{define_water}}
+#' @seealso [define_water]
 #'
 #' @examples
 #' water1 <- define_water(7, 20, 50)
@@ -57,7 +57,7 @@ blend_waters <- function(waters, ratios) {
     }
     missingn <- setdiff(parameters, otherparams)
     missing1 <- setdiff(otherparams, parameters)
-    if (!purrr::is_empty(missingn) | !purrr::is_empty(missing1)) {
+    if (!rlang::is_empty(missingn) | !rlang::is_empty(missing1)) {
       missing <- paste0(c(missingn, missing1), collapse = ", ")
       warning(paste0(
         "The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ", missing,

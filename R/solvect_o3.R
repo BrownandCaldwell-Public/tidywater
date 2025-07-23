@@ -34,7 +34,6 @@
 #' define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
 #'   solvect_o3(time = 10, dose = 2, baffle = 0.5)
 #'
-#' @import dplyr
 #' @export
 #' @returns `solvect_o3` returns a data frame containing actual CT (mg/L*min), giardia log removal, virus log removal, and crypto log removal.
 #'

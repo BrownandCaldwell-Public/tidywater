@@ -21,7 +21,7 @@
 #' # Summarize major cations and anions
 #' summarize_wq(water_defined, params = list("ions"))
 #'
-#' @import dplyr
+#' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
 #' @export
 #' @returns A knitr_kable table of specified water quality parameters.

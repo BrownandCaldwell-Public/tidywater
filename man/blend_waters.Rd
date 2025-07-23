@@ -60,5 +60,5 @@ example_df <- water_df \%>\%
 
 }
 \seealso{
-\code{\link{define_water}}
+\link{define_water}
 }

@@ -27,16 +27,6 @@ pluck_example <- water_df \%>\%
   define_water_chain("raw") \%>\%
   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 
-\donttest{
-library(furrr)
-# plan(multisession)
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  pluck_water(parameter = c("ph", "alk"))
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
 }
 \seealso{
 \link{convert_water}

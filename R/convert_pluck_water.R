@@ -112,17 +112,6 @@ convert_watermg <- function(water) {
 #'   define_water_chain("raw") %>%
 #'   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 #'
-#' \donttest{
-#' library(furrr)
-#' # plan(multisession)
-#' pluck_example <- water_df %>%
-#'   define_water_chain() %>%
-#'   pluck_water(parameter = c("ph", "alk"))
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#' @import dplyr
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
