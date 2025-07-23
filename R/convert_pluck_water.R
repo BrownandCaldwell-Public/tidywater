@@ -166,7 +166,6 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
         },
         param = parameter, out = output_column, SIMPLIFY = FALSE
       )
-
       temp <- do.call(cbind, temp)
 
       plucked <- cbind(plucked, temp)
