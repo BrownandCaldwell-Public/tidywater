@@ -116,7 +116,7 @@ solve_ph <- raw_water %>%
   chemdose_ph_df("raw", alum = alum_dose) %>%
   mutate(target_ph = 8) %>%
   solvedose_ph_df(input_water = "dosed_chem", chemical = c("naoh", "mgoh2")) %>%
-  select(-c(raw, dosed_chem_water))
+  select(-c(raw, dosed_chem))
 
 head(solve_ph)
 ```
@@ -128,7 +128,7 @@ dosed_caustic_water <- raw_water %>%
   solvedose_ph_df(input_water = "alum_dosed", target_ph = 8, chemical = "naoh") %>%
   chemdose_ph_df(input_water = "alum_dosed", output_water = "caustic_dosed", naoh = dose) %>%
   pluck_water(input_water = "caustic_dosed", "ph") %>%
-  select(-c(raw:balanced_water, alum_dosed))
+  select(-c(raw:balanced, alum_dosed))
 
 head(dosed_caustic_water)
 ```
