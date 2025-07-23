@@ -55,68 +55,62 @@ test_that("dissolve_pb works.", {
 ################################################################################*
 ################################################################################*
 # dissolve_pb helper ----
-# Check dissolve_pb_once outputs are the same as base function, dissolve_pb
+# Check dissolve_pb_df outputs are the same as base function, dissolve_pb
 
-test_that("dissolve_pb_once outputs are the same as base function, dissolve_pb", {
+test_that("dissolve_pb_df outputs are the same as base function, dissolve_pb", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
     ca = 13, mg = 4, na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
     toc = 2, doc = 1.8, uv254 = 0.05
   )) %>%
-    balance_ions() %>%
     dissolve_pb()
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    dissolve_pb_once(input_water = "balanced_water"))
+    define_water_df() %>%
+    dissolve_pb_df()
 
-  expect_equal(water1$tot_dissolved_pb, water2$balanced_water_pb)
-  expect_equal(water1$controlling_solid, water2$balanced_water_controlling_solid)
+  expect_equal(water1$tot_dissolved_pb, water2$defined_pb)
+  expect_equal(water1$controlling_solid, water2$defined_controlling_solid)
 })
 
 # Check that output column is numeric
 
-test_that("dissolve_pb_once outputs data frame", {
+test_that("dissolve_pb_df outputs data frame", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    dissolve_pb_once(input_water = "balanced_water"))
+  water2 <- water_df %>%
+    define_water_df() %>%
+    dissolve_pb_df()
 
-  expect_true(is.numeric(water2$balanced_water_pb))
-  expect_true(is.character(water2$balanced_water_controlling_solid))
+  expect_true(is.numeric(water2$defined_pb))
+  expect_true(is.character(water2$defined_controlling_solid))
 })
 
 # Check that outputs are different depending on selected source
-test_that("dissolve_pb_once processes different input constants", {
+test_that("dissolve_pb_df processes different input constants", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     slice(3) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    dissolve_pb_once(input_water = "balanced_water"))
+    define_water_df() %>%
+    dissolve_pb_df(water_prefix = F)
 
-  water3 <- suppressWarnings(water_df %>%
+  water3 <- water_df %>%
     slice(3) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    dissolve_pb_once(input_water = "balanced_water", pyromorphite = "Xie"))
+    define_water_df() %>%
+    dissolve_pb_df(pyromorphite = "Xie", water_prefix = F)
 
-  expect_equal(water2$balanced_water_controlling_solid, water3$balanced_water_controlling_solid)
-  expect_error(expect_equal(water2$balanced_water_pb, water3$balanced_water_pb))
+  expect_equal(water2$controlling_solid, water3$controlling_solid)
+  expect_error(expect_equal(water2$pb, water3$pb))
 })
 
 # Check that the function stops due to errors in selected source
-test_that("dissolve_pb_once errors work", {
+test_that("dissolve_pb_df errors work", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
-    balance_ions_chain())
+  water1 <- water_df %>%
+    define_water_df()
 
-  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", hydroxypyromorphite = "schock"))
-  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", pyromorphite = "Schock"))
-  expect_error(dissolve_pb_once(water1, input_water = "balanced_water", laurionite = "Lothebach"))
+  expect_error(dissolve_pb_df(water1, hydroxypyromorphite = "schock"))
+  expect_error(dissolve_pb_df(water1, pyromorphite = "Schock"))
+  expect_error(dissolve_pb_df(water1, laurionite = "Lothebach"))
 })

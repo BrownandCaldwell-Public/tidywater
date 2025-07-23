@@ -68,7 +68,7 @@ test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
 ################################################################################*
 # biofilter_toc helpers ----
 
-test_that("biofilter_toc_chain outputs are the same as base function, biofilter_toc", {
+test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc", {
   testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
@@ -81,18 +81,18 @@ test_that("biofilter_toc_chain outputs are the same as base function, biofilter_
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    biofilter_toc_chain(ebct = 10, output_water = "biof") %>%
+    define_water_df() %>%
+    biofilter_toc_df(ebct = 10, output_water = "biof") %>%
     pluck_water("biof", c("doc"))
 
   ebcts <- tibble(EBCT = c(10, 20, 30))
   ozone <- tibble(ozonated = c(T, F))
   water3 <- water_df %>%
     slice(1) %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     cross_join(ebcts) %>%
     cross_join(ozone) %>%
-    biofilter_toc_chain("raw", "biof", ebct = EBCT) %>%
+    biofilter_toc_df("raw", "biof", ebct = EBCT) %>%
     pluck_water("biof", c("doc"))
 
   water4 <- biofilter_toc(water0, ebct = 20, ozonated = F)
@@ -103,77 +103,77 @@ test_that("biofilter_toc_chain outputs are the same as base function, biofilter_
 
 # Test that output is a column of water class lists, and changing the output column name works
 
-test_that("biofilter_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+test_that("biofilter_toc_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     slice(1) %>%
-    define_water_chain("water") %>%
-    biofilter_toc_chain(input_water = "water", ebct = 8)
+    define_water_df("water") %>%
+    biofilter_toc_df(input_water = "water", ebct = 8)
 
-  water2 <- purrr::pluck(water1, "biofiltered_water", 1)
+  water2 <- purrr::pluck(water1, "biofiltered", 1)
 
   water3 <- water_df %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(
       ebct = 4
     ) %>%
-    biofilter_toc_chain(output_water = "diff_name")
+    biofilter_toc_df(output_water = "diff_name")
 
   expect_s4_class(water2, "water") # check class
   expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
-# Check biofilter_toc_chain can use a column or function argument for chemical dose
+# Check biofilter_toc_df can use a column or function argument for chemical dose
 
-test_that("biofilter_toc_chain can use a column or function argument for chemical dose", {
+test_that("biofilter_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    biofilter_toc_chain(ebct = 10, ozonated = TRUE) %>%
-    pluck_water("biofiltered_water", c("doc"))
+    define_water_df() %>%
+    biofilter_toc_df(ebct = 10, ozonated = TRUE) %>%
+    pluck_water("biofiltered", c("doc"))
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(
       ebct = 10,
     ) %>%
-    biofilter_toc_chain() %>%
-    pluck_water("biofiltered_water", c("doc"))
+    biofilter_toc_df() %>%
+    pluck_water("biofiltered", c("doc"))
 
   water3 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(ozonated = TRUE) %>%
-    biofilter_toc_chain(ebct = 10) %>%
-    pluck_water("biofiltered_water", c("doc"))
+    biofilter_toc_df(ebct = 10) %>%
+    pluck_water("biofiltered", c("doc"))
 
-  expect_equal(water1$biofiltered_water_doc, water2$biofiltered_water_doc) # test different ways to input args
+  expect_equal(water1$biofiltered_doc, water2$biofiltered_doc) # test different ways to input args
   # Test that inputting ozonated/ebct separately (in column and as an argument) gives same results
-  expect_equal(water1$biofiltered_water_doc, water3$biofiltered_water_doc)
+  expect_equal(water1$biofiltered_doc, water3$biofiltered_doc)
 })
 
-test_that("biofilter_toc_chain errors with argument + column for same param", {
+test_that("biofilter_toc_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    define_water_chain("water")
+    define_water_df("water")
   expect_error(water %>%
     mutate(ebct = 5) %>%
-    biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = FALSE))
+    biofilter_toc_df(input_water = "water", ebct = 10, ozonated = FALSE))
 
   expect_error(water %>%
     mutate(ozonated = FALSE) %>%
-    biofilter_toc_chain(input_water = "water", ebct = 10, ozonated = TRUE))
+    biofilter_toc_df(input_water = "water", ebct = 10, ozonated = TRUE))
 })
 
-test_that("biofilter_toc_chain correctly handles arguments with multiple numbers", {
+test_that("biofilter_toc_df correctly handles arguments with multiple numbers", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    define_water_chain("water")
+    define_water_df("water")
 
   water1 <- water %>%
-    biofilter_toc_chain("water", ebct = seq(10, 30, 5), ozonated = c(TRUE, FALSE))
+    biofilter_toc_df("water", ebct = seq(10, 30, 5), ozonated = c(TRUE, FALSE))
 
   expect_equal(nrow(water) * 10, nrow(water1))
 })

@@ -119,9 +119,8 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @returns `solvect_o3_df` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
 solvect_o3_df <- function(df, input_water = "defined",
-                            time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
-                            water_prefix = TRUE) {
-
+                          time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
+                          water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
@@ -147,11 +146,10 @@ solvect_o3_df <- function(df, input_water = "defined",
     )
   }))
 
-  if(water_prefix) {
+  if (water_prefix) {
     names(ct_df) <- paste0(input_water, "_", names(ct_df))
   }
 
   output <- cbind(df, ct_df)
   return(output)
-
 }

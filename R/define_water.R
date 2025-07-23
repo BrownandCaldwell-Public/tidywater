@@ -328,7 +328,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 #' @returns A data frame containing columns that were filled or calculated based on define_water.
 
 define_water_once <- function(df) {
-  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df() and convert_water()")
+  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df()")
   defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
   df %>%
     define_water_df() %>%
@@ -369,13 +369,12 @@ define_water_df <- function(df, output_water = "defined") {
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
 
-  water_input <- df[ , names(df) %in% define_water_args]
+  water_input <- df[, names(df) %in% define_water_args]
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     do.call(define_water, water_input[i, ])
   })
 
-  output <- df[ , !names(df) %in% define_water_args, drop = FALSE]
+  output <- df[, !names(df) %in% define_water_args, drop = FALSE]
   return(output)
-
 }

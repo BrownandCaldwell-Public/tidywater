@@ -56,7 +56,6 @@ example_df <- water_df \%>\%
   dplyr::slice_head(n = 3) \%>\%
   define_water_df() \%>\%
   blend_waters_df(waters = c("defined", waterA), ratios = c(.8, .2))
-
 }
 
 }

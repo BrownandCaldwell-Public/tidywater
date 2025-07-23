@@ -131,9 +131,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 #'
 chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagulated",
-                               pluck_cols = FALSE, water_prefix = TRUE,
-                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
-                               coeff = "use_col") {
+                            pluck_cols = FALSE, water_prefix = TRUE,
+                            alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                            coeff = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))

@@ -83,10 +83,12 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(model = "WTP",
-         media_size = "8x30",
-         ebct = 10, 
-         target_doc = rep(c(0.5, 0.8, 1), 4)) \%>\%
+  mutate(
+    model = "WTP",
+    media_size = "8x30",
+    ebct = 10,
+    target_doc = rep(c(0.5, 0.8, 1), 4)
+  ) \%>\%
   gacbv_toc_once()
 }
 

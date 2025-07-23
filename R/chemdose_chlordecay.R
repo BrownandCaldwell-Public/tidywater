@@ -233,10 +233,10 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #'  combined_chlorine residuals. Optionally, it also adds columns for each of those slots individually.
 
 chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "disinfected",
-                                      pluck_cols = FALSE, water_prefix = TRUE,
-                                      cl2_dose = "use_col", time = "use_col",
-                                      treatment = "use_col", cl_type = "use_col",
-                                      use_chlorine_slot = "use_col") {
+                                   pluck_cols = FALSE, water_prefix = TRUE,
+                                   cl2_dose = "use_col", time = "use_col",
+                                   treatment = "use_col", cl_type = "use_col",
+                                   use_chlorine_slot = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
   time <- tryCatch(time, error = function(e) enquo(time))

@@ -101,7 +101,6 @@ shorter run times will not benefit from parallel processing.
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   gac_toc(media_size = "8x30", ebct = 20, model = "Zachman", bed_vol = 15000)
 
-
 \donttest{
 # Initialize parallel processing
 library(furrr)
@@ -110,16 +109,20 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(model = "WTP",
-         media_size = "8x30",
-         ebct = 10, 
-         bed_vol = rep(c(12000, 15000, 18000), 4)) \%>\%
+  mutate(
+    model = "WTP",
+    media_size = "8x30",
+    ebct = 10,
+    bed_vol = rep(c(12000, 15000, 18000), 4)
+  ) \%>\%
   gac_toc_chain()
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
-  mutate(model = "WTP",
-         bed_vol = 15000) \%>\%
+  mutate(
+    model = "WTP",
+    bed_vol = 15000
+  ) \%>\%
   gac_toc_chain(input_water = "raw")
 
 # Optional: explicitly close multisession processing
@@ -130,10 +133,12 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_chain() \%>\%
-  mutate(model = "WTP",
-         media_size = "8x30",
-         ebct = 10, 
-         bed_vol = rep(c(12000, 15000, 18000), 4)) \%>\%
+  mutate(
+    model = "WTP",
+    media_size = "8x30",
+    ebct = 10,
+    bed_vol = rep(c(12000, 15000, 18000), 4)
+  ) \%>\%
   gac_toc_once()
 }
 

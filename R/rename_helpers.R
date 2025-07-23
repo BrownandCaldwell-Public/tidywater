@@ -19,8 +19,10 @@ NULL
 balance_ions_chain <- function(df, input_water = "defined_water", output_water = "balanced_water",
                                anion = "cl", cation = "na") {
   lifecycle::deprecate_warn("0.10.0", "balance_ions_chain()", "balance_ions_df()")
-  balance_ions_df(df, input_water, output_water, pluck_cols = FALSE, water_prefix = TRUE,
-                  anion, cation)
+  balance_ions_df(df, input_water, output_water,
+    pluck_cols = FALSE, water_prefix = TRUE,
+    anion, cation
+  )
 }
 
 #' @rdname rename_helpers
@@ -45,9 +47,10 @@ chemdose_chloramine_chain <- function(df, input_water = "defined_water", output_
                                       use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_chloramine_chain()", "chemdose_chloramine_df()")
   chemdose_chloramine_df(df, input_water, output_water,
-                         pluck_cols = FALSE, water_prefix = TRUE,
-                         time, cl2, nh3,
-                         use_free_cl_slot, use_tot_nh3_slot)
+    pluck_cols = FALSE, water_prefix = TRUE,
+    time, cl2, nh3,
+    use_free_cl_slot, use_tot_nh3_slot
+  )
 }
 
 #' @rdname rename_helpers
@@ -58,10 +61,11 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
                                       use_chlorine_slot = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_chlordecay_chain()", "chemdose_chlordecay_df()")
   chemdose_chlordecay_df(df, input_water, output_water,
-                         pluck_cols = FALSE, water_prefix = TRUE,
-                         cl2_dose, time,
-                         treatment, cl_type,
-                         use_chlorine_slot)
+    pluck_cols = FALSE, water_prefix = TRUE,
+    cl2_dose, time,
+    treatment, cl_type,
+    use_chlorine_slot
+  )
 }
 
 #' @rdname rename_helpers
@@ -71,9 +75,10 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
                                treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   lifecycle::deprecate_warn("0.10.0", "chemdose_dbp_chain()", "chemdose_dbp_df()")
   chemdose_dbp_df(df, input_water, output_water,
-                  pluck_cols = FALSE, water_prefix = TRUE,
-                  cl2, time,
-                  treatment, cl_type, location, correction, coeff)
+    pluck_cols = FALSE, water_prefix = TRUE,
+    cl2, time,
+    treatment, cl_type, location, correction, coeff
+  )
 }
 
 #' @rdname rename_helpers
@@ -87,13 +92,14 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
                               kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col", na_to_zero = TRUE) {
   lifecycle::deprecate_warn("0.10.0", "chemdose_ph_chain()", "chemdose_ph_df()")
   chemdose_ph_df(df, input_water, output_water,
-                 na_to_zero = na_to_zero, pluck_cols = FALSE, water_prefix = TRUE,
-                 hcl, h2so4, h3po4, hno3, co2, naoh,
-                 na2co3, nahco3, caoh2, mgoh2,
-                 caocl2, cacl2, cl2, naocl,
-                 nh4oh, nh42so4, caco3, caso4,
-                 alum, ferricchloride, ferricsulfate, ach,
-                 kmno4, naf, na3po4, softening_correction)
+    na_to_zero = na_to_zero, pluck_cols = FALSE, water_prefix = TRUE,
+    hcl, h2so4, h3po4, hno3, co2, naoh,
+    na2co3, nahco3, caoh2, mgoh2,
+    caocl2, cacl2, cl2, naocl,
+    nh4oh, nh42so4, caco3, caso4,
+    alum, ferricchloride, ferricsulfate, ach,
+    kmno4, naf, na3po4, softening_correction
+  )
 }
 
 #' @rdname rename_helpers
@@ -103,9 +109,10 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
                                coeff = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_toc_chain()", "chemdose_toc_df()")
   chemdose_toc_df(df, input_water, output_water,
-                  pluck_cols = FALSE, water_prefix = TRUE,
-                  alum, ferricchloride, ferricsulfate,
-                  coeff)
+    pluck_cols = FALSE, water_prefix = TRUE,
+    alum, ferricchloride, ferricsulfate,
+    coeff
+  )
 }
 
 #' @rdname rename_helpers
@@ -121,8 +128,9 @@ decarbonate_ph_chain <- function(df, input_water = "defined_water", output_water
                                  co2_removed = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "decarbonate_ph_chain()", "decarbonate_ph_df()")
   decarbonate_ph_df(df, input_water, output_water,
-                    pluck_cols = FALSE, water_prefix = TRUE,
-                    co2_removed)
+    pluck_cols = FALSE, water_prefix = TRUE,
+    co2_removed
+  )
 }
 
 #' @rdname rename_helpers
@@ -130,8 +138,10 @@ decarbonate_ph_chain <- function(df, input_water = "defined_water", output_water
 modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
                                slot = "use_col", value = "use_col", units = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "modify_water_chain()", "modify_water_df()")
-  modify_water_df(df, input_water, output_water,
-                  slot, value, units)
+  modify_water_df(
+    df, input_water, output_water,
+    slot, value, units
+  )
 }
 
 #' @rdname rename_helpers
@@ -139,8 +149,10 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
 ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
                                   dose = "use_col", time = "use_col", model = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "ozonate_bromate_chain()", "ozonate_bromate_df()")
-  ozonate_bromate_df(df, input_water, output_water, pluck_cols = FALSE, water_prefix = TRUE,
-                     dose, time, model)
+  ozonate_bromate_df(df, input_water, output_water,
+    pluck_cols = FALSE, water_prefix = TRUE,
+    dose, time, model
+  )
 }
 
 #' @rdname rename_helpers
@@ -148,8 +160,10 @@ ozonate_bromate_chain <- function(df, input_water = "defined_water", output_wate
 pac_toc_chain <- function(df, input_water = "defined_water", output_water = "pac_water",
                           dose = "use_col", time = "use_col", type = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "pac_toc_chain()", "pac_toc_df()")
-  pac_toc_df(df, input_water, output_water, pluck_cols = FALSE, water_prefix = TRUE,
-             dose, time, type)
+  pac_toc_df(df, input_water, output_water,
+    pluck_cols = FALSE, water_prefix = TRUE,
+    dose, time, type
+  )
 }
 
 
@@ -168,9 +182,11 @@ chemdose_dbp_once <- function(df, input_water = "defined_water", cl2 = "use_col"
                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
                               water_prefix = TRUE) {
   lifecycle::deprecate_warn("0.10.0", "chemdose_dbp_once()", "chemdose_dbp_df()")
-  chemdose_dbp_df(df, input_water, output_water = "disinfected_water", pluck_cols = TRUE, water_prefix = FALSE,
-                  cl2, time,
-                  treatment, cl_type, location, correction, coeff)
+  chemdose_dbp_df(df, input_water,
+    output_water = "disinfected_water", pluck_cols = TRUE, water_prefix = FALSE,
+    cl2, time,
+    treatment, cl_type, location, correction, coeff
+  )
 }
 
 #' @rdname rename_helpers
@@ -184,13 +200,14 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_ph_once()", "chemdose_ph_df()")
   chemdose_ph_df(df, input_water, output_water,
-                 na_to_zero = FALSE, pluck_cols = TRUE, water_prefix = FALSE,
-                 hcl, h2so4, h3po4, hno3, co2, naoh,
-                 na2co3, nahco3, caoh2, mgoh2,
-                 caocl2, cacl2, cl2, naocl,
-                 nh4oh, nh42so4, caco3, caso4,
-                 alum, ferricchloride, ferricsulfate, ach,
-                 kmno4, naf, na3po4, softening_correction)
+    na_to_zero = FALSE, pluck_cols = TRUE, water_prefix = FALSE,
+    hcl, h2so4, h3po4, hno3, co2, naoh,
+    na2co3, nahco3, caoh2, mgoh2,
+    caocl2, cacl2, cl2, naocl,
+    nh4oh, nh42so4, caco3, caso4,
+    alum, ferricchloride, ferricsulfate, ach,
+    kmno4, naf, na3po4, softening_correction
+  )
 }
 
 #' @rdname rename_helpers
@@ -200,9 +217,10 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
                               coeff = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_toc_once()", "chemdose_toc_df()")
   chemdose_toc_df(df, input_water, output_water,
-                  pluck_cols = TRUE, water_prefix = FALSE,
-                  alum, ferricchloride, ferricsulfate,
-                  coeff)
+    pluck_cols = TRUE, water_prefix = FALSE,
+    alum, ferricchloride, ferricsulfate,
+    coeff
+  )
 }
 
 #' @rdname rename_helpers
@@ -255,5 +273,3 @@ solveresid_o3_once <- function(df, input_water = "defined_water", output_column 
   lifecycle::deprecate_warn("0.10.0", "solveresid_o3_once()", "solveresid_o3_df()")
   # TODO: solveresid_o3_df(water)
 }
-
-

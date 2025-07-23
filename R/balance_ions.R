@@ -148,8 +148,8 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #' @returns `balance_ions_df` returns a dataframe with a new column with the ion balanced water
 
 balance_ions_df <- function(df, input_water = "defined", output_water = "balanced",
-                               pluck_cols = FALSE, water_prefix = TRUE,
-                               anion = "cl", cation = "na") {
+                            pluck_cols = FALSE, water_prefix = TRUE,
+                            anion = "cl", cation = "na") {
   validate_water_helpers(df, input_water)
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {

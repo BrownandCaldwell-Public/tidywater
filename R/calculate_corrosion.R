@@ -319,9 +319,8 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #' @returns `calculate_corrosion_df` returns the a data frame containing specified corrosion and scaling indices as columns.
 
 calculate_corrosion_df <- function(df, input_water = "defined", water_prefix = TRUE,
-                                     index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                     form = "calcite") {
-
+                                   index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+                                   form = "calcite") {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
@@ -330,17 +329,16 @@ calculate_corrosion_df <- function(df, input_water = "defined", water_prefix = T
 
   indices_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
     calculate_corrosion(
-        water = df[[input_water]][[i]],
-        index = index,
-        form = form
-      )
+      water = df[[input_water]][[i]],
+      index = index,
+      form = form
+    )
   }))
 
-  if(water_prefix) {
+  if (water_prefix) {
     names(indices_df) <- paste0(input_water, "_", names(indices_df))
   }
 
   output <- cbind(df, indices_df)
   return(output)
-
 }

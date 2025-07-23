@@ -321,13 +321,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 #' @returns `chemdose_ph_df` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
 chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem",
-                              na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
-                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
-                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
-                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
-                              nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col") {
+                           na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
+                           hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
+                           na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
+                           caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
+                           nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
+                           alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
+                           kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))

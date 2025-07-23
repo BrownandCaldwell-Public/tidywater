@@ -131,9 +131,9 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
 #' @export
 
 solvect_chlorine_df <- function(df, input_water = "defined",
-                                  time = "use_col", residual = "use_col", baffle = "use_col",
-                                  free_cl_slot = "residual_only",
-                                  water_prefix = TRUE) {
+                                time = "use_col", residual = "use_col", baffle = "use_col",
+                                free_cl_slot = "residual_only",
+                                water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -157,11 +157,10 @@ solvect_chlorine_df <- function(df, input_water = "defined",
     )
   }))
 
-  if(water_prefix) {
+  if (water_prefix) {
     names(ct_df) <- paste0(input_water, "_", names(ct_df))
   }
 
   output <- cbind(df, ct_df)
   return(output)
-
 }

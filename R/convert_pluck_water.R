@@ -40,7 +40,6 @@ convert_water <- function(water) {
   names(df) <- nms
 
   df[, sapply(df, function(col) any(!is.na(col)))]
-
 }
 
 #' @rdname convert_water

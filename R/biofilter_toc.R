@@ -101,15 +101,15 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 
 biofilter_toc_df <- function(df, input_water = "defined", output_water = "biofiltered",
-                                pluck_cols = FALSE, water_prefix = TRUE,
-                                ebct = "use_col", ozonated = "use_col") {
+                             pluck_cols = FALSE, water_prefix = TRUE,
+                             ebct = "use_col", ozonated = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
 
   arguments <- construct_helper(df, list("ebct" = ebct, "ozonated" = ozonated))
-
+  final_names <- arguments$final_names
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
@@ -119,7 +119,7 @@ biofilter_toc_df <- function(df, input_water = "defined", output_water = "biofil
   df <- defaults_added$data
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    chemdose_toc(
+    biofilter_toc(
       water = df[[input_water]][[i]],
       ebct = df[[final_names$ebct]][i],
       ozonated = df[[final_names$ozonated]][i]

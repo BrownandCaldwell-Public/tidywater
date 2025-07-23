@@ -58,7 +58,6 @@ dissolve_cu <- function(water) {
 #'
 
 dissolve_cu_df <- function(df, input_water = "defined", water_prefix = TRUE) {
-
   validate_water_helpers(df, input_water)
 
   cu_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
@@ -67,11 +66,10 @@ dissolve_cu_df <- function(df, input_water = "defined", water_prefix = TRUE) {
     )
   }))
 
-  if(water_prefix) {
+  if (water_prefix) {
     names(cu_df) <- paste0(input_water, "_", names(cu_df))
   }
 
   output <- cbind(df, cu_df)
   return(output)
-
 }

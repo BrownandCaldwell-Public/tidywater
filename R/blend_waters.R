@@ -175,7 +175,6 @@ blend_waters <- function(waters, ratios) {
 #'   dplyr::slice_head(n = 3) %>%
 #'   define_water_df() %>%
 #'   blend_waters_df(waters = c("defined", waterA), ratios = c(.8, .2))
-#'
 #' }
 #'
 #' @export
@@ -232,5 +231,4 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended") {
   output <- output[, !(names(output) %in% cols_to_remove)]
 
   return(output)
-
 }

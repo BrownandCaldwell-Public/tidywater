@@ -297,9 +297,9 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #' free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it also adds columns for each of those slots individually.
 #'
 chemdose_chloramine_df <- function(df, input_water = "defined", output_water = "chloraminated",
-                                      pluck_cols = FALSE, water_prefix = TRUE,
-                                      time = "use_col", cl2 = "use_col", nh3 = "use_col",
-                                      use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {
+                                   pluck_cols = FALSE, water_prefix = TRUE,
+                                   time = "use_col", cl2 = "use_col", nh3 = "use_col",
+                                   use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {
   validate_water_helpers(df, input_water)
 
   time <- tryCatch(time, error = function(e) enquo(time))

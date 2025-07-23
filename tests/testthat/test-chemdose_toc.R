@@ -49,12 +49,14 @@ test_that("chemdose_toc works.", {
 ################################################################################*
 # chemdose_toc helpers ----
 
-test_that("chemdose_toc_chain is a data frame and has correct classes in output columns", {
+test_that("chemdose_toc_df is a data frame and has correct classes in output columns", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
-    define_water_chain() %>%
-      chemdose_toc_chain(alum = 20, output_water = "coag",
-                         pluck_cols = T, water_prefix = FALSE)
+    define_water_df() %>%
+    chemdose_toc_df(
+      alum = 20, output_water = "coag",
+      pluck_cols = T, water_prefix = FALSE
+    )
 
 
   expect_true(is.data.frame(water1))
@@ -65,7 +67,7 @@ test_that("chemdose_toc_chain is a data frame and has correct classes in output 
 
 
 
-test_that("chemdose_toc_chain outputs are the same as base function, chemdose_toc", {
+test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc", {
   testthat::skip_on_cran()
   water0 <- define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
@@ -76,24 +78,24 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_chain(ferricchloride = 40, coeff = "Ferric", output_water = "coag") %>%
+    define_water_df() %>%
+    chemdose_toc_df(ferricchloride = 40, coeff = "Ferric", output_water = "coag") %>%
     pluck_water("coag", c("toc", "doc", "uv254"))
 
   coag_doses <- tibble(ferricchloride = seq(10, 100, 10))
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     cross_join(coag_doses) %>%
-    chemdose_toc_chain("raw", "coag", coeff = "Ferric") %>%
+    chemdose_toc_df("raw", "coag", coeff = "Ferric") %>%
     pluck_water(c("coag"), c("doc")))
 
   water4 <- water_df %>%
     slice(1) %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     cross_join(coag_doses) %>%
     rename(Coagulant = ferricchloride) %>%
-    chemdose_toc_chain("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
+    chemdose_toc_df("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
     pluck_water(c("coag"), c("doc"))
 
   expect_equal(water1@toc, water2$coag_toc)
@@ -105,49 +107,51 @@ test_that("chemdose_toc_chain outputs are the same as base function, chemdose_to
 
 # Test that output is a column of water class lists, and changing the output column name works
 
-test_that("chemdose_toc_chain output is list of water class objects, and can handle an ouput_water arg", {
+test_that("chemdose_toc_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_chain(input_water = "defined", ferricsulfate = 30, coeff = "Ferric"))
+    define_water_df() %>%
+    chemdose_toc_df(input_water = "defined", ferricsulfate = 30, coeff = "Ferric"))
 
   water2 <- purrr::pluck(water1, "coagulated", 1)
 
   water3 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(alum = 10) %>%
-    chemdose_toc_chain(output_water = "diff_name"))
+    chemdose_toc_df(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
   expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
-# Check chemdose_toc_chain can use a column or function argument for chemical dose
+# Check chemdose_toc_df can use a column or function argument for chemical dose
 
-test_that("chemdose_toc_chain can use a column or function argument for chemical dose", {
+test_that("chemdose_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    chemdose_toc_chain(input_water = "defined", ferricchloride = 40, coeff = "Ferric",
-                       pluck_cols = TRUE)
+    define_water_df() %>%
+    chemdose_toc_df(
+      input_water = "defined", ferricchloride = 40, coeff = "Ferric",
+      pluck_cols = TRUE
+    )
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(
       ferricchloride = 40,
       coeff = "Ferric"
     ) %>%
-    chemdose_toc_chain(pluck_cols = T)
+    chemdose_toc_df(pluck_cols = T)
 
   # Test that pluck_cols does the same thing as pluck_water function
   water3 <- water_df %>%
     slice(1) %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     mutate(ferricchloride = 40) %>%
-    chemdose_toc_chain(input_water = "raw", output_water = "final", coeff = "Ferric") %>%
+    chemdose_toc_df(input_water = "raw", output_water = "final", coeff = "Ferric") %>%
     pluck_water(input_waters = "final", c("toc", "doc", "uv254"))
 
   expect_equal(water1$coagulated_toc, water2$coagulated_toc) # test different ways to input chemical
@@ -160,17 +164,17 @@ test_that("chemdose_toc_chain can use a column or function argument for chemical
   expect_equal(water1$coagulated_uv254, water3$final_uv254)
 })
 
-test_that("chemdose_toc_chain works when water_prefix is false", {
+test_that("chemdose_toc_df works when water_prefix is false", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_toc_chain(ferricsulfate = 23, pluck_cols = TRUE))
+    slice(1) %>%
+    define_water_df() %>%
+    chemdose_toc_df(ferricsulfate = 23, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_chain() %>%
-                               chemdose_toc_chain(ferricsulfate = 23, water_prefix = FALSE))
+    slice(1) %>%
+    define_water_df() %>%
+    chemdose_toc_df(ferricsulfate = 23, water_prefix = FALSE))
 
   expect_equal(water1$coagulated_water_toc, water2$toc)
   expect_equal(water1$coagulated_water_uv254, water2$uv254)

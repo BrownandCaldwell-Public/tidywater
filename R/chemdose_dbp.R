@@ -270,8 +270,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' concentrations. Optionally, it also adds columns for those slots individually.
 
 chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
-                               cl2 = "use_col", time = "use_col",
-                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
+                            cl2 = "use_col", time = "use_col",
+                            treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   time <- tryCatch(time, error = function(e) enquo(time))

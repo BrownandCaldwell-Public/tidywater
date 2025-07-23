@@ -58,10 +58,12 @@ solvedose_ph <- function(water, target_ph, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- chemdose_ph(water,
-      hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
-      naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
-      caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
+    waterfin <- suppressWarnings(
+      chemdose_ph(water,
+        hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+        naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+        caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
+      )
     )
 
     phfin <- waterfin@ph
@@ -145,10 +147,12 @@ solvedose_alk <- function(water, target_alk, chemical) {
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
     co2 <- ifelse(chemical == "co2", root_dose, 0)
 
-    waterfin <- chemdose_ph(water,
-      hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
-      naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
-      caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
+    waterfin <- suppressWarnings(
+      chemdose_ph(water,
+        hcl = hcl, h2so4 = h2so4, h3po4 = h3po4,
+        naoh = naoh, na2co3 = na2co3, nahco3 = nahco3,
+        caoh2 = caoh2, mgoh2 = mgoh2, co2 = co2
+      )
     )
     alkfin <- waterfin@alk
 
@@ -198,7 +202,7 @@ solvedose_ph_df <- function(df, input_water = "defined", output_column = "dose",
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-  df[[output_column]] <- lapply(seq_len(nrow(df)), function(i) {
+  df[[output_column]] <- sapply(seq_len(nrow(df)), function(i) {
     solvedose_ph(
       water = df[[input_water]][[i]],
       chemical = df[[final_names$chemical]][i],
@@ -207,7 +211,6 @@ solvedose_ph_df <- function(df, input_water = "defined", output_column = "dose",
   })
 
   return(df)
-
 }
 
 #' @rdname solvedose_alk
@@ -241,7 +244,7 @@ solvedose_alk_df <- function(df, input_water = "defined", output_column = "dose"
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-  df[[output_column]] <- lapply(seq_len(nrow(df)), function(i) {
+  df[[output_column]] <- sapply(seq_len(nrow(df)), function(i) {
     solvedose_alk(
       water = df[[input_water]][[i]],
       chemical = df[[final_names$chemical]][i],

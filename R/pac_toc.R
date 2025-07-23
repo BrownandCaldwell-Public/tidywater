@@ -120,7 +120,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 
 pac_toc_df <- function(df, input_water = "defined", output_water = "paced", pluck_cols = FALSE, water_prefix = TRUE,
-                          dose = "use_col", time = "use_col", type = "use_col") {
+                       dose = "use_col", time = "use_col", type = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))

@@ -65,8 +65,8 @@ decarbonate_ph <- function(water, co2_removed) {
 #' Optionally, it also adds columns for each of those slots individually.
 
 decarbonate_ph_df <- function(df, input_water = "defined", output_water = "decarbonated",
-                                 pluck_cols = FALSE, water_prefix = TRUE,
-                                 co2_removed = "use_col") {
+                              pluck_cols = FALSE, water_prefix = TRUE,
+                              co2_removed = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   co2_removed <- tryCatch(co2_removed, error = function(e) enquo(co2_removed))

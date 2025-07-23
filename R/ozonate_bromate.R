@@ -108,7 +108,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' concentration. Optionally, it also adds columns for each of those slots individually.
 
 ozonate_bromate_df <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
-                                  dose = "use_col", time = "use_col", model = "use_col") {
+                               dose = "use_col", time = "use_col", model = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))

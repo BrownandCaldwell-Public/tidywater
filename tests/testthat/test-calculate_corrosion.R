@@ -190,9 +190,9 @@ test_that("calculate_corrosion output is a data frame", {
 ################################################################################*
 ################################################################################*
 # calculate_corrosion helpers ----
-# Check calculate_corrosion_chain outputs are the same as base function, calculate_corrosion
+# Check calculate_corrosion_df outputs are the same as base function, calculate_corrosion
 
-test_that("calculate_corrosion_chain outputs are the same as base function, calculate_corrosion", {
+test_that("calculate_corrosion_df outputs are the same as base function, calculate_corrosion", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
@@ -202,8 +202,8 @@ test_that("calculate_corrosion_chain outputs are the same as base function, calc
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    calculate_corrosion_chain()
+    define_water_df() %>%
+    calculate_corrosion_df()
 
   expect_equal(water1$langelier, water2$defined_langelier)
   expect_equal(water1$ryznar, water2$defined_ryznar)
@@ -216,24 +216,24 @@ test_that("calculate_corrosion_chain outputs are the same as base function, calc
 test_that("function catches index typos", {
   testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
-    define_water_chain())
+    define_water_df())
 
-  expect_error(calculate_corrosion_chain(water, index = "csr"))
-  expect_error(calculate_corrosion_chain(water, index = c("aggressive", "ccccp")))
-  expect_no_error(calculate_corrosion_chain(water, index = c("aggressive", "ccpp"))) # no error
-  expect_error(calculate_corrosion_chain(water, index = "langlier"))
-  expect_error(calculate_corrosion_chain(water, index = c("ai", "ccccp")))
-  expect_no_error(calculate_corrosion_chain(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
+  expect_error(calculate_corrosion_df(water, index = "csr"))
+  expect_error(calculate_corrosion_df(water, index = c("aggressive", "ccccp")))
+  expect_no_error(calculate_corrosion_df(water, index = c("aggressive", "ccpp"))) # no error
+  expect_error(calculate_corrosion_df(water, index = "langlier"))
+  expect_error(calculate_corrosion_df(water, index = c("ai", "ccccp")))
+  expect_no_error(calculate_corrosion_df(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
 })
 
 # Check that output is a data frame
 
-test_that("calculate_corrosion_chain is a data frame", {
+test_that("calculate_corrosion_df is a data frame", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    calculate_corrosion_chain(input_water = "defined"))
+    define_water_df() %>%
+    calculate_corrosion_df(input_water = "defined"))
 
   expect_true(is.data.frame(water1))
   expect_true("defined_aggressive" %in% colnames(water1))
@@ -244,20 +244,20 @@ test_that("calculate_corrosion_chain is a data frame", {
   expect_true("defined_langelier" %in% colnames(water1))
 })
 
-# Check calculate_corrosion_chain outputs an appropriate number of indices
+# Check calculate_corrosion_df outputs an appropriate number of indices
 
-test_that("calculate_corrosion_chain outputs an appropriate number of indices", {
+test_that("calculate_corrosion_df outputs an appropriate number of indices", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    calculate_corrosion_chain(input_water = "defined", index = c("aggressive", "csmr")))
+    define_water_df() %>%
+    calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(naoh = 5) %>%
-    calculate_corrosion_chain(input_water = "defined"))
+    calculate_corrosion_df(input_water = "defined"))
 
   water3 <- water1 %>%
     select_if(names(water1) %in% c(

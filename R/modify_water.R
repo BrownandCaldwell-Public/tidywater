@@ -117,7 +117,7 @@ modify_water <- function(water, slot, value, units) {
 #' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
 modify_water_df <- function(df, input_water = "defined", output_water = "modified",
-                               slot = "use_col", value = "use_col", units = "use_col") {
+                            slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
 
   slot <- tryCatch(slot, error = function(e) enquo(slot))

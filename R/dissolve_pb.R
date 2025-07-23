@@ -221,8 +221,8 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #' @returns `dissolve_pb_df` returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
 
 dissolve_pb_df <- function(df, input_water = "defined", output_col_solid = "controlling_solid",
-                             output_col_result = "pb", hydroxypyromorphite = "Schock",
-                             pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
+                           output_col_result = "pb", hydroxypyromorphite = "Schock",
+                           pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
 
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
@@ -241,16 +241,18 @@ dissolve_pb_df <- function(df, input_water = "defined", output_col_solid = "cont
 
   pb_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
     dissolve_pb(
-      water = df[[input_water]][[i]]
+      water = df[[input_water]][[i]],
+      hydroxypyromorphite = hydroxypyromorphite,
+      pyromorphite = pyromorphite,
+      laurionite = laurionite
     )
   }))
 
   names(pb_df) <- c(output_col_solid, output_col_result)
-  if(water_prefix) {
+  if (water_prefix) {
     names(pb_df) <- paste0(input_water, "_", names(pb_df))
   }
 
   output <- cbind(df, pb_df)
   return(output)
-
 }
