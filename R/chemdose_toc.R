@@ -16,6 +16,7 @@
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
+#' @param lime Option to add lime in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
 #'
 #' @seealso [chemdose_ph]
 #'
@@ -37,7 +38,7 @@
 #'
 #' @returns `chemdose_toc` returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 #'
-chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum") {
+chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum", lime = 0) {
   validate_water(water, c("ph", "doc", "uv254"))
 
   if (is.character(coeff)) {
@@ -79,24 +80,40 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3
 
   # Edwards calculations
-  nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
-
-  sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
-  xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
-  b <- coeff$b
-
-  # Rearrangement of equation from wolfram alpha
-  adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-    b * coag * xterm + b * water@doc * sterm - 1) /
-    (2 * b)
-
-  if (coag == 0) {
-    water@doc <- water@doc
-    water@uv254 <- water@uv254
+  if (lime > 0) {
+    water <- chemdose_ph(water, caoh2 = lime)
+    
+    removed <- (4.657*10^-4) * water@toc^1.3843 * water@ph^2.2387 * lime^0.1707 * (1 + coag2)^2.4402
+    removed <- removed / 0.87 # apply correction factor
+    
+    if (coag == 0) {
+      water@doc <- water@doc
+      water@uv254 <- water@uv254
+    } else {
+      water@doc <- water@doc - removed
+      water@toc <- water@doc - removed
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    }
   } else {
-    water@doc <- nonadsorb + adsorb
-    water@toc <- nonadsorb + adsorb
-    water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+    
+    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
+    b <- coeff$b
+    
+    # Rearrangement of equation from wolfram alpha
+    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+                 b * coag * xterm + b * water@doc * sterm - 1) /
+      (2 * b) 
+    
+    if (coag == 0) {
+      water@doc <- water@doc
+      water@uv254 <- water@uv254
+    } else {
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    }
   }
 
   return(water)
@@ -135,12 +152,13 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @returns `chemdose_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 concentrations.
 
 chemdose_toc_chain <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                               alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", lime = "use_col",
                                coeff = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  lime <- tryCatch(lime, error = function(e) enquo(lime))
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   validate_water_helpers(df, input_water)
@@ -148,6 +166,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
   arguments <- construct_helper(df, all_args = list(
     "alum" = alum, "ferricchloride" = ferricchloride,
     "ferricsulfate" = ferricsulfate,
+    "lime" = lime,
     "coeff" = coeff
   ))
   final_names <- arguments$final_names
@@ -165,6 +184,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
         alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else (rep(0, nrow(.))),
         ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else (rep(0, nrow(.))),
         ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else (rep(0, nrow(.))),
+        lime = if (final_names$lime %in% names(.)) !!sym(final_names$lime) else (rep(0, nrow(.))),
         coeff = if (final_names$coeff %in% names(.)) !!sym(final_names$coeff) else (rep("Alum", nrow(.)))
       ),
       chemdose_toc
@@ -192,7 +212,7 @@ chemdose_toc_chain <- function(df, input_water = "defined_water", output_water =
 #'
 
 chemdose_toc_once <- function(df, input_water = "defined_water", output_water = "coagulated_water",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col",
+                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", lime = "use_col",
                               coeff = "use_col", water_prefix = TRUE) {
   dose_chem <- dosed_chem_water <- ph <- alk_eq <- dic <- coeff.x1 <- coeff.b <- estimated <- temp_dbp <- NULL # Quiet RCMD check global variable note
 
@@ -200,12 +220,13 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  lime <- tryCatch(lime, error = function(e) enquo(lime))
   coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   output <- df %>%
     chemdose_toc_chain(
       input_water = input_water, output_water = "temp_dbp",
-      alum, ferricchloride, ferricsulfate, coeff
+      alum, ferricchloride, ferricsulfate, lime, coeff
     ) %>%
     mutate(dose_chem = furrr::future_map(temp_dbp, convert_water)) %>%
     unnest(dose_chem) %>%
