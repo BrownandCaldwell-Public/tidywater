@@ -33,7 +33,7 @@ The influent water object now has populated slots corresponding to predicted DBP
 
 ## Fitting DBP coefficients
 
-We can use the `optim()` function to fit custom coefficients to the facility's DBP data. In this example, let's say that only the predictions for chloroform are not accurate. First, let's visualize the facility data against the default DBP predictions.
+We can use the `optim()` function to fit custom coefficients to the facility's DBP data. In this example, let's say that only the predictions for chloroform are not accurate. First, let's visualize the facility data against the default DBP predictions. As the graph shows, the default coefficients consistently under-predict the amount of DBPs formed in the water (the points are below the 1:1 line).
 
 ```{r initial-plot, echo=TRUE, message=FALSE, warning=FALSE}
 # Given sample data
@@ -60,7 +60,7 @@ ggplot(dbp_data, aes(x = fin_chcl3, y = disinfected_chcl3)) +
 
 ```
 
-Now, we can fit custom coefficients to the facility's DBP data. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. The following code builds off the code we've already used above. When inputting the new coefficients into `chemdose_dbp`, they must be formatted as a data frame with the proper column names: ID (corresponding to which DBP these coefficients apply to - for individual species, this will be its chemical formula), A, a, b, c, d, e, and f.This data frame can then be passed as an argument into `chemdose_dbp` and its helper function. For this example, we can visualize the facility DBP data, default DBP predictions, and custom DBP coefficient predictions to see that the predictions from `chemdose_dbp` with custom coefficients fits the real data a little better because it's closer to the 1:1 line.
+Now, we can fit custom coefficients to the facility's DBP data. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. The following code builds off the code we've already used above. When inputting the new coefficients into `chemdose_dbp`, they must be formatted as a data frame with the proper column names: ID (corresponding to which DBP these coefficients apply to - for individual species, this will be its chemical formula), A, a, b, c, d, e, and f. This data frame can then be passed as an argument into `chemdose_dbp` and its helper function. For this example, we can visualize the facility DBP data, default DBP predictions, and custom DBP coefficient predictions to see that the predictions from `chemdose_dbp` with custom coefficients fits the real data a little better because it's closer to the 1:1 line.
 
 ```{r chloroform-plot, echo=TRUE, message=FALSE, warning=FALSE}
 # Model we're trying to fit
