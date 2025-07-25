@@ -102,7 +102,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     }
   }
 
-  tibble("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
+  data.frame("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
 }
 
 

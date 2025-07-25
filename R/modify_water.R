@@ -87,6 +87,9 @@ modify_water <- function(water, slot, value, units) {
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
+#' @param pluck_cols Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#'
 #'
 #' @examples
 #'
@@ -116,7 +119,7 @@ modify_water <- function(water, slot, value, units) {
 #'
 #' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
-modify_water_df <- function(df, input_water = "defined", output_water = "modified",
+modify_water_df <- function(df, input_water = "defined", output_water = "modified", pluck_cols = FALSE, water_prefix = TRUE,
                             slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
 
@@ -138,5 +141,20 @@ modify_water_df <- function(df, input_water = "defined", output_water = "modifie
   })
 
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
+  
+  if (pluck_cols) {
+    slot_data <- if (is.character(slot) && length(slot) == 1 && slot %in% names(df)) {
+      df[[slot]]
+    } else {
+      slot
+    }
+    
+    output <- output |>
+      pluck_water(c(output_water), unlist(slot_data))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
+  
   return(output)
 }

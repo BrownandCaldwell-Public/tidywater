@@ -11,6 +11,8 @@ modify_water_df(
   df,
   input_water = "defined",
   output_water = "modified",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   slot = "use_col",
   value = "use_col",
   units = "use_col"
@@ -31,6 +33,10 @@ are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1",
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "modified_water".}
+
+\item{pluck_cols}{Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.

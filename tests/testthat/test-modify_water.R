@@ -33,7 +33,7 @@ test_that("Modify water works with multiple inputs", {
   expect_equal(water0@ph, water1@ph)
 })
 
-test_that("Modify water chain takes and returns correct argument types and classes.", {
+test_that("Modify water df takes and returns correct argument types and classes.", {
   testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_df("test") %>%
@@ -48,7 +48,7 @@ test_that("Modify water chain takes and returns correct argument types and class
   expect_s4_class(water1$modified[[1]], "water")
 })
 
-test_that("Modify water chain works with multiple inputs.", {
+test_that("Modify water df works with multiple inputs.", {
   testthat::skip_on_cran()
   water0 <- water_df %>%
     define_water_df("test") %>%
@@ -61,8 +61,7 @@ test_that("Modify water chain works with multiple inputs.", {
       value = list(c(50, 60)),
       units = list(c("ug/L", "mg/L"))
     ) %>%
-    modify_water_df() %>%
-    pluck_water(input_water = "modified", parameter = c("br", "na"))
+    modify_water_df(pluck_cols = TRUE)
 
   water2 <- water_df %>%
     define_water_df() %>%
@@ -72,11 +71,22 @@ test_that("Modify water chain works with multiple inputs.", {
       units = list(c("ug/L", "mg/L"))
     ) %>%
     pluck_water(input_water = c("modified"), parameter = c("br", "na"))
+  
+  # check that pluck_cols works
+  water3 <- water_df %>%
+    define_water_df() %>%
+    modify_water_df(
+      slot = list(c("br", "na")),
+      value = list(c(50, 60)),
+      units = list(c("ug/L", "mg/L")),
+      pluck_cols = TRUE)
 
   expect_s4_class(water1$modified[[1]], "water")
   expect_true(all.equal(convert_units(water1$modified_br, "br", "M", "ug/L"), water0$br))
   expect_true(all.equal(convert_units(water1$modified_na, "na", "M", "mg/L"), water0$na))
   expect_true(identical(water1$modified_br, water2$modified_br)) # can input to function or as col
   expect_true(identical(water1$modified_na, water2$modified_na))
+  expect_true(identical(water2$modified_br, water3$modified_br))
+  expect_true(identical(ncol(water2), ncol(water3)))
   expect_error(modify_water_df(water0, slot = c("br", "na"), value = c(50, 60), units = c("ug/L", "mg/L")))
 })

@@ -127,7 +127,8 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
     define_water_df() %>%
     suppressWarnings(solvect_chlorine_df(
       time = seq(2, 24, 2),
-      residual = 5, baffle = .5
+      residual = 5, baffle = .5,
+      water_prefix = FALSE
     ))
 
   water3 <- water_df %>%
@@ -135,9 +136,9 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
     define_water_df() %>%
     cross_join(time) %>%
     rename(ChlorTime = time) %>%
-    suppressWarnings(solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime))
+    solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime)
 
-  expect_equal(water1$defined_ct_required, water2$defined_ct_required) # test different ways to input time
+  expect_equal(water1$defined_ct_required, water2$ct_required) # test different ways to input time
   expect_equal(ncol(water3), ncol(water0) + 7) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal, vlog_removal
   expect_equal(nrow(water3), 288) # joined correctly
 })
@@ -169,5 +170,5 @@ test_that("solvect_chlorine_df correctly uses free_chlorine slot", {
     chemdose_ph_df(naocl = 10) %>%
     solvect_chlorine_df(time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only")
 
-  expect_error(expect_equal(residual_df$defined_water_ct_required, free_cl_slot_df$defined_water_ct_required))
+  expect_error(expect_equal(residual_df$defined_ct_required, free_cl_slot_df$dosed_chem_ct_required))
 })
