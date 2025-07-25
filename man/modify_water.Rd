@@ -11,11 +11,11 @@ modify_water_df(
   df,
   input_water = "defined",
   output_water = "modified",
-  pluck_cols = FALSE,
-  water_prefix = TRUE,
   slot = "use_col",
   value = "use_col",
-  units = "use_col"
+  units = "use_col",
+  pluck_cols = FALSE,
+  water_prefix = TRUE
 )
 }
 \arguments{

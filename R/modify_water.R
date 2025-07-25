@@ -119,8 +119,8 @@ modify_water <- function(water, slot, value, units) {
 #'
 #' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
-modify_water_df <- function(df, input_water = "defined", output_water = "modified", pluck_cols = FALSE, water_prefix = TRUE,
-                            slot = "use_col", value = "use_col", units = "use_col") {
+modify_water_df <- function(df, input_water = "defined", output_water = "modified",
+                            slot = "use_col", value = "use_col", units = "use_col", pluck_cols = FALSE, water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
 
   slot <- tryCatch(slot, error = function(e) enquo(slot))
@@ -141,14 +141,14 @@ modify_water_df <- function(df, input_water = "defined", output_water = "modifie
   })
 
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
-  
+
   if (pluck_cols) {
     output <- output |>
-      pluck_water(c(output_water), unlist(slot_data))
+      pluck_water(c(output_water), unlist(df[[arguments$final_names$slot]]))
     if (!water_prefix) {
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
-  
+
   return(output)
 }
