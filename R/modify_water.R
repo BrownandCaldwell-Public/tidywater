@@ -143,12 +143,6 @@ modify_water_df <- function(df, input_water = "defined", output_water = "modifie
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
   
   if (pluck_cols) {
-    slot_data <- if (is.character(slot) && length(slot) == 1 && slot %in% names(df)) {
-      df[[slot]]
-    } else {
-      slot
-    }
-    
     output <- output |>
       pluck_water(c(output_water), unlist(slot_data))
     if (!water_prefix) {

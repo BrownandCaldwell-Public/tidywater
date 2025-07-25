@@ -4,9 +4,9 @@
 #'
 #' @description Calculates TOC concentration after passing through GAC treatment according to the model developed in
 #' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the logistics curve approach in EPA WTP Model v. 2.0 Manual (2001).
-#' For a single water use `gac_toc`; for a dataframe use `gac_toc_chain`.
+#' For a single water use `gac_toc`; for a dataframe use `gac_toc_df`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -14,12 +14,6 @@
 #'
 #' @details The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
 #' UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source Zachman and Summers (2010)
@@ -70,9 +64,11 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 
 #' @rdname gac_toc
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]. The df may include columns named for the media_size, ebct, and bed volume.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "gac_water".
+#' [define_water_df]. The df may include columns named for the media_size, ebct, and bed volume.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "gaced".
+#' @param pluck_cols Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
@@ -89,7 +85,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'     ebct = 10,
 #'     bed_vol = rep(c(12000, 15000, 18000), 4)
 #'   ) %>%
-#'   gac_toc_chain()
+#'   gac_toc_df()
 #'
 #' example_df <- water_df %>%
 #'   define_water_chain("raw") %>%
@@ -97,7 +93,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'     model = "WTP",
 #'     bed_vol = 15000
 #'   ) %>%
-#'   gac_toc_chain(input_water = "raw")
+#'   gac_toc_df(input_water = "raw")
 #'
 #' # Optional: explicitly close multisession processing
 #' # plan(sequential)
@@ -106,9 +102,9 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'
 #' @export
 #'
-#' @returns `gac_toc_chain` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
+#' @returns `gac_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
-gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac_water", model = "use_col",
+gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", model = "use_col", pluck_cols = FALSE, water_prefix = TRUE,
                           media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -119,95 +115,45 @@ gac_toc_chain <- function(df, input_water = "defined_water", output_water = "gac
   pretreat <- tryCatch(pretreat, error = function(e) enquo(pretreat))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list(
-    "model" = model, "media_size" = media_size, "ebct" = ebct,
-    "bed_vol" = bed_vol, "pretreat" = pretreat
-  ))
-
+  arguments <- construct_helper(
+    df, list(
+      "model" = model, "media_size" = media_size, "ebct" = ebct,
+      "bed_vol" = bed_vol, "pretreat" = pretreat
+    )
+  )
   final_names <- arguments$final_names
-
+  
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        model = !!as.name(final_names$model),
-        media_size = if (final_names$media_size %in% names(.)) !!sym(final_names$media_size) else rep("12x40", nrow(.)),
-        ebct = if (final_names$ebct %in% names(.)) !!sym(final_names$ebct) else rep(10, nrow(.)),
-        bed_vol = !!as.name(final_names$bed_vol),
-        pretreat = if (final_names$pretreat %in% names(.)) !!sym(final_names$pretreat) else rep("coag", nrow(.))
-      ),
-      gac_toc
-    ))
-}
-
-#' @rdname gac_toc
-#' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
-#'
-#' @examples
-#' \donttest{
-#' library(dplyr)
-#'
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(
-#'     model = "WTP",
-#'     media_size = "8x30",
-#'     ebct = 10,
-#'     bed_vol = rep(c(12000, 15000, 18000), 4)
-#'   ) %>%
-#'   gac_toc_once()
-#' }
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `gac_toc_once` returns a data frame with columns for TOC, DOC, and UV254 post-GAC treatment.
-#'
-
-gac_toc_once <- function(df, input_water = "defined_water", model = "use_col",
-                         media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col", water_prefix = TRUE) {
-  validate_water_helpers(df, input_water)
-  gac_chem <- gac_water <- ph <- alk_eq <- dic <- estimated <- toc <- doc <- uv254 <- NULL # Quiet RCMD check global variable note
-
-  # This allows for the function to process unquoted column names without erroring
-  model <- tryCatch(model, error = function(e) enquo(model))
-  media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
-  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
-  bed_vol <- tryCatch(bed_vol, error = function(e) enquo(bed_vol))
-  pretreat <- tryCatch(pretreat, error = function(e) enquo(pretreat))
-
-  output <- df %>%
-    gac_toc_chain(
-      input_water = input_water, output_water = "gac_water", model,
-      media_size, ebct, bed_vol, pretreat
-    ) %>%
-    mutate(gac_chem = furrr::future_map(gac_water, convert_water)) %>%
-    unnest(gac_chem)
-
-  cols_base <- c(input_water, "model", "media_size", "ebct", "bed_vol", "toc", "doc", "uv254")
-  pretreat_cols <- intersect("pretreat", colnames(output))
-
-  output <- output %>%
-    select(any_of(c(input_water, "model", "media_size", "ebct", "bed_vol", pretreat_cols, "toc", "doc", "uv254")))
-
-  if (water_prefix) {
-    output <- output %>%
-      rename(
-        !!paste(input_water, "toc", sep = "_") := toc,
-        !!paste(input_water, "doc", sep = "_") := doc,
-        !!paste(input_water, "uv254", sep = "_") := uv254,
-      )
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(model = "Zachman", media_size = "12x40", ebct = "10", pretreat = "coag")
+  )
+  df <- defaults_added$data
+  
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    gac_toc(
+      water = df[[input_water]][[i]],
+      model = df[[final_names$model]][i],
+      media_size = df[[final_names$media_size]][i],
+      ebct = as.numeric(df[[final_names$ebct]][i]),
+      bed_vol = df[[final_names$bed_vol]][i],
+      pretreat = df[[final_names$pretreat]][i]
+    )
+  })
+  
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
+  
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("toc", "doc", "uv254"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
   }
-
+  
   return(output)
 }

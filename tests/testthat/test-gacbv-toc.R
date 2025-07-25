@@ -36,10 +36,10 @@ test_that("gacbv_toc works.", {
   bv2 <- gacbv_toc(water, model = "Zachman", target_doc = 0.8)
   bv3 <- gacbv_toc(water, model = "WTP", target_doc = c(0.6, 0.8, 1))
 
-  expect_true(is.numeric(bv1))
-  expect_equal(bv1, 20000)
-  expect_false(identical(bv1, bv2))
-  expect_true(is.vector(bv3))
+  expect_true(is.data.frame(bv1))
+  expect_equal(bv1$bed_volume, 20000)
+  expect_false(identical(bv1$bed_volume, bv2$bed_volume))
+  expect_true(is.data.frame(bv3))
   expect_error(gacbv_toc(water, target_doc = 0))
 })
 
@@ -47,7 +47,7 @@ test_that("gacbv_toc works.", {
 ################################################################################*
 # gacbv_toc helpers ----
 
-test_that("gacbv_toc_once outputs are the same as base function, gacbv_toc", {
+test_that("gacbv_toc_df outputs are the same as base function, gacbv_toc", {
   testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
@@ -61,18 +61,18 @@ test_that("gacbv_toc_once outputs are the same as base function, gacbv_toc", {
 
   water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    gacbv_toc_once(model = "WTP", target_doc = 0.8, media_size = "12x40", ebct = 10)
+    define_water_df() %>%
+    gacbv_toc_df(model = "WTP", target_doc = 0.8, media_size = "12x40", ebct = 10)
 
-  expect_equal(list(water1), water2$defined_water_bed_volume)
+  expect_equal(water1$bed_volume, water2$defined_bed_volume)
 })
 
 # Test that output is a data frame with the correct number of columns
-test_that("gacbv_toc_once output is data frame", {
+test_that("gacbv_toc_df output is data frame", {
   testthat::skip_on_cran()
   water0 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     mutate(
       model = "Zachman",
       media_size = "12x40",
@@ -81,7 +81,7 @@ test_that("gacbv_toc_once output is data frame", {
     ))
 
   water1 <- water0 %>%
-    gacbv_toc_once(input_water = "raw")
+    gacbv_toc_df(input_water = "raw")
 
   expect_true(is.data.frame(water1))
   expect_equal(ncol(water0), ncol(water1) - 1)

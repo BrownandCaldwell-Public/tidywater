@@ -2,8 +2,7 @@
 % Please edit documentation in R/gac_toc.R
 \name{gac_toc}
 \alias{gac_toc}
-\alias{gac_toc_chain}
-\alias{gac_toc_once}
+\alias{gac_toc_df}
 \title{Calculate TOC Concentration in GAC system}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -22,26 +21,17 @@ gac_toc(
   pretreat = "coag"
 )
 
-gac_toc_chain(
+gac_toc_df(
   df,
-  input_water = "defined_water",
-  output_water = "gac_water",
+  input_water = "defined",
+  output_water = "gaced",
   model = "use_col",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   media_size = "use_col",
   ebct = "use_col",
   bed_vol = "use_col",
   pretreat = "use_col"
-)
-
-gac_toc_once(
-  df,
-  input_water = "defined_water",
-  model = "use_col",
-  media_size = "use_col",
-  ebct = "use_col",
-  bed_vol = "use_col",
-  pretreat = "use_col",
-  water_prefix = TRUE
 )
 }
 \arguments{
@@ -59,27 +49,27 @@ gac_toc_once(
 Other option is coagulant, ozonation, and biotreatment, called "o3biof".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
+\link{define_water_df}. The df may include columns named for the media_size, ebct, and bed volume.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "gac_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "gaced".}
 
-\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
+\item{pluck_cols}{Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{gac_toc} returns a water class object with updated DOC, TOC, and UV254 slots.
 
-\code{gac_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
-
-\code{gac_toc_once} returns a data frame with columns for TOC, DOC, and UV254 post-GAC treatment.
+\code{gac_toc_df} returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 }
 \description{
 Calculates TOC concentration after passing through GAC treatment according to the model developed in
 "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the logistics curve approach in EPA WTP Model v. 2.0 Manual (2001).
-For a single water use \code{gac_toc}; for a dataframe use \code{gac_toc_chain}.
+For a single water use \code{gac_toc}; for a dataframe use \code{gac_toc_df}.
 Use \link{pluck_water} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 
@@ -90,12 +80,6 @@ GAC model for TOC removal
 
 The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
 UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
@@ -115,7 +99,7 @@ example_df <- water_df \%>\%
     ebct = 10,
     bed_vol = rep(c(12000, 15000, 18000), 4)
   ) \%>\%
-  gac_toc_chain()
+  gac_toc_df()
 
 example_df <- water_df \%>\%
   define_water_chain("raw") \%>\%
@@ -123,23 +107,9 @@ example_df <- water_df \%>\%
     model = "WTP",
     bed_vol = 15000
   ) \%>\%
-  gac_toc_chain(input_water = "raw")
+  gac_toc_df(input_water = "raw")
 
 # Optional: explicitly close multisession processing
 # plan(sequential)
 }
-\donttest{
-library(dplyr)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(
-    model = "WTP",
-    media_size = "8x30",
-    ebct = 10,
-    bed_vol = rep(c(12000, 15000, 18000), 4)
-  ) \%>\%
-  gac_toc_once()
-}
-
 }

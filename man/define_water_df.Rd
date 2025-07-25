@@ -4,12 +4,21 @@
 \alias{define_water_df}
 \title{Apply \code{define_water} within a dataframe and output a column of \code{water} class to be chained to other tidywater functions}
 \usage{
-define_water_df(df, output_water = "defined")
+define_water_df(
+  df,
+  output_water = "defined",
+  pluck_cols = FALSE,
+  water_prefix = TRUE
+)
 }
 \arguments{
 \item{df}{a data frame containing columns with all the desired parameters with column names matching argument names in define_water}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
+
+\item{pluck_cols}{Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 A data frame containing a water class column.
