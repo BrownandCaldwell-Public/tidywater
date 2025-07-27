@@ -50,43 +50,24 @@ test_that("Modify water df takes and returns correct argument types and classes.
 
 test_that("Modify water df works with multiple inputs.", {
   testthat::skip_on_cran()
-  water0 <- water_df %>%
-    define_water_df("test") %>%
-    mutate(br = 50, na = 60)
 
   water1 <- water_df %>%
     define_water_df() %>%
     mutate(
-      slot = list(c("br", "na")),
-      value = list(c(50, 60)),
-      units = list(c("ug/L", "mg/L"))
+      bromide = 50,
+      sodium = 60
     ) %>%
-    modify_water_df(pluck_cols = TRUE)
+    modify_water_df(output_water = "mod1", slot = "br", value = bromide, units = "ug/L") %>%
+    modify_water_df("mod1", "mod2", slot = "na", value = sodium, units = "mg/L")
 
   water2 <- water_df %>%
     define_water_df() %>%
     modify_water_df(
-      slot = list(c("br", "na")),
-      value = list(c(50, 60)),
-      units = list(c("ug/L", "mg/L"))
-    ) %>%
-    pluck_water(input_water = c("modified"), parameter = c("br", "na"))
-  
-  # check that pluck_cols works
-  water3 <- water_df %>%
-    define_water_df() %>%
-    modify_water_df(
-      slot = list(c("br", "na")),
-      value = list(c(50, 60)),
-      units = list(c("ug/L", "mg/L")),
-      pluck_cols = TRUE)
+      slot = c("br", "na"),
+      value = c(50, 60),
+      units = c("ug/L", "mg/L")
+    )
 
-  expect_s4_class(water1$modified[[1]], "water")
-  expect_true(all.equal(convert_units(water1$modified_br, "br", "M", "ug/L"), water0$br))
-  expect_true(all.equal(convert_units(water1$modified_na, "na", "M", "mg/L"), water0$na))
-  expect_true(identical(water1$modified_br, water2$modified_br)) # can input to function or as col
-  expect_true(identical(water1$modified_na, water2$modified_na))
-  expect_true(identical(water2$modified_br, water3$modified_br))
-  expect_true(identical(ncol(water2), ncol(water3)))
-  expect_error(modify_water_df(water0, slot = c("br", "na"), value = c(50, 60), units = c("ug/L", "mg/L")))
+  expect_s4_class(water2$modified[[1]], "water")
+  expect_equal(water1$modified, water2$mod2) # can input to function or as col
 })

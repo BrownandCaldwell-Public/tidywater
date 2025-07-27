@@ -87,9 +87,6 @@ modify_water <- function(water, slot, value, units) {
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
-#' @param pluck_cols Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.
-#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
-#'
 #'
 #' @examples
 #'
@@ -98,21 +95,12 @@ modify_water <- function(water, slot, value, units) {
 #'   dplyr::mutate(bromide = 50) %>%
 #'   modify_water_df(slot = "br", value = bromide, units = "ug/L")
 #'
-#' multislot_example_df1 <- water_df %>%
-#'   define_water_df() %>%
-#'   dplyr::mutate(
-#'     slot = list(c("br", "na")),
-#'     value = list(c(50, 60)),
-#'     units = list(c("ug/L", "mg/L"))
-#'   ) %>%
-#'   modify_water_df()
-#'
-#' multislot_example_df2 <- water_df %>%
+#' example_df <- water_df %>%
 #'   define_water_df() %>%
 #'   modify_water_df(
-#'     slot = list(c("br", "na")),
-#'     value = list(c(50, 60)),
-#'     units = list(c("ug/L", "mg/L"))
+#'     slot = c("br", "na"),
+#'     value = c(50, 60),
+#'     units = c("ug/L", "mg/L")
 #'   )
 #'
 #' @export
@@ -120,7 +108,7 @@ modify_water <- function(water, slot, value, units) {
 #' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
 modify_water_df <- function(df, input_water = "defined", output_water = "modified",
-                            slot = "use_col", value = "use_col", units = "use_col", pluck_cols = FALSE, water_prefix = TRUE) {
+                            slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
 
   slot <- tryCatch(slot, error = function(e) enquo(slot))
@@ -141,14 +129,6 @@ modify_water_df <- function(df, input_water = "defined", output_water = "modifie
   })
 
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
-
-  if (pluck_cols) {
-    output <- output |>
-      pluck_water(c(output_water), unlist(df[[arguments$final_names$slot]]))
-    if (!water_prefix) {
-      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
-    }
-  }
 
   return(output)
 }
