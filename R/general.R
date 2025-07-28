@@ -489,11 +489,19 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
+  kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
+  k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
+  # k2sio4 = {h+}{hsio43-}/{h2sio42-}
+  k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
+  
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, 
+    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4
   ))
 }
 

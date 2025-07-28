@@ -191,9 +191,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   tot_po4 <- convert_units(tot_po4, "po4")
   free_chlorine <- convert_units(free_chlorine, "cl2")
   combined_chlorine <- convert_units(combined_chlorine, "cl2")
-  # tot_nh3 <- ifelse(missing(tot_nh3), 0, convert_units(tot_nh3, "n"))
-  # tot_bo3 <- ifelse(missing(tot_bo3), 0, convert_units(tot_bo3, "b"))
-  # tot_sio4 <- ifelse(missing(tot_sio4), 0, convert_units(tot_sio4, "sio2"))
   tot_nh3 <- convert_units(tot_nh3, "n")
   tot_bo3 <- convert_units(tot_bo3, "b")
   tot_sio4 <- convert_units(tot_sio4, "sio2")
@@ -280,7 +277,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   ammonium_alk_eq <- (1 * nh4)
   borate_alk_eq <- (1 * bo3)
   silicate_alk_eq <- (1 * h3sio4 + 2 * h2sio4)
-  carbonate_alk_eq <- alk - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + oh) + h
+  carbonate_alk_eq <- alk_eq - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + oh) + h
 
   tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
   tot_po4 <- phosphate_alk_eq / (alpha1p + 2 * alpha2p + 3 * alpha3p)
@@ -297,11 +294,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
     bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, tot_bo3 = tot_bo3, tot_sio4 = tot_sio4,
-    kw = kw, is = 0, alk_eq = alk_eq,
+    kw = kw, is = 0, alk_eq = alk_eq, carbonate_alk_eq = carbonate_alk_eq, phosphate_alk_eq = phosphate_alk_eq, ammonium_alk_eq = ammonium_alk_eq, borate_alk_eq = borate_alk_eq, silicate_alk_eq = silicate_alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )
-
+  
   # Determine ionic strength
 
   if (!is.na(tds)) {
@@ -363,11 +360,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@ammonium_alk_eq <- (1 * water@nh4)
   water@borate_alk_eq <- (1 * water@bo3)
   water@silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
-  water@carbonate_alk_eq <- alk - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
+  water@carbonate_alk_eq <- alk_eq - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
   
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   water@alk_eq <- water@carbonate_alk_eq + water@phosphate_alk_eq + water@ammonium_alk_eq + water@borate_alk_eq + water@silicate_alk_eq - water@h + water@oh
-
+  
   # Add all estimated values to water slot
   water@estimated <- estimated
 
