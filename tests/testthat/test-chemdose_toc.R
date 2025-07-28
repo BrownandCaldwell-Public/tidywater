@@ -35,7 +35,7 @@ test_that("chemdose_toc works.", {
     ferricchloride = 50,
     coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
   ))
-  water5 <- suppressWarnings(chemdose_toc(water1, alum = 30, lime = 2))
+  water5 <- suppressWarnings(chemdose_toc(water1, alum = 30, caoh2 = 2))
 
   # Used to generate expected outputs cross check with edwards97 package
   # data = data.frame(DOC = 3.5, dose = convert_units(50, "ferricchloride", endunit = "mM"), pH = 7, UV254 = .1)
@@ -45,6 +45,7 @@ test_that("chemdose_toc works.", {
   expect_equal(round(water3@doc, 1), 2.2)
   expect_equal(round(water4@doc, 1), 2.2)
   expect_false(water2@doc == water5@doc)
+  expect_true(water5@ph > water2@ph)
 })
 
 ################################################################################*
