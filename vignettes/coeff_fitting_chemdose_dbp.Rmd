@@ -22,7 +22,7 @@ This vignette assumes a basic understanding of `define_water` and the S4 `water`
 
 ## Water setup
 
-Let's assume we're working with a drinking water treatment facility that is concerned about disinfection byproducts (DBPs) in its effluent water and want to use tidywater to help predict DBP formation due to chlorine addition. In an initial assessment, we can use the facility's influent water and disinfection method to predict DBPs using the `chemdose_dbp` function.
+Let's assume we're working with a drinking water treatment facility that is concerned about disinfection byproducts (DBPs) in its distribution system and want to use tidywater to help predict DBP formation due to chlorine addition. In an initial assessment, we can use the facility's influent water and disinfection method to predict DBPs using the `chemdose_dbp` function.
 
 ```{r}
 influent <- define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = .2, br = 50) %>%
