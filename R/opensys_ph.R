@@ -1,4 +1,4 @@
-#' @title Calculate ph for water in an open system
+#' @title Calculate pH for water in an open system
 #'
 #' @description Calculates the new water quality (pH, alkalinity) for a water in an open system where CO2(aq) is at equilibrium with atmospheric CO2.
 #' The function takes an object of class "water" and the partial pressure of CO2, then returns a water class object with updated water slots.
