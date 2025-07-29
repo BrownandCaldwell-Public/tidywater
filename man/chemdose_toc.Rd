@@ -18,7 +18,8 @@ chemdose_toc(
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
-  coeff = "Alum"
+  coeff = "Alum",
+  caoh2 = 0
 )
 
 chemdose_toc_chain(
@@ -28,6 +29,7 @@ chemdose_toc_chain(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
+  caoh2 = "use_col",
   coeff = "use_col"
 )
 
@@ -38,6 +40,7 @@ chemdose_toc_once(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
+  caoh2 = "use_col",
   coeff = "use_col",
   water_prefix = TRUE
 )
@@ -53,6 +56,8 @@ chemdose_toc_once(
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
+
+\item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}

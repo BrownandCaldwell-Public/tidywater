@@ -10,6 +10,7 @@
 the model: gacrun_toc, gac_toc, and gacbv_toc. Together the model can output a data frame of the TOC breakthrough curve, update the TOC, DOC, and UV254 water slots, or output the 
 necessary bed volume to stay below the target effluent TOC. See individual functions for more in depth documentation.
 * `pluck_water` speed up by relying on base R instead of purrr
+* `chemdose_toc` can now account for modified doc removal due to softening. `caoh2` can be dosed as an optional argument to the function.
 
 ## Breaking changes
 
