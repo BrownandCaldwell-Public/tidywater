@@ -2,12 +2,12 @@
 % Please edit documentation in R/regulate_toc.R
 \name{regulate_toc}
 \alias{regulate_toc}
-\alias{regulate_toc_once}
+\alias{regulate_toc_df}
 \title{Determine if TOC removal meets Stage 1 DBP Rule requirements}
 \usage{
 regulate_toc(alk_raw, toc_raw, toc_finished)
 
-regulate_toc_once(
+regulate_toc_df(
   df,
   alk_raw = "use_col",
   toc_raw = "use_col",
@@ -27,15 +27,15 @@ regulate_toc_once(
 
 regulated <- water_df \%>\%
 select(toc_raw = toc, alk_raw = alk) \%>\%
-regulate_toc_once(toc_finished = seq(0,1.2, 0.1))
+regulate_toc_df(toc_finished = seq(0,1.2, 0.1))
 
 regulated <- water_df \%>\%
-define_water_chain() \%>\%
-chemdose_ph_chain(alum = 30, output_water = "dosed") \%>\%
-chemdose_toc_chain("dosed") \%>\%
-pluck_water(c("coagulated_water", "defined_water"), c("toc", "alk")) \%>\%
-select(toc_finished = coagulated_water_toc, toc_raw = defined_water_toc, alk_raw = defined_water_alk) \%>\%
-regulate_toc_once()}
+define_water_df() \%>\%
+chemdose_ph_df(alum = 30, output_water = "dosed") \%>\%
+chemdose_toc_df("dosed") \%>\%
+pluck_water(c("coagulated", "defined"), c("toc", "alk")) \%>\%
+select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
+regulate_toc_df()}
 }
 \value{
 A data frame containing the TOC removal compliance status.

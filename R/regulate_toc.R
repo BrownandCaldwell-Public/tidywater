@@ -69,21 +69,21 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 #'
 #' regulated <- water_df %>%
 #'   select(toc_raw = toc, alk_raw = alk) %>%
-#'   regulate_toc_once(toc_finished = seq(0,1.2, 0.1))
+#'   regulate_toc_df(toc_finished = seq(0,1.2, 0.1))
 #'
 #' regulated <- water_df %>%
-#'   define_water_chain() %>%
-#'   chemdose_ph_chain(alum = 30, output_water = "dosed") %>%
-#'   chemdose_toc_chain("dosed") %>%
-#'   pluck_water(c("coagulated_water", "defined_water"), c("toc", "alk")) %>%
-#'   select(toc_finished = coagulated_water_toc, toc_raw = defined_water_toc, alk_raw = defined_water_alk) %>%
-#'   regulate_toc_once()
+#'   define_water_df() %>%
+#'   chemdose_ph_df(alum = 30, output_water = "dosed") %>%
+#'   chemdose_toc_df("dosed") %>%
+#'   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
+#'   select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
+#'   regulate_toc_df()
 #'
 #' @export
 #'
 #' @returns A data frame with compliance status, removal percent, and optional note columns.
 
-regulate_toc_once <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_finished = "use_col") {
+regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_finished = "use_col") {
   calc <- NULL # Quiet RCMD check global variable note
 
   alk_raw <- tryCatch(alk_raw, error = function(e) enquo(alk_raw))
