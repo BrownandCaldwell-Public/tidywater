@@ -33,7 +33,7 @@ The influent water object now has populated slots corresponding to predicted DBP
 
 ## Fitting DBP coefficients
 
-We can use the `optim()` function to fit custom coefficients to the facility's DBP data. In this example, let's say that only the predictions for chloroform are not accurate. First, let's visualize the facility data against the default DBP predictions. As the graph shows, the default coefficients consistently under-predict the amount of DBPs formed in the water (the points are below the 1:1 line).
+We can use the `optim()` function to fit custom coefficients to the facility's DBP data. In this example, let's say that only the predictions for chloroform (chcl3) are not accurate. First, let's visualize the facility data against the default DBP predictions. As the graph shows, the default coefficients consistently under-predict the amount of DBPs formed in the water (the points are below the 1:1 line).
 
 ```{r initial-plot, echo=TRUE, message=FALSE, warning=FALSE}
 # Given sample data
