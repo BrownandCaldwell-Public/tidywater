@@ -207,7 +207,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
     caocl2, cacl2, cl2, naocl,
     nh4oh, nh42so4, caco3, caso4,
     alum, ferricchloride, ferricsulfate, ach,
-    kmno4, naf, na3po4, softening_correction
+    kmno4, naf, na3po4, softening_correction = FALSE
   )
 }
 

@@ -36,7 +36,7 @@ test_that("_chain works", {
 
   expect_warning(chemdose_dbp_once(water0, cl2 = 2, time = 8))
 
-  #expect_warning( chemdose_ph_once(water0, hcl = 1))
+  expect_warning(chemdose_ph_once(water0, hcl = 1))
 
   expect_warning(chemdose_toc_once(water0, alum = 5))
 
@@ -44,17 +44,21 @@ test_that("_chain works", {
 
   expect_warning(dissolve_pb_once(water0))
 
-  expect_warning(solvect_chlorine_once(water0, time = 30, residual = 1, baffle = 0.7))
+  expect_warning(water0 %>%
+                   slice(1) %>%
+                   solvect_chlorine_once(time = 30, residual = 1, baffle = 0.7))
 
-  ##
   expect_warning(solvect_o3_once(water0, time = 10, dose = 2, kd = -0.5, baffle = 0.9))
 
-  expect_warning(solvedose_alk_once(water0, target_alk = 150, chemical = "naoh"))
+  expect_warning(water0 %>%
+                   slice(1) %>%
+                   solvedose_alk_once(target_alk = 150, chemical = "naoh"))
 
   expect_warning(solvedose_ph_once(water0, target_ph = 8.5, chemical = "caoh2"))
 
-  expect_warning(solveresid_o3_once(dose = 2, time = 10))
+  expect_warning(solveresid_o3_once(water0, dose = 2, time = 10))
 
-  expect_warning(blend_waters_chain(water6, waters = c("defined_water", "dosed_chem_water"), ratios = c(0.5, 0.5)))
+ water1 <- chemdose_ph_chain(water0, hcl = 1)
+  expect_warning(blend_waters_chain(water1, waters = c("defined_water", "dosed_chem_water"), ratios = c(0.5, 0.5)))
 
 })
