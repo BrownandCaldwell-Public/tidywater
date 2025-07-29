@@ -363,7 +363,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@carbonate_alk_eq <- alk_eq - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
   
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
-  water@alk_eq <- water@carbonate_alk_eq + water@phosphate_alk_eq + water@ammonium_alk_eq + water@borate_alk_eq + water@silicate_alk_eq - water@h + water@oh
+  water@alk_eq <- sum(water@carbonate_alk_eq, water@phosphate_alk_eq, water@ammonium_alk_eq, water@borate_alk_eq, water@silicate_alk_eq, -1 * water@h, water@oh, na.rm = TRUE)
+  water@alk <- convert_units(water@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
   
   # Add all estimated values to water slot
   water@estimated <- estimated
