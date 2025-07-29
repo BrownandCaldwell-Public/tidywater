@@ -52,7 +52,7 @@ plot_unfit_dbps <- dbp_data %>%
   chemdose_dbp_df("input", cl2 = 2, time = 8, treatment = "raw", cl_type = "chlorine", location = "plant") %>%
   pluck_water(input_waters = c("disinfected"), parameter = c("chcl3"))
 
-ggplot(dbp_data, aes(x = fin_chcl3, y = disinfected_chcl3)) +
+ggplot(plot_unfit_dbps, aes(x = fin_chcl3, y = disinfected_chcl3)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
   labs(title = "Observed vs predicted chloroform",
@@ -62,7 +62,7 @@ ggplot(dbp_data, aes(x = fin_chcl3, y = disinfected_chcl3)) +
 
 ```
 
-Now, we can fit custom coefficients to the facility's DBP data. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. The following code builds off the code we've already used above. When inputting the new coefficients into `chemdose_dbp`, they must be formatted as a data frame with the proper column names: ID (corresponding to which DBP these coefficients apply to - for individual species, this will be its chemical formula), A, a, b, c, d, e, and f. This data frame can then be passed as an argument into `chemdose_dbp` and its helper function. For this example, we can visualize the facility DBP data, default DBP predictions, and custom DBP coefficient predictions to see that the predictions from `chemdose_dbp` with custom coefficients fits the real data a little better because it's closer to the 1:1 line.
+Now, we can fit custom coefficients to the facility's DBP data. The following code builds off the code we've already used above. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. Running `optim()` on this example should take approximately 2 seconds, which is typical for an `optim()` function. If `optim()` is not constrained by a number of maximum iterations, it can take longer and parallel processing can be used to speed it up if the time is too long. 
 
 ```{r chloroform-plot, echo=TRUE, message=FALSE, warning=FALSE}
 # Model we're trying to fit
@@ -78,16 +78,8 @@ model_fn <- function(params, data) {
 }
 
 # optimize the coefficients
-data_again <- data.frame(ph = c(7, 7.04, 7.5, 7.9, 7.2, 7.25),
-                       temp = rep(20, 6),
-                       alk = c(50, 66, 75, 80, 55, 100),
-                       toc = c(4, 8, 4, 10, 5, 6),
-                       uv254 = c(0.1, 0.2, 0.2, 0.1, 0.05, 0.2),
-                       br = rep(50, 6),
-                       fin_chcl3 = c(65, 136.5, 70, 205, 84.5, 103)) %>%
-  define_water_df("input")
 
-test <- optim(par = c(6.237e-2, 1.617, -0.094, -0.175, 0.607, 1.403, 0.306), fn = model_fn, data = data_again, control = list(maxit = 100))
+test <- optim(par = c(6.237e-2, 1.617, -0.094, -0.175, 0.607, 1.403, 0.306), fn = model_fn, data = dbp_data, control = list(maxit = 100))
 coeffs <- data.frame(ID = "chcl3",
                      A = test$par[1],
                      a = test$par[2],
@@ -102,20 +94,21 @@ dbp_data <- dbp_data %>%
   chemdose_dbp_df(input_water = "input", output_water = "coeff_disinfected", coeff = coeffs) %>%
   pluck_water(input_waters = c("coeff_disinfected"), parameter = c("chcl3"))
 
-ggplot(data = dbp_data)+
-  geom_point(aes(x = fin_chcl3, y = disinfected_chcl3, color = "Default coeffs")) +
-  geom_point(aes(x = fin_chcl3, y = coeff_disinfected_chcl3, color = "Custom coeffs")) +
+ggplot()+
+  geom_point(data = plot_unfit_dbps, aes(x = fin_chcl3, y = disinfected_chcl3, color = "Default coeffs")) +
+  geom_point(data = dbp_data, aes(x = fin_chcl3, y = coeff_disinfected_chcl3, color = "Custom coeffs")) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
   labs(title = "Observed vs predicted chloroform",
        x = "Observed chloroform",
        y = "Predicted chloroform") +
   scale_color_manual(name = "Prediction type",
                      breaks = c("Default coeffs", "Custom coeffs"),
-                     values = c("black", "blue"))
+                     values = c("black", "blue")) +
+  expand_limits(x = 0, y = 0)
 
 ```
 
-This coefficient optimization process can be repeated for any DBPs whose concentrations do not fit the default coefficients well. Now that the facility has custom coefficients for chloroform, they can continue to use `chemdose_dbp` with coefficients that are personalized to the plant and make better predictions for their effluent chloroform.
+Note that when inputting the new coefficients into `chemdose_dbp`, they must be formatted as a data frame with the proper column names: ID (corresponding to which DBP these coefficients apply to - for individual species, this will be its chemical formula), A, a, b, c, d, e, and f. This data frame can then be passed as an argument into `chemdose_dbp` and its helper function. For this example, we can visualize the facility DBP data, default DBP predictions, and custom DBP coefficient predictions to see that the predictions from `chemdose_dbp` with custom coefficients fits the real data a little better because it's closer to the 1:1 line. This coefficient optimization process can be repeated for any DBPs whose concentrations do not fit the default coefficients well. Now that the facility has custom coefficients for chloroform, they can continue to use `chemdose_dbp` with coefficients that are personalized to the plant and make better predictions for their effluent chloroform.
 
 ## Summary
 
