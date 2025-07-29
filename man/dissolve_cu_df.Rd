@@ -10,6 +10,8 @@ dissolve_cu_df(df, input_water = "defined", water_prefix = TRUE)
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{dissolve_cu_df} returns a data frame containing the original data frame and a column for dissolved copper in mg/L.

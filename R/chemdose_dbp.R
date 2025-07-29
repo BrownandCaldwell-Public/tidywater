@@ -261,7 +261,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #'     cl2_dose = c(2, 3, 4),
 #'     time = 30
 #'   ) %>%
-#'   chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine", pluck_cols = TRUE)
+#'   chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds",
+#'   cl_type = "chloramine", pluck_cols = TRUE)
 #' }
 #'
 #' @export

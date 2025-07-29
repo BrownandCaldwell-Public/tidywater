@@ -45,6 +45,7 @@ dissolve_cu <- function(water) {
 #'
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined_water".
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' library(dplyr)
