@@ -3,7 +3,7 @@
 #' @description Calculates the new water quality (pH, alkalinity) for a water in an open system where CO2(aq) is at equilibrium with atmospheric CO2.
 #' The function takes an object of class "water" and the partial pressure of CO2, then returns a water class object with updated water slots.
 #' For a single water, use `opensys_ph`; to apply the model to a dataframe, use `opensys_ph_df`.
-#' For most arguments, the `_chain` helper
+#' For most arguments, the `_df helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
