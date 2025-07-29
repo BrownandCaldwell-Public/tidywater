@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
   library(tidywater)
   library(ggplot2)
   library(stats)
+  library(dplyr)
 ```
 
 This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information. Additionally, for more information on tidywater's `_df` and `pluck_waters` functions, please see the `vignette("help_functions_chemdose_ph", package = "tidywater")`.
