@@ -156,7 +156,12 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  # account for character and data frame inputs for coeff
+  is_coeff_df <- is.data.frame(coeff)
+  if (!is_coeff_df) {
+    coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+  }
+  
 
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
@@ -164,7 +169,7 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
     "alum" = alum, "ferricchloride" = ferricchloride,
     "ferricsulfate" = ferricsulfate,
     "caoh2" = caoh2,
-    "coeff" = coeff
+    "coeff" = if (is_coeff_df) "coeff_df" else coeff
   ))
   final_names <- arguments$final_names
 
@@ -186,7 +191,7 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
       ferricchloride = df[[final_names$ferricchloride]][i],
       ferricsulfate = df[[final_names$ferricsulfate]][i],
       caoh2 = df[[final_names$caoh2]][i],
-      coeff = df[[final_names$coeff]][i]
+      coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i]
     )
   })
 

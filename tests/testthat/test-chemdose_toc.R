@@ -191,3 +191,27 @@ test_that("chemdose_toc_df works when water_prefix is false", {
   expect_equal(water1$coagulated_water_toc, water2$toc)
   expect_equal(water1$coagulated_water_uv254, water2$uv254)
 })
+
+test_that("chemdose_toc_df works with custom coefficients", {
+  testthat::skip_on_cran()
+  water0 <- water_df %>%
+    slice(1) %>%
+    define_water_df %>%
+    chemdose_toc_df(alum = 20, pluck_cols = TRUE)
+  
+  custom_coeff <- data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
+  water1 <- water_df %>%
+    slice(1) %>%
+    define_water_df %>%
+    chemdose_toc_df(alum = 20, coeff = custom_coeff, pluck_cols = TRUE)
+  
+  water2 <- water_df %>%
+    slice(1) %>%
+    define_water_df %>%
+    chemdose_toc_df(alum = 20, coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068), pluck_cols = TRUE)
+  
+  expect_false(water0$coagulated_doc == water1$coagulated_doc)
+  expect_false(water0$coagulated_toc == water1$coagulated_toc)
+  expect_equal(water1$coagulated_doc, water2$coagulated_doc)
+  expect_equal(water1$coagulated_toc, water2$coagulated_toc)
+})
