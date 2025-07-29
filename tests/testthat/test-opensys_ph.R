@@ -1,11 +1,14 @@
 # opensys_ph ----
 
 test_that("opensys_ph errors without correct inputs", {
-  water <- suppressWarnings(define_water(ph = 7, alk = 10))
+  water0 <- suppressWarnings(define_water(ph = 7, alk = 10))
+  water1 <- suppressWarnings(define_water(alk = 10))
   
   expect_error(opensys_ph(partialpressure = 10^-4)) # no water input
   expect_error(opensys_ph(partpressure = 10^-4))
-  expect_no_error(opensys_ph(water))
+  expect_no_error(opensys_ph(water0))
+  expect_error(opensys_ph(water1)) # missing ph in the water
+  
 })
 
 test_that("opensys_ph preserves carbonate balance", {
@@ -29,9 +32,14 @@ test_that("opensys_ph works", {
   expect_false(identical(water1@dic, water0@dic))
   expect_true(water1@ph < water0@ph)
   expect_true(water1@ph < water2@ph)
+  
+  expect_equal(round(water1@ph, 1), 5.7)
+  expect_equal(round(water1@alk, 1), 50.0)
+  expect_equal(round(water1@alk_eq, 3), 0.001)
+  expect_equal(round(water1@dic, 2), 0.14)
 })
 
-test_that("opensys_ph_chain outputs are the same as base function, opensys_ph.", {
+test_that("opensys_ph_df outputs are the same as base function, opensys_ph.", {
   testthat::skip_on_cran()
   water0 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50))
   
@@ -39,14 +47,14 @@ test_that("opensys_ph_chain outputs are the same as base function, opensys_ph.",
   
   water2 <- suppressWarnings(water_df %>%
                                slice(1) %>%
-                               define_water_chain() %>%
-                               opensys_ph_chain(pluck_cols = TRUE))
+                               define_water_df() %>%
+                               opensys_ph_df(pluck_cols = TRUE))
   
   # test that pluck_cols does the same thing as pluck_water
   water3 <- suppressWarnings(water_df %>%
                                slice(1) %>%
-                               define_water_chain() %>%
-                               opensys_ph_chain() %>%
+                               define_water_df() %>%
+                               opensys_ph_df() %>%
                                pluck_water(c("opensys"), c("ph", "alk")))
   
   expect_equal(water1@ph, water2$opensys_ph)
@@ -55,33 +63,33 @@ test_that("opensys_ph_chain outputs are the same as base function, opensys_ph.",
   expect_equal(ncol(water2), ncol(water3))
 })
 
-test_that("opensys chain takes and returns correct argument types and classes.", {
+test_that("opensys df takes and returns correct argument types and classes.", {
   testthat::skip_on_cran()
   water0 <- water_df %>%
-    define_water_chain("test")
+    define_water_df("test")
   
-  water1 <- opensys_ph_chain(water0, "test", "opensys", partialpressure = 10^-4)
+  water1 <- opensys_ph_df(water0, "test", "opensys", partialpressure = 10^-4)
   water2 <- water0 %>%
     mutate(partialp = 10^-4) %>%
-    opensys_ph_chain("test", "opensys", partialpressure = partialp)
+    opensys_ph_df("test", "opensys", partialpressure = partialp)
   
-  expect_error(opensys_ph_chain(water_df, partialpressure = .9))
-  expect_error(opensys_ph_chain(water0))
+  expect_error(opensys_ph_df(water_df, partialpressure = .9))
+  expect_error(opensys_ph_df(water0))
   expect_s4_class(water1$opensys[[1]], "water")
   expect_equal(water1$opensys, water2$opensys)
 })
 
-test_that("opensys_ph_chain can use a column or function argument for chemical dose", {
+test_that("opensys_ph_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water0 <- water_df %>%
-    define_water_chain()
+    define_water_df()
   
-  water1 <- opensys_ph_chain(water0, partialpressure = 10^-4, pluck_cols = TRUE)
+  water1 <- opensys_ph_df(water0, partialpressure = 10^-4, pluck_cols = TRUE)
   water2 <- water0 %>%
     mutate(partialp = 10^-4) %>%
-    opensys_ph_chain(partialpressure = partialp, pluck_cols = TRUE)
+    opensys_ph_df(partialpressure = partialp, pluck_cols = TRUE)
   water3 <- water0 %>%
-    opensys_ph_chain(output_water = "opensys_water", partialpressure = 10^-4, pluck_cols = TRUE)
+    opensys_ph_df(output_water = "opensys_water", partialpressure = 10^-4, pluck_cols = TRUE)
   
   expect_equal(water1$opensys_ph, water2$opensys_ph)
   expect_equal(water1$opensys_ph, water3$opensys_water_ph)

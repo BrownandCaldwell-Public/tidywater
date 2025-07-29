@@ -26,9 +26,9 @@
 #'
 
 opensys_ph <- function(water, partialpressure = 10^-3.5) {
-  # validate_water(water, slots = c("tot_co3"))
+  validate_water(water, slots = c("ph", "alk"))
   
-  kh <- 10^-1.5 # Henry's Law constant for CO2 -- let me know if I should include this a tidywater dataset instead of hardcoding here
+  kh <- 10^-1.5 # Henry's Law constant for CO2
   co2_M <- kh * partialpressure
   
   discons <- tidywater::discons
@@ -38,7 +38,7 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
   output_water <- water
   output_water@ph <- - 0.5 * log10(k1co3 * kh * partialpressure) # proton balance and Henry's Law equation
   output_water@h <- 10^-output_water@ph
-  output_water@oh <- 10^-14 / 10^-output_water@ph  # using Kw = 10^-14 for now but let me know if I should do temp conversion/activity calcs to get oh and h
+  output_water@oh <- 10^-14 / 10^-output_water@ph
 
   alpha0 <- calculate_alpha0_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
@@ -58,7 +58,7 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
 
 #' @rdname opensys_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]. The df may include a column with names for each of the chemicals being dosed.
+#' [define_water_df]. The df may include a column with names for each of the chemicals being dosed.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "opensys".
 #' @param pluck_cols Extract water slots modified by the function (ph, alk) into new numeric columns for easy access. Default to FALSE.
@@ -74,7 +74,7 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
 #'   )
 #'
 #' @export
-#' @returns `opensys_ph_chain` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
+#' @returns `opensys_ph_df` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
 opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
@@ -91,20 +91,6 @@ opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  
-  ### here for now until the helperspeed branch is completed (also change input_water default to "defined")
-  handle_defaults <- function(df, final_names, defaults) {
-    defaults_used <- c()
-    for (arg in names(defaults)) {
-      col_name <- final_names[[arg]]
-      if (!col_name %in% names(df)) {
-        defaults_used <- c(defaults_used, arg)
-        df[[col_name]] <- defaults[[arg]]
-      }
-    }
-    return(list(data = df, defaults_used = defaults_used))
-  }
-  ###
   
   # Add columns with default arguments
   defaults_added <- handle_defaults(

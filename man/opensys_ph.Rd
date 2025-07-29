@@ -2,17 +2,17 @@
 % Please edit documentation in R/opensys_ph.R
 \name{opensys_ph}
 \alias{opensys_ph}
-\alias{opensys_ph_chain}
-\title{Calculate ph for water in an open system}
+\alias{opensys_ph_df}
+\title{Calculate pH for water in an open system}
 \source{
 Snoeyink & Jenkins (1980)
 }
 \usage{
 opensys_ph(water, partialpressure = 10^-3.5)
 
-opensys_ph_chain(
+opensys_ph_df(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   output_water = "opensys",
   pluck_cols = FALSE,
   water_prefix = TRUE,
@@ -25,7 +25,7 @@ opensys_ph_chain(
 \item{partialpressure}{Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column with names for each of the chemicals being dosed.}
+\link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
@@ -38,14 +38,14 @@ opensys_ph_chain(
 \value{
 A water with updated pH/alk/etc.
 
-\code{opensys_ph_chain} returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
+\code{opensys_ph_df} returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates the new water quality (pH, alkalinity) for a water in an open system where CO2(aq) is at equilibrium with atmospheric CO2.
 The function takes an object of class "water" and the partial pressure of CO2, then returns a water class object with updated water slots.
-For a single water, use \code{opensys_ph}; to apply the model to a dataframe, use \code{opensys_ph_chain}.
-For most arguments, the \verb{_chain} helper
+For a single water, use \code{opensys_ph}; to apply the model to a dataframe, use \code{opensys_ph_df}.
+For most arguments, the `_df helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -59,9 +59,9 @@ water <- define_water(ph = 7, temp = 25, alk = 5) \%>\%
 
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  opensys_ph_chain(
-    input_water = "defined_water", output_water = "opensys",
+  define_water_df() \%>\%
+  opensys_ph_df(
+    input_water = "defined", output_water = "opensys",
     partialpressure = 10^-4, pluck_cols = TRUE
   )
 
