@@ -136,7 +136,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated water classes. Default is "balanced_water".
-#' @param pluck_cols Extract water slots modified by the function (doc, toc, bdoc) into new numeric columns for easy access. Default to FALSE.
+#' @param pluck_cols Extract water slots modified by the function (selected cation and anion) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples

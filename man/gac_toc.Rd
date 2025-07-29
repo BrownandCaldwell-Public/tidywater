@@ -55,7 +55,7 @@ Other option is coagulant, ozonation, and biotreatment, called "o3biof".}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "gaced".}
 
-\item{pluck_cols}{Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.}
+\item{pluck_cols}{Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }

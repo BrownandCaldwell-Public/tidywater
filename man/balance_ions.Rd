@@ -30,7 +30,7 @@ balance_ions_df(
 
 \item{output_water}{name of the output column storing updated water classes. Default is "balanced_water".}
 
-\item{pluck_cols}{Extract water slots modified by the function (doc, toc, bdoc) into new numeric columns for easy access. Default to FALSE.}
+\item{pluck_cols}{Extract water slots modified by the function (selected cation and anion) into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }

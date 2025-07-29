@@ -314,7 +314,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 #'
 #' @param df a data frame containing columns with all the desired parameters with column names matching argument names in define_water
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
-#' @param pluck_cols Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.
+#' @param pluck_cols Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @seealso [define_water]
@@ -350,7 +350,7 @@ define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, wa
 
   if (pluck_cols) {
     output <- output |>
-      pluck_water(c(output_water), c("ph", "alk"))
+      pluck_water(c(output_water), c("ph", "alk", "doc", "uv254"))
     if (!water_prefix) {
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }

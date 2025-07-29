@@ -16,7 +16,7 @@ define_water_df(
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
 
-\item{pluck_cols}{Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.}
+\item{pluck_cols}{Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }

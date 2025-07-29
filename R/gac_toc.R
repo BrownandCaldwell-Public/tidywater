@@ -67,7 +67,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #' [define_water_df]. The df may include columns named for the media_size, ebct, and bed volume.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "gaced".
-#' @param pluck_cols Extract primary water slots modified by the function into new numeric columns for easy access. Default to FALSE.
+#' @param pluck_cols Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
