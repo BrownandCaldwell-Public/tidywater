@@ -32,6 +32,7 @@ chemdose_toc_df(
   ferricsulfate = "use_col",
   caoh2 = "use_col",
   coeff = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \link{define_water}. Water must include ph, doc, and uv254}

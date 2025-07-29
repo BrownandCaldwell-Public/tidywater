@@ -60,7 +60,7 @@ water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 
 
 example_df <- water_df \%>\%
   define_water_df() \%>\%
-  biofilter_toc_df(input_water = "defined_water", ebct = c(10, 15), ozonated = FALSE)
+  biofilter_toc_df(input_water = "defined", ebct = c(10, 15), ozonated = FALSE)
 
 example_df <- water_df \%>\%
   define_water_df() \%>\%
@@ -68,6 +68,6 @@ example_df <- water_df \%>\%
     BiofEBCT = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
   ) \%>\%
-  biofilter_toc_df(input_water = "defined_water", ebct = BiofEBCT)
+  biofilter_toc_df(input_water = "defined", ebct = BiofEBCT)
 
 }
