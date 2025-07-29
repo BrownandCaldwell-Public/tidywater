@@ -67,8 +67,8 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
 #' @examples
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   opensys_ph_chain(
+#'   define_water_df() %>%
+#'   opensys_ph_df(
 #'     input_water = "defined_water", output_water = "opensys",
 #'     partialpressure = 10^-4, pluck_cols = TRUE
 #'   )
