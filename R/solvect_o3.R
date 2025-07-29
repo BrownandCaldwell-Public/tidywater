@@ -135,6 +135,14 @@ solvect_o3_df <- function(df, input_water = "defined",
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(time = 0, dose = 0, kd = NA, baffle = 0)
+  )
+
+  df <- defaults_added$data
+
   ct_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
     solvect_o3(
       water = df[[input_water]][[i]],
