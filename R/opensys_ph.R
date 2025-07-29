@@ -77,7 +77,7 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
 #' @returns `opensys_ph_chain` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
-opensys_ph_chain <- function(df, input_water = "defined_water", output_water = "opensys",
+opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
                                  pluck_cols = FALSE, water_prefix = TRUE,
                                  partialpressure = "use_col") {
   validate_water_helpers(df, input_water)
