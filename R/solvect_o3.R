@@ -75,7 +75,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
     decaycurve <- data.frame(time = seq(0, time, .5)) %>%
       dplyr::mutate(
-        defined_water = list(water),
+        defined = list(water),
         dose = dose
       ) %>%
       solveresid_o3_df() %>%

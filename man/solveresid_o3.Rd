@@ -29,7 +29,7 @@ solveresid_o3_df(
 
 \item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined".}
 
 \item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }

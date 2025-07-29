@@ -30,7 +30,7 @@ balance_ions_chain <- function(df, input_water = "defined_water", output_water =
 biofilter_toc_chain <- function(df, input_water = "defined_water", output_water = "biofiltered_water",
                                 ebct = "use_col", ozonated = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "biofilter_toc_chain()", "biofilter_toc_df()")
-  biofilter_toc_df(df, input_water, output_water, ebct, ozonated)
+  biofilter_toc_df(df, input_water, output_water, ebct, ozonated, pluck_cols = FALSE, water_prefix = TRUE)
 }
 
 #' @rdname rename_helpers
@@ -199,7 +199,7 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_ph_once()", "chemdose_ph_df()")
-  chemdose_ph_df(df, input_water, output_water,
+  chemdose_ph_df(df, input_water, output_water = "dosed_chem_water",
     na_to_zero = FALSE, pluck_cols = TRUE, water_prefix = FALSE,
     hcl, h2so4, h3po4, hno3, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
@@ -227,15 +227,16 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
 #' @export
 dissolve_cu_once <- function(df, input_water = "defined_water") {
   lifecycle::deprecate_warn("0.10.0", "dissolve_cu_once()", "dissolve_cu_df()")
-  # TODO: dissolve_cu_df(water)
+  dissolve_cu_df(df, input_water, water_prefix = TRUE)
 }
+
 #' @rdname rename_helpers
 #' @export
 dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
                              output_col_result = "pb", hydroxypyromorphite = "Schock",
                              pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
   lifecycle::deprecate_warn("0.10.0", "dissolve_pb_once()", "dissolve_pb_df()")
-  # TODO: dissolve_pb_df(water)
+  dissolve_pb_df(df, input_water, output_col_solid, output_col_result, hydroxypyromorphite, pyromorphite, laurionite, water_prefix)
 }
 #' @rdname rename_helpers
 #' @export
@@ -244,7 +245,7 @@ solvect_chlorine_once <- function(df, input_water = "defined_water",
                                   free_cl_slot = "residual_only",
                                   water_prefix = TRUE) {
   lifecycle::deprecate_warn("0.10.0", "solvect_chlorine_once()", "solvect_chlorine_df()")
-  # TODO: solvect_chlorine_df(water)
+  solvect_chlorine_df(df, input_water, time, residual, baffle, free_cl_slot, water_prefix)
 }
 #' @rdname rename_helpers
 #' @export
@@ -252,24 +253,24 @@ solvect_o3_once <- function(df, input_water = "defined_water",
                             time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
                             water_prefix = TRUE) {
   lifecycle::deprecate_warn("0.10.0", "solvect_o3_once()", "solvect_o3_df()")
-  # TODO: solvect_o3_df(water)
+  solvect_o3_df(df, input_water, time, dose, kd, baffle, water_prefix)
 }
 #' @rdname rename_helpers
 #' @export
 solvedose_alk_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_alk = "use_col", chemical = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "solvedose_alk_once()", "solvedose_alk_df()")
-  # TODO: solvedose_alk_df(water)
+  solvedose_alk_df(df, input_water, output_column, target_alk, chemical)
 }
 #' @rdname rename_helpers
 #' @export
 solvedose_ph_once <- function(df, input_water = "defined_water", output_column = "dose_required", target_ph = "use_col", chemical = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "solvedose_ph_once()", "solvedose_ph_df()")
-  # TODO: solvedose_ph_df(water)
+  solvedose_ph_df(df, input_water, output_column, target_ph, chemical)
 }
 #' @rdname rename_helpers
 #' @export
 solveresid_o3_once <- function(df, input_water = "defined_water", output_column = "o3resid",
                                dose = "use_col", time = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "solveresid_o3_once()", "solveresid_o3_df()")
-  # TODO: solveresid_o3_df(water)
+  solveresid_o3_df(df, input_water, output_column, dose, time)
 }

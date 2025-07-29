@@ -35,7 +35,7 @@ example_df <- define_water(ph = 7, temp = 20, alk = 100) \%>\%
   convert_water()
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) \%>\%
   tidyr::unnest(to_dataframe) \%>\%
   select(-defined)

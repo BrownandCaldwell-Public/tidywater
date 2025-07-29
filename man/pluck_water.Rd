@@ -24,7 +24,7 @@ The names of the output columns will follow the form \code{water_parameter}
 \examples{
 
 pluck_example <- water_df \%>\%
-  define_water_chain("raw") \%>\%
+  define_water_df("raw") \%>\%
   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 
 }

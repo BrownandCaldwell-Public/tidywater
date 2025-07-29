@@ -1,6 +1,6 @@
 # Helper Functions
 # These directly interact with a water class.
-# _chain and _once functions should be in the R script with their respective models.
+# _df functions should be in the R script with their respective models.
 
 #' Convert `water` class object to a dataframe
 #'
@@ -24,7 +24,7 @@
 #'   convert_water()
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) %>%
 #'   tidyr::unnest(to_dataframe) %>%
 #'   select(-defined)
@@ -109,7 +109,7 @@ convert_watermg <- function(water) {
 #' @examples
 #'
 #' pluck_example <- water_df %>%
-#'   define_water_chain("raw") %>%
+#'   define_water_df("raw") %>%
 #'   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 #'
 #' @export
