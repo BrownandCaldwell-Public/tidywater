@@ -162,7 +162,7 @@ test_that("define_water_df output is the same as define_water", {
   water4 <- suppressWarnings(define_water_df(slice(water_df, 1), pluck_cols = TRUE))
 
   expect_equal(water1, water3)
-  expect_true(ncol(water4) == 3) # defined, ph, and alk
+  expect_true(ncol(water4) == 5) # defined, ph, and alk
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
