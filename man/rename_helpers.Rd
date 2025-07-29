@@ -18,6 +18,7 @@
 \alias{chemdose_dbp_once}
 \alias{chemdose_ph_once}
 \alias{chemdose_toc_once}
+\alias{define_water_once}
 \alias{dissolve_cu_once}
 \alias{dissolve_pb_once}
 \alias{solvect_chlorine_once}
@@ -218,6 +219,8 @@ chemdose_toc_once(
   ferricsulfate = "use_col",
   coeff = "use_col"
 )
+
+define_water_once(df)
 
 dissolve_cu_once(df, input_water = "defined_water")
 

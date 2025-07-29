@@ -27,7 +27,7 @@
 #'   define_water_df() %>%
 #'   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) %>%
 #'   tidyr::unnest(to_dataframe) %>%
-#'   select(-defined)
+#'   dplyr::select(-defined)
 #'
 #' @export
 #'

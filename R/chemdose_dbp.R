@@ -251,7 +251,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
 #'   define_water_df() %>%
-#'   chemdose_dbp_df(input_water = "defined_water", cl2 = 4, time = 8)
+#'   chemdose_dbp_df(input_water = "defined", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%

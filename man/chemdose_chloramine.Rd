@@ -83,7 +83,7 @@ breakpoint <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(
     time = 8,
-    cl2dose = c(2, 3, 4)
+    cl2dose = rep(c(2, 3, 4), 4)
   ) \%>\%
   chemdose_chloramine_df(
     output_water = "final",

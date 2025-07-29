@@ -38,7 +38,7 @@ example_df <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) \%>\%
   tidyr::unnest(to_dataframe) \%>\%
-  select(-defined)
+  dplyr::select(-defined)
 
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) \%>\%
   convert_watermg()

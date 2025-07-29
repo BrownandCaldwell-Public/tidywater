@@ -78,7 +78,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #' # plan(multisession)
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   mutate(
 #'     model = "WTP",
 #'     media_size = "8x30",
@@ -88,7 +88,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'   gac_toc_df()
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain("raw") %>%
+#'   define_water_df("raw") %>%
 #'   mutate(
 #'     model = "WTP",
 #'     bed_vol = 15000
@@ -122,7 +122,7 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
     )
   )
   final_names <- arguments$final_names
-  
+
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
@@ -133,7 +133,7 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
     list(model = "Zachman", media_size = "12x40", ebct = "10", pretreat = "coag")
   )
   df <- defaults_added$data
-  
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     gac_toc(
       water = df[[input_water]][[i]],
@@ -144,9 +144,9 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
       pretreat = df[[final_names$pretreat]][i]
     )
   })
-  
+
   output <- df[, !names(df) %in% defaults_added$defaults_used]
-  
+
   if (pluck_cols) {
     output <- output |>
       pluck_water(c(output_water), c("toc", "doc", "uv254"))
@@ -154,6 +154,6 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
-  
+
   return(output)
 }

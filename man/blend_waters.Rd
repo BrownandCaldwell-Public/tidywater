@@ -10,10 +10,10 @@ blend_waters(waters, ratios)
 blend_waters_df(df, waters, ratios, output_water = "blended")
 }
 \arguments{
-\item{waters}{Vector of source waters created by \link{define_water}. For \code{chain} function, this can include
+\item{waters}{Vector of source waters created by \link{define_water}. For \code{df} function, this can include
 quoted column names and/or existing single water objects unquoted.}
 
-\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{chain} function,
+\item{ratios}{Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For \code{df} function,
 this can also be a list of quoted column names.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
