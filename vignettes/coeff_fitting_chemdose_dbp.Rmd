@@ -56,7 +56,8 @@ ggplot(dbp_data, aes(x = fin_chcl3, y = disinfected_chcl3)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") +
   labs(title = "Observed vs predicted chloroform",
        x = "Observed chloroform",
-       y = "Default Predicted chloroform")
+       y = "Default Predicted chloroform") +
+  expand_limits(x = 0, y = 0)
 
 ```
 
