@@ -29,7 +29,7 @@ influent <- define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = .2, br 
   chemdose_dbp(cl2 = 2, time = 8, treatment = "coag", cl_type = "chlorine", location = "plant")
 ```
 
-The influent water object now has populated slots corresponding to predicted DBP concentrations, including tthm for total trihalomethanes and haa5 for sum of haloacetic acids. However, when comparing these results to the facility's record, we realize that the default model coefficients used in `chemdose_dbp` don't accurately predict DBP formation at this facility. We can still use `chemdose_dbp`; we just need to fit coefficients customized for this facility.
+The influent water object now has populated slots corresponding to predicted DBP concentrations after coagulation, including tthm for total trihalomethanes and haa5 for sum of haloacetic acids. However, when comparing these results to the facility's record, we realize that the default model coefficients used in `chemdose_dbp` don't accurately predict DBP formation at this facility. We can still use `chemdose_dbp`; we just need to fit coefficients customized for this facility.
 
 ## Fitting DBP coefficients
 
