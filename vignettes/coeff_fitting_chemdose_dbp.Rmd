@@ -47,7 +47,7 @@ dbp_data <- data.frame(ph = c(7, 7.04, 7.5, 7.9, 7.2, 7.25),
   define_water_df("input")
 
 # Predicted chcl3 concentrations using default coefficients
-dbp_data <- dbp_data %>%
+plot_unfit_dbps <- dbp_data %>%
   chemdose_dbp_df("input", cl2 = 2, time = 8, treatment = "raw", cl_type = "chlorine", location = "plant") %>%
   pluck_water(input_waters = c("disinfected"), parameter = c("chcl3"))
 
