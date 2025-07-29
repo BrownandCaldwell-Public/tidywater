@@ -101,7 +101,7 @@ example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) 
 example_df <- water_df \%>\%
   dplyr::mutate(br = 50) \%>\%
   define_water_df() \%>\%
-  chemdose_chlordecay_df(input_water = "defined_water", cl2_dose = 4, time = 8)
+  chemdose_chlordecay_df(input_water = "defined", cl2_dose = 4, time = 8)
 
 example_df <- water_df \%>\%
   dplyr::mutate(

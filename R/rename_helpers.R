@@ -226,6 +226,16 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
 
 #' @rdname rename_helpers
 #' @export
+
+define_water_once <- function(df) {
+  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df()")
+  define_water_df(df, output_water = "defined",
+                  pluck_cols = TRUE, water_prefix = FALSE
+  )
+}
+
+#' @rdname rename_helpers
+#' @export
 dissolve_cu_once <- function(df, input_water = "defined_water") {
   lifecycle::deprecate_warn("0.10.0", "dissolve_cu_once()", "dissolve_cu_df()")
   dissolve_cu_df(df, input_water, water_prefix = TRUE)

@@ -34,8 +34,8 @@ test_that("chemdose_chlordecay warns when inputs are out of model range", {
 
 test_that("chemdose_chlordecay warns about chloramines", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 3))
-  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30)) %>%
-    chemdose_ph(nh42so4 = 3)
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30) %>%
+    chemdose_ph(nh42so4 = 3))
   water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
 
   expect_warning(chemdose_chlordecay(water1, cl2_dose = 2, time = 8, cl_type = "chloramine"), "breakpoint+")
@@ -290,3 +290,4 @@ test_that("chemdose_chlordecay_df correctly handles arguments with multiple numb
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))
 })
+

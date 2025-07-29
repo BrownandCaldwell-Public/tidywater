@@ -76,7 +76,7 @@ bed_volume <- gacbv_toc(water, media_size = "8x30", ebct = 20, model = "Zachman"
 library(dplyr)
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   mutate(
     model = "WTP",
     media_size = "8x30",

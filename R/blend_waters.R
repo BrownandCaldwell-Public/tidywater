@@ -5,9 +5,9 @@
 #' For a single blend use `blend_waters`; for a dataframe use `blend_waters_df`.
 #' Use [pluck_water] to get values from the output water as new dataframe columns.
 #'
-#' @param waters Vector of source waters created by [define_water]. For `chain` function, this can include
+#' @param waters Vector of source waters created by [define_water]. For `df` function, this can include
 #' quoted column names and/or existing single water objects unquoted.
-#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `chain` function,
+#' @param ratios Vector of ratios in the same order as waters. (Blend ratios must sum to 1). For `df` function,
 #' this can also be a list of quoted column names.
 #'
 #' @seealso [define_water]

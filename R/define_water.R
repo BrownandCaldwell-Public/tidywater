@@ -307,37 +307,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   return(water)
 }
 
-#' Apply `define_water` and output a dataframe
-#'
-#' This function allows \code{\link{define_water}} to be added to a piped data frame.
-#' It outputs all carbonate calculations and other parameters in a data frame.
-#' tidywater functions cannot be added after this function because they require a `water` class input.
-#'
-#' @param df a data frame containing columns with all the parameters listed in [define_water]
-#'
-#' @seealso \code{\link{define_water}}
-#'
-#' @examples
-#'
-#' example_df <- water_df %>%
-#'   define_water_once()
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest_wider
-#' @export
-#' @returns A data frame containing columns that were filled or calculated based on define_water.
-
-define_water_once <- function(df) {
-  lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df()")
-  defined_df <- defined_water <- NULL # Quiet RCMD check global variable note
-  df %>%
-    define_water_df() %>%
-    mutate(defined_df = furrr::future_map(defined_water, convert_water)) %>%
-    unnest_wider(defined_df) %>%
-    select(-defined_water) %>%
-    as.data.frame()
-}
-
 #' Apply `define_water` within a dataframe and output a column of `water` class to be chained to other tidywater functions
 #'
 #' This function allows [define_water] to be added to a piped data frame.
@@ -378,7 +347,7 @@ define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, wa
   })
 
   output <- df[, !names(df) %in% define_water_args, drop = FALSE]
-  
+
   if (pluck_cols) {
     output <- output |>
       pluck_water(c(output_water), c("ph", "alk"))
@@ -386,6 +355,6 @@ define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, wa
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
-  
+
   return(output)
 }

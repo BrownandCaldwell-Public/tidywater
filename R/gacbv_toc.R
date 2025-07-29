@@ -63,7 +63,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   mutate(
 #'     model = "WTP",
 #'     media_size = "8x30",
@@ -106,7 +106,7 @@ gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
     list(model = "Zachman", media_size = "12x40", ebct = "10")
   )
   df <- defaults_added$data
-  
+
   bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
     gacbv_toc(
       water = df[[input_water]][[i]],
@@ -116,9 +116,9 @@ gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
       target_doc = df[[final_names$target_doc]][i]
     )
   }))
-  
+
   # bv_df <- df[, !names(df) %in% defaults_added$defaults_used]
-  
+
   if (water_prefix) {
     names(bv_df) <- paste0(input_water, "_", names(bv_df))
   }

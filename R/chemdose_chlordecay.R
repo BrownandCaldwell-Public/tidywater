@@ -206,7 +206,7 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' example_df <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
 #'   define_water_df() %>%
-#'   chemdose_chlordecay_df(input_water = "defined_water", cl2_dose = 4, time = 8)
+#'   chemdose_chlordecay_df(input_water = "defined", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
 #'   dplyr::mutate(

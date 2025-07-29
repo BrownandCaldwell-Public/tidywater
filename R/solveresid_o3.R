@@ -53,12 +53,12 @@ solveresid_o3 <- function(water, dose, time) {
 #' @examples
 #' ozone_resid <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   solveresid_o3_df(dose = 2, time = 10)
 #'
 #' ozone_resid <- water_df %>%
 #'   dplyr::mutate(br = 50) %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     dose = seq(1, 12, 1),
 #'     time = seq(2, 24, 2)

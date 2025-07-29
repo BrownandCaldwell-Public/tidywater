@@ -280,7 +280,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #'   define_water_df() %>%
 #'   dplyr::mutate(
 #'     time = 8,
-#'     cl2dose = c(2, 3, 4)
+#'     cl2dose = rep(c(2, 3, 4), 4)
 #'   ) %>%
 #'   chemdose_chloramine_df(
 #'     output_water = "final",

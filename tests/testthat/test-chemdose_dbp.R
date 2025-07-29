@@ -29,8 +29,8 @@ test_that("chemdose_dbp warns when inputs are out of model range", {
 
 test_that("chemdose_dbp warns about chloramines", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 3))
-  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30)) %>%
-    chemdose_ph(nh42so4 = 3)
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30) %>%
+    chemdose_ph(nh42so4 = 3))
 
   expect_warning(chemdose_dbp(water1, cl2 = 2, time = 8), "breakpoint+")
   expect_warning(chemdose_dbp(water2, cl2 = 4, time = 8), "breakpoint+")

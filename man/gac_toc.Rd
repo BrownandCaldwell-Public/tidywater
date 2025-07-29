@@ -92,7 +92,7 @@ library(dplyr)
 # plan(multisession)
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
+  define_water_df() \%>\%
   mutate(
     model = "WTP",
     media_size = "8x30",
@@ -102,7 +102,7 @@ example_df <- water_df \%>\%
   gac_toc_df()
 
 example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
+  define_water_df("raw") \%>\%
   mutate(
     model = "WTP",
     bed_vol = 15000
