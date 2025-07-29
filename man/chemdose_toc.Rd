@@ -17,7 +17,8 @@ chemdose_toc(
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
-  coeff = "Alum"
+  coeff = "Alum",
+  caoh2 = 0
 )
 
 chemdose_toc_df(
@@ -29,8 +30,8 @@ chemdose_toc_df(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
+  caoh2 = "use_col",
   coeff = "use_col"
-)
 }
 \arguments{
 \item{water}{Source water object of class "water" created by \link{define_water}. Water must include ph, doc, and uv254}
@@ -43,6 +44,8 @@ chemdose_toc_df(
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
+
+\item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column named for the coagulant being dosed,
