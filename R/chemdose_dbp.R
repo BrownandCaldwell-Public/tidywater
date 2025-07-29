@@ -151,7 +151,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
       stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
     } else if (any(duplicated(coeff$ID))) {
-      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _df or _once function.")
+      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _df function.")
     } else {
       changecoeff <- coeff$ID
       newcoeff <- unique(subset(tidywater::dbpcoeffs, ID %in% changecoeff, select = c(ID, alias, group)))

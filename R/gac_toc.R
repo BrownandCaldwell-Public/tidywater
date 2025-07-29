@@ -72,14 +72,9 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'
 #' @examples
 #' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' library(dplyr)
-#' # plan(multisession)
-#'
 #' example_df <- water_df %>%
 #'   define_water_df() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     model = "WTP",
 #'     media_size = "8x30",
 #'     ebct = 10,
@@ -89,17 +84,13 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'
 #' example_df <- water_df %>%
 #'   define_water_df("raw") %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     model = "WTP",
 #'     bed_vol = 15000
 #'   ) %>%
 #'   gac_toc_df(input_water = "raw")
 #'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
 #' }
-#' @import dplyr
-#'
 #' @export
 #'
 #' @returns `gac_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots

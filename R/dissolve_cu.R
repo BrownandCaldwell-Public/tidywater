@@ -48,7 +48,6 @@ dissolve_cu <- function(water) {
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
-#' library(dplyr)
 #' cu_calc <- water_df %>%
 #'   define_water_df() %>%
 #'   dissolve_cu_df()

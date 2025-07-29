@@ -103,11 +103,11 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #'
 #' @examples
 #' \donttest{
-#' library(dplyr)
+
 #' ct_calc <- water_df %>%
-#'   mutate(br = 50) %>%
+#'   dplyr::mutate(br = 50) %>%
 #'   define_water_df() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     dose = 2,
 #'     O3time = 10,
 #'   ) %>%

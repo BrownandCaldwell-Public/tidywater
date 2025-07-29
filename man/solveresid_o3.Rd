@@ -27,7 +27,7 @@ solveresid_o3_df(
 
 \item{time}{Ozone contact time in minutes}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}}
+\item{df}{a data frame containing a water class column, which has already been computed using \code{\link{define_water_df}}}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined".}
 

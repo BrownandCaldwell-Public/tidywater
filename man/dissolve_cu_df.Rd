@@ -20,7 +20,6 @@ dissolve_cu_df(df, input_water = "defined", water_prefix = TRUE)
 Calculate Dissolved Copper Concentration
 }
 \examples{
-library(dplyr)
 cu_calc <- water_df \%>\%
   define_water_df() \%>\%
   dissolve_cu_df()

@@ -46,7 +46,7 @@ solveresid_o3 <- function(water, dose, time) {
 
 
 #' @rdname solveresid_o3
-#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_chain}}
+#' @param df a data frame containing a water class column, which has already been computed using \code{\link{define_water_df}}
 #' @param input_water name of the column of Water class data to be used as the input for this function. Default is "defined".
 #' @param output_column name of the output column storing doses in mg/L. Default is "dose_required".
 #'

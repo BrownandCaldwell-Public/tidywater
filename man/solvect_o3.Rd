@@ -71,11 +71,10 @@ define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) \%>\%
   solvect_o3(time = 10, dose = 2, baffle = 0.5)
 
 \donttest{
-library(dplyr)
 ct_calc <- water_df \%>\%
-  mutate(br = 50) \%>\%
+  dplyr::mutate(br = 50) \%>\%
   define_water_df() \%>\%
-  mutate(
+  dplyr::mutate(
     dose = 2,
     O3time = 10,
   ) \%>\%

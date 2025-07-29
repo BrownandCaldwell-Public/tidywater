@@ -84,7 +84,7 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 
 #' @rdname ozonate_bromate
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
+#' [define_water_df]. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time in minutes.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "ozonated".

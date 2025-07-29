@@ -8,7 +8,7 @@
 #' * `_chain` -> `_df`
 #' * For functions that return a water: `_once` -> `_df(pluck_cols = TRUE)`
 #' * For functions with numeric outputs: `_once` -> `_df()`
-#'
+#' @importFrom lifecycle deprecate_warn
 #' @keywords internal
 #' @name rename_helpers
 #' @aliases NULL

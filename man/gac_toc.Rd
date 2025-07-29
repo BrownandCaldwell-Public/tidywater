@@ -86,14 +86,9 @@ water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   gac_toc(media_size = "8x30", ebct = 20, model = "Zachman", bed_vol = 15000)
 
 \donttest{
-# Initialize parallel processing
-library(furrr)
-library(dplyr)
-# plan(multisession)
-
 example_df <- water_df \%>\%
   define_water_df() \%>\%
-  mutate(
+  dplyr::mutate(
     model = "WTP",
     media_size = "8x30",
     ebct = 10,
@@ -103,13 +98,11 @@ example_df <- water_df \%>\%
 
 example_df <- water_df \%>\%
   define_water_df("raw") \%>\%
-  mutate(
+  dplyr::mutate(
     model = "WTP",
     bed_vol = 15000
   ) \%>\%
   gac_toc_df(input_water = "raw")
 
-# Optional: explicitly close multisession processing
-# plan(sequential)
 }
 }

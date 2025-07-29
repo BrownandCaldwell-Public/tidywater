@@ -33,7 +33,7 @@ ozonate_bromate_df(
 \item{model}{Model to apply. One of c("Ozekin", "Sohn", "Song", "Galey", "Siddiqui")}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_once}. The df may include a column named for the applied chlorine dose (cl2),
+\link{define_water_df}. The df may include a column named for the applied chlorine dose (cl2),
 and a column for time in minutes.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
