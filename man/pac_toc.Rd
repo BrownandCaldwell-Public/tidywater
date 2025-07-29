@@ -2,7 +2,7 @@
 % Please edit documentation in R/pac_toc.R
 \name{pac_toc}
 \alias{pac_toc}
-\alias{pac_toc_chain}
+\alias{pac_toc_df}
 \title{Calculate DOC Concentration in PAC system}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -12,10 +12,12 @@ CHO(2007)
 \usage{
 pac_toc(water, dose, time, type = "bituminous")
 
-pac_toc_chain(
+pac_toc_df(
   df,
-  input_water = "defined_water",
-  output_water = "pac_water",
+  input_water = "defined",
+  output_water = "paced",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   dose = "use_col",
   time = "use_col",
   type = "use_col"
@@ -31,24 +33,29 @@ pac_toc_chain(
 \item{type}{Type of PAC applied, either "bituminous", "lignite", "wood".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include columns named for the dose, time, and type}
+\link{define_water_df}. The df may include columns named for the dose, time, and type}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "pac_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "paced". Pronouced P.A.ceed (not ideal we know).}
+
+\item{pluck_cols}{Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{pac_toc} returns a water class object with updated DOC, TOC, and UV254 slots.
 
-\code{pac_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
+\code{pac_toc_df} returns a data frame containing a water class column with updated DOC, TOC, and UV254
+concentrations. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates DOC concentration multiple linear regression model found in 2-METHYLISOBORNEOL AND NATURAL ORGANIC MATTER
 ADSORPTION BY POWDERED ACTIVATED CARBON by HYUKJIN CHO (2007).
 Assumes all particulate TOC is removed when PAC is removed; therefore TOC = DOC in output.
-For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_chain}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For a single water use \code{pac_toc}; for a dataframe use \code{pac_toc_df}.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 
@@ -57,34 +64,15 @@ water must contain DOC or TOC value.
 \details{
 The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
 UV254 concentrations are predicted based on a linear relationship with DOC.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%
   pac_toc(dose = 15, time = 50, type = "wood")
 
 
-library(dplyr)
-
 example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  mutate(dose = seq(11, 22, 1), PACTime = 30) \%>\%
-  pac_toc_chain(input_water = "raw", time = PACTime, type = "wood")
+  define_water_df("raw") \%>\%
+  dplyr::mutate(dose = seq(11, 22, 1), PACTime = 30) \%>\%
+  pac_toc_df(input_water = "raw", time = PACTime, type = "wood", pluck_cols = TRUE)
 
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  define_water_chain("raw") \%>\%
-  pac_toc_chain(input_water = "raw", dose = 4, time = 8)
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
 }

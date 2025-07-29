@@ -21,7 +21,7 @@
 #' # Summarize major cations and anions
 #' summarize_wq(water_defined, params = list("ions"))
 #'
-#' @import dplyr
+#' @importFrom dplyr mutate
 #' @importFrom tidyr pivot_longer
 #' @export
 #' @returns A knitr_kable table of specified water quality parameters.
@@ -524,10 +524,10 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_chain().")
+    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_df().")
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    stop("Specified input_water does not contain water class objects. Use define_water_chain() or specify a different column.")
+    stop("Specified input_water does not contain water class objects. Use define_water_df() or specify a different column.")
   }
 }
 
@@ -553,39 +553,6 @@ validate_args <- function(num_args = list(), str_args = list(), log_args = list(
       stop("argument '", arg, "' must be either TRUE or FALSE.")
     }
   }
-}
-
-construct_helper <- function(df, all_args) {
-  # Get the names of each argument type
-  all_arguments <- names(all_args)
-  from_df <- names(all_args[all_args == "use_col"])
-
-  from_new <- all_args[all_args != "use_col"]
-  if (length(from_new) > 0) {
-    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
-  } else {
-    from_columns <- list()
-  }
-
-  from_inputs <- setdiff(names(from_new), names(from_columns))
-
-  inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
-
-
-  if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
-  }
-
-  # Get the new names for relevant columns
-  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
-  for (arg in names(from_columns)) {
-    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
-  }
-
-  return(list(
-    "new_cols" = as.list(inputs_arg),
-    "final_names" = as.list(final_names)
-  ))
 }
 
 
@@ -697,4 +664,50 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # SUVA calc
 calc_suva <- function(doc, uv254) {
   uv254 / doc * 100
+}
+
+# Helper construction ----
+construct_helper <- function(df, all_args) {
+  # Get the names of each argument type
+  all_arguments <- names(all_args)
+  from_df <- names(all_args[all_args == "use_col"])
+
+  from_new <- all_args[all_args != "use_col"]
+  if (length(from_new) > 0) {
+    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
+  } else {
+    from_columns <- list()
+  }
+
+  from_inputs <- setdiff(names(from_new), names(from_columns))
+
+  inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
+
+
+  if (any(colnames(df) %in% colnames(inputs_arg))) {
+    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
+  }
+
+  # Get the new names for relevant columns
+  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
+  for (arg in names(from_columns)) {
+    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
+  }
+
+  return(list(
+    "new_cols" = as.list(inputs_arg),
+    "final_names" = as.list(final_names)
+  ))
+}
+
+handle_defaults <- function(df, final_names, defaults) {
+  defaults_used <- c()
+  for (arg in names(defaults)) {
+    col_name <- final_names[[arg]]
+    if (!col_name %in% names(df)) {
+      defaults_used <- c(defaults_used, arg)
+      df[[col_name]] <- defaults[[arg]]
+    }
+  }
+  return(list(data = df, defaults_used = defaults_used))
 }

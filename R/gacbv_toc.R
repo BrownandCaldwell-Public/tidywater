@@ -1,11 +1,11 @@
 #' GAC model for TOC removal
-#' 
+#'
 #' @title Calculate maximum bed volumes to stay below target DOC
 #'
-#' @description Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in 
+#' @description Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in
 #' "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
-#' For a single water use `gacbv_toc`; for a dataframe use `gacbv_toc_once`.
-#' For most arguments in the `_once` helper
+#' For a single water use `gacbv_toc`; for a dataframe use `gacbv_toc_df`.
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -13,16 +13,11 @@
 #'
 #' @details The function will calculate bed volume required to achieve given target DOC values.
 #'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source Zachman and Summers (2010)
 #' @source USEPA (2001)
-#' 
+#'
 #' @param water Source water object of class "water" created by [define_water]
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
@@ -41,86 +36,93 @@
 gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", target_doc) {
   validate_water(water, c("ph", "doc"))
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
-  
+
   if (missing(target_doc)) {
     stop("Target DOC is a required argument to predict bed volumes.")
   }
-  
-  if (any((target_doc / water@doc) < min(breakthrough_df$x_norm) | 
-         (target_doc / water@doc) > max(breakthrough_df$x_norm))) {
+
+  if (any((target_doc / water@doc) < min(breakthrough_df$x_norm) |
+    (target_doc / water@doc) > max(breakthrough_df$x_norm))) {
     stop("Target DOC is outside of range for the chosen model. Use `gacrun_toc` for complete breakthrough curve.")
   }
-    
-  x_index <- sapply(target_doc * water@doc, function(x) which.min(abs(breakthrough_df$x_norm-x))) # should work with input of multiple target DOCs
-  output_bv <- breakthrough_df$bv[x_index]
-  
+
+  x_index <- sapply(target_doc * water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
+  output_bv <- data.frame(bed_volume = breakthrough_df$bv[x_index])
+
   return(output_bv)
 }
 
 #' @rdname gacbv_toc
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param water_prefix name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.
+#' [define_water_df] The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
 #' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(model = "WTP",
-#'          media_size = "8x30",
-#'          ebct = 10, 
-#'          target_doc = rep(c(0.5, 0.8, 1), 4)) %>%
-#'   gacbv_toc_once()
+#'   define_water_df() %>%
+#'   mutate(
+#'     model = "WTP",
+#'     media_size = "8x30",
+#'     ebct = 10,
+#'     target_doc = rep(c(0.5, 0.8, 1), 4)
+#'   ) %>%
+#'   gacbv_toc_df()
 #' }
 #'
 #' @import dplyr
 #' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns `gacbv_toc_once` returns a data frame with columns for bed volumes.
+#' @returns `gacbv_toc_df` returns a data frame with columns for bed volumes.
 #'
 
-gacbv_toc_once <- function(df, input_water = "defined_water", model = "use_col",
-                         media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
+gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
+                           media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
   bed_volume <- NULL # Quiet RCMD check global variable note
-  
+
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))
   media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   target_doc <- tryCatch(target_doc, error = function(e) enquo(target_doc))
-  
+
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("model" = model, "media_size" = media_size, "ebct" = ebct, "target_doc" = target_doc))
-  
+  final_names <- arguments$final_names
+
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- df %>%
       cross_join(as.data.frame(arguments$new_cols))
   }
-  output <- df %>%
-    mutate(bed_volume := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        model = !!as.name(arguments$final_names$model),
-        media_size = !!as.name(arguments$final_names$media_size),
-        ebct = !!as.name(arguments$final_names$ebct),
-        target_doc = !!as.name(arguments$final_names$target_doc)
-      ),
-      gacbv_toc
-    ))
-  
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(model = "Zachman", media_size = "12x40", ebct = "10")
+  )
+  df <- defaults_added$data
+
+  bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    gacbv_toc(
+      water = df[[input_water]][[i]],
+      model = df[[final_names$model]][i],
+      media_size = df[[final_names$media_size]][i],
+      ebct = as.numeric(df[[final_names$ebct]][i]),
+      target_doc = df[[final_names$target_doc]][i]
+    )
+  }))
+
+  # bv_df <- df[, !names(df) %in% defaults_added$defaults_used]
+
   if (water_prefix) {
-    output <- output %>%
-      rename(
-        !!paste(input_water, "target_doc", sep = "_") := target_doc,
-        !!paste(input_water, "bed_volume", sep = "_") := bed_volume,
-      )
+    names(bv_df) <- paste0(input_water, "_", names(bv_df))
   }
-  
+
+  output <- cbind(df, bv_df)
   return(output)
 }
