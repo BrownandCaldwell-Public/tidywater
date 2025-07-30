@@ -40,7 +40,7 @@ test_that("convert water mg works", {
 # pluck_waters----
 test_that("pluck_water works", {
   water1 <- suppressWarnings(water_df %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     pluck_water(parameter = "tot_co3"))
 
   tot_co3_water <- purrr::pluck(water1, 1, 4)
@@ -48,21 +48,21 @@ test_that("pluck_water works", {
 
   water2 <- water_df %>%
     slice(4) %>%
-    define_water_chain() %>%
-    balance_ions_chain()%>%
-    pluck_water(input_water = c("defined_water", "balanced_water"), parameter = c("na", "cl", "ph"))
+    define_water_df() %>%
+    balance_ions_df() %>%
+    pluck_water(input_water = c("defined", "balanced"), parameter = c("na", "cl", "ph"))
 
   expect_equal(ncol(water1), 2)
-  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_water_tot_co3)
+  expect_equal(tot_co3_water@tot_co3, tot_co3_pluck$defined_tot_co3)
   expect_equal(ncol(water2), 8)
-  expect_equal(water_df$ph[4], water2$defined_water_ph[1])
-  expect_failure(expect_equal(water2$defined_water_na, water2$balanced_water_na)) # check that Na is being plucked from 2 different waters
+  expect_equal(water_df$ph[4], water2$defined_ph[1])
+  expect_failure(expect_equal(water2$defined_na, water2$balanced_na)) # check that Na is being plucked from 2 different waters
 })
 
 test_that("pluck_water inputs must be waters and water slots", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
-    define_water_chain("raw") %>%
+    define_water_df("raw") %>%
     mutate(ohno = "not a water")
   water2 <- water_df
 
@@ -74,13 +74,13 @@ test_that("pluck_water inputs must be waters and water slots", {
 test_that("pluck_water all works", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
-    define_water_chain("raw") %>%
-    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    define_water_df("raw") %>%
+    chemdose_toc_df("raw", "coag", alum = 10) %>%
     pluck_water(c("raw", "coag"), "all")
 
   water2 <- water_df %>%
-    define_water_chain("raw") %>%
-    chemdose_toc_chain("raw", "coag", alum = 10) %>%
+    define_water_df("raw") %>%
+    chemdose_toc_df("raw", "coag", alum = 10) %>%
     pluck_water(c("raw", "coag"), c("doc", "hco3"))
 
   expect_equal(water1$raw_hco3, water2$raw_hco3)

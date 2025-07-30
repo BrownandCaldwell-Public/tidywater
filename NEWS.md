@@ -2,6 +2,8 @@
 
 ## New features
 
+* Revamped helpers `_df` replace `chain` and `once` functions. Use `pluck_cols = TRUE` to mimic `once` behavior, although it will always
+return a water column as well.
 * `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
 * Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
 * `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
@@ -13,6 +15,9 @@ necessary bed volume to stay below the target effluent TOC. See individual funct
 * New model `opensys_ph` added to predict pH, alkalinity, and dic in an open carbonate system at equilibrium
 
 ## Breaking changes
+* `_chain` and `_once` functions have been deprecated. Replace with `_df` functions. 
+* Default water naming in helper functions has been shortened to remove "_water". 
+Eg, new default `output_water = "defined"`, old default `output_water = "defined_water"`. See function documentation for new defaults.
 
 # tidywater 0.9.0
 

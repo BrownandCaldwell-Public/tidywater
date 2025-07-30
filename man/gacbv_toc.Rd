@@ -2,7 +2,7 @@
 % Please edit documentation in R/gacbv_toc.R
 \name{gacbv_toc}
 \alias{gacbv_toc}
-\alias{gacbv_toc_once}
+\alias{gacbv_toc_df}
 \title{Calculate maximum bed volumes to stay below target DOC}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -20,9 +20,9 @@ gacbv_toc(
   target_doc
 )
 
-gacbv_toc_once(
+gacbv_toc_df(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   model = "use_col",
   media_size = "use_col",
   ebct = "use_col",
@@ -42,22 +42,22 @@ gacbv_toc_once(
 \item{target_doc}{Optional input to set a target DOC concentration and calculate necessary bed volume}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain} The df may include columns named for the chemical(s) being dosed.}
+\link{define_water_df} The df may include columns named for the chemical(s) being dosed.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{gacbv_toc} returns a data frame of bed volumes that achieve the target DOC.
 
-\code{gacbv_toc_once} returns a data frame with columns for bed volumes.
+\code{gacbv_toc_df} returns a data frame with columns for bed volumes.
 }
 \description{
 Calculates GAC filter bed volumes to achieve target effluent DOC according to the model developed in
 "Modeling TOC Breakthrough in Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model v. 2.0 Manual (2001).
-For a single water use \code{gacbv_toc}; for a dataframe use \code{gacbv_toc_once}.
-For most arguments in the \verb{_once} helper
+For a single water use \code{gacbv_toc}; for a dataframe use \code{gacbv_toc_df}.
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 
@@ -67,12 +67,6 @@ Water must contain DOC or TOC value.
 GAC model for TOC removal
 
 The function will calculate bed volume required to achieve given target DOC values.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
@@ -82,12 +76,14 @@ bed_volume <- gacbv_toc(water, media_size = "8x30", ebct = 20, model = "Zachman"
 library(dplyr)
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(model = "WTP",
-         media_size = "8x30",
-         ebct = 10, 
-         target_doc = rep(c(0.5, 0.8, 1), 4)) \%>\%
-  gacbv_toc_once()
+  define_water_df() \%>\%
+  mutate(
+    model = "WTP",
+    media_size = "8x30",
+    ebct = 10,
+    target_doc = rep(c(0.5, 0.8, 1), 4)
+  ) \%>\%
+  gacbv_toc_df()
 }
 
 }
