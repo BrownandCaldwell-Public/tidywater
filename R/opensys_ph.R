@@ -14,7 +14,7 @@
 #' 
 #' @source Snoeyink & Jenkins (1980)
 #'
-#' @param water Source water of class "water" created by \code{\link{define_water}}
+#' @param water Source water of class "water" created by [define_water]
 #' @param partialpressure Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm.
 #'
 #' @examples
