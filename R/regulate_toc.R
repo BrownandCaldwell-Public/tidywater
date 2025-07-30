@@ -97,19 +97,27 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <-merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-  output <- df %>%
-    mutate(calc = furrr::future_pmap(
-      list(
-        alk_raw = if (final_names$alk_raw %in% names(.)) !!sym(final_names$alk_raw) else rep(0, nrow(.)),
-        toc_raw = if (final_names$toc_raw %in% names(.)) !!sym(final_names$toc_raw) else rep(0, nrow(.)),
-        toc_finished = if (final_names$toc_finished %in% names(.)) !!sym(final_names$toc_finished) else rep(0, nrow(.))
-      ),
-      regulate_toc
-    )) %>%
-    tidyr::unnest_wider(calc)
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(
+     alk_raw = 0, toc_raw = 0, toc_finished = 0
+    )
+  )
+  df <- defaults_added$data
+
+  toc_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+  regulate_toc(
+    alk_raw = df[[final_names$alk_raw]][i],
+    toc_raw = df[[final_names$toc_raw]][i],
+    toc_finished = df[[final_names$toc_finished]][i]
+  )
+  }))
+
+  output <- cbind(df, toc_df)
+  return(output)
 
 }
