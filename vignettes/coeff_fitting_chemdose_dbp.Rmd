@@ -3,7 +3,7 @@ title:  "Fitting and using custom coefficients in chemdose_dbp"
 description: "This vignette will detail how to use custom coefficients to predict DBP formation."
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{intro}
+  %\VignetteIndexEntry{coeff_fitting_chemdose_dbp}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
