@@ -62,7 +62,7 @@ ggplot(plot_unfit_dbps, aes(x = fin_chcl3, y = disinfected_chcl3)) +
 
 ```
 
-Now, we can fit custom coefficients to the facility's DBP data. The following code builds off the code we've already used above. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. Running `optim()` on this example should take approximately 2 seconds, which is typical for an `optim()` function. If `optim()` is not constrained by a number of maximum iterations, it can take longer and parallel processing can be used to speed it up if the time is too long. 
+Now, we can fit custom coefficients to the facility's DBP data. The following code builds off the code we've already used above and uses the default chcl3 coefficients as the initial parameters. Even if `optim()` doesn't converge, the new coefficients it outputs should still provide a better fit than the defaults. Running `optim()` on this example should take approximately 2 seconds, which is typical for an `optim()` function. If `optim()` is not constrained by a number of maximum iterations, it can take longer and parallel processing can be used to speed it up if the time is too long. 
 
 ```{r chloroform-plot, echo=TRUE, message=FALSE, warning=FALSE}
 # Model we're trying to fit
@@ -91,7 +91,7 @@ coeffs <- data.frame(ID = "chcl3",
                      ph_const = NA)
 
 dbp_data <- dbp_data %>%
-  chemdose_dbp_df(input_water = "input", output_water = "coeff_disinfected", coeff = coeffs) %>%
+  chemdose_dbp_df(input_water = "input", output_water = "coeff_disinfected", cl2 = 2, time = 8, coeff = coeffs) %>%
   pluck_water(input_waters = c("coeff_disinfected"), parameter = c("chcl3"))
 
 ggplot()+
