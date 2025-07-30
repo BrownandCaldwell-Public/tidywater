@@ -49,9 +49,9 @@ test_that("dissolve_cu works.", {
 ################################################################################*
 ################################################################################*
 # dissolve_cu helper ----
-# Check dissolve_cu_once outputs are the same as base function, dissolve_cu
+# Check dissolve_cu_df outputs are the same as base function, dissolve_cu
 
-test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu", {
+test_that("dissolve_cu_df outputs are the same as base function, dissolve_cu", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
@@ -63,20 +63,20 @@ test_that("dissolve_cu_once outputs are the same as base function, dissolve_cu",
   water2 <- suppressWarnings(water_df %>%
     mutate(tot_po4 = 2) %>%
     slice(1) %>%
-    define_water_chain() %>%
-    dissolve_cu_once(input_water = "defined_water"))
+    define_water_df() %>%
+    dissolve_cu_df())
 
-  expect_equal(water1$cu, water2$cu)
+  expect_equal(water1$cu, water2$defined_cu)
 })
 
 # Check that output column is numeric
 
-test_that("dissolve_cu_once outputs data frame", {
+test_that("dissolve_cu_df outputs data frame", {
   testthat::skip_on_cran()
-  water <- suppressWarnings(water_df %>%
+  water <- water_df %>%
     mutate(tot_po4 = 2) %>%
-    define_water_chain() %>%
-    dissolve_cu_once(input_water = "defined_water"))
+    define_water_df() %>%
+    dissolve_cu_df(water_prefix = FALSE)
 
   expect_true(is.numeric(water$cu))
 })

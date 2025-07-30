@@ -8,18 +8,11 @@
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, DOC or UV254 (depending on the model), pH, alkalinity (depending on the model), and
 #' optionally, ammonia (added when defining water using the `tot_nh3` argument.)
-#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For a single water use `ozonate_bromate`; for a dataframe use `ozonate_bromate_df`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
-#'
-#' @details
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source Ozekin (1994), Sohn et al (2004), Song et al (1996), Galey et al (1997), Siddiqui et al (1994)
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -91,44 +84,31 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 
 #' @rdname ozonate_bromate
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
+#' [define_water_df]. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time in minutes.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "ozonated_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "ozonated".
+#' @param pluck_cols Extract water slots modified by the function (bro3) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #' @examples
 #'
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
-#'   slice_head(n = 6) %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::slice_head(n = 6) %>%
+#'   dplyr::mutate(br = 50) %>%
+#'   define_water_df() %>%
+#'   dplyr::mutate(
 #'     dose = c(seq(.5, 3, .5)),
 #'     OzoneTime = 30
 #'   ) %>%
-#'   ozonate_bromate_chain(time = OzoneTime, model = "Sohn")
+#'   ozonate_bromate_df(time = OzoneTime, model = "Sohn", pluck_cols = TRUE)
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   ozonate_bromate_chain(dose = 4, time = 8)
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#'
-#' @import dplyr
 #' @export
 #'
-#' @returns `ozonate_bromate_chain` returns a data frame containing a water class column with updated bro3.
+#' @returns `ozonate_bromate_df` returns a data frame containing a water class column with updated bro3
+#' concentration. Optionally, it also adds columns for each of those slots individually.
 
-ozonate_bromate_chain <- function(df, input_water = "defined_water", output_water = "ozonated_water",
-                                  dose = "use_col", time = "use_col", model = "use_col") {
+ozonate_bromate_df <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
+                               dose = "use_col", time = "use_col", model = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
@@ -137,20 +117,37 @@ ozonate_bromate_chain <- function(df, input_water = "defined_water", output_wate
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("dose" = dose, "time" = time, "model" = model))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        dose = !!as.name(arguments$final_names$dose),
-        time = !!as.name(arguments$final_names$time),
-        model = if (arguments$final_names$model %in% names(.)) !!sym(arguments$final_names$model) else rep("Ozekin", nrow(.))
-      ),
-      ozonate_bromate
-    ))
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(model = "Ozekin")
+  )
+  df <- defaults_added$data
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    ozonate_bromate(
+      water = df[[input_water]][[i]],
+      dose = df[[final_names$dose]][i],
+      time = df[[final_names$time]][i],
+      model = df[[final_names$model]][i]
+    )
+  })
+
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
+
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("bro3"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
+
+  return(output)
 }

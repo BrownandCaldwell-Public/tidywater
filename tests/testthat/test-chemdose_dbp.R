@@ -29,8 +29,8 @@ test_that("chemdose_dbp warns when inputs are out of model range", {
 
 test_that("chemdose_dbp warns about chloramines", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, tot_nh3 = 3))
-  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30)) %>%
-    chemdose_ph(nh42so4 = 3)
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 30, toc = 2, uv254 = 0.01, br = 30) %>%
+    chemdose_ph(nh42so4 = 3))
 
   expect_warning(chemdose_dbp(water1, cl2 = 2, time = 8), "breakpoint+")
   expect_warning(chemdose_dbp(water2, cl2 = 4, time = 8), "breakpoint+")
@@ -85,10 +85,10 @@ test_that("users can provide their own dbp coefficients.", {
 test_that("chemdose_dbp works when correction is T/F", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8)
-  
+
   water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8, correction = FALSE)
-  
+
   expect_true(identical(water1@tthm, water2@tthm)) # correction factor is 1
   expect_false(identical(water1@chbr2cl, water2@chbr2cl)) # these compounds have other correction factors
   expect_false(identical(water1@haa5, water2@haa5))
@@ -98,7 +98,7 @@ test_that("chemdose_dbp works when correction is T/F", {
 ################################################################################*
 # chemdose_dbp helpers ----
 
-test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_dbp", {
+test_that("chemdose_dbp_df outputs are the same as base function, chemdose_dbp", {
   testthat::skip_on_cran()
   water0 <- define_water(7.9, 20, 50,
     tot_hard = 50, ca = 13, mg = 4,
@@ -112,22 +112,18 @@ test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_db
   water2 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
-    define_water_chain() %>%
-    chemdose_dbp_chain(cl2 = 10, time = 8, output_water = "chlor") %>%
-    pluck_water("chlor", c(
-      "chcl3", "chcl2br", "chbr2cl", "chbr3", "tthm",
-      "mcaa", "dcaa", "tcaa", "mbaa", "dbaa", "haa5"
-    ))
+    define_water_df() %>%
+    chemdose_dbp_df(cl2 = 10, time = 8, output_water = "chlor", pluck_cols = "all")
 
   times <- tibble(time = seq(4, 10, 2))
   treatment <- tibble(Location = c("raw", "coag", "gac"))
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     cross_join(times) %>%
     cross_join(treatment) %>%
-    chemdose_dbp_chain(cl2 = 10, treatment = Location, output_water = "chlor") %>%
+    chemdose_dbp_df(cl2 = 10, treatment = Location, output_water = "chlor") %>%
     pluck_water("chlor", c("tthm", "haa5")))
 
   water4 <- suppressWarnings(chemdose_dbp(water0, cl2 = 10, time = 8, treatment = "coag"))
@@ -151,199 +147,126 @@ test_that("chemdose_dbp_chain outputs are the same as base function, chemdose_db
 
 # Test that output is a column of water class lists, and changing the output column name works
 
-test_that("chemdose_dbp_chain output is list of water class objects, and can handle an ouput_water arg", {
+test_that("chemdose_dbp_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 60) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_chain(input_water = "balanced_water", time = 8, cl2 = 4))
+    define_water_df() %>%
+    chemdose_dbp_df(time = 8, cl2 = 4))
 
-  water2 <- purrr::pluck(water1, "disinfected_water", 1)
+  water2 <- purrr::pluck(water1, "disinfected", 1)
 
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 60) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(
       cl2 = 4,
       time = 8
     ) %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_chain(output_water = "diff_name"))
+    chemdose_dbp_df(output_water = "diff_name"))
 
   expect_s4_class(water2, "water") # check class
   expect_true(exists("diff_name", water3)) # check if output_water arg works
 })
 
-# Check chemdose_dbp_chain can use a column or function argument for chemical dose
+# Check chemdose_dbp_df can use a column or function argument for chemical dose
 
-test_that("chemdose_dbp_chain can use a column or function argument for chemical dose", {
+test_that("chemdose_dbp_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_chain(input_water = "balanced_water", time = 120, cl2 = 10) %>%
-    pluck_water("disinfected_water", c("tthm", "haa5", "mbaa")))
+    define_water_df() %>%
+    chemdose_dbp_df(time = 120, cl2 = 10, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(
       time = 120,
       cl2 = 10,
     ) %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_chain(input_water = "balanced_water") %>%
-    pluck_water("disinfected_water", c("tthm", "haa5", "mbaa")))
+    chemdose_dbp_df(pluck_cols = TRUE))
 
+  # test that pluck_cols does the same as pluck_Water
   water3 <- suppressWarnings(water_df %>%
     slice(1) %>%
     mutate(br = 80) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(time = 120) %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_chain(input_water = "balanced_water", cl2 = 10) %>%
-    pluck_water("disinfected_water", c("tthm", "haa5", "mbaa")))
+    chemdose_dbp_df(cl2 = 10) %>%
+    pluck_water("disinfected", c("tthm", "haa5")))
 
-  expect_equal(water1$disinfected_water_tthm, water2$disinfected_water_tthm) # test different ways to input args
-  expect_equal(water1$disinfected_water_haa5, water2$disinfected_water_haa5)
-  expect_equal(water1$disinfected_water_mbaa, water2$disinfected_water_mbaa)
+  expect_equal(water1$disinfected_tthm, water2$disinfected_tthm) # test different ways to input args
+  expect_equal(water1$disinfected_haa5, water2$disinfected_haa5)
 
   # Test that inputting time/cl2 separately (in column and as an argument)  gives same results
-  expect_equal(water1$disinfected_water_tthm, water3$disinfected_water_tthm)
-  expect_equal(water2$disinfected_water_haa5, water3$disinfected_water_haa5)
-  expect_equal(water2$disinfected_water_mbaa, water3$disinfected_water_mbaa)
+  expect_equal(water1$disinfected_tthm, water3$disinfected_tthm)
+  expect_equal(water2$disinfected_haa5, water3$disinfected_haa5)
 })
 
-test_that("chemdose_dbp_chain errors with argument + column for same param", {
+test_that("chemdose_dbp_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
     mutate(br = 80) %>%
-    define_water_chain("water")
+    define_water_df("water")
   expect_error(water %>%
     mutate(cl2 = 5) %>%
-    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+    chemdose_dbp_df(input_water = "water", time = 120, cl2 = 10))
   expect_error(water %>%
     mutate(time = 5) %>%
-    chemdose_dbp_chain(input_water = "water", time = 120, cl2 = 10))
+    chemdose_dbp_df(input_water = "water", time = 120, cl2 = 10))
 
   times <- tibble(time = seq(4, 10, 2))
   water1 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     cross_join(times)
 
   water2 <- water_df %>%
     mutate(br = 50) %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(treatment = "raw")
 
-  expect_error(chemdose_dbp_chain(water1, cl2 = 10, time = 10, output_water = "chlor"))
-  expect_error(chemdose_dbp_chain(water2, cl2 = 10, time = 10, treatment = "raw", output_water = "chlor"))
+  expect_error(chemdose_dbp_df(water1, cl2 = 10, time = 10, output_water = "chlor"))
+  expect_error(chemdose_dbp_df(water2, cl2 = 10, time = 10, treatment = "raw", output_water = "chlor"))
 })
 
-test_that("chemdose_dbp_chain correctly handles arguments with multiple numbers", {
+test_that("chemdose_dbp_df correctly handles arguments with multiple numbers", {
   testthat::skip_on_cran()
   water <- water_df %>%
     mutate(br = 80) %>%
-    define_water_chain("water")
+    define_water_df("water")
 
   water1 <- water %>%
-    chemdose_dbp_chain("water", time = c(60, 120), cl2 = 5)
+    chemdose_dbp_df("water", time = c(60, 120), cl2 = 5)
   water2 <- water %>%
-    chemdose_dbp_chain("water", time = 120, cl2 = seq(2, 4, 1))
+    chemdose_dbp_df("water", time = 120, cl2 = seq(2, 4, 1))
 
   expect_equal(nrow(water) * 2, nrow(water1))
   expect_equal(nrow(water) * 3, nrow(water2))
 })
 
-test_that("users can provide their own dbp coefficients to chemdose_dbp_chain.", {
+test_that("users can provide their own dbp coefficients to chemdose_dbp_df.", {
   coeff <- data.frame(A = 5E-2, a = 1, b = .5, c = .5, d = .5, e = 1, f = .5, ph_const = 7.5, ID = "chcl3")
 
   water1 <- water_df %>%
     mutate(br = 80) %>%
-    define_water_chain() %>%
-    chemdose_dbp_chain("defined_water", cl2 = 2, time = 120) %>%
-    pluck_water("disinfected_water", c("tthm", "chcl3"))
+    define_water_df() %>%
+    chemdose_dbp_df("defined", cl2 = 2, time = 120) %>%
+    pluck_water("disinfected", c("tthm", "chcl3"))
 
   water2 <- water_df %>%
     mutate(br = 80) %>%
-    define_water_chain() %>%
-    chemdose_dbp_chain("defined_water", cl2 = 2, time = 120, coeff = coeff) %>%
-    pluck_water("disinfected_water", c("tthm", "chcl3"))
+    define_water_df() %>%
+    chemdose_dbp_df("defined", cl2 = 2, time = 120, coeff = coeff) %>%
+    pluck_water("disinfected", c("tthm", "chcl3"))
 
-  expect_equal(water1$disinfected_water_tthm, water2$disinfected_water_tthm) # no custom coeff inputted for tthm
-  expect_false(identical(water1$disinfected_water_chcl3, water2$disinfected_water_chcl3))
-  expect_false(any(is.na(water2$disinfected_water_chcl3)) || identical(water2$disinfected_water_chcl3, 0))
-})
-
-test_that("chemdose_dbp_once outputs are the same as base function, chemdose_dbp", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
-  )) %>%
-    chemdose_dbp(cl2 = 10, time = 8)
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    chemdose_dbp_once(cl2 = 10, time = 8))
-
-  expect_equal(water1@chcl3, water2$defined_water_chcl3)
-  expect_equal(water1@chcl2br, water2$defined_water_chcl2br)
-  expect_equal(water1@chbr2cl, water2$defined_water_chbr2cl)
-  expect_equal(water1@chbr3, water2$defined_water_chbr3)
-  expect_equal(water1@tthm, water2$defined_water_tthm)
-  expect_equal(water1@mcaa, water2$defined_water_mcaa)
-  expect_equal(water1@dcaa, water2$defined_water_dcaa)
-  expect_equal(water1@tcaa, water2$defined_water_tcaa)
-  expect_equal(water1@mbaa, water2$defined_water_mbaa)
-  expect_equal(water1@dbaa, water2$defined_water_dbaa)
-  expect_equal(water1@haa5, water2$defined_water_haa5)
-})
-
-# Check that output is a data frame
-
-test_that("chemdose_dbp_once is a data frame", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    chemdose_dbp_once(
-      input_water = "balanced_water",
-      cl2 = 5, time = 100
-    ))
-
-  expect_true(is.data.frame(water1))
-})
-
-# check that chemdose_dbp_once works when water_prefix is false
-test_that("chemdose_dbp_once works when water_prefix is false", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    chemdose_dbp_once(cl2 = 10, time = 8))
-
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_chain() %>%
-    chemdose_dbp_once(cl2 = 10, time = 8, water_prefix = FALSE))
-
-  expect_equal(water1$defined_water_tthm, water2$tthm)
-  expect_equal(water1$defined_water_haa5, water2$haa5)
+  expect_equal(water1$disinfected_tthm, water2$disinfected_tthm) # no custom coeff inputted for tthm
+  expect_false(identical(water1$disinfected_chcl3, water2$disinfected_chcl3))
+  expect_false(any(is.na(water2$disinfected_chcl3)) || identical(water2$disinfected_chcl3, 0))
 })

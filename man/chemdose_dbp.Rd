@@ -2,8 +2,7 @@
 % Please edit documentation in R/chemdose_dbp.R
 \name{chemdose_dbp}
 \alias{chemdose_dbp}
-\alias{chemdose_dbp_chain}
-\alias{chemdose_dbp_once}
+\alias{chemdose_dbp_df}
 \title{Calculate DBP formation}
 \source{
 TTHMs, raw: U.S. EPA (2001) equation 5-131
@@ -28,10 +27,12 @@ chemdose_dbp(
   coeff = NULL
 )
 
-chemdose_dbp_chain(
+chemdose_dbp_df(
   df,
-  input_water = "defined_water",
-  output_water = "disinfected_water",
+  input_water = "defined",
+  output_water = "disinfected",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
@@ -39,19 +40,6 @@ chemdose_dbp_chain(
   location = "use_col",
   correction = TRUE,
   coeff = NULL
-)
-
-chemdose_dbp_once(
-  df,
-  input_water = "defined_water",
-  cl2 = "use_col",
-  time = "use_col",
-  treatment = "use_col",
-  cl_type = "use_col",
-  location = "use_col",
-  correction = TRUE,
-  coeff = NULL,
-  water_prefix = TRUE
 )
 }
 \arguments{
@@ -77,19 +65,21 @@ ID, and the corresponding coefficients A, a, b, c, d, e, f, and ph_const for eac
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water}. The df may include columns for the other function arguments.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "disinfected_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "disinfected".}
 
-\item{water_prefix}{name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-Change to FALSE to remove the water prefix from output column names.}
+\item{pluck_cols}{Extract primary water slots modified by the function (tthm, haa5) into new numeric columns for easy access with TRUE.
+Alternatively, specify "all" to get all DBP species in addition: (tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa)
+Defaults to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.
 
-\code{chemdose_dbp_chain} returns a data frame containing a water class column with predicted DBP concentrations.
-
-\code{chemdose_dbp_once} returns a data frame containing predicted DBP concentrations as columns.
+\code{chemdose_dbp_df} returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
+concentrations. Optionally, it also adds columns for those slots individually.
 }
 \description{
 Calculates disinfection byproduct (DBP) formation based on the U.S. EPA's
@@ -97,20 +87,16 @@ Water Treatment Plant Model (U.S. EPA, 2001). Required arguments include an obje
 created by \link{define_water} chlorine dose, type, reaction time, and treatment applied (if any).
 The function also requires additional water quality parameters defined in \link{define_water}
 including bromide, TOC, UV254, temperature, and pH.
-For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_chain}.
-For most arguments in the \verb{_chain} helper
+
+For a single water use \code{chemdose_dbp}; for a dataframe use \code{chemdose_dbp_df}.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
 \details{
 The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 Use \code{summarize_wq(water, params = c("dbps"))} to quickly tabulate the results.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
@@ -119,43 +105,21 @@ example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) \%>\%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
 
 \donttest{
-library(dplyr)
+example_df <- water_df \%>\%
+  dplyr::mutate(br = 50) \%>\%
+  define_water_df() \%>\%
+  chemdose_dbp_df(input_water = "defined", cl2 = 4, time = 8)
 
 example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
-
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  slice_sample(n = 3) \%>\%
-  define_water_chain() \%>\%
-  mutate(
+  dplyr::mutate(br = 50) \%>\%
+  dplyr::slice_sample(n = 3) \%>\%
+  define_water_df() \%>\%
+  dplyr::mutate(
     cl2_dose = c(2, 3, 4),
     time = 30
   ) \%>\%
-  chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
-
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  chemdose_dbp_chain(cl2 = 4, time = 8)
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
-
-\donttest{
-library(dplyr)
-
-water <- water_df \%>\%
-  slice(1) \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  chemdose_dbp_once(cl2 = 10, time = 8)
+  chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds",
+  cl_type = "chloramine", pluck_cols = TRUE)
 }
 
 }
