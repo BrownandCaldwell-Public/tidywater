@@ -18,15 +18,10 @@ dissolve_cu(water)
 \description{
 This function takes a water defined by defined_water and output a column of dissolved copper. It is an empirical model developed
 based on bench-scale copper solubility testing that can be used to predict copper levels as a function of pH, DIC, and orthophosphate.
-For a single water, use \code{dissolve_cu}; to apply the model to a dataframe use \code{dissolve_cu_chain}.
+For a single water, use \code{dissolve_cu}; to apply the model to a dataframe use \code{dissolve_cu_df}.
 }
 \details{
 Dissolved copper is a function of pH, DIC, and PO4. Output units are in mg/L.
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 

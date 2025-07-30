@@ -13,12 +13,11 @@
 #'
 #' @examples
 #' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) %>%
-#'   modify_water( slot = "toc", value = 4, units = "mg/L")
-#'   
+#'   modify_water(slot = "toc", value = 4, units = "mg/L")
+#'
 #' water2 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5, ca = 10) %>%
 #'   modify_water(slot = c("ca", "toc"), value = c(20, 10), units = c("mg/L", "mg/L"))
 #'
-#' @import dplyr
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
@@ -38,23 +37,23 @@ modify_water <- function(water, slot, value, units) {
   if (missing(units)) {
     stop("Units missing. Typical units include: 'mg/L', 'ug/L', 'M'")
   }
-  
+
   for (i in seq_along(slot)) {
     slot_n <- slot[i]
     value_n <- value[i]
     units_n <- units[i]
-    
+
     if (!is.numeric(value_n)) {
       stop("value must be numeric")
     }
-    
+
     # Check lists
-    if(slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
+    if (slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
       new_value <- convert_units(value_n, slot_n, units_n, "M")
     } else if (slot_n %in% c("toc", "doc", "bdoc")) {
       if (units_n == "mg/L") {
         new_value <- value_n
-      } else if(units_n == "ug/L") {
+      } else if (units_n == "ug/L") {
         new_value <- value_n * 10^3
       } else {
         stop(paste(slot_n, "must be specified in mg/L or ug/L"))
@@ -78,59 +77,38 @@ modify_water <- function(water, slot, value, units) {
     } else {
       stop(paste(slot_n, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
     }
-    methods::slot(water, slot_n) <- new_value 
+    methods::slot(water, slot_n) <- new_value
   }
 
   return(water)
 }
 
 #' @rdname modify_water
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
 #'
 #' @examples
 #'
-#' library(dplyr)
-#' 
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(bromide = 50) %>%
-#'   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
-#'   
-#' multislot_example_df1 <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(slot=list(c("br", "na")),
-#'   value=list(c(50,60)),
-#'   units=list(c("ug/L", "mg/L"))) %>%
-#'   modify_water_chain()
-#'   
-#' multislot_example_df2 <- water_df %>%
-#'   define_water_chain() %>%
-#'   modify_water_chain(slot=list(c("br", "na")),
-#'                       value=list(c(50,60)),
-#'                       units=list(c("ug/L", "mg/L")))
+#'   define_water_df() %>%
+#'   dplyr::mutate(bromide = 50) %>%
+#'   modify_water_df(slot = "br", value = bromide, units = "ug/L")
 #'
-#' \donttest{
-#' # Un-comment below to initialize parallel processing
-#' # library(furrr)
-#' # plan(multisession)
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(bromide = rep(c(20, 30, 50), 4)) %>%
-#'   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#' @import dplyr
+#'   define_water_df() %>%
+#'   modify_water_df(
+#'     slot = c("br", "na"),
+#'     value = c(50, 60),
+#'     units = c("ug/L", "mg/L")
+#'   )
 #'
 #' @export
 #'
-#' @returns `modify_water_chain` returns a data frame containing a water class column with updated slot
+#' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
-modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
-                                 slot = "use_col", value = "use_col", units = "use_col") {
+modify_water_df <- function(df, input_water = "defined", output_water = "modified",
+                            slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
 
   slot <- tryCatch(slot, error = function(e) enquo(slot))
@@ -139,16 +117,18 @@ modify_water_chain <- function(df, input_water = "defined_water", output_water =
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
+  final_names <- arguments$final_names
 
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        slot = !!as.name(arguments$final_names$slot),
-        value = !!as.name(arguments$final_names$value),
-        units = !!as.name(arguments$final_names$units)
-      ),
-      modify_water
-    ))
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    modify_water(
+      water = df[[input_water]][[i]],
+      slot = df[[final_names$slot]][[i]],
+      value = df[[final_names$value]][[i]],
+      units = df[[final_names$units]][[i]]
+    )
+  })
+
+  output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
+
+  return(output)
 }
-

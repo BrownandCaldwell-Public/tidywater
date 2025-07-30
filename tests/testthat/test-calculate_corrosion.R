@@ -190,90 +190,85 @@ test_that("calculate_corrosion output is a data frame", {
 ################################################################################*
 ################################################################################*
 # calculate_corrosion helpers ----
-# Check calculate_corrosion_once outputs are the same as base function, calculate_corrosion
+# Check calculate_corrosion_df outputs are the same as base function, calculate_corrosion
 
-test_that("calculate_corrosion_once outputs are the same as base function, calculate_corrosion", {
+test_that("calculate_corrosion_df outputs are the same as base function, calculate_corrosion", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   ) %>%
-    balance_ions() %>%
     calculate_corrosion())
 
-  water2 <- suppressWarnings(water_df %>%
+  water2 <- water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    calculate_corrosion_once(input_water = "balanced_water"))
+    define_water_df() %>%
+    calculate_corrosion_df()
 
-  expect_equal(water1$langelier, water2$balanced_water_langelier)
-  expect_equal(water1$ryznar, water2$balanced_water_ryznar)
-  expect_equal(water1$aggressive, water2$balanced_water_aggressive)
-  expect_equal(water1$csmr, water2$balanced_water_csmr)
-  expect_equal(water1$ccpp, water2$balanced_water_ccpp)
-  expect_equal(water1$larsonskold, water2$balanced_water_larsonskold)
+  expect_equal(water1$langelier, water2$defined_langelier)
+  expect_equal(water1$ryznar, water2$defined_ryznar)
+  expect_equal(water1$aggressive, water2$defined_aggressive)
+  expect_equal(water1$csmr, water2$defined_csmr)
+  expect_equal(water1$ccpp, water2$defined_ccpp)
+  expect_equal(water1$larsonskold, water2$defined_larsonskold)
 })
 
 test_that("function catches index typos", {
   testthat::skip_on_cran()
   water <- suppressWarnings(water_df %>%
-    define_water_chain())
+    define_water_df())
 
-  expect_error(calculate_corrosion_once(water, index = "csr"))
-  expect_error(calculate_corrosion_once(water, index = c("aggressive", "ccccp")))
-  expect_no_error(calculate_corrosion_once(water, index = c("aggressive", "ccpp"))) # no error
-  expect_error(calculate_corrosion_once(water, index = "langlier"))
-  expect_error(calculate_corrosion_once(water, index = c("ai", "ccccp")))
-  expect_no_error(calculate_corrosion_once(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
+  expect_error(calculate_corrosion_df(water, index = "csr"))
+  expect_error(calculate_corrosion_df(water, index = c("aggressive", "ccccp")))
+  expect_no_error(calculate_corrosion_df(water, index = c("aggressive", "ccpp"))) # no error
+  expect_error(calculate_corrosion_df(water, index = "langlier"))
+  expect_error(calculate_corrosion_df(water, index = c("ai", "ccccp")))
+  expect_no_error(calculate_corrosion_df(water, index = c("ryznar", "csmr", "larsonskold"))) # no error
 })
 
 # Check that output is a data frame
 
-test_that("calculate_corrosion_once is a data frame", {
+test_that("calculate_corrosion_df is a data frame", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    calculate_corrosion_once(input_water = "balanced_water"))
+    define_water_df() %>%
+    calculate_corrosion_df(input_water = "defined"))
 
   expect_true(is.data.frame(water1))
-  expect_true("balanced_water_aggressive" %in% colnames(water1))
-  expect_true("balanced_water_ryznar" %in% colnames(water1))
-  expect_true("balanced_water_ccpp" %in% colnames(water1))
-  expect_true("balanced_water_csmr" %in% colnames(water1))
-  expect_true("balanced_water_larsonskold" %in% colnames(water1))
-  expect_true("balanced_water_langelier" %in% colnames(water1))
+  expect_true("defined_aggressive" %in% colnames(water1))
+  expect_true("defined_ryznar" %in% colnames(water1))
+  expect_true("defined_ccpp" %in% colnames(water1))
+  expect_true("defined_csmr" %in% colnames(water1))
+  expect_true("defined_larsonskold" %in% colnames(water1))
+  expect_true("defined_langelier" %in% colnames(water1))
 })
 
-# Check calculate_corrosion_once outputs an appropriate number of indices
+# Check calculate_corrosion_df outputs an appropriate number of indices
 
-test_that("calculate_corrosion_once outputs an appropriate number of indices", {
+test_that("calculate_corrosion_df outputs an appropriate number of indices", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
-    balance_ions_chain() %>%
-    calculate_corrosion_once(input_water = "balanced_water", index = c("aggressive", "csmr")))
+    define_water_df() %>%
+    calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
 
   water2 <- suppressWarnings(water_df %>%
     slice(1) %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     mutate(naoh = 5) %>%
-    balance_ions_chain() %>%
-    calculate_corrosion_once(input_water = "balanced_water"))
+    calculate_corrosion_df(input_water = "defined"))
 
   water3 <- water1 %>%
     select_if(names(water1) %in% c(
-      "balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier",
-      "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"
+      "defined_aggressive", "defined_ryznar", "defined_langelier",
+      "defined_ccpp", "defined_larsonskold", "defined_csmr"
     ))
 
   water4 <- water2 %>%
     select_if(names(water2) %in% c(
-      "balanced_water_aggressive", "balanced_water_ryznar", "balanced_water_langelier",
-      "balanced_water_ccpp", "balanced_water_larsonskold", "balanced_water_csmr"
+      "defined_aggressive", "defined_ryznar", "defined_langelier",
+      "defined_ccpp", "defined_larsonskold", "defined_csmr"
     ))
 
   expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal

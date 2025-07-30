@@ -2,15 +2,17 @@
 % Please edit documentation in R/balance_ions.R
 \name{balance_ions}
 \alias{balance_ions}
-\alias{balance_ions_chain}
+\alias{balance_ions_df}
 \title{Add an ion to balance overall charge in a water}
 \usage{
 balance_ions(water, anion = "cl", cation = "na")
 
-balance_ions_chain(
+balance_ions_df(
   df,
-  input_water = "defined_water",
-  output_water = "balanced_water",
+  input_water = "defined",
+  output_water = "balanced",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   anion = "cl",
   cation = "na"
 )
@@ -22,21 +24,25 @@ balance_ions_chain(
 
 \item{cation}{Selected cation to use to for ion balance when more anions are present. Defaults to "na". Choose one of c("na", "k", "ca", or "mg").}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{output_water}{name of the output column storing updated water classes. Default is "balanced_water".}
+
+\item{pluck_cols}{Extract water slots modified by the function (selected cation and anion) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{balance_ions} returns a single water class object with updated ions to balance water charge.
 
-\code{balance_ions_chain} returns a dataframe with a new column with the ion balanced water
+\code{balance_ions_df} returns a dataframe with a new column with the ion balanced water
 }
 \description{
 This function takes a water defined by \link{define_water} and balances charge.
-For a single water use \code{balance_ions}; for a dataframe use \code{balance_ions_chain}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
+For a single water use \code{balance_ions}; for a dataframe use \code{balance_ions_df}.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
 }
 \details{
 If more cations are needed, sodium will be added. User may specify which cation ("na", "k", "ca", or "mg") to use for balancing.
@@ -45,12 +51,6 @@ If calcium and magnesium are not specified when defining a water with
 Anions are added by default with chloride. User may specify which anion ("cl", "so4") to use for balancing.
 This function is purely mathematical.
 User should always check the outputs to make sure values are reasonable for the input source water.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10) \%>\%
@@ -60,19 +60,7 @@ water_defined <- define_water(7, 20, 50, tot_hard = 150) \%>\%
   balance_ions(anion = "so4")
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain(anion = "so4", cation = "ca")
-
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  balance_ions_chain()
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
+  define_water_df() \%>\%
+  balance_ions_df(anion = "so4", cation = "ca")
 
 }

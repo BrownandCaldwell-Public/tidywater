@@ -835,11 +835,11 @@ usethis::use_data(toc_compliance_table, overwrite = TRUE)
 
 # vlog_removalcts -----
 vlog_removalcts <- data.frame(
-    ph_range = "6-9",
-    temp_value = 0.5,
-    ct_range = "6-9",
-    vlog_removal = 2.0
-  ) %>%
+  ph_range = "6-9",
+  temp_value = 0.5,
+  ct_range = "6-9",
+  vlog_removal = 2.0
+) %>%
   add_row(
     ph_range = "6-9",
     temp_value = 0.5,
