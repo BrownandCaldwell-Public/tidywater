@@ -49,13 +49,13 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
   if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
     return(data.frame(
       toc_compliance_status = "In Compliance",
-      toc_removal_percent = round(removal, 1)
+      toc_removal_percent = as.character(round(removal, 1))
                           ))
   } else {
     return(data.frame(
       toc_compliance_status = "Not Compliant",
       toc_removal_percent = as.character(round(removal, 1)),
-      comment = paste0("Only ", round(removal, 1), "% TOC removed, requires minimum ", required_compliance, "% Compliance")
+      comment = paste0("Minimum removal required: ", required_compliance)
     )
     )
   }
@@ -109,7 +109,7 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
   )
   df <- defaults_added$data
 
-  toc_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+  toc_df <- do.call(bind_rows, lapply(seq_len(nrow(df)), function(i) {
   regulate_toc(
     alk_raw = df[[final_names$alk_raw]][i],
     toc_raw = df[[final_names$toc_raw]][i],

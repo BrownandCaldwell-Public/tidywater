@@ -72,7 +72,7 @@ regulated <- water_df %>%
   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
   select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
 
-expect_warning(regulate_toc_df(regulated))
+expect_warning(regulated %>% slice(1) %>% regulate_toc_df(), "Raw water TOC < 2")
 
 water1 <- suppressWarnings(regulate_toc_df(regulated))
 
@@ -88,7 +88,7 @@ test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
     select(toc_raw = toc, alk_raw = alk) %>%
     mutate(toc_finished = 3.9)
 
-  expect_warning(regulate_toc_df(regulated))
+  expect_warning(regulated %>% slice(1) %>%  regulate_toc_df(), "Finished water TOC is greater than or equal")
 
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
@@ -109,12 +109,12 @@ test_that("regulate_toc_df can take column and argument inputs", {
 
   regulated3 <-  suppressWarnings(water_df %>%
                                     select(alk_raw = alk) %>%
-                                    regulate_toc_df(toc_raw = c(2, 4), toc_finished = c(0.2, 0.6)))
+                                    regulate_toc_df(toc_raw = c(2, 4), toc_finished = .7))
 
   expect_equal(slice(regulated1, 2)$toc_removal_percent, slice(regulated2, 2)$toc_removal_percent)
-  expect_equal(slice(regulated3, 8)$toc_removal_percent, slice(regulated1, 6)$toc_removal_percent)
+  expect_equal(slice(regulated3, 3)$toc_removal_percent, slice(regulated1, 7)$toc_removal_percent)
 
   expect_equal(nrow(regulated2), 12) # no cross join
-  expect_equal(nrow(regulated3), 48) # cross joined
+  expect_equal(nrow(regulated3), 24) # cross joined
 
 })
