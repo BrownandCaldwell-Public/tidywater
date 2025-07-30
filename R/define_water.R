@@ -337,7 +337,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@h2co3 <- water@tot_co3 * alpha0
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
-  water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
 
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
@@ -363,7 +362,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@carbonate_alk_eq <- alk_eq - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
   
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
-  water@alk_eq <- sum(water@carbonate_alk_eq, water@phosphate_alk_eq, water@ammonium_alk_eq, water@borate_alk_eq, water@silicate_alk_eq, -1 * water@h, water@oh, na.rm = TRUE)
+  water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
+  water@alk_eq <- sum(water@carbonate_alk_eq, water@phosphate_alk_eq, water@ammonium_alk_eq, water@borate_alk_eq, water@silicate_alk_eq, -1 * water@h, water@oh)
   water@alk <- convert_units(water@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
   
   # Add all estimated values to water slot

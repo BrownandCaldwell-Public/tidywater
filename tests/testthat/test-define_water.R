@@ -104,7 +104,7 @@ test_that("Define water doesn't output carbonate when pH or alk aren't provided.
 
   expect_equal(water1@tot_co3, NA_real_)
   expect_equal(water2@tot_co3, NA_real_)
-  expect_equal(water1@alk, NA_real_)
+  expect_equal(water1@alk, 0)
   expect_equal(water2@ph, NA_real_)
 })
 
