@@ -34,17 +34,17 @@ Imports:
     ggplot2,
     ggrepel,
     magrittr,
-    purrr,
-    furrr,
     methods,
     rlang,
-    deSolve
+    deSolve,
+    lifecycle
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Depends: 
     R (>= 3.5)
 Suggests: 
     rmarkdown,
+    purrr,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
