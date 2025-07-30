@@ -25,6 +25,10 @@ test_that("opensys_ph works", {
   water1 <- opensys_ph(water0)
   water2 <- opensys_ph(water0, partialpressure = 10^-4)
   
+  # co2_add <- solvedose_alk(water0, water1@alk, "co2")
+  # co2_add <- 10^-1.5 * 10^-3.5
+  # water4 <- chemdose_ph(water0, co2 = convert_units(abs(co2_add - water0@h2co3), "co2", "M", "mg/L"))
+  
   expect_s4_class(water1, "water")
   expect_false(identical(water1@ph, water0@ph))
   expect_false(identical(water1@ph, water2@ph))

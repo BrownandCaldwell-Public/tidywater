@@ -15,7 +15,7 @@
 #' @source Snoeyink & Jenkins (1980)
 #'
 #' @param water Source water of class "water" created by [define_water]
-#' @param partialpressure Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm.
+#' @param partialpressure Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm, which is approximately Pco2 at sea level.
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 5) %>%
@@ -49,9 +49,8 @@ opensys_ph <- function(water, partialpressure = 10^-3.5) {
   output_water@hco3 <- alpha1 * output_water@tot_co3
   output_water@co3 <- alpha2 * output_water@tot_co3
   output_water@dic <- output_water@tot_co3 * tidywater::mweights$dic * 1000
-  carb_alk_eq <- output_water@tot_co3 * (alpha1 + 2 * alpha2) - output_water@h + output_water@oh
-  output_water@alk <- water@alk + convert_units(carb_alk_eq, formula = "caco3", "eq/L", "mg/L CaCO3")
-  output_water@alk_eq <- water@alk_eq + carb_alk_eq
+  output_water@alk_eq <- (output_water@hco3 + 2 * output_water@co3 + output_water@oh - output_water@h)
+  output_water@alk <- convert_units(output_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
   
   return(output_water)
 }

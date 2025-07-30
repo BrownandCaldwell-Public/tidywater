@@ -20,9 +20,9 @@ opensys_ph_df(
 )
 }
 \arguments{
-\item{water}{Source water of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water of class "water" created by \link{define_water}}
 
-\item{partialpressure}{Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm.}
+\item{partialpressure}{Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm, which is approximately Pco2 at sea level.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}
@@ -42,7 +42,7 @@ A water with updated pH/alk/etc.
 Optionally, it also adds columns for each of those slots individually.
 }
 \description{
-Calculates the new water quality (pH, alkalinity) for a water in an open system where CO2(aq) is at equilibrium with atmospheric CO2.
+Calculates the new water quality (pH, alkalinity, pH dependent ions) for a water in an open system where CO2(aq) is at equilibrium with atmospheric CO2.
 The function takes an object of class "water" and the partial pressure of CO2, then returns a water class object with updated water slots.
 For a single water, use \code{opensys_ph}; to apply the model to a dataframe, use \code{opensys_ph_df}.
 For most arguments, the `_df helper
