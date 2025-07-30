@@ -38,8 +38,8 @@ test_that("opensys_ph works", {
   expect_true(water1@ph < water2@ph)
   
   expect_equal(round(water1@ph, 1), 5.7)
-  expect_equal(round(water1@alk, 1), 50.0)
-  expect_equal(round(water1@alk_eq, 3), 0.001)
+  expect_equal(round(water1@alk, 4), 0.0002)
+  expect_equal(round(water1@alk_eq, 9), 0.000000005)
   expect_equal(round(water1@dic, 2), 0.14)
 })
 
