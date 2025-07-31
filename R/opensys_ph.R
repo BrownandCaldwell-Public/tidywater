@@ -25,10 +25,10 @@
 #' @returns  A water with updated pH/alk/etc.
 #'
 
-opensys_ph <- function(water, partialpressure = 10^-3.5) {
+opensys_ph <- function(water, partialpressure = 10^-3.42) {
   validate_water(water, slots = c("ph", "alk"))
   
-  kh <- 10^-1.5 # Henry's Law constant for CO2
+  kh <- 10^-1.468 # Henry's Law constant for CO2
   co2_M <- kh * partialpressure
   
   discons <- tidywater::discons
@@ -94,7 +94,7 @@ opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
   # Add columns with default arguments
   defaults_added <- handle_defaults(
     df, final_names,
-    list(partialpressure = 10^-3.5)
+    list(partialpressure = 10^-3.42)
   )
   df <- defaults_added$data
   

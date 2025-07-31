@@ -16,31 +16,32 @@ test_that("opensys_ph preserves carbonate balance", {
   water2 <- opensys_ph(water1)
   
   expect_equal(water2@tot_co3, sum(water2@h2co3, water2@hco3, water2@co3))
-  expect_equal(water2@h2co3, 10^-5)
+  expect_equal(signif(water2@h2co3, 3), 1.29*10^-5)
 })
 
 test_that("opensys_ph works", {
-  water0 <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 50))
+  water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 50))
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 0))
   
-  water1 <- opensys_ph(water0)
-  water2 <- opensys_ph(water0, partialpressure = 10^-4)
+  water2 <- opensys_ph(water0)
+  water3 <- opensys_ph(water0, partialpressure = 10^-4)
   
-  # co2_add <- solvedose_alk(water0, water1@alk, "co2")
-  # co2_add <- 10^-1.5 * 10^-3.5
+  # co2_add <- 10^-1.468 * 10^-3.42
   # water4 <- chemdose_ph(water0, co2 = convert_units(abs(co2_add - water0@h2co3), "co2", "M", "mg/L"))
   
-  expect_s4_class(water1, "water")
-  expect_false(identical(water1@ph, water0@ph))
-  expect_false(identical(water1@ph, water2@ph))
-  expect_false(identical(water1@alk, water0@alk))
-  expect_false(identical(water1@dic, water0@dic))
-  expect_true(water1@ph < water0@ph)
-  expect_true(water1@ph < water2@ph)
+  expect_s4_class(water2, "water")
+  expect_false(identical(water2@ph, water0@ph))
+  expect_false(identical(water2@ph, water3@ph))
+  expect_true(water2@alk < water0@alk) #carbonate leaving or entering water based on equilibrium
+  expect_true(water2@alk > water1@alk)
+  expect_false(identical(water2@dic, water0@dic))
+  expect_true(water2@ph < water0@ph)
+  expect_true(water2@ph < water3@ph)
   
-  expect_equal(round(water1@ph, 1), 5.7)
-  expect_equal(round(water1@alk, 4), 0.0002)
-  expect_equal(round(water1@alk_eq, 9), 0.000000005)
-  expect_equal(round(water1@dic, 2), 0.14)
+  expect_equal(round(water2@ph, 1), 5.6)
+  expect_equal(round(water2@alk, 4), 0.0002)
+  expect_equal(signif(water2@alk_eq, 3), 4.25*10^-9)
+  expect_equal(round(water2@dic, 2), 0.18)
 })
 
 test_that("opensys_ph_df outputs are the same as base function, opensys_ph.", {
