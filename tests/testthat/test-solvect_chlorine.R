@@ -88,9 +88,8 @@ test_that("solvect_chlorine_df outputs are the same as base function, solvect_ch
   )) %>%
     solvect_chlorine(time = 30, residual = 5, baffle = .7)
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     solvect_chlorine_df(time = 30, residual = 5, baffle = .7))
 
@@ -101,9 +100,8 @@ test_that("solvect_chlorine_df outputs are the same as base function, solvect_ch
 
 test_that("solvect_chlorine_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     solvect_chlorine_df(time = 30, residual = 5, baffle = .5))
 
@@ -119,14 +117,13 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
 
   time <- data.frame(time = seq(2, 24, 2))
   water1 <- water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    suppressWarnings(solvect_chlorine_df(residual = 5, baffle = .5)) %>%
-    arrange(time)
+    merge(time) %>%
+    suppressWarnings(solvect_chlorine_df(residual = 5, baffle = .5))
 
   water2 <- water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     suppressWarnings(solvect_chlorine_df(
       time = seq(2, 24, 2),
@@ -135,11 +132,10 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
     ))
 
   water3 <- suppressWarnings(water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    rename(ChlorTime = time) %>%
-
+    merge(time) %>%
+    dplyr::rename(ChlorTime = time) %>%
     solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime))
 
   expect_equal(water1$defined_ct_required, water2$ct_required) # test different ways to input time
@@ -149,8 +145,7 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
 
 test_that("solvect_chlorine_df correctly handles arguments with multiple values", {
   testthat::skip_on_cran()
-  water <- water_df %>%
-    slice(1:2) %>%
+  water <- water_df[1:2,] %>%
     define_water_df()
 
   water1 <- water %>%

@@ -200,8 +200,7 @@ test_that("calculate_corrosion_df outputs are the same as base function, calcula
   ) %>%
     calculate_corrosion())
 
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     calculate_corrosion_df()
 
@@ -230,8 +229,7 @@ test_that("function catches index typos", {
 
 test_that("calculate_corrosion_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     calculate_corrosion_df(input_water = "defined"))
 
@@ -248,28 +246,24 @@ test_that("calculate_corrosion_df is a data frame", {
 
 test_that("calculate_corrosion_df outputs an appropriate number of indices", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
-    mutate(naoh = 5) %>%
+    transform(naoh = 5) %>%
     calculate_corrosion_df(input_water = "defined"))
 
-  water3 <- water1 %>%
-    select_if(names(water1) %in% c(
-      "defined_aggressive", "defined_ryznar", "defined_langelier",
-      "defined_ccpp", "defined_larsonskold", "defined_csmr"
-    ))
+  water3 <- water1[, names(water1) %in% c(
+    "defined_aggressive", "defined_ryznar", "defined_langelier",
+    "defined_ccpp", "defined_larsonskold", "defined_csmr"
+  )]
 
-  water4 <- water2 %>%
-    select_if(names(water2) %in% c(
+  water4 <- water2[, names(water2) %in% c(
       "defined_aggressive", "defined_ryznar", "defined_langelier",
       "defined_ccpp", "defined_larsonskold", "defined_csmr"
-    ))
+    )]
 
   expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
   expect_equal(length(water3), 2) # indices selected in fn should match # of output index columns

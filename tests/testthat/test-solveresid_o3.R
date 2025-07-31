@@ -46,9 +46,8 @@ test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3
   )) %>%
     solveresid_o3(time = 30, dose = 5)
 
-  water2 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
+  water2 <- water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = 30, dose = 5)
 
@@ -59,9 +58,8 @@ test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3
 
 test_that("solveresid_o3_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
+  water1 <- water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = 30, dose = 5)
 
@@ -78,21 +76,20 @@ test_that("solveresid_o3_df can use a column and/or function argument for time a
 
   time <- data.frame(time = seq(2, 24, 2))
   water1 <- water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    solveresid_o3_df(dose = 5) %>%
-    arrange(time)
+    merge(time) %>%
+    solveresid_o3_df(dose = 5)
 
   water2 <- water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = seq(2, 24, 2), dose = 5)
 
   water3 <- water_df %>%
-    mutate(br = 50) %>%
+    transform(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
+    merge(time) %>%
     solveresid_o3_df(dose = c(5, 8))
 
   expect_equal(water1$o3resid, water2$o3resid) # test different ways to input time

@@ -44,10 +44,9 @@ test_that("pluck_water works", {
     pluck_water(parameter = "tot_co3"))
 
   tot_co3_water <- purrr::pluck(water1, 1, 4)
-  tot_co3_pluck <- water1 %>% slice(4)
+  tot_co3_pluck <- water1[4,]
 
-  water2 <- water_df %>%
-    slice(4) %>%
+  water2 <- water_df[4,] %>%
     define_water_df() %>%
     balance_ions_df() %>%
     pluck_water(input_water = c("defined", "balanced"), parameter = c("na", "cl", "ph"))
@@ -63,7 +62,7 @@ test_that("pluck_water inputs must be waters and water slots", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_df("raw") %>%
-    mutate(ohno = "not a water")
+    transform(ohno = "not a water")
   water2 <- water_df
 
   expect_error(water1 %>% pluck_water("raw", c("oops", "ca")))

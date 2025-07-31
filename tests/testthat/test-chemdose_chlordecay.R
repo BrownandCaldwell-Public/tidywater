@@ -153,9 +153,8 @@ test_that("chemdose_chlordecay_df outputs are the same as base function, chemdos
   water1 <- suppressWarnings(water0 %>%
     chemdose_chlordecay(cl2_dose = 10, time = 8))
 
-  water2 <- water_df %>%
-    mutate(br = 50) %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
     chemdose_chlordecay_df(cl2_dose = 10, time = 8, output_water = "chlor", pluck_cols = TRUE)
 
@@ -163,10 +162,9 @@ test_that("chemdose_chlordecay_df outputs are the same as base function, chemdos
   water3 <- suppressWarnings(water0 %>%
     chemdose_chlordecay(cl2_dose = 10, time = 8, use_chlorine_slot = TRUE))
 
-  water4 <- suppressWarnings(water_df %>%
-    mutate(br = 50) %>%
-    slice(1) %>%
-    mutate(free_chlorine = 2, combined_chlorine = 1) %>%
+  water4 <- suppressWarnings(water_df[1,] %>%
+    transform(br = 50) %>%
+    transform(free_chlorine = 2, combined_chlorine = 1) %>%
     define_water_df() %>%
     chemdose_chlordecay_df(cl2_dose = 10, time = 8, output_water = "chlor", use_chlorine_slot = TRUE, pluck_cols = TRUE))
 
@@ -175,36 +173,34 @@ test_that("chemdose_chlordecay_df outputs are the same as base function, chemdos
   expect_equal(water3@free_chlorine, water4$chlor_free_chlorine)
 
 
-  cldoses <- tibble(cl2_dose = seq(2, 8, 2))
-  cltypes <- tibble(free_mono = c("chlorine", "chloramine"))
-  water5 <- water_df %>%
-    mutate(br = 50) %>%
-    slice(1) %>%
+  cldoses <- data.frame(cl2_dose = seq(2, 8, 2))
+  cltypes <- data.frame(free_mono = c("chlorine", "chloramine"))
+  water5 <- water_df[1,] %>%
+    transform(br = 50) %>%
     define_water_df() %>%
-    cross_join(cldoses) %>%
-    cross_join(cltypes) %>%
+    merge(cldoses) %>%
+    merge(cltypes) %>%
     chemdose_chlordecay_df(time = 4, cl_type = free_mono, output_water = "chlor", pluck_cols = TRUE)
 
   water6 <- suppressWarnings(chemdose_chlordecay(water0, cl2_dose = 4, time = 4, cl_type = "chloramine"))
-  expect_equal(water6@combined_chlorine, water5$chlor_combined_chlorine[4])
+  expect_equal(water6@combined_chlorine, water5$chlor_combined_chlorine[6])
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_chlordecay_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- water_df %>%
-    slice(1) %>%
-    mutate(br = 60) %>%
+  water1 <- water_df[1,] %>%
+    transform(br = 60) %>%
     define_water_df() %>%
     chemdose_chlordecay_df(time = 8, cl2_dose = 4)
 
   water2 <- purrr::pluck(water1, "disinfected", 1)
 
   water3 <- suppressWarnings(water_df %>%
-    mutate(br = 60) %>%
+    transform(br = 60) %>%
     define_water_df() %>%
-    mutate(
+    transform(
       cl2_dose = 4,
       time = 8
     ) %>%
@@ -218,23 +214,21 @@ test_that("chemdose_chlordecay_df output is list of water class objects, and can
 
 test_that("chemdose_chlordecay_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(
+  water1 <- suppressWarnings(water_df[1,] %>%
+    transform(
       br = 80,
       free_chlorine = 2
     ) %>%
     define_water_df() %>%
     chemdose_chlordecay_df(time = 120, cl2_dose = 10, use_chlorine_slot = TRUE, pluck_cols = TRUE))
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(
+  water2 <- suppressWarnings(water_df[1,] %>%
+    transform(
       br = 80,
       free_chlorine = 2
     ) %>%
     define_water_df() %>%
-    mutate(
+    transform(
       time = 120,
       cl2_dose = 10,
       use_chlorine_slot = TRUE
@@ -242,14 +236,13 @@ test_that("chemdose_chlordecay_df can use a column or function argument for chem
     chemdose_chlordecay_df(pluck_cols = TRUE))
 
   # also test that pluck_cols does the same thing as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(
+  water3 <- suppressWarnings(water_df[1,] %>%
+    transform(
       br = 80,
       free_chlorine = 2
     ) %>%
     define_water_df() %>%
-    mutate(time = 120) %>%
+    transform(time = 120) %>%
     chemdose_chlordecay_df(cl2_dose = 10, use_chlorine_slot = TRUE) %>%
     pluck_water("disinfected", c("free_chlorine")))
 
@@ -261,10 +254,10 @@ test_that("chemdose_chlordecay_df can use a column or function argument for chem
 test_that("chemdose_chlordecay_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    mutate(free_chlorine = 2) %>%
+    transform(free_chlorine = 2) %>%
     define_water_df("water")
   expect_error(water %>%
-    mutate(
+    transform(
       cl2_dose = 5,
       use_chlorine_slot = TRUE
     ) %>%
@@ -273,7 +266,7 @@ test_that("chemdose_chlordecay_df errors with argument + column for same param",
       use_chlorine_slot = TRUE
     ))
   expect_error(water %>%
-    mutate(time = 5) %>%
+    transform(time = 5) %>%
     chemdose_chlordecay_df(input_water = "water", time = 120, cl2_dose = 10))
 })
 

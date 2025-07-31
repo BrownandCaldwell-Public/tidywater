@@ -28,7 +28,7 @@ test_that("Decarbonate df takes and returns correct argument types and classes."
 
   water1 <- decarbonate_ph_df(water0, "test", "decarb", co2_removed = .9)
   water2 <- water0 %>%
-    mutate(removal = .9) %>%
+    transform(removal = .9) %>%
     decarbonate_ph_df("test", "decarb", co2_removed = removal)
 
   expect_error(decarbonate_ph_df(water_df, co2_removed = .9))

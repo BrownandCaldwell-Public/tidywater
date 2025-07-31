@@ -70,8 +70,7 @@ test_that("gac_toc_df outputs are the same as base function, gac_toc", {
   water1 <- water0 %>%
     gac_toc(model = "WTP", bed_vol = 15000)
 
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     gac_toc_df(model = "WTP", bed_vol = 15000, media_size = "12x40", ebct = 10, output_water = "gac", pluck_cols = TRUE)
 
@@ -83,10 +82,9 @@ test_that("gac_toc_df outputs are the same as base function, gac_toc", {
 # Test that output is a column of water class lists
 test_that("gac_toc_df output is list of water class objects", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(
+    transform(
       model = "Zachman",
       media_size = "12x40",
       ebct = 10,
@@ -103,25 +101,22 @@ test_that("gac_toc_df output is list of water class objects", {
 # Check gac_toc_df can use a column or function argument for chemical dose and both methods gives same results
 test_that("gac_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
     gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000, pluck_cols = TRUE))
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(
+    transform(
       model = "WTP",
-      bed_vol = 15000,
+      bed_vol = 15000
     ) %>%
     gac_toc_df(input_water = "raw", pluck_cols = TRUE))
 
   # check that pluck_cols does the same as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(model = "WTP") %>%
+    transform(model = "WTP") %>%
     gac_toc_df(input_water = "raw", bed_vol = 15000) %>%
     pluck_water("gaced", c("toc", "doc", "uv254")))
 
@@ -139,10 +134,10 @@ test_that("gac_toc_df errors with argument + column for same param", {
   water <- water_df %>%
     define_water_df("raw")
   expect_error(water %>%
-    mutate(model = "WTP") %>%
+    transform(model = "WTP") %>%
     gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000))
   expect_error(water %>%
-    mutate(bed_vol = 15000) %>%
+    transform(bed_vol = 15000) %>%
     gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000))
 })
 

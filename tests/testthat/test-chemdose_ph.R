@@ -180,52 +180,47 @@ test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
 
   water1 <- chemdose_ph(water0, naoh = 10)
 
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     chemdose_ph_df(input_water = "defined", naoh = 10, pluck_cols = TRUE)
 
   # check that pluck_cols does the same thing as pluck_Water
-  water3 <- water_df %>%
-    slice(1) %>%
+  water3 <- water_df[1,] %>%
     define_water_df() %>%
     chemdose_ph_df(input_water = "defined", naoh = 10) %>%
     pluck_water("defined", c("ph", "alk"))
 
-  coag_doses <- tibble(alum = seq(0, 100, 10))
-  softening <- tibble(softening_correction = c(T, F))
-  water4 <- water_df %>%
-    slice(1) %>%
+  coag_doses <- data.frame(alum = seq(0, 100, 10))
+  softening <- data.frame(softening_correction = c(T, F))
+  water4 <- water_df[1,] %>%
     define_water_df("raw") %>%
-    cross_join(coag_doses) %>%
-    cross_join(softening) %>%
+    merge(coag_doses) %>%
+    merge(softening) %>%
     chemdose_ph_df("raw", "dose", pluck_cols = TRUE)
 
   water5 <- chemdose_ph(water0, alum = 20)
   water6 <- chemdose_ph(water0, alum = 100, softening_correction = FALSE)
 
-  water7 <- water_df %>%
-    slice(1) %>%
+  water7 <- water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(naoh = 10) %>%
-    cross_join(coag_doses) %>%
-    rename(NewName = alum) %>%
-    chemdose_ph_df("raw", "dose", alum = NewName, naocl = c(0, 2), pluck_cols = TRUE)
+    transform(naoh = 10) %>%
+    merge(coag_doses, by = NULL) %>%
+    { names(.)[names(.) == "alum"] <- "NewName"; . } %>%
+    chemdose_ph_df("raw", "dose", alum = .$NewName, naocl = c(0, 2), pluck_cols = TRUE)
 
   water8 <- chemdose_ph(water0, alum = 20, naocl = 2, naoh = 10)
 
   expect_equal(water2$dosed_chem_alk[1], water1@alk)
-  expect_equal(water4$dose_ph[6], water5@ph)
+  expect_equal(water4$dose_ph[3], water5@ph)
   expect_equal(water4$dose_ph[22], water6@ph)
-  expect_equal(water7$dose_ph[14], water8@ph)
+  expect_equal(water7$dose_ph[58], water8@ph)
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_ph_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     chemdose_ph_df(naoh = 10))
 
@@ -268,11 +263,9 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
     mutate(naoh = seq(0, 11, 1)) %>%
     chemdose_ph_df(hcl = c(5, 8)))
 
-  water4 <- water3 %>%
-    slice(21) # same starting wq as water 5
+  water4 <- water3[21,] # same starting wq as water 5
 
-  water5 <- water1 %>%
-    slice(11) # same starting wq as water 4
+  water5 <- water1[11,] # same starting wq as water 4
 
   expect_equal(
     pluck_water(water1, "dosed_chem", "toc")$dosed_chem_toc,

@@ -99,7 +99,7 @@ test_that("balance_ions_df outputs are the same as base function, balance_ions",
   ))
   water2 <- balance_ions(water1)
 
-  water3 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
+  water3 <- suppressWarnings(define_water_df(water_df[1,])) %>%
     balance_ions_df()
 
   water4 <- purrr::pluck(water3, 2, 1)
@@ -112,7 +112,7 @@ test_that("balance_ions_df outputs are the same as base function, balance_ions",
   ))
   water6 <- balance_ions(water5, anion = "so4", cation = "mg")
 
-  water7 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
+  water7 <- suppressWarnings(define_water_df(water_df[1,])) %>%
     balance_ions_df(anion = "so4", cation = "mg")
 
   water8 <- purrr::pluck(water7, 2, 1)
@@ -124,7 +124,7 @@ test_that("balance_ions_df outputs are the same as base function, balance_ions",
 
 test_that("balance_ions_df output is a column of water class lists", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
+  water1 <- suppressWarnings(define_water_df(water_df[1,])) %>%
     balance_ions_df()
   water2 <- purrr::pluck(water1, 2, 1)
 
@@ -134,7 +134,7 @@ test_that("balance_ions_df output is a column of water class lists", {
 # Check that this function can be piped to the next one
 test_that("balance_ions_df can be piped and handle an output_water argument", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
+  water1 <- suppressWarnings(define_water_df(water_df[1,])) %>%
     balance_ions_df(output_water = "different_column") %>%
     chemdose_ph_df(naoh = 20)
 

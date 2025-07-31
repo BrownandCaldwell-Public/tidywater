@@ -79,8 +79,7 @@ test_that("solvedose_ph_df outputs are the same as base function, solvedose_ph",
   )) %>%
     solvedose_ph(target_ph = 9.2, chemical = "naoh")
 
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     solvedose_ph_df(target_ph = 9.2, chemical = "naoh")
 
@@ -91,8 +90,7 @@ test_that("solvedose_ph_df outputs are the same as base function, solvedose_ph",
 
 test_that("solvedose_ph_df outputs data frame", {
   testthat::skip_on_cran()
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     solvedose_ph_df(target_ph = 9.2, chemical = "naoh")
 
@@ -102,15 +100,13 @@ test_that("solvedose_ph_df outputs data frame", {
 # test different ways to input chemical
 test_that("solvedose_ph_df can handle different input formats", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     solvedose_ph_df(target_ph = 9.2, chemical = "naoh"))
 
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
-    mutate(
+    transform(
       target_ph = 9.2,
       chemical = "naoh"
     ) %>%
@@ -129,8 +125,7 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
   water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
     solvedose_alk(target_alk = 100, chemical = "naoh")
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
@@ -141,8 +136,7 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
 
 test_that("solvedose_alk_df outputs data frame", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
     solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
@@ -152,15 +146,13 @@ test_that("solvedose_alk_df outputs data frame", {
 # test different ways to input chemical
 test_that("solvedose_alk_df can handle different input formats", {
   testthat::skip_on_cran()
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     solvedose_alk_df(target_alk = 100, chemical = "na2co3")
 
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
     define_water_df() %>%
-    mutate(
+    transform(
       target_alk = 100,
       chemical = "na2co3"
     ) %>%

@@ -78,18 +78,16 @@ test_that("pac_toc_df outputs are the same as base function, pac_toc", {
   water1 <- water0 %>%
     pac_toc(dose = 10, time = 10)
 
-  water2 <- water_df %>%
-    slice(1) %>%
+  water2 <- water_df[1,] %>%
     define_water_df() %>%
     pac_toc_df(dose = 10, time = 10, output_water = "pac", pluck_cols = TRUE)
 
-  types <- tibble(type = c("wood", "lignite"))
-  doses <- tibble(PACDose = seq(10, 16, 2))
-  water3 <- water_df %>%
-    slice(1) %>%
+  types <- data.frame(type = c("wood", "lignite"))
+  doses <- data.frame(PACDose = seq(10, 16, 2))
+  water3 <- water_df[1,] %>%
     define_water_df() %>%
-    cross_join(types) %>%
-    cross_join(doses) %>%
+    merge(types) %>%
+    merge(doses) %>%
     pac_toc_df(dose = PACDose, time = 10, output_water = "pac") %>%
     pluck_water("pac", "doc")
 
@@ -104,8 +102,7 @@ test_that("pac_toc_df outputs are the same as base function, pac_toc", {
 
 test_that("pac_toc_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
     pac_toc_df(input_water = "raw", time = 10, dose = 4))
 
@@ -113,7 +110,7 @@ test_that("pac_toc_df output is list of water class objects, and can handle an o
 
   water3 <- suppressWarnings(water_df %>%
     define_water_df("raw") %>%
-    mutate(
+    transform(
       dose = 4,
       time = 10
     ) %>%
@@ -127,25 +124,22 @@ test_that("pac_toc_df output is list of water class objects, and can handle an o
 
 test_that("pac_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
     pac_toc_df(input_water = "raw", time = 50, dose = 10, pluck_cols = TRUE))
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(
+    transform(
       time = 50,
-      dose = 10,
+      dose = 10
     ) %>%
     pac_toc_df(input_water = "raw", pluck_cols = TRUE))
 
   # test that pluck_col does the same as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
-    mutate(time = 50) %>%
+    transform(time = 50) %>%
     pac_toc_df(input_water = "raw", dose = 10) %>%
     pluck_water("paced", c("toc", "doc", "uv254")))
 
@@ -156,32 +150,26 @@ test_that("pac_toc_df can use a column or function argument for chemical dose", 
   expect_equal(water1$paced_doc, water3$paced_doc)
 
 
-  water4 <- water_df %>%
-    slice(1:4) %>%
+  water4 <- water_df[1:4,] %>%
     define_water_df("raw") %>%
-    mutate(time = c(20, 20, 50, 50)) %>%
+    transform(time = c(20, 20, 50, 50)) %>%
     pac_toc_df(input_water = "raw", output_water = "pac", dose = c(10, 20))
-  water4b <- water4 %>%
-    filter(dose == 10)
+  water4b <- water4[water4$dose == 10, ]
 
-  water5 <- water_df %>%
-    slice(1:4) %>%
+  water5 <- water_df[1:4,] %>%
     define_water_df("raw") %>%
-    mutate(PACtime = c(20, 20, 50, 50)) %>%
+    transform(PACtime = c(20, 20, 50, 50)) %>%
     pac_toc_df(input_water = "raw", output_water = "pac", dose = c(10, 20), time = PACtime)
 
-  water6 <- water_df %>%
-    slice(1:4) %>%
+  water6 <- water_df[1:4,] %>%
     define_water_df("raw") %>%
-    mutate(time = c(20, 20, 50, 50)) %>%
-    cross_join(tibble(dose = c(10, 20))) %>%
-    arrange(dose, time) %>%
+    transform(time = c(20, 20, 50, 50)) %>%
+    merge(data.frame(dose = c(10, 20))) %>%
     pac_toc_df(input_water = "raw", output_water = "pac")
 
-  water7 <- water_df %>%
-    slice(1:4) %>%
+  water7 <- water_df[1:4,] %>%
     define_water_df("raw") %>%
-    mutate(
+    transform(
       PACtime = c(20, 20, 50, 50),
       type = "bituminous"
     ) %>%
@@ -197,10 +185,10 @@ test_that("pac_toc_df errors with argument + column for same param", {
   water <- water_df %>%
     define_water_df("raw")
   expect_error(water %>%
-    mutate(dose = 5) %>%
+    transform(dose = 5) %>%
     pac_toc_df(input_water = "raw", time = 50, dose = 10))
   expect_error(water %>%
-    mutate(time = 5) %>%
+    transform(time = 5) %>%
     pac_toc_df(input_water = "raw", time = 50, dose = 10))
 })
 
