@@ -106,11 +106,11 @@ summarize_wq <- function(water, params = c("general")) {
   # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
   tthm <- tthm %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   haa5 <- haa5 %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,

@@ -60,9 +60,8 @@ test_that("dissolve_cu_df outputs are the same as base function, dissolve_cu", {
   )) %>%
     dissolve_cu()
 
-  water2 <- suppressWarnings(water_df %>%
-    mutate(tot_po4 = 2) %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
+    transform(tot_po4 = 2) %>%
     define_water_df() %>%
     dissolve_cu_df())
 
@@ -74,7 +73,7 @@ test_that("dissolve_cu_df outputs are the same as base function, dissolve_cu", {
 test_that("dissolve_cu_df outputs data frame", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    mutate(tot_po4 = 2) %>%
+    transform(tot_po4 = 2) %>%
     define_water_df() %>%
     dissolve_cu_df(water_prefix = FALSE)
 
