@@ -75,7 +75,7 @@ define_water(
 
 \item{tot_nh3}{Total ammonia in mg/L as N}
 
-\item{tot_bo3}{Total borate in mg/L as B}
+\item{tot_bo3}{Total borate (B(OH)4 -) in mg/L as B}
 
 \item{tot_sio4}{Total silicate in mg/L as SiO2}
 
