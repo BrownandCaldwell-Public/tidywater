@@ -25,7 +25,7 @@
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tot_nh3 Total ammonia in mg/L as N
-#' @param tot_bo3 Total borate in mg/L as B
+#' @param tot_bo3 Total borate (B(OH)4 -) in mg/L as B
 #' @param tot_sio4 Total silicate in mg/L as SiO2
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
@@ -280,10 +280,6 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   carbonate_alk_eq <- alk_eq - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + oh) + h
 
   tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
-  # tot_po4 <- phosphate_alk_eq / (alpha1p + 2 * alpha2p + 3 * alpha3p)
-  # tot_nh3 <- ammonium_alk_eq / alpha1n
-  # tot_bo3 <- borate_alk_eq / alpha1b
-  # tot_sio4 <- silicate_alk_eq / (alpha1s + 2 * alpha2s)
 
   # Initialize water to simplify IS calcs
   water <- methods::new("water",
@@ -294,7 +290,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
     bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, tot_bo3 = tot_bo3, tot_sio4 = tot_sio4,
-    kw = kw, is = 0, alk_eq = alk_eq, # carbonate_alk_eq = carbonate_alk_eq, phosphate_alk_eq = phosphate_alk_eq, ammonium_alk_eq = ammonium_alk_eq, borate_alk_eq = borate_alk_eq, silicate_alk_eq = silicate_alk_eq,
+    kw = kw, is = 0, alk_eq = alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )

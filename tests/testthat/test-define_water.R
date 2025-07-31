@@ -104,7 +104,7 @@ test_that("Define water doesn't output carbonate when pH or alk aren't provided.
 
   expect_equal(water1@tot_co3, NA_real_)
   expect_equal(water2@tot_co3, NA_real_)
-  expect_equal(water1@alk, 0)
+  expect_equal(water1@alk, NA_real_)
   expect_equal(water2@ph, NA_real_)
 })
 
@@ -146,7 +146,7 @@ test_that("define_water correctly calculates dic", {
 
 test_that("define_water accounts for multiple types of alkalinity", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
-  water2 <- suppressWarnings(define_water(ph = 7, temp = 25, tot_po4 = 5, tot_nh3 = 5, tot_bo3 = 5, tot_sio4 = 5))
+  water2 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_po4 = 5, tot_nh3 = 5, tot_bo3 = 5, tot_sio4 = 5))
   
   expect_true(water1@alk_eq == water1@carbonate_alk_eq)
   expect_true(water1@phosphate_alk_eq == 0)

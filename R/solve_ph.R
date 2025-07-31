@@ -9,7 +9,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
 
   #### SOLVE FOR pH
   solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
-                      alk_eq, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose) {
+                      carbonate_alk_eq, oh_i, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose) {
     kw / (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 * (calculate_alpha1_phosphate(h, ks) +
@@ -18,13 +18,16 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       tot_co3 * (calculate_alpha1_carbonate(h, ks) +
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
+      # tot_bo3 * calculate_alpha1_borate(h, ks) +
+      # tot_sio4 * (calculate_alpha1_silicate(h, ks) + 
+      #   2 * calculate_alpha2_silicate(h, ks))
       cl_dose +
       mno4_dose +
       no3_dose -
       (h + na_dose + 2 * ca_dose + 2 * mg_dose +
         tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
-      alk_eq -
-      3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i + nh4_i
+      (carbonate_alk_eq + oh_i) -
+      3 * po4_i - 2 * hpo4_i - h2po4_i - ocl_i + nh4_i # - bo3_i - 2 * h2sio4_i - h3sio4_i
   }
 
   root_h <- stats::uniroot(solve_h,
@@ -40,7 +43,13 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     ocl_i = water@ocl,
     tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
-    alk_eq = water@alk_eq,
+    # tot_bo3 = water@tot_bo3,
+    # bo3_i = water@bo3,
+    # tot_sio4 = water@tot_sio4,
+    # h2sio4_i = water@h2sio4,
+    # h3sio4_i = water@h3sio4,
+    carbonate_alk_eq = water@carbonate_alk_eq,
+    oh_i = water@oh,
     na_dose = na_dose,
     ca_dose = ca_dose,
     mg_dose = mg_dose,

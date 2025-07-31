@@ -287,7 +287,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   
   # dosed_water@tot_co3 <- dosed_water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
-  dosed_water@alk_eq <- sum(dosed_water@carbonate_alk_eq, dosed_water@phosphate_alk_eq, dosed_water@ammonium_alk_eq, dosed_water@borate_alk_eq, dosed_water@silicate_alk_eq, -1 * dosed_water@h, dosed_water@oh)
+  dosed_water@alk_eq <- sum(dosed_water@carbonate_alk_eq, dosed_water@phosphate_alk_eq, dosed_water@ammonium_alk_eq, dosed_water@borate_alk_eq, dosed_water@silicate_alk_eq, -1 * h, oh)
   dosed_water@alk <- convert_units(dosed_water@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
 
   # Compile complete dosed water data frame
