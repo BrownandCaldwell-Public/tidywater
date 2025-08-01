@@ -20,14 +20,15 @@ test_that("opensys_ph preserves carbonate balance", {
 })
 
 test_that("opensys_ph works", {
-  water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 50))
+  water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 10))
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 0))
   
   water2 <- opensys_ph(water0)
   water3 <- opensys_ph(water0, partialpressure = 10^-4)
+  water4 <- opensys_ph(water1)
   
   # co2_add <- 10^-1.468 * 10^-3.42
-  # water4 <- chemdose_ph(water0, co2 = convert_units(abs(co2_add - water0@h2co3), "co2", "M", "mg/L"))
+  # water5 <- chemdose_ph(water0, co2 = convert_units((water0@h2co3 - co2_add), "co2", "M", "mg/L"))
   
   expect_s4_class(water2, "water")
   expect_false(identical(water2@ph, water0@ph))
@@ -37,6 +38,7 @@ test_that("opensys_ph works", {
   expect_false(identical(water2@dic, water0@dic))
   expect_true(water2@ph < water0@ph)
   expect_true(water2@ph < water3@ph)
+  expect_true(water4@alk > water1@alk) # if h2co3 starts less than equilibrium, alkalinity will increase
   
   expect_equal(round(water2@ph, 1), 5.6)
   expect_equal(round(water2@alk, 4), 0.0002)
