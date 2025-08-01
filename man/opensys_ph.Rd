@@ -8,7 +8,7 @@
 Snoeyink & Jenkins (1980)
 }
 \usage{
-opensys_ph(water, partialpressure = 10^-3.5)
+opensys_ph(water, partialpressure = 10^-3.42)
 
 opensys_ph_df(
   df,
