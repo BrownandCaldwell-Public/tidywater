@@ -60,6 +60,14 @@ test_that("Plot ions creates a ggplot object that can be printed.", {
   expect_no_error(plot_ions(water1))
 })
 
+# Plot Lead ----
+test_that("Plot lead creates a ggplot object that can be printed.", {
+  historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                 dic = c(14.85813772, 16.40951309, 16.47773344, 16.6332028, 16.86320599, 16.93871268, 17.05489053, 17.22845295, 17.32943129, 17.34448707))
+  expect_s3_class(plot_lead(historical), "ggplot")
+  expect_no_error(plot_lead(historical))
+})
+
 
 # Calculate Hardness ----
 

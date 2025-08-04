@@ -235,6 +235,43 @@ plot_ions <- function(water) {
     )
 }
 
+#' Create dissolved lead and DIC contour plot given input data frame
+#'
+#' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot.
+#'
+#' @param df Source data as a data frame. Must have columns for historical pH and DIC data.
+#' @import ggplot2
+#'
+#' @examples
+#' historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+#'                 dic = c(14.85813772, 16.40951309, 16.47773344, 16.6332028, 16.86320599, 16.93871268, 17.05489053, 17.22845295, 17.32943129, 17.34448707))
+#' plot_lead(historical)
+#'
+#' @export
+#'
+#' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
+#'
+plot_lead <- function(df) {
+  leadsolid <- tidywater::leadplotcoeffs
+  transition <- tidywater::leadplottransition
+  
+  leadplot <- ggplot(leadsolid) +
+    geom_raster(aes(x = leadplotdic, y = leadplotph, fill = leadplotsol), interpolate = TRUE, alpha = .75) +
+    theme_bc() +
+    scale_fill_viridis_c(option = "B") +
+    geom_line(data = transition, aes(x = dic, y = ph), color = "white", size = 1, linetype = "dashed") +
+    geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), size = 1.5) +
+    labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "") +
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0)) +
+    coord_cartesian(ylim = c(7,10)) +
+    geom_text(x = 20, y = 9, label = "Hydro cerussite", color = "white") +
+    geom_text(x = 40, y = 7.2, label = "Cerussite", color = "white") +
+    scale_color_manual(values = c("gray"))
+  
+  print(leadplot)
+}
+
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
