@@ -49,14 +49,12 @@ test_that("opensys_ph_df outputs are the same as base function, opensys_ph.", {
   
   water1 <- opensys_ph(water0)
   
-  water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
                                define_water_df() %>%
                                opensys_ph_df(pluck_cols = TRUE))
   
   # test that pluck_cols does the same thing as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
                                define_water_df() %>%
                                opensys_ph_df() %>%
                                pluck_water(c("opensys"), c("ph", "alk")))
