@@ -254,6 +254,7 @@ plot_ions <- function(water) {
 plot_lead <- function(df) {
   leadsolid <- tidywater::leadplotcoeffs
   transition <- tidywater::leadplottransition
+  colnames(df) <- tolower(colnames(df))
   
   leadplot <- ggplot(leadsolid) +
     geom_raster(aes(x = leadplotdic, y = leadplotph, fill = leadplotsol), interpolate = TRUE, alpha = .75) +
