@@ -105,8 +105,7 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
 #'
 #' @returns `gacrun_toc_df` returns a data frame containing columns of the breakthrough curve (breakthrough and bed volume).
 #'
-gacrun_toc_df <- function(df, input_water = "defined", output_water = "gaced",
-                            water_prefix = TRUE,
+gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
                             ebct = "use_col", model = "use_col", media_size = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))

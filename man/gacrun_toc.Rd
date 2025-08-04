@@ -17,7 +17,6 @@ gacrun_toc(water, ebct = 10, model = "Zachman", media_size = "12x40")
 gacrun_toc_df(
   df,
   input_water = "defined",
-  output_water = "gaced",
   water_prefix = TRUE,
   ebct = "use_col",
   model = "use_col",
