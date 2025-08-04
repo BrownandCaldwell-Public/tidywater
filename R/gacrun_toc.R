@@ -86,3 +86,65 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
   breakthrough <- data.frame(bv = bv, x_norm = x_norm)
   return(breakthrough)
 }
+
+#' @rdname gacrun_toc
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_df]. The df may include a column named for the coagulant being dosed,
+#' and a column named for the set of coefficients to use.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#'
+#' @examples
+#' \donttest{
+#' example_df <- water_df %>%
+#'   define_water_df() %>%
+#'   gacrun_toc_df()
+#' }
+#'
+#' @export
+#'
+#' @returns `gacrun_toc_df` returns a data frame containing columns of the breakthrough curve (breakthrough and bed volume).
+#'
+gacrun_toc_df <- function(df, input_water = "defined", output_water = "gaced",
+                            water_prefix = TRUE,
+                            ebct = "use_col", model = "use_col", media_size = "use_col") {
+  # This allows for the function to process unquoted column names without erroring
+  ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
+  model <- tryCatch(model, error = function(e) enquo(model))
+  media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
+  
+  validate_water_helpers(df, input_water)
+  # This returns a dataframe of the input arguments and the correct column names for the others
+  arguments <- construct_helper(df, all_args = list(
+    "ebct" = ebct, "model" = model,
+    "media_size" = media_size
+  ))
+  final_names <- arguments$final_names
+  
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
+  }
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(ebct = 10, model = "Zachman", media_size = "12x40")
+  )
+  df <- defaults_added$data
+  
+  bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    gacrun_toc(
+      water = df[[input_water]][[i]],
+      ebct = df[[final_names$ebct]][i],
+      model = df[[final_names$model]][i],
+      media_size = df[[final_names$media_size]][i]
+    )
+  }))
+  
+  if (water_prefix) {
+    names(bv_df) <- paste0(input_water, "_", names(bv_df))
+  }
+  
+  output <- cbind(df, bv_df)
+  return(output)
+}

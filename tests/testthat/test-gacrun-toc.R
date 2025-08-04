@@ -43,3 +43,46 @@ test_that("gacrun_toc works.", {
   expect_true(identical(plot1, plo4)) # media size isn't used in WTP model
   expect_false(identical(plot2, plot5)) # media size is used in Zachman model
 })
+
+################################################################################*
+################################################################################*
+# gacrun_toc helpers ----
+
+test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
+  testthat::skip_on_cran()
+  water0 <- define_water(7.9, 20, 50,
+                         tot_hard = 50, ca = 13, mg = 4,
+                         na = 20, k = 20, cl = 30, so4 = 20,
+                         tds = 200, cond = 100,
+                         toc = 2, doc = 1.8, uv254 = 0.05
+  )
+  
+  water1 <- water0 %>%
+    gacrun_toc(model = "WTP")
+  
+  water2 <- water_df[1,] %>%
+    define_water_df() %>%
+    gacrun_toc_df(model = "WTP", media_size = "12x40", ebct = 10)
+  
+  expect_equal(water1$bv, water2$defined_bv)
+  expect_equal(water1$x_norm, water2$defined_x_norm)
+})
+
+# Test that output is a data frame with the correct number of columns
+test_that("gacrun_toc_df output is data frame", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(water_df[1,] %>%
+                               define_water_df("raw") %>%
+                               mutate(
+                                 model = "Zachman",
+                                 media_size = "12x40",
+                                 ebct = 10
+                               ))
+  
+  water1 <- water0 %>%
+    gacrun_toc_df(input_water = "raw")
+  
+  expect_true(is.data.frame(water1))
+  expect_equal(ncol(water0), ncol(water1) - 2)
+})
+
