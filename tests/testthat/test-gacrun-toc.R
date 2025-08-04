@@ -84,5 +84,6 @@ test_that("gacrun_toc_df output is data frame", {
   
   expect_true(is.data.frame(water1))
   expect_equal(ncol(water0), ncol(water1) - 2)
+  expect_equal(nrow(water1), 101)
 })
 
