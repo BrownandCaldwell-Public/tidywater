@@ -120,43 +120,6 @@ NULL
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "leadsol_constants"
 
-#' Data frame of lead solubility at various pH and DIC values
-#' 
-#' A dataset containing dissolved lead, pH, and DIC
-#' 
-#' @docType data
-#' @keywords datasets
-#' @name leadplotcoeffs
-#' @format A dataframe with 434 rows and 3 columns
-#' \describe{
-#' \item{leadplotph}{A range of pH values from 7 to 10}
-#' \item{leadplotdic}{A range of DIC values from 2 to 58 mg/L}
-#' \item{leadplotsol}{Lead solubility values corresponding to the given pH and DIC}
-#' }
-#' 
-#' @source NEED TO FILL IN
-#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#' 
-"leadplotcoeffs"
-
-#' Data frame of the pH-DIC transition line for lead contour plot
-#' 
-#' A dataset containing pH and DIC for the contour plot transition line
-#' 
-#' @docType data
-#' @keywords datasets
-#' @name leadplottransition
-#' @format A dataframe with 19 rows and 2 columns
-#' \describe{
-#' \item{ph}{A range of pH values between 7.1 and 8.649}
-#' \item{dic}{A range of DIC values from 0.8 to 58 mg/L}
-#' }
-#' 
-#' @source NEED TO FILL IN
-#' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#' 
-"leadplottransition"
-
 #' Data frame of DBP coefficients for predicting DBP formation
 #'
 #' A dataset containing coefficients for calculating DBP formation
