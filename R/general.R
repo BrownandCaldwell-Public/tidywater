@@ -239,12 +239,11 @@ plot_ions <- function(water) {
 #'
 #' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot.
 #'
-#' @param df Source data as a data frame. Must have columns for historical pH and DIC data.
+#' @param df Source data as a data frame. Must have columns for pH, alkalinity, and tds data.
 #' @import ggplot2
 #'
 #' @examples
-#' historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
-#'                 dic = c(14.85813772, 16.40951309, 16.47773344, 16.6332028, 16.86320599, 16.93871268, 17.05489053, 17.22845295, 17.32943129, 17.34448707))
+#' historical <- df
 #' plot_lead(historical)
 #'
 #' @export
@@ -252,25 +251,108 @@ plot_ions <- function(water) {
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 #'
 plot_lead <- function(df) {
-  leadsolid <- tidywater::leadplotcoeffs
-  transition <- tidywater::leadplottransition
+  df <- data.frame(ph = seq(7, 10, 0.1),
+                   alk = seq(1, 250, length.out = 31),
+                   tds = 200)
+  
   colnames(df) <- tolower(colnames(df))
+  min_ph <- min(df$ph)
+  max_ph <- max(df$ph)
+  min_alk <- min(df$alk)
+  max_alk <- max(df$alk)
+  input_tds <- unique(df$tds)
   
-  leadplot <- ggplot(leadsolid) +
-    geom_raster(aes(x = leadplotdic, y = leadplotph, fill = leadplotsol), interpolate = TRUE, alpha = .75) +
-    theme_bc() +
-    scale_fill_viridis_c(option = "B") +
-    geom_line(data = transition, aes(x = dic, y = ph), color = "white", size = 1, linetype = "dashed") +
-    geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), size = 1.5) +
-    labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "") +
+  input_water <- define_water_df(df) %>%
+    pluck_water(parameter = c("ph", "dic"))
+  min_dic <- min(input_water$defined_dic)
+  max_dic <- max(input_water$defined_dic)
+  
+  dic_contourplot <- merge(
+    data.frame(ph = seq(min_ph, max_ph, length.out = 31)),
+    data.frame(alk = seq(min_alk, max_alk, length.out = 10))
+  ) %>%
+    .[order(.$ph), ] %>%
+    { row.names(.) <- NULL; . } %>%
+    transform(tds = input_tds) %>%
+    define_water_df(output_water = "Finished") %>%
+    pluck_water(input_waters = c("Finished"), parameter = c("ph", "dic")) %>%
+    dissolve_pb_df("Finished") %>%
+    transform(dissolved_pb_mgl = convert_units(Finished_pb, "pb", "M", "mg/L")) %>%
+    transform(log_pb = log10(dissolved_pb_mgl))
+  dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
+  
+  dic_contourplot2 <- merge(
+    data.frame(ph = seq(min_ph, max_ph, length.out = 31)),
+    data.frame(dic = seq(min_dic, max_dic, length.out = 10))
+  ) %>%
+    .[order(.$ph), ] %>%
+    { row.names(.) <- NULL; . }
+  dic_contourplot2 <- cbind(dic_contourplot2, dic_contourplot$log_pb)
+  dic_contourplot <- dic_contourplot2
+    
+  
+  #complete grid check
+  length(unique(dic_contourplot$dic)) * length(unique(dic_contourplot$ph)) ==
+    nrow(dic_contourplot)
+  
+  # # Create a complete grid of Finished_dic and Finished_ph
+  # grid <- expand.grid(
+  #   Finished_dic = seq(min(dic_contourplot$Finished_dic), max(dic_contourplot$Finished_dic), length.out = 100),
+  #   Finished_ph = seq(min(dic_contourplot$Finished_ph), max(dic_contourplot$Finished_ph), length.out = 31)
+  # )
+  # 
+  # # Merge with log_pb values
+  # grid <- merge(grid, dic_contourplot[, c("Finished_dic", "Finished_ph", "log_pb")], 
+  #               by = c("Finished_dic", "Finished_ph"), all.x = TRUE)
+  # 
+  # # Fill missing log_pb values
+  # grid$log_pb[is.na(grid$log_pb)] <- min(grid$log_pb, na.rm = TRUE)
+  # grid <- grid[order(grid$Finished_ph, grid$Finished_dic), ]
+  
+  transitionline <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")] %>%
+    transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA)
+) %>%
+    na.omit()
+  
+  dic_contourplot %>%
+    ggplot() +
+    geom_raster(aes(x = dic, y = ph, fill = `dic_contourplot$log_pb`), interpolate = TRUE) +
+    # geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1, linetype = "dashed") +
+    geom_contour(aes(x = dic, y = ph, z = `dic_contourplot$log_pb`),
+                 bins = 100, color = "gray", alpha = 0.5) +
+    geom_point(data = input_water, aes(x = defined_dic, y = defined_ph, color = "Historical"), size = 1.5) +
+    bctools::theme_bc()+
+    scale_fill_viridis_c(option = "B")+
     scale_x_continuous(expand = c(0,0)) +
-    scale_y_continuous(expand = c(0,0)) +
-    coord_cartesian(ylim = c(7,10)) +
-    geom_text(x = 20, y = 9, label = "Hydro cerussite", color = "white") +
-    geom_text(x = 40, y = 7.2, label = "Cerussite", color = "white") +
-    scale_color_manual(values = c("gray"))
+    scale_y_continuous(expand = c(0,0))+
+    labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
+    coord_cartesian(xlim = c(input_water$min_dic, input_water$max_dic),ylim = c(input_water$min_ph, input_water$max_ph))+
+    scale_color_manual(values = "#f58220")+
+    theme(legend.position = "bottom",
+          text = element_text(size = 14),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          legend.key.width = unit(1, "cm"))
   
-  print(leadplot)
+  dic_contourplot %>%
+    ggplot() +
+    geom_raster(aes(x = Finished_dic, y = Finished_ph, fill = log_pb), interpolate = TRUE) +
+    # geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1, linetype = "dashed") +
+    geom_contour(aes(x = Finished_dic, y = Finished_ph, z = log_pb),
+                 bins = 100, color = "gray", alpha = 0.5) +
+    # geom_point(data = input_water, aes(x = defined_dic, y = defined_ph, color = "Historical"), size = 1.5) +
+    bctools::theme_bc()+
+    scale_fill_viridis_c(option = "B")+
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0))+
+    labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
+    coord_cartesian(xlim = c(input_water$min_dic, input_water$max_dic),ylim = c(input_water$min_ph, input_water$max_ph))+
+    scale_color_manual(values = "#f58220")+
+    theme(legend.position = "bottom",
+          text = element_text(size = 14),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          legend.key.width = unit(1, "cm"))
 }
 
 #' @title Calculate unit conversions for common compounds
