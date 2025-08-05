@@ -19,7 +19,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
         2 * calculate_alpha2_carbonate(h, ks)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
       # tot_bo3 * calculate_alpha1_borate(h, ks) +
-      # tot_sio4 * (calculate_alpha1_silicate(h, ks) + 
+      # tot_sio4 * (calculate_alpha1_silicate(h, ks) +
       #   2 * calculate_alpha2_silicate(h, ks))
       cl_dose +
       mno4_dose +
