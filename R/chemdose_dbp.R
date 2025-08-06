@@ -8,19 +8,15 @@
 #' created by [define_water] chlorine dose, type, reaction time, and treatment applied (if any).
 #' The function also requires additional water quality parameters defined in [define_water]
 #' including bromide, TOC, UV254, temperature, and pH.
-#' For a single water use `chemdose_dbp`; for a dataframe use `chemdose_dbp_chain`.
-#' For most arguments in the `_chain` helper
+#'
+#' For a single water use `chemdose_dbp`; for a dataframe use `chemdose_dbp_df`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
 #' @details The function will calculate haloacetic acids (HAA) as HAA5, and total trihalomethanes (TTHM).
 #' Use `summarize_wq(water, params = c("dbps"))` to quickly tabulate the results.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source TTHMs, raw: U.S. EPA (2001) equation 5-131
 #' @source HAAs, raw: U.S. EPA (2001) equation 5-134
@@ -155,7 +151,7 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
     if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
       stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
     } else if (any(duplicated(coeff$ID))) {
-      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _chain or _once function.")
+      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _df function.")
     } else {
       changecoeff <- coeff$ID
       newcoeff <- unique(subset(tidywater::dbpcoeffs, ID %in% changecoeff, select = c(ID, alias, group)))
@@ -206,7 +202,8 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
   # proportional corrections following U.S. EPA (2001), section 5.7.3
   individual_dbp <- corrected_dbp_1[
     !(corrected_dbp_1$ID %in% c("tthm", "haa5")) &
-      !(corrected_dbp_1$group %in% c("haa6", "haa9")), ]
+      !(corrected_dbp_1$group %in% c("haa6", "haa9")),
+  ]
   individual_dbp$sum_group <- stats::ave(individual_dbp$modeled_dbp, individual_dbp$group, FUN = sum)
   individual_dbp$proportion_group <- individual_dbp$modeled_dbp / individual_dbp$sum_group
   individual_dbp <- merge(individual_dbp, bulk_dbp, by = "group", suffixes = c("_ind", "_bulk"))
@@ -243,47 +240,39 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @rdname chemdose_dbp
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water]. The df may include columns for the other function arguments.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "disinfected".
+#' @param pluck_cols Extract primary water slots modified by the function (tthm, haa5) into new numeric columns for easy access with TRUE.
+#' Alternatively, specify "all" to get all DBP species in addition: (tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa)
+#' Defaults to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #' @examples
 #' \donttest{
-#' library(dplyr)
+#' example_df <- water_df %>%
+#'   dplyr::mutate(br = 50) %>%
+#'   define_water_df() %>%
+#'   chemdose_dbp_df(input_water = "defined", cl2 = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_dbp_chain(input_water = "defined_water", cl2 = 4, time = 8)
-#'
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   slice_sample(n = 3) %>%
-#'   define_water_chain() %>%
-#'   mutate(
+#'   dplyr::mutate(br = 50) %>%
+#'   dplyr::slice_sample(n = 3) %>%
+#'   define_water_df() %>%
+#'   dplyr::mutate(
 #'     cl2_dose = c(2, 3, 4),
 #'     time = 30
 #'   ) %>%
-#'   chemdose_dbp_chain(cl2 = cl2_dose, treatment = "coag", location = "ds", cl_type = "chloramine")
-#'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_dbp_chain(cl2 = 4, time = 8)
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
+#'   chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds",
+#'   cl_type = "chloramine", pluck_cols = TRUE)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
-#' @returns `chemdose_dbp_chain` returns a data frame containing a water class column with predicted DBP concentrations.
+#' @returns `chemdose_dbp_df` returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
+#' concentrations. Optionally, it also adds columns for those slots individually.
 
-chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                               cl2 = "use_col", time = "use_col",
-                               treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
+chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
+                            cl2 = "use_col", time = "use_col",
+                            treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -291,7 +280,6 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
   correction <- tryCatch(correction, error = function(e) enquo(correction))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   validate_water_helpers(df, input_water)
 
@@ -302,86 +290,47 @@ chemdose_dbp_chain <- function(df, input_water = "defined_water", output_water =
       "cl_type" = cl_type, "location" = location, "correction" = correction
     )
   )
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        cl2 = !!as.name(arguments$final_names$cl2),
-        time = !!as.name(arguments$final_names$time),
-        # This logic needed for any argument that has a default
-        treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
-        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.)),
-        location = if (arguments$final_names$location %in% names(.)) !!sym(arguments$final_names$location) else rep("plant", nrow(.)),
-        correction = if (arguments$final_names$correction %in% names(.)) !!sym(arguments$final_names$correction) else rep(TRUE, nrow(.)),
-        coeff = replicate(nrow(.), coeff, simplify = FALSE)
-      ),
-      chemdose_dbp
-    )) %>%
-    select(-correction)
-}
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(treatment = "raw", cl_type = "chlorine", location = "plant", correction = TRUE)
+  )
+  df <- defaults_added$data
 
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    chemdose_dbp(
+      water = df[[input_water]][[i]],
+      cl2 = df[[final_names$cl2]][i],
+      time = df[[final_names$time]][i],
+      treatment = df[[final_names$treatment]][i],
+      cl_type = df[[final_names$cl_type]][i],
+      location = df[[final_names$location]][i],
+      correction = df[[final_names$correction]][i],
+      coeff = if (!is.null(coeff)) coeff else NULL
+    )
+  })
 
-#' @rdname chemdose_dbp
-#' @param water_prefix name of the input water used for the calculation, appended to the start of output columns. Default is TRUE.
-#' Change to FALSE to remove the water prefix from output column names.
-#' @examples
-#' \donttest{
-#' library(dplyr)
-#'
-#' water <- water_df %>%
-#'   slice(1) %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_dbp_once(cl2 = 10, time = 8)
-#' }
-#'
-#' @import dplyr
-#' @export
-#'
-#' @returns `chemdose_dbp_once` returns a data frame containing predicted DBP concentrations as columns.
-#'
-chemdose_dbp_once <- function(df, input_water = "defined_water", output_water = "disinfected_water", cl2 = "use_col", time = "use_col",
-                              treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL,
-                              water_prefix = TRUE) {
-  temp_dbp <- dbps <- estimated <-ph <- NULL # Quiet RCMD check global variable note
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
 
-  # This allows for the function to process unquoted column names without erroring
-  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
-  time <- tryCatch(time, error = function(e) enquo(time))
-  treatment <- tryCatch(treatment, error = function(e) enquo(treatment))
-  cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
-  location <- tryCatch(location, error = function(e) enquo(location))
-  correction <- tryCatch(correction, error = function(e) enquo(correction))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
-
-  output <- df %>%
-    chemdose_dbp_chain(
-      input_water = input_water,
-      output_water = "temp_dbp",
-      cl2 = cl2,
-      time = time,
-      treatment = treatment,
-      cl_type = cl_type,
-      location = location,
-      coeff = coeff
-    ) %>%
-    mutate(dbps = furrr::future_map(temp_dbp, convert_water)) %>%
-    unnest(dbps) %>%
-    select(-c(ph:estimated)) %>%
-    rename(!!output_water := temp_dbp)
-
-  if (water_prefix) {
-    output <- output %>%
-      rename_with(
-        ~ paste0(output_water, "_", .x),
-        .cols = (match(output_water, names(.)) + 1):ncol(.)
-      )
+  if (pluck_cols == TRUE) {
+    output <- output |>
+      pluck_water(c(output_water), c("tthm", "haa5"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
+  if (pluck_cols == "all") {
+    output <- output |>
+      pluck_water(c(output_water), c("tthm", "chcl3", "chcl2br", "chbr2cl", "chbr3", "haa5", "mcaa", "dcaa", "tcaa", "mbaa", "dbaa"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
   }
 
   return(output)

@@ -145,35 +145,9 @@ test_that("define_water correctly calculates dic", {
 })
 
 # define_water helpers ----
+# Test that define_water_df outputs are the same as base function, define_water.
 
-# Test that define_water_once outputs are the same as base function, define_water.
-
-test_that("define_water_once output is the same as define_water", {
-  testthat::skip_on_cran()
-  water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  ))
-  water2 <- convert_water(water1)
-
-  water3 <- suppressWarnings(define_water_once(slice(water_df, 1)))
-
-  expect_equal(water2, water3)
-})
-
-# Test that define_water_once output is a dataframe
-
-test_that("define_water_once outputs a data frame", {
-  testthat::skip_on_cran()
-  water3 <- suppressWarnings(define_water_once(slice(water_df, 1)))
-
-  expect_true(is.data.frame(water3))
-})
-
-
-# Test that define_water_chain outputs are the same as base function, define_water.
-
-test_that("define_water_chain output is the same as define_water", {
+test_that("define_water_df output is the same as define_water", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
@@ -181,15 +155,19 @@ test_that("define_water_chain output is the same as define_water", {
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_chain(slice(water_df, 1), output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
   water3 <- purrr::pluck(water2, 1, 1)
 
+  # check pluck_cols
+  water4 <- suppressWarnings(define_water_df(slice(water_df, 1), pluck_cols = TRUE))
+
   expect_equal(water1, water3)
+  expect_true(ncol(water4) == 5) # defined, ph, and alk
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
 
-test_that("define_water_chain outputs a water class and the output water argument works", {
+test_that("define_water_df outputs a water class and the output water argument works", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
@@ -197,7 +175,7 @@ test_that("define_water_chain outputs a water class and the output water argumen
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_chain(slice(water_df, 1), output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
   water3 <- purrr::pluck(water2, 1, 1)
 
   expect_s4_class(water3, "water")
@@ -205,7 +183,7 @@ test_that("define_water_chain outputs a water class and the output water argumen
 
 # Check that this function can be piped to the next one and can handle a different output_water arg
 
-test_that("define_water_chain can be piped", {
+test_that("define_water_df can be piped", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
@@ -213,27 +191,28 @@ test_that("define_water_chain can be piped", {
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_chain(slice(water_df, 1), output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
 
-  water3 <- water2 %>% balance_ions_chain("new_name")
+  water3 <- water2 %>% balance_ions_df("new_name")
 
   expect_equal(names(water2[1]), "new_name")
   expect_equal(ncol(water3), 2)
 })
 
-test_that("define_water_chain correctly calculates dic", {
+test_that("define_water_df correctly calculates dic", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
-    define_water_chain() %>%
+    define_water_df() %>%
     pluck_water(parameter = "dic") %>%
     slice(1)
 
-  water2 <- define_water(
+
+  water2 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
-  )
+  ))
   dic_mol <- water2@tot_co3 * tidywater::mweights$dic * 1000
 
 
-  expect_equal(dic_mol, water1$defined_water_dic)
+  expect_equal(dic_mol, water1$defined_dic)
 })

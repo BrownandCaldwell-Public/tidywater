@@ -2,7 +2,7 @@
 % Please edit documentation in R/biofilter_toc.R
 \name{biofilter_toc}
 \alias{biofilter_toc}
-\alias{biofilter_toc_chain}
+\alias{biofilter_toc_df}
 \title{Determine TOC removal from biofiltration using Terry & Summers BDOC model}
 \source{
 Terry and Summers 2018
@@ -10,10 +10,12 @@ Terry and Summers 2018
 \usage{
 biofilter_toc(water, ebct, ozonated = TRUE)
 
-biofilter_toc_chain(
+biofilter_toc_df(
   df,
-  input_water = "defined_water",
-  output_water = "biofiltered_water",
+  input_water = "defined",
+  output_water = "biofiltered",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   ebct = "use_col",
   ozonated = "use_col"
 )
@@ -26,65 +28,46 @@ biofilter_toc_chain(
 \item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column indicating the EBCT or whether the water is ozonated.}
+\link{define_water_df}. The df may include a column indicating the EBCT or whether the water is ozonated.}
 
-\item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, Water. Default is "biofiltered_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "biofiltered".}
+
+\item{pluck_cols}{Extract water slots modified by the function (doc, toc, bdoc) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 \code{biofilter_toc} returns water class object with modeled DOC removal from biofiltration.
 
-\code{biofilter_toc_chain} returns a data frame containing a water class column with updated DOC, TOC, and UV254 water slots.
+\code{biofilter_toc_df} returns a data frame containing a water class column with updated DOC, TOC, and BDOC
+concentrations. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 This function applies the Terry model to a water created by \link{define_water} to determine biofiltered
 DOC (mg/L). All particulate TOC is assumed to be removed so TOC = DOC.
-For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_chain}.
-Use \link{pluck_water} to get values from the output water as new dataframe columns.
-For most arguments in the \verb{_chain} helper
+For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_df}.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
-\details{
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
-}
 \examples{
-library(tidywater)
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) \%>\%
   biofilter_toc(ebct = 10, ozonated = FALSE)
 
 
-library(purrr)
-library(tidyr)
-library(dplyr)
+example_df <- water_df \%>\%
+  define_water_df() \%>\%
+  biofilter_toc_df(input_water = "defined", ebct = c(10, 15), ozonated = FALSE)
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  biofilter_toc_chain(input_water = "defined_water", ebct = 10, ozonated = FALSE)
-
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  mutate(
+  define_water_df() \%>\%
+  dplyr::mutate(
     BiofEBCT = c(10, 10, 10, 15, 15, 15, 20, 20, 20, 25, 25, 25),
     ozonated = c(rep(TRUE, 6), rep(FALSE, 6))
   ) \%>\%
-  biofilter_toc_chain(input_water = "defined_water", ebct = BiofEBCT)
-
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  biofilter_toc_chain(input_water = "defined_water", ebct = c(10, 20))
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
+  biofilter_toc_df(input_water = "defined", ebct = BiofEBCT)
 
 }
