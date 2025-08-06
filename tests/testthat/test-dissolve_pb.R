@@ -1,4 +1,5 @@
 # dissolve_pb----
+library(dplyr)
 
 test_that("dissolve_pb doesn't work without alkalinity and IS.", {
   water1 <- suppressWarnings(define_water(ph = 7, tds = 200))
@@ -66,7 +67,8 @@ test_that("dissolve_pb_df outputs are the same as base function, dissolve_pb", {
   )) %>%
     dissolve_pb()
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     dissolve_pb_df()
 
@@ -89,11 +91,13 @@ test_that("dissolve_pb_df outputs data frame", {
 # Check that outputs are different depending on selected source
 test_that("dissolve_pb_df processes different input constants", {
   testthat::skip_on_cran()
-  water2 <- water_df[3,] %>%
+  water2 <- water_df %>%
+    slice(3) %>%
     define_water_df() %>%
     dissolve_pb_df(water_prefix = F)
 
-  water3 <- water_df[3,] %>%
+  water3 <- water_df %>%
+    slice(3) %>%
     define_water_df() %>%
     dissolve_pb_df(pyromorphite = "Xie", water_prefix = F)
 

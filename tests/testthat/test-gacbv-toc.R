@@ -59,7 +59,8 @@ test_that("gacbv_toc_df outputs are the same as base function, gacbv_toc", {
   water1 <- water0 %>%
     gacbv_toc(model = "WTP", target_doc = 0.8)
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    dplyr::slice(1) %>%
     define_water_df() %>%
     gacbv_toc_df(model = "WTP", target_doc = 0.8, media_size = "12x40", ebct = 10)
 

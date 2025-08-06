@@ -1,4 +1,5 @@
 # chemdose_ph ----
+library(dplyr)
 
 test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
@@ -180,19 +181,22 @@ test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
 
   water1 <- chemdose_ph(water0, naoh = 10)
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     chemdose_ph_df(input_water = "defined", naoh = 10, pluck_cols = TRUE)
 
   # check that pluck_cols does the same thing as pluck_Water
-  water3 <- water_df[1,] %>%
+  water3 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     chemdose_ph_df(input_water = "defined", naoh = 10) %>%
     pluck_water("defined", c("ph", "alk"))
 
   coag_doses <- data.frame(alum = seq(0, 100, 10))
   softening <- data.frame(softening_correction = c(T, F))
-  water4 <- water_df[1,] %>%
+  water4 <- water_df %>%
+    slice(1) %>%
     define_water_df("raw") %>%
     merge(coag_doses) %>%
     merge(softening) %>%
@@ -201,9 +205,10 @@ test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
   water5 <- chemdose_ph(water0, alum = 20)
   water6 <- chemdose_ph(water0, alum = 100, softening_correction = FALSE)
 
-  water7 <- water_df[1,] %>%
+  water7 <- water_df %>%
+    slice(1) %>%
     define_water_df("raw") %>%
-    transform(naoh = 10) %>%
+    mutate(naoh = 10) %>%
     merge(coag_doses, by = NULL) %>%
     { names(.)[names(.) == "alum"] <- "NewName"; . } %>%
     chemdose_ph_df("raw", "dose", alum = .$NewName, naocl = c(0, 2), pluck_cols = TRUE)
@@ -263,9 +268,11 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
     mutate(naoh = seq(0, 11, 1)) %>%
     chemdose_ph_df(hcl = c(5, 8)))
 
-  water4 <- water3[21,] # same starting wq as water 5
+  water4 <- water3 %>%
+    slice(21) # same starting wq as water 5
 
-  water5 <- water1[11,] # same starting wq as water 4
+  water5 <- water1 %>%
+    slice(11) # same starting wq as water 4
 
   expect_equal(
     pluck_water(water1, "dosed_chem", "toc")$dosed_chem_toc,

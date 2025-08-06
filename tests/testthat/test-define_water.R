@@ -1,4 +1,6 @@
 # Define water -----
+library(dplyr)
+
 test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
@@ -155,11 +157,11 @@ test_that("define_water_df output is the same as define_water", {
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_df(water_df[1,], output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
   water3 <- purrr::pluck(water2, 1, 1)
 
   # check pluck_cols
-  water4 <- suppressWarnings(define_water_df(water_df[1,], pluck_cols = TRUE))
+  water4 <- suppressWarnings(define_water_df(slice(water_df, 1), pluck_cols = TRUE))
 
   expect_equal(water1, water3)
   expect_true(ncol(water4) == 5) # defined, ph, and alk
@@ -175,7 +177,7 @@ test_that("define_water_df outputs a water class and the output water argument w
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_df(water_df[1,], output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
   water3 <- purrr::pluck(water2, 1, 1)
 
   expect_s4_class(water3, "water")
@@ -191,7 +193,7 @@ test_that("define_water_df can be piped", {
   ))
   # water2 <- convert_Water(water1)
 
-  water2 <- suppressWarnings(define_water_df(water_df[1,], output_water = "new_name"))
+  water2 <- suppressWarnings(define_water_df(slice(water_df, 1), output_water = "new_name"))
 
   water3 <- water2 %>% balance_ions_df("new_name")
 
@@ -204,7 +206,8 @@ test_that("define_water_df correctly calculates dic", {
   water1 <- water_df %>%
     define_water_df() %>%
     pluck_water(parameter = "dic")
-  water1 <- water1[1,]
+  water1 <- water1 %>%
+    slice(1)
 
 
   water2 <- suppressWarnings(define_water(

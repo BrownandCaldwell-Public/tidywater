@@ -1,4 +1,5 @@
 # Solve Dose pH ----
+library(dplyr)
 
 test_that("Solve dose pH produces a warning and returns NA when target pH is unreachable but runs otherwise.", {
   water4 <- define_water(8, 20, 20, 70, 10, 10, 10, 10, 10, toc = 5, doc = 4.8, uv254 = .1)
@@ -79,7 +80,8 @@ test_that("solvedose_ph_df outputs are the same as base function, solvedose_ph",
   )) %>%
     solvedose_ph(target_ph = 9.2, chemical = "naoh")
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     solvedose_ph_df(target_ph = 9.2, chemical = "naoh")
 
@@ -90,7 +92,8 @@ test_that("solvedose_ph_df outputs are the same as base function, solvedose_ph",
 
 test_that("solvedose_ph_df outputs data frame", {
   testthat::skip_on_cran()
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     solvedose_ph_df(target_ph = 9.2, chemical = "naoh")
 
@@ -100,17 +103,19 @@ test_that("solvedose_ph_df outputs data frame", {
 # test different ways to input chemical
 test_that("solvedose_ph_df can handle different input formats", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    solvedose_ph_df(target_ph = 9.2, chemical = "naoh"))
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               solvedose_ph_df(target_ph = 9.2, chemical = "naoh"))
 
-  water3 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    transform(
-      target_ph = 9.2,
-      chemical = "naoh"
-    ) %>%
-    solvedose_ph_df(output_column = "caustic_dose"))
+  water3 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               mutate(
+                                 target_ph = 9.2,
+                                 chemical = "naoh"
+                                 ) %>%
+                               solvedose_ph_df(output_column = "caustic_dose"))
 
   expect_equal(water2$dose, water3$caustic_dose)
 })
@@ -125,9 +130,10 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
   water1 <- suppressWarnings(define_water(7.9, 20, 50)) %>%
     solvedose_alk(target_alk = 100, chemical = "naoh")
 
-  water2 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    solvedose_alk_df(target_alk = 100, chemical = "naoh"))
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
   expect_equal(round(water1), round(water2$dose))
 })
@@ -136,9 +142,10 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
 
 test_that("solvedose_alk_df outputs data frame", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    solvedose_alk_df(target_alk = 100, chemical = "naoh"))
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
   expect_true(is.data.frame(water2))
 })
@@ -146,17 +153,19 @@ test_that("solvedose_alk_df outputs data frame", {
 # test different ways to input chemical
 test_that("solvedose_alk_df can handle different input formats", {
   testthat::skip_on_cran()
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     solvedose_alk_df(target_alk = 100, chemical = "na2co3")
 
-  water3 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    transform(
-      target_alk = 100,
-      chemical = "na2co3"
-    ) %>%
-    solvedose_alk_df(output_column = "soda_ash"))
+  water3 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               mutate(
+                                 target_alk = 100,
+                                 chemical = "na2co3"
+                                 ) %>%
+                               solvedose_alk_df(output_column = "soda_ash"))
 
   expect_equal(water2$dose, water3$soda_ash)
 })

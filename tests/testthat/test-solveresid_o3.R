@@ -1,4 +1,6 @@
 # BASE FUNCTION ----
+library(dplyr)
+
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
@@ -46,8 +48,9 @@ test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3
   )) %>%
     solveresid_o3(time = 30, dose = 5)
 
-  water2 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water2 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = 30, dose = 5)
 
@@ -58,8 +61,9 @@ test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3
 
 test_that("solveresid_o3_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water1 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = 30, dose = 5)
 
@@ -76,18 +80,18 @@ test_that("solveresid_o3_df can use a column and/or function argument for time a
 
   time <- data.frame(time = seq(2, 24, 2))
   water1 <- water_df %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     merge(time) %>%
     solveresid_o3_df(dose = 5)
 
   water2 <- water_df %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = seq(2, 24, 2), dose = 5)
 
   water3 <- water_df %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     merge(time) %>%
     solveresid_o3_df(dose = c(5, 8))

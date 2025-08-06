@@ -1,4 +1,6 @@
 # Calculate corrosion ----
+library(dplyr)
+
 test_that("most indices won't work without ca, cl, so4", {
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
@@ -200,7 +202,8 @@ test_that("calculate_corrosion_df outputs are the same as base function, calcula
   ) %>%
     calculate_corrosion())
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     calculate_corrosion_df()
 
@@ -229,9 +232,10 @@ test_that("function catches index typos", {
 
 test_that("calculate_corrosion_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    calculate_corrosion_df(input_water = "defined"))
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               calculate_corrosion_df(input_water = "defined"))
 
   expect_true(is.data.frame(water1))
   expect_true("defined_aggressive" %in% colnames(water1))
@@ -246,14 +250,16 @@ test_that("calculate_corrosion_df is a data frame", {
 
 test_that("calculate_corrosion_df outputs an appropriate number of indices", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
+  water1 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
 
-  water2 <- suppressWarnings(water_df[1,] %>%
-    define_water_df() %>%
-    transform(naoh = 5) %>%
-    calculate_corrosion_df(input_water = "defined"))
+  water2 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               define_water_df() %>%
+                               mutate(naoh = 5) %>%
+                               calculate_corrosion_df(input_water = "defined"))
 
   water3 <- water1[, names(water1) %in% c(
     "defined_aggressive", "defined_ryznar", "defined_langelier",

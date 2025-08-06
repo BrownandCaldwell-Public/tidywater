@@ -1,4 +1,5 @@
 # biofilter_toc ----
+library(dplyr)
 
 test_that("biofilter_toc returns an error when water is absent or input incorrectly.", {
   expect_error(biofilter_toc(ebct = 10, ozonated = TRUE))
@@ -79,14 +80,16 @@ test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc
 
   water1 <- biofilter_toc(water0, ebct = 10)
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     biofilter_toc_df(ebct = 10, output_water = "biof") %>%
     pluck_water("biof", c("doc"))
 
   ebcts <- data.frame(EBCT = c(10, 20, 30))
   ozone <- data.frame(ozonated = c(T, F))
-  water3 <- water_df[1,] %>%
+  water3 <- water_df %>%
+    slice(1) %>%
     define_water_df("raw") %>%
     merge(ebcts) %>%
     merge(ozone) %>%
@@ -96,14 +99,14 @@ test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc
   water4 <- biofilter_toc(water0, ebct = 20, ozonated = F)
 
   expect_equal(water1@doc, water2$biof_doc)
-  expect_equal(water4@doc, water3$biof_doc[5])
-})
+  expect_equal(water4@doc, water3$biof_doc[5])})
 
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("biofilter_toc_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- water_df[1,] %>%
+  water1 <- water_df %>%
+    slice(1) %>%
     define_water_df("water") %>%
     biofilter_toc_df(input_water = "water", ebct = 8)
 
@@ -111,7 +114,7 @@ test_that("biofilter_toc_df output is list of water class objects, and can handl
 
   water3 <- water_df %>%
     define_water_df() %>%
-    transform(
+    mutate(
       ebct = 4
     ) %>%
     biofilter_toc_df(output_water = "diff_name")
@@ -124,22 +127,25 @@ test_that("biofilter_toc_df output is list of water class objects, and can handl
 
 test_that("biofilter_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- water_df[1,] %>%
+  water1 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
     biofilter_toc_df(ebct = 10, ozonated = TRUE) %>%
     pluck_water("biofiltered", c("doc"))
 
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
-    transform(
+    mutate(
       ebct = 10
     ) %>%
     biofilter_toc_df() %>%
     pluck_water("biofiltered", c("doc"))
 
-  water3 <- water_df[1,] %>%
+  water3 <- water_df %>%
+    slice(1) %>%
     define_water_df() %>%
-    transform(ozonated = TRUE) %>%
+    mutate(ozonated = TRUE) %>%
     biofilter_toc_df(ebct = 10) %>%
     pluck_water("biofiltered", c("doc"))
 
@@ -153,11 +159,11 @@ test_that("biofilter_toc_df errors with argument + column for same param", {
   water <- water_df %>%
     define_water_df("water")
   expect_error(water %>%
-    transform(ebct = 5) %>%
+    mutate(ebct = 5) %>%
     biofilter_toc_df(input_water = "water", ebct = 10, ozonated = FALSE))
 
   expect_error(water %>%
-    transform(ozonated = FALSE) %>%
+    mutate(ozonated = FALSE) %>%
     biofilter_toc_df(input_water = "water", ebct = 10, ozonated = TRUE))
 })
 

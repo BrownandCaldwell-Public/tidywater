@@ -44,9 +44,11 @@ test_that("pluck_water works", {
     pluck_water(parameter = "tot_co3"))
 
   tot_co3_water <- purrr::pluck(water1, 1, 4)
-  tot_co3_pluck <- water1[4,]
+  tot_co3_pluck <- water1 %>%
+    dplyr::slice(4)
 
-  water2 <- water_df[4,] %>%
+  water2 <- water_df %>%
+    dplyr::slice(4) %>%
     define_water_df() %>%
     balance_ions_df() %>%
     pluck_water(input_water = c("defined", "balanced"), parameter = c("na", "cl", "ph"))

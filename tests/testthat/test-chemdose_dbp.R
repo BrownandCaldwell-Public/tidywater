@@ -1,4 +1,5 @@
 # Chemdose DBP ----
+library(dplyr)
 
 test_that("chemdose_dbp returns no modeled DBPs when chlorine dose is 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
@@ -110,14 +111,14 @@ test_that("chemdose_dbp_df outputs are the same as base function, chemdose_dbp",
     chemdose_dbp(cl2 = 10, time = 8)
 
   water2 <- water_df[1,] %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     chemdose_dbp_df(cl2 = 10, time = 8, output_water = "chlor", pluck_cols = "all")
 
   times <- data.frame(time = seq(4, 10, 2))
   treatment <- data.frame(Location = c("raw", "coag", "gac"))
   water3 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     merge(times) %>%
     merge(treatment) %>%
@@ -148,16 +149,16 @@ test_that("chemdose_dbp_df outputs are the same as base function, chemdose_dbp",
 test_that("chemdose_dbp_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 60) %>%
+    mutate(br = 60) %>%
     define_water_df() %>%
     chemdose_dbp_df(time = 8, cl2 = 4))
 
   water2 <- purrr::pluck(water1, "disinfected", 1)
 
   water3 <- suppressWarnings(water_df %>%
-    transform(br = 60) %>%
+    mutate(br = 60) %>%
     define_water_df() %>%
-    transform(
+    mutate(
       cl2 = 4,
       time = 8
     ) %>%
@@ -172,26 +173,27 @@ test_that("chemdose_dbp_df output is list of water class objects, and can handle
 test_that("chemdose_dbp_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df() %>%
     chemdose_dbp_df(time = 120, cl2 = 10, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df() %>%
-    transform(
+    mutate(
       time = 120,
       cl2 = 10
     ) %>%
     chemdose_dbp_df(pluck_cols = TRUE))
 
   # test that pluck_cols does the same as pluck_Water
-  water3 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 80) %>%
-    define_water_df() %>%
-    transform(time = 120) %>%
-    chemdose_dbp_df(cl2 = 10) %>%
-    pluck_water("disinfected", c("tthm", "haa5")))
+  water3 <- suppressWarnings(water_df %>%
+                               slice(1) %>%
+                               mutate(br = 80) %>%
+                               define_water_df() %>%
+                               mutate(time = 120) %>%
+                               chemdose_dbp_df(cl2 = 10) %>%
+                               pluck_water("disinfected", c("tthm", "haa5")))
 
   expect_equal(water1$disinfected_tthm, water2$disinfected_tthm) # test different ways to input args
   expect_equal(water1$disinfected_haa5, water2$disinfected_haa5)
@@ -204,25 +206,27 @@ test_that("chemdose_dbp_df can use a column or function argument for chemical do
 test_that("chemdose_dbp_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df("water")
   expect_error(water %>%
-    transform(cl2 = 5) %>%
+    mutate(cl2 = 5) %>%
     chemdose_dbp_df(input_water = "water", time = 120, cl2 = 10))
   expect_error(water %>%
-    transform(time = 5) %>%
+    mutate(time = 5) %>%
     chemdose_dbp_df(input_water = "water", time = 120, cl2 = 10))
 
   times <- data.frame(time = seq(4, 10, 2))
-  water1 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water1 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     merge(times)
 
-  water2 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water2 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
-    transform(treatment = "raw")
+    mutate(treatment = "raw")
 
   expect_error(chemdose_dbp_df(water1, cl2 = 10, time = 10, output_water = "chlor"))
   expect_error(chemdose_dbp_df(water2, cl2 = 10, time = 10, treatment = "raw", output_water = "chlor"))
@@ -231,7 +235,7 @@ test_that("chemdose_dbp_df errors with argument + column for same param", {
 test_that("chemdose_dbp_df correctly handles arguments with multiple numbers", {
   testthat::skip_on_cran()
   water <- water_df %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df("water")
 
   water1 <- water %>%
@@ -247,13 +251,13 @@ test_that("users can provide their own dbp coefficients to chemdose_dbp_df.", {
   coeff <- data.frame(A = 5E-2, a = 1, b = .5, c = .5, d = .5, e = 1, f = .5, ph_const = 7.5, ID = "chcl3")
 
   water1 <- water_df %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df() %>%
     chemdose_dbp_df("defined", cl2 = 2, time = 120) %>%
     pluck_water("disinfected", c("tthm", "chcl3"))
 
   water2 <- water_df %>%
-    transform(br = 80) %>%
+    mutate(br = 80) %>%
     define_water_df() %>%
     chemdose_dbp_df("defined", cl2 = 2, time = 120, coeff = coeff) %>%
     pluck_water("disinfected", c("tthm", "chcl3"))

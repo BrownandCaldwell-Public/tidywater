@@ -1,3 +1,4 @@
+library(dplyr)
 
 test_that("regulate_toc works", {
 
@@ -38,8 +39,8 @@ test_that("regulate_toc_df is same s as base function", {
   base <- regulate_toc(100, 4, 2)
 
   regulated <- water_df[3,] %>%
-    dplyr::select(toc_raw = toc, alk_raw = alk) %>%
-    transform(toc_finished = 2) %>%
+    select(toc_raw = toc, alk_raw = alk) %>%
+    mutate(toc_finished = 2) %>%
     regulate_toc_df()
 
 expect_equal(base$toc_compliance_status, regulated$toc_compliance_status)
@@ -49,8 +50,8 @@ expect_equal(base$toc_removal_percent, regulated$toc_removal_percent)
 base2 <- regulate_toc(50, 4, 3.9)
 
 regulated2 <- water_df[9,] %>%
-  dplyr::select(toc_raw = toc, alk_raw = alk) %>%
-  transform(toc_finished = 3.9) %>%
+  select(toc_raw = toc, alk_raw = alk) %>%
+  mutate(toc_finished = 3.9) %>%
   regulate_toc_df()
 
 expect_equal(base2$toc_compliance_status, regulated2$toc_compliance_status)
@@ -68,7 +69,7 @@ regulated <- water_df %>%
   chemdose_ph_df(alum = 30, output_water = "dosed") %>%
   chemdose_toc_df("dosed") %>%
   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
-  dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
+  select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
 
 expect_warning(regulated[1,] %>% regulate_toc_df(), "Raw water TOC < 2")
 
@@ -83,30 +84,30 @@ expect_equal(water1[12,]$toc_compliance_status, "In Compliance")
 test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
 
   regulated <- water_df %>%
-    dplyr::select(toc_raw = toc, alk_raw = alk) %>%
-    transform(toc_finished = 3.9)
+    select(toc_raw = toc, alk_raw = alk) %>%
+    mutate(toc_finished = 3.9)
 
-  expect_warning(regulated[1,] %>%  regulate_toc_df(), "Finished water TOC is greater than or equal")
+  expect_warning(slice(regulated, 1) %>%  regulate_toc_df(), "Finished water TOC is greater than or equal")
 
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
-  expect_equal(water1[1,]$toc_compliance_status, "Not Calculated")
+  expect_equal(slice(water1, 1)$toc_compliance_status, "Not Calculated")
 })
 
 test_that("regulate_toc_df can take column and argument inputs", {
 
   regulated1 <-  suppressWarnings(water_df %>%
-                                    dplyr::select(toc_raw = toc, alk_raw = alk) %>%
-                                    transform(toc_finished = seq(0.1, 1.2, .1)) %>%
+                                    select(toc_raw = toc, alk_raw = alk) %>%
+                                    mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
                                     regulate_toc_df())
 
   regulated2 <-  suppressWarnings(water_df %>%
-                                    dplyr::select(toc_raw = toc) %>%
-                                    transform(toc_finished = seq(0.1, 1.2, .1)) %>%
+                                    select(toc_raw = toc) %>%
+                                    mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
                                     regulate_toc_df(alk_raw = 80))
 
   regulated3 <-  suppressWarnings(water_df %>%
-                                    dplyr::select(alk_raw = alk) %>%
+                                    select(alk_raw = alk) %>%
                                     regulate_toc_df(toc_raw = c(2, 4), toc_finished = .7))
 
   expect_equal(regulated1[2,]$toc_removal_percent, regulated2[2,]$toc_removal_percent)

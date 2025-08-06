@@ -1,3 +1,5 @@
+library(dplyr)
+
 test_that("solvect_o3 returns 0's for all outputs when time is 0 or missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ozone <- solvect_o3(water1, time = 0, dose = 3, baffle = .2)
@@ -80,15 +82,17 @@ test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
   water1 <- water0 %>%
     solvect_o3(time = 10, dose = 5, kd = -0.5, baffle = .7)
 
-  water2 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water2 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7)
 
   kds <- data.frame(kd = seq(-.5, -.1, .1))
   doses <- data.frame(O3Dose = seq(1, 4, 1))
-  water3 <- water_df[1,] %>%
-    transform(br = 50) %>%
+  water3 <- water_df %>%
+    slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     merge(kds) %>%
     merge(doses) %>%
@@ -105,7 +109,7 @@ test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
 test_that("solvect_o3_df is a data frame", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df[1,] %>%
-    transform(br = 50) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7))
 
@@ -117,7 +121,8 @@ test_that("solvect_o3_df is a data frame", {
 
 test_that("solvect_o3_df can use a column and/or function argument for time and residual", {
   testthat::skip_on_cran()
-  water0 <- water_df[1:4,] %>%
+  water0 <- water_df %>%
+    slice(1:4) %>%
     define_water_df()
 
   time <- data.frame(time = seq(2, 10, 2))
