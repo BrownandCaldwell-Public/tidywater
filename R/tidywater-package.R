@@ -247,6 +247,25 @@ NULL
 #' @source Cho (2007)
 "pactoccoeffs"
 
+#' Data frame of TOC removal requirements per Stage 1 DBP Rule
+#'
+#' A dataset containing required TOC removal based on raw alkalinity and TOC
+#'
+#' @docType data
+#' @keywords datasets
+#' @name toc_compliance_table
+#' @format A dataframe with 9 rows and 5 columns
+#' \describe{
+#' \item{toc_min}{Minimum raw water TOC for compliance}
+#' \item{toc_max}{Maximum raw water TOC for compliance}
+#' \item{alk_min}{Minimum raw water alkalinity for compliance}
+#' \item{alk_max}{Maximum raw water alkalinity for compliance}
+#' \item{required_compliance}{Required percent TOC removal based on raw TOC andn alklalinity range}
+#' }
+#'
+#' @source Stage 1 Disinfection Byproduct Rule (1998)
+"toc_compliance_table"
+
 #' Data frame of virus log removal CT values
 #'
 #' A table of virus log removal by disinfection with free chlorine, based on pH, temperature, and contact time
@@ -264,3 +283,4 @@ NULL
 #'
 #' @source US EPA (1991) Table E-7
 "vlog_removalcts"
+
