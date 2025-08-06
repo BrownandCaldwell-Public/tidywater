@@ -169,7 +169,6 @@ test_that("Warning when water slot is NA", {
 ################################################################################*
 ################################################################################*
 # chemdose_ph helpers ----
-
 # Test that chemdose_ph_df outputs are the same as base function, chemdose_ph.
 test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
   testthat::skip_on_cran()
