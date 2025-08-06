@@ -69,6 +69,7 @@ chemdose_ph_df(
   kmno4 = "use_col",
   naf = "use_col",
   na3po4 = "use_col",
+  softening_correction = "use_col"
 )
 }
 \arguments{
