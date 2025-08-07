@@ -92,7 +92,7 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
 #' [define_water_df]. The df may include a column named for the coagulant being dosed,
 #' and a column named for the set of coefficients to use.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
-#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param water_prefix Append the input_water name to the start of the output columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
