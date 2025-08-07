@@ -19,7 +19,9 @@ mweights <- data.frame(
   mgoh2 = 58.31968,
   cacl2 = 110.98,
   cl2 = 70.906,
+  c = 12.01,
   co2 = 44.009,
+  ch3cooh = 60.05,
   al = 26.981539,
   fe = 55.845,
   alum = 26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, # 14 H2O
@@ -39,7 +41,7 @@ mweights <- data.frame(
   b = 10.81,
   bo3 = 58.809,
   sio2 = 60.0843,
-  h3sio4 = 95.107, ### CHECK IF INDIV SPECIES ARE NEEDED
+  h3sio4 = 95.107,
   h2sio4 = 94.099,
   sio4 = 92.083,
   ocl = 16 + 35.453,
@@ -88,7 +90,9 @@ discons <- data.frame(
   add_row(ID = "kbo3", k = 10^-9.24, deltah = -42000) %>% # H4BO4- <--> H3BO3 + OH-
   # Silicate
   # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
-  add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) ### NEED TO DOUBLE CHECK DELTAH
+  add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
+  # Acetate
+  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) # CH3COOH <--> H+ + CH3COO-
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
@@ -830,6 +834,19 @@ pactoccoeffs <- tibble(
 )
 
 usethis::use_data(pactoccoeffs, overwrite = TRUE)
+
+# toc_compliance_table -----
+# Data frame of PAC TOC removal coefficients
+
+toc_compliance_table <- data.frame(
+  toc_min = c(2, 2, 2, 4, 4, 4, 8, 8, 8),
+  toc_max = c(4, 4, 4, 8, 8, 8, Inf, Inf, Inf),
+  alk_min = c(0, 60, 120, 0, 60, 120, 0, 60, 120),
+  alk_max = c(60, 120, Inf, 60, 120, Inf, 60, 120, Inf),
+  required_compliance = c(35, 25, 15, 45, 35, 25, 50, 40, 30)
+)
+
+usethis::use_data(toc_compliance_table, overwrite = TRUE)
 
 # vlog_removalcts -----
 vlog_removalcts <- data.frame(

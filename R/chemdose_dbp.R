@@ -280,7 +280,6 @@ chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfe
   cl_type <- tryCatch(cl_type, error = function(e) enquo(cl_type))
   location <- tryCatch(location, error = function(e) enquo(location))
   correction <- tryCatch(correction, error = function(e) enquo(correction))
-  coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
 
   validate_water_helpers(df, input_water)
 

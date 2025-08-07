@@ -495,13 +495,14 @@ correct_k <- function(water) {
   k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
   # k2sio4 = {h+}{hsio43-}/{h2sio42-}
   k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
-  
+  # kch3coo = {h+}{ch3coo-}/{ch3cooh}
+  kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
     "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, 
-    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4
+    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4, "kch3coo" = kch3coo
   ))
 }
 
@@ -639,6 +640,11 @@ calculate_alpha2_silicate <- function(h, k) { # H2SiO4 2-
   k1 <- k$k1sio4
   k2 <- k$k2sio4
   1 / (1 + h / k2 + h^2 / (k1 * k2)) # calculating how much is deprotonated with -2 charge
+}
+
+calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+  k1 <- k$kch3coo
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
 # General temperature correction for equilibrium constants

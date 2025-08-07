@@ -29,6 +29,7 @@ define_water(
   combined_chlorine = 0,
   tot_po4 = 0,
   tot_nh3 = 0,
+  tot_ch3coo = 0,
   tot_bo3 = 0,
   tot_sio4 = 0,
   tds,
@@ -74,6 +75,8 @@ define_water(
 \item{tot_po4}{Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.}
 
 \item{tot_nh3}{Total ammonia in mg/L as N}
+
+\item{tot_ch3coo}{Total acetate in mg/L}
 
 \item{tot_bo3}{Total borate (B(OH)4 -) in mg/L as B}
 
@@ -141,6 +144,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{bo3}{borate, numeric, mol/L.}
 \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
 \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
+\item{ch3coo}{acetate, numeric, mol/L.}
 \item{h}{hydrogen ion, numeric, mol/L.}
 \item{oh}{hydroxide ion, numeric, mol/L.}
 \item{tot_po4}{total phosphate, numeric, mol/L.}
@@ -148,6 +152,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{tot_co3}{total carbonate, numeric, mol/L.}
 \item{tot_bo3}{total borate, numeric, mol/L.}
 \item{tot_sio4}{total silicate, numeric, mol/L.}
+\item{tot_ch3coo}{total acetate, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
 \item{f}{fluoride, numeric, mol/L.}

@@ -8,7 +8,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   gamma1 <- calculate_activity(1, water@is, water@temp)
 
   #### SOLVE FOR pH
-  solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i,
+  solve_h <- function(h, kw, so4_dose, tot_po4, h2po4_i, hpo4_i, po4_i, tot_co3, tot_ocl, tot_nh3, ocl_i, nh4_i, tot_ch3coo, ch3coo_i,
                       carbonate_alk_eq, oh_i, h_i, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose) {
     kw / (h * gamma1^2) +
       2 * so4_dose +
@@ -21,6 +21,7 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
       # tot_bo3 * calculate_alpha1_borate(h, ks) +
       # tot_sio4 * (calculate_alpha1_silicate(h, ks) +
       #   2 * calculate_alpha2_silicate(h, ks))
+      tot_ch3coo * calculate_alpha1_acetate(h, ks) +
       cl_dose +
       mno4_dose +
       no3_dose -
@@ -51,6 +52,8 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
     carbonate_alk_eq = water@carbonate_alk_eq,
     oh_i = water@oh,
     h_i = water@h,
+    tot_ch3coo = water@tot_ch3coo,
+    ch3coo_i = water@ch3coo,
     na_dose = na_dose,
     ca_dose = ca_dose,
     mg_dose = mg_dose,

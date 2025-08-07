@@ -27,6 +27,7 @@
 #' @param tot_nh3 Total ammonia in mg/L as N
 #' @param tot_bo3 Total borate (B(OH)4 -) in mg/L as B
 #' @param tot_sio4 Total silicate in mg/L as SiO2
+#' @param tot_ch3coo Total acetate in mg/L
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #' @param toc Total organic carbon (TOC) in mg/L
@@ -84,6 +85,7 @@
 #'   \item{bo3}{borate, numeric, mol/L.}
 #'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.} 
 #'   \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
+#'   \item{ch3coo}{acetate, numeric, mol/L.}
 #'   \item{h}{hydrogen ion, numeric, mol/L.}
 #'   \item{oh}{hydroxide ion, numeric, mol/L.}
 #'   \item{tot_po4}{total phosphate, numeric, mol/L.}
@@ -91,6 +93,7 @@
 #'   \item{tot_co3}{total carbonate, numeric, mol/L.}
 #'   \item{tot_bo3}{total borate, numeric, mol/L.}
 #'   \item{tot_sio4}{total silicate, numeric, mol/L.}
+#'   \item{tot_ch3coo}{total acetate, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
 #'   \item{bro3}{bromate, numeric, mol/L.}
 #'   \item{f}{fluoride, numeric, mol/L.}
@@ -121,8 +124,8 @@
 #' }
 
 define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, mno4,
-                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tot_bo3 = 0, tot_sio4 = 0, tds, cond,
-                         toc, doc, uv254, br, f, fe, al, mn, no3) {
+                         free_chlorine = 0, combined_chlorine = 0, tot_po4 = 0, tot_nh3 = 0, tot_ch3coo = 0, tot_bo3 = 0, tot_sio4 = 0,
+                         tds, cond, toc, doc, uv254, br, f, fe, al, mn, no3) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
 
@@ -195,6 +198,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   tot_nh3 <- convert_units(tot_nh3, "n")
   tot_bo3 <- convert_units(tot_bo3, "b")
   tot_sio4 <- convert_units(tot_sio4, "sio2")
+  tot_ch3coo <- convert_units(tot_ch3coo, "ch3cooh")
 
   br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
   f <- ifelse(missing(f), NA_real_, convert_units(f, "f"))
@@ -294,7 +298,8 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
     h2po4 = h2po4, hpo4 = hpo4, po4 = po4, ocl = ocl, nh4 = nh4,
     bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
-    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, tot_bo3 = tot_bo3, tot_sio4 = tot_sio4,
+    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, 
+    tot_bo3 = tot_bo3, tot_sio4 = tot_sio4, tot_ch3coo = tot_ch3coo,
     kw = kw, is = 0, alk_eq = alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
@@ -347,6 +352,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
+  water@ch3coo <- tot_ch3coo * calculate_alpha1_acetate(h, ks)
 
   water@bo3 <- tot_bo3 * calculate_alpha1_borate(h, ks)
   water@h3sio4 <- tot_sio4 * calculate_alpha1_silicate(h, ks)
@@ -400,7 +406,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 
 define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, water_prefix = TRUE) {
   define_water_args <- c(
-    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3",
+    "ph", "temp", "alk", "tot_hard", "ca", "mg", "na", "k", "cl", "so4", "mno4", "free_chlorine", "combined_chlorine", "tot_po4", "tot_nh3", "tot_ch3coo",
     "tds", "cond",
     "toc", "doc", "uv254", "br", "f", "fe", "al", "mn"
   )
