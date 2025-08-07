@@ -117,6 +117,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{ammonium_alk_eq}{ammonium alkalinity as equivalents, numeric, equivalent (eq).}
 \item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
 \item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
+\item{hypochlorite_alk_eq}{hypochlorite alkalinity as equivalents, numeric, equivalent (eq).}
 \item{toc}{total organic carbon, numeric, mg/L.}
 \item{doc}{dissolved organic carbon, numeric, mg/L.}
 \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}

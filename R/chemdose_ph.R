@@ -262,6 +262,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
   
+  alpha0p <- calculate_alpha0_phosphate(h, ks)
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
   alpha3p <- calculate_alpha3_phosphate(h, ks)
@@ -269,7 +270,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@h2po4 <- dosed_water@tot_po4 * alpha1p
   dosed_water@hpo4 <- dosed_water@tot_po4 * alpha2p
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
-  h3po4 <- dosed_water@tot_po4 - (dosed_water@h2po4 + dosed_water@hpo4 + dosed_water@po4)
+  h3po4 <- dosed_water@tot_po4 * alpha0p
   
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
@@ -280,6 +281,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
+  dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)
   dosed_water@ammonium_alk_eq <- (1 * dosed_water@nh4)
   dosed_water@borate_alk_eq <- (1 * dosed_water@bo3)
   dosed_water@silicate_alk_eq <- (1 * dosed_water@h3sio4 + 2 * dosed_water@h2sio4)

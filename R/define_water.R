@@ -60,6 +60,7 @@
 #'   \item{ammonium_alk_eq}{ammonium alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{hypochlorite_alk_eq}{hypochlorite alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{toc}{total organic carbon, numeric, mg/L.}
 #'   \item{doc}{dissolved organic carbon, numeric, mg/L.}
 #'   \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -244,6 +245,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   k1po4 <- K_temp_adjust(discons["k1po4",]$deltah, discons["k1po4",]$k, temp)
   k2po4 <- K_temp_adjust(discons["k2po4",]$deltah, discons["k2po4",]$k, temp)
   k3po4 <- K_temp_adjust(discons["k3po4",]$deltah, discons["k3po4",]$k, temp)
+  kocl <- K_temp_adjust(discons["kocl",]$deltah, discons["kocl",]$k, temp)
   knh4 <- K_temp_adjust(discons["knh4",]$deltah, discons["knh4",]$k, temp)
   kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3",]$k, temp)
   k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4",]$k, temp)
@@ -257,6 +259,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   alpha2p <- calculate_alpha2_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as HPO4 2-
   alpha3p <- calculate_alpha3_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as PO4 3-
   
+  alpha1c <- calculate_alpha1_hypochlorite(h, data.frame("kocl" = kocl))
   alpha1n <- calculate_alpha1_ammonia(h, data.frame("knh4" = knh4))
   alpha1b <- calculate_alpha1_borate(h, data.frame("kbo3" = kbo3))
   alpha1s <- calculate_alpha1_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
@@ -267,6 +270,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   hpo4 <- tot_po4 * alpha2p
   po4 <- tot_po4 * alpha3p
   h3po4 <- tot_po4 - (h2po4 + hpo4 + po4)
+  ocl <- free_chlorine * alpha1c
   nh4 <- tot_nh3 * alpha1n
   
   bo3 <- tot_bo3 * alpha1b
@@ -274,10 +278,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   h2sio4 <- tot_sio4 * alpha2s
   
   phosphate_alk_eq <- (-1 * h3po4 + 0 * h2po4 + 1 * hpo4 + 2 * po4)
+  hypochlorite_alk_eq <- (1 * ocl)
   ammonium_alk_eq <- (1 * nh4)
   borate_alk_eq <- (1 * bo3)
   silicate_alk_eq <- (1 * h3sio4 + 2 * h2sio4)
-  carbonate_alk_eq <- alk_eq - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + oh) + h
+  carbonate_alk_eq <- alk_eq - (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + hypochlorite_alk_eq + oh) + h
 
   tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
 
@@ -286,7 +291,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
     ph = ph, temp = temp, alk = alk, tds = tds, cond = cond, tot_hard = tot_hard,
     na = na, ca = ca, mg = mg, k = k, cl = cl, so4 = so4, mno4 = mno4,
     h2co3 = tot_co3 * alpha0, hco3 = tot_co3 * alpha1, co3 = tot_co3 * alpha2,
-    h2po4 = h2po4, hpo4 = hpo4, po4 = po4, ocl = 0, nh4 = nh4,
+    h2po4 = h2po4, hpo4 = hpo4, po4 = po4, ocl = ocl, nh4 = nh4,
     bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
     tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, tot_bo3 = tot_bo3, tot_sio4 = tot_sio4,
@@ -330,6 +335,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
 
+  alpha0p <- calculate_alpha0_phosphate(h, ks)
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
   alpha3p <- calculate_alpha3_phosphate(h, ks)
@@ -337,7 +343,7 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   water@h2po4 <- tot_po4 * alpha1p
   water@hpo4 <- tot_po4 * alpha2p
   water@po4 <- tot_po4 * alpha3p
-  h3po4 <- tot_po4 - (water@h2po4 + water@hpo4 + water@po4)
+  h3po4 <- tot_po4 * alpha0p
 
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
@@ -348,18 +354,17 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
 
   # Calculate individual and total alkalinity
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
+  water@hypochlorite_alk_eq <- (1 * water@ocl)
   water@ammonium_alk_eq <- (1 * water@nh4)
   water@borate_alk_eq <- (1 * water@bo3)
   water@silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
-  water@carbonate_alk_eq <- alk_eq - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + water@oh) + water@h
+  water@carbonate_alk_eq <- alk_eq - (water@ammonium_alk_eq + water@borate_alk_eq + water@phosphate_alk_eq + water@silicate_alk_eq + hypochlorite_alk_eq + water@oh) + water@h
 
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   water@h2co3 <- water@tot_co3 * alpha0
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
   water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
-  # water@alk_eq <- sum(water@carbonate_alk_eq, water@phosphate_alk_eq, water@ammonium_alk_eq, water@borate_alk_eq, water@silicate_alk_eq, -1 * water@h, water@oh)
-  # water@alk <- convert_units(water@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
 
   # Add all estimated values to water slot
   water@estimated <- estimated

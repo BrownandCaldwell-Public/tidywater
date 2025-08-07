@@ -45,21 +45,21 @@ test_that("chemdose ph works", {
 
   # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
-  expect_equal(round(convert_units(test1@alk_eq, "caco3", "eq/L", "mg/L"), 0), 5)
+  expect_equal(round(test1@alk, 0), 5)
   expect_equal(round(test2@ph, 1), 6.9)
-  expect_equal(round(convert_units(test2@alk_eq, "caco3", "eq/L", "mg/L"), 0), 85)
+  expect_equal(round(test2@alk, 0), 85)
   expect_equal(round(test3@ph, 1), 6.4)
-  expect_equal(round(convert_units(test3@alk_eq, "caco3", "eq/L", "mg/L"), 0), 55)
+  expect_equal(round(test3@alk, 0), 55)
   expect_equal(round(test4@ph, 1), 6.1)
-  expect_equal(round(convert_units(test4@alk_eq, "caco3", "eq/L", "mg/L"), 0), 7)
+  expect_equal(round(test4@alk, 0), 7)
   expect_equal(round(test5@ph, 1), 4.0)
-  expect_equal(round(convert_units(test5@alk_eq, "caco3", "eq/L", "mg/L"), 0), -5)
+  expect_equal(round(test5@alk, 0), -5)
   expect_equal(round(test6@ph, 1), 11.4)
-  expect_equal(round(convert_units(test6@alk_eq, "caco3", "eq/L", "mg/L"), 0), 119)
+  expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
-  expect_equal(round(convert_units(test7@alk_eq, "caco3", "eq/L", "mg/L"), 0), 56)
+  expect_equal(round(test7@alk, 0), 56)
   expect_equal(round(test8@ph, 1), 9.7)
-  expect_equal(round(convert_units(test8@alk_eq, "caco3", "eq/L", "mg/L"), 0), 32)
+  expect_equal(round(test8@alk, 0), 32)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {
@@ -72,6 +72,7 @@ test_that("Starting phosphate residual does not affect starting pH.", {
   water3 <- water2 %>%
     chemdose_ph()
 
+  expect_equal(water1@ph, 7)
   expect_equal(water1@ph, water2@ph)
   expect_equal(water2@ph, water3@ph)
 })
@@ -113,6 +114,7 @@ test_that("Starting ammonia does not affect starting pH.", {
   water3 <- water2 %>%
     chemdose_ph()
 
+  expect_equal(water1@ph, 7)
   expect_equal(water1@ph, water2@ph)
   expect_equal(water2@ph, water3@ph)
 })

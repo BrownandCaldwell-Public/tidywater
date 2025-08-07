@@ -129,7 +129,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Larson and Skold (1958)
 
   if ("larsonskold" %in% index) {
-    validate_water(water, c("cl", "so4", "carbonate_alk_eq"))
+    validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
       warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
@@ -153,7 +153,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # U.S. EPA (1980), equation 4a
 
   if ("langelier" %in% index | "ryznar" %in% index) {
-    validate_water(water, c("temp", "ca", "carbonate_alk_eq", "hco3", "ph"))
+    validate_water(water, c("temp", "ca", "alk_eq", "hco3", "ph"))
     ks <- correct_k(water)
     pk2co3 <- -log10(ks$k2co3)
     gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
@@ -170,7 +170,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     }
 
     # pH of saturation
-    ph_s <- pk2co3 - pkso - log10(gamma2 * water@ca) - log10(water@carbonate_alk_eq) # Crittenden et al. (2012), eqn. 22-30
+    ph_s <- pk2co3 - pkso - log10(gamma2 * water@ca) - log10(water@alk_eq) # Crittenden et al. (2012), eqn. 22-30
 
     if (ph_s <= 9.3) {
       ph_s <- ph_s
@@ -218,7 +218,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   # Trussell (1998)
 
   if ("ccpp" %in% index) {
-    validate_water(water, c("temp", "carbonate_alk_eq", "ca", "co3"))
+    validate_water(water, c("temp", "alk_eq", "ca", "co3"))
     tempa <- water@temp + 273.15
     pkso <- 171.9065 + 0.077993 * tempa - 2839.319 / tempa - 71.595 * log10(tempa) # calcite
     K_so <- 10^-pkso
