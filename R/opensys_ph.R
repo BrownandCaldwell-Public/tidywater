@@ -28,79 +28,31 @@
 opensys_ph <- function(water, partialpressure = 10^-3.42) {
   validate_water(water, slots = c("ph", "alk"))
   
-  # kh <- 10^-1.468 # Henry's Law constant for CO2
-  # co2_M <- kh * partialpressure
-  # 
-  # discons <- tidywater::discons
-  # k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, water@temp)
-  # k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, water@temp)
-  # 
-  # output_water <- water
-  # output_water@ph <- - 0.5 * log10(k1co3 * kh * partialpressure) # proton balance and Henry's Law equation
-  # output_water@h <- 10^-output_water@ph
-  # output_water@oh <- 10^-14 / 10^-output_water@ph
-  # 
-  # alpha0 <- calculate_alpha0_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
-  # alpha1 <- calculate_alpha1_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
-  # alpha2 <- calculate_alpha2_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-  # 
-  # output_water@h2co3 <- co2_M
-  # output_water@tot_co3 <- output_water@h2co3 / alpha0
-  # output_water@hco3 <- alpha1 * output_water@tot_co3
-  # output_water@co3 <- alpha2 * output_water@tot_co3
-  # output_water@dic <- output_water@tot_co3 * tidywater::mweights$dic * 1000
-  # output_water@alk_eq <- (output_water@hco3 + 2 * output_water@co3 + output_water@oh - output_water@h)
-  # output_water@alk <- convert_units(output_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
-  # 
-  # return(output_water)
-  
-  opensys_fn <- function(par, water, co2_M, ...) {
-    h <- 10^par[1]
-    tot_co3 <- 10^par[2]
-    
-    ks <- correct_k(water)
-    gamma1 <- calculate_activity(1, water@is, water@temp)
-    charge <- water@kw / (h * gamma1^2) +
-      water@tot_po4 * (calculate_alpha1_phosphate(h, ks) +
-                         2 * calculate_alpha2_phosphate(h, ks) +
-                         3 * calculate_alpha3_phosphate(h, ks)) +
-      tot_co3 * (calculate_alpha1_carbonate(h, ks) +
-                   2 * calculate_alpha2_carbonate(h, ks)) +
-      water@free_chlorine * calculate_alpha1_hypochlorite(h, ks) +
-      (water@tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
-      (water@alk_eq + water@oh) -
-      3 * water@po4 - 2 * water@hpo4 - water@h2po4 - water@ocl + water@nh4
-    
-    h2co3 <- tot_co3 * calculate_alpha0_carbonate(h, ks)
-    
-    h2co3_diff_norm <- (h2co3 - co2_M) / 10^-5
-    objective_value <- charge^2 + h2co3_diff_norm^2
-    return(objective_value)
-  }
-  
-  co2_M <- 10^-1.468 * partialpressure # 10^-1.468 is Henry's Constant for CO2
-  results <- optim(par = c(log10(water@h), log10(co2_M)), fn = opensys_fn, water = water, co2_M = co2_M)
-  h <- 10^(results$par[1])
-  tot_co3 <- 10^(results$par[2])
-  ph <- -log10(h)
-  output <- water
-  output@ph <- ph
-  output@h <- h 
-  output@oh <- output@kw / h
-  output@tot_co3 <- tot_co3
-  
-  ks <- correct_k(water)
-  alpha1 <- calculate_alpha1_carbonate(h, ks)
-  alpha2 <- calculate_alpha2_carbonate(h, ks)
-  output@h2co3 <- tot_co3 * calculate_alpha0_carbonate(h, ks)
-  output@hco3 <- tot_co3 * alpha1
-  output@co3 <- tot_co3 * alpha2
-  
-  carb_alk_eq <- output@tot_co3 * (alpha1 + 2 * alpha2) + output@oh - output@h
-  output@alk_eq <- carb_alk_eq
-  output@alk <- convert_units(output@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
-  
-  return(output)
+  kh <- 10^-1.468 # Henry's Law constant for CO2
+  co2_M <- kh * partialpressure
+
+  discons <- tidywater::discons
+  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, water@temp)
+  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, water@temp)
+
+  output_water <- water
+  output_water@ph <- - 0.5 * log10(k1co3 * kh * partialpressure) # proton balance and Henry's Law equation
+  output_water@h <- 10^-output_water@ph
+  output_water@oh <- 10^-14 / 10^-output_water@ph
+
+  alpha0 <- calculate_alpha0_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
+  alpha1 <- calculate_alpha1_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
+
+  output_water@h2co3 <- co2_M
+  output_water@tot_co3 <- output_water@h2co3 / alpha0
+  output_water@hco3 <- alpha1 * output_water@tot_co3
+  output_water@co3 <- alpha2 * output_water@tot_co3
+  output_water@dic <- output_water@tot_co3 * tidywater::mweights$dic * 1000
+  output_water@alk_eq <- (output_water@hco3 + 2 * output_water@co3 + output_water@oh - output_water@h)
+  output_water@alk <- convert_units(output_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
+
+  return(output_water)
 }
 
 #' @rdname opensys_ph
