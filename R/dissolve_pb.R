@@ -150,8 +150,11 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   filtered_rows <- leadsol_K[!grepl("solid", leadsol_K$constant_name), ]
   complexes <- filtered_rows[, !(names(filtered_rows) %in% c("log_value", "species_name", "source"))]
   complexes$GroupID <- 1
-  pivot_matrix <- xtabs(K_num ~ GroupID + constant_name, data = complexes)
-  complexes_wide <- as.data.frame.matrix(pivot_matrix)
+  split_vals <- lapply(unique(complexes$constant_name), function(name) {
+    complexes$K_num[complexes$constant_name == name]
+  })
+  names(split_vals) <- unique(complexes$constant_name)
+  complexes_wide <- do.call(data.frame, split_vals)
 
   alllead <- merge(solids, complexes_wide, by = NULL)
   # Calculate lead-hydroxide complex concentrations
