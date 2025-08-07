@@ -20,6 +20,7 @@
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. If model is Zachman, can choose between 12x40 and 8x30 mesh sizes, otherwise leave as default. Defaults to 12x40.
+#' @param bvs If using WTP model, option to run the WTP model for a specific sequence of bed volumes, otherwise leave as default. Defaults seq(2000, 20000, 100).
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
@@ -30,7 +31,7 @@
 #' @returns `gacrun_toc` returns a data frame with bed volumes and breakthrough TOC values.
 #'
 
-gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40") {
+gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", bvs = c(2000, 20000, 100)) {
   validate_water(water, c("ph", "doc"))
 
   if (model == "Zachman") {
@@ -70,12 +71,16 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
     D <- water@toc * ((-1.079 * 10^-5 * ebct_adj) + 4.457 * 10^-4) + 1.861 * 10^-5 * ebct_adj - 2.809 * 10^-4
     B <- 100
     # bv <- 1440 * RT / ebct_adj
-    if (water@toc <= 1.5) {
-      bv_max <- 40000
+    if (suppressWarnings(all(bvs == c(2000, 20000, 100)))) {
+      if (water@toc <= 1.5) {
+        bv_max <- 40000
+      } else {
+        bv_max <- 20000
+      }
+      bv <- seq(2000, bv_max, 100) 
     } else {
-      bv_max <- 20000
+      bv <- seq(bvs[1], bvs[2], bvs[3])
     }
-    bv <- seq(2000, bv_max, 100)
 
     toc_eff <- A0 + Af / (1 + B * exp(-D * bv))
     x_norm <- toc_eff / water@toc # ranges 10 to 72.5%
@@ -106,17 +111,23 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
 #' @returns `gacrun_toc_df` returns a data frame containing columns of the breakthrough curve (breakthrough and bed volume).
 #'
 gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
-                            ebct = "use_col", model = "use_col", media_size = "use_col") {
+                            ebct = "use_col", model = "use_col", media_size = "use_col", bvs = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   model <- tryCatch(model, error = function(e) enquo(model))
   media_size <- tryCatch(media_size, error = function(e) enquo(media_size))
-  
+  if (all(is.character(bvs) & bvs == "use_col")) {
+    # Use column from df, no change needed
+  } else if (is.vector(bvs) & !is.list(bvs)) {
+    input_bvs <- bvs
+    bvs <- "custom"
+  }
+
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
     "ebct" = ebct, "model" = model,
-    "media_size" = media_size
+    "media_size" = media_size, "bvs" = bvs
   ))
   final_names <- arguments$final_names
   
@@ -127,7 +138,7 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
   # Add columns with default arguments
   defaults_added <- handle_defaults(
     df, final_names,
-    list(ebct = 10, model = "Zachman", media_size = "12x40")
+    list(ebct = 10, model = "Zachman", media_size = "12x40", bvs = list(c(2000, 20000, 100)))
   )
   df <- defaults_added$data %>%
     transform(ID = seq(1, nrow(df), 1))
@@ -137,7 +148,8 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
       water = df[[input_water]][[i]],
       ebct = df[[final_names$ebct]][i],
       model = df[[final_names$model]][i],
-      media_size = df[[final_names$media_size]][i]
+      media_size = df[[final_names$media_size]][i],
+      bvs = if(any(df[[final_names$bvs]][[i]] == "custom")){input_bvs} else{df[[final_names$bvs]][[i]]}
     )
     result$ID <- df$ID[i]
     return(result)

@@ -12,7 +12,13 @@ Zachman and Summers (2010)
 USEPA (2001)
 }
 \usage{
-gacrun_toc(water, ebct = 10, model = "Zachman", media_size = "12x40")
+gacrun_toc(
+  water,
+  ebct = 10,
+  model = "Zachman",
+  media_size = "12x40",
+  bvs = c(2000, 20000, 100)
+)
 
 gacrun_toc_df(
   df,
@@ -20,7 +26,8 @@ gacrun_toc_df(
   water_prefix = TRUE,
   ebct = "use_col",
   model = "use_col",
-  media_size = "use_col"
+  media_size = "use_col",
+  bvs = "use_col"
 )
 }
 \arguments{
@@ -31,6 +38,8 @@ gacrun_toc_df(
 \item{model}{Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.}
 
 \item{media_size}{Size of GAC filter mesh. If model is Zachman, can choose between 12x40 and 8x30 mesh sizes, otherwise leave as default. Defaults to 12x40.}
+
+\item{bvs}{If using WTP model, option to run the WTP model for a specific sequence of bed volumes, otherwise leave as default. Defaults seq(2000, 20000, 100).}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column named for the coagulant being dosed,

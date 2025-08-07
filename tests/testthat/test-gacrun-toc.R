@@ -34,14 +34,16 @@ test_that("gacrun_toc works.", {
   plot1 <- gacrun_toc(water, model = "WTP")
   plot2 <- gacrun_toc(water, model = "Zachman")
   plot3 <- gacrun_toc(water, ebct = 20, model = "WTP")
-  plo4 <- gacrun_toc(water, model = "WTP", media_size = "8x30")
+  plot4 <- gacrun_toc(water, model = "WTP", media_size = "8x30")
   plot5 <- gacrun_toc(water, model = "Zachman", media_size = "8x30")
+  plot6 <- gacrun_toc(water, model = "WTP", bvs = c(2000, 50000, 500))
 
   expect_true(is.data.frame(plot1))
   expect_false(identical(plot1, plot2))
   expect_false(identical(plot1, plot3))
-  expect_true(identical(plot1, plo4)) # media size isn't used in WTP model
+  expect_true(identical(plot1, plot4)) # media size isn't used in WTP model
   expect_false(identical(plot2, plot5)) # media size is used in Zachman model
+  expect_false(nrow(plot4) == nrow(plot6)) # custom bed volume sequence is different length
 })
 
 ################################################################################*
@@ -77,7 +79,8 @@ test_that("gacrun_toc_df output is data frame", {
                                mutate(
                                  model = "WTP",
                                  media_size = "12x40",
-                                 ebct = 10
+                                 ebct = 10, 
+                                 bvs = list(c(2000, 20000, 100))
                                ))
   
   water1 <- water0 %>%
@@ -89,3 +92,19 @@ test_that("gacrun_toc_df output is data frame", {
   expect_equal(nrow(water1), 2172)
 })
 
+test_that("gacrun_toc_df handles optional bv argument correctly.", {
+  testthat::skip_on_cran()
+  water1 <- water_df %>%
+    dplyr::slice(1) %>%
+    define_water_df() %>%
+    gacrun_toc_df(model = "WTP")
+  
+  water2 <- water_df %>%
+    dplyr::slice(1) %>%
+    define_water_df() %>%
+    gacrun_toc_df(model = "WTP", bvs = c(2000, 50000, 500))
+  
+  expect_false(nrow(water1) == nrow(water2))
+  expect_equal(nrow(water2), 97)
+  
+})
