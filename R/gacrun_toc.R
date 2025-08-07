@@ -129,21 +129,27 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
     df, final_names,
     list(ebct = 10, model = "Zachman", media_size = "12x40")
   )
-  df <- defaults_added$data
+  df <- defaults_added$data %>%
+    transform(ID = seq(1, nrow(df), 1))
   
   bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    gacrun_toc(
+    result <- gacrun_toc(
       water = df[[input_water]][[i]],
       ebct = df[[final_names$ebct]][i],
       model = df[[final_names$model]][i],
       media_size = df[[final_names$media_size]][i]
     )
+    result$ID <- df$ID[i]
+    return(result)
   }))
   
+  # Rename columns in bv_df except for 'ID'
   if (water_prefix) {
-    names(bv_df) <- paste0(input_water, "_", names(bv_df))
+    names(bv_df)[names(bv_df) != "ID"] <- paste0(input_water, "_", names(bv_df)[names(bv_df) != "ID"])
   }
-  
-  output <- cbind(df, bv_df)
+
+  output <- merge(bv_df, df, by = "ID", all.x = TRUE)
+  output <- output[order(output$ID),]
+  output <- output[, !names(output) == "ID"]
   return(output)
 }

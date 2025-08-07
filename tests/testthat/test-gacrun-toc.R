@@ -60,7 +60,8 @@ test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
   water1 <- water0 %>%
     gacrun_toc(model = "WTP")
   
-  water2 <- water_df[1,] %>%
+  water2 <- water_df %>%
+    dplyr::slice(1) %>%
     define_water_df() %>%
     gacrun_toc_df(model = "WTP", media_size = "12x40", ebct = 10)
   
@@ -71,19 +72,20 @@ test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
 # Test that output is a data frame with the correct number of columns
 test_that("gacrun_toc_df output is data frame", {
   testthat::skip_on_cran()
-  water0 <- suppressWarnings(water_df[1,] %>%
+  water0 <- suppressWarnings(water_df %>%
                                define_water_df("raw") %>%
                                mutate(
-                                 model = "Zachman",
+                                 model = "WTP",
                                  media_size = "12x40",
                                  ebct = 10
                                ))
   
   water1 <- water0 %>%
-    gacrun_toc_df(input_water = "raw")
+    gacrun_toc_df(input_water = "raw") %>%
+    pluck_water(input_waters = c("raw"), parameter = c("doc"))
   
   expect_true(is.data.frame(water1))
-  expect_equal(ncol(water0), ncol(water1) - 2)
-  expect_equal(nrow(water1), 101)
+  expect_equal(ncol(water0), ncol(water1) - 3)
+  expect_equal(nrow(water1), 2172)
 })
 

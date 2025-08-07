@@ -38,7 +38,7 @@ and a column named for the set of coefficients to use.}
 
 \item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
+\item{water_prefix}{Append the input_water name to the start of the output columns. Default is TRUE.}
 }
 \value{
 \code{gacrun_toc} returns a data frame with bed volumes and breakthrough TOC values.
