@@ -7,7 +7,8 @@
 plot_lead(df)
 }
 \arguments{
-\item{df}{Source data as a data frame. Must have columns for historical pH and DIC data.}
+\item{df}{Source data as a data frame. Must have columns for pH and dic data. Columns containing
+a single temperature and TDS must also be included.}
 }
 \value{
 A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
@@ -17,7 +18,9 @@ This function takes a data frame and outputs a contour plot of dissolved lead an
 }
 \examples{
 historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
-                dic = c(14.85813772, 16.40951309, 16.47773344, 16.6332028, 16.86320599, 16.93871268, 17.05489053, 17.22845295, 17.32943129, 17.34448707))
+                         dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34), 
+                         temp = 25,
+                         tds = 200)
 plot_lead(historical)
 
 }
