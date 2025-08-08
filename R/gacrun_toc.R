@@ -20,7 +20,7 @@
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. If model is Zachman, can choose between 12x40 and 8x30 mesh sizes, otherwise leave as default. Defaults to 12x40.
-#' @param bvs If using WTP model, option to run the WTP model for a specific sequence of bed volumes, otherwise leave as default. Defaults seq(2000, 20000, 100).
+#' @param bvs If using WTP model, option to run the WTP model for a specific sequence of bed volumes, otherwise leave as default. Defaults c(2000, 20000, 100).
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
@@ -162,6 +162,6 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
 
   output <- merge(bv_df, df, by = "ID", all.x = TRUE)
   output <- output[order(output$ID),]
-  output <- output[, !names(output) == "ID"]
+  output <- output[, !names(output) == "ID" & !names(output) == "bvs"]
   return(output)
 }

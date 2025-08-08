@@ -88,7 +88,7 @@ test_that("gacrun_toc_df output is data frame", {
     pluck_water(input_waters = c("raw"), parameter = c("doc"))
   
   expect_true(is.data.frame(water1))
-  expect_equal(ncol(water0), ncol(water1) - 3)
+  expect_equal(ncol(water0), ncol(water1) - 2)
   expect_equal(nrow(water1), 2172)
 })
 
