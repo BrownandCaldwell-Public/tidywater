@@ -14,7 +14,8 @@ a single temperature and TDS must also be included.}
 A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 }
 \description{
-This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot.
+This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
+the range of pH and DIC occurs at a single temperature and TDS.
 }
 \examples{
 historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
