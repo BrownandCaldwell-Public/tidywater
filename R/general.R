@@ -258,7 +258,7 @@ plot_ions <- function(water) {
 #'
 plot_lead <- function(df) {
   # quiet RCMD check
-  dic <- dissolve_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
+  dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
   
   colnames(df) <- tolower(colnames(df))
   min_ph <- min(df$ph)
