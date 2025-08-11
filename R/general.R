@@ -300,6 +300,8 @@ plot_lead <- function(df) {
   transitionline <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")] %>%
     transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA)) %>%
     na.omit()
+  transitionline <- transitionline[order(transitionline$Finished_dic),]
+  transitionline <- transitionline[3:nrow(transitionline),] # this cuts off some of the end behavior
   
   dic_contourplot %>%
     ggplot() +
@@ -315,7 +317,7 @@ plot_lead <- function(df) {
     scale_x_continuous(expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0)) +
     labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
-    coord_cartesian(xlim = c(min_dic - 0.5, max_dic + 0.5),ylim = c(min_ph - 0.05, max_ph + 0.05))+
+    coord_cartesian(xlim = c(min_dic - 0.1, max_dic + 0.1),ylim = c(min_ph - 0.05, max_ph + 0.05))+
     scale_color_manual(values = "gray") +
     theme(legend.position = "bottom",
           text = element_text(size = 14),
