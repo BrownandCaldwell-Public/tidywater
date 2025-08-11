@@ -246,7 +246,8 @@ plot_ions <- function(water) {
 #'
 #' @examples
 #' historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
-#'                          dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34), 
+#'                          dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 
+#'                          17.33, 17.34), 
 #'                          temp = 25,
 #'                          tds = 200)
 #' plot_lead(historical)
@@ -256,6 +257,9 @@ plot_ions <- function(water) {
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 #'
 plot_lead <- function(df) {
+  # quiet RCMD check
+  dic <- dissolve_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
+  
   colnames(df) <- tolower(colnames(df))
   min_ph <- min(df$ph)
   max_ph <- max(df$ph)
@@ -298,8 +302,8 @@ plot_lead <- function(df) {
   dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
   
   transitionline <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")] %>%
-    transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA)) %>%
-    na.omit()
+    transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA))
+  transitionline <- transitionline[!is.na(transitionline$transition),]
   transitionline <- transitionline[order(transitionline$Finished_dic),]
   transitionline <- transitionline[3:nrow(transitionline),] # this cuts off some of the end behavior
   
@@ -310,7 +314,6 @@ plot_lead <- function(df) {
     geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`),
                  bins = 100, color = "gray", alpha = 0.5) +
     geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), shape = 21, fill = "#63666A", size = 1.75, stroke = 1) +
-    bctools::theme_bc()+
     scale_fill_viridis_c(option = "B",
                          breaks = range(dic_contourplot$log_pb),
                          labels = c("Low Pb", "High Pb"))+
@@ -323,7 +326,8 @@ plot_lead <- function(df) {
           text = element_text(size = 14),
           strip.text = element_text(size = 14),
           legend.text = element_text(size = 14),
-          legend.key.width = unit(1, "cm"))
+          legend.key.width = unit(1, "cm"), 
+          legend.key = element_rect(fill = "transparent", color = NA))
 }
 
 #' @title Calculate unit conversions for common compounds
