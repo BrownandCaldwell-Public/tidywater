@@ -240,7 +240,7 @@ plot_ions <- function(water) {
 #' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
 #' the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
 #'
-#' @param df Source data as a data frame. Must have columns for pH and dic data. Columns containing
+#' @param df Source data as a data frame. Must have pH, DIC, temperature, and TDS columns. Columns containing
 #' a single temperature and TDS must also be included.
 #' @import ggplot2
 #'
