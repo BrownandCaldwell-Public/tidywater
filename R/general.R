@@ -327,7 +327,8 @@ plot_lead <- function(df) {
           strip.text = element_text(size = 14),
           legend.text = element_text(size = 14),
           legend.key.width = unit(1, "cm"), 
-          legend.key = element_rect(fill = "transparent", color = NA))
+          legend.key = element_rect(fill = "transparent", color = NA)) +
+    guides(fill = guide_colorbar(title.position= "top"))
 }
 
 #' @title Calculate unit conversions for common compounds
