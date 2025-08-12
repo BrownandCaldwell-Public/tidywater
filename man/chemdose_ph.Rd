@@ -11,6 +11,7 @@ chemdose_ph(
   h2so4 = 0,
   h3po4 = 0,
   hno3 = 0,
+  ch3cooh = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -46,6 +47,7 @@ chemdose_ph_df(
   h2so4 = "use_col",
   h3po4 = "use_col",
   hno3 = "use_col",
+  ch3cooh = "use_col",
   co2 = "use_col",
   naoh = "use_col",
   na2co3 = "use_col",
@@ -80,6 +82,8 @@ chemdose_ph_df(
 \item{h3po4}{Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4}
 
 \item{hno3}{Amount of nitric acid added in mg/L: HNO3 -> H + NO3}
+
+\item{ch3cooh}{Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO-}
 
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 

@@ -488,11 +488,13 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  # kch3coo = {h+}{ch3coo-}/{ch3cooh}
+  kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, "kch3coo" = kch3coo
   ))
 }
 
@@ -613,6 +615,11 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl-
 calculate_alpha1_ammonia <- function(h, k) { # NH4+
   k1 <- k$knh4
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
+}
+
+calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+  k1 <- k$kch3coo
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
 # General temperature correction for equilibrium constants
