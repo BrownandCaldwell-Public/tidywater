@@ -319,7 +319,7 @@ plot_lead <- function(df) {
                          labels = c("Low Pb", "High Pb"))+
     scale_x_continuous(expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0)) +
-    labs(fill = "log Pb Conc\n(mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
+    labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
     coord_cartesian(xlim = c(min_dic - 0.1, max_dic + 0.1),ylim = c(min_ph - 0.05, max_ph + 0.05))+
     scale_color_manual(values = "gray") +
     theme(legend.position = "bottom",
