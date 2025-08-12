@@ -1,4 +1,5 @@
 # biofilter_toc ----
+library(dplyr)
 
 test_that("biofilter_toc returns an error when water is absent or input incorrectly.", {
   expect_error(biofilter_toc(ebct = 10, ozonated = TRUE))
@@ -85,21 +86,20 @@ test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc
     biofilter_toc_df(ebct = 10, output_water = "biof") %>%
     pluck_water("biof", c("doc"))
 
-  ebcts <- tibble(EBCT = c(10, 20, 30))
-  ozone <- tibble(ozonated = c(T, F))
+  ebcts <- data.frame(EBCT = c(10, 20, 30))
+  ozone <- data.frame(ozonated = c(T, F))
   water3 <- water_df %>%
     slice(1) %>%
     define_water_df("raw") %>%
-    cross_join(ebcts) %>%
-    cross_join(ozone) %>%
+    merge(ebcts) %>%
+    merge(ozone) %>%
     biofilter_toc_df("raw", "biof", ebct = EBCT) %>%
     pluck_water("biof", c("doc"))
 
   water4 <- biofilter_toc(water0, ebct = 20, ozonated = F)
 
   expect_equal(water1@doc, water2$biof_doc)
-  expect_equal(water4@doc, water3$biof_doc[4])
-})
+  expect_equal(water4@doc, water3$biof_doc[5])})
 
 # Test that output is a column of water class lists, and changing the output column name works
 
@@ -137,7 +137,7 @@ test_that("biofilter_toc_df can use a column or function argument for chemical d
     slice(1) %>%
     define_water_df() %>%
     mutate(
-      ebct = 10,
+      ebct = 10
     ) %>%
     biofilter_toc_df() %>%
     pluck_water("biofiltered", c("doc"))

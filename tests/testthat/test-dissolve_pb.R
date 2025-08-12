@@ -1,4 +1,5 @@
 # dissolve_pb----
+library(dplyr)
 
 test_that("dissolve_pb doesn't work without alkalinity and IS.", {
   water1 <- suppressWarnings(define_water(ph = 7, tds = 200))

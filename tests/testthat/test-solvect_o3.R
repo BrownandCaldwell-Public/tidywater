@@ -1,3 +1,5 @@
+library(dplyr)
+
 test_that("solvect_o3 returns 0's for all outputs when time is 0 or missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ozone <- solvect_o3(water1, time = 0, dose = 3, baffle = .2)
@@ -86,28 +88,27 @@ test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
     define_water_df() %>%
     solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7)
 
-  kds <- tibble(kd = seq(-.5, -.1, .1))
-  doses <- tibble(O3Dose = seq(1, 4, 1))
+  kds <- data.frame(kd = seq(-.5, -.1, .1))
+  doses <- data.frame(O3Dose = seq(1, 4, 1))
   water3 <- water_df %>%
     slice(1) %>%
     mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(kds) %>%
-    cross_join(doses) %>%
+    merge(kds) %>%
+    merge(doses) %>%
     solvect_o3_df(time = 10, dose = O3Dose, baffle = .7)
 
   water4 <- solvect_o3(water0, dose = 2, time = 10, kd = -.3, baffle = .7)
 
   expect_equal(water1$glog_removal, water2$defined_glog_removal)
-  expect_equal(water4$ct_actual, water3$defined_ct_actual[10])
+  expect_equal(water4$ct_actual, water3$defined_ct_actual[8])
 })
 
 # Check that output is a data frame
 
 test_that("solvect_o3_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     mutate(br = 50) %>%
     define_water_df() %>%
     solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7))
@@ -127,9 +128,8 @@ test_that("solvect_o3_df can use a column and/or function argument for time and 
   time <- data.frame(time = seq(2, 10, 2))
   water1 <- suppressWarnings(water_df %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    solvect_o3_df(dose = 5, kd = -0.5, baffle = .7)) %>%
-    arrange(time)
+    merge(time) %>%
+    solvect_o3_df(dose = 5, kd = -0.5, baffle = .7))
 
   water2 <- suppressWarnings(water_df %>%
     define_water_df() %>%
@@ -141,7 +141,7 @@ test_that("solvect_o3_df can use a column and/or function argument for time and 
 
   water3 <- water_df %>%
     define_water_df() %>%
-    cross_join(time) %>%
+    merge(time) %>%
     solvect_o3_df(dose = c(5, 8), kd = -0.5, baffle = .7)
 
   expect_equal(water1$defined_glog_removal, water2$defined_glog_removal) # test different ways to input time
