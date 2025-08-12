@@ -240,8 +240,12 @@ plot_ions <- function(water) {
 #' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
 #' the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
 #'
-#' @param df Source data as a data frame. Must have pH, DIC, temperature, and TDS columns. Columns containing
-#' a single temperature and TDS must also be included.
+#' @param df Source data as a data frame. Must have pH and DIC columns. Columns containing
+#' a single temperature and TDS can also be included.
+#' @param temp Temperature used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param tds Total dissolved solids used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param ph_range Optional argument to modify the plotted pH range. Input as c(minimum pH, maximum pH).
+#' @param dic_range Optional argument to modify the plotted DIC range. Input as c(minimum DIC, maximum DIC).
 #' @import ggplot2
 #'
 #' @examples
@@ -256,15 +260,59 @@ plot_ions <- function(water) {
 #'
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 #'
-plot_lead <- function(df) {
+plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range) {
   # quiet RCMD check
   dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
-  
   colnames(df) <- tolower(colnames(df))
-  min_ph <- min(df$ph)
-  max_ph <- max(df$ph)
-  min_dic <- min(df$dic)
-  max_dic <- max(df$dic)
+  
+  if (!"ph" %in% colnames(df)) {
+    stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
+  }
+  if (!"dic" %in% colnames(df)) {
+    stop("DIC column not present in the dataframe. Ensure that DIC is included as 'dic'.")
+  }
+  if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
+    warning("Alkalinity will be recalculated from the input DIC.")
+  }
+  if ("temperature" %in% colnames(df)) {
+    colnames(df)[colnames(df) == "temperature"] <- "temp"
+  } else if (!"temp" %in% colnames(df)) {
+    stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
+  }
+  if ("total_dissolved_solids" %in% colnames(df)) {
+    colnames(df)[colnames(df) == "total_dissolved_solids"] <- "tds"
+  } else if (!"tds" %in% colnames(df)) {
+    stop("Total dissolved solids not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
+  }
+  if ("temp" %in% colnames(df) & n_distinct(df$temp) > 1) {
+    temp <- as.numeric(df$temp[1])
+    message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
+    warning(message)
+  } else {
+    temp <- as.numeric(df$temp[1])
+  }
+  if ("tds" %in% colnames(df) & n_distinct(df$tds) > 1) {
+    tds <- as.numeric(df$tds[1])
+    message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
+    warning(message)
+  } else {
+    tds <- as.numeric(df$tds[1])
+  }
+  
+  if (missing(ph_range)) {
+    min_ph <- min(df$ph)
+    max_ph <- max(df$ph) 
+  } else {
+    min_ph <- ph_range[1]
+    max_ph <- ph_range[2]
+  }
+  if (missing(dic_range)) {
+    min_dic <- min(df$dic)
+    max_dic <- max(df$dic) 
+  } else {
+    min_dic <- dic_range[1]
+    max_dic <- dic_range[2]
+  }
   
   calculate_alk <- function(ph, temp, dic) {
     h <- 10^-ph
@@ -291,9 +339,9 @@ plot_lead <- function(df) {
     .[order(.$ph), ] %>%
     { row.names(.) <- NULL; . } %>%
     transform(Finished_ph = ph) %>%
-    transform(temp = rep(df$temp[1], 961)) %>%
+    transform(temp = rep(temp, 961)) %>%
     transform(alk = calculate_alk(ph, temp, dic)) %>%
-    transform(tds = rep(df$tds[1], 961)) %>%
+    transform(tds = rep(tds, 961)) %>%
     define_water_df(output_water = "Finished") %>%
     pluck_water(input_waters = c("Finished"), parameter = c("dic")) %>%
     dissolve_pb_df("Finished") %>%
@@ -304,8 +352,6 @@ plot_lead <- function(df) {
   transitionline <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")] %>%
     transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA))
   transitionline <- transitionline[!is.na(transitionline$transition),]
-  transitionline <- transitionline[order(transitionline$Finished_dic),]
-  transitionline <- transitionline[3:nrow(transitionline),] # this cuts off some of the end behavior
   
   dic_contourplot %>%
     ggplot() +
@@ -319,8 +365,7 @@ plot_lead <- function(df) {
                          labels = c("Low Pb", "High Pb"))+
     scale_x_continuous(expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0)) +
-    labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH")+
-    coord_cartesian(xlim = c(min_dic - 0.1, max_dic + 0.1),ylim = c(min_ph - 0.05, max_ph + 0.05))+
+    labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH") +
     scale_color_manual(values = "gray") +
     theme(legend.position = "bottom",
           text = element_text(size = 14),
