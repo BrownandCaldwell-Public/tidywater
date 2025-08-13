@@ -284,14 +284,14 @@ plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range
   } else if (!"tds" %in% colnames(df)) {
     stop("Total dissolved solids not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
   }
-  if ("temp" %in% colnames(df) & n_distinct(df$temp) > 1) {
+  if ("temp" %in% colnames(df) & length(unique(df$temp)) > 1) {
     temp <- as.numeric(df$temp[1])
     message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
     warning(message)
   } else {
     temp <- as.numeric(df$temp[1])
   }
-  if ("tds" %in% colnames(df) & n_distinct(df$tds) > 1) {
+  if ("tds" %in% colnames(df) & length(unique(df$tds)) > 1) {
     tds <- as.numeric(df$tds[1])
     message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
     warning(message)
@@ -349,9 +349,12 @@ plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range
     transform(log_pb = log10(dissolved_pb_mgl))
   dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
   
-  transitionline <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")] %>%
-    transform(transition = ifelse(dplyr::lag(Finished_controlling_solid) != Finished_controlling_solid, "Y", NA))
-  transitionline <- transitionline[!is.na(transitionline$transition),]
+  mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
+  split_data <- split(mytransition_line, mytransition_line$Finished_ph)
+  transitionline <- do.call(rbind, lapply(split_data, function(df) {
+    df$transition <- c(NA, ifelse(head(df$Finished_controlling_solid, -1) != tail(df$Finished_controlling_solid, -1), "Y", NA))
+    df[!is.na(df$transition), ]
+  }))
   
   dic_contourplot %>%
     ggplot() +

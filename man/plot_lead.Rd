@@ -4,18 +4,26 @@
 \alias{plot_lead}
 \title{Create dissolved lead and DIC contour plot given input data frame}
 \usage{
-plot_lead(df)
+plot_lead(df, temp = "use_col", tds = "use_col", ph_range, dic_range)
 }
 \arguments{
-\item{df}{Source data as a data frame. Must have columns for pH and dic data. Columns containing
-a single temperature and TDS must also be included.}
+\item{df}{Source data as a data frame. Must have pH and DIC columns. Columns containing
+a single temperature and TDS can also be included.}
+
+\item{temp}{Temperature used to calculate dissolved lead concentrations. Defaults to a column in df.}
+
+\item{tds}{Total dissolved solids used to calculate dissolved lead concentrations. Defaults to a column in df.}
+
+\item{ph_range}{Optional argument to modify the plotted pH range. Input as c(minimum pH, maximum pH).}
+
+\item{dic_range}{Optional argument to modify the plotted DIC range. Input as c(minimum DIC, maximum DIC).}
 }
 \value{
 A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 }
 \description{
 This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
-the range of pH and DIC occurs at a single temperature and TDS.
+the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
 }
 \examples{
 historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
