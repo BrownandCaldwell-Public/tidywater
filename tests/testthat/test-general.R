@@ -91,7 +91,7 @@ test_that("Plot lead creates a ggplot object that can be printed.", {
   historical <- data.frame(pH = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
                  DIC = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34), 
                  temperature = 25,
-                 `total_dissolved_solids` = 200)
+                 `total dissolved solids` = 200)
   expect_s3_class(plot_lead(historical, ph_range = c(7, 10), dic_range = c(10,100)), "ggplot")
   expect_no_error(plot_lead(historical))
 })

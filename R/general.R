@@ -263,7 +263,7 @@ plot_ions <- function(water) {
 plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range) {
   # quiet RCMD check
   dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
-  colnames(df) <- tolower(colnames(df))
+  colnames(df) <- tolower(gsub(" |_|\\.", "_", colnames(df)))
   
   if (!"ph" %in% colnames(df)) {
     stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
@@ -352,7 +352,7 @@ plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range
   mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
   split_data <- split(mytransition_line, mytransition_line$Finished_ph)
   transitionline <- do.call(rbind, lapply(split_data, function(df) {
-    df$transition <- c(NA, ifelse(head(df$Finished_controlling_solid, -1) != tail(df$Finished_controlling_solid, -1), "Y", NA))
+    df$transition <- c(NA, ifelse(df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1], "Y", NA))
     df[!is.na(df$transition), ]
   }))
   
