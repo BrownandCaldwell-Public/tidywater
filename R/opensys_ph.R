@@ -35,7 +35,7 @@ opensys_ph <- function(water, partialpressure = 10^-3.42) {
     new_water <- chemdose_ph(water, co2 = co2_dose)
     return(new_water@h2co3 - co2_M)
   }
-  results <- uniroot(f = co2_solve, interval = c(-100, 100), water = water, co2_M = co2_M)
+  results <- stats::uniroot(f = co2_solve, interval = c(-100, 100), water = water, co2_M = co2_M)
   optimal_dose <- results$root
   output_water <- chemdose_ph(water, co2 = optimal_dose)
 
