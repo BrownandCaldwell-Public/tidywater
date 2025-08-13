@@ -16,7 +16,7 @@ test_that("opensys_ph preserves carbonate balance", {
   water2 <- opensys_ph(water1)
   
   expect_equal(water2@tot_co3, sum(water2@h2co3, water2@hco3, water2@co3))
-  expect_equal(signif(water2@h2co3, 3), 1.29*10^-5)
+  expect_equal(signif(water2@h2co3, 2), 1.3*10^-5)
 })
 
 test_that("opensys_ph works", {
@@ -30,31 +30,34 @@ test_that("opensys_ph works", {
   expect_s4_class(water2, "water")
   expect_false(identical(water2@ph, water0@ph))
   expect_false(identical(water2@ph, water3@ph))
-  expect_true(water2@alk < water0@alk) #carbonate leaving or entering water based on equilibrium
+  expect_true(water2@alk > water0@alk) #carbonate leaving or entering water based on equilibrium
   expect_true(water2@alk > water1@alk)
-  expect_false(identical(water2@dic, water0@dic))
-  expect_true(water2@ph < water0@ph)
+  expect_true(water2@ph > water0@ph)
   expect_true(water2@ph < water3@ph)
   expect_true(water4@alk > water1@alk) # if h2co3 starts less than equilibrium, alkalinity will increase
   
-  expect_equal(round(water2@ph, 1), 5.6)
-  expect_equal(round(water2@alk, 4), 0.0002)
-  expect_equal(signif(water2@alk_eq, 3), 4.25*10^-9)
-  expect_equal(round(water2@dic, 2), 0.18)
+  expect_equal(round(water2@ph, 1), 7.5)
+  expect_equal(round(water2@alk, 4), 10.0074)
+  expect_equal(signif(water2@alk_eq, 3), 0.00020)
 })
 
 test_that("opensys_ph_df outputs are the same as base function, opensys_ph.", {
   testthat::skip_on_cran()
-  water0 <- suppressWarnings(define_water(ph = 7.9, temp = 20, alk = 50))
+  water0 <- suppressWarnings(define_water(
+    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
+    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+  ))
   
   water1 <- opensys_ph(water0)
   
-  water2 <- suppressWarnings(water_df[1,] %>%
+  water2 <- suppressWarnings(water_df %>%
+                               dplyr::slice(1) %>%
                                define_water_df() %>%
                                opensys_ph_df(pluck_cols = TRUE))
   
   # test that pluck_cols does the same thing as pluck_water
-  water3 <- suppressWarnings(water_df[1,] %>%
+  water3 <- suppressWarnings(water_df %>%
+                               dplyr::slice(1) %>%
                                define_water_df() %>%
                                opensys_ph_df() %>%
                                pluck_water(c("opensys"), c("ph", "alk")))

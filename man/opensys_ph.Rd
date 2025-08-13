@@ -4,9 +4,6 @@
 \alias{opensys_ph}
 \alias{opensys_ph_df}
 \title{Calculate pH for water in an open system}
-\source{
-Snoeyink & Jenkins (1980)
-}
 \usage{
 opensys_ph(water, partialpressure = 10^-3.42)
 
@@ -50,8 +47,8 @@ For most arguments, the `_df helper
 function instead or an unquoted column name can be provided.
 }
 \details{
-\code{opensys_ph} uses the equilibrium concentration of CO2(aq) to determine the concentrations of carbonate species in the water and the pH. Carbonate alkalinity
-and DIC are also updated given these new values.
+\code{opensys_ph} uses the equilibrium concentration of CO2(aq) to determine the concentrations of carbonate species in the water and the pH by solving for
+the CO2 dose that results in a H2CO3 concentration equal to CO2(aq).
 }
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 5) \%>\%
@@ -65,4 +62,7 @@ example_df <- water_df \%>\%
     partialpressure = 10^-4, pluck_cols = TRUE
   )
 
+}
+\seealso{
+\link{chemdose_ph}
 }

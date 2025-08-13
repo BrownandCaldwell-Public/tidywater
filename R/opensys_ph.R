@@ -9,13 +9,13 @@
 #'
 #' @details
 #'
-#' `opensys_ph` uses the equilibrium concentration of CO2(aq) to determine the concentrations of carbonate species in the water and the pH. Carbonate alkalinity
-#' and DIC are also updated given these new values.
-#' 
-#' @source Snoeyink & Jenkins (1980)
+#' `opensys_ph` uses the equilibrium concentration of CO2(aq) to determine the concentrations of carbonate species in the water and the pH by solving for
+#' the CO2 dose that results in a H2CO3 concentration equal to CO2(aq).
 #'
 #' @param water Source water of class "water" created by [define_water]
 #' @param partialpressure Partial pressure of CO2 in the air in atm. Default is 10^-3.5 atm, which is approximately Pco2 at sea level.
+#'
+#' @seealso [chemdose_ph]
 #'
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 5) %>%
@@ -30,27 +30,14 @@ opensys_ph <- function(water, partialpressure = 10^-3.42) {
   
   kh <- 10^-1.468 # Henry's Law constant for CO2
   co2_M <- kh * partialpressure
-
-  discons <- tidywater::discons
-  k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, water@temp)
-  k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, water@temp)
-
-  output_water <- water
-  output_water@ph <- - 0.5 * log10(k1co3 * kh * partialpressure) # proton balance and Henry's Law equation
-  output_water@h <- 10^-output_water@ph
-  output_water@oh <- 10^-14 / 10^-output_water@ph
-
-  alpha0 <- calculate_alpha0_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
-  alpha1 <- calculate_alpha1_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
-  alpha2 <- calculate_alpha2_carbonate(output_water@h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-
-  output_water@h2co3 <- co2_M
-  output_water@tot_co3 <- output_water@h2co3 / alpha0
-  output_water@hco3 <- alpha1 * output_water@tot_co3
-  output_water@co3 <- alpha2 * output_water@tot_co3
-  output_water@dic <- output_water@tot_co3 * tidywater::mweights$dic * 1000
-  output_water@alk_eq <- (output_water@hco3 + 2 * output_water@co3 + output_water@oh - output_water@h)
-  output_water@alk <- convert_units(output_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
+  
+  co2_solve <- function(co2_dose, water, co2_M, ...) {
+    new_water <- chemdose_ph(water, co2 = co2_dose)
+    return(new_water@h2co3 - co2_M)
+  }
+  results <- uniroot(f = co2_solve, interval = c(-100, 100), water = water, co2_M = co2_M)
+  optimal_dose <- results$root
+  output_water <- chemdose_ph(water, co2 = optimal_dose)
 
   return(output_water)
 }
