@@ -12,7 +12,7 @@ the model: gacrun_toc, gac_toc, and gacbv_toc. Together the model can output a d
 necessary bed volume to stay below the target effluent TOC. See individual functions for more in depth documentation.
 * `pluck_water` speed up by relying on base R instead of purrr
 * `chemdose_toc` can now account for modified doc removal due to softening. `caoh2` can be dosed as an optional argument to the function.
-* New model `opensys_ph` added to predict pH, alkalinity, and dic in an open carbonate system at equilibrium
+* New model `opensys_ph` added to predict pH and alkalinity of an input water in an open carbonate system at equilibrium
 
 ## Breaking changes
 * `_chain` and `_once` functions have been deprecated. Replace with `_df` functions. 
