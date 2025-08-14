@@ -302,17 +302,16 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   } else {
     stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
   }
-  
   if (missing(ph_range)) {
     min_ph <- min(df$ph)
-    max_ph <- max(df$ph) 
+    max_ph <- max(df$ph)
   } else {
     min_ph <- ph_range[1]
     max_ph <- ph_range[2]
   }
   if (missing(dic_range)) {
     min_dic <- min(df$dic)
-    max_dic <- max(df$dic) 
+    max_dic <- max(df$dic)
   } else {
     min_dic <- dic_range[1]
     max_dic <- dic_range[2]
@@ -337,15 +336,15 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   }
   
   dic_contourplot <- merge(
-    data.frame(ph = seq(min_ph, max_ph, length.out = 31)),
-    data.frame(dic = seq(min_dic, max_dic, length.out = 31))
+    data.frame(ph = seq(min_ph - 1, max_ph + 1, length.out = 30)),
+    data.frame(dic = seq(min_dic - 5, max_dic + 5, length.out = 30))
   ) %>%
     .[order(.$ph), ] %>%
     { row.names(.) <- NULL; . } %>%
     transform(Finished_ph = ph) %>%
-    transform(temp = rep(temp, 961)) %>%
+    transform(temp = rep(temp, 900)) %>%
     transform(alk = calculate_alk(ph, temp, dic)) %>%
-    transform(tds = rep(tds, 961)) %>%
+    transform(tds = rep(tds, 900)) %>%
     define_water_df(output_water = "Finished") %>%
     pluck_water(input_waters = c("Finished"), parameter = c("dic")) %>%
     dissolve_pb_df("Finished") %>%
@@ -372,6 +371,7 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
                          labels = c("Low Pb", "High Pb"))+
     scale_x_continuous(expand = c(0,0)) +
     scale_y_continuous(expand = c(0,0)) +
+    coord_cartesian(xlim = c(min_dic, max_dic), ylim = c(min_ph, max_ph)) +
     labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH") +
     scale_color_manual(values = "gray") +
     theme(legend.position = "bottom",
