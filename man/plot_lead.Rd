@@ -4,7 +4,7 @@
 \alias{plot_lead}
 \title{Create dissolved lead and DIC contour plot given input data frame}
 \usage{
-plot_lead(df, temp = "use_col", tds = "use_col", ph_range, dic_range)
+plot_lead(df, temp, tds, ph_range, dic_range)
 }
 \arguments{
 \item{df}{Source data as a data frame. Must have pH and DIC columns. Columns containing
