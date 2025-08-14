@@ -234,6 +234,154 @@ plot_ions <- function(water) {
     )
 }
 
+#' Create dissolved lead and DIC contour plot given input data frame
+#'
+#' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
+#' the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
+#'
+#' @param df Source data as a data frame. Must have pH and DIC columns. Columns containing
+#' a single temperature and TDS can also be included.
+#' @param temp Temperature used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param tds Total dissolved solids used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param ph_range Optional argument to modify the plotted pH range. Input as c(minimum pH, maximum pH).
+#' @param dic_range Optional argument to modify the plotted DIC range. Input as c(minimum DIC, maximum DIC).
+#' @import ggplot2
+#'
+#' @examples
+#' historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+#'                          dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 
+#'                          17.33, 17.34), 
+#'                          temp = 25,
+#'                          tds = 200)
+#' plot_lead(historical)
+#'
+#' @export
+#'
+#' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
+#'
+plot_lead <- function(df, temp, tds, ph_range, dic_range) {
+  # quiet RCMD check
+  dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- NULL
+  colnames(df) <- tolower(gsub(" |_|\\.", "_", colnames(df)))
+  colnames(df) <- gsub("temp.+", "temp", colnames(df))
+  colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
+  
+  if (!"ph" %in% colnames(df)) {
+    stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
+  }
+  if (!"dic" %in% colnames(df)) {
+    stop("DIC column not present in the dataframe. Ensure that DIC is included as 'dic'.")
+  }
+  if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
+    warning("Alkalinity will be recalculated from the input DIC.")
+  }
+  if (!missing(temp)) {
+    temp <- temp
+  } else if ("temp" %in% colnames(df)) {
+    if (length(unique(df$temp)) > 1) {
+      temp <- as.numeric(df$temp[1])
+      message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
+      warning(message)
+    } else {
+      temp <- df$temp[1]
+    }
+  } else {
+    stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
+  }
+  if (!missing(tds)) {
+    tds <- tds
+  } else if ("tds" %in% colnames(df)) {
+    if (length(unique(df$tds)) > 1) {
+      tds <- as.numeric(df$tds[1])
+      message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
+      warning(message)
+    } else {
+      tds <- df$tds[1]
+    }
+  } else {
+    stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
+  }
+  if (missing(ph_range)) {
+    min_ph <- min(df$ph)
+    max_ph <- max(df$ph)
+  } else {
+    min_ph <- ph_range[1]
+    max_ph <- ph_range[2]
+  }
+  if (missing(dic_range)) {
+    min_dic <- min(df$dic)
+    max_dic <- max(df$dic)
+  } else {
+    min_dic <- dic_range[1]
+    max_dic <- dic_range[2]
+  }
+  
+  calculate_alk <- function(ph, temp, dic) {
+    h <- 10^-ph
+    oh <- 1e-14 / h
+    
+    discons <- tidywater::discons # assume activity coefficients = 1 and don't correct_k
+    k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
+    k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
+    
+    alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
+    alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
+    
+    tot_co3 <- dic / (tidywater::mweights$dic * 1000)
+    alk_eq <- tot_co3 * (alpha1 + 2 * alpha2) + oh - h
+    alk <- convert_units(alk_eq, "caco3", "eq/L", "mg/L")
+    
+    return(alk)
+  }
+  
+  dic_contourplot <- merge(
+    data.frame(ph = seq(min_ph - 1, max_ph + 1, length.out = 30)),
+    data.frame(dic = seq(min_dic - 5, max_dic + 5, length.out = 30))
+  ) %>%
+    .[order(.$ph), ] %>%
+    { row.names(.) <- NULL; . } %>%
+    transform(Finished_ph = ph) %>%
+    transform(temp = rep(temp, 900)) %>%
+    transform(alk = calculate_alk(ph, temp, dic)) %>%
+    transform(tds = rep(tds, 900)) %>%
+    define_water_df(output_water = "Finished") %>%
+    pluck_water(input_waters = c("Finished"), parameter = c("dic")) %>%
+    dissolve_pb_df("Finished") %>%
+    transform(dissolved_pb_mgl = convert_units(Finished_pb, "pb", "M", "mg/L")) %>%
+    transform(log_pb = log10(dissolved_pb_mgl))
+  dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
+  
+  mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
+  split_data <- split(mytransition_line, mytransition_line$Finished_ph)
+  transitionline <- do.call(rbind, lapply(split_data, function(df) {
+    df$transition <- c(NA, ifelse(df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1], "Y", NA))
+    df[!is.na(df$transition), ]
+  }))
+  
+  dic_contourplot %>%
+    ggplot() +
+    geom_raster(aes(x = dic, y = Finished_ph, fill = `log_pb`), interpolate = TRUE) +
+    geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1.2, linetype = "dashed") +
+    geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`),
+                 bins = 100, color = "gray", alpha = 0.5) +
+    geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), shape = 21, fill = "#63666A", size = 1.75, stroke = 1) +
+    scale_fill_viridis_c(option = "B",
+                         breaks = range(dic_contourplot$log_pb),
+                         labels = c("Low Pb", "High Pb"))+
+    scale_x_continuous(expand = c(0,0)) +
+    scale_y_continuous(expand = c(0,0)) +
+    coord_cartesian(xlim = c(min_dic, max_dic), ylim = c(min_ph, max_ph)) +
+    labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH") +
+    scale_color_manual(values = "gray") +
+    theme(legend.position = "bottom",
+          text = element_text(size = 14),
+          strip.text = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          legend.key.width = unit(1, "cm"), 
+          legend.key = element_rect(fill = "transparent", color = NA)) +
+    guides(fill = guide_colorbar(title.position= "top"))
+}
+
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.

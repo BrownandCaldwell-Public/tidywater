@@ -180,8 +180,6 @@ NULL
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "dbp_correction"
 
-
-
 #' Data frame of bromate coefficients for predicting bromate formation during ozonation
 #'
 #' A dataset containing coefficients for calculating ozone formation
