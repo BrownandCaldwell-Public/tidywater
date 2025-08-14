@@ -202,8 +202,8 @@ plot_ions <- function(water) {
       concentration > 0
     ) %>%
     dplyr::mutate(
-      label = ifelse(concentration > 10e-5, ion, ""),
-      repel_label = ifelse(concentration <= 10e-5 & concentration > 10e-7, ion, ""),
+      label = ifelse(concentration > 10e-5, as.character(ion), ""),
+      repel_label = ifelse(concentration <= 10e-5 & concentration > 10e-7, as.character(ion), ""),
     ) %>%
     dplyr::mutate(ion = forcats::fct_rev(ion))
 
