@@ -83,6 +83,7 @@ test_that("Plot lead returns expected errors and warnings.", {
   expect_error(plot_lead(df1))
   expect_error(plot_lead(df2))
   expect_error(plot_lead(df3))
+  expect_no_error(plot_lead(df3, temp = 25))
   expect_warning(plot_lead(df4))
   expect_warning(plot_lead(df5))
 })

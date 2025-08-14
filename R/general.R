@@ -260,10 +260,12 @@ plot_ions <- function(water) {
 #'
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
 #'
-plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range) {
+plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   # quiet RCMD check
-  dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- temp <- NULL
+  dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- NULL
   colnames(df) <- tolower(gsub(" |_|\\.", "_", colnames(df)))
+  colnames(df) <- gsub("temp.+", "temp", colnames(df))
+  colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
   
   if (!"ph" %in% colnames(df)) {
     stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
@@ -274,29 +276,31 @@ plot_lead <- function(df, temp = "use_col", tds = "use_col", ph_range, dic_range
   if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
     warning("Alkalinity will be recalculated from the input DIC.")
   }
-  if ("temperature" %in% colnames(df)) {
-    colnames(df)[colnames(df) == "temperature"] <- "temp"
-  } else if (!"temp" %in% colnames(df)) {
+  if (!missing(temp)) {
+    temp <- temp
+  } else if ("temp" %in% colnames(df)) {
+    if (length(unique(df$temp)) > 1) {
+      temp <- as.numeric(df$temp[1])
+      message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
+      warning(message)
+    } else {
+      temp <- df$temp[1]
+    }
+  } else {
     stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
   }
-  if ("total_dissolved_solids" %in% colnames(df)) {
-    colnames(df)[colnames(df) == "total_dissolved_solids"] <- "tds"
-  } else if (!"tds" %in% colnames(df)) {
-    stop("Total dissolved solids not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
-  }
-  if ("temp" %in% colnames(df) & length(unique(df$temp)) > 1) {
-    temp <- as.numeric(df$temp[1])
-    message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
-    warning(message)
+  if (!missing(tds)) {
+    tds <- tds
+  } else if ("tds" %in% colnames(df)) {
+    if (length(unique(df$tds)) > 1) {
+      tds <- as.numeric(df$tds[1])
+      message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
+      warning(message)
+    } else {
+      tds <- df$tds[1]
+    }
   } else {
-    temp <- as.numeric(df$temp[1])
-  }
-  if ("tds" %in% colnames(df) & length(unique(df$tds)) > 1) {
-    tds <- as.numeric(df$tds[1])
-    message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
-    warning(message)
-  } else {
-    tds <- as.numeric(df$tds[1])
+    stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
   }
   
   if (missing(ph_range)) {
