@@ -77,7 +77,7 @@ library(dplyr)
 
 example_df <- water_df \%>\%
   define_water_df() \%>\%
-  mutate(
+  dplyr::mutate(
     model = "WTP",
     media_size = "8x30",
     ebct = 10,

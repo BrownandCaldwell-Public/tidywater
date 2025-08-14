@@ -22,6 +22,7 @@
 #' @param h2so4 Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4
 #' @param h3po4 Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4
 #' @param hno3 Amount of nitric acid added in mg/L: HNO3 -> H + NO3
+#' @param ch3cooh Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO-
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
@@ -63,7 +64,7 @@
 #'
 #' @returns `chemdose_ph` returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
                         na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, caocl2 = 0, cacl2 = 0,
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
@@ -93,6 +94,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   h3po4 <- convert_units(h3po4, "h3po4")
   # Nitric acid (HNO3) dose
   hno3 <- convert_units(hno3, "hno3")
+  # Acetic acid (CH3COOH) dose
+  ch3cooh <- convert_units(ch3cooh, "ch3cooh")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
@@ -223,6 +226,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   co3_dose <- na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 <- water@tot_co3 + co3_dose
 
+  # Total acetate
+  ch3cooh_dose <- ch3cooh
+  dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
+
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
   dosed_water@tds <- water@tds + convert_units(na_dose, "na", "M", "mg/L") +
@@ -231,6 +238,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
     convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
     convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L") +
+    convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") +
     convert_units(no3_dose, "no3", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
@@ -272,6 +280,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
+  dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
 
   # Calculate new alkalinity
   dosed_water@alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
@@ -285,6 +294,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
 
+  # update toc and doc from ch3cooh
+  if (ch3cooh_dose != 0) {
+    ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "c", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
+    water@toc <- water@toc + ch3cooh_dose
+    water@doc <-  water@doc + ch3cooh_dose
+    warning("TOC and DOC changed in addition to pH due to acetic acid dose.")
+  }
+  
   # update dic
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
 
@@ -322,7 +339,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 
 chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem",
                            na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
-                           hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
+                           hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", ch3cooh = "use_col", co2 = "use_col", naoh = "use_col",
                            na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
                            caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
                            nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
@@ -334,6 +351,7 @@ chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_ch
   h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
   h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
   hno3 <- tryCatch(hno3, error = function(e) enquo(hno3))
+  ch3cooh <- tryCatch(ch3cooh, error = function(e) enquo(ch3cooh))
   co2 <- tryCatch(co2, error = function(e) enquo(co2))
   naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
 
@@ -365,7 +383,7 @@ chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_ch
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
-    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "co2" = co2, "naoh" = naoh,
+    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "ch3cooh" = ch3cooh, "co2" = co2, "naoh" = naoh,
     "na2co3" = na2co3, "nahco3" = nahco3, "caoh2" = caoh2, "mgoh2" = mgoh2,
     "caocl2" = caocl2, "cacl2" = cacl2, "cl2" = cl2, "naocl" = naocl,
     "nh4oh" = nh4oh, "nh42so4" = nh42so4, "caco3" = caco3, "caso4" = caso4,
@@ -381,12 +399,11 @@ chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_ch
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-
   # Add columns with default arguments
   defaults_added <- handle_defaults(
     df, final_names,
     list(
-      hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
+      hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh = 0, co2 = 0,
       naoh = 0, caoh2 = 0, mgoh2 = 0,
       na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, caocl2 = 0, cacl2 = 0,
       cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
@@ -413,6 +430,7 @@ chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_ch
       h2so4 = df[[final_names$h2so4]][i],
       h3po4 = df[[final_names$h3po4]][i],
       hno3 = df[[final_names$hno3]][i],
+      ch3cooh = df[[final_names$ch3cooh]][i],
       co2 = df[[final_names$co2]][i],
       naoh = df[[final_names$naoh]][i],
       caoh2 = df[[final_names$caoh2]][i],

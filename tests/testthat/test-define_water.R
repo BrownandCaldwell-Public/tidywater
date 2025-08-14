@@ -1,4 +1,6 @@
 # Define water -----
+library(dplyr)
+
 test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
@@ -203,7 +205,8 @@ test_that("define_water_df correctly calculates dic", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_df() %>%
-    pluck_water(parameter = "dic") %>%
+    pluck_water(parameter = "dic")
+  water1 <- water1 %>%
     slice(1)
 
 

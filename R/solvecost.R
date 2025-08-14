@@ -13,12 +13,11 @@
 #' @examples
 #' alum_cost <- solvecost_chem(dose = 20, flow = 10, strength = 49, cost = .22)
 #'
-#' library(dplyr)
-#' cost_data <- tibble(
+#' cost_data <- data.frame(
 #'   dose = seq(10, 50, 10),
 #'   flow = 10
 #' ) %>%
-#'   mutate(costs = solvecost_chem(dose = dose, flow = flow, strength = 49, cost = .22))
+#'   dplyr::mutate(costs = solvecost_chem(dose = dose, flow = flow, strength = 49, cost = .22))
 #'
 #' @export
 #' @returns A numeric value for chemical cost, $/time.
@@ -48,12 +47,11 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
 #' @examples
 #' powercost <- solvecost_power(50, 100, .08)
 #'
-#' library(dplyr)
-#' cost_data <- tibble(
+#' cost_data <- data.frame(
 #'   power = seq(10, 50, 10),
 #'   utilization = 80
 #' ) %>%
-#'   mutate(costs = solvecost_power(power = power, utilization = utilization, cost = .08))
+#'   dplyr::mutate(costs = solvecost_power(power = power, utilization = utilization, cost = .08))
 #'
 #' @export
 #' @returns A numeric value for power, $/time.
@@ -89,12 +87,11 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @examples
 #' alum_solidscost <- solvecost_solids(alum = 50, flow = 10, turb = 2, cost = 0.05)
 #'
-#' library(dplyr)
-#' cost_data <- tibble(
+#' cost_data <- data.frame(
 #'   alum = seq(10, 50, 10),
 #'   flow = 10
 #' ) %>%
-#'   mutate(costs = solvecost_solids(alum = alum, flow = flow, turb = 2, cost = 0.05))
+#'   dplyr::mutate(costs = solvecost_solids(alum = alum, flow = flow, turb = 2, cost = 0.05))
 #'
 #' @export
 #' @returns A numeric value for disposal costs, $/time.
@@ -125,11 +122,10 @@ solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, fl
 #' @examples
 #' laborcost <- solvecost_labor(1.5, 50000)
 #'
-#' library(dplyr)
-#' cost_data <- tibble(
+#' cost_data <- data.frame(
 #'   fte = seq(1, 10, 1)
 #' ) %>%
-#'   mutate(costs = solvecost_labor(fte = fte, cost = .08))
+#'   dplyr::mutate(costs = solvecost_labor(fte = fte, cost = .08))
 #'
 #' @export
 #' @returns A numeric value for labor $/time.

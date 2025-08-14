@@ -1,3 +1,4 @@
+library(dplyr)
 
 test_that("regulate_toc works", {
 
@@ -37,8 +38,7 @@ test_that("regulate_toc warns when finished water TOC >= raw TOC, or raw TOC <= 
 test_that("regulate_toc_df is same s as base function", {
   base <- regulate_toc(100, 4, 2)
 
-  regulated <- water_df %>%
-    slice(3) %>%
+  regulated <- water_df[3,] %>%
     select(toc_raw = toc, alk_raw = alk) %>%
     mutate(toc_finished = 2) %>%
     regulate_toc_df()
@@ -49,8 +49,7 @@ expect_equal(base$toc_removal_percent, regulated$toc_removal_percent)
 
 base2 <- regulate_toc(50, 4, 3.9)
 
-regulated2 <- water_df %>%
-  slice(9) %>%
+regulated2 <- water_df[9,] %>%
   select(toc_raw = toc, alk_raw = alk) %>%
   mutate(toc_finished = 3.9) %>%
   regulate_toc_df()
@@ -72,13 +71,13 @@ regulated <- water_df %>%
   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
   select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
 
-expect_warning(regulated %>% slice(1) %>% regulate_toc_df(), "Raw water TOC < 2")
+expect_warning(regulated[1,] %>% regulate_toc_df(), "Raw water TOC < 2")
 
 water1 <- suppressWarnings(regulate_toc_df(regulated))
 
-expect_equal(slice(water1, 1)$toc_compliance_status, "Not Calculated")
-expect_equal(slice(water1, 5)$toc_compliance_status, "Not Compliant")
-expect_equal(slice(water1, 12)$toc_compliance_status, "In Compliance")
+expect_equal(water1[1,]$toc_compliance_status, "Not Calculated")
+expect_equal(water1[5,]$toc_compliance_status, "Not Compliant")
+expect_equal(water1[12,]$toc_compliance_status, "In Compliance")
 })
 
 
@@ -88,7 +87,7 @@ test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
     select(toc_raw = toc, alk_raw = alk) %>%
     mutate(toc_finished = 3.9)
 
-  expect_warning(regulated %>% slice(1) %>%  regulate_toc_df(), "Finished water TOC is greater than or equal")
+  expect_warning(slice(regulated, 1) %>%  regulate_toc_df(), "Finished water TOC is greater than or equal")
 
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
@@ -111,8 +110,8 @@ test_that("regulate_toc_df can take column and argument inputs", {
                                     select(alk_raw = alk) %>%
                                     regulate_toc_df(toc_raw = c(2, 4), toc_finished = .7))
 
-  expect_equal(slice(regulated1, 2)$toc_removal_percent, slice(regulated2, 2)$toc_removal_percent)
-  expect_equal(slice(regulated3, 3)$toc_removal_percent, slice(regulated1, 7)$toc_removal_percent)
+  expect_equal(regulated1[2,]$toc_removal_percent, regulated2[2,]$toc_removal_percent)
+  expect_equal(regulated3[3,]$toc_removal_percent, regulated1[7,]$toc_removal_percent)
 
   expect_equal(nrow(regulated2), 12) # no cross join
   expect_equal(nrow(regulated3), 24) # cross joined

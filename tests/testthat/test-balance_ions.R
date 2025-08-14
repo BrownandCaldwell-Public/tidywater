@@ -1,4 +1,5 @@
 # Balance Ions ----
+library(dplyr)
 
 test_that("Balance ions doesn't alter carbonate system.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1, br = 50)

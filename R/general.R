@@ -22,7 +22,6 @@
 #' summarize_wq(water_defined, params = list("ions"))
 #'
 #' @importFrom dplyr mutate
-#' @importFrom tidyr pivot_longer
 #' @export
 #' @returns A knitr_kable table of specified water quality parameters.
 #'
@@ -47,7 +46,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
       "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
       "mg/L", "uS/cm", "mg/L"
@@ -71,7 +70,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
+    tidyr::pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
@@ -106,11 +105,11 @@ summarize_wq <- function(water, params = c("general")) {
   # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
   tthm <- tthm %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   haa5 <- haa5 %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,
@@ -186,25 +185,25 @@ plot_ions <- function(water) {
   plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(
-      type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
+      type = ifelse(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H"), "Cations", "Anions"),
       ion = factor(ion, levels = c(
         "Ca", "Mg", "Na", "K", "NH4", "H",
         "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH"
       )),
-      concentration = case_when(is.na(concentration) ~ 0, TRUE ~ concentration)
+      concentration = ifelse(is.na(concentration), 0, concentration)
     ) %>%
     dplyr::arrange(ion) %>%
     dplyr::mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+      label_y = ifelse(type == "Cations", 2 - .2, 1 - .2)
     ) %>%
     dplyr::filter(
       !is.na(concentration),
       concentration > 0
     ) %>%
     dplyr::mutate(
-      label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
-      repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ "")
+      label = ifelse(concentration > 10e-5, ion, ""),
+      repel_label = ifelse(concentration <= 10e-5 & concentration > 10e-7, ion, ""),
     ) %>%
     dplyr::mutate(ion = forcats::fct_rev(ion))
 
@@ -637,11 +636,13 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  # kch3coo = {h+}{ch3coo-}/{ch3cooh}
+  kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, "kch3coo" = kch3coo
   ))
 }
 
@@ -762,6 +763,11 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl-
 calculate_alpha1_ammonia <- function(h, k) { # NH4+
   k1 <- k$knh4
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
+}
+
+calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+  k1 <- k$kch3coo
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
 # General temperature correction for equilibrium constants
