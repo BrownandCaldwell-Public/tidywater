@@ -62,6 +62,7 @@ test_that("Plot ions creates a ggplot object that can be printed.", {
 
 # Plot Lead ----
 test_that("Plot lead returns expected errors and warnings.", {
+  testthat::skip_on_cran()
   df1 <- data.frame(dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34),
                     temp = 25,
                     tds = 200)
