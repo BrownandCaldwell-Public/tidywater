@@ -60,6 +60,44 @@ test_that("Plot ions creates a ggplot object that can be printed.", {
   expect_no_error(plot_ions(water1))
 })
 
+# Plot Lead ----
+test_that("Plot lead returns expected errors and warnings.", {
+  testthat::skip_on_cran()
+  df1 <- data.frame(dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34),
+                    temp = 25,
+                    tds = 200)
+  df2 <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                    temp = 25,
+                    tds = 200)
+  df3 <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                    dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34),
+                    tds = 200)
+  df4 <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                    dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34),
+                    temp = 25,
+                    tds = 200,
+                    alk = 100)
+  df5 <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                    dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34),
+                    temp = 25,
+                    tds = rep(c(150, 200), 5))
+  expect_error(plot_lead(df1))
+  expect_error(plot_lead(df2))
+  expect_error(plot_lead(df3))
+  expect_no_error(plot_lead(df3, temp = 25))
+  expect_warning(plot_lead(df4))
+  expect_warning(plot_lead(df5))
+})
+
+test_that("Plot lead creates a ggplot object that can be printed.", {
+  historical <- data.frame(pH = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+                 DIC = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 17.33, 17.34), 
+                 temperature = 25,
+                 `total dissolved solids` = 200)
+  expect_s3_class(plot_lead(historical, ph_range = c(7, 10), dic_range = c(10,100)), "ggplot")
+  expect_no_error(plot_lead(historical))
+})
+
 
 # Calculate Hardness ----
 
@@ -114,7 +152,8 @@ test_that("K temp correction returns a value close to K.", {
 test_that("Ionic strength calc in define water works.", {
   water <- define_water(7, 25, 100, 70, 10, 10, 10, 10, 10, 10, doc = 5, toc = 5, uv254 = .1, br = 50)
 
-  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl) * 1^2 +
+  is_calced <- 0.5 * ((water@na + water@cl + water@k + water@hco3 + water@h2po4 + water@h + water@oh + water@ocl +
+                       water@br + water@nh4) * 1^2 +
     (water@ca + water@mg + water@so4 + water@co3 + water@hpo4) * 2^2 +
     (water@po4) * 3^2)
   expect_equal(signif(water@is, 3), signif(is_calced, 3))

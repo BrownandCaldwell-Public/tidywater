@@ -19,7 +19,9 @@ mweights <- data.frame(
   mgoh2 = 58.31968,
   cacl2 = 110.98,
   cl2 = 70.906,
+  c = 12.01,
   co2 = 44.009,
+  ch3cooh = 60.05,
   al = 26.981539,
   fe = 55.845,
   alum = 26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, # 14 H2O
@@ -36,6 +38,12 @@ mweights <- data.frame(
   h2co3 = 62.024,
   hco3 = 61.0168,
   co3 = 60.0089,
+  b = 10.81,
+  bo3 = 58.809,
+  sio2 = 60.0843,
+  h3sio4 = 95.107,
+  h2sio4 = 94.099,
+  sio4 = 92.083,
   ocl = 16 + 35.453,
   pb = 207.2,
   br = 79.904,
@@ -77,7 +85,14 @@ discons <- data.frame(
   # Hypochlorite
   add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
   # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
+  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
+  # Borate
+  add_row(ID = "kbo3", k = 10^-9.24, deltah = -42000) %>% # H4BO4- <--> H3BO3 + OH-
+  # Silicate
+  # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
+  add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
+  # Acetate
+  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) # CH3COOH <--> H+ + CH3COO-
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)

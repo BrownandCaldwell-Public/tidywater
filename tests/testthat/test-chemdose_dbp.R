@@ -1,4 +1,5 @@
 # Chemdose DBP ----
+library(dplyr)
 
 test_that("chemdose_dbp returns no modeled DBPs when chlorine dose is 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
@@ -109,20 +110,18 @@ test_that("chemdose_dbp_df outputs are the same as base function, chemdose_dbp",
   water1 <- water0 %>%
     chemdose_dbp(cl2 = 10, time = 8)
 
-  water2 <- water_df %>%
+  water2 <- water_df[1,] %>%
     mutate(br = 50) %>%
-    slice(1) %>%
     define_water_df() %>%
     chemdose_dbp_df(cl2 = 10, time = 8, output_water = "chlor", pluck_cols = "all")
 
-  times <- tibble(time = seq(4, 10, 2))
-  treatment <- tibble(Location = c("raw", "coag", "gac"))
-  water3 <- suppressWarnings(water_df %>%
+  times <- data.frame(time = seq(4, 10, 2))
+  treatment <- data.frame(Location = c("raw", "coag", "gac"))
+  water3 <- suppressWarnings(water_df[1,] %>%
     mutate(br = 50) %>%
-    slice(1) %>%
     define_water_df() %>%
-    cross_join(times) %>%
-    cross_join(treatment) %>%
+    merge(times) %>%
+    merge(treatment) %>%
     chemdose_dbp_df(cl2 = 10, treatment = Location, output_water = "chlor") %>%
     pluck_water("chlor", c("tthm", "haa5")))
 
@@ -141,16 +140,15 @@ test_that("chemdose_dbp_df outputs are the same as base function, chemdose_dbp",
   expect_equal(water1@dbaa, water2$chlor_dbaa)
   expect_equal(water1@haa5, water2$chlor_haa5)
 
-  expect_equal(water4@tthm, water3$chlor_tthm[8])
-  expect_equal(water5@haa5, water3$chlor_haa5[3])
+  expect_equal(water4@tthm, water3$chlor_tthm[7])
+  expect_equal(water5@haa5, water3$chlor_haa5[9])
 })
 
 # Test that output is a column of water class lists, and changing the output column name works
 
 test_that("chemdose_dbp_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     mutate(br = 60) %>%
     define_water_df() %>%
     chemdose_dbp_df(time = 8, cl2 = 4))
@@ -174,30 +172,28 @@ test_that("chemdose_dbp_df output is list of water class objects, and can handle
 
 test_that("chemdose_dbp_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water1 <- suppressWarnings(water_df[1,] %>%
     mutate(br = 80) %>%
     define_water_df() %>%
     chemdose_dbp_df(time = 120, cl2 = 10, pluck_cols = TRUE))
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water2 <- suppressWarnings(water_df[1,] %>%
     mutate(br = 80) %>%
     define_water_df() %>%
     mutate(
       time = 120,
-      cl2 = 10,
+      cl2 = 10
     ) %>%
     chemdose_dbp_df(pluck_cols = TRUE))
 
   # test that pluck_cols does the same as pluck_Water
   water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    mutate(time = 120) %>%
-    chemdose_dbp_df(cl2 = 10) %>%
-    pluck_water("disinfected", c("tthm", "haa5")))
+                               slice(1) %>%
+                               mutate(br = 80) %>%
+                               define_water_df() %>%
+                               mutate(time = 120) %>%
+                               chemdose_dbp_df(cl2 = 10) %>%
+                               pluck_water("disinfected", c("tthm", "haa5")))
 
   expect_equal(water1$disinfected_tthm, water2$disinfected_tthm) # test different ways to input args
   expect_equal(water1$disinfected_haa5, water2$disinfected_haa5)
@@ -219,16 +215,16 @@ test_that("chemdose_dbp_df errors with argument + column for same param", {
     mutate(time = 5) %>%
     chemdose_dbp_df(input_water = "water", time = 120, cl2 = 10))
 
-  times <- tibble(time = seq(4, 10, 2))
+  times <- data.frame(time = seq(4, 10, 2))
   water1 <- water_df %>%
-    mutate(br = 50) %>%
     slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(times)
+    merge(times)
 
   water2 <- water_df %>%
-    mutate(br = 50) %>%
     slice(1) %>%
+    mutate(br = 50) %>%
     define_water_df() %>%
     mutate(treatment = "raw")
 

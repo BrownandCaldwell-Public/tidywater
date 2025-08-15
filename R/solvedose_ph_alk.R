@@ -128,7 +128,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
   }
 
   if ((chemical %in% c(
-    "hcl", "h2so4", "h3po4",
+    "hcl", "h2so4", "h3po4", "co2",
     "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
   )) == FALSE) {
     stop("Selected chemical addition not supported.")
@@ -162,7 +162,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
   # Target alkalinity can't be met
   if ((chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") &
     target_alk <= water@alk) |
-    (chemical %in% c("hcl", "h2so4", "h3po4") &
+    (chemical %in% c("hcl", "h2so4", "h3po4", "co2") &
       target_alk >= water@alk) |
     is.na(target_alk)) {
     warning("Target alkalinity cannot be reached with selected chemical. NA returned.")

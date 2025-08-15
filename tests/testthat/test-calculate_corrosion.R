@@ -1,4 +1,6 @@
 # Calculate corrosion ----
+library(dplyr)
+
 test_that("most indices won't work without ca, cl, so4", {
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
@@ -168,7 +170,7 @@ test_that("ccpp works", {
   expect_equal(round(index4$ccpp), -4) # low ca
   expect_equal(round(index5$ccpp), -34) # low pH
   expect_equal(round(index6$ccpp), -328) # extra low pH
-  expect_equal(round(index7$ccpp), 251)
+  expect_equal(round(index7$ccpp), 247)
   expect_equal(round(index8$ccpp), 1249)
   expect_error(suppressWarnings(define_water(ph = 14, alk = 20, ca = 32, tds = 90)) %>%
     calculate_corrosion(index = "ccpp")) # high pH is out of uniroot bounds
@@ -231,9 +233,9 @@ test_that("function catches index typos", {
 test_that("calculate_corrosion_df is a data frame", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    calculate_corrosion_df(input_water = "defined"))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               calculate_corrosion_df(input_water = "defined"))
 
   expect_true(is.data.frame(water1))
   expect_true("defined_aggressive" %in% colnames(water1))
@@ -249,27 +251,25 @@ test_that("calculate_corrosion_df is a data frame", {
 test_that("calculate_corrosion_df outputs an appropriate number of indices", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               calculate_corrosion_df(input_water = "defined", index = c("aggressive", "csmr")))
 
   water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    mutate(naoh = 5) %>%
-    calculate_corrosion_df(input_water = "defined"))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               mutate(naoh = 5) %>%
+                               calculate_corrosion_df(input_water = "defined"))
 
-  water3 <- water1 %>%
-    select_if(names(water1) %in% c(
+  water3 <- water1[, names(water1) %in% c(
+    "defined_aggressive", "defined_ryznar", "defined_langelier",
+    "defined_ccpp", "defined_larsonskold", "defined_csmr"
+  )]
+
+  water4 <- water2[, names(water2) %in% c(
       "defined_aggressive", "defined_ryznar", "defined_langelier",
       "defined_ccpp", "defined_larsonskold", "defined_csmr"
-    ))
-
-  water4 <- water2 %>%
-    select_if(names(water2) %in% c(
-      "defined_aggressive", "defined_ryznar", "defined_langelier",
-      "defined_ccpp", "defined_larsonskold", "defined_csmr"
-    ))
+    )]
 
   expect_error(expect_equal(length(water1), length(water2))) # waters with different indices shouldn't be equal
   expect_equal(length(water3), 2) # indices selected in fn should match # of output index columns

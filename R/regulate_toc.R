@@ -109,14 +109,23 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
   )
   df <- defaults_added$data
 
-  toc_df <- do.call(bind_rows, lapply(seq_len(nrow(df)), function(i) {
-  regulate_toc(
-    alk_raw = df[[final_names$alk_raw]][i],
-    toc_raw = df[[final_names$toc_raw]][i],
-    toc_finished = df[[final_names$toc_finished]][i]
-  )
-  }))
+  toc_list <- lapply(seq_len(nrow(df)), function(i) {
+    regulate_toc(
+      alk_raw = df[[final_names$alk_raw]][i],
+      toc_raw = df[[final_names$toc_raw]][i],
+      toc_finished = df[[final_names$toc_finished]][i]
+    )
+  })
+  
+  all_cols <- unique(unlist(lapply(toc_list, names)))
+  toc_list_aligned <- lapply(toc_list, function(x) {
+    x <- as.data.frame(x)
+    missing <- setdiff(all_cols, names(x))
+    for (col in missing) x[[col]] <- NA
+    x[all_cols]  # Reorder columns
+  })
 
+  toc_df <- do.call(rbind, toc_list_aligned)
   output <- cbind(df, toc_df)
   return(output)
 
