@@ -1,4 +1,6 @@
 # BASE FUNCTION ----
+library(dplyr)
+
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
@@ -80,9 +82,8 @@ test_that("solveresid_o3_df can use a column and/or function argument for time a
   water1 <- water_df %>%
     mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    solveresid_o3_df(dose = 5) %>%
-    arrange(time)
+    merge(time) %>%
+    solveresid_o3_df(dose = 5)
 
   water2 <- water_df %>%
     mutate(br = 50) %>%
@@ -92,7 +93,7 @@ test_that("solveresid_o3_df can use a column and/or function argument for time a
   water3 <- water_df %>%
     mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
+    merge(time) %>%
     solveresid_o3_df(dose = c(5, 8))
 
   expect_equal(water1$o3resid, water2$o3resid) # test different ways to input time

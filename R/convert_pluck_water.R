@@ -160,5 +160,5 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
     }
   }
 
-  bind_cols(df, plucked)
+  cbind(df, plucked)
 }

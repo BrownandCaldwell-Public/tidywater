@@ -1,7 +1,9 @@
 # GAC_TOC ----
+library(dplyr)
 
 test_that("No water defined, no default listed", {
-  water <- water_df[1, ]
+  water <- water_df %>%
+    slice(1)
 
   expect_error(gac_toc(media_size = "8x30", ebct = 10)) # argument water is missing, with no default
   expect_error(gac_toc(water)) # water is not a defined water object
@@ -84,16 +86,16 @@ test_that("gac_toc_df outputs are the same as base function, gac_toc", {
 test_that("gac_toc_df output is list of water class objects", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    mutate(
-      model = "Zachman",
-      media_size = "12x40",
-      ebct = 10,
-      bed_vol = 10000,
-      pretreat = "coag"
-    ) %>%
-    gac_toc_df(input_water = "raw"))
+                               slice(1) %>%
+                               define_water_df("raw") %>%
+                               mutate(
+                                 model = "Zachman",
+                                 media_size = "12x40",
+                                 ebct = 10,
+                                 bed_vol = 10000,
+                                 pretreat = "coag"
+                                 ) %>%
+                               gac_toc_df(input_water = "raw"))
 
   water2 <- purrr::pluck(water1, "gaced", 1)
 
@@ -104,22 +106,21 @@ test_that("gac_toc_df output is list of water class objects", {
 test_that("gac_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000, pluck_cols = TRUE))
+                               slice(1) %>%
+                               define_water_df("raw") %>%
+                               gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    mutate(
-      model = "WTP",
-      bed_vol = 15000,
-    ) %>%
-    gac_toc_df(input_water = "raw", pluck_cols = TRUE))
+                               slice(1) %>%
+                               define_water_df("raw") %>%
+                               mutate(
+                                 model = "WTP",
+                                 bed_vol = 15000
+                                 ) %>%
+                               gac_toc_df(input_water = "raw", pluck_cols = TRUE))
 
   # check that pluck_cols does the same as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
+  water3 <- suppressWarnings(water_df[1,] %>%
     define_water_df("raw") %>%
     mutate(model = "WTP") %>%
     gac_toc_df(input_water = "raw", bed_vol = 15000) %>%

@@ -147,11 +147,16 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   solids["K_solid_laurionite_l", "Pb_2_plus"] <- solids["K_solid_laurionite_l", "K_num"] * h / (gamma_2 * gamma_1 * water@cl)
 
   # * Calculation of complex concentrations ----
-  complexes <- subset(leadsol_K, !grepl("solid", constant_name), select = -c(log_value, species_name, source)) %>%
-    tidyr::pivot_wider(names_from = constant_name, values_from = K_num)
+  filtered_rows <- leadsol_K[!grepl("solid", leadsol_K$constant_name), ]
+  complexes <- filtered_rows[, !(names(filtered_rows) %in% c("log_value", "species_name", "source"))]
+  complexes$GroupID <- 1
+  split_vals <- lapply(unique(complexes$constant_name), function(name) {
+    complexes$K_num[complexes$constant_name == name]
+  })
+  names(split_vals) <- unique(complexes$constant_name)
+  complexes_wide <- do.call(data.frame, split_vals)
 
-  alllead <- solids %>%
-    dplyr::cross_join(complexes)
+  alllead <- merge(solids, complexes_wide, by = NULL)
   # Calculate lead-hydroxide complex concentrations
   alllead$PbOH_plus <- (alllead$B_1_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h)
   alllead$PbOH2 <- (alllead$B_2_OH) * gamma_2 * alllead$Pb_2_plus / h^2

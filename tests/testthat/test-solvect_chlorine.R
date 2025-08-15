@@ -1,3 +1,5 @@
+library(dplyr)
+
 test_that("solvect_chlorine returns 0's for ct_actual and giardia log when arguments are 0.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   ct1 <- suppressWarnings(solvect_chlorine(water1, time = 0, residual = 5, baffle = .5))
@@ -52,24 +54,27 @@ test_that("solvect_chlorine works.", {
 })
 
 test_that("solvect_chlorine determines virus log removal", {
-  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
-  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 5, toc = 3.5, uv254 = 0.1, br = 50))
-  water3 <- suppressWarnings(define_water(ph = 7.5, temp = 22, toc = 3.5, uv254 = 0.1, br = 50))
-  water4 <- suppressWarnings(define_water(ph = 10, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+  water1 <- suppressWarnings(define_water(ph=7.5, temp=20, toc=3.5, uv254=0.1, br=50))
+  water2 <- suppressWarnings(define_water(ph=7.5, temp=5, toc=3.5, uv254=0.1, br=50))
+  water3 <- suppressWarnings(define_water(ph=7.5, temp=22, toc=3.5, uv254=0.1, br=50))
+  water4 <- suppressWarnings(define_water(ph=10, temp=20, toc=3.5, uv254=0.1, br=50))
+  water5 <- suppressWarnings(define_water(ph=9.5, temp=25, toc=3.5, uv254=0.1, br=50))
 
   ct1 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
   ct2 <- solvect_chlorine(water2, time = 10, residual = 2, baffle = 0.3)
 
   expect_equal(ct1$vlog_removal, 4.0)
   expect_equal(ct2$vlog_removal, 3.0)
-  expect_warning(solvect_chlorine(water3, time = 10, residual = 2, baffle = 0.3)) # warning: temp estimated
-  expect_warning(solvect_chlorine(water4, time = 10, residual = 2, baffle = 0.3))
+  expect_warning(solvect_chlorine(water3, time = 10, residual = 2, baffle = 0.3)) # estimated temp
+  expect_warning(solvect_chlorine(water4, time = 10, residual = 2, baffle = 0.3)) # ph or time out of range
+  expect_warning(solvect_chlorine(water5, time = 20, residual = 2, baffle = 0.3)) #estimated pH
 })
 
 test_that("solvect_chlorine warns appropriately about virus log removal", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 15, toc = 3.5, uv254 = 0.1, br = 50))
   water2 <- suppressWarnings(define_water(ph = 5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   water3 <- suppressWarnings(define_water(ph = 12, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+
 
   expect_warning(solvect_chlorine(water1, time = 0.5, residual = 1, baffle = 0.3)) # contact time out of range
   expect_warning(solvect_chlorine(water2, time = 30, residual = 5, baffle = 0.3)) # pH out of range
@@ -86,10 +91,10 @@ test_that("solvect_chlorine_df outputs are the same as base function, solvect_ch
     solvect_chlorine(time = 30, residual = 5, baffle = .7)
 
   water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = .7))
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_df() %>%
+                               solvect_chlorine_df(time = 30, residual = 5, baffle = .7))
 
   expect_equal(water1$ct_required, water2$defined_ct_required)
 })
@@ -99,10 +104,10 @@ test_that("solvect_chlorine_df outputs are the same as base function, solvect_ch
 test_that("solvect_chlorine_df is a data frame", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = .5))
+                               slice(1) %>%
+                               mutate(br = 50) %>%
+                               define_water_df() %>%
+                               solvect_chlorine_df(time = 30, residual = 5, baffle = .5))
 
   expect_true(is.data.frame(water1))
 })
@@ -118,9 +123,8 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
   water1 <- water_df %>%
     mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
-    suppressWarnings(solvect_chlorine_df(residual = 5, baffle = .5)) %>%
-    arrange(time)
+    merge(time) %>%
+    suppressWarnings(solvect_chlorine_df(residual = 5, baffle = .5))
 
   water2 <- water_df %>%
     mutate(br = 50) %>%
@@ -134,7 +138,7 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
   water3 <- suppressWarnings(water_df %>%
     mutate(br = 50) %>%
     define_water_df() %>%
-    cross_join(time) %>%
+    merge(time) %>%
     rename(ChlorTime = time) %>%
     solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime))
 
@@ -160,6 +164,7 @@ test_that("solvect_chlorine_df correctly handles arguments with multiple values"
 
 test_that("solvect_chlorine_df correctly uses free_chlorine slot", {
   testthat::skip_on_cran()
+
   residual_df <-suppressWarnings(water_df %>%
     define_water_df() %>%
     chemdose_ph_df(naocl = 10) %>%

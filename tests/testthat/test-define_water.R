@@ -1,4 +1,6 @@
 # Define water -----
+library(dplyr)
+
 test_that("Define water outputs water class.", {
   # Disregard warnings, they are expected here.
   suppressWarnings({
@@ -144,6 +146,18 @@ test_that("define_water correctly calculates dic", {
   expect_equal(dic_mg, water1@dic)
 })
 
+test_that("define_water accounts for multiple types of alkalinity", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
+  water2 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_po4 = 5, tot_nh3 = 5, tot_bo3 = 5, tot_sio4 = 5))
+  
+  expect_true(water1@alk_eq == water1@carbonate_alk_eq)
+  expect_true(water1@phosphate_alk_eq == 0)
+  expect_true(!is.na(water2@phosphate_alk_eq))
+  expect_true(!is.na(water2@borate_alk_eq))
+  expect_true(!is.na(water2@silicate_alk_eq))
+  expect_false(identical(water2@alk_eq, water2@carbonate_alk_eq))
+})
+
 # define_water helpers ----
 # Test that define_water_df outputs are the same as base function, define_water.
 
@@ -203,10 +217,12 @@ test_that("define_water_df correctly calculates dic", {
   testthat::skip_on_cran()
   water1 <- water_df %>%
     define_water_df() %>%
-    pluck_water(parameter = "dic") %>%
+    pluck_water(parameter = "dic")
+  water1 <- water1 %>%
     slice(1)
 
-  water2 <-suppressWarnings(define_water(
+
+  water2 <- suppressWarnings(define_water(
     ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
     cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
   ))

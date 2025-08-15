@@ -58,7 +58,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
   }
 
   if (dose == 0) {
-    tibble(
+    data.frame(
       "ct_actual" = 0, "glog_removal" = 0, "vlog_removal" = 0,
       "clog_removal" = 0
     )
@@ -72,24 +72,23 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
     ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
   } else {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
-
-    decaycurve <- data.frame(time = seq(0, time, .5)) %>%
-      dplyr::mutate(
-        defined = list(water),
-        dose = dose
-      ) %>%
-      solveresid_o3_df() %>%
-      dplyr::mutate(ct = .data$o3resid * .5) %>%
-      dplyr::filter(time != 0)
+    
+    decaycurve <- data.frame(time = seq(0, time, 0.5))
+    decaycurve$defined <- list(water)
+    decaycurve$dose <- dose
+    decaycurve <- solveresid_o3_df(decaycurve)
+    
+    decaycurve$ct <- decaycurve$o3resid * 0.5
+    decaycurve <- decaycurve[decaycurve$time != 0, ]
     ct_tot <- sum(decaycurve$ct)
   }
-
+    
   ct_actual <- ct_tot * baffle
   giardia_log_removal <- 1.038 * 1.0741^temp * ct_actual
   virus_log_removal <- 2.1744 * 1.0726^temp * ct_actual
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
 
-  tibble(
+  data.frame(
     "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = virus_log_removal,
     "clog_removal" = crypto_log_removal
   )
