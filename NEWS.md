@@ -14,6 +14,7 @@ the model: gacrun_toc, gac_toc, and gacbv_toc. Together the model can output a d
 necessary bed volume to stay below the target effluent TOC. See individual functions for more in depth documentation.
 * `pluck_water` speed up by relying on base R instead of purrr
 * `chemdose_toc` can now account for modified doc removal due to softening. `caoh2` can be dosed as an optional argument to the function.
+* New model `opensys_ph` added to predict pH and alkalinity of an input water in an open carbonate system at equilibrium
 * New function `plot_lead` added to graph the pH vs DIC contour plot for lead solubility
 * Alkalinity slots added to the water class. `alk` and `alk_eq` represent the total alkalinity, and individual alkalinities due to carbonate, phosphate, ammonium, borate, silicate,
 and hypochlorite have been added as individual slots (i.e. carbonate_alk_eq).
