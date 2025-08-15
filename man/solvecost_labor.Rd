@@ -22,10 +22,9 @@ This function takes number of FTE and annual $/FTE and determines labor cost
 \examples{
 laborcost <- solvecost_labor(1.5, 50000)
 
-library(dplyr)
-cost_data <- tibble(
+cost_data <- data.frame(
   fte = seq(1, 10, 1)
 ) \%>\%
-  mutate(costs = solvecost_labor(fte = fte, cost = .08))
+  dplyr::mutate(costs = solvecost_labor(fte = fte, cost = .08))
 
 }

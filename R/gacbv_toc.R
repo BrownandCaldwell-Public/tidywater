@@ -64,7 +64,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #'
 #' example_df <- water_df %>%
 #'   define_water_df() %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     model = "WTP",
 #'     media_size = "8x30",
 #'     ebct = 10,
@@ -73,8 +73,6 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #'   gacbv_toc_df()
 #' }
 #'
-#' @import dplyr
-#' @importFrom tidyr unnest
 #' @export
 #'
 #' @returns `gacbv_toc_df` returns a data frame with columns for bed volumes.
@@ -97,8 +95,7 @@ gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(

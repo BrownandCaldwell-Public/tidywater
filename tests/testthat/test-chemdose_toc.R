@@ -1,4 +1,5 @@
 # Chemdose TOC ----
+library(dplyr)
 
 test_that("chemdose_toc returns the same water when coagulant dose is 0.", {
   water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
@@ -94,19 +95,19 @@ test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc",
     chemdose_toc_df(ferricchloride = 40, coeff = "Ferric", output_water = "coag") %>%
     pluck_water("coag", c("toc", "doc", "uv254"))
 
-  coag_doses <- tibble(ferricchloride = seq(10, 100, 10))
+  coag_doses <- data.frame(ferricchloride = seq(10, 100, 10))
   water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    cross_join(coag_doses) %>%
-    chemdose_toc_df("raw", "coag", coeff = "Ferric") %>%
-    pluck_water(c("coag"), c("doc")))
+                               slice(1) %>%
+                               define_water_df("raw") %>%
+                               merge(coag_doses) %>%
+                               chemdose_toc_df("raw", "coag", coeff = "Ferric") %>%
+                               pluck_water(c("coag"), c("doc")))
 
   water4 <- water_df %>%
     slice(1) %>%
     define_water_df("raw") %>%
-    cross_join(coag_doses) %>%
-    rename(Coagulant = ferricchloride) %>%
+    merge(coag_doses) %>%
+    { names(.)[names(.) == "ferricchloride"] <- "Coagulant"; .}  %>%
     chemdose_toc_df("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
     pluck_water(c("coag"), c("doc"))
 
@@ -122,9 +123,9 @@ test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc",
 test_that("chemdose_toc_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_toc_df(input_water = "defined", ferricsulfate = 30, coeff = "Ferric"))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               chemdose_toc_df(input_water = "defined", ferricsulfate = 30, coeff = "Ferric"))
 
   water2 <- purrr::pluck(water1, "coagulated", 1)
 
@@ -179,14 +180,14 @@ test_that("chemdose_toc_df can use a column or function argument for chemical do
 test_that("chemdose_toc_df works when water_prefix is false", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_toc_df(ferricsulfate = 23, pluck_cols = TRUE))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               chemdose_toc_df(ferricsulfate = 23, pluck_cols = TRUE))
 
   water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_toc_df(ferricsulfate = 23, water_prefix = FALSE))
+                               slice(1) %>%
+                               define_water_df() %>%
+                               chemdose_toc_df(ferricsulfate = 23, water_prefix = FALSE))
 
   expect_equal(water1$coagulated_water_toc, water2$toc)
   expect_equal(water1$coagulated_water_uv254, water2$uv254)
