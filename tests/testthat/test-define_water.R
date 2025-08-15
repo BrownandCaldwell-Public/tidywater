@@ -146,6 +146,18 @@ test_that("define_water correctly calculates dic", {
   expect_equal(dic_mg, water1@dic)
 })
 
+test_that("define_water accounts for multiple types of alkalinity", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
+  water2 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_po4 = 5, tot_nh3 = 5, tot_bo3 = 5, tot_sio4 = 5))
+  
+  expect_true(water1@alk_eq == water1@carbonate_alk_eq)
+  expect_true(water1@phosphate_alk_eq == 0)
+  expect_true(!is.na(water2@phosphate_alk_eq))
+  expect_true(!is.na(water2@borate_alk_eq))
+  expect_true(!is.na(water2@silicate_alk_eq))
+  expect_false(identical(water2@alk_eq, water2@carbonate_alk_eq))
+})
+
 # define_water helpers ----
 # Test that define_water_df outputs are the same as base function, define_water.
 

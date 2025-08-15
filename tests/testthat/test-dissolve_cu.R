@@ -41,8 +41,8 @@ test_that("dissolve_cu works.", {
     dissolve_cu()
 
   expect_equal(signif(water1$cu, 2), 1.9)
-  expect_equal(signif(water2$cu, 2), 0.79)
-  expect_equal(signif(water3$cu, 2), 1.7)
+  expect_equal(signif(water2$cu, 2), 0.78)
+  expect_equal(signif(water3$cu, 2), 1.6)
   expect_equal(signif(water4$cu, 2), 1.9)
 })
 

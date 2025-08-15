@@ -3,6 +3,7 @@ library(dplyr)
 
 test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.", {
   water1 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
+  
   water2 <- chemdose_ph(water1, h2so4 = 0, h3po4 = 0)
 
   water3 <- define_water(ph = 7, temp = 20, alk = 100, tot_po4 = 2, tds = 200)
@@ -57,9 +58,9 @@ test_that("chemdose ph works", {
   expect_equal(round(test6@ph, 1), 11.4)
   expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
-  expect_equal(round(test7@alk, 0), 20)
+  expect_equal(round(test7@alk, 0), 56)
   expect_equal(round(test8@ph, 1), 9.7)
-  expect_equal(round(test8@alk, 0), 26)
+  expect_equal(round(test8@alk, 0), 32)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {
@@ -73,8 +74,8 @@ test_that("Starting phosphate residual does not affect starting pH.", {
     chemdose_ph()
 
   expect_equal(water1@ph, 7)
-  expect_equal(water2@ph, 7)
-  expect_equal(water3@ph, 7)
+  expect_equal(water1@ph, water2@ph)
+  expect_equal(water2@ph, water3@ph)
 })
 
 test_that("Phosphate dose works as expected.", {
@@ -115,8 +116,8 @@ test_that("Starting ammonia does not affect starting pH.", {
     chemdose_ph()
 
   expect_equal(water1@ph, 7)
-  expect_equal(water2@ph, 7)
-  expect_equal(water3@ph, 7)
+  expect_equal(water1@ph, water2@ph)
+  expect_equal(water2@ph, water3@ph)
 })
 
 test_that("Warning when both chlorine- and ammonia-based chemical are dosed.", {

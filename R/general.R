@@ -636,13 +636,20 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
+  kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
+  k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
+  # k2sio4 = {h+}{hsio43-}/{h2sio42-}
+  k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, "kch3coo" = kch3coo
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, 
+    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4, "kch3coo" = kch3coo
   ))
 }
 
@@ -763,6 +770,23 @@ calculate_alpha1_hypochlorite <- function(h, k) { # OCl-
 calculate_alpha1_ammonia <- function(h, k) { # NH4+
   k1 <- k$knh4
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
+}
+
+calculate_alpha1_borate <- function(h, k) { # H4BO4- 
+  k1 <- k$kbo3
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha1_silicate <- function(h, k) { # H3SiO4-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k1 + k2 / h) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha2_silicate <- function(h, k) { # H2SiO4 2-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k2 + h^2 / (k1 * k2)) # calculating how much is deprotonated with -2 charge
 }
 
 calculate_alpha1_acetate <- function(h, k) { # CH3COO-

@@ -138,9 +138,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     # (epm Cl + epm SO4)/ (epm HCO3 + epm CO3)
     cl_meq <- convert_units(water@cl, "cl", "M", "meq/L")
     so4_meq <- convert_units(water@so4, "so4", "M", "meq/L")
-    alk_meq <- water@alk_eq * 1000
+    carbonate_alk_meq <- water@carbonate_alk_eq * 1000
 
-    larsonskold <- (cl_meq + so4_meq) / (alk_meq)
+    larsonskold <- (cl_meq + so4_meq) / (carbonate_alk_meq)
 
     corrosion_indices$larsonskold <- larsonskold
   }

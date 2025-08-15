@@ -30,6 +30,8 @@ define_water(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
+  tot_bo3 = 0,
+  tot_sio4 = 0,
   tds,
   cond,
   toc,
@@ -76,6 +78,10 @@ define_water(
 
 \item{tot_ch3coo}{Total acetate in mg/L}
 
+\item{tot_bo3}{Total borate (B(OH)4 -) in mg/L as B}
+
+\item{tot_sio4}{Total silicate in mg/L as SiO2}
+
 \item{tds}{Total Dissolved Solids in mg/L (optional if ions are known)}
 
 \item{cond}{Electrical conductivity in uS/cm (optional if ions are known)}
@@ -108,7 +114,13 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{cond}{electrical conductivity, numeric, uS/cm.}
 \item{tot_hard}{total hardness, numeric, mg/L as CaCO3.}
 \item{kw}{dissociation constant for water, numeric, unitless.}
-\item{alk_eq}{alkalinity as equivalents, numeric, equivalent (eq).}
+\item{alk_eq}{total alkalinity as equivalents, numeric, equivalent (eq).}
+\item{carbonate_alk_eq}{carbonate alkalinity as equivalents, numeric, equivalent (eq).}
+\item{phosphate_alk_eq}{phosphate alkalinity as equivalents, numeric, equivalent (eq).}
+\item{ammonium_alk_eq}{ammonium alkalinity as equivalents, numeric, equivalent (eq).}
+\item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
+\item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
+\item{hypochlorite_alk_eq}{hypochlorite alkalinity as equivalents, numeric, equivalent (eq).}
 \item{toc}{total organic carbon, numeric, mg/L.}
 \item{doc}{dissolved organic carbon, numeric, mg/L.}
 \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -129,12 +141,17 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 \item{po4}{phosphate, numeric, mols/L.}
 \item{nh4}{ammonium, numeric, mol/L as N.}
+\item{bo3}{borate, numeric, mol/L.}
+\item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
+\item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
 \item{ch3coo}{acetate, numeric, mol/L.}
 \item{h}{hydrogen ion, numeric, mol/L.}
 \item{oh}{hydroxide ion, numeric, mol/L.}
 \item{tot_po4}{total phosphate, numeric, mol/L.}
 \item{tot_nh3}{total ammonia, numeric, mol/L.}
 \item{tot_co3}{total carbonate, numeric, mol/L.}
+\item{tot_bo3}{total borate, numeric, mol/L.}
+\item{tot_sio4}{total silicate, numeric, mol/L.}
 \item{tot_ch3coo}{total acetate, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
