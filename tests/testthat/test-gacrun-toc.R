@@ -52,23 +52,25 @@ test_that("gacrun_toc works.", {
 
 test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-                         tot_hard = 50, ca = 13, mg = 4,
-                         na = 20, k = 20, cl = 30, so4 = 20,
-                         tds = 200, cond = 100,
+water0 <- define_water(7.9, 20, 50, tds = 200,
                          toc = 2, doc = 1.8, uv254 = 0.05
   )
-  
-  water1 <- water0 %>%
+
+  water1 <- define_water(8.5, 25, 80, tds = 100,
+                         toc = 3, doc = 2.8, uv254 = .08)
+
+  water2 <- water0 %>%
     gacrun_toc(model = "WTP")
-  
-  water2 <- water_df %>%
-    dplyr::slice(1) %>%
+  water3 <- water1 %>%
+    gacrun_toc(model = "WTP")
+
+  water4 <- water_df %>%
+    dplyr::slice_head(n = 2) %>%
     define_water_df() %>%
     gacrun_toc_df(model = "WTP", media_size = "12x40", ebct = 10)
-  
-  expect_equal(water1$bv, water2$defined_bv)
-  expect_equal(water1$x_norm, water2$defined_x_norm)
+
+  expect_equal(c(water2$bv, water3$bv), water4$defined_bv)
+  expect_equal(c(water2$x_norm, water3$x_norm), water4$defined_x_norm)
 })
 
 # Test that output is a data frame with the correct number of columns
