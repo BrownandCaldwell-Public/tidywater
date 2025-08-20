@@ -54,14 +54,14 @@ the CO2 dose that results in a H2CO3 concentration equal to CO2(aq).
 water <- define_water(ph = 7, temp = 25, alk = 5) \%>\%
   opensys_ph()
 
-
+\donttest{
 example_df <- water_df \%>\%
   define_water_df() \%>\%
   opensys_ph_df(
     input_water = "defined", output_water = "opensys",
     partialpressure = 10^-4, pluck_cols = TRUE
   )
-
+}
 }
 \seealso{
 \link{chemdose_ph}

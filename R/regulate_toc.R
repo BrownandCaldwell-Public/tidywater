@@ -69,7 +69,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 #' @examples
 #'
 #' regulated <- water_df %>%
-#'   select(toc_raw = toc, alk_raw = alk) %>%
+#'   dplyr::select(toc_raw = toc, alk_raw = alk) %>%
 #'   regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
 #'
 #' regulated <- water_df %>%
@@ -77,7 +77,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 #'   chemdose_ph_df(alum = 30, output_water = "dosed") %>%
 #'   chemdose_toc_df("dosed") %>%
 #'   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
-#'   select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
+#'   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
 #'   regulate_toc_df()
 #'
 #' @export

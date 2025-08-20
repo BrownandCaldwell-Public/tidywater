@@ -150,9 +150,10 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
+#' \donttest{
 #' water <- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
 #' plot_ions(water)
-#'
+#' }
 #' @export
 #'
 #' @returns A ggplot object displaying the water's ion balance.

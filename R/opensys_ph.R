@@ -51,14 +51,14 @@ opensys_ph <- function(water, partialpressure = 10^-3.42) {
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
-#'
+#' \donttest{
 #' example_df <- water_df %>%
 #'   define_water_df() %>%
 #'   opensys_ph_df(
 #'     input_water = "defined", output_water = "opensys",
 #'     partialpressure = 10^-4, pluck_cols = TRUE
 #'   )
-#'
+#' }
 #' @export
 #' @returns `opensys_ph_df` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
