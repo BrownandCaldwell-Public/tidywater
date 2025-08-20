@@ -249,6 +249,7 @@ plot_ions <- function(water) {
 #' @import ggplot2
 #'
 #' @examples
+#' \donttest{
 #' historical <- data.frame(
 #'   ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
 #'   dic = c(
@@ -259,7 +260,7 @@ plot_ions <- function(water) {
 #'   tds = 200
 #' )
 #' plot_lead(historical)
-#'
+#' }
 #' @export
 #'
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
