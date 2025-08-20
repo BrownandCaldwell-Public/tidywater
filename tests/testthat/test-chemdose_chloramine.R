@@ -135,10 +135,10 @@ test_that("chemdose_chloramine_df outputs the same as base, chemdose_chloramine"
 
 
   water4 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               mutate(free_chlorine = 2, tot_nh3 = 2) %>%
-                               define_water_df() %>%
-                               chemdose_chloramine_df(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE, pluck_cols = TRUE))
+    slice(1) %>%
+    mutate(free_chlorine = 2, tot_nh3 = 2) %>%
+    define_water_df() %>%
+    chemdose_chloramine_df(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE, pluck_cols = TRUE))
 
   expect_equal(water4$chloraminated_free_chlorine[1], water3@free_chlorine)
   expect_equal(water4$chloraminated_combined_chlorine[1], water3@combined_chlorine)

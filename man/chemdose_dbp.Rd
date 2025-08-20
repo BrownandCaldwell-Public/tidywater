@@ -118,8 +118,10 @@ example_df <- water_df \%>\%
     cl2_dose = c(2, 3, 4),
     time = 30
   ) \%>\%
-  chemdose_dbp_df(cl2 = cl2_dose, treatment = "coag", location = "ds",
-  cl_type = "chloramine", pluck_cols = TRUE)
+  chemdose_dbp_df(
+    cl2 = cl2_dose, treatment = "coag", location = "ds",
+    cl_type = "chloramine", pluck_cols = TRUE
+  )
 }
 
 }

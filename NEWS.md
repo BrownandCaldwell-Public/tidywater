@@ -1,28 +1,30 @@
-# Development Version
+# tidywater 0.10.0
 
 ## New features
 
 * Revamped helpers `_df` replace `chain` and `once` functions. Use `pluck_cols = TRUE` to mimic `once` behavior, although it will always
 return a water column as well.
-* `chemdose_ph_once`, `chemdose_dbp_once`, and `chemdose_toc_once` now also return a water class column in addition to relevant slots.
 * Virus log removal added to `solvect_chlorine` based on the EPA Guidance Manual Table E-7 (1991)
-* `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_once`, all input arguments must be included as a list.
+* `modify_water` can now modify multiple water slots at once. Note that in order to modify multiple slots using `modify_water_df`, all input arguments must be included as a list.
 * Acetic acid added as chemical to `chemdose_ph`. In addition to changing pH, dosing acetic acid will also update TOC and DOC of the input water.
 * `regulate_toc` now available for calculating TOC removal compliance
-* New model added to predict TOC removal from GAC treatment using either the EPA WTP model (2001) or the Zachman and Summers (2018) model. There are three functions that implement 
-the model: gacrun_toc, gac_toc, and gacbv_toc. Together the model can output a data frame of the TOC breakthrough curve, update the TOC, DOC, and UV254 water slots, or output the 
-necessary bed volume to stay below the target effluent TOC. See individual functions for more in depth documentation.
-* `pluck_water` speed up by relying on base R instead of purrr
-* `chemdose_toc` can now account for modified doc removal due to softening. `caoh2` can be dosed as an optional argument to the function.
+* `gacrun_toc`, `gac_toc`, and `gacbv_toc` added to predict TOC removal from GAC treatment using either the EPA WTP model (2001) or 
+the Zachman and Summers (2018) model. Different functions provide different output types: a data frame of the TOC breakthrough curve, 
+a new water with updated TOC, DOC, and UV254 water slots, or the 
+necessary bed volumes to stay below the target effluent TOC. See individual functions for documentation.
+* `pluck_water` and `_df` helpers sped up by relying on base R instead of purrr
+* `chemdose_toc` can now account for doc removal due to lime softening from the WTP Model (2001). To implement, use the `caoh2` argument.
 * New model `opensys_ph` added to predict pH and alkalinity of an input water in an open carbonate system at equilibrium
 * New function `plot_lead` added to graph the pH vs DIC contour plot for lead solubility
 * Alkalinity slots added to the water class. `alk` and `alk_eq` represent the total alkalinity, and individual alkalinities due to carbonate, phosphate, ammonium, borate, silicate,
-and hypochlorite have been added as individual slots (i.e. carbonate_alk_eq).
+and hypochlorite have been added as individual slots (eg. carbonate_alk_eq).
 
 ## Breaking changes
-* `_chain` and `_once` functions have been deprecated. Replace with `_df` functions. 
+* `_chain` and `_once` functions have been deprecated. Replace with `_df` functions. Code should be similar, but has slightly different outputs.
 * Default water naming in helper functions has been shortened to remove "_water". 
 Eg, new default `output_water = "defined"`, old default `output_water = "defined_water"`. See function documentation for new defaults.
+* Total alkalinity (`alk`) now accounts for phosphate, silicate, borate, hypochlorite, and ammonia. Could have a minor impact on final pH and alkalinity
+calculations in waters with those compounds.
 
 # tidywater 0.9.0
 

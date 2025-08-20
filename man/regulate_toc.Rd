@@ -21,21 +21,7 @@ regulate_toc_df(
 
 \item{toc_finished}{Finished water total organic carbon (mg/L).}
 
-\item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
-
-@examples
-
-regulated <- water_df \%>\%
-select(toc_raw = toc, alk_raw = alk) \%>\%
-regulate_toc_df(toc_finished = seq(0,1.2, 0.1))
-
-regulated <- water_df \%>\%
-define_water_df() \%>\%
-chemdose_ph_df(alum = 30, output_water = "dosed") \%>\%
-chemdose_toc_df("dosed") \%>\%
-pluck_water(c("coagulated", "defined"), c("toc", "alk")) \%>\%
-select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
-regulate_toc_df()}
+\item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC}
 }
 \value{
 A data frame containing the TOC removal compliance status.
@@ -55,5 +41,18 @@ with an error message.
 }
 \examples{
 regulate_toc(50, 5, 2)
+
+
+regulated <- water_df \%>\%
+  select(toc_raw = toc, alk_raw = alk) \%>\%
+  regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
+
+regulated <- water_df \%>\%
+  define_water_df() \%>\%
+  chemdose_ph_df(alum = 30, output_water = "dosed") \%>\%
+  chemdose_toc_df("dosed") \%>\%
+  pluck_water(c("coagulated", "defined"), c("toc", "alk")) \%>\%
+  select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
+  regulate_toc_df()
 
 }

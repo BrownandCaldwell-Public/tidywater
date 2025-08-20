@@ -70,7 +70,7 @@ test_that("gacbv_toc_df outputs are the same as base function, gacbv_toc", {
 # Test that output is a data frame with the correct number of columns
 test_that("gacbv_toc_df output is data frame", {
   testthat::skip_on_cran()
-  water0 <- suppressWarnings(water_df[1,] %>%
+  water0 <- suppressWarnings(water_df[1, ] %>%
     define_water_df("raw") %>%
     transform(
       model = "Zachman",

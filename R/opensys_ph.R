@@ -27,10 +27,10 @@
 
 opensys_ph <- function(water, partialpressure = 10^-3.42) {
   validate_water(water, slots = c("ph", "alk"))
-  
+
   kh <- 10^-1.468 # Henry's Law constant for CO2
   co2_M <- kh * partialpressure
-  
+
   co2_solve <- function(co2_dose, water, co2_M, ...) {
     new_water <- chemdose_ph(water, co2 = co2_dose)
     return(new_water@h2co3 - co2_M)
@@ -63,9 +63,9 @@ opensys_ph <- function(water, partialpressure = 10^-3.42) {
 #' @returns `opensys_ph_df` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
-opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
-                                 pluck_cols = FALSE, water_prefix = TRUE,
-                                 partialpressure = "use_col") {
+opensys_ph_df <- function(df, input_water = "defined", output_water = "opensys",
+                          pluck_cols = FALSE, water_prefix = TRUE,
+                          partialpressure = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   partialpressure <- tryCatch(partialpressure, error = function(e) enquo(partialpressure))
@@ -84,17 +84,17 @@ opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
     list(partialpressure = 10^-3.42)
   )
   df <- defaults_added$data
-  
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     opensys_ph(
       water = df[[input_water]][[i]],
       partialpressure = df[[final_names$partialpressure]][i]
     )
   })
-  
+
   output <- df[, !names(df) %in% defaults_added$defaults_used]
   output <- df
-  
+
   if (pluck_cols) {
     output <- output |>
       pluck_water(c(output_water), c("ph", "alk"))
@@ -102,6 +102,6 @@ opensys_ph_df<- function(df, input_water = "defined", output_water = "opensys",
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
-  
+
   return(output)
 }
