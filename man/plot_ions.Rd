@@ -16,7 +16,8 @@ A ggplot object displaying the water's ion balance.
 This function takes a water data frame defined by \code{\link{define_water}} and outputs an ion balance plot.
 }
 \examples{
+\donttest{
 water <- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
 plot_ions(water)
-
+}
 }

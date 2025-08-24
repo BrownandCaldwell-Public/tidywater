@@ -2,21 +2,23 @@
 % Please edit documentation in R/solvect_chlorine.R
 \name{solvect_chlorine}
 \alias{solvect_chlorine}
-\alias{solvect_chlorine_once}
+\alias{solvect_chlorine_df}
 \title{Determine disinfection credit from chlorine.}
 \source{
 Smith et al. (1995)
 
 USEPA (2020)
 
+USEPA (1991)
+
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 }
 \usage{
 solvect_chlorine(water, time, residual, baffle, free_cl_slot = "residual_only")
 
-solvect_chlorine_once(
+solvect_chlorine_df(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   time = "use_col",
   residual = "use_col",
   baffle = "use_col",
@@ -36,22 +38,22 @@ solvect_chlorine_once(
 \item{free_cl_slot}{Defaults to "residual_only", which uses the residual argument. If "slot_only", the model will use the
 free_chlorine slot in the input water. "sum_with_residual", will use the sum of the residual argument and the free_chlorine slot.}
 
-\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_chain}}
+\item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
 
 \item{input_water}{name of the column of Water class data to be used as the input for this function. Default is "defined_water".}
 
 \item{water_prefix}{name of the input water used for the calculation will be appended to the start of output columns. Default is TRUE.}
 }
 \value{
-\code{solvect_chlorine} returns a data frame containing required CT (mg/L\emph{min), actual CT (mg/L}min), and giardia log removal.
+\code{solvect_chlorine} returns a data frame containing required CT (mg/L\emph{min), actual CT (mg/L}min), giardia log removal, and virus log removal.
 
-\code{solvect_chlorine_once} returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
+\code{solvect_chlorine_df} returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 }
 \description{
 This function takes a water defined by \link{define_water} and other disinfection parameters
 and outputs a data frame of the required CT (\code{ct_required}), actual CT (\code{ct_actual}), and giardia log removal (\code{glog_removal}).
-For a single water, use \code{solvect_chlorine}; to apply the model to a dataframe, use \code{solvect_chlorine_once}.
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water, use \code{solvect_chlorine}; to apply the model to a dataframe, use \code{solvect_chlorine_df}.
+For most arguments, the \verb{_df} helpers
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -61,30 +63,23 @@ pH, temperature, chlorine residual, and the standard 0.5 log removal of giardia 
 empirical regression equation developed by Smith et al. (1995) to provide conservative estimates for CT tables
 in USEPA Disinfection Profiling Guidance.
 Log removal is a rearrangement of the CT equations.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 
 example_ct <- define_water(ph = 7.5, temp = 25) \%>\%
   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
-library(dplyr)
 ct_calc <- water_df \%>\%
-  define_water_chain() \%>\%
-  solvect_chlorine_once(residual = 2, time = 10, baffle = .5)
+  define_water_df() \%>\%
+  solvect_chlorine_df(residual = 2, time = 10, baffle = .5)
 
 chlor_resid <- water_df \%>\%
-  mutate(br = 50) \%>\%
-  define_water_chain() \%>\%
-  mutate(
+  dplyr::mutate(br = 50) \%>\%
+  define_water_df() \%>\%
+  dplyr::mutate(
     residual = seq(1, 12, 1),
     time = seq(2, 24, 2),
     baffle = 0.7
   ) \%>\%
-  solvect_chlorine_once()
+  solvect_chlorine_df()
 
 }

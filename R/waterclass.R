@@ -11,6 +11,12 @@ methods::setClass(
     tot_hard = "numeric",
     kw = "numeric",
     alk_eq = "numeric",
+    carbonate_alk_eq = "numeric",
+    phosphate_alk_eq = "numeric",
+    ammonium_alk_eq = "numeric",
+    borate_alk_eq = "numeric",
+    silicate_alk_eq = "numeric",
+    hypochlorite_alk_eq = "numeric",
 
     # Carbon
     toc = "numeric",
@@ -37,12 +43,19 @@ methods::setClass(
     hpo4 = "numeric",
     po4 = "numeric",
     nh4 = "numeric",
+    bo3 = "numeric",
+    h3sio4 = "numeric",
+    h2sio4 = "numeric",
+    ch3coo = "numeric",
     h = "numeric",
     oh = "numeric",
     # total of pH dependent ions
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
+    tot_bo3 = "numeric",
+    tot_sio4 = "numeric",
+    tot_ch3coo = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",
@@ -90,6 +103,12 @@ methods::setClass(
     tot_hard = NA_real_,
     kw = NA_real_,
     alk_eq = NA_real_,
+    carbonate_alk_eq = NA_real_,
+    phosphate_alk_eq = NA_real_,
+    ammonium_alk_eq = NA_real_,
+    borate_alk_eq = NA_real_,
+    silicate_alk_eq = NA_real_,
+    hypochlorite_alk_eq = NA_real_,
 
     # Carbon
     toc = NA_real_,
@@ -116,12 +135,19 @@ methods::setClass(
     hpo4 = NA_real_,
     po4 = NA_real_,
     nh4 = NA_real_,
+    bo3 = NA_real_,
+    h3sio4 = NA_real_,
+    h2sio4 = NA_real_,
+    ch3coo = NA_real_,
     h = NA_real_,
     oh = NA_real_,
     # total of pH dependent ions
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
+    tot_bo3 = NA_real_,
+    tot_sio4 = NA_real_,
+    tot_ch3coo = NA_real_,
 
     # Additional ions
     br = NA_real_,
