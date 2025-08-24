@@ -21,8 +21,7 @@
 #' # Summarize major cations and anions
 #' summarize_wq(water_defined, params = list("ions"))
 #'
-#' @import dplyr
-#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr mutate
 #' @export
 #' @returns A knitr_kable table of specified water quality parameters.
 #'
@@ -47,7 +46,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   general <- general %>%
-    pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
     mutate(units = c(
       "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
       "mg/L", "uS/cm", "mg/L"
@@ -71,7 +70,7 @@ summarize_wq <- function(water, params = c("general")) {
   )
 
   ions <- ions %>%
-    pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
+    tidyr::pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
   ions_tab <- knitr::kable(ions,
     format = "simple",
@@ -106,11 +105,11 @@ summarize_wq <- function(water, params = c("general")) {
   # Sum_9_haloacetic_acids = ifelse(length(water@haa9)==0, NA, water@haa9))
 
   tthm <- tthm %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   haa5 <- haa5 %>%
-    pivot_longer(everything(), names_to = "param", values_to = "result") %>%
+    tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
   thm_tab <- knitr::kable(tthm,
@@ -151,9 +150,10 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
+#' \donttest{
 #' water <- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
 #' plot_ions(water)
-#'
+#' }
 #' @export
 #'
 #' @returns A ggplot object displaying the water's ion balance.
@@ -186,25 +186,25 @@ plot_ions <- function(water) {
   plot <- ions %>%
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(
-      type = case_when(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H") ~ "Cations", TRUE ~ "Anions"),
+      type = ifelse(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H"), "Cations", "Anions"),
       ion = factor(ion, levels = c(
         "Ca", "Mg", "Na", "K", "NH4", "H",
         "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH"
       )),
-      concentration = case_when(is.na(concentration) ~ 0, TRUE ~ concentration)
+      concentration = ifelse(is.na(concentration), 0, concentration)
     ) %>%
     dplyr::arrange(ion) %>%
     dplyr::mutate(
       label_pos = cumsum(concentration) - concentration / 2, .by = type,
-      label_y = case_when(type == "Cations" ~ 2 - .2, TRUE ~ 1 - .2)
+      label_y = ifelse(type == "Cations", 2 - .2, 1 - .2)
     ) %>%
     dplyr::filter(
       !is.na(concentration),
       concentration > 0
     ) %>%
     dplyr::mutate(
-      label = case_when(concentration > 10e-5 ~ ion, TRUE ~ ""),
-      repel_label = case_when(concentration <= 10e-5 & concentration > 10e-7 ~ ion, TRUE ~ "")
+      label = ifelse(concentration > 10e-5, as.character(ion), ""),
+      repel_label = ifelse(concentration <= 10e-5 & concentration > 10e-7, as.character(ion), ""),
     ) %>%
     dplyr::mutate(ion = forcats::fct_rev(ion))
 
@@ -233,6 +233,167 @@ plot_ions <- function(water) {
       x = "Concentration (eq/L)", y = "Major Cations and Anions",
       subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
     )
+}
+
+#' Create dissolved lead and DIC contour plot given input data frame
+#'
+#' This function takes a data frame and outputs a contour plot of dissolved lead and DIC plot. Assumes that
+#' the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
+#'
+#' @param df Source data as a data frame. Must have pH and DIC columns. Columns containing
+#' a single temperature and TDS can also be included.
+#' @param temp Temperature used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param tds Total dissolved solids used to calculate dissolved lead concentrations. Defaults to a column in df.
+#' @param ph_range Optional argument to modify the plotted pH range. Input as c(minimum pH, maximum pH).
+#' @param dic_range Optional argument to modify the plotted DIC range. Input as c(minimum DIC, maximum DIC).
+#' @import ggplot2
+#'
+#' @examples
+#' \donttest{
+#' historical <- data.frame(
+#'   ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+#'   dic = c(
+#'     14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23,
+#'     17.33, 17.34
+#'   ),
+#'   temp = 25,
+#'   tds = 200
+#' )
+#' plot_lead(historical)
+#' }
+#' @export
+#'
+#' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
+#'
+plot_lead <- function(df, temp, tds, ph_range, dic_range) {
+  # quiet RCMD check
+  dic <- dissolved_pb_mgl <- Finished_controlling_solid <- Finished_dic <- Finished_pb <- Finished_ph <- log_pb <- ph <- NULL
+  colnames(df) <- tolower(gsub(" |_|\\.", "_", colnames(df)))
+  colnames(df) <- gsub("temp.+", "temp", colnames(df))
+  colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
+
+  if (!"ph" %in% colnames(df)) {
+    stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
+  }
+  if (!"dic" %in% colnames(df)) {
+    stop("DIC column not present in the dataframe. Ensure that DIC is included as 'dic'.")
+  }
+  if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
+    warning("Alkalinity will be recalculated from the input DIC.")
+  }
+  if (!missing(temp)) {
+    temp <- temp
+  } else if ("temp" %in% colnames(df)) {
+    if (length(unique(df$temp)) > 1) {
+      temp <- as.numeric(df$temp[1])
+      message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
+      warning(message)
+    } else {
+      temp <- df$temp[1]
+    }
+  } else {
+    stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
+  }
+  if (!missing(tds)) {
+    tds <- tds
+  } else if ("tds" %in% colnames(df)) {
+    if (length(unique(df$tds)) > 1) {
+      tds <- as.numeric(df$tds[1])
+      message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
+      warning(message)
+    } else {
+      tds <- df$tds[1]
+    }
+  } else {
+    stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
+  }
+  if (missing(ph_range)) {
+    min_ph <- min(df$ph)
+    max_ph <- max(df$ph)
+  } else {
+    min_ph <- ph_range[1]
+    max_ph <- ph_range[2]
+  }
+  if (missing(dic_range)) {
+    min_dic <- min(df$dic)
+    max_dic <- max(df$dic)
+  } else {
+    min_dic <- dic_range[1]
+    max_dic <- dic_range[2]
+  }
+
+  calculate_alk <- function(ph, temp, dic) {
+    h <- 10^-ph
+    oh <- 1e-14 / h
+
+    discons <- tidywater::discons # assume activity coefficients = 1 and don't correct_k
+    k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
+    k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
+
+    alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
+    alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
+
+    tot_co3 <- dic / (tidywater::mweights$dic * 1000)
+    alk_eq <- tot_co3 * (alpha1 + 2 * alpha2) + oh - h
+    alk <- convert_units(alk_eq, "caco3", "eq/L", "mg/L")
+
+    return(alk)
+  }
+
+  dic_contourplot <- merge(
+    data.frame(ph = seq(min_ph - 1, max_ph + 1, length.out = 30)),
+    data.frame(dic = seq(min_dic - 5, max_dic + 5, length.out = 30))
+  ) %>%
+    .[order(.$ph), ] %>%
+    {
+      row.names(.) <- NULL
+      .
+    } %>%
+    transform(Finished_ph = ph) %>%
+    transform(temp = rep(temp, 900)) %>%
+    transform(alk = calculate_alk(ph, temp, dic)) %>%
+    transform(tds = rep(tds, 900)) %>%
+    define_water_df(output_water = "Finished") %>%
+    pluck_water(input_waters = c("Finished"), parameter = c("dic")) %>%
+    dissolve_pb_df("Finished") %>%
+    transform(dissolved_pb_mgl = convert_units(Finished_pb, "pb", "M", "mg/L")) %>%
+    transform(log_pb = log10(dissolved_pb_mgl))
+  dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
+
+  mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
+  split_data <- split(mytransition_line, mytransition_line$Finished_ph)
+  transitionline <- do.call(rbind, lapply(split_data, function(df) {
+    df$transition <- c(NA, ifelse(df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1], "Y", NA))
+    df[!is.na(df$transition), ]
+  }))
+
+  dic_contourplot %>%
+    ggplot() +
+    geom_raster(aes(x = dic, y = Finished_ph, fill = `log_pb`), interpolate = TRUE) +
+    geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1.2, linetype = "dashed") +
+    geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`),
+      bins = 100, color = "gray", alpha = 0.5
+    ) +
+    geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), shape = 21, fill = "#63666A", size = 1.75, stroke = 1) +
+    scale_fill_viridis_c(
+      option = "B",
+      breaks = range(dic_contourplot$log_pb),
+      labels = c("Low Pb", "High Pb")
+    ) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
+    coord_cartesian(xlim = c(min_dic, max_dic), ylim = c(min_ph, max_ph)) +
+    labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH") +
+    scale_color_manual(values = "gray") +
+    theme(
+      legend.position = "bottom",
+      text = element_text(size = 14),
+      strip.text = element_text(size = 14),
+      legend.text = element_text(size = 14),
+      legend.key.width = unit(1, "cm"),
+      legend.key = element_rect(fill = "transparent", color = NA)
+    ) +
+    guides(fill = guide_colorbar(title.position = "top"))
 }
 
 #' @title Calculate unit conversions for common compounds
@@ -489,11 +650,20 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
+  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
+  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
+  k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
+  # k2sio4 = {h+}{hsio43-}/{h2sio42-}
+  k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
+  # kch3coo = {h+}{ch3coo-}/{ch3cooh}
+  kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4,
+    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4, "kch3coo" = kch3coo
   ))
 }
 
@@ -524,10 +694,10 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_chain().")
+    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_df().")
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    stop("Specified input_water does not contain water class objects. Use define_water_chain() or specify a different column.")
+    stop("Specified input_water does not contain water class objects. Use define_water_df() or specify a different column.")
   }
 }
 
@@ -553,39 +723,6 @@ validate_args <- function(num_args = list(), str_args = list(), log_args = list(
       stop("argument '", arg, "' must be either TRUE or FALSE.")
     }
   }
-}
-
-construct_helper <- function(df, all_args) {
-  # Get the names of each argument type
-  all_arguments <- names(all_args)
-  from_df <- names(all_args[all_args == "use_col"])
-
-  from_new <- all_args[all_args != "use_col"]
-  if (length(from_new) > 0) {
-    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
-  } else {
-    from_columns <- list()
-  }
-
-  from_inputs <- setdiff(names(from_new), names(from_columns))
-
-  inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
-
-
-  if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
-  }
-
-  # Get the new names for relevant columns
-  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
-  for (arg in names(from_columns)) {
-    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
-  }
-
-  return(list(
-    "new_cols" = as.list(inputs_arg),
-    "final_names" = as.list(final_names)
-  ))
 }
 
 
@@ -649,6 +786,28 @@ calculate_alpha1_ammonia <- function(h, k) { # NH4+
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
 
+calculate_alpha1_borate <- function(h, k) { # H4BO4-
+  k1 <- k$kbo3
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha1_silicate <- function(h, k) { # H3SiO4-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k1 + k2 / h) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha2_silicate <- function(h, k) { # H2SiO4 2-
+  k1 <- k$k1sio4
+  k2 <- k$k2sio4
+  1 / (1 + h / k2 + h^2 / (k1 * k2)) # calculating how much is deprotonated with -2 charge
+}
+
+calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+  k1 <- k$kch3coo
+  1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
 # General temperature correction for equilibrium constants
 # Temperature in deg C
 # van't Hoff equation, from Crittenden et al. (2012) equation 5-68 and Benjamin (2010) equation 2-17
@@ -697,4 +856,50 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
 # SUVA calc
 calc_suva <- function(doc, uv254) {
   uv254 / doc * 100
+}
+
+# Helper construction ----
+construct_helper <- function(df, all_args) {
+  # Get the names of each argument type
+  all_arguments <- names(all_args)
+  from_df <- names(all_args[all_args == "use_col"])
+
+  from_new <- all_args[all_args != "use_col"]
+  if (length(from_new) > 0) {
+    from_columns <- from_new[sapply(from_new, function(x) any(inherits(x, "quosure")))]
+  } else {
+    from_columns <- list()
+  }
+
+  from_inputs <- setdiff(names(from_new), names(from_columns))
+
+  inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
+
+
+  if (any(colnames(df) %in% colnames(inputs_arg))) {
+    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
+  }
+
+  # Get the new names for relevant columns
+  final_names <- stats::setNames(as.list(all_arguments), all_arguments)
+  for (arg in names(from_columns)) {
+    final_names[[arg]] <- rlang::as_name(from_columns[[arg]])
+  }
+
+  return(list(
+    "new_cols" = as.list(inputs_arg),
+    "final_names" = as.list(final_names)
+  ))
+}
+
+handle_defaults <- function(df, final_names, defaults) {
+  defaults_used <- c()
+  for (arg in names(defaults)) {
+    col_name <- final_names[[arg]]
+    if (!col_name %in% names(df)) {
+      defaults_used <- c(defaults_used, arg)
+      df[[col_name]] <- defaults[[arg]]
+    }
+  }
+  return(list(data = df, defaults_used = defaults_used))
 }

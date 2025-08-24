@@ -2,7 +2,7 @@
 % Please edit documentation in R/dissolve_pb.R
 \name{dissolve_pb}
 \alias{dissolve_pb}
-\alias{dissolve_pb_once}
+\alias{dissolve_pb_df}
 \title{Simulate contributions of various lead solids to total soluble lead}
 \source{
 Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
@@ -26,9 +26,9 @@ dissolve_pb(
   laurionite = "Nasanen"
 )
 
-dissolve_pb_once(
+dissolve_pb_df(
   df,
-  input_water = "defined_water",
+  input_water = "defined",
   output_col_solid = "controlling_solid",
   output_col_result = "pb",
   hydroxypyromorphite = "Schock",
@@ -48,7 +48,7 @@ If po4, cl, and so4 are known, those should also be included.}
 \item{laurionite}{defaults to "Nasanen", the constant, K, developed by Nasanen & Lindell (1976). Can also use "Lothenbach".}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}}
+\link{define_water_df}}
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined_water".}
 
@@ -62,15 +62,15 @@ Change to FALSE to remove the water prefix from output column names.}
 \value{
 \code{dissolve_pb} returns a one row data frame containing only the controlling lead solid and modeled dissolved lead concentration.
 
-\code{dissolve_pb_once} returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
+\code{dissolve_pb_df} returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
 }
 \description{
 This function takes a water data frame defined by \link{define_water}
 and outputs a dataframe of the controlling lead solid and total lead solubility.
 Lead solid solubility is calculated based on controlling solid.
 Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
-For a single water, use \code{dissolve_pb}; to apply the model to a dataframe, use \code{dissolve_pb_once}.
-For most arguments, the \verb{_chain} and \verb{_once} helpers
+For a single water, use \code{dissolve_pb}; to apply the model to a dataframe, use \code{dissolve_pb_df}.
+For most arguments, the \verb{_df}
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
@@ -103,19 +103,7 @@ example_pb <- define_water(
 
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
-
-\donttest{
-# Initialize parallel processing
-library(furrr)
-# plan(multisession)
-example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
+  define_water_df() \%>\%
+  dissolve_pb_df(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 
 }

@@ -5,8 +5,9 @@
 #'
 #' @description calculates the decay of chlorine or chloramine based on the U.S. EPA's
 #' Water Treatment Plant Model (U.S. EPA, 2001).
-#' For a single water use `chemdose_chlordecay`; for a dataframe use `chemdose_chlordecay_chain`.
-#' For most arguments in the `_chain` helper
+#' For a single water use `chemdose_chlordecay`; for a dataframe use `chemdose_chlordecay_df`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -198,58 +199,50 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 
 #' @rdname chemdose_chlordecay
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_once]. The df may include a column named for the applied chlorine dose (cl2),
+#' [define_water_df]. The df may include a column named for the applied chlorine dose (cl2),
 #' and a column for time in hours.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "disinfected_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "disinfected".
+#' @param pluck_cols Extract water slots modified by the function (free_chlorine, combined_chlorine) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
-#' library(dplyr)
 #'
 #' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_chlordecay_chain(input_water = "defined_water", cl2_dose = 4, time = 8)
+#'   dplyr::mutate(br = 50) %>%
+#'   define_water_df() %>%
+#'   chemdose_chlordecay_df(input_water = "defined", cl2_dose = 4, time = 8)
 #'
 #' example_df <- water_df %>%
-#'   mutate(
+#'   dplyr::mutate(
 #'     br = 50,
 #'     free_chlorine = 2
 #'   ) %>%
-#'   define_water_chain() %>%
-#'   mutate(
+#'   define_water_df() %>%
+#'   dplyr::mutate(
 #'     cl2_dose = seq(2, 24, 2),
 #'     ClTime = 30
 #'   ) %>%
-#'   chemdose_chlordecay_chain(
+#'   chemdose_chlordecay_df(
 #'     time = ClTime,
 #'     use_chlorine_slot = TRUE,
 #'     treatment = "coag",
-#'     cl_type = "chloramine"
+#'     cl_type = "chloramine",
+#'     pluck_cols = TRUE
 #'   )
-#'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   mutate(br = 50) %>%
-#'   define_water_chain() %>%
-#'   chemdose_chlordecay_chain(cl2_dose = 4, time = 8)
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
-#' @returns `chemdose_chlordecay_chain` returns a data frame containing a water class column with updated chlorine residuals.
+#' @returns `chemdose_chlordecay_df` returns a data frame containing a water class column with updated free_chlorine or
+#'  combined_chlorine residuals. Optionally, it also adds columns for each of those slots individually.
 
-chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_water = "disinfected_water",
-                                      cl2_dose = "use_col", time = "use_col",
-                                      treatment = "use_col", cl_type = "use_col",
-                                      use_chlorine_slot = "use_col") {
+chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "disinfected",
+                                   pluck_cols = FALSE, water_prefix = TRUE,
+                                   cl2_dose = "use_col", time = "use_col",
+                                   treatment = "use_col", cl_type = "use_col",
+                                   use_chlorine_slot = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -264,22 +257,39 @@ chemdose_chlordecay_chain <- function(df, input_water = "defined_water", output_
     "cl2_dose" = cl2_dose, "time" = time,
     "treatment" = treatment, "cl_type" = cl_type, "use_chlorine_slot" = use_chlorine_slot
   ))
+  final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        cl2_dose = !!as.name(arguments$final_names$cl2_dose),
-        time = !!as.name(arguments$final_names$time),
-        treatment = if (arguments$final_names$treatment %in% names(.)) !!sym(arguments$final_names$treatment) else rep("raw", nrow(.)),
-        cl_type = if (arguments$final_names$cl_type %in% names(.)) !!sym(arguments$final_names$cl_type) else rep("chlorine", nrow(.)),
-        use_chlorine_slot = if (arguments$final_names$use_chlorine_slot %in% names(.)) !!sym(arguments$final_names$use_chlorine_slot) else rep(FALSE, nrow(.))
-      ),
-      chemdose_chlordecay
-    ))
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(treatment = "raw", cl_type = "chlorine", use_chlorine_slot = FALSE)
+  )
+  df <- defaults_added$data
+
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    chemdose_chlordecay(
+      water = df[[input_water]][[i]],
+      cl2_dose = df[[final_names$cl2_dose]][i],
+      time = df[[final_names$time]][i],
+      treatment = df[[final_names$treatment]][i],
+      cl_type = df[[final_names$cl_type]][i],
+      use_chlorine_slot = df[[final_names$use_chlorine_slot]][i]
+    )
+  })
+
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
+
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("free_chlorine", "combined_chlorine"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
+
+  return(output)
 }

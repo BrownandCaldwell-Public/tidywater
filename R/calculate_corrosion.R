@@ -5,7 +5,7 @@
 #'
 #' @description This function takes an object created by [define_water] and calculates
 #' corrosion and scaling indices. For a single water, use `calculate_corrosion`; to apply the calculations to a
-#' dataframe, use `calculate_corrosion_once`.
+#' dataframe, use `calculate_corrosion_df`.
 #'
 #' @details Aggressiveness Index (AI), unitless - the corrosive tendency of water and its effect on asbestos cement pipe.
 #'
@@ -144,9 +144,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     # (epm Cl + epm SO4)/ (epm HCO3 + epm CO3)
     cl_meq <- convert_units(water@cl, "cl", "M", "meq/L")
     so4_meq <- convert_units(water@so4, "so4", "M", "meq/L")
-    alk_meq <- water@alk_eq * 1000
+    carbonate_alk_meq <- water@carbonate_alk_eq * 1000
 
-    larsonskold <- (cl_meq + so4_meq) / (alk_meq)
+    larsonskold <- (cl_meq + so4_meq) / (carbonate_alk_meq)
 
     corrosion_indices$larsonskold <- larsonskold
   }
@@ -304,64 +304,47 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
     corrosion_indices$ccpp <- caco3_precip
   }
 
-  corrosion_indices <- corrosion_indices %>%
-    select_if(~ !any(is.na(.)))
-  return(corrosion_indices)
+  output <- corrosion_indices[, names(corrosion_indices) %in% index, drop = FALSE]
+
+  return(output)
 }
 
 #' @rdname calculate_corrosion
 #' @param df a data frame containing a water class column, created using [define_water]
-#' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined".
+#' @param water_prefix append water name to beginning of output columns. Defaults to TRUE
 #'
 #' @examples
 #'
-#' library(dplyr)
-#'
 #' example_df <- water_df %>%
-#'   slice_head(n = 2) %>% # used to make example run faster
-#'   define_water_chain() %>%
-#'   calculate_corrosion_once(index = c("aggressive", "ccpp"))
+#'   define_water_df() %>%
+#'   calculate_corrosion_df(index = c("aggressive", "ccpp"))
 #'
-#' @import dplyr
-#' @importFrom tidyr unnest
 #' @export
 #'
-#' @returns `calculate_corrosion_once` returns the a data frame containing specified corrosion and scaling indices as columns.
+#' @returns `calculate_corrosion_df` returns the a data frame containing specified corrosion and scaling indices as columns.
 
-calculate_corrosion_once <- function(df, input_water = "defined_water", index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                     form = "calcite") {
-  corrosion_indices <- NULL # Quiet RCMD check global variable note
-
+calculate_corrosion_df <- function(df, input_water = "defined", water_prefix = TRUE,
+                                   index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+                                   form = "calcite") {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
 
   validate_water_helpers(df, input_water)
 
-  index <- list(index)
+  indices_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    calculate_corrosion(
+      water = df[[input_water]][[i]],
+      index = index,
+      form = form
+    )
+  }))
 
-  output <- df %>%
-    mutate(index := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        index = index,
-        form = form
-      ),
-      calculate_corrosion
-    )) %>%
-    unnest_wider(index) %>%
-    select_if(~ any(!is.na(.)))
+  if (water_prefix) {
+    names(indices_df) <- paste0(input_water, "_", names(indices_df))
+  }
 
-  # Renaming columns as input_water_index
-  input_name <- deparse(substitute(input_water))
-  cols_to_check <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr", "ccpp")
-
-  output <- purrr::reduce(cols_to_check, function(df, col) {
-    if (col %in% colnames(df)) {
-      new_name <- paste(input_water, col, sep = "_")
-      df <- df %>%
-        rename(!!new_name := !!sym(col))
-    }
-    df
-  }, .init = output)
+  output <- cbind(df, indices_df)
+  return(output)
 }
