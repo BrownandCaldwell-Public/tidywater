@@ -26,11 +26,16 @@ This function takes a data frame and outputs a contour plot of dissolved lead an
 the range of pH and dissolved inorganic carbon (DIC) occurs at a single temperature and TDS.
 }
 \examples{
-historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
-                         dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 
-                         17.33, 17.34), 
-                         temp = 25,
-                         tds = 200)
+\donttest{
+historical <- data.frame(
+  ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+  dic = c(
+    14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23,
+    17.33, 17.34
+  ),
+  temp = 25,
+  tds = 200
+)
 plot_lead(historical)
-
+}
 }

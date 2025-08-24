@@ -77,7 +77,7 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
       } else {
         bv_max <- 20000
       }
-      bv <- seq(2000, bv_max, 100) 
+      bv <- seq(2000, bv_max, 100)
     } else {
       bv <- seq(bvs[1], bvs[2], bvs[3])
     }
@@ -111,7 +111,7 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
 #' @returns `gacrun_toc_df` returns a data frame containing columns of the breakthrough curve (breakthrough and bed volume).
 #'
 gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
-                            ebct = "use_col", model = "use_col", media_size = "use_col", bvs = "use_col") {
+                          ebct = "use_col", model = "use_col", media_size = "use_col", bvs = "use_col") {
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   model <- tryCatch(model, error = function(e) enquo(model))
@@ -130,7 +130,7 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
     "media_size" = media_size, "bvs" = bvs
   ))
   final_names <- arguments$final_names
-  
+
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
@@ -142,26 +142,30 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
   )
   df <- defaults_added$data %>%
     transform(ID = seq(1, nrow(df), 1))
-  
+
   bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
     result <- gacrun_toc(
       water = df[[input_water]][[i]],
       ebct = df[[final_names$ebct]][i],
       model = df[[final_names$model]][i],
       media_size = df[[final_names$media_size]][i],
-      bvs = if(any(df[[final_names$bvs]][[i]] == "custom")){input_bvs} else{df[[final_names$bvs]][[i]]}
+      bvs = if (any(df[[final_names$bvs]][[i]] == "custom")) {
+        input_bvs
+      } else {
+        df[[final_names$bvs]][[i]]
+      }
     )
     result$ID <- df$ID[i]
     return(result)
   }))
-  
+
   # Rename columns in bv_df except for 'ID'
   if (water_prefix) {
     names(bv_df)[names(bv_df) != "ID"] <- paste0(input_water, "_", names(bv_df)[names(bv_df) != "ID"])
   }
 
   output <- merge(bv_df, df, by = "ID", all.x = TRUE)
-  output <- output[order(output$ID),]
+  output <- output[order(output$ID), ]
   output <- output[, !names(output) == "ID" & !names(output) == "bvs"]
   return(output)
 }

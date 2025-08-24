@@ -269,33 +269,33 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
-  
+
   alpha0p <- calculate_alpha0_phosphate(h, ks)
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
   alpha3p <- calculate_alpha3_phosphate(h, ks)
-  
+
   dosed_water@h2po4 <- dosed_water@tot_po4 * alpha1p
   dosed_water@hpo4 <- dosed_water@tot_po4 * alpha2p
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
   h3po4 <- dosed_water@tot_po4 * alpha0p
-  
+
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
-  
+
   dosed_water@bo3 <- dosed_water@tot_bo3 * calculate_alpha1_borate(h, ks)
   dosed_water@h3sio4 <- dosed_water@tot_sio4 * calculate_alpha1_silicate(h, ks)
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
-  
+
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
   dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)
   dosed_water@ammonium_alk_eq <- (1 * dosed_water@nh4)
   dosed_water@borate_alk_eq <- (1 * dosed_water@bo3)
   dosed_water@silicate_alk_eq <- (1 * dosed_water@h3sio4 + 2 * dosed_water@h2sio4)
-  dosed_water@carbonate_alk_eq <-  (dosed_water@hco3 + 2 * dosed_water@co3)
-  
+  dosed_water@carbonate_alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3)
+
   # dosed_water@tot_co3 <- dosed_water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
   dosed_water@alk_eq <- sum(dosed_water@carbonate_alk_eq, dosed_water@phosphate_alk_eq, dosed_water@ammonium_alk_eq, dosed_water@borate_alk_eq, dosed_water@silicate_alk_eq, -1 * h, oh)
@@ -313,10 +313,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh 
   if (ch3cooh_dose != 0) {
     ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "c", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
     water@toc <- water@toc + ch3cooh_dose
-    water@doc <-  water@doc + ch3cooh_dose
+    water@doc <- water@doc + ch3cooh_dose
     warning("TOC and DOC changed in addition to pH due to acetic acid dose.")
   }
-  
+
   # update dic
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
 

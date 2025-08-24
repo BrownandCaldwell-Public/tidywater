@@ -61,10 +61,10 @@ test_that("dissolve_cu_df outputs are the same as base function, dissolve_cu", {
     dissolve_cu()
 
   water2 <- suppressWarnings(water_df %>%
-                               dplyr::slice(1) %>%
-                               dplyr::mutate(tot_po4 = 2) %>%
-                               define_water_df() %>%
-                               dissolve_cu_df())
+    dplyr::slice(1) %>%
+    dplyr::mutate(tot_po4 = 2) %>%
+    define_water_df() %>%
+    dissolve_cu_df())
 
   expect_equal(water1$cu, water2$defined_cu)
 })

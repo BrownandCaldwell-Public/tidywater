@@ -33,7 +33,7 @@ test_that("Solve dose pH returns the correct values.", {
 test_that("Solve dose pH doesn't error when target pH is close to starting.", {
   water1 <- define_water(
     ph = 7.01, temp = 19, alk = 100, tot_hard = 100,
-    ca = 26, mg = 8, tot_po4 = 1, tds = 200, so4 =0
+    ca = 26, mg = 8, tot_po4 = 1, tds = 200, so4 = 0
   )
 
   expect_no_error(solvedose_ph(water1, 7, "h2so4"))
@@ -104,18 +104,18 @@ test_that("solvedose_ph_df outputs data frame", {
 test_that("solvedose_ph_df can handle different input formats", {
   testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_df() %>%
-                               solvedose_ph_df(target_ph = 9.2, chemical = "naoh"))
+    slice(1) %>%
+    define_water_df() %>%
+    solvedose_ph_df(target_ph = 9.2, chemical = "naoh"))
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_df() %>%
-                               mutate(
-                                 target_ph = 9.2,
-                                 chemical = "naoh"
-                                 ) %>%
-                               solvedose_ph_df(output_column = "caustic_dose"))
+    slice(1) %>%
+    define_water_df() %>%
+    mutate(
+      target_ph = 9.2,
+      chemical = "naoh"
+    ) %>%
+    solvedose_ph_df(output_column = "caustic_dose"))
 
   expect_equal(water2$dose, water3$caustic_dose)
 })
@@ -131,9 +131,9 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
     solvedose_alk(target_alk = 100, chemical = "naoh")
 
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_df() %>%
-                               solvedose_alk_df(target_alk = 100, chemical = "naoh"))
+    slice(1) %>%
+    define_water_df() %>%
+    solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
   expect_equal(round(water1), round(water2$dose))
 })
@@ -143,9 +143,9 @@ test_that("solvedose_alk_df outputs are the same as base function, solvedose_alk
 test_that("solvedose_alk_df outputs data frame", {
   testthat::skip_on_cran()
   water2 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_df() %>%
-                               solvedose_alk_df(target_alk = 100, chemical = "naoh"))
+    slice(1) %>%
+    define_water_df() %>%
+    solvedose_alk_df(target_alk = 100, chemical = "naoh"))
 
   expect_true(is.data.frame(water2))
 })
@@ -159,14 +159,13 @@ test_that("solvedose_alk_df can handle different input formats", {
     solvedose_alk_df(target_alk = 100, chemical = "na2co3")
 
   water3 <- suppressWarnings(water_df %>%
-                               slice(1) %>%
-                               define_water_df() %>%
-                               mutate(
-                                 target_alk = 100,
-                                 chemical = "na2co3"
-                                 ) %>%
-                               solvedose_alk_df(output_column = "soda_ash"))
+    slice(1) %>%
+    define_water_df() %>%
+    mutate(
+      target_alk = 100,
+      chemical = "na2co3"
+    ) %>%
+    solvedose_alk_df(output_column = "soda_ash"))
 
   expect_equal(water2$dose, water3$soda_ash)
 })
-

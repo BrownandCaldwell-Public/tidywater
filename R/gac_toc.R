@@ -89,14 +89,13 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'     bed_vol = 15000
 #'   ) %>%
 #'   gac_toc_df(input_water = "raw")
-#'
 #' }
 #' @export
 #'
 #' @returns `gac_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
 gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", model = "use_col", pluck_cols = FALSE, water_prefix = TRUE,
-                          media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
+                       media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))

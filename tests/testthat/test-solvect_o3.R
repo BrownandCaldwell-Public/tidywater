@@ -108,7 +108,7 @@ test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
 
 test_that("solvect_o3_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df[1,] %>%
+  water1 <- suppressWarnings(water_df[1, ] %>%
     mutate(br = 50) %>%
     define_water_df() %>%
     solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7))

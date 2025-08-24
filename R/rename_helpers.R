@@ -200,7 +200,8 @@ chemdose_ph_once <- function(df, input_water = "defined_water",
                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
   lifecycle::deprecate_warn("0.10.0", "chemdose_ph_once()", "chemdose_ph_df()")
   softening_correction <- NULL
-  chemdose_ph_df(df, input_water, output_water = "dosed_chem_water",
+  chemdose_ph_df(df, input_water,
+    output_water = "dosed_chem_water",
     na_to_zero = FALSE, pluck_cols = TRUE, water_prefix = FALSE,
     hcl, h2so4, h3po4, hno3, co2, naoh,
     na2co3, nahco3, caoh2, mgoh2,
@@ -229,8 +230,9 @@ chemdose_toc_once <- function(df, input_water = "defined_water", output_water = 
 
 define_water_once <- function(df) {
   lifecycle::deprecate_warn("0.10.0", "define_water_once()", "define_water_df()")
-  define_water_df(df, output_water = "defined",
-                  pluck_cols = TRUE, water_prefix = FALSE
+  define_water_df(df,
+    output_water = "defined",
+    pluck_cols = TRUE, water_prefix = FALSE
   )
 }
 

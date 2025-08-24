@@ -83,7 +83,7 @@
 #'   \item{po4}{phosphate, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
 #'   \item{bo3}{borate, numeric, mol/L.}
-#'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.} 
+#'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
 #'   \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
 #'   \item{ch3coo}{acetate, numeric, mol/L.}
 #'   \item{h}{hydrogen ion, numeric, mol/L.}
@@ -243,32 +243,32 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   alk_eq <- convert_units(alk, "caco3", startunit = "mg/L CaCO3", endunit = "eq/L")
   # Initial alpha values (not corrected for IS)
   discons <- tidywater::discons
-  
+
   k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
   k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
-  k1po4 <- K_temp_adjust(discons["k1po4",]$deltah, discons["k1po4",]$k, temp)
-  k2po4 <- K_temp_adjust(discons["k2po4",]$deltah, discons["k2po4",]$k, temp)
-  k3po4 <- K_temp_adjust(discons["k3po4",]$deltah, discons["k3po4",]$k, temp)
-  kocl <- K_temp_adjust(discons["kocl",]$deltah, discons["kocl",]$k, temp)
-  knh4 <- K_temp_adjust(discons["knh4",]$deltah, discons["knh4",]$k, temp)
-  kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3",]$k, temp)
-  k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4",]$k, temp)
-  k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4",]$k, temp)
-  
+  k1po4 <- K_temp_adjust(discons["k1po4", ]$deltah, discons["k1po4", ]$k, temp)
+  k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp)
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp)
+  kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp)
+  knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp)
+  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp)
+  k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp)
+  k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp)
+
   alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as CO32-
-  
+
   alpha1p <- calculate_alpha1_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as H2PO4-
   alpha2p <- calculate_alpha2_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as HPO4 2-
   alpha3p <- calculate_alpha3_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as PO4 3-
-  
+
   alpha1c <- calculate_alpha1_hypochlorite(h, data.frame("kocl" = kocl))
   alpha1n <- calculate_alpha1_ammonia(h, data.frame("knh4" = knh4))
   alpha1b <- calculate_alpha1_borate(h, data.frame("kbo3" = kbo3))
   alpha1s <- calculate_alpha1_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
   alpha2s <- calculate_alpha2_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
-  
+
   # Update total ion values
   h2po4 <- tot_po4 * alpha1p
   hpo4 <- tot_po4 * alpha2p
@@ -276,11 +276,11 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
   h3po4 <- tot_po4 - (h2po4 + hpo4 + po4)
   ocl <- free_chlorine * alpha1c
   nh4 <- tot_nh3 * alpha1n
-  
+
   bo3 <- tot_bo3 * alpha1b
   h3sio4 <- tot_sio4 * alpha1s
   h2sio4 <- tot_sio4 * alpha2s
-  
+
   phosphate_alk_eq <- (-1 * h3po4 + 0 * h2po4 + 1 * hpo4 + 2 * po4)
   hypochlorite_alk_eq <- (1 * ocl)
   ammonium_alk_eq <- (1 * nh4)
@@ -298,13 +298,13 @@ define_water <- function(ph, temp = 25, alk, tot_hard, ca, mg, na, k, cl, so4, m
     h2po4 = h2po4, hpo4 = hpo4, po4 = po4, ocl = ocl, nh4 = nh4,
     bo3 = bo3, h3sio4 = h3sio4, h2sio4 = h2sio4,
     h = h, oh = oh,
-    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3, 
+    tot_po4 = tot_po4, free_chlorine = free_chlorine, combined_chlorine = combined_chlorine, tot_nh3 = tot_nh3, tot_co3 = tot_co3,
     tot_bo3 = tot_bo3, tot_sio4 = tot_sio4, tot_ch3coo = tot_ch3coo,
     kw = kw, is = 0, alk_eq = alk_eq,
     doc = doc, toc = toc, uv254 = uv254,
     br = br, f = f, fe = fe, al = al, mn = mn, no3 = no3
   )
-  
+
   # Determine ionic strength
   if (!is.na(tds)) {
     water@is <- correlate_ionicstrength(tds, from = "tds")

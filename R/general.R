@@ -150,9 +150,10 @@ summarise_wq <- summarize_wq
 #' @import ggplot2
 #'
 #' @examples
+#' \donttest{
 #' water <- define_water(7, 20, 50, 100, 20, 10, 10, 10, 10, tot_po4 = 1)
 #' plot_ions(water)
-#'
+#' }
 #' @export
 #'
 #' @returns A ggplot object displaying the water's ion balance.
@@ -248,13 +249,18 @@ plot_ions <- function(water) {
 #' @import ggplot2
 #'
 #' @examples
-#' historical <- data.frame(ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
-#'                          dic = c(14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23, 
-#'                          17.33, 17.34), 
-#'                          temp = 25,
-#'                          tds = 200)
+#' \donttest{
+#' historical <- data.frame(
+#'   ph = c(7.7, 7.86, 8.31, 7.58, 7.9, 8.06, 7.95, 8.02, 7.93, 7.61),
+#'   dic = c(
+#'     14.86, 16.41, 16.48, 16.63, 16.86, 16.94, 17.05, 17.23,
+#'     17.33, 17.34
+#'   ),
+#'   temp = 25,
+#'   tds = 200
+#' )
 #' plot_lead(historical)
-#'
+#' }
 #' @export
 #'
 #' @returns A ggplot object displaying a contour plot of dissolved lead, pH, and DIC
@@ -265,7 +271,7 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   colnames(df) <- tolower(gsub(" |_|\\.", "_", colnames(df)))
   colnames(df) <- gsub("temp.+", "temp", colnames(df))
   colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
-  
+
   if (!"ph" %in% colnames(df)) {
     stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
   }
@@ -315,31 +321,34 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     min_dic <- dic_range[1]
     max_dic <- dic_range[2]
   }
-  
+
   calculate_alk <- function(ph, temp, dic) {
     h <- 10^-ph
     oh <- 1e-14 / h
-    
+
     discons <- tidywater::discons # assume activity coefficients = 1 and don't correct_k
     k1co3 <- K_temp_adjust(discons["k1co3", ]$deltah, discons["k1co3", ]$k, temp)
     k2co3 <- K_temp_adjust(discons["k2co3", ]$deltah, discons["k2co3", ]$k, temp)
-    
+
     alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
     alpha2 <- calculate_alpha2_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3))
-    
+
     tot_co3 <- dic / (tidywater::mweights$dic * 1000)
     alk_eq <- tot_co3 * (alpha1 + 2 * alpha2) + oh - h
     alk <- convert_units(alk_eq, "caco3", "eq/L", "mg/L")
-    
+
     return(alk)
   }
-  
+
   dic_contourplot <- merge(
     data.frame(ph = seq(min_ph - 1, max_ph + 1, length.out = 30)),
     data.frame(dic = seq(min_dic - 5, max_dic + 5, length.out = 30))
   ) %>%
     .[order(.$ph), ] %>%
-    { row.names(.) <- NULL; . } %>%
+    {
+      row.names(.) <- NULL
+      .
+    } %>%
     transform(Finished_ph = ph) %>%
     transform(temp = rep(temp, 900)) %>%
     transform(alk = calculate_alk(ph, temp, dic)) %>%
@@ -350,36 +359,41 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     transform(dissolved_pb_mgl = convert_units(Finished_pb, "pb", "M", "mg/L")) %>%
     transform(log_pb = log10(dissolved_pb_mgl))
   dic_contourplot$log_pb[is.na(dic_contourplot$log_pb)] <- min(dic_contourplot$log_pb, na.rm = TRUE)
-  
+
   mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
   split_data <- split(mytransition_line, mytransition_line$Finished_ph)
   transitionline <- do.call(rbind, lapply(split_data, function(df) {
     df$transition <- c(NA, ifelse(df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1], "Y", NA))
     df[!is.na(df$transition), ]
   }))
-  
+
   dic_contourplot %>%
     ggplot() +
     geom_raster(aes(x = dic, y = Finished_ph, fill = `log_pb`), interpolate = TRUE) +
     geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1.2, linetype = "dashed") +
     geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`),
-                 bins = 100, color = "gray", alpha = 0.5) +
+      bins = 100, color = "gray", alpha = 0.5
+    ) +
     geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), shape = 21, fill = "#63666A", size = 1.75, stroke = 1) +
-    scale_fill_viridis_c(option = "B",
-                         breaks = range(dic_contourplot$log_pb),
-                         labels = c("Low Pb", "High Pb"))+
-    scale_x_continuous(expand = c(0,0)) +
-    scale_y_continuous(expand = c(0,0)) +
+    scale_fill_viridis_c(
+      option = "B",
+      breaks = range(dic_contourplot$log_pb),
+      labels = c("Low Pb", "High Pb")
+    ) +
+    scale_x_continuous(expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0)) +
     coord_cartesian(xlim = c(min_dic, max_dic), ylim = c(min_ph, max_ph)) +
     labs(fill = "log Pb Conc (mg/L)", x = "DIC (mg/L)", color = "", y = "pH") +
     scale_color_manual(values = "gray") +
-    theme(legend.position = "bottom",
-          text = element_text(size = 14),
-          strip.text = element_text(size = 14),
-          legend.text = element_text(size = 14),
-          legend.key.width = unit(1, "cm"), 
-          legend.key = element_rect(fill = "transparent", color = NA)) +
-    guides(fill = guide_colorbar(title.position= "top"))
+    theme(
+      legend.position = "bottom",
+      text = element_text(size = 14),
+      strip.text = element_text(size = 14),
+      legend.text = element_text(size = 14),
+      legend.key.width = unit(1, "cm"),
+      legend.key = element_rect(fill = "transparent", color = NA)
+    ) +
+    guides(fill = guide_colorbar(title.position = "top"))
 }
 
 #' @title Calculate unit conversions for common compounds
@@ -637,18 +651,18 @@ correct_k <- function(water) {
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
   # kbo3 = {oh-}{h3bo3}/{h4bo4-}
-  kbo3 <- K_temp_adjust(discons["kbo3",]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
   # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
-  k1sio4 <- K_temp_adjust(discons["k1sio4",]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
+  k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
   # k2sio4 = {h+}{hsio43-}/{h2sio42-}
-  k2sio4 <- K_temp_adjust(discons["k2sio4",]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
+  k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
     "k1co3" = k1co3, "k2co3" = k2co3,
     "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4, 
+    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4,
     "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4, "kch3coo" = kch3coo
   ))
 }
@@ -772,7 +786,7 @@ calculate_alpha1_ammonia <- function(h, k) { # NH4+
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
 
-calculate_alpha1_borate <- function(h, k) { # H4BO4- 
+calculate_alpha1_borate <- function(h, k) { # H4BO4-
   k1 <- k$kbo3
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }

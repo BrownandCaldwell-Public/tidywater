@@ -24,7 +24,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
   required_compliance <- NA
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
-  if (removal <= 0){
+  if (removal <= 0) {
     warning("Finished water TOC is greater than or equal to raw TOC. No removal ocurred.")
     return(data.frame(
       toc_compliance_status = "Not Calculated",
@@ -32,16 +32,18 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
     ))
   }
 
-  if (toc_raw <= 2 ){
+  if (toc_raw <= 2) {
     warning("Raw water TOC < 2 mg/L. No regulation applies.")
     return(data.frame(
       toc_compliance_status = "Not Calculated",
-      toc_removal_percent = "Not Calculated"))
+      toc_removal_percent = "Not Calculated"
+    ))
   }
 
-  match_row <- with(tidywater::toc_compliance_table,
-                    toc_raw > toc_min & toc_raw <= toc_max &
-                      alk_raw > alk_min & alk_raw <= alk_max
+  match_row <- with(
+    tidywater::toc_compliance_table,
+    toc_raw > toc_min & toc_raw <= toc_max &
+      alk_raw > alk_min & alk_raw <= alk_max
   )
 
   required_compliance <- tidywater::toc_compliance_table$required_compliance[match_row]
@@ -50,14 +52,13 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
     return(data.frame(
       toc_compliance_status = "In Compliance",
       toc_removal_percent = as.character(round(removal, 1))
-                          ))
+    ))
   } else {
     return(data.frame(
       toc_compliance_status = "Not Compliant",
       toc_removal_percent = as.character(round(removal, 1)),
       comment = paste0("Minimum removal required: ", required_compliance)
-    )
-    )
+    ))
   }
 }
 
@@ -65,18 +66,18 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 #'
 #' @param df a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
 #'
-#'  @examples
+#' @examples
 #'
 #' regulated <- water_df %>%
-#'   select(toc_raw = toc, alk_raw = alk) %>%
-#'   regulate_toc_df(toc_finished = seq(0,1.2, 0.1))
+#'   dplyr::select(toc_raw = toc, alk_raw = alk) %>%
+#'   regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
 #'
 #' regulated <- water_df %>%
 #'   define_water_df() %>%
 #'   chemdose_ph_df(alum = 30, output_water = "dosed") %>%
 #'   chemdose_toc_df("dosed") %>%
 #'   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
-#'   select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
+#'   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
 #'   regulate_toc_df()
 #'
 #' @export
@@ -92,19 +93,19 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
 
   arguments <- construct_helper(df, all_args = list(
     "alk_raw" = alk_raw, "toc_raw" = toc_raw, "toc_finished" = toc_finished
-    ))
+  ))
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <-merge(df, as.data.frame(arguments$new_cols), by = NULL)
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
   # Add columns with default arguments
   defaults_added <- handle_defaults(
     df, final_names,
     list(
-     alk_raw = 0, toc_raw = 0, toc_finished = 0
+      alk_raw = 0, toc_raw = 0, toc_finished = 0
     )
   )
   df <- defaults_added$data
@@ -116,17 +117,16 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
       toc_finished = df[[final_names$toc_finished]][i]
     )
   })
-  
+
   all_cols <- unique(unlist(lapply(toc_list, names)))
   toc_list_aligned <- lapply(toc_list, function(x) {
     x <- as.data.frame(x)
     missing <- setdiff(all_cols, names(x))
     for (col in missing) x[[col]] <- NA
-    x[all_cols]  # Reorder columns
+    x[all_cols] # Reorder columns
   })
 
   toc_df <- do.call(rbind, toc_list_aligned)
   output <- cbind(df, toc_df)
   return(output)
-
 }

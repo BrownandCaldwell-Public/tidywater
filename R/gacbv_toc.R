@@ -79,7 +79,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #'
 
 gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
-                           media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
+                         media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
   bed_volume <- NULL # Quiet RCMD check global variable note
 

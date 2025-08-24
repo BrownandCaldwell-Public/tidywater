@@ -281,4 +281,3 @@ NULL
 #'
 #' @source US EPA (1991) Table E-7
 "vlog_removalcts"
-

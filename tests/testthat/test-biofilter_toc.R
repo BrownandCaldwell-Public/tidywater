@@ -99,7 +99,8 @@ test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc
   water4 <- biofilter_toc(water0, ebct = 20, ozonated = F)
 
   expect_equal(water1@doc, water2$biof_doc)
-  expect_equal(water4@doc, water3$biof_doc[5])})
+  expect_equal(water4@doc, water3$biof_doc[5])
+})
 
 # Test that output is a column of water class lists, and changing the output column name works
 

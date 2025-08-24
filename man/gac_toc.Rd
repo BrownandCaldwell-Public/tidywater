@@ -103,6 +103,5 @@ example_df <- water_df \%>\%
     bed_vol = 15000
   ) \%>\%
   gac_toc_df(input_water = "raw")
-
 }
 }

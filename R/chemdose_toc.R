@@ -83,7 +83,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
   if (caoh2 > 0) {
     water <- chemdose_ph(water, caoh2 = caoh2)
 
-    removed <- (4.657*10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
+    removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
     removed <- removed / 0.87 # apply correction factor
 
     if (coag == 0) {
@@ -103,7 +103,7 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
     # Rearrangement of equation from wolfram alpha
     adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-                 b * coag * xterm + b * water@doc * sterm - 1) /
+      b * coag * xterm + b * water@doc * sterm - 1) /
       (2 * b)
 
     if (coag == 0) {
@@ -161,7 +161,7 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
   if (!is_coeff_df) {
     coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
   }
-  
+
 
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
