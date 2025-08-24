@@ -25,6 +25,7 @@ and hypochlorite have been added as individual slots (eg. carbonate_alk_eq).
 Eg, new default `output_water = "defined"`, old default `output_water = "defined_water"`. See function documentation for new defaults.
 * Total alkalinity (`alk`) now accounts for phosphate, silicate, borate, hypochlorite, and ammonia. Could have a minor impact on final pH and alkalinity
 calculations in waters with those compounds.
+* Now depends on R >= 4.1.0 for built in pipe operator, `|>`
 
 # tidywater 0.9.0
 
