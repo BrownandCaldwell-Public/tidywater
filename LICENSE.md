@@ -1,4 +1,6 @@
 
+SPDX-License-Identifier: Apache-2.0 OR MIT
+
 ## License
 
 This work is dual-licensed under MIT and Apache 2.0 (or any later version).
@@ -7,7 +9,7 @@ The terms of each license are below.
 
 # MIT License
 
-Copyright (c) 2024 Brown and Caldwell
+Copyright (c) 2025 Brown and Caldwell
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +33,7 @@ SOFTWARE.
 Apache License
 ==============
 
-Copyright 2024 Brown and Caldwell
+Copyright 2025 Brown and Caldwell
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
