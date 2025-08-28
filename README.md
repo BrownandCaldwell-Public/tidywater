@@ -54,6 +54,21 @@ coagulation <- water_df %>%
   mutate(alum = 30) %>%
   chemdose_ph_chain(input_water = "raw", output_water = "phchange") %>%
   chemdose_toc_chain(input_water = "phchange", output_water = "coag")
+#> Warning: `chemdose_toc_chain()` was deprecated in tidywater 0.10.0.
+#> ℹ Please use `chemdose_toc_df()` instead.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+#> Warning: `chemdose_ph_chain()` was deprecated in tidywater 0.10.0.
+#> ℹ Please use `chemdose_ph_df()` instead.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+#> Warning: `define_water_chain()` was deprecated in tidywater 0.10.0.
+#> ℹ Please use `define_water_df()` instead.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 
 ## To get out individual parameters, use `pluck_water`
 coagulation <- coagulation %>%

@@ -2,51 +2,54 @@
 % Please edit documentation in R/decarbonate_ph.R
 \name{decarbonate_ph}
 \alias{decarbonate_ph}
-\alias{decarbonate_ph_chain}
+\alias{decarbonate_ph_df}
 \title{Apply decarbonation to a water}
 \usage{
 decarbonate_ph(water, co2_removed)
 
-decarbonate_ph_chain(
+decarbonate_ph_df(
   df,
-  input_water = "defined_water",
-  output_water = "decarbonated_water",
+  input_water = "defined",
+  output_water = "decarbonated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
   co2_removed = "use_col"
 )
 }
 \arguments{
-\item{water}{Source water of class "water" created by \code{\link{define_water}}}
+\item{water}{Source water of class "water" created by \link{define_water}}
 
 \item{co2_removed}{Fraction of CO2 removed}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_chain}. The df may include a column with names for each of the chemicals being dosed.}
+\link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".}
+\item{output_water}{name of the output column storing updated water class object. Default is "decarbonated".}
+
+\item{pluck_cols}{Extract water slots modified by the function (ph, alk) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 A water with updated pH/alk/etc.
 
-\code{decarbonate_ph_chain} returns a data frame with a column containing a water with updated pH, alk, etc.
+\code{decarbonate_ph_df} returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
+Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates the new water quality (pH, alkalinity, etc) after a specified amount of CO2 is removed (removed as bicarbonate).
 The function takes an object of class "water" and a fraction of CO2 removed, then returns a water class object with updated water slots.
-For a single water, use \code{decarbonate_ph}; to apply the model to a dataframe, use \code{decarbonate_ph_chain}.
-For most arguments, the \verb{_chain} helper
+For a single water, use \code{decarbonate_ph}; to apply the model to a dataframe, use \code{decarbonate_ph_df}.
+For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_df}.
+Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
+For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 }
 \details{
 \code{decarbonate_ph} uses \code{water@h2co3} to determine the existing CO2 in water, then applies \link{chemdose_ph} to match the CO2 removal.
-
-For large datasets, using \code{fn_once} or \code{fn_chain} may take many minutes to run. These types of functions use the furrr package
-for the option to use parallel processing and speed things up. To initialize parallel processing, use
-\code{plan(multisession)} or \code{plan(multicore)} (depending on your operating system) prior to your piped code with the
-\code{fn_once} or \code{fn_chain} functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-shorter run times will not benefit from parallel processing.
 }
 \examples{
 water <- define_water(ph = 4, temp = 25, alk = 5) \%>\%
@@ -54,8 +57,11 @@ water <- define_water(ph = 4, temp = 25, alk = 5) \%>\%
 
 
 example_df <- water_df \%>\%
-  define_water_chain() \%>\%
-  decarbonate_ph_chain(input_water = "defined_water", output_water = "decarb", co2_removed = .95)
+  define_water_df() \%>\%
+  decarbonate_ph_df(
+    input_water = "defined", output_water = "decarb",
+    co2_removed = .95, pluck_cols = TRUE
+  )
 
 }
 \seealso{
