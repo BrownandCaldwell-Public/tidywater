@@ -85,7 +85,7 @@ summarize_wq(dist_water, "dbps")
 
 In this tutorial, we walked through how to set up influent water conditions by specifying water quality parameters using the `define_water` function. Then, we applied two common treatment models, coagulation and disinfection, and predicted the effect of the chemical addition on pH and TOC and/or DBPs. These functions return a water object with new water quality parameters, which represent effluent water conditions. It is important to note that there are individual functions that update each water quality parameter. Changes to pH and TOC, for example, require separate functions to calculate, which can be chained together using the pipe operator `%>%`. There are also functions that can solve for the required chemical dose, such as `solvedose_ph` which solves for the chemical dose needed to achieve a target pH value.
 
-Tidywater functions can also be applied to data frames using the `_chain` (output a water column) or `_once` (output numeric columns) suffixes. To learn more about those functions, look at the documentation or read the helper function vignette.
+Tidywater functions can also be applied to data frames using the `_df` suffix. To learn more about those functions, look at the documentation or read the helper function vignette.
 
 If you want a more detailed introduction to tidywater, check out the intro vignette.
 

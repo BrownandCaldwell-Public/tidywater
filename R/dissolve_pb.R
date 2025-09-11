@@ -38,8 +38,8 @@
 #' and outputs a dataframe of the controlling lead solid and total lead solubility.
 #' Lead solid solubility is calculated based on controlling solid.
 #' Total dissolved lead species (tot_dissolved_pb, M) are calculated based on lead complex calculations.
-#' For a single water, use `dissolve_pb`; to apply the model to a dataframe, use `dissolve_pb_once`.
-#' For most arguments, the `_chain` and `_once` helpers
+#' For a single water, use `dissolve_pb`; to apply the model to a dataframe, use `dissolve_pb_df`.
+#' For most arguments, the `_df`
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
@@ -49,12 +49,6 @@
 #'
 #' Make sure that total dissolved solids, conductivity, or
 #' ca, na, cl, so4 are used in `define_water` so that an ionic strength is calculated.
-#'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
 #'
 #' @source Code is from EPA's TELSS lead solubility dashboard \url{https://github.com/USEPA/TELSS}
 #' which is licensed under MIT License:
@@ -153,11 +147,16 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   solids["K_solid_laurionite_l", "Pb_2_plus"] <- solids["K_solid_laurionite_l", "K_num"] * h / (gamma_2 * gamma_1 * water@cl)
 
   # * Calculation of complex concentrations ----
-  complexes <- subset(leadsol_K, !grepl("solid", constant_name), select = -c(log_value, species_name, source)) %>%
-    tidyr::pivot_wider(names_from = constant_name, values_from = K_num)
+  filtered_rows <- leadsol_K[!grepl("solid", leadsol_K$constant_name), ]
+  complexes <- filtered_rows[, !(names(filtered_rows) %in% c("log_value", "species_name", "source"))]
+  complexes$GroupID <- 1
+  split_vals <- lapply(unique(complexes$constant_name), function(name) {
+    complexes$K_num[complexes$constant_name == name]
+  })
+  names(split_vals) <- unique(complexes$constant_name)
+  complexes_wide <- do.call(data.frame, split_vals)
 
-  alllead <- solids %>%
-    dplyr::cross_join(complexes)
+  alllead <- merge(solids, complexes_wide, by = NULL)
   # Calculate lead-hydroxide complex concentrations
   alllead$PbOH_plus <- (alllead$B_1_OH) * gamma_2 * alllead$Pb_2_plus / (gamma_1 * h)
   alllead$PbOH2 <- (alllead$B_2_OH) * gamma_2 * alllead$Pb_2_plus / h^2
@@ -209,7 +208,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #' @rdname dissolve_pb
 #'
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain]
+#' [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined_water".
 #' @param output_col_solid name of the output column storing the controlling lead solid. Default is "controlling_solid".
 #' @param output_col_result name of the output column storing dissolved lead in M. Default is "pb".
@@ -219,32 +218,16 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
 #' @examples
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   dissolve_pb_once(output_col_result = "dissolved_lead", pyromorphite = "Xie")
+#'   define_water_df() %>%
+#'   dissolve_pb_df(output_col_result = "dissolved_lead", pyromorphite = "Xie")
 #'
-#' \donttest{
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   dissolve_pb_once(output_col_result = "dissolved_lead", laurionite = "Lothenbach")
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest_wider
 #' @export
 #'
-#' @returns `dissolve_pb_once` returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
+#' @returns `dissolve_pb_df` returns a data frame containing the controlling lead solid and modeled dissolved lead concentration as new columns.
 
-dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid = "controlling_solid",
-                             output_col_result = "pb", hydroxypyromorphite = "Schock",
-                             pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
-  calc <- tot_dissolved_pb <- controlling_solid <- NULL # Quiet RCMD check global variable note
-
+dissolve_pb_df <- function(df, input_water = "defined", output_col_solid = "controlling_solid",
+                           output_col_result = "pb", hydroxypyromorphite = "Schock",
+                           pyromorphite = "Topolska", laurionite = "Nasanen", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
 
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
@@ -259,29 +242,22 @@ dissolve_pb_once <- function(df, input_water = "defined_water", output_col_solid
     stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
   }
 
-  output <- df %>%
-    mutate(calc = furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        hydroxypyromorphite = hydroxypyromorphite,
-        pyromorphite = pyromorphite,
-        laurionite = laurionite
-      ),
-      dissolve_pb
-    )) %>%
-    unnest_wider(calc)
 
+
+  pb_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
+    dissolve_pb(
+      water = df[[input_water]][[i]],
+      hydroxypyromorphite = hydroxypyromorphite,
+      pyromorphite = pyromorphite,
+      laurionite = laurionite
+    )
+  }))
+
+  names(pb_df) <- c(output_col_solid, output_col_result)
   if (water_prefix) {
-    output <- output %>%
-      rename(
-        !!paste(input_water, output_col_result, sep = "_") := tot_dissolved_pb,
-        !!paste(input_water, output_col_solid, sep = "_") := controlling_solid
-      )
-  } else {
-    output <- output %>%
-      rename(
-        !!output_col_result := tot_dissolved_pb,
-        !!output_col_solid := controlling_solid
-      )
+    names(pb_df) <- paste0(input_water, "_", names(pb_df))
   }
+
+  output <- cbind(df, pb_df)
+  return(output)
 }
