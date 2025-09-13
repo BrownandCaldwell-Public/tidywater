@@ -19,19 +19,16 @@ library(tidywater)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
-library(furrr)
 library(purrr)
-
-# plan(multisession)
 ```
 
-This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information. Additionally, for more information on tidywater's `_chain` and `pluck_waters` functions, please see the `vignette("help_functions_chemdose_ph", package = "tidywater")`.
+This vignette assumes a basic understanding of `define_water` and the S4 `water` class. See `vignette("intro", package = "tidywater")` for more information. Additionally, for more information on tidywater's `_df` and `pluck_waters` functions, please see the `vignette("help_functions_chemdose_ph", package = "tidywater")`.
 
 ## Blending analysis setup
 In this analysis, a hypothetical drinking water utility sources their water from a river and a lake, both of which have high hardness. The operators are investigating whether blending up to 5 MGD from two groundwater wells will reduce the total hardness below 200 mg/L as CaCO3. 
 
 ## Well setup
-First, let's take a look at the available groundwater data from Well A and Well B. We use `define_water_chain` so that other models can be added to the dataframe.
+First, let's take a look at the available groundwater data from Well A and Well B. We use `define_water_df` so that other models can be added to the dataframe.
 
 ```{r, warning=FALSE, echo=TRUE}
 # Read in data from Wells A and B
@@ -48,21 +45,21 @@ raw_wells_water <- tibble(
   cl = c(0, 30),
   so4 = c(0, 0)
 ) %>%
-  define_water_chain() %>%
-  balance_ions_chain()
+  define_water_df() %>%
+  balance_ions_df()
 
 raw_wells_water
 ```
 
-It's always a good idea to verify our code is working properly. To make sure that our data was balanced using `balance_ions_chain`, we can plot our `water` class using `plot_ions`. The below example shows how to index a `water` class column: dataframe$water_class_column[[row_number]]
+It's always a good idea to verify our code is working properly. To make sure that our data was balanced using `balance_ions_df`, we can plot our `water` class using `plot_ions`. The below example shows how to index a `water` class column: dataframe$water_class_column[[row_number]]
 
 
 ```{r, fig.width=7}
-# Ion plot before balance_ions_chain was applied
-raw_wells_water$defined_water[[1]] %>%
+# Ion plot before balance_ions_df was applied
+raw_wells_water$defined[[1]] %>%
   plot_ions()
 # Plot of balanced ions
-raw_wells_water$balanced_water[[1]] %>%
+raw_wells_water$balanced[[1]] %>%
   plot_ions()
 ```
 
@@ -80,7 +77,7 @@ The `balanced_water` function takes 2 or more waters (must be of the `water` cla
 
 blended_wells_water <- blend_waters(
   waters = c(
-    pluck(raw_wells_water, "balanced_water", 1),
+    pluck(raw_wells_water, "balanced", 1),
     pluck(raw_wells_water, 3, 2)
   ),
   ratios = c(.5, .5)
@@ -114,7 +111,7 @@ scenarios <- tibble(
 
 To finish blending our wells, we will transform the `blended_wells` `water` object into a data frame containing a `water` column. 
 
-The river and lake sources don't require any mixing. We'll set up their raw data and balance the ions using `define_water_chain` to make a data frame with a `water` column. In `balance_ions_chain`, we are specifying the name of the output columns so we can use the different water sources later. Most of tidywater's `_chain` functions have the option to name the output column. Defaults vary depending on the `_chain` function. 
+The river and lake sources don't require any mixing. We'll set up their raw data and balance the ions using `define_water_df` to make a data frame with a `water` column. In `balance_ions_df`, we are specifying the name of the output columns so we can use the different water sources later. Most of tidywater's `_df` functions have the option to name the output column. Defaults vary depending on the `_df` function. 
 
 ```{r, warning=FALSE}
 Wells_water <- tibble(wells = c(blended_wells_water))
@@ -123,29 +120,29 @@ River_water <- tibble(
   ph = 7, temp = 20, alk = 200, tds = 950, cond = 1400,
   tot_hard = 300, na = 100, cl = 150, so4 = 200
 ) %>%
-  define_water_chain() %>%
-  balance_ions_chain(output_water = "river") %>%
-  select(-defined_water)
+  define_water_df() %>%
+  balance_ions_df(output_water = "river") %>%
+  select(-defined)
 
 Lake_water <- tibble(
   ph = 7.5, temp = 19, alk = 180, tds = 900, cond = 1000,
   tot_hard = 350, ca_hard = 250, na = 100, cl = 100, so4 = 150
 ) %>%
-  define_water_chain() %>%
-  balance_ions_chain(output_water = "lake") %>%
-  select(-defined_water)
+  define_water_df() %>%
+  balance_ions_df(output_water = "lake") %>%
+  select(-defined)
 ```
 
 ## Blending multiple sources
 
-Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This next code chunk showcases the power of working in a data frame. We'll use `blend_waters_chain`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
+Now that we have our 3 sources defined, balanced, and cleaned up, we can blend them. This next code chunk showcases the power of working in a data frame. We'll use `blend_waters_df`, the helper function for `blend_waters`. We already created `water` class columns above, so we'll use those column names in the `waters` argument. The ratios for each water source were calculated in the `scenarios` data frame. We'll pass the names of those ratio columns into the `ratio` argument. The ratios must always add up to 1, otherwise the function will not run.
 
 ```{r, warning=FALSE}
 blend_water <- scenarios %>%
   cross_join(Wells_water) %>%
   cross_join(River_water) %>%
   cross_join(Lake_water) %>%
-  blend_waters_chain(
+  blend_waters_df(
     waters = c("wells", "river", "lake"),
     ratios = c("Wells_ratio", "River_ratio", "Lake_ratio")
   )
@@ -155,10 +152,10 @@ With all three source waters blended for each tested scenario, we can pull out a
 
 ```{r, fig.width= 7}
 plotting_data <- blend_water %>%
-  pluck_water(input_water = "blended_water", "tot_hard")
+  pluck_water(input_water = "blended", "tot_hard")
 
 # Plot the results!
-ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as.character(Wells_flow))) +
+ggplot(plotting_data, aes(x = total_flow, y = blended_tot_hard, color = as.character(Wells_flow))) +
   geom_point() +
   labs(
     y = "Hardness (mg/L as CaCO3)", color = "Well Flow (MGD)",
@@ -170,5 +167,5 @@ ggplot(plotting_data, aes(x = total_flow, y = blended_water_tot_hard, color = as
 
 In this tutorial, we learned how to use the `blend_waters` function to determine resulting water quality of multipled mixed sources. The function inputs `water` objects and their blending ratios, and outputs a new column storing updated parameters with the class `water`. 
 
-We also got more practice using helper functions with the `_chain` suffix and also `pluck_water`. For more context on helper functions or to learn more about the `chemdose_ph` and `solvedose_ph` functions, please see `vignette("help_functions_chemdose_ph", package = "tidywater")`.
+We also got more practice using helper functions with the `_df` suffix and also `pluck_water`. For more context on helper functions or to learn more about the `chemdose_ph` and `solvedose_ph` functions, please see `vignette("help_functions_chemdose_ph", package = "tidywater")`.
 

@@ -1,65 +1,87 @@
 # Generate data frames of data used across tidywater functions
 
-# mweights ----
-# List of molecular weights for different chemical additions
-mweights <- data.frame(
-  na = 22.98977,
-  k = 39.0983,
-  cl = 35.453,
-  so4 = 96.0626,
-  caco3 = 100.0869,
-  caso4 = 136.141,
-  hcl = 36.46094,
-  h2so4 = 98.079,
-  h3po4 = 97.995181,
-  naoh = 39.9971,
-  na2co3 = 105.98844,
-  nahco3 = 84.00661,
-  caoh2 = 74.09268,
-  mgoh2 = 58.31968,
-  cacl2 = 110.98,
-  cl2 = 70.906,
-  co2 = 44.009,
-  al = 26.981539,
-  fe = 55.845,
-  alum = 26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, # 14 H2O
-  ferricchloride = 55.845 + 35.453 * 3,
-  fecl3 = 55.845 + 35.453 * 3,
-  ferricsulfate = 2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, # 8.8 H2O
-  ach = 26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, # 2 H2O
-  mg = 24.305,
-  ca = 40.078,
-  po4 = 94.97,
-  na3po4 = 163.939,
-  hpo4 = 95.98,
-  h2po4 = 96.99,
-  h2co3 = 62.024,
-  hco3 = 61.0168,
-  co3 = 60.0089,
-  ocl = 16 + 35.453,
-  pb = 207.2,
-  br = 79.904,
-  bro3 = 79.904 + 3 * 15.999,
-  f = 18.9984,
-  naf = 41.9882,
-  mn = 54.938,
-  nh4 = 18.04,
-  nh3 = 17.031,
-  no3 = 62.005,
-  hno3 = 63.0128,
-  nh2cl = 51.48,
-  nhcl2 = 85.92,
-  ncl3 = 120.365,
-  n = 14.0067,
-  nh4oh = 18.04 + 17.008,
-  nh42so4 = 18.04 * 2 + 96.0626,
-  oh = 17.008,
-  kmno4 = 158.032,
-  mno4 = 158.032 - 39.0983,
-  dic = 12.011
+# Molecular properties ----
+# First row molecular weights, second row is charge for equivalents calc
+molec_properties <- data.frame(
+  # Ions. Everything here should have a charge.
+  na = c(22.98977, 1),
+  k = c(39.0983, 1),
+  cl = c(35.453, 1),
+  so4 = c(96.0626, 2),
+  mg = c(24.305, 2),
+  ca = c(40.078, 2),
+  hco3 = c(61.0168, 1),
+  co3 = c(60.0089, 2),
+  oh = c(17.008, 1),
+  po4 = c(94.97, 3),
+  hpo4 = c(95.98, 2),
+  h2po4 = c(96.99, 1),
+  ocl = c(16 + 35.453, 1),
+  nh4 = c(18.04, 1),
+
+  f = c(18.9984, 1),
+  mn = c(54.938, 2),
+  pb = c(207.2, 2),
+  br = c(79.904, 1),
+  al = c(26.981539, 3),
+  fe = c(55.845, 3),
+
+  bro3 = c(79.904 + 3 * 15.999, 1),
+  h3sio4 = c(95.107, 1),
+  h2sio4 = c(94.099, 2),
+  sio4 = c(92.083, 4),
+  bo3 = c(58.809, 3),
+  no3 = c(62.005, 1),
+  mno4 = c(158.032 - 39.0983, 1),
+
+  # Chemicals. These only have a charge if both ions have the same charge.
+  # Except: Use the anion charge if the cation is H+, use the cation charge if the anion is OH-.
+  caco3 = c(100.0869, 2),
+  caso4 = c(136.141, 2),
+  hcl = c(36.46094, 1),
+  h2so4 = c(98.079, 2),
+  h3po4 = c(97.995181, 3),
+  naoh = c(39.9971, 1),
+  na2co3 = c(105.98844, NA),
+  nahco3 = c(84.00661, 1),
+  caoh2 = c(74.09268, 2),
+  mgoh2 = c(58.31968, 2),
+  cacl2 = c(110.98, NA),
+  ch3cooh = c(60.05, 1),
+  fecl3 = c(55.845 + 35.453 * 3, NA),
+  na3po4 = c(163.939, NA),
+  h2co3 = c(62.024, 2),
+  naf = c(41.9882, 1),
+  hno3 = c(63.0128, 1),
+  nh4oh = c(18.04 + 17.008, 1),
+  nh42so4 = c(18.04 * 2 + 96.0626, NA),
+  kmno4 = c(158.032, 1),
+
+  # Stuff that isn't made of ions. No charge.
+  cl2 = c(70.906, NA),
+  co2 = c(44.009, NA),
+  c = c(12.01, NA),
+  b = c(10.81, NA),
+  sio2 = c(60.0843, NA),
+  nh3 = c(17.031, NA),
+  nh2cl = c(51.48, NA),
+  nhcl2 = c(85.92, NA),
+  ncl3 = c(120.365, NA),
+  n = c(14.0067, NA),
+  dic = c(12.011, NA),
+
+  # Coagulants. They do their own thing.
+  alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
+  ferricchloride = c(55.845 + 35.453 * 3, 3),
+  ferricsulfate = c(2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, 3), # 8.8 H2O
+  ach = c(26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, 3) # 2 H2O
+
 )
 
+mweights <- molec_properties[1,]
 usethis::use_data(mweights, overwrite = TRUE)
+
+formula_to_charge <- molec_properties[2,]
 
 # discons ----
 # Acid dissociation constants and corresponding enthalpy
@@ -77,7 +99,14 @@ discons <- data.frame(
   # Hypochlorite
   add_row(ID = "kocl", k = 10^-7.53, deltah = 13800) %>% # HOCl<-->H+ + OCl-
   # Ammonia
-  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) # NH4+ <--> NH3 + H+
+  add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
+  # Borate
+  add_row(ID = "kbo3", k = 10^-9.24, deltah = -42000) %>% # H4BO4- <--> H3BO3 + OH-
+  # Silicate
+  # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
+  add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
+  # Acetate
+  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) # CH3COOH <--> H+ + CH3COO-
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
@@ -829,55 +858,6 @@ unit_multipliers <- data.frame(
   check.names = FALSE
 )
 
-# Used as part of convert units
-# Provides a quick lookup of the charge of a given formula
-formula_to_charge <- data.frame(
-  "na" = 1,
-  "k" = 1,
-  "cl" = 1,
-  "hcl" = 1,
-  "naoh" = 1,
-  "nahco3" = 1,
-  "naf" = 1,
-  "hno3" = 1,
-  "nh4" = 1,
-  "nh3" = 1,
-  "f" = 1,
-  "br" = 1,
-  "no3" = 1,
-  "bro3" = 1,
-  "hco3" = 1,
-  "ocl" = 1,
-  "oh" = 1,
-  "kmno4" = 1,
-  "mno4" = 1,
-  "h2po4" = 1,
-
-  "so4" = 2,
-  "caco3" = 2,
-  "h2so4" = 2,
-  "na2co3" = 2,
-  "caoh2" = 2,
-  "mgoh2" = 2,
-  "mg" = 2,
-  "ca" = 2,
-  "pb" = 2,
-  "cacl2" = 2,
-  "caocl2" = 2,
-  "mn" = 2,
-  "co3" = 2,
-  "hpo4" = 2,
-
-  "h3po4" = 3,
-  "al" = 3,
-  "fe" = 3,
-  "alum" = 3,
-  "fecl3" = 3,
-  "fe2so43"= 3,
-  "po4" = 3,
-  "na3po4" = 3
-
-)
 
 # This function is used to generate a fast lookup table to speed up unit conversions.
 # We precompute all permutations of our normal conversions and store them in a hash map.
@@ -931,3 +911,236 @@ pactoccoeffs <- tibble(
 )
 
 usethis::use_data(pactoccoeffs, overwrite = TRUE)
+
+# toc_compliance_table -----
+# Data frame of PAC TOC removal coefficients
+
+toc_compliance_table <- data.frame(
+  toc_min = c(2, 2, 2, 4, 4, 4, 8, 8, 8),
+  toc_max = c(4, 4, 4, 8, 8, 8, Inf, Inf, Inf),
+  alk_min = c(0, 60, 120, 0, 60, 120, 0, 60, 120),
+  alk_max = c(60, 120, Inf, 60, 120, Inf, 60, 120, Inf),
+  required_compliance = c(35, 25, 15, 45, 35, 25, 50, 40, 30)
+)
+
+usethis::use_data(toc_compliance_table, overwrite = TRUE)
+
+# vlog_removalcts -----
+vlog_removalcts <- data.frame(
+  ph_range = "6-9",
+  temp_value = 0.5,
+  ct_range = "6-9",
+  vlog_removal = 2.0
+) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 0.5,
+    ct_range = "9-12",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 0.5,
+    ct_range = "12",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "45-66",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "66-90",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 0.5,
+    ct_range = "90",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "4-6",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "6-8",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 5,
+    ct_range = "8",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "30-44",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "44-60",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 5,
+    ct_range = "60",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "3-4",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "4-6",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 10,
+    ct_range = "6",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "22-33",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "33-45",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 10,
+    ct_range = "45",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "2-3",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "3-4",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 15,
+    ct_range = "4",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "15-22",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "22-30",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 15,
+    ct_range = "30",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "1-2",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "2-3",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 20,
+    ct_range = "3",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "11-16",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "16-22",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 20,
+    ct_range = "22",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "1",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "1-2",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "6-9",
+    temp_value = 25,
+    ct_range = "2",
+    vlog_removal = 4.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "7-11",
+    vlog_removal = 2.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "11-15",
+    vlog_removal = 3.0
+  ) %>%
+  add_row(
+    ph_range = "10",
+    temp_value = 25,
+    ct_range = "15",
+    vlog_removal = 4.0
+  )
+
+usethis::use_data(vlog_removalcts, overwrite = TRUE)

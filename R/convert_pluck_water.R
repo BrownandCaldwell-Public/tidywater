@@ -1,12 +1,12 @@
 # Helper Functions
 # These directly interact with a water class.
-# _chain and _once functions should be in the R script with their respective models.
+# _df functions should be in the R script with their respective models.
 
 #' Convert `water` class object to a dataframe
 #'
 #' @description This converts a `water` class to a dataframe with individual columns for each slot (water quality parameter) in the `water`.
-#' This is useful for one-off checks and is applied in all `fn_once` tidywater functions. For typical applications,
-#' there may be a `fn_once` tidywater function that provides a more efficient solution.
+#' This is useful for one-off checks. For typical applications,
+#' use `pluck_cols = TRUE` in any `_df` function or `pluck_water` to choose relevant slots.
 #'
 #' Use [convert_water] to keep all slots in the same units as the water.
 #'
@@ -19,20 +19,16 @@
 #'
 #' @examples
 #'
-#' library(dplyr)
-#' library(tidyr)
-#'
 #' # Generates 1 row dataframe
 #' example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
 #'   convert_water()
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(to_dataframe = map(defined_water, convert_water)) %>%
-#'   unnest(to_dataframe) %>%
-#'   select(-defined_water)
+#'   define_water_df() %>%
+#'   dplyr::mutate(to_dataframe = purrr::map(defined, convert_water)) %>%
+#'   tidyr::unnest(to_dataframe) %>%
+#'   dplyr::select(-defined)
 #'
-#' @import dplyr
 #' @export
 #'
 #' @returns A data frame containing columns for all non-NA water slots.
@@ -40,8 +36,10 @@
 convert_water <- function(water) {
   nms <- methods::slotNames(water)
   lst <- lapply(nms, function(nm) methods::slot(water, nm))
-  as.data.frame(stats::setNames(lst, nms)) %>%
-    select(where(~ any(!is.na(.))))
+  df <- as.data.frame(lst)
+  names(df) <- nms
+
+  df[, sapply(df, function(col) any(!is.na(col)))]
 }
 
 #' @rdname convert_water
@@ -111,24 +109,13 @@ convert_watermg <- function(water) {
 #' @examples
 #'
 #' pluck_example <- water_df %>%
-#'   define_water_chain("raw") %>%
+#'   define_water_df("raw") %>%
 #'   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 #'
-#' \donttest{
-#' library(furrr)
-#' # plan(multisession)
-#' pluck_example <- water_df %>%
-#'   define_water_chain() %>%
-#'   pluck_water(parameter = c("ph", "alk"))
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#' @import dplyr
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
-pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
+pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (missing(parameter)) {
     stop("Parameter not specified to pluck.")
   }
@@ -143,12 +130,10 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
       if (!methods::is(df[[water]][[1]], "water")) {
         stop("All waters must be of class 'water'.")
       }
-      temp <- df %>%
-        mutate(!!as.name(water) := furrr::future_map(!!as.name(water), convert_water)) %>%
-        select(!!as.name(water)) %>%
-        unnest_wider(!!as.name(water), names_sep = "_")
 
-      plucked <- bind_cols(plucked, temp)
+      temp <- do.call(rbind, lapply(df[[water]], convert_water))
+      colnames(temp) <- paste0(water, "_", colnames(temp))
+      plucked <- cbind(plucked, temp)
     }
   } else {
     if (!any(parameter %in% methods::slotNames("water"))) {
@@ -160,16 +145,20 @@ pluck_water <- function(df, input_waters = c("defined_water"), parameter) {
         stop("All waters must be of class 'water'.")
       }
       output_column <- paste0(water, "_", parameter)
-      temp <- furrr::future_map2(parameter, output_column, ~ {
-        df %>%
-          mutate(!!as.name(.y) := furrr::future_map_dbl(!!as.name(water), pluck, .x)) %>%
-          select(!!as.name(.y))
-      }) %>%
-        purrr::list_cbind()
 
-      plucked <- bind_cols(plucked, temp)
+      temp <- mapply(
+        function(param, out) {
+          values <- data.frame(sapply(df[[water]], function(z) methods::slot(z, param)))
+          names(values) <- out
+          values
+        },
+        param = parameter, out = output_column, SIMPLIFY = FALSE
+      )
+      temp <- do.call(cbind, temp)
+
+      plucked <- cbind(plucked, temp)
     }
   }
 
-  bind_cols(df, plucked)
+  cbind(df, plucked)
 }

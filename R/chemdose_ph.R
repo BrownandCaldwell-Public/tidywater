@@ -2,13 +2,13 @@
 #'
 #' @description Calculates the new pH, alkalinity, and ion balance of a water based on different chemical
 #' additions.
-#' For a single water use `chemdose_ph`; for a dataframe use `chemdose_ph_chain`.
-#' Use [pluck_water] to get values from the output water as new dataframe columns.
-#' For most arguments in the `_chain` helper
+#' For a single water use `chemdose_ph`; for a dataframe use `chemdose_ph_df`.
+#' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
+#' For most arguments in the `_df` helper
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' @details The function takes an object of class "water" created by \code{\link{define_water}} and user-specified
+#' @details The function takes an object of class "water" created by [define_water] and user-specified
 #' chemical additions and returns a new object of class "water" with updated water quality.
 #' Units of all chemical additions are in mg/L as chemical (not as product).
 #'
@@ -17,17 +17,12 @@
 #' of the water that the chemical is added to. Multiple chemicals can be added simultaneously or each addition can be
 #' modeled independently through sequential doses.
 #'
-#' For large datasets, using `fn_once` or `fn_chain` may take many minutes to run. These types of functions use the furrr package
-#'  for the option to use parallel processing and speed things up. To initialize parallel processing, use
-#'  `plan(multisession)` or `plan(multicore)` (depending on your operating system) prior to your piped code with the
-#'  `fn_once` or `fn_chain` functions. Note, parallel processing is best used when your code block takes more than a minute to run,
-#'  shorter run times will not benefit from parallel processing.
-#'
 #' @param water Source water object of class "water" created by [define_water]
 #' @param hcl Amount of hydrochloric acid added in mg/L: HCl -> H + Cl
 #' @param h2so4 Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4
 #' @param h3po4 Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4
 #' @param hno3 Amount of nitric acid added in mg/L: HNO3 -> H + NO3
+#' @param ch3cooh Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO-
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
@@ -69,7 +64,7 @@
 #'
 #' @returns `chemdose_ph` returns a water class object with updated pH, alkalinity, and ions post-chemical addition.
 #'
-chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
+chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh = 0, co2 = 0,
                         naoh = 0, caoh2 = 0, mgoh2 = 0,
                         na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, caocl2 = 0, cacl2 = 0,
                         cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
@@ -99,6 +94,8 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   h3po4 <- convert_units(h3po4, "h3po4")
   # Nitric acid (HNO3) dose
   hno3 <- convert_units(hno3, "hno3")
+  # Acetic acid (CH3COOH) dose
+  ch3cooh <- convert_units(ch3cooh, "ch3cooh")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
@@ -192,6 +189,13 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   mno4_dose <- kmno4
   dosed_water@mno4 <- water@mno4 + mno4_dose
 
+  # Total nitrate
+  if (hno3 > 0 & is.na(water@no3)) {
+    warning("Nitrate-containing chemical dosed, but no3 water slot is NA. Slot not updated because background no3 unknown.")
+  }
+  no3_dose <- hno3
+  dosed_water@no3 <- water@no3 + no3_dose
+
   # Total chloride
   if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0) & is.na(water@cl)) {
     warning("Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.")
@@ -222,6 +226,10 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   co3_dose <- na2co3 + nahco3 + co2 + caco3
   dosed_water@tot_co3 <- water@tot_co3 + co3_dose
 
+  # Total acetate
+  ch3cooh_dose <- ch3cooh
+  dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
+
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
   dosed_water@tds <- water@tds + convert_units(na_dose, "na", "M", "mg/L") +
@@ -229,7 +237,9 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
     convert_units(ca_dose, "ca", "M", "mg/L") + convert_units(mg_dose, "mg", "M", "mg/L") +
     convert_units(co3_dose - co2, "co3", "M", "mg/L") + convert_units(po4_dose, "po4", "M", "mg/L") +
     convert_units(so4_dose, "so4", "M", "mg/L") + convert_units(ocl_dose, "ocl", "M", "mg/L") +
-    convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L")
+    convert_units(nh4_dose, "nh4", "M", "mg/L") + convert_units(mno4_dose, "mno4", "M", "mg/L") +
+    convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") +
+    convert_units(no3_dose, "no3", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     warning("Calculated TDS after chemical removal < 0. TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
@@ -238,7 +248,7 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
 
   # Calculate new pH, H+ and OH- concentrations
-  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose)
+  ph <- solve_ph(dosed_water, so4_dose = so4_dose, na_dose = na_dose, ca_dose = ca_dose, mg_dose = mg_dose, cl_dose = cl_dose, mno4_dose = mno4_dose, no3_dose = no3_dose)
 
   if (softening_correction == TRUE & caco3 < 0) {
     ph_corrected <- (ph - 1.86) / 0.71 # WTP Model eq 5-62
@@ -253,13 +263,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   ks <- correct_k(dosed_water)
 
   # Carbonate and phosphate ions and ocl ions
-  alpha0 <- calculate_alpha0_carbonate(h, ks) # proportion of total carbonate as H2CO3
+  alpha0 <- calculate_alpha0_carbonate(h, ks)
   alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
   dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
+  alpha0p <- calculate_alpha0_phosphate(h, ks)
   alpha1p <- calculate_alpha1_phosphate(h, ks)
   alpha2p <- calculate_alpha2_phosphate(h, ks)
   alpha3p <- calculate_alpha3_phosphate(h, ks)
@@ -267,13 +278,28 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   dosed_water@h2po4 <- dosed_water@tot_po4 * alpha1p
   dosed_water@hpo4 <- dosed_water@tot_po4 * alpha2p
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
+  h3po4 <- dosed_water@tot_po4 * alpha0p
 
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
 
-  # Calculate new alkalinity
-  dosed_water@alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3 + oh - h)
-  dosed_water@alk <- convert_units(dosed_water@alk_eq, formula = "caco3", startunit = "eq/L", endunit = "mg/L CaCO3")
+  dosed_water@bo3 <- dosed_water@tot_bo3 * calculate_alpha1_borate(h, ks)
+  dosed_water@h3sio4 <- dosed_water@tot_sio4 * calculate_alpha1_silicate(h, ks)
+  dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
+  dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
+
+  # Calculate individual and total alkalinity
+  dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
+  dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)
+  dosed_water@ammonium_alk_eq <- (1 * dosed_water@nh4)
+  dosed_water@borate_alk_eq <- (1 * dosed_water@bo3)
+  dosed_water@silicate_alk_eq <- (1 * dosed_water@h3sio4 + 2 * dosed_water@h2sio4)
+  dosed_water@carbonate_alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3)
+
+  # dosed_water@tot_co3 <- dosed_water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
+  dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
+  dosed_water@alk_eq <- sum(dosed_water@carbonate_alk_eq, dosed_water@phosphate_alk_eq, dosed_water@ammonium_alk_eq, dosed_water@borate_alk_eq, dosed_water@silicate_alk_eq, -1 * h, oh)
+  dosed_water@alk <- convert_units(dosed_water@alk_eq, "caco3", "eq/L", "mg/L CaCO3")
 
   # Compile complete dosed water data frame
   dosed_water@ph <- ph
@@ -283,6 +309,14 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
   # update total hardness
   dosed_water@tot_hard <- convert_units(dosed_water@ca + dosed_water@mg, "caco3", "M", "mg/L CaCO3")
 
+  # update toc and doc from ch3cooh
+  if (ch3cooh_dose != 0) {
+    ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "c", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
+    water@toc <- water@toc + ch3cooh_dose
+    water@doc <- water@doc + ch3cooh_dose
+    warning("TOC and DOC changed in addition to pH due to acetic acid dose.")
+  }
+
   # update dic
   dosed_water@dic <- dosed_water@tot_co3 * tidywater::mweights$dic * 1000
 
@@ -291,51 +325,48 @@ chemdose_ph <- function(water, hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, co2 = 0,
 
 #' @rdname chemdose_ph
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "dosed_chem_water".
+#' [define_water_df] The df may include columns named for the chemical(s) being dosed.
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated water class object. Default is "dosed".
 #' @param na_to_zero option to convert all NA values in the data frame to zeros. Default value is TRUE.
+#' @param pluck_cols Extract primary water slots modified by the function (ph, alk) into new numeric columns for easy access. Default to FALSE.
+#' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
 #'
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
+#'   define_water_df() %>%
 #'   dplyr::slice_head(n = 3) %>%
 #'   dplyr::mutate(
 #'     hcl = c(2, 4, 6),
 #'     Caustic = 20
 #'   ) %>%
-#'   chemdose_ph_chain(input_water = "defined_water", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+#'   chemdose_ph_df(input_water = "defined", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
 #'
-#' # Initialize parallel processing
-#' library(furrr)
-#' # plan(multisession)
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   chemdose_ph_chain(naoh = 5)
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
+#'   define_water_df() %>%
+#'   chemdose_ph_df(naoh = 5, pluck_cols = TRUE)
 #' }
 #'
-#' @import dplyr
 #' @export
 #'
-#' @returns `chemdose_ph_chain` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
+#' @returns `chemdose_ph_df` returns a data frame containing a water class column with updated pH, alkalinity, and ions post-chemical addition.
 
-chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = "dosed_chem_water",
-                              hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
-                              na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
-                              caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
-                              nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
-                              alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                              kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col", na_to_zero = TRUE) {
+chemdose_ph_df <- function(df, input_water = "defined", output_water = "dosed_chem",
+                           na_to_zero = TRUE, pluck_cols = FALSE, water_prefix = TRUE,
+                           hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", ch3cooh = "use_col", co2 = "use_col", naoh = "use_col",
+                           na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
+                           caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
+                           nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
+                           alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
+                           kmno4 = "use_col", naf = "use_col", na3po4 = "use_col", softening_correction = "use_col") {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
   h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
   h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
   hno3 <- tryCatch(hno3, error = function(e) enquo(hno3))
+  ch3cooh <- tryCatch(ch3cooh, error = function(e) enquo(ch3cooh))
   co2 <- tryCatch(co2, error = function(e) enquo(co2))
   naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
 
@@ -367,7 +398,7 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list(
-    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "co2" = co2, "naoh" = naoh,
+    "hcl" = hcl, "h2so4" = h2so4, "h3po4" = h3po4, "hno3" = hno3, "ch3cooh" = ch3cooh, "co2" = co2, "naoh" = naoh,
     "na2co3" = na2co3, "nahco3" = nahco3, "caoh2" = caoh2, "mgoh2" = mgoh2,
     "caocl2" = caocl2, "cacl2" = cacl2, "cl2" = cl2, "naocl" = naocl,
     "nh4oh" = nh4oh, "nh42so4" = nh42so4, "caco3" = caco3, "caso4" = caso4,
@@ -377,124 +408,78 @@ chemdose_ph_chain <- function(df, input_water = "defined_water", output_water = 
   ))
   final_names <- arguments$final_names
 
+
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-  # If na_to_zero is TRUE, change all NAs in the dataframe to zero
-  if (na_to_zero == TRUE) {
-    df[is.na(df)] <- 0
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(
+    df, final_names,
+    list(
+      hcl = 0, h2so4 = 0, h3po4 = 0, hno3 = 0, ch3cooh = 0, co2 = 0,
+      naoh = 0, caoh2 = 0, mgoh2 = 0,
+      na2co3 = 0, nahco3 = 0, caco3 = 0, caso4 = 0, caocl2 = 0, cacl2 = 0,
+      cl2 = 0, naocl = 0, nh4oh = 0, nh42so4 = 0,
+      alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0,
+      kmno4 = 0, naf = 0, na3po4 = 0,
+      softening_correction = FALSE
+    )
+  )
+  df <- defaults_added$data
+
+  # If na_to_zero is TRUE, change all NA chemical doses in the dataframe to zero
+  if (na_to_zero) {
+    chemicals <- unlist(unname(final_names[names(final_names) != "softening_correction"]))
+    df[chemicals] <- lapply(df[chemicals], function(x) {
+      x[is.na(x)] <- 0
+      return(x)
+    })
   }
 
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        hcl = if (final_names$hcl %in% names(.)) !!sym(final_names$hcl) else rep(0, nrow(.)),
-        h2so4 = if (final_names$h2so4 %in% names(.)) !!sym(final_names$h2so4) else rep(0, nrow(.)),
-        h3po4 = if (final_names$h3po4 %in% names(.)) !!sym(final_names$h3po4) else rep(0, nrow(.)),
-        hno3 = if (final_names$hno3 %in% names(.)) !!sym(final_names$hno3) else rep(0, nrow(.)),
-        co2 = if (final_names$co2 %in% names(.)) !!sym(final_names$co2) else rep(0, nrow(.)),
-        naoh = if (final_names$naoh %in% names(.)) !!sym(final_names$naoh) else rep(0, nrow(.)),
-        na2co3 = if (final_names$na2co3 %in% names(.)) !!sym(final_names$na2co3) else rep(0, nrow(.)),
-        nahco3 = if (final_names$nahco3 %in% names(.)) !!sym(final_names$nahco3) else rep(0, nrow(.)),
-        caoh2 = if (final_names$caoh2 %in% names(.)) !!sym(final_names$caoh2) else rep(0, nrow(.)),
-        mgoh2 = if (final_names$mgoh2 %in% names(.)) !!sym(final_names$mgoh2) else rep(0, nrow(.)),
-        caocl2 = if (final_names$caocl2 %in% names(.)) !!sym(final_names$caocl2) else rep(0, nrow(.)),
-        cacl2 = if (final_names$cacl2 %in% names(.)) !!sym(final_names$cacl2) else rep(0, nrow(.)),
-        cl2 = if (final_names$cl2 %in% names(.)) !!sym(final_names$cl2) else rep(0, nrow(.)),
-        naocl = if (final_names$naocl %in% names(.)) !!sym(final_names$naocl) else rep(0, nrow(.)),
-        nh4oh = if (final_names$nh4oh %in% names(.)) !!sym(final_names$nh4oh) else rep(0, nrow(.)),
-        nh42so4 = if (final_names$nh42so4 %in% names(.)) !!sym(final_names$nh42so4) else rep(0, nrow(.)),
-        alum = if (final_names$alum %in% names(.)) !!sym(final_names$alum) else rep(0, nrow(.)),
-        ferricchloride = if (final_names$ferricchloride %in% names(.)) !!sym(final_names$ferricchloride) else rep(0, nrow(.)),
-        ferricsulfate = if (final_names$ferricsulfate %in% names(.)) !!sym(final_names$ferricsulfate) else rep(0, nrow(.)),
-        ach = if (final_names$ach %in% names(.)) !!sym(final_names$ach) else rep(0, nrow(.)),
-        caco3 = if (final_names$caco3 %in% names(.)) !!sym(final_names$caco3) else rep(0, nrow(.)),
-        caso4 = if (final_names$caso4 %in% names(.)) !!sym(final_names$caso4) else rep(0, nrow(.)),
-        kmno4 = if (final_names$kmno4 %in% names(.)) !!sym(final_names$kmno4) else rep(0, nrow(.)),
-        naf = if (final_names$naf %in% names(.)) !!sym(final_names$naf) else rep(0, nrow(.)),
-        na3po4 = if (final_names$na3po4 %in% names(.)) !!sym(final_names$na3po4) else rep(0, nrow(.)),
-        softening_correction = if (final_names$softening_correction %in% names(.)) !!sym(final_names$softening_correction) else rep(FALSE, nrow(.))
-      ),
-      chemdose_ph
-    ))
-}
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    chemdose_ph(
+      water = df[[input_water]][[i]],
+      hcl = df[[final_names$hcl]][i],
+      h2so4 = df[[final_names$h2so4]][i],
+      h3po4 = df[[final_names$h3po4]][i],
+      hno3 = df[[final_names$hno3]][i],
+      ch3cooh = df[[final_names$ch3cooh]][i],
+      co2 = df[[final_names$co2]][i],
+      naoh = df[[final_names$naoh]][i],
+      caoh2 = df[[final_names$caoh2]][i],
+      mgoh2 = df[[final_names$mgoh2]][i],
+      na2co3 = df[[final_names$na2co3]][i],
+      nahco3 = df[[final_names$nahco3]][i],
+      caco3 = df[[final_names$caco3]][i],
+      caso4 = df[[final_names$caso4]][i],
+      caocl2 = df[[final_names$caocl2]][i],
+      cacl2 = df[[final_names$cacl2]][i],
+      cl2 = df[[final_names$cl2]][i],
+      naocl = df[[final_names$naocl]][i],
+      nh4oh = df[[final_names$nh4oh]][i],
+      nh42so4 = df[[final_names$nh42so4]][i],
+      alum = df[[final_names$alum]][i],
+      ferricchloride = df[[final_names$ferricchloride]][i],
+      ferricsulfate = df[[final_names$ferricsulfate]][i],
+      ach = df[[final_names$ach]][i],
+      kmno4 = df[[final_names$kmno4]][i],
+      naf = df[[final_names$naf]][i],
+      na3po4 = df[[final_names$na3po4]][i],
+      softening_correction = df[[final_names$softening_correction]][i]
+    )
+  })
 
-#' @rdname chemdose_ph
-#' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_chain] The df may include columns named for the chemical(s) being dosed.
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#'
-#' @examples
-#' \donttest{
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   dplyr::slice_head(n = 3) %>%
-#'   chemdose_ph_once(input_water = "defined_water", mgoh2 = 55, co2 = 4)
-#' }
-#'
-#' @import dplyr
-#' @importFrom tidyr unnest
-#' @export
-#'
-#' @returns `chemdose_ph_once` returns a data frame with columns for pH and alkalinity post-chemical addition.
-#'
+  output <- df[, !names(df) %in% defaults_added$defaults_used]
 
-chemdose_ph_once <- function(df, input_water = "defined_water",
-                             hcl = "use_col", h2so4 = "use_col", h3po4 = "use_col", hno3 = "use_col", co2 = "use_col", naoh = "use_col",
-                             na2co3 = "use_col", nahco3 = "use_col", caoh2 = "use_col", mgoh2 = "use_col",
-                             caocl2 = "use_col", cacl2 = "use_col", cl2 = "use_col", naocl = "use_col",
-                             nh4oh = "use_col", nh42so4 = "use_col", caco3 = "use_col", caso4 = "use_col",
-                             alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", ach = "use_col",
-                             kmno4 = "use_col", naf = "use_col", na3po4 = "use_col") {
-  dose_chem <- dosed_chem_water <- temp <- tds <- estimated <- NULL # Quiet RCMD check global variable note
+  if (pluck_cols) {
+    output <- output |>
+      pluck_water(c(output_water), c("ph", "alk"))
+    if (!water_prefix) {
+      names(output) <- gsub(paste0(output_water, "_"), "", names(output))
+    }
+  }
 
-  # This allows for the function to process unquoted column names without erroring
-  hcl <- tryCatch(hcl, error = function(e) enquo(hcl))
-  h2so4 <- tryCatch(h2so4, error = function(e) enquo(h2so4))
-  h3po4 <- tryCatch(h3po4, error = function(e) enquo(h3po4))
-  hno3 <- tryCatch(hno3, error = function(e) enquo(hno3))
-  co2 <- tryCatch(co2, error = function(e) enquo(co2))
-  naoh <- tryCatch(naoh, error = function(e) enquo(naoh))
-
-  na2co3 <- tryCatch(na2co3, error = function(e) enquo(na2co3))
-  nahco3 <- tryCatch(nahco3, error = function(e) enquo(nahco3))
-  caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
-  mgoh2 <- tryCatch(mgoh2, error = function(e) enquo(mgoh2))
-
-  caocl2 <- tryCatch(caocl2, error = function(e) enquo(caocl2))
-  cacl2 <- tryCatch(cacl2, error = function(e) enquo(cacl2))
-
-  cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
-  naocl <- tryCatch(naocl, error = function(e) enquo(naocl))
-
-  nh4oh <- tryCatch(nh4oh, error = function(e) enquo(nh4oh))
-  nh42so4 <- tryCatch(nh42so4, error = function(e) enquo(nh42so4))
-
-  alum <- tryCatch(alum, error = function(e) enquo(alum))
-  ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
-  ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
-  ach <- tryCatch(ach, error = function(e) enquo(ach))
-  caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
-  caso4 <- tryCatch(caso4, error = function(e) enquo(caso4))
-  kmno4 <- tryCatch(kmno4, error = function(e) enquo(kmno4))
-  naf <- tryCatch(naf, error = function(e) enquo(naf))
-  na3po4 <- tryCatch(na3po4, error = function(e) enquo(na3po4))
-
-  output <- df %>%
-    chemdose_ph_chain(
-      input_water = input_water, output_water = "dosed_chem_water",
-      hcl, h2so4, h3po4, hno3, co2, naoh,
-      na2co3, nahco3, caoh2, mgoh2,
-      caocl2, cacl2, cl2, naocl,
-      nh4oh, nh42so4, caco3, caso4,
-      alum, ferricchloride, ferricsulfate, ach,
-      kmno4, naf, na3po4
-    ) %>%
-    mutate(dose_chem = furrr::future_map(dosed_chem_water, convert_water)) %>%
-    unnest(dose_chem) %>%
-    select(-c(dosed_chem_water, temp, tds:estimated))
+  return(output)
 }

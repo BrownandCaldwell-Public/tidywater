@@ -4,7 +4,7 @@
 \alias{pluck_water}
 \title{Pluck out a single parameter from a \code{water} class object}
 \usage{
-pluck_water(df, input_waters = c("defined_water"), parameter)
+pluck_water(df, input_waters = c("defined"), parameter)
 }
 \arguments{
 \item{df}{a data frame containing a water class column, which has already
@@ -24,19 +24,9 @@ The names of the output columns will follow the form \code{water_parameter}
 \examples{
 
 pluck_example <- water_df \%>\%
-  define_water_chain("raw") \%>\%
+  define_water_df("raw") \%>\%
   pluck_water(input_waters = c("raw"), parameter = c("hco3", "doc"))
 
-\donttest{
-library(furrr)
-# plan(multisession)
-pluck_example <- water_df \%>\%
-  define_water_chain() \%>\%
-  pluck_water(parameter = c("ph", "alk"))
-
-# Optional: explicitly close multisession processing
-# plan(sequential)
-}
 }
 \seealso{
 \link{convert_water}

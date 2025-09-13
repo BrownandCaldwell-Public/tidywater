@@ -1,21 +1,23 @@
-#' Modify a single slot in a `water` class object
+#' Modify slots in a `water` class object
 #'
-#' This function a single slot of a `water` class object without impacting the other parameters. For example, you can
+#' This function modifies selected slots of a `water` class object without impacting the other parameters. For example, you can
 #' manually update "tthm" and the new speciation will not be calculated. This function is designed to make sure all parameters
 #' are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
 #' they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update [define_water].
 #'
 #' @param water A water class object
-#' @param slot A character string of the slot in the water to modify, eg, "tthm"
-#' @param value New value for the modified slot
-#' @param units Units of the value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
+#' @param slot A vector of slots in the water to modify, eg, "tthm"
+#' @param value A vector of new values for the modified slots
+#' @param units A vector of units for each value being entered, typically one of c("mg/L", "ug/L", "M", "cm-1"). For ions any units supported by [convert_units]
 #' are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1", "m-1". For DBPs, one of "ug/L" or "mg/L".
 #'
 #' @examples
 #' water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) %>%
 #'   modify_water(slot = "toc", value = 4, units = "mg/L")
 #'
-#' @import dplyr
+#' water2 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5, ca = 10) %>%
+#'   modify_water(slot = c("ca", "toc"), value = c(20, 10), units = c("mg/L", "mg/L"))
+#'
 #' @export
 #' @returns A data frame containing columns of selected parameters from a list of water class objects.
 
@@ -35,101 +37,98 @@ modify_water <- function(water, slot, value, units) {
   if (missing(units)) {
     stop("Units missing. Typical units include: 'mg/L', 'ug/L', 'M'")
   }
-  if (!is.numeric(value)) {
-    stop("value must be numeric")
+
+  for (i in seq_along(slot)) {
+    slot_n <- slot[i]
+    value_n <- value[i]
+    units_n <- units[i]
+
+    if (!is.numeric(value_n)) {
+      stop("value must be numeric")
+    }
+
+    # Check lists
+    if (slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
+      new_value <- convert_units(value_n, slot_n, units_n, "M")
+    } else if (slot_n %in% c("toc", "doc", "bdoc")) {
+      if (units_n == "mg/L") {
+        new_value <- value_n
+      } else if (units_n == "ug/L") {
+        new_value <- value_n * 10^3
+      } else {
+        stop(paste(slot_n, "must be specified in mg/L or ug/L"))
+      }
+    } else if (slot_n %in% c("uv254")) {
+      if (units_n == "cm-1") {
+        new_value <- value_n
+      } else if (units_n == "m-1") {
+        new_value <- value_n / 100
+      } else {
+        stop(paste(slot_n, "must be specified in cm-1 or m-1"))
+      }
+    } else if (slot_n %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
+      if (units_n == "ug/L") {
+        new_value <- value_n
+      } else if (units_n == "mg/L") {
+        new_value <- value_n / 10^3
+      } else {
+        stop(paste(slot_n, "must be specified in ug/L or mg/L"))
+      }
+    } else {
+      stop(paste(slot_n, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
+    }
+    methods::slot(water, slot_n) <- new_value
   }
 
-  # Check lists
-  if (slot %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
-    new_value <- convert_units(value, slot, units, "M")
-  } else if (slot %in% c("toc", "doc", "bdoc")) {
-    if (units == "mg/L") {
-      new_value <- value
-    } else if (units == "ug/L") {
-      new_value <- value * 10^3
-    } else {
-      stop(paste(slot, "must be specified in mg/L or ug/L"))
-    }
-  } else if (slot %in% c("uv254")) {
-    if (units == "cm-1") {
-      new_value <- value
-    } else if (units == "m-1") {
-      new_value <- value / 100
-    } else {
-      stop(paste(slot, "must be specified in cm-1 or m-1"))
-    }
-  } else if (slot %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
-    if (units == "ug/L") {
-      new_value <- value
-    } else if (units == "mg/L") {
-      new_value <- value / 10^3
-    } else {
-      stop(paste(slot, "must be specified in ug/L or mg/L"))
-    }
-  } else {
-    stop(paste(slot, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
-  }
-
-  methods::slot(water, slot) <- new_value
-
-  water
+  return(water)
 }
 
 #' @rdname modify_water
-#' @param df a data frame containing a water class column, which has already been computed using [define_water_chain]
+#' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
 #'
 #' @examples
 #'
-#' library(dplyr)
+#' example_df <- water_df %>%
+#'   define_water_df() %>%
+#'   dplyr::mutate(bromide = 50) %>%
+#'   modify_water_df(slot = "br", value = bromide, units = "ug/L")
 #'
 #' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   modify_water_chain(slot = "br", value = 50, units = "ug/L")
-#'
-#' \donttest{
-#' # Un-comment below to initialize parallel processing
-#' # library(furrr)
-#' # plan(multisession)
-#' example_df <- water_df %>%
-#'   define_water_chain() %>%
-#'   mutate(bromide = rep(c(20, 30, 50), 4)) %>%
-#'   modify_water_chain(slot = "br", value = bromide, units = "ug/L")
-#'
-#' # Optional: explicitly close multisession processing
-#' # plan(sequential)
-#' }
-#' @import dplyr
+#'   define_water_df() %>%
+#'   modify_water_df(
+#'     slot = c("br", "na"),
+#'     value = c(50, 60),
+#'     units = c("ug/L", "mg/L")
+#'   )
 #'
 #' @export
 #'
-#' @returns `modify_water_chain` returns a data frame containing a water class column with updated slot
+#' @returns `modify_water_df` returns a data frame containing a water class column with updated slot
 
-modify_water_chain <- function(df, input_water = "defined_water", output_water = "modified_water",
-                               slot = "use_col", value = "use_col", units = "use_col") {
+modify_water_df <- function(df, input_water = "defined", output_water = "modified",
+                            slot = "use_col", value = "use_col", units = "use_col") {
   validate_water_helpers(df, input_water)
-  # This allows for the function to process unquoted column names without erroring
+
   slot <- tryCatch(slot, error = function(e) enquo(slot))
   value <- tryCatch(value, error = function(e) enquo(value))
   units <- tryCatch(units, error = function(e) enquo(units))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
+  final_names <- arguments$final_names
 
-  # Only join inputs if they aren't in existing dataframe
-  if (length(arguments$new_cols) > 0) {
-    df <- df %>%
-      cross_join(as.data.frame(arguments$new_cols))
-  }
-  output <- df %>%
-    mutate(!!output_water := furrr::future_pmap(
-      list(
-        water = !!as.name(input_water),
-        slot = !!as.name(arguments$final_names$slot),
-        value = !!as.name(arguments$final_names$value),
-        units = !!as.name(arguments$final_names$units)
-      ),
-      modify_water
-    ))
+  df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    modify_water(
+      water = df[[input_water]][[i]],
+      slot = df[[final_names$slot]][[i]],
+      value = df[[final_names$value]][[i]],
+      units = df[[final_names$units]][[i]]
+    )
+  })
+
+  output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
+
+  return(output)
 }

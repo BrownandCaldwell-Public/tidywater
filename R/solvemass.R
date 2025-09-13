@@ -32,6 +32,8 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #' @param ferricchloride  Amount of ferric chloride added in mg/L as chemical: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L as chemical: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
+#' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
+#' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
 #' @source https://water.mecc.edu/courses/ENV295Residuals/lesson3b.htm#:~:text=From%20the%20diagram%2C%20for%20example,million%20gallons%20of%20water%20produced.
@@ -49,10 +51,10 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #' @export
 #' @returns A numeric value for solids mass in lb/day.
 #'
-solvemass_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, turb, b = 1.5) {
+solvemass_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, toc_removed = 0, caco3_removed = 0, turb, b = 1.5) {
   suspended <- turb * b
   # 2 mol of Fe added per mol of ferric sulfate
   fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
 
-  8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended)
+  8.34 * flow * (0.44 * alum + 2.9 * fe + ferricchloride + suspended + toc_removed + caco3_removed)
 }
