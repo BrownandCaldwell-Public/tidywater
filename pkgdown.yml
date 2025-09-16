@@ -1,0 +1,13 @@
+pandoc: 3.1.11
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  coeff_fitting_chemdose_dbp: coeff_fitting_chemdose_dbp.html
+  help_functions_blend_waters: help_functions_blend_waters.html
+  help_functions_chemdose_ph: help_functions_chemdose_ph.html
+  intro: intro.html
+  tidywater: tidywater.html
+last_built: 2025-09-16T13:07Z
+urls:
+  reference: https://BrownandCaldwell-Public.github.io/tidywater/reference
+  article: https://BrownandCaldwell-Public.github.io/tidywater/articles
