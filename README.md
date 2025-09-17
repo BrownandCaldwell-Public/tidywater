@@ -6,6 +6,9 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml)
+[![License:MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/BrownandCaldwell-Public/tidywater/tree/main?tab=License-2-ov-file#mit-license)
+[![License:Apache
+2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue)](https://github.com/BrownandCaldwell-Public/tidywater/tree/main?tab=License-2-ov-file#mit-license)
 <!-- badges: end -->
 
 ## Overview
