@@ -1,73 +1,87 @@
 # Generate data frames of data used across tidywater functions
 
-# mweights ----
-# List of molecular weights for different chemical additions
-mweights <- data.frame(
-  na = 22.98977,
-  k = 39.0983,
-  cl = 35.453,
-  so4 = 96.0626,
-  caco3 = 100.0869,
-  caso4 = 136.141,
-  hcl = 36.46094,
-  h2so4 = 98.079,
-  h3po4 = 97.995181,
-  naoh = 39.9971,
-  na2co3 = 105.98844,
-  nahco3 = 84.00661,
-  caoh2 = 74.09268,
-  mgoh2 = 58.31968,
-  cacl2 = 110.98,
-  cl2 = 70.906,
-  c = 12.01,
-  co2 = 44.009,
-  ch3cooh = 60.05,
-  al = 26.981539,
-  fe = 55.845,
-  alum = 26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, # 14 H2O
-  ferricchloride = 55.845 + 35.453 * 3,
-  fecl3 = 55.845 + 35.453 * 3,
-  ferricsulfate = 2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, # 8.8 H2O
-  ach = 26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, # 2 H2O
-  mg = 24.305,
-  ca = 40.078,
-  po4 = 94.97,
-  na3po4 = 163.939,
-  hpo4 = 95.98,
-  h2po4 = 96.99,
-  h2co3 = 62.024,
-  hco3 = 61.0168,
-  co3 = 60.0089,
-  b = 10.81,
-  bo3 = 58.809,
-  sio2 = 60.0843,
-  h3sio4 = 95.107,
-  h2sio4 = 94.099,
-  sio4 = 92.083,
-  ocl = 16 + 35.453,
-  pb = 207.2,
-  br = 79.904,
-  bro3 = 79.904 + 3 * 15.999,
-  f = 18.9984,
-  naf = 41.9882,
-  mn = 54.938,
-  nh4 = 18.04,
-  nh3 = 17.031,
-  no3 = 62.005,
-  hno3 = 63.0128,
-  nh2cl = 51.48,
-  nhcl2 = 85.92,
-  ncl3 = 120.365,
-  n = 14.0067,
-  nh4oh = 18.04 + 17.008,
-  nh42so4 = 18.04 * 2 + 96.0626,
-  oh = 17.008,
-  kmno4 = 158.032,
-  mno4 = 158.032 - 39.0983,
-  dic = 12.011
+# Molecular properties ----
+# First row molecular weights, second row is charge for equivalents calc
+molec_properties <- data.frame(
+  # Ions. Everything here should have a charge.
+  na = c(22.98977, 1),
+  k = c(39.0983, 1),
+  cl = c(35.453, 1),
+  so4 = c(96.0626, 2),
+  mg = c(24.305, 2),
+  ca = c(40.078, 2),
+  hco3 = c(61.0168, 1),
+  co3 = c(60.0089, 2),
+  oh = c(17.008, 1),
+  po4 = c(94.97, 3),
+  hpo4 = c(95.98, 2),
+  h2po4 = c(96.99, 1),
+  ocl = c(16 + 35.453, 1),
+  nh4 = c(18.04, 1),
+
+  f = c(18.9984, 1),
+  mn = c(54.938, 2),
+  pb = c(207.2, 2),
+  br = c(79.904, 1),
+  al = c(26.981539, 3),
+  fe = c(55.845, 3),
+
+  bro3 = c(79.904 + 3 * 15.999, 1),
+  h3sio4 = c(95.107, 1),
+  h2sio4 = c(94.099, 2),
+  sio4 = c(92.083, 4),
+  bo3 = c(58.809, 3),
+  no3 = c(62.005, 1),
+  mno4 = c(158.032 - 39.0983, 1),
+
+  # Chemicals. These only have a charge if both ions have the same charge.
+  # Except: Use the anion charge if the cation is H+, use the cation charge if the anion is OH-.
+  caco3 = c(100.0869, 2),
+  caso4 = c(136.141, 2),
+  hcl = c(36.46094, 1),
+  h2so4 = c(98.079, 2),
+  h3po4 = c(97.995181, 3),
+  naoh = c(39.9971, 1),
+  na2co3 = c(105.98844, NA),
+  nahco3 = c(84.00661, 1),
+  caoh2 = c(74.09268, 2),
+  mgoh2 = c(58.31968, 2),
+  cacl2 = c(110.98, NA),
+  ch3cooh = c(60.05, 1),
+  fecl3 = c(55.845 + 35.453 * 3, NA),
+  na3po4 = c(163.939, NA),
+  h2co3 = c(62.024, 2),
+  naf = c(41.9882, 1),
+  hno3 = c(63.0128, 1),
+  nh4oh = c(18.04 + 17.008, 1),
+  nh42so4 = c(18.04 * 2 + 96.0626, NA),
+  kmno4 = c(158.032, 1),
+
+  # Stuff that isn't made of ions. No charge.
+  cl2 = c(70.906, NA),
+  co2 = c(44.009, NA),
+  c = c(12.01, NA),
+  b = c(10.81, NA),
+  sio2 = c(60.0843, NA),
+  nh3 = c(17.031, NA),
+  nh2cl = c(51.48, NA),
+  nhcl2 = c(85.92, NA),
+  ncl3 = c(120.365, NA),
+  n = c(14.0067, NA),
+  dic = c(12.011, NA),
+
+  # Coagulants. They do their own thing.
+  alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
+  ferricchloride = c(55.845 + 35.453 * 3, 3),
+  ferricsulfate = c(2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, 3), # 8.8 H2O
+  ach = c(26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, 3) # 2 H2O
+
 )
 
+mweights <- molec_properties[1,]
 usethis::use_data(mweights, overwrite = TRUE)
+
+formula_to_charge <- molec_properties[2,]
 
 # discons ----
 # Acid dissociation constants and corresponding enthalpy
@@ -811,6 +825,69 @@ bromatecoeffs <- data.frame(
     I = 1 # temp not in exponent
   )
 usethis::use_data(bromatecoeffs, overwrite = TRUE)
+
+# Convert units ----
+# For all units accepted by the convert_units function
+# provide their SI base multipliers
+unit_multipliers <- data.frame(
+  # base
+  "g/L" = 1,
+  "g/L CaCO3" = 1,
+  "g/L N" = 1,
+  "M" = 1,
+  "eq/L" = 1,
+  # milli
+  "mg/L" = 1e-3,
+  "mg/L CaCO3" = 1e-3,
+  "mg/L N" = 1e-3,
+  "mM" = 1e-3,
+  "meq/L" = 1e-3,
+  # micro
+  "ug/L" = 1e-6,
+  "ug/L CaCO3" = 1e-6,
+  "ug/L N" = 1e-6,
+  "uM" = 1e-6,
+  "ueq/L" = 1e-6,
+  # nano
+  "ng/L" = 1e-9,
+  "ng/L CaCO3" = 1e-9,
+  "ng/L N" = 1e-9,
+  "nM" = 1e-9,
+  "neq/L" = 1e-9,
+  # required to allow names with slashes
+  check.names = FALSE
+)
+
+
+# This function is used to generate a fast lookup table to speed up unit conversions.
+# We precompute all permutations of our normal conversions and store them in a hash map.
+generate_unit_conversions_cache <- function() {
+  # All units we support
+  units <- ls(unit_multipliers)
+  # All formulas we support are in mweights, note this is more than formula_to_charge
+  formulas <- ls(mweights)
+  env <- new.env(parent = emptyenv())
+  for (startunit in units) {
+    for (endunit in units) {
+      for (formula in formulas) {
+        name <- paste(formula, startunit, endunit)
+        # Not all unit conversions will be valid
+        # Try them all and we won't store any that fail
+        try(
+          {
+            env[[name]] <- convert_units_private(1.0, formula, startunit, endunit)
+          },
+          silent = TRUE
+        )
+      }
+    }
+  }
+  env
+}
+
+convert_units_cache <- generate_unit_conversions_cache()
+
+usethis::use_data(unit_multipliers, formula_to_charge, convert_units_cache, overwrite = TRUE, internal = TRUE)
 
 # cl2coeffs -----
 # Data frame of Cl2 decay coefficients

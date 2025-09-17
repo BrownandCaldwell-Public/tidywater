@@ -396,31 +396,14 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     guides(fill = guide_colorbar(title.position = "top"))
 }
 
-#' @title Calculate unit conversions for common compounds
-#'
-#' @description This function takes a value and converts units based on compound name.
-#'
-#' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
-#' and the same units with "m", "u", "n" prefixes
-#' @param endunit Desired units, currently accepts same as start units
-#'
-#' @examples
-#' convert_units(50, "ca") # converts from mg/L to M by default
-#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
-#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
-#'
-#' @export
-#'
-#' @returns A numeric value for the converted parameter.
-#'
-convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
-  mcro_list <- c("ug/L", "ug/L CaCO3", "ug/L N", "uM", "ueq/L")
-  nano_list <- c("ng/L", "ng/L CaCO3", "ng/L N", "nM", "neq/L")
-  stand_list <- c("g/L", "g/L CaCO3", "g/L N", "M", "eq/L")
 
+# Internal conversion function
+# This function generates a cached table of unit conversions with every combo of formula and units in the compile_tidywater_data file.
+# If we fail to lookup a unit conversion in our cached table we look here
+# This function is ~20x slower than the cache lookup
+convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  unit_multipliers <- get("unit_multipliers")
+  formula_to_charge <- get("formula_to_charge")
   gram_list <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -432,37 +415,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
 
-  # Determine multiplier for order of magnitude conversion
-  # In the same list, no multiplier needed
-  if ((startunit %in% milli_list & endunit %in% milli_list) |
-    (startunit %in% stand_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% nano_list) |
-    (startunit %in% mcro_list & endunit %in% mcro_list)) {
-    multiplier <- 1
-    # m - standard, n-u, u-n
-  } else if ((startunit %in% milli_list & endunit %in% stand_list) |
-    (startunit %in% mcro_list & endunit %in% milli_list) |
-    (startunit %in% nano_list & endunit %in% mcro_list)) {
-    multiplier <- 1e-3
-  } else if ((startunit %in% stand_list & endunit %in% milli_list) |
-    (startunit %in% milli_list & endunit %in% mcro_list) |
-    (startunit %in% mcro_list & endunit %in% nano_list)) {
-    multiplier <- 1e3
-    # u - standard
-  } else if ((startunit %in% mcro_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% milli_list)) {
-    multiplier <- 1e-6
-  } else if ((startunit %in% stand_list & endunit %in% mcro_list) |
-    (startunit %in% milli_list & endunit %in% nano_list)) {
-    multiplier <- 1e6
-    # n - standard
-  } else if (startunit %in% nano_list & endunit %in% stand_list) {
-    multiplier <- 1e-9
-  } else if (startunit %in% stand_list & endunit %in% nano_list) {
-    multiplier <- 1e9
-  } else {
+  # Look up the unit multipliers for starting and end units
+  start_mult <- unit_multipliers[[startunit]]
+  end_mult <- unit_multipliers[[endunit]]
+  if (is.null(start_mult) || is.null(end_mult)) {
+    # If we didn't find multipliers these units are not supported
     stop("Units not supported")
   }
+  # Calculate the net multiplier
+  multiplier <- start_mult / end_mult
 
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
@@ -482,16 +443,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop(paste("Chemical formula", formula, "not supported"))
+    stop(paste("Chemical formula not supported: ", formula))
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "naf", "hno3", "nh4", "nh3", "f", "br", "no3", "bro3", "kmno4", "dic")) {
-    charge <- 1
-  } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "caocl2", "mn")) {
-    charge <- 2
-  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "na3po4", "po4")) {
-    charge <- 3
+  # Look up our known charges in our hashtable
+  table_charge <- formula_to_charge[[formula]]
+  if (!is.null(table_charge)) {
+    # If we found a charge in the hash table use that
+    charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     # This is included so that charge can be in equations later without impacting results
     charge <- 1
@@ -532,6 +492,37 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     value * multiplier
   } else {
     stop("Units not supported")
+  }
+}
+
+#' @title Calculate unit conversions for common compounds
+#'
+#' @description This function takes a value and converts units based on compound name.
+#'
+#' @param value Value to be converted
+#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' and the same units with "m", "u", "n" prefixes
+#' @param endunit Desired units, currently accepts same as start units
+#'
+#' @examples
+#' convert_units(50, "ca") # converts from mg/L to M by default
+#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted parameter.
+#'
+convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  convert_units_cache <- get("convert_units_cache")
+  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
+  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+  if (is.null(lookup)) {
+    # Fallback to full implementation
+    convert_units_private(value, formula, startunit, endunit)
+  } else {
+    value * lookup
   }
 }
 
