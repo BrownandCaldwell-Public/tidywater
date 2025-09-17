@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# tidywater <img src="man/figures/tidywaterlogo.png" align="right" height = "170" />
+# tidywater <img src="man/figures/tidywaterlogo.png" align="right" height = "138" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/BrownandCaldwell-Public/tidywater/actions/workflows/R-CMD-check.yaml)
