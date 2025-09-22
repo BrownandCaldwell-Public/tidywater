@@ -8,3 +8,6 @@ inst/doc
 *.csv
 *.xlsx
 docs
+src/rust/vendor
+src/Makevars
+src/Makevars.win
