@@ -1,0 +1,13 @@
+[package]
+name = "extendr-ffi"
+description = "Barebone bindings to `libR` for use in extendr."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+links = "R"
+
+[features]
+default = []
+non-api = []

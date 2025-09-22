@@ -1,0 +1,27 @@
+[package]
+
+name = "roots"
+version = "0.0.8"
+authors = ["Mikhail Vorotilov <mikhail.vorotilov@gmail.com>"]
+license = "BSD-2-Clause"
+repository = "https://github.com/vorot/roots"
+description = """
+Library of well known algorithms for numerical root finding.
+"""
+readme = "README.md"
+keywords = [ "math", "root", "numerical", "cubic", "quartic" ]
+
+[badges]
+# Travis CI: `repository` is required. `branch` is optional; default is `master`
+travis-ci = { repository = "https://github.com/vorot/roots", branch = "master" }
+
+[lib]
+name = "roots"
+path = "src/lib.rs"
+
+[dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name="benches"
+harness=false
