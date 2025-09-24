@@ -1,0 +1,4 @@
+url: https://BrownandCaldwell-Public.github.io/tidywater
+template:
+  bootstrap: 5
+  bootswatch: pulse
