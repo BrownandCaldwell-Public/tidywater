@@ -89,39 +89,24 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="co">## Use base tidywater functions to model water quality for a single scenario.</span></span>
 <span><span class="va">base_coagulation</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">8</span>, alk <span class="op">=</span> <span class="fl">90</span>, tds <span class="op">=</span> <span class="fl">50</span>, toc <span class="op">=</span> <span class="fl">3</span>, doc <span class="op">=</span> <span class="fl">2.8</span>, uv254 <span class="op">=</span> <span class="fl">0.08</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="co"># note that we get a warning about sulfate from this code because we didn't specify sulfate in the define_water</span></span>
 <span>  <span class="fu"><a href="reference/chemdose_ph.html">chemdose_ph</a></span><span class="op">(</span>alum <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/chemdose_toc.html">chemdose_toc</a></span><span class="op">(</span>alum <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning in chemdose_ph(., alum = 30): Sulfate-containing chemical dosed, but</span></span>
 <span><span class="co">#&gt; so4 water slot is NA. Slot not updated because background so4 unknown.</span></span></code></pre></div>
-<p>To model multiple water quality scenarios, use tidywater’s helper functions (x_chain or x_once) to apply the models to a dataframe.</p>
+<p>To model multiple water quality scenarios, use tidywater’s helper functions (x_df) to apply the models to a dataframe. The <code>pluck_cols</code> argument can be added to return the parameters impacted by the model as separate columns. The <code>pluck_water</code> function can pull any parameter from a water into a separate column.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">## x_chain functions apply models to a list of "waters", and output a list of "waters" so that</span></span>
-<span><span class="co">## the data can be piped into the next tidywater model.</span></span>
+<code class="sourceCode R"><span></span>
 <span><span class="va">coagulation</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/rename_helpers.html">define_water_chain</a></span><span class="op">(</span>output_water <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="reference/define_water_df.html">define_water_df</a></span><span class="op">(</span>output_water <span class="op">=</span> <span class="st">"raw"</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">mutate</span><span class="op">(</span>alum <span class="op">=</span> <span class="fl">30</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/rename_helpers.html">chemdose_ph_chain</a></span><span class="op">(</span>input_water <span class="op">=</span> <span class="st">"raw"</span>, output_water <span class="op">=</span> <span class="st">"phchange"</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="reference/rename_helpers.html">chemdose_toc_chain</a></span><span class="op">(</span>input_water <span class="op">=</span> <span class="st">"phchange"</span>, output_water <span class="op">=</span> <span class="st">"coag"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: `chemdose_toc_chain()` was deprecated in tidywater 0.10.0.</span></span>
-<span><span class="co">#&gt; ℹ Please use `chemdose_toc_df()` instead.</span></span>
-<span><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span><span class="co">#&gt; generated.</span></span>
-<span><span class="co">#&gt; Warning: `chemdose_ph_chain()` was deprecated in tidywater 0.10.0.</span></span>
-<span><span class="co">#&gt; ℹ Please use `chemdose_ph_df()` instead.</span></span>
-<span><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span><span class="co">#&gt; generated.</span></span>
-<span><span class="co">#&gt; Warning: `define_water_chain()` was deprecated in tidywater 0.10.0.</span></span>
-<span><span class="co">#&gt; ℹ Please use `define_water_df()` instead.</span></span>
-<span><span class="co">#&gt; This warning is displayed once every 8 hours.</span></span>
-<span><span class="co">#&gt; Call `lifecycle::last_lifecycle_warnings()` to see where this warning was</span></span>
-<span><span class="co">#&gt; generated.</span></span>
+<span>  <span class="fu"><a href="reference/chemdose_ph.html">chemdose_ph_df</a></span><span class="op">(</span>input_water <span class="op">=</span> <span class="st">"raw"</span>, output_water <span class="op">=</span> <span class="st">"phchange"</span><span class="op">)</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span> <span class="co"># return "phchange" water</span></span>
+<span>  <span class="fu"><a href="reference/chemdose_toc.html">chemdose_toc_df</a></span><span class="op">(</span>input_water <span class="op">=</span> <span class="st">"phchange"</span>, output_water <span class="op">=</span> <span class="st">"coag"</span>, pluck_cols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># return "coag" water and coag_doc, coag_toc, coag_uv254 as columns</span></span>
 <span></span>
-<span><span class="co">## To get out individual parameters, use `pluck_water`</span></span>
+<span><span class="co">## To get individual parameters, use `pluck_water`</span></span>
 <span><span class="va">coagulation</span> <span class="op">&lt;-</span> <span class="va">coagulation</span> <span class="op"><a href="reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="reference/pluck_water.html">pluck_water</a></span><span class="op">(</span>input_waters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw"</span>, <span class="st">"coag"</span><span class="op">)</span>, parameter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ph"</span>, <span class="st">"doc"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Note that these functions use a “water” class. The “water” class is the foundation of the package; it provides a mechanism for linking models in any order while maintaining water quality information. The <code>define_water</code> function takes water quality inputs, but <code>define_water_chain</code> may be used to convert a dataframe to a list of “waters”.</p>
+<p>Note that these functions use a “water” class. The “water” class is the foundation of the package; it provides a mechanism for linking models in any order while maintaining water quality information. The <code>define_water</code> function takes water quality inputs, but <code>define_water_df</code> may be used to convert a dataframe to a list of “waters”.</p>
 <p>For more detailed examples on tidywater functions and how to use “water” class data, please see the tidywater vignettes: <code>browseVignettes("tidywater")</code></p>
 </div>
 <div class="section level2">
