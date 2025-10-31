@@ -40,6 +40,7 @@ library(tidywater)
 library(tidyverse)
 ## Use base tidywater functions to model water quality for a single scenario.
 base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8, uv254 = 0.08) %>%
+  # note that we get a warning about sulfate from this code because we didn't specify sulfate in the define_water
   chemdose_ph(alum = 30) %>%
   chemdose_toc(alum = 30)
 #> Warning in chemdose_ph(., alum = 30): Sulfate-containing chemical dosed, but
@@ -47,33 +48,20 @@ base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8,
 ```
 
 To model multiple water quality scenarios, use tidywater’s helper
-functions (x_chain or x_once) to apply the models to a dataframe.
+functions (x_df) to apply the models to a dataframe. The `pluck_cols`
+argument can be added to return the parameters impacted by the model as
+separate columns. The `pluck_water` function can pull any parameter from
+a water into a separate column.
 
 ``` r
-## x_chain functions apply models to a list of "waters", and output a list of "waters" so that
-## the data can be piped into the next tidywater model.
-coagulation <- water_df %>%
-  define_water_chain(output_water = "raw") %>%
-  mutate(alum = 30) %>%
-  chemdose_ph_chain(input_water = "raw", output_water = "phchange") %>%
-  chemdose_toc_chain(input_water = "phchange", output_water = "coag")
-#> Warning: `chemdose_toc_chain()` was deprecated in tidywater 0.10.0.
-#> ℹ Please use `chemdose_toc_df()` instead.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: `chemdose_ph_chain()` was deprecated in tidywater 0.10.0.
-#> ℹ Please use `chemdose_ph_df()` instead.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Warning: `define_water_chain()` was deprecated in tidywater 0.10.0.
-#> ℹ Please use `define_water_df()` instead.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 
-## To get out individual parameters, use `pluck_water`
+coagulation <- water_df %>%
+  define_water_df(output_water = "raw") %>%
+  mutate(alum = 30) %>%
+  chemdose_ph_df(input_water = "raw", output_water = "phchange") %>% # return "phchange" water
+  chemdose_toc_df(input_water = "phchange", output_water = "coag", pluck_cols = TRUE) # return "coag" water and coag_doc, coag_toc, coag_uv254 as columns
+
+## To get individual parameters, use `pluck_water`
 coagulation <- coagulation %>%
   pluck_water(input_waters = c("raw", "coag"), parameter = c("ph", "doc"))
 ```
@@ -82,7 +70,7 @@ Note that these functions use a “water” class. The “water” class is the
 foundation of the package; it provides a mechanism for linking models in
 any order while maintaining water quality information. The
 `define_water` function takes water quality inputs, but
-`define_water_chain` may be used to convert a dataframe to a list of
+`define_water_df` may be used to convert a dataframe to a list of
 “waters”.
 
 For more detailed examples on tidywater functions and how to use “water”
