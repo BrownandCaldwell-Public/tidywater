@@ -26,7 +26,8 @@ test_that("Solve dose pH returns the correct values.", {
   expect_equal(round(chemdose_ph(water4, co2 = co2dose)@ph, 1), 7)
 
   water5 <- define_water(ph = 12.75, temp = 25, alk = 4780, tds = 3530, ca = 70, mg = 10)
-  expect_equal(suppressWarnings(solvedose_ph(water5, 13, "naoh")), 2327.3)
+  # this was modified with approval from sierra that Rust and R backends were "close enough"
+  expect_equal(suppressWarnings(solvedose_ph(water5, 13, "naoh")), 2356.4)
   expect_equal(suppressWarnings(solvedose_ph(water5, 7, "h2so4")), 4174.8)
 })
 

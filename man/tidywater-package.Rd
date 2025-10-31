@@ -6,12 +6,15 @@
 \alias{tidywater-package}
 \title{tidywater: Water Quality Models for Drinking Water Treatment Processes}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 Provides multiple water chemistry-based models and published empirical models in one standard format. As many models have been included as possible, however, users should be aware that models have varying degrees of accuracy and applicability. To learn more, read the references provided below for the models implemented. Functions can be chained together to model a complete treatment process and are designed to work in a 'tidyverse' workflow. Models are primarily based on these sources: Benjamin, M. M. (2002, ISBN:147862308X), Crittenden, J. C., Trussell, R., Hand, D., Howe, J. K., & Tchobanoglous, G., Borchardt, J. H. (2012, ISBN:9781118131473), USEPA. (2001) \url{https://www.epa.gov/sites/default/files/2017-03/documents/wtp_model_v._2.0_manual_508.pdf}.
 }
 \seealso{
 Useful links:
 \itemize{
   \item \url{https://github.com/BrownandCaldwell-Public/tidywater}
+  \item \url{https://BrownandCaldwell-Public.github.io/tidywater}
   \item Report bugs at \url{https://github.com/BrownandCaldwell-Public/tidywater/issues}
 }
 

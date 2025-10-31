@@ -5,7 +5,11 @@
 ^CODE_OF_CONDUCT\.md$
 ^CONTRIBUTING\.md$
 ^data-raw$
-^.*\.toml
+# Note: because cargo is using .toml files, we can't blanket reject all toml files
+# ^.*\.toml
+# Explicitly listing the toml files we do want to ignore
+^air\.toml$
+^\.gitleaks\.toml$
 ^README\.Rmd$
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
@@ -16,3 +20,9 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^\.vscode$
+^src/\.cargo$
+^src/rust/vendor$
+^src/rust/target$
+^src/Makevars$
+^src/Makevars\.win$
