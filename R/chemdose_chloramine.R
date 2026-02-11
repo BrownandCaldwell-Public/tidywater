@@ -41,9 +41,9 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     stop("Missing value for reaction time. Please check the function inputs required to run chemdose_chloramine")
   }
 
-  # if (time < 1) {
-  #   stop("Time is less than 1 minute. Please set time to >= 1 minute.")
-  # }
+  if (time < 1) {
+    stop("Time is less than 1 minute. Please set time to >= 1 minute.")
+  }
 
   if (missing(cl2)) {
     validate_water(water, "free_chlorine")
@@ -69,7 +69,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     }
   } else if (use_free_cl_slot) {
     validate_water(water, "free_chlorine")
-    TOTCl_ini <- water@free_chlorine
+    TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
 
     if (cl2 > 0) {
       message <- sprintf(
@@ -106,7 +106,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     }
   } else if (use_tot_nh3_slot) {
     validate_water(water, "tot_nh3")
-    TOTNH_ini <- water@tot_nh3
+    TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
     if (nh3 > 0) {
       message <- sprintf(
         "Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
@@ -304,7 +304,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     func = chloramine, # revisit as.data.frame vs. data.frame
     parms = NULL,
     y = yin,
-    times = seq(0, time, by = 2), # read ode function
+    times = seq(0, time, by = 60), # read ode function
     atol = 1e-12,
     rtol = 1e-12
   ))
