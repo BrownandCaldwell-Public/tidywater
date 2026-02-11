@@ -41,68 +41,87 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     stop("Missing value for reaction time. Please check the function inputs required to run chemdose_chloramine")
   }
 
-  if (time < 1) {
-    stop("Time is less than 1 minute. Please set time to >= 1 minute.")
-  }
+  # if (time < 1) {
+  #   stop("Time is less than 1 minute. Please set time to >= 1 minute.")
+  # }
 
   if (missing(cl2)) {
     validate_water(water, "free_chlorine")
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2
     if (!use_free_cl_slot) {
-      message <- sprintf("Chlorine dose not specified, function used free_chlorine slot in water (%f mol/L) as the initial free chlorine.", water@free_chlorine)
+      message <- sprintf(
+        "Chlorine dose not specified, function used free_chlorine slot in water (%f mol/L) as the initial free chlorine.",
+        water@free_chlorine
+      )
       warning(message)
     }
   } else if (!use_free_cl_slot) {
     TOTCl_ini <- convert_units(cl2, "cl2")
     if (water@free_chlorine > 0) {
-      message <- sprintf("Chlorine dose was used as the initial free chlorine. Free chlorine in water (%f mol/L) was ignored.
+      message <- sprintf(
+        "Chlorine dose was used as the initial free chlorine. Free chlorine in water (%f mol/L) was ignored.
               If you want to use ONLY free chlorine in water, please set use_free_cl_slot to TRUE and remove chlorine dose.
-              If want to use BOTH free chlorine in water and chlorine dose, please set use_free_cl_slot to TRUE.", water@free_chlorine)
+              If want to use BOTH free chlorine in water and chlorine dose, please set use_free_cl_slot to TRUE.",
+        water@free_chlorine
+      )
       warning(message)
     }
   } else if (use_free_cl_slot) {
     validate_water(water, "free_chlorine")
-    TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
-    # TOTCl_ini <- water@free_chlorine
+    TOTCl_ini <- water@free_chlorine
+
     if (cl2 > 0) {
-      message <- sprintf("Chlorine dose and free chlorine slot in water (%f mol/L) were BOTH used.
+      message <- sprintf(
+        "Chlorine dose and free chlorine slot in water (%f mol/L) were BOTH used.
             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-            If you want to use ONLY the free chlorine water slot, remove chlorine dose.", water@free_chlorine)
+            If you want to use ONLY the free chlorine water slot, remove chlorine dose.",
+        water@free_chlorine
+      )
       warning(message)
     }
   }
-
 
   if (missing(nh3)) {
     validate_water(water, "tot_nh3")
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3
     if (!use_tot_nh3_slot) {
-      message <- sprintf("Ammonia dose not specified, function used the tot_nh3 slot in water (%f mol/L) as the initial free ammonia.", water@tot_nh3)
+      message <- sprintf(
+        "Ammonia dose not specified, function used the tot_nh3 slot in water (%f mol/L) as the initial free ammonia.",
+        water@tot_nh3
+      )
       warning(message)
     }
   } else if (!use_tot_nh3_slot) {
     TOTNH_ini <- convert_units(nh3, "n")
     if (water@tot_nh3 > 0) {
-      message <- sprintf("Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (%f mol/L) was ignored.
+      message <- sprintf(
+        "Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (%f mol/L) was ignored.
               If you want to use ONLY tot_nh3 slot in water, please set use_tot_nh3_slot to TRUE and remove ammonia dose.
-              If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.", water@tot_nh3)
+              If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.",
+        water@tot_nh3
+      )
       warning(message)
     }
   } else if (use_tot_nh3_slot) {
     validate_water(water, "tot_nh3")
-    TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
+    TOTNH_ini <- water@tot_nh3
     if (nh3 > 0) {
-      message <- sprintf("Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
+      message <- sprintf(
+        "Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
             If you want to use ONLY ammonia dose, please set use_tot_nh3_slot to FALSE.
-            If you want to use ONLY the tot_nh3 slot in water, remove ammonia dose.", water@tot_nh3)
+            If you want to use ONLY the tot_nh3 slot in water, remove ammonia dose.",
+        water@tot_nh3
+      )
       warning(message)
     }
   }
 
   if (!is.na(water@nh2cl) | !is.na(water@nhcl2) | !is.na(water@ncl3)) {
-    warning("Chloramine species present in water class object, check slots @nh2cl, @nhcl2, @ncl3. The present concentrations will be used as initial values in function calculation.")
+    warning(
+      "Chloramine species present in water class object, check slots @nh2cl, @nhcl2, @ncl3. The present concentrations will be used as initial values in function calculation."
+    )
   }
 
   if (water@combined_chlorine != 0) {
@@ -154,8 +173,8 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
   alpha1TOTCO <- calculate_alpha1_carbonate(H, ks)
   alpha2TOTCO <- calculate_alpha2_carbonate(H, ks)
 
-
-  calculate_alpha0_ammonia <- function(h, k) { # NH3
+  calculate_alpha0_ammonia <- function(h, k) {
+    # NH3
     k1 <- k$knh4
     calculate_alpha1_ammonia(h, k) * k1 / h
   }
@@ -207,18 +226,61 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
   # Define function for chloramine system
   chloramine <- function(t, y, parms) {
     with(as.list(y), {
-      dTOTNH <- (-k1 * alpha0TOTCl * TOTCl * alpha1TOTNH * TOTNH + k2 * NH2Cl + k5 * NH2Cl^2 - k6 * NHCl2 * alpha1TOTNH * TOTNH * H)
-      dTOTCl <- (-k1 * alpha0TOTCl * TOTCl * alpha1TOTNH * TOTNH + k2 * NH2Cl - k3 * alpha0TOTCl * TOTCl * NH2Cl + k4 * NHCl2 + k8 * I * NHCl2 -
-        (k11p + k11OCl * alpha1TOTCl * TOTCl) * alpha0TOTCl * TOTCl * NHCl2 + 2 * k12 * NHCl2 * NCl3 * OH + k13 * NH2Cl * NCl3 * OH -
+      dTOTNH <- (-k1 *
+        alpha0TOTCl *
+        TOTCl *
+        alpha1TOTNH *
+        TOTNH +
+        k2 * NH2Cl +
+        k5 * NH2Cl^2 -
+        k6 * NHCl2 * alpha1TOTNH * TOTNH * H)
+      dTOTCl <- (-k1 *
+        alpha0TOTCl *
+        TOTCl *
+        alpha1TOTNH *
+        TOTNH +
+        k2 * NH2Cl -
+        k3 * alpha0TOTCl * TOTCl * NH2Cl +
+        k4 * NHCl2 +
+        k8 * I * NHCl2 -
+        (k11p + k11OCl * alpha1TOTCl * TOTCl) * alpha0TOTCl * TOTCl * NHCl2 +
+        2 * k12 * NHCl2 * NCl3 * OH +
+        k13 * NH2Cl * NCl3 * OH -
         2 * k14 * NHCl2 * alpha1TOTCl * TOTCl)
-      dNH2Cl <- (k1 * alpha0TOTCl * TOTCl * alpha1TOTNH * TOTNH - k2 * NH2Cl - k3 * alpha0TOTCl * TOTCl * NH2Cl + k4 * NHCl2 - 2 * k5 * NH2Cl^2 +
-        2 * k6 * NHCl2 * alpha1TOTNH * TOTNH * H - k9 * I * NH2Cl - k10 * NH2Cl * NHCl2 - k13 * NH2Cl * NCl3 * OH)
+      dNH2Cl <- (k1 *
+        alpha0TOTCl *
+        TOTCl *
+        alpha1TOTNH *
+        TOTNH -
+        k2 * NH2Cl -
+        k3 * alpha0TOTCl * TOTCl * NH2Cl +
+        k4 * NHCl2 -
+        2 * k5 * NH2Cl^2 +
+        2 * k6 * NHCl2 * alpha1TOTNH * TOTNH * H -
+        k9 * I * NH2Cl -
+        k10 * NH2Cl * NHCl2 -
+        k13 * NH2Cl * NCl3 * OH)
       # add in nitrite-/bromide-induced dNH2Cl loss
 
-      dNHCl2 <- (k3 * alpha0TOTCl * TOTCl * NH2Cl - k4 * NHCl2 + k5 * NH2Cl^2 - k6 * NHCl2 * alpha1TOTNH * TOTNH * H - k7 * NHCl2 * OH - k8 * I * NHCl2 -
-        k10 * NH2Cl * NHCl2 - (k11p + k11OCl * alpha1TOTCl * TOTCl) * alpha0TOTCl * TOTCl * NHCl2 - k12 * NHCl2 * NCl3 * OH -
+      dNHCl2 <- (k3 *
+        alpha0TOTCl *
+        TOTCl *
+        NH2Cl -
+        k4 * NHCl2 +
+        k5 * NH2Cl^2 -
+        k6 * NHCl2 * alpha1TOTNH * TOTNH * H -
+        k7 * NHCl2 * OH -
+        k8 * I * NHCl2 -
+        k10 * NH2Cl * NHCl2 -
+        (k11p + k11OCl * alpha1TOTCl * TOTCl) * alpha0TOTCl * TOTCl * NHCl2 -
+        k12 * NHCl2 * NCl3 * OH -
         k14 * NHCl2 * alpha1TOTCl * TOTCl)
-      dNCl3 <- ((k11p + k11OCl * alpha1TOTCl * TOTCl) * alpha0TOTCl * TOTCl * NHCl2 - k12 * NHCl2 * NCl3 * OH - k13 * NH2Cl * NCl3 * OH)
+      dNCl3 <- ((k11p + k11OCl * alpha1TOTCl * TOTCl) *
+        alpha0TOTCl *
+        TOTCl *
+        NHCl2 -
+        k12 * NHCl2 * NCl3 * OH -
+        k13 * NH2Cl * NCl3 * OH)
       dI <- (k7 * NHCl2 * OH - k8 * I * NHCl2 - k9 * I * NH2Cl)
       list(c(dTOTNH, dTOTCl, dNH2Cl, dNHCl2, dNCl3, dI))
     })
@@ -242,7 +304,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     func = chloramine, # revisit as.data.frame vs. data.frame
     parms = NULL,
     y = yin,
-    times = seq(0, time, by = 60), # read ode function
+    times = seq(0, time, by = 2), # read ode function
     atol = 1e-12,
     rtol = 1e-12
   ))
@@ -252,17 +314,18 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
   # Note that some values turn out to be less than 0 and just oscillate around 0 as the ode calculates, may be set to NA
   sim_data[sim_data < 0] <- 0
 
-  # concentrations (moles/L) in Cl2 or N
-  water@free_chlorine <- sim_data$TOTCl
+  # All concentrations start in moles/L Cl2 or N
   water@nh2cl <- sim_data$NH2Cl
   water@nhcl2 <- sim_data$NHCl2
   water@ncl3 <- sim_data$NCl3
+  water@free_chlorine <- sim_data$TOTCl
+
+  # Ammonia from model is free. Calculate total for water. (1 mol NH3 per mol each chloramine).
+  water@tot_nh3 <- sim_data$TOTNH + sim_data$NH2Cl + sim_data$NHCl2 + sim_data$NCl3
   water@combined_chlorine <- water@nh2cl + water@nhcl2 + water@ncl3
-  water@tot_nh3 <- sim_data$TOTNH
 
   return(water)
 }
-
 
 
 #' @rdname chemdose_chloramine
@@ -296,10 +359,18 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #' @returns `chemdose_chloramine_df` returns a data frame containing water class column with updated chlorine/chloramine slots:
 #' free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it also adds columns for each of those slots individually.
 #'
-chemdose_chloramine_df <- function(df, input_water = "defined", output_water = "chloraminated",
-                                   pluck_cols = FALSE, water_prefix = TRUE,
-                                   time = "use_col", cl2 = "use_col", nh3 = "use_col",
-                                   use_free_cl_slot = "use_col", use_tot_nh3_slot = "use_col") {
+chemdose_chloramine_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "chloraminated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  time = "use_col",
+  cl2 = "use_col",
+  nh3 = "use_col",
+  use_free_cl_slot = "use_col",
+  use_tot_nh3_slot = "use_col"
+) {
   validate_water_helpers(df, input_water)
 
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -309,9 +380,13 @@ chemdose_chloramine_df <- function(df, input_water = "defined", output_water = "
   use_tot_nh3_slot <- tryCatch(use_tot_nh3_slot, error = function(e) enquo(use_tot_nh3_slot))
 
   arguments <- construct_helper(
-    df, list(
-      "cl2" = cl2, "nh3" = nh3, "time" = time,
-      "use_free_cl_slot" = use_free_cl_slot, "use_tot_nh3_slot" = use_tot_nh3_slot
+    df,
+    list(
+      "cl2" = cl2,
+      "nh3" = nh3,
+      "time" = time,
+      "use_free_cl_slot" = use_free_cl_slot,
+      "use_tot_nh3_slot" = use_tot_nh3_slot
     )
   )
 
@@ -323,7 +398,8 @@ chemdose_chloramine_df <- function(df, input_water = "defined", output_water = "
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(cl2 = 0, nh3 = 0, use_free_cl_slot = FALSE, use_tot_nh3_slot = FALSE)
   )
   df <- defaults_added$data
