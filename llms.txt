@@ -1,0 +1,327 @@
+# tidywater
+
+## Overview
+
+Tidywater incorporates published water chemistry and empirical models in
+a standard format. The modular functions allow for building custom,
+comprehensive drinking water treatment processes. Functions are designed
+to work in a [tidyverse](https://www.tidyverse.org/) workflow.
+
+## Installation
+
+``` r
+# Install tidywater from CRAN:
+install.packages("tidywater")
+
+# Alternatively, install the development version from GitHub:
+# install.packages("devtools")
+devtools::install_github("BrownandCaldwell-Public/tidywater")
+```
+
+## Examples
+
+In this first example, acid-base chemistry and TOC removal models are
+demonstrated. This example uses tidywater base functions to model a
+single water quality scenario.
+
+``` r
+library(tidywater)
+library(tidyverse)
+## Use base tidywater functions to model water quality for a single scenario.
+base_coagulation <- define_water(ph = 8, alk = 90, tds = 50, toc = 3, doc = 2.8, uv254 = 0.08) %>%
+  # note that we get a warning about sulfate from this code because we didn't specify sulfate in the define_water
+  chemdose_ph(alum = 30) %>%
+  chemdose_toc(alum = 30)
+#> Warning in chemdose_ph(., alum = 30): Sulfate-containing chemical dosed, but
+#> so4 water slot is NA. Slot not updated because background so4 unknown.
+```
+
+To model multiple water quality scenarios, use tidywater’s helper
+functions (x_df) to apply the models to a dataframe. The `pluck_cols`
+argument can be added to return the parameters impacted by the model as
+separate columns. The `pluck_water` function can pull any parameter from
+a water into a separate column.
+
+``` r
+
+coagulation <- water_df %>%
+  define_water_df(output_water = "raw") %>%
+  mutate(alum = 30) %>%
+  chemdose_ph_df(input_water = "raw", output_water = "phchange") %>% # return "phchange" water
+  chemdose_toc_df(input_water = "phchange", output_water = "coag", pluck_cols = TRUE) # return "coag" water and coag_doc, coag_toc, coag_uv254 as columns
+
+## To get individual parameters, use `pluck_water`
+coagulation <- coagulation %>%
+  pluck_water(input_waters = c("raw", "coag"), parameter = c("ph", "doc"))
+```
+
+Note that these functions use a “water” class. The “water” class is the
+foundation of the package; it provides a mechanism for linking models in
+any order while maintaining water quality information. The
+`define_water` function takes water quality inputs, but
+`define_water_df` may be used to convert a dataframe to a list of
+“waters”.
+
+For more detailed examples on tidywater functions and how to use “water”
+class data, please see the tidywater vignettes:
+`browseVignettes("tidywater")`
+
+## Limitations
+
+This project is maintained by volunteers and is provided without
+warranties or guarantees of any kind.
+
+Use at your own risk. For official support, please contact Brown and
+Caldwell.
+
+Please read our CONTRIBUTING.md and SECURITY.md before submitting issues
+or pull requests.
+
+# Package index
+
+## All functions
+
+- [`balance_ions()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/balance_ions.md)
+  [`balance_ions_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/balance_ions.md)
+  : Add an ion to balance overall charge in a water
+
+- [`biofilter_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/biofilter_toc.md)
+  [`biofilter_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/biofilter_toc.md)
+  : Determine TOC removal from biofiltration using Terry & Summers BDOC
+  model
+
+- [`blend_waters()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/blend_waters.md)
+  [`blend_waters_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/blend_waters.md)
+  : Determine blended water quality from multiple waters based on mass
+  balance and acid/base equilibrium
+
+- [`bromatecoeffs`](https://BrownandCaldwell-Public.github.io/tidywater/reference/bromatecoeffs.md)
+  : Data frame of bromate coefficients for predicting bromate formation
+  during ozonation
+
+- [`calculate_activity()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/calculate_activity.md)
+  : Calculate activity coefficients
+
+- [`calculate_corrosion()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/calculate_corrosion.md)
+  [`calculate_corrosion_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/calculate_corrosion.md)
+  : Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR,
+  CCPP)
+
+- [`calculate_hardness()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/calculate_hardness.md)
+  : Calculate hardness from calcium and magnesium
+
+- [`chemdose_chloramine()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_chloramine.md)
+  [`chemdose_chloramine_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_chloramine.md)
+  : Calculate chlorine and chloramine Concentrations with the breakpoint
+  cblorination approach
+
+- [`chemdose_chlordecay()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_chlordecay.md)
+  [`chemdose_chlordecay_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_chlordecay.md)
+  : Calculate chlorine decay
+
+- [`chemdose_dbp()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_dbp.md)
+  [`chemdose_dbp_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_dbp.md)
+  : Calculate DBP formation
+
+- [`chemdose_ph()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+  [`chemdose_ph_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+  : Calculate new pH and ion balance after chemical addition
+
+- [`chemdose_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_toc.md)
+  [`chemdose_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_toc.md)
+  : Determine TOC removal from coagulation
+
+- [`chloramine_conv`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chloramine_conv.md)
+  : Data frame of conversion factors for estimating DBP formation from
+  chloramines
+
+- [`cl2coeffs`](https://BrownandCaldwell-Public.github.io/tidywater/reference/cl2coeffs.md)
+  : Data frame of Cl2 decay coefficients
+
+- [`convert_units()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_units.md)
+  : Calculate unit conversions for common compounds
+
+- [`convert_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_water.md)
+  [`convert_watermg()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_water.md)
+  :
+
+  Convert `water` class object to a dataframe
+
+- [`correct_k()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/correct_k.md)
+  : Correct acid dissociation constants
+
+- [`dbp_correction`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dbp_correction.md)
+  : Data frame of correction factors for estimating DBP formation as a
+  function of location
+
+- [`dbpcoeffs`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dbpcoeffs.md)
+  : Data frame of DBP coefficients for predicting DBP formation
+
+- [`decarbonate_ph()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/decarbonate_ph.md)
+  [`decarbonate_ph_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/decarbonate_ph.md)
+  : Apply decarbonation to a water
+
+- [`define_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  : Create a water class object given water quality parameters
+
+- [`define_water_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  :
+
+  Apply `define_water` within a dataframe and output a column of `water`
+  class to be chained to other tidywater functions
+
+- [`discons`](https://BrownandCaldwell-Public.github.io/tidywater/reference/discons.md)
+  : Dissociation constants and standard enthalpy for weak acids/bases
+
+- [`dissolve_cu()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dissolve_cu.md)
+  : Calculate Dissolved Copper Concentration
+
+- [`dissolve_cu_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dissolve_cu_df.md)
+  : Calculate Dissolved Copper Concentration
+
+- [`dissolve_pb()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dissolve_pb.md)
+  [`dissolve_pb_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/dissolve_pb.md)
+  : Simulate contributions of various lead solids to total soluble lead
+
+- [`edwardscoeff`](https://BrownandCaldwell-Public.github.io/tidywater/reference/edwardscoeff.md)
+  : Data frame of Edwards model coefficients
+
+- [`gac_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gac_toc.md)
+  [`gac_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gac_toc.md)
+  : Calculate TOC Concentration in GAC system
+
+- [`gacbv_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gacbv_toc.md)
+  [`gacbv_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gacbv_toc.md)
+  : Calculate maximum bed volumes to stay below target DOC
+
+- [`gacrun_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gacrun_toc.md)
+  [`gacrun_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/gacrun_toc.md)
+  : Calculate TOC Concentration in GAC system
+
+- [`leadsol_constants`](https://BrownandCaldwell-Public.github.io/tidywater/reference/leadsol_constants.md)
+  : Data frame of equilibrium constants for lead and copper solubility
+
+- [`modify_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/modify_water.md)
+  [`modify_water_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/modify_water.md)
+  :
+
+  Modify slots in a `water` class object
+
+- [`mweights`](https://BrownandCaldwell-Public.github.io/tidywater/reference/mweights.md)
+  : Molar weights of relevant compounds
+
+- [`opensys_ph()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/opensys_ph.md)
+  [`opensys_ph_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/opensys_ph.md)
+  : Calculate pH for water in an open system
+
+- [`ozonate_bromate()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/ozonate_bromate.md)
+  [`ozonate_bromate_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/ozonate_bromate.md)
+  : Calculate bromate formation
+
+- [`pac_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/pac_toc.md)
+  [`pac_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/pac_toc.md)
+  : Calculate DOC Concentration in PAC system
+
+- [`pactoccoeffs`](https://BrownandCaldwell-Public.github.io/tidywater/reference/pactoccoeffs.md)
+  : Data frame of PAC TOC model coefficients
+
+- [`plot_ions()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/plot_ions.md)
+  : Create summary plot of ions from water class
+
+- [`plot_lead()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/plot_lead.md)
+  : Create dissolved lead and DIC contour plot given input data frame
+
+- [`pluck_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/pluck_water.md)
+  :
+
+  Pluck out a single parameter from a `water` class object
+
+- [`regulate_toc()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/regulate_toc.md)
+  [`regulate_toc_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/regulate_toc.md)
+  : Determine if TOC removal meets Stage 1 DBP Rule requirements
+
+- [`solvecost_chem()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvecost_chem.md)
+  : Determine chemical cost
+
+- [`solvecost_labor()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvecost_labor.md)
+  : Determine labor cost
+
+- [`solvecost_power()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvecost_power.md)
+  : Determine power cost
+
+- [`solvecost_solids()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvecost_solids.md)
+  : Determine solids disposal cost
+
+- [`solvect_chlorine()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvect_chlorine.md)
+  [`solvect_chlorine_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvect_chlorine.md)
+  : Determine disinfection credit from chlorine.
+
+- [`solvect_o3()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvect_o3.md)
+  [`solvect_o3_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvect_o3.md)
+  : Determine disinfection credit from ozone.
+
+- [`solvedose_alk()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_alk.md)
+  [`solvedose_alk_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_alk.md)
+  : Calculate a desired chemical dose for a target alkalinity
+
+- [`solvedose_ph()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_ph.md)
+  [`solvedose_ph_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_ph.md)
+  : Calculate a desired chemical dose for a target pH
+
+- [`solvemass_chem()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvemass_chem.md)
+  : Convert mg/L of chemical to lb/day
+
+- [`solvemass_solids()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvemass_solids.md)
+  : Determine solids lb/day
+
+- [`solveresid_o3()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solveresid_o3.md)
+  [`solveresid_o3_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/solveresid_o3.md)
+  : Determine ozone decay
+
+- [`summarize_wq()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/summarize_wq.md)
+  [`summarise_wq()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/summarize_wq.md)
+  : Create summary table from water class
+
+- [`toc_compliance_table`](https://BrownandCaldwell-Public.github.io/tidywater/reference/toc_compliance_table.md)
+  : Data frame of TOC removal requirements per Stage 1 DBP Rule
+
+- [`vlog_removalcts`](https://BrownandCaldwell-Public.github.io/tidywater/reference/vlog_removalcts.md)
+  : Data frame of virus log removal CT values
+
+- [`water_df`](https://BrownandCaldwell-Public.github.io/tidywater/reference/water_df.md)
+  : Data frame of water quality parameters
+
+# Articles
+
+### All vignettes
+
+- [Fitting and using custom coefficients in
+  chemdose_dbp](https://BrownandCaldwell-Public.github.io/tidywater/articles/coeff_fitting_chemdose_dbp.md):
+
+  This vignette will detail how to use custom coefficients to predict
+  DBP formation.
+
+- [Blending Multiple
+  Waters](https://BrownandCaldwell-Public.github.io/tidywater/articles/help_functions_blend_waters.md):
+
+  This vignette will show how to do a water blending analysis using some
+  of tidywater’s helper functions.
+
+- [Helper Functions & Dose
+  Chemicals](https://BrownandCaldwell-Public.github.io/tidywater/articles/help_functions_chemdose_ph.md):
+
+  This vignette will show how to use some of tidywater’s helper
+  functions through chemical additions
+
+- [Introduction to tidywater: Basic
+  functions](https://BrownandCaldwell-Public.github.io/tidywater/articles/intro.md):
+
+  This vignette will detail how to use the tidywater base functions for
+  basic water quality analysis.
+
+- [Getting started with
+  tidywater](https://BrownandCaldwell-Public.github.io/tidywater/articles/tidywater.md):
+
+  Start here if this is your first time using tidywater. You’ll learn
+  how to set up a `water` and how to apply different models to that
+  water.

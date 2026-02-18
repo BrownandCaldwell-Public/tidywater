@@ -243,7 +243,7 @@ like. You can see that cation and anion bars are not equal, so this is
 not very realistic.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_ions.html">plot_ions</a></span><span class="op">(</span><span class="va">my_water</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
 <p>To correct this, the <code>balance_ions</code> function automatically
 adds in sodium, potassium, chloride, or sulfate until anions + cations =
 0. Let’s see what happens to the ion plot when we use
@@ -252,7 +252,7 @@ concentrations.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">balanced_water</span> <span class="op">&lt;-</span> <span class="va">my_water</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/balance_ions.html">balance_ions</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_ions.html">plot_ions</a></span><span class="op">(</span><span class="va">balanced_water</span><span class="op">)</span></span></code></pre></div>
-<p><img src="intro_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
+<p><img src="intro_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
 <p>Great! <code>balance_ions</code> added chloride to
 <code>my_water</code> so it is now electrically neutral. To see how much
 chloride was added, you can use the “@” symbol with a <code>water</code>
@@ -426,7 +426,7 @@ Description file for the models implemented.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

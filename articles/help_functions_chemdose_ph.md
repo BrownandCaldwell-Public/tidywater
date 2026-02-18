@@ -1,0 +1,246 @@
+# Helper Functions & Dose Chemicals
+
+This vignette assumes a basic understanding of `define_water` and the S4
+`water` class. See
+[`vignette("intro", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/intro.md)
+for more information.
+
+## Chemical dosing setup
+
+To showcase tidywater’s acid-base equilibrium functions, let’s use a
+common water treatment problem. In this analysis, a hypothetical
+drinking water utility wants to know how much their pH will be impacted
+by varying doses of alum. They also want to ensure that their finished
+water has a pH of 8.
+
+We can create a quick model by manually inputting the utility’s typical
+water quality. Then we’ll dose the water with their typical alum dose of
+30 mg/L, and then a proposed 20mg/L dose. Finally, we’ll see how much
+caustic is required to raise the pH back to 8.
+
+``` r
+# Use define_water to prepare for tidywater analysis
+no_alum_water <- define_water(ph = 8.3, temp = 18, alk = 150)
+
+# Dose 30 mg/L of alum
+alum_30 <- no_alum_water %>%
+  chemdose_ph(alum = 30) %>%
+  solvedose_ph(target_ph = 8, chemical = "naoh")
+
+alum_30 # Caustic dose required to raise pH to 8 when 30 mg/L of alum is added
+># [1] 10.3
+
+# Dose 20 mg/L of alum
+alum_20 <- no_alum_water %>%
+  chemdose_ph(alum = 20) %>%
+  solvedose_ph(target_ph = 8, chemical = "naoh")
+
+alum_20 # Caustic dose required to raise pH to 8 when 20 mg/L of alum is added
+># [1] 6.2
+```
+
+As expected, a lower alum dose requires a lower caustic dose to reach
+the target pH.
+
+Note: How can you remember the difference between `solvedose_ph` vs
+`chemdose_ph`? Any function beginning with “solve” is named for what it
+is solving for based on one input: SolveWhatItReturns_Input. So,
+`solvedose_ph` is solving for a dose based on a target pH.
+
+Other treatment functions are set up as
+WhatHappensToTheWater_WhatYouSolveFor. So with `chemdose_ph`, chemicals
+are being dosed, and we’re solving for the resulting pH (and other
+components of acid/base chemistry). `chemdose_toc` models the resulting
+TOC after chemicals are added, and `dissolve_pb` calculates lead
+solubility in the distribution system.
+
+## Multi-scenario setup and intro to `_df` functions
+
+But what if the utility wants to test a variety of alum doses on a range
+of their water quality? Here, we’ll use the power of tidywater’s `_df`
+functions to extend this analysis to a full dataframe.
+
+We’ll use tidywater’s built-in water quality data, `water_df`, then
+apply `define_water_df` to convert the data in the dataframe to a
+`water` object in one column of the dataframe. We use `define_water_df`
+so that other models can be added to the dataframe. This function takes
+a dataframe input, then outputs all parameters in a `water` class
+column. This is true for all tidywater functions with the `_df` suffix.
+`_df` functions are handy in a piped code block where you’ll need to use
+many tidywater functions, such as `chemdose_ph`, `chemdose_toc`, etc.
+After applying `define_water_df`, we’ll also use `balance_ions_df` to
+create a new variable with the ions balanced for all the “raw” `water`
+objects in the dataframe.
+
+We’ll also set a range of alum doses to see how they affect each water
+quality scenario.
+
+``` r
+# Set a range of alum doses
+
+alum_doses <- tibble(alum_dose = seq(20, 60, 10))
+
+# use tidywater's built-in synthetic data water_df, for this example
+raw_water <- water_df %>%
+  slice_head(n = 2) %>%
+  define_water_df(output_water = "raw") %>%
+  balance_ions_df(input_water = "raw") %>%
+  # join alum doses to create several dosing scenarios
+  cross_join(alum_doses)
+```
+
+## `chemdose_ph_df` and `pluck_water`
+
+Now that we’re set up, let’s dose some alum! To do this, we’ll use
+`chemdose_ph_df`, a function with the `_df` suffix introduced earlier
+but whose tidywater base is `chemdose_ph`. The `chemdose_ph_df` function
+requires dosed chemicals to match the argument’s notation or have to be
+specified when calling the the function. Most tidywater chemicals are
+named with their chemical formula, all lowercase and no special
+characters.
+
+There are two ways to dose chemicals.
+
+1.  You can pass an appropriately named column into the function, or
+
+2.  You can specify the chemical in the function.
+
+Let’s look at both options using the alum doses from before, and adding
+hydrochloric acid. You should notice that the ouputs of both methods are
+the same.
+
+``` r
+# 1. Use existing column in data frame to dose a chemical
+dose_water <- raw_water %>%
+  mutate(hcl = 5) %>%
+  chemdose_ph_df(input_water = "raw", alum = alum_dose, pluck_cols = TRUE) %>%
+  pluck_water(input_water = "raw", parameter = "ph") %>%
+  select(-c(raw, dosed_chem))
+
+head(dose_water)
+>#                                                 balanced alum_dose hcl
+># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5
+># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30   5
+># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40   5
+># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50   5
+># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60   5
+># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5
+>#   dosed_chem_ph dosed_chem_alk raw_ph
+># 1          6.60       33.04107    7.9
+># 2          6.42       27.96961    7.9
+># 3          6.25       22.98907    7.9
+># 4          6.07       17.92141    7.9
+># 5          5.87       12.96700    7.9
+># 6          6.93       62.87537    8.5
+
+# 2. Dose a chemical in the function
+dose_water <- raw_water %>%
+  chemdose_ph_df(input_water = "raw", alum = alum_dose, hcl = 5) %>%
+  pluck_water(input_water = c("raw", "dosed_chem"), parameter = "ph") %>%
+  select(-c(raw, dosed_chem))
+
+head(dose_water)
+>#                                                 balanced alum_dose hcl raw_ph
+># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5    7.9
+># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30   5    7.9
+># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40   5    7.9
+># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50   5    7.9
+># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60   5    7.9
+># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5    8.5
+>#   dosed_chem_ph
+># 1          6.60
+># 2          6.42
+># 3          6.25
+># 4          6.07
+># 5          5.87
+># 6          6.93
+```
+
+Notice in the above code that we used the `pluck_water` helper function.
+This function creates a new column for one selected parameter from a
+`water` class object. You can choose which `water` column to pluck from
+using the `input_water` argument. Next, select the parameter of interest
+(which must match the water slot’s name). Finally, the output column’s
+name will default to the form `water_parameter`, but there is an option
+to name it yourself using the `output_column` argument. We can also
+directly pull out the output from a model function into its own column
+with `pluck_cols = TRUE` so that you don’t need to apply `pluck_water`
+later.
+
+## `solvedose_ph_df`
+
+Remember, our original task is to see how alum addition affects the pH,
+but the finished water pH needs to be 8. First, we’ll use caustic to
+raise the pH to 8. `solvedose_ph_df` uses `solvedose_ph` to calculate
+the required chemical dose (as chemical, not product) based on a target
+pH. Similar to `chemdose_ph_df`, `solvedose_ph_df` can handle chemical
+selection and target pH inputs as a column or function arguments.
+
+``` r
+solve_ph <- raw_water %>%
+  chemdose_ph_df("raw", alum = alum_dose) %>%
+  mutate(target_ph = 8) %>%
+  solvedose_ph_df(input_water = "dosed_chem", chemical = c("naoh", "mgoh2")) %>%
+  select(-c(raw, dosed_chem))
+
+head(solve_ph)
+>#                                                 balanced alum_dose target_ph
+># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20         8
+># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30         8
+># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40         8
+># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50         8
+># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60         8
+># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20         8
+>#   chemical dose
+># 1     naoh  8.3
+># 2     naoh 12.3
+># 3     naoh 16.5
+># 4     naoh 20.5
+># 5     naoh 24.4
+># 6     naoh  6.3
+```
+
+Now that we have the dose required to raise the pH to 8, let’s dose
+caustic into the water!
+
+``` r
+dosed_caustic_water <- raw_water %>%
+  chemdose_ph_df(input_water = "raw", output_water = "alum_dosed", alum = alum_dose) %>%
+  solvedose_ph_df(input_water = "alum_dosed", target_ph = 8, chemical = "naoh") %>%
+  chemdose_ph_df(input_water = "alum_dosed", output_water = "caustic_dosed", naoh = dose) %>%
+  pluck_water(input_water = "caustic_dosed", "ph") %>%
+  select(-c(raw:balanced, alum_dosed))
+
+head(dosed_caustic_water)
+>#   alum_dose target_ph chemical dose
+># 1        20         8     naoh  8.3
+># 2        30         8     naoh 12.3
+># 3        40         8     naoh 16.5
+># 4        50         8     naoh 20.5
+># 5        60         8     naoh 24.4
+># 6        20         8     naoh  6.3
+>#                                            caustic_dosed caustic_dosed_ph
+># 1 <S4 class 'water' [package "tidywater"] with 75 slots>             7.99
+># 2 <S4 class 'water' [package "tidywater"] with 75 slots>             7.98
+># 3 <S4 class 'water' [package "tidywater"] with 75 slots>             8.00
+># 4 <S4 class 'water' [package "tidywater"] with 75 slots>             8.02
+># 5 <S4 class 'water' [package "tidywater"] with 75 slots>             8.01
+># 6 <S4 class 'water' [package "tidywater"] with 75 slots>             7.99
+```
+
+You can see the resulting pH from dosing caustic has raised the pH to 8
++/- 0.02 SU. Doses are rounded to the nearest 0.1 mg/L to make the
+calculations go a little faster.
+
+## Summary
+
+In this tutorial, we were introduced to tidywater helper functions
+`_df`, which can be used to apply base functions to a dataframe. We also
+used the `pluck_water` helper function and the `pluck_cols` argument to
+extract parameters of interest from our dataframes.
+
+We implemented these helper functions to complete an example dosing
+water with coagulant (alum) and adjusting the resulting pH to a target
+pH of 8 using `solvedose_ph` and `chemdose_ph` functions. To try another
+example with helper functions and learn about the `blend_waters`
+function, see `vignette("blend_waters", package = "tidywater")`.

@@ -1,0 +1,302 @@
+# Calculate new pH and ion balance after chemical addition
+
+Calculates the new pH, alkalinity, and ion balance of a water based on
+different chemical additions. For a single water use `chemdose_ph`; for
+a dataframe use `chemdose_ph_df`. Use `pluck_cols = TRUE` to get values
+from the output water as new dataframe columns. For most arguments in
+the `_df` helper "use_col" default looks for a column of the same name
+in the dataframe. The argument can be specified directly in the function
+instead or an unquoted column name can be provided.
+
+## Usage
+
+``` r
+chemdose_ph(
+  water,
+  hcl = 0,
+  h2so4 = 0,
+  h3po4 = 0,
+  hno3 = 0,
+  ch3cooh = 0,
+  co2 = 0,
+  naoh = 0,
+  caoh2 = 0,
+  mgoh2 = 0,
+  na2co3 = 0,
+  nahco3 = 0,
+  caco3 = 0,
+  caso4 = 0,
+  caocl2 = 0,
+  cacl2 = 0,
+  cl2 = 0,
+  naocl = 0,
+  nh4oh = 0,
+  nh42so4 = 0,
+  alum = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
+  ach = 0,
+  kmno4 = 0,
+  naf = 0,
+  na3po4 = 0,
+  softening_correction = FALSE
+)
+
+chemdose_ph_df(
+  df,
+  input_water = "defined",
+  output_water = "dosed_chem",
+  na_to_zero = TRUE,
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  hcl = "use_col",
+  h2so4 = "use_col",
+  h3po4 = "use_col",
+  hno3 = "use_col",
+  ch3cooh = "use_col",
+  co2 = "use_col",
+  naoh = "use_col",
+  na2co3 = "use_col",
+  nahco3 = "use_col",
+  caoh2 = "use_col",
+  mgoh2 = "use_col",
+  caocl2 = "use_col",
+  cacl2 = "use_col",
+  cl2 = "use_col",
+  naocl = "use_col",
+  nh4oh = "use_col",
+  nh42so4 = "use_col",
+  caco3 = "use_col",
+  caso4 = "use_col",
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  ach = "use_col",
+  kmno4 = "use_col",
+  naf = "use_col",
+  na3po4 = "use_col",
+  softening_correction = "use_col"
+)
+```
+
+## Arguments
+
+- water:
+
+  Source water object of class "water" created by
+  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+
+- hcl:
+
+  Amount of hydrochloric acid added in mg/L: HCl -\> H + Cl
+
+- h2so4:
+
+  Amount of sulfuric acid added in mg/L: H2SO4 -\> 2H + SO4
+
+- h3po4:
+
+  Amount of phosphoric acid added in mg/L: H3PO4 -\> 3H + PO4
+
+- hno3:
+
+  Amount of nitric acid added in mg/L: HNO3 -\> H + NO3
+
+- ch3cooh:
+
+  Amount of acetic acid added in mg/L: CH3COOH -\> H + CH3COO-
+
+- co2:
+
+  Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -\> H2CO3\*
+
+- naoh:
+
+  Amount of caustic added in mg/L: NaOH -\> Na + OH
+
+- caoh2:
+
+  Amount of lime added in mg/L: Ca(OH)2 -\> Ca + 2OH
+
+- mgoh2:
+
+  Amount of magnesium hydroxide added in mg/L: Mg(OH)2 -\> Mg + 2OH
+
+- na2co3:
+
+  Amount of soda ash added in mg/L: Na2CO3 -\> 2Na + CO3
+
+- nahco3:
+
+  Amount of sodium bicarbonate added in mg/L: NaHCO3 -\> Na + H + CO3
+
+- caco3:
+
+  Amount of calcium carbonate added (or removed) in mg/L: CaCO3 -\> Ca +
+  CO3
+
+- caso4:
+
+  Amount of calcium sulfate added (for post-RO condition) in mg/L: CaSO4
+  -\> Ca + SO4
+
+- caocl2:
+
+  Amount of Calcium hypochlorite added in mg/L as Cl2: CaOCl2 -\> Ca +
+  2OCl
+
+- cacl2:
+
+  Amount of calcium chloride added in mg/L: CaCl2 -\> Ca2+ + 2Cl-
+
+- cl2:
+
+  Amount of chlorine gas added in mg/L as Cl2: Cl2(g) + H2O -\> HOCl +
+  H + Cl
+
+- naocl:
+
+  Amount of sodium hypochlorite added in mg/L as Cl2: NaOCl -\> Na + OCl
+
+- nh4oh:
+
+  Amount of ammonium hydroxide added in mg/L as N: NH4OH -\> NH4 + OH
+
+- nh42so4:
+
+  Amount of ammonium sulfate added in mg/L as N: (NH4)2SO4 -\> 2NH4 +
+  SO4
+
+- alum:
+
+  Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3\*14H2O +
+  6HCO3 -\> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
+
+- ferricchloride:
+
+  Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -\>
+  Fe(OH)3(am) + 3Cl + 3CO2
+
+- ferricsulfate:
+
+  Amount of ferric sulfate added in mg/L: Fe2(SO4)3\*8.8H2O + 6HCO3 -\>
+  2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+
+- ach:
+
+  Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl\*2H2O +
+  HCO3 -\> 2Al(OH)3(am) + Cl + 2H2O + CO2
+
+- kmno4:
+
+  Amount of potassium permanganate added in mg/L: KMnO4 -\> K + MnO4
+
+- naf:
+
+  Amount of sodium fluoride added in mg/L: NaF -\> Na + F
+
+- na3po4:
+
+  Amount of trisodium phosphate added in mg/L: Na3PO4 -\> 3Na + PO4
+
+- softening_correction:
+
+  Set to TRUE to correct post-softening pH (caco3 must be \< 0). Default
+  is FALSE. Based on WTP model equation 5-62
+
+- df:
+
+  a data frame containing a water class column, which has already been
+  computed using
+  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  The df may include columns named for the chemical(s) being dosed.
+
+- input_water:
+
+  name of the column of water class data to be used as the input for
+  this function. Default is "defined".
+
+- output_water:
+
+  name of the output column storing updated water class object. Default
+  is "dosed".
+
+- na_to_zero:
+
+  option to convert all NA values in the data frame to zeros. Default
+  value is TRUE.
+
+- pluck_cols:
+
+  Extract primary water slots modified by the function (ph, alk) into
+  new numeric columns for easy access. Default to FALSE.
+
+- water_prefix:
+
+  Append the output_water name to the start of the plucked columns.
+  Default is TRUE.
+
+## Value
+
+`chemdose_ph` returns a water class object with updated pH, alkalinity,
+and ions post-chemical addition.
+
+`chemdose_ph_df` returns a data frame containing a water class column
+with updated pH, alkalinity, and ions post-chemical addition.
+
+## Details
+
+The function takes an object of class "water" created by
+[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+and user-specified chemical additions and returns a new object of class
+"water" with updated water quality. Units of all chemical additions are
+in mg/L as chemical (not as product).
+
+`chemdose_ph` works by evaluating all the user-specified chemical
+additions and solving for what the new pH must be using
+[uniroot](https://rdrr.io/r/stats/uniroot.html) to satisfy the principle
+of electroneutrality in pure water while correcting for the existing
+alkalinity of the water that the chemical is added to. Multiple
+chemicals can be added simultaneously or each addition can be modeled
+independently through sequential doses.
+
+## See also
+
+[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
+[convert_units](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_units.md)
+
+## Examples
+
+``` r
+water <- define_water(ph = 7, temp = 25, alk = 10)
+#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+# Dose 1 mg/L of hydrochloric acid
+dosed_water <- chemdose_ph(water, hcl = 1)
+#> Warning: Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.
+
+# Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
+dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
+#> Warning: Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 water slot is NA. Slot not updated because background so4 unknown.
+
+# Softening:
+water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
+#> Warning: Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
+
+# \donttest{
+example_df <- water_df %>%
+  define_water_df() %>%
+  dplyr::slice_head(n = 3) %>%
+  dplyr::mutate(
+    hcl = c(2, 4, 6),
+    Caustic = 20
+  ) %>%
+  chemdose_ph_df(input_water = "defined", mgoh2 = c(20, 55), co2 = 4, naoh = Caustic)
+
+example_df <- water_df %>%
+  define_water_df() %>%
+  chemdose_ph_df(naoh = 5, pluck_cols = TRUE)
+# }
+```
