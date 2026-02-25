@@ -1,8 +1,8 @@
 # Acid/Base Equilibrium Functions
 
-#### Function to calculate the pH from a given water quality vector. Not exported in namespace.
+#### Function to calculate the pH from a given water quality vector using R implementation.
 
-solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, no3_dose = 0) {
+solve_ph_r <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, no3_dose = 0) {
   # Correct eq constants
   ks <- correct_k(water)
   gamma1 <- calculate_activity(1, water@is, water@temp)
@@ -66,4 +66,84 @@ solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0,
   )
   phfinal <- -log10(root_h$root * gamma1)
   return(round(phfinal, 2))
+}
+
+#### Rust implementation of solve_ph with same API
+#' Solve pH for water chemistry equilibrium (Rust implementation)
+#'
+#' This function provides a faster Rust implementation of the pH solver
+#' with the same API as the original solve_ph function.
+#'
+#' @param water Water object (S4 class) with water chemistry parameters
+#' @param so4_dose Sulfate dose (default 0)
+#' @param na_dose Sodium dose (default 0)
+#' @param ca_dose Calcium dose (default 0)
+#' @param mg_dose Magnesium dose (default 0)
+#' @param cl_dose Chloride dose (default 0)
+#' @param mno4_dose Permanganate dose (default 0)
+#' @param no3_dose Nitrate dose (default 0)
+#' @return pH value rounded to 2 decimal places
+#' @export
+solve_ph_rust <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, no3_dose = 0) {
+  # Extract parameters from water object and call Rust function
+  result <- solve_ph_rust_inner(
+    temp = water@temp,
+    ionic_strength = if (is.na(water@is)) NULL else water@is,
+    kw = water@kw,
+    tot_po4 = water@tot_po4,
+    tot_co3 = water@tot_co3,
+    tot_ocl = water@free_chlorine,
+    tot_nh3 = water@tot_nh3,
+    tot_ch3coo = water@tot_ch3coo,
+    h2po4_i = water@h2po4,
+    hpo4_i = water@hpo4,
+    po4_i = water@po4,
+    ocl_i = water@ocl,
+    nh4_i = water@nh4,
+    ch3coo_i = water@ch3coo,
+    carbonate_alk_eq = water@carbonate_alk_eq,
+    oh_i = water@oh,
+    h_i = water@h,
+    so4_dose = so4_dose,
+    na_dose = na_dose,
+    ca_dose = ca_dose,
+    mg_dose = mg_dose,
+    cl_dose = cl_dose,
+    mno4_dose = mno4_dose,
+    no3_dose = no3_dose
+  )
+
+  # Round to 2 decimal places like the original function
+  return(round(result, 2))
+}
+
+#### Main solve_ph function with backend selection
+#' Solve pH for water chemistry equilibrium
+#'
+#' This function solves for the pH of water given its chemical composition
+#' and optional chemical doses. It can use either a fast Rust implementation
+#' (default) or the original R implementation.
+#'
+#' @param water Water object (S4 class) with water chemistry parameters
+#' @param so4_dose Sulfate dose (default 0)
+#' @param na_dose Sodium dose (default 0)
+#' @param ca_dose Calcium dose (default 0)
+#' @param mg_dose Magnesium dose (default 0)
+#' @param cl_dose Chloride dose (default 0)
+#' @param mno4_dose Permanganate dose (default 0)
+#' @param no3_dose Nitrate dose (default 0)
+#' @param backend Character string specifying which backend to use:
+#'   "rust" (default, faster) or "r" (original R implementation)
+#' @return pH value rounded to 2 decimal places
+#' @export
+solve_ph <- function(water, so4_dose = 0, na_dose = 0, ca_dose = 0, mg_dose = 0, cl_dose = 0, mno4_dose = 0, no3_dose = 0, backend = "rust") {
+  # Validate backend parameter
+  backend <- match.arg(backend, choices = c("rust", "r"))
+
+  # Call the appropriate backend
+  if (backend == "rust") {
+    return(solve_ph_rust(water, so4_dose, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose))
+  } else {
+    return(solve_ph_r(water, so4_dose, na_dose, ca_dose, mg_dose, cl_dose, mno4_dose, no3_dose))
+  }
 }
