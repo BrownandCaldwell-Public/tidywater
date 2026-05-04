@@ -98,6 +98,7 @@ decay, so specifying the decay curve is recommended.
 ## Examples
 
 ``` r
+
 # Use kd from experimental data (recommended):
 define_water(ph = 7.5, temp = 25) %>%
   solvect_o3(time = 10, dose = 2, kd = -0.5, baffle = 0.9)

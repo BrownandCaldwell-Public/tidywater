@@ -7,6 +7,7 @@ and treatment processes using the R programming language. First, install
 the tidywater package and load the library.
 
 ``` r
+
 library(tidywater)
 ```
 
@@ -38,6 +39,7 @@ also ensures that all slots have the proper data class. For example,
 To start, let’s create a blank water class and call it `empty_water.`
 
 ``` r
+
 empty_water <- define_water()
 #> Warning in define_water(): Missing value for pH. Carbonate balance will not be
 #> calculated.
@@ -65,6 +67,7 @@ disinfection byproducts (DBPs). Different functions within tidywater
 will allow you to model all these parameters and more.
 
 ``` r
+
 print(empty_water)
 #> pH (unitless):  NA 
 #> Temperature (deg C):  25 
@@ -89,6 +92,7 @@ amount of carbonate (`co3`) and bicarbonate (`hco3`) in the water based
 on the alkalinity and pH.
 
 ``` r
+
 my_water <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50)
 my_water
 #> pH (unitless):  7.5 
@@ -106,6 +110,7 @@ function, which takes a water class object and exports an easy-to-read
 table of the water quality into the console.
 
 ``` r
+
 summarize_wq(my_water)
 ```
 
@@ -136,6 +141,7 @@ see what the current ion balance looks like. You can see that cation and
 anion bars are not equal, so this is not very realistic.
 
 ``` r
+
 plot_ions(my_water)
 ```
 
@@ -147,6 +153,7 @@ Let’s see what happens to the ion plot when we use `balance_ions` to
 estimate the missing ion concentrations.
 
 ``` r
+
 balanced_water <- my_water %>% balance_ions()
 plot_ions(balanced_water)
 ```
@@ -159,6 +166,7 @@ the “@” symbol with a `water` class object to access the slot you want,
 in this case, chloride
 
 ``` r
+
 my_water@cl # We did not input any chloride in the original water
 #> [1] NA
 
@@ -179,6 +187,7 @@ we want to convert the chloride concentration in `balanced_water` from M
 to mg/L.
 
 ``` r
+
 convert_units(value = balanced_water@cl, formula = "cl", startunit = "M", endunit = "mg/L")
 #> [1] 142.3539
 ```
@@ -196,6 +205,7 @@ we didn’t provide enough ions for the ionic strength to be determined.
 We can remedy this in a few ways.
 
 ``` r
+
 # The ionic strength slot was NA in the original water because we did not
 # provide enough information to calculate it
 my_water@is
@@ -244,6 +254,7 @@ hardness, we see that the `water` vector also contains estimates for
 calcium and magnesium.
 
 ``` r
+
 # Calculate hardness or calcium hardness
 hard_water <- define_water(8, 20, 100, tot_hard = 150)
 
@@ -275,6 +286,7 @@ is dissolved in raw waters could vary widely. [Westerhoff and Anning,
 standard conversion may not be right for your context.
 
 ``` r
+
 # Calculate TOC and DOC
 toc_water <- define_water(8, 20, 100, toc = 3)
 toc_water@toc # mg/L

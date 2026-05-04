@@ -53,6 +53,7 @@ sure that our data was balanced using `balance_ions_df`, we can plot our
 `water` class column: dataframe\$water_class_column\[\[row_number\]\]
 
 ``` r
+
 # Ion plot before balance_ions_df was applied
 raw_wells_water$defined[[1]] %>%
   plot_ions()
@@ -61,6 +62,7 @@ raw_wells_water$defined[[1]] %>%
 ![](help_functions_blend_waters_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 # Plot of balanced ions
 raw_wells_water$balanced[[1]] %>%
   plot_ions()
@@ -114,6 +116,7 @@ We will create a data frame of the blend scenarios we will be modeling,
 in this case, we are varying flow rates from the different sources.
 
 ``` r
+
 # Assume wells can contribute up to 5 MGD each
 groundwater <- tibble(Wells_flow = c(0, 2.5, 5))
 # Blending scenarios and the resulting source water ratios
@@ -143,6 +146,7 @@ later. Most of tidywater’s `_df` functions have the option to name the
 output column. Defaults vary depending on the `_df` function.
 
 ``` r
+
 Wells_water <- tibble(wells = c(blended_wells_water))
 
 River_water <- tibble(
@@ -174,6 +178,7 @@ the names of those ratio columns into the `ratio` argument. The ratios
 must always add up to 1, otherwise the function will not run.
 
 ``` r
+
 blend_water <- scenarios %>%
   cross_join(Wells_water) %>%
   cross_join(River_water) %>%
@@ -189,6 +194,7 @@ pull out a parameter of interest using `pluck_water`. Finally, we finish
 by plotting our parameter of interest with the `ggplot` package.
 
 ``` r
+
 plotting_data <- blend_water %>%
   pluck_water(input_water = "blended", "tot_hard")
 

@@ -76,6 +76,7 @@ We’ll also set a range of alum doses to see how they affect each water
 quality scenario.
 
 ``` r
+
 # Set a range of alum doses
 
 alum_doses <- tibble(alum_dose = seq(20, 60, 10))

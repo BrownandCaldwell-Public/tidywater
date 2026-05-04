@@ -101,6 +101,7 @@ Profiling Guidance. Log removal is a rearrangement of the CT equations.
 ## Examples
 
 ``` r
+
 example_ct <- define_water(ph = 7.5, temp = 25) %>%
   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
 #> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.

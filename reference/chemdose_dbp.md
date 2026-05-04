@@ -181,8 +181,8 @@ example_df <- water_df %>%
     cl2 = cl2_dose, treatment = "coag", location = "ds",
     cl_type = "chloramine", pluck_cols = TRUE
   )
-#> Warning: Temperature is outside the model bounds of temp=20 Celsius for coagulated water.
 #> Warning: pH is outside the model bounds of pH = 7.5 for coagulated water
+#> Warning: Temperature is outside the model bounds of temp=20 Celsius for coagulated water.
 #> Warning: pH is outside the model bounds of pH = 7.5 for coagulated water
 #> Warning: Temperature is outside the model bounds of temp=20 Celsius for coagulated water.
 #> Warning: pH is outside the model bounds of pH = 7.5 for coagulated water

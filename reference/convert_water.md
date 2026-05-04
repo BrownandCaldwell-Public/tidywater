@@ -36,6 +36,7 @@ mg/L.
 ## Examples
 
 ``` r
+
 # Generates 1 row dataframe
 example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
   convert_water()

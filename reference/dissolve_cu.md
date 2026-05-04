@@ -38,6 +38,7 @@ mg/L.
 ## Examples
 
 ``` r
+
 example_cu <- define_water(ph = 7.5, alk = 125, tot_po4 = 2) %>%
   dissolve_cu()
 #> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.

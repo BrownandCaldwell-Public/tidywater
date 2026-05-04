@@ -18,6 +18,8 @@ Useful links:
 
 - <https://github.com/BrownandCaldwell-Public/tidywater>
 
+- <https://BrownandCaldwell-Public.github.io/tidywater>
+
 - Report bugs at
   <https://github.com/BrownandCaldwell-Public/tidywater/issues>
 

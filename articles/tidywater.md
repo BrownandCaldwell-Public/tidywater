@@ -1,6 +1,7 @@
 # Getting started with tidywater
 
 ``` r
+
 library(tidywater)
 ```
 
@@ -18,6 +19,7 @@ on the parameter. Units are also in the documentation, so make sure to
 check carefully until you are familiar with the system.
 
 ``` r
+
 mywater <- define_water(
   ph = 7, temp = 15, alk = 100, tot_hard = 100, na = 100, cl = 80,
   cond = 100,
@@ -48,6 +50,7 @@ determining the impact of adding 5 mg/L HCl and 20 mg/L alum as the
 coagulant.
 
 ``` r
+
 dosed_water <- chemdose_ph(mywater, hcl = 5, alum = 20)
 #> Warning in chemdose_ph(mywater, hcl = 5, alum = 20): Sulfate-containing
 #> chemical dosed, but so4 water slot is NA. Slot not updated because background
@@ -66,6 +69,7 @@ published model coefficients, but because it’s an empirical model, you
 could also select your own coefficients.
 
 ``` r
+
 coag_water <- chemdose_toc(dosed_water, alum = 20)
 
 dosed_water@doc
@@ -81,6 +85,7 @@ and TOC more compactly. Notice that the pH and DOC values returned from
 `coag_water`.
 
 ``` r
+
 piped_coag_water <- mywater %>%
   chemdose_ph(hcl = 5, alum = 20) %>%
   chemdose_toc(alum = 20)
@@ -98,6 +103,7 @@ We can also solve for chemical doses to achieve a target pH with
 `solvedose_ph`. This function outputs a number instead of a water.
 
 ``` r
+
 caustic_req <- solvedose_ph(coag_water, target_ph = 8.6, chemical = "naoh")
 
 fin_water <- chemdose_ph(coag_water, naoh = caustic_req)
@@ -115,6 +121,7 @@ tidywater doesn’t warn you). We can use `summarize_wq` to view different
 groups of parameters in the water.
 
 ``` r
+
 dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
   chemdose_dbp(cl2 = 4, time = 24, treatment = "coag")
 #> Warning in chemdose_dbp(., cl2 = 4, time = 24, treatment = "coag"): UV254 is

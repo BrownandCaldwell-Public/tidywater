@@ -10,6 +10,7 @@ to work in a [tidyverse](https://www.tidyverse.org/) workflow.
 ## Installation
 
 ``` r
+
 # Install tidywater from CRAN:
 install.packages("tidywater")
 
@@ -25,6 +26,7 @@ demonstrated. This example uses tidywater base functions to model a
 single water quality scenario.
 
 ``` r
+
 library(tidywater)
 library(tidyverse)
 ## Use base tidywater functions to model water quality for a single scenario.
@@ -43,6 +45,7 @@ separate columns. The `pluck_water` function can pull any parameter from
 a water into a separate column.
 
 ``` r
+
 
 coagulation <- water_df %>%
   define_water_df(output_water = "raw") %>%

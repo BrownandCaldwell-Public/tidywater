@@ -17,6 +17,7 @@ influent water and disinfection method to predict DBPs using the
 `chemdose_dbp` function.
 
 ``` r
+
 influent <- define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = .2, br = 50) %>%
   chemdose_dbp(cl2 = 2, time = 8, treatment = "coag", cl_type = "chlorine", location = "plant")
 #> Warning in define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = 0.2, :
@@ -46,6 +47,7 @@ consistently under-predict the amount of DBPs formed in the water (the
 points are below the 1:1 line).
 
 ``` r
+
 # Given sample data
 dbp_data <- data.frame(
   ph = c(7, 7.04, 7.5, 7.9, 7.2, 7.25),
@@ -89,6 +91,7 @@ number of maximum iterations, it can take longer and parallel processing
 can be used to speed it up if the time is too long.
 
 ``` r
+
 # Model we're trying to fit
 model_fn <- function(params, data) {
   custom_coeff <- data.frame(

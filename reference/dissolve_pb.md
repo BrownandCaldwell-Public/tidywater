@@ -125,6 +125,7 @@ are used in `define_water` so that an ionic strength is calculated.
 ## Examples
 
 ``` r
+
 example_pb <- define_water(
   ph = 7.5, temp = 25, alk = 93, cl = 240,
   tot_po4 = 0, so4 = 150, tds = 200
