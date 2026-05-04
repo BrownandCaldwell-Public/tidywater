@@ -61,6 +61,7 @@ molec_properties <- data.frame(
   cl2 = c(70.906, NA),
   co2 = c(44.009, NA),
   c = c(12.01, NA),
+  o = c(15.999, NA),
   b = c(10.81, NA),
   sio2 = c(60.0843, NA),
   nh3 = c(17.031, NA),
@@ -74,7 +75,8 @@ molec_properties <- data.frame(
   alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
   ferricchloride = c(55.845 + 35.453 * 3, 3),
   ferricsulfate = c(2 * 55.845 + 3 * 96.0626 + 8.8 * 18.01528, 3), # 8.8 H2O
-  ach = c(26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, 3) # 2 H2O
+  ach = c(26.981539 * 2 + 17.008 * 5 + 35.453 + 2 * 18.01528, 3), # 2 H2O
+  al2o3 = c(2 * 26.981539 + 3 * 15.999, 3)
 )
 
 mweights <- molec_properties[1, ]

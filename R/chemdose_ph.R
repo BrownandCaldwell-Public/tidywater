@@ -41,6 +41,7 @@
 #' @param ferricchloride Amount of ferric Chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
+#' @param pacl Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....
 #' @param kmno4 Amount of potassium permanganate added in mg/L: KMnO4 -> K + MnO4
 #' @param naf Amount of sodium fluoride added in mg/L: NaF -> Na + F
 #' @param na3po4 Amount of trisodium phosphate added in mg/L: Na3PO4 -> 3Na + PO4
@@ -89,6 +90,7 @@ chemdose_ph <- function(
   ferricchloride = 0,
   ferricsulfate = 0,
   ach = 0,
+  pacl = 0,
   kmno4 = 0,
   naf = 0,
   na3po4 = 0,
@@ -169,6 +171,8 @@ chemdose_ph <- function(
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate")
   # ACH
   ach <- convert_units(ach, "ach")
+  # PACl
+  pacl <- convert_units(pacl, "al2o3")
 
   # Potassium permanganate (KMnO4) dose
   kmno4 <- convert_units(kmno4, "kmno4")
@@ -237,12 +241,13 @@ chemdose_ph <- function(
   dosed_water@no3 <- water@no3 + no3_dose
 
   # Total chloride
-  if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0) & is.na(water@cl)) {
+  if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0 | pacl > 0) & is.na(water@cl)) {
     warning(
       "Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown."
     )
   }
-  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach
+  # PACl: 0.9 mol Cl/1 mol Al * (1 mol Al/2 mol Al2O3)
+  cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach + (.9 * 2) * pacl
   dosed_water@cl <- water@cl + cl_dose
 
   # Total sulfate
@@ -449,6 +454,7 @@ chemdose_ph_df <- function(
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
+  pacl = "use_col",
   kmno4 = "use_col",
   naf = "use_col",
   na3po4 = "use_col",
@@ -517,6 +523,7 @@ chemdose_ph_df <- function(
       "ferricchloride" = ferricchloride,
       "ferricsulfate" = ferricsulfate,
       "ach" = ach,
+      "pacl" = pacl,
       "kmno4" = kmno4,
       "naf" = naf,
       "na3po4" = na3po4,
@@ -558,6 +565,7 @@ chemdose_ph_df <- function(
       ferricchloride = 0,
       ferricsulfate = 0,
       ach = 0,
+      pacl = 0,
       kmno4 = 0,
       naf = 0,
       na3po4 = 0,
@@ -601,6 +609,7 @@ chemdose_ph_df <- function(
       ferricchloride = df[[final_names$ferricchloride]][i],
       ferricsulfate = df[[final_names$ferricsulfate]][i],
       ach = df[[final_names$ach]][i],
+      pacl = df[[final_names$pacl]][i],
       kmno4 = df[[final_names$kmno4]][i],
       naf = df[[final_names$naf]][i],
       na3po4 = df[[final_names$na3po4]][i],
