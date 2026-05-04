@@ -17,6 +17,8 @@ chemdose_toc(
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
+  ach = 0,
+  pacl = 0,
   coeff = "Alum",
   caoh2 = 0
 )
@@ -30,6 +32,8 @@ chemdose_toc_df(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
+  ach = "use_col",
+  pacl = "use_col",
   caoh2 = "use_col",
   coeff = "use_col"
 )
@@ -42,6 +46,10 @@ chemdose_toc_df(
 \item{ferricchloride}{Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2}
 
 \item{ferricsulfate}{Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2}
+
+\item{ach}{Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2}
+
+\item{pacl}{Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....}
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
