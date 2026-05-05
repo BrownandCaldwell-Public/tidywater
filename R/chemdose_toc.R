@@ -90,7 +90,7 @@ chemdose_toc <- function(
   # ACH - hydration included
   ach <- convert_units(ach, "ach", endunit = "mM")
   # PACL as Al2O3
-  pacl <- convert_units(pacl, "pacl", endunit = "mM")
+  pacl <- convert_units(pacl, "al2o3", endunit = "mM")
 
   # Convert coagulant units to mMol/L as Al3+ or Fe3+ for DOC model
   coag <- alum * 2 + ferricchloride * 1 + ferricsulfate * 2 + ach * 2 + pacl * 2
