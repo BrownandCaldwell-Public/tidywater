@@ -37,6 +37,9 @@ test_that("chemdose_toc works.", {
     ferricchloride = 50,
     coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
   )
+  # ACH and PACl are the same as alum when mols of Al3+ are the same
+  water7 <- chemdose_toc(water1, ach = 30 * mweights$ach / mweights$alum)
+  water8 <- chemdose_toc(water1, pacl = 30 * mweights$al2o3 / mweights$alum)
 
   water1_with_alk <- suppressWarnings(define_water(ph = 7, alk = 10, doc = 3.5, uv254 = 0.1))
   water5 <- suppressWarnings(chemdose_toc(water1_with_alk, alum = 30, caoh2 = 2))
@@ -49,6 +52,8 @@ test_that("chemdose_toc works.", {
   expect_equal(round(water2@doc, 1), 2.8)
   expect_equal(round(water3@doc, 1), 2.2)
   expect_equal(round(water4@doc, 1), 2.2)
+  expect_equal(round(water7@doc, 1), round(water2@doc, 1))
+  expect_equal(round(water8@doc, 1), round(water2@doc, 1))
 
   expect_false(water2@doc == water5@doc)
   expect_true(water5@ph > water2@ph)
