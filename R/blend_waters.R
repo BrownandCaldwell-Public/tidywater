@@ -60,14 +60,17 @@ blend_waters <- function(waters, ratios) {
     if (!rlang::is_empty(missingn) | !rlang::is_empty(missing1)) {
       missing <- paste0(c(missingn, missing1), collapse = ", ")
       warning(paste0(
-        "The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ", missing,
+        "The following parameters are missing in some of the waters and will be set to NA in the blend:\n   ",
+        missing,
         "\nTo fix this, make sure all waters provided have the same parameters specified."
       ))
     }
   }
 
   not_averaged <- c(
-    "ph", "kw", "estimated"
+    "ph",
+    "kw",
+    "estimated"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -85,7 +88,9 @@ blend_waters <- function(waters, ratios) {
       if (is.na(methods::slot(blended_water, param))) {
         methods::slot(blended_water, param) <- methods::slot(temp_water, param) * ratio
       } else {
-        methods::slot(blended_water, param) <- methods::slot(temp_water, param) * ratio + methods::slot(blended_water, param)
+        methods::slot(blended_water, param) <- methods::slot(temp_water, param) *
+          ratio +
+          methods::slot(blended_water, param)
       }
     }
   }
@@ -141,9 +146,13 @@ blend_waters <- function(waters, ratios) {
   blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
   blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
 
-  if (blended_water@tot_nh3 > 0 &
-    (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)) {
-    warning("Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations.")
+  if (
+    blended_water@tot_nh3 > 0 &
+      (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)
+  ) {
+    warning(
+      "Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations."
+    )
   }
 
   return(blended_water)
@@ -200,12 +209,24 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended") {
   for (water_col in waters) {
     if (is.character(water_col)) {
       if (!(water_col %in% colnames(df))) {
-        stop(paste("Specified input_water column -", water_col, "- not found. Check spelling or create a water class column using define_water_df()."))
+        stop(paste(
+          "Specified input_water column -",
+          water_col,
+          "- not found. Check spelling or create a water class column using define_water_df()."
+        ))
       } else if (!all(sapply(df[[water_col]], function(x) methods::is(x, "water")))) {
-        stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_df() or specify a different column."))
+        stop(paste(
+          "Specified input_water column",
+          water_col,
+          "does not contain water class objects. Use define_water_df() or specify a different column."
+        ))
       }
     } else if (!is.character(water_col) & !methods::is(water_col, "water")) {
-      stop(paste("Specified input_water column", water_col, "does not contain water class objects. Use define_water_df() or specify a different column."))
+      stop(paste(
+        "Specified input_water column",
+        water_col,
+        "does not contain water class objects. Use define_water_df() or specify a different column."
+      ))
     }
   }
 
@@ -215,7 +236,8 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended") {
   if (is.numeric(ratios)) {
     output$ratios <- replicate(nrow(output), ratios, simplify = FALSE) # vector of ratios
   } else {
-    output$ratios <- lapply(seq_len(nrow(output)), function(i) { # column names
+    output$ratios <- lapply(seq_len(nrow(output)), function(i) {
+      # column names
       as.numeric(unlist(output[i, ratios]))
     })
   }

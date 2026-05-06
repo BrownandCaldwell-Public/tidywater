@@ -41,7 +41,9 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
 
   if (missing(bed_vol)) {
-    stop("Bed volume is a required argument to predict final water quality. Use `gacrun_toc` for complete breakthrough curve.")
+    stop(
+      "Bed volume is a required argument to predict final water quality. Use `gacrun_toc` for complete breakthrough curve."
+    )
   }
 
   bv_index <- which.min(abs(breakthrough_df$bv - bed_vol)) # retrieves index of bv that's closest to bv arg
@@ -94,8 +96,18 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 #'
 #' @returns `gac_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254 slots
 
-gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", model = "use_col", pluck_cols = FALSE, water_prefix = TRUE,
-                       media_size = "use_col", ebct = "use_col", bed_vol = "use_col", pretreat = "use_col") {
+gac_toc_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "gaced",
+  model = "use_col",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  media_size = "use_col",
+  ebct = "use_col",
+  bed_vol = "use_col",
+  pretreat = "use_col"
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   model <- tryCatch(model, error = function(e) enquo(model))
@@ -106,9 +118,13 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(
-    df, list(
-      "model" = model, "media_size" = media_size, "ebct" = ebct,
-      "bed_vol" = bed_vol, "pretreat" = pretreat
+    df,
+    list(
+      "model" = model,
+      "media_size" = media_size,
+      "ebct" = ebct,
+      "bed_vol" = bed_vol,
+      "pretreat" = pretreat
     )
   )
   final_names <- arguments$final_names
@@ -119,7 +135,8 @@ gac_toc_df <- function(df, input_water = "defined", output_water = "gaced", mode
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(model = "Zachman", media_size = "12x40", ebct = "10", pretreat = "coag")
   )
   df <- defaults_added$data

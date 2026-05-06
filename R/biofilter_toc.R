@@ -100,9 +100,15 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE) {
 #' @returns `biofilter_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and BDOC
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-biofilter_toc_df <- function(df, input_water = "defined", output_water = "biofiltered",
-                             pluck_cols = FALSE, water_prefix = TRUE,
-                             ebct = "use_col", ozonated = "use_col") {
+biofilter_toc_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "biofiltered",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  ebct = "use_col",
+  ozonated = "use_col"
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))

@@ -54,17 +54,31 @@ test_that("dissolve_cu works.", {
 test_that("dissolve_cu_df outputs are the same as base function, dissolve_cu", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
-    ca = 13, mg = 4, na = 20, k = 20, cl = 30, tot_po4 = 2, tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    tot_po4 = 2,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )) %>%
     dissolve_cu()
 
-  water2 <- suppressWarnings(water_df %>%
-    dplyr::slice(1) %>%
-    dplyr::mutate(tot_po4 = 2) %>%
-    define_water_df() %>%
-    dissolve_cu_df())
+  water2 <- suppressWarnings(
+    water_df %>%
+      dplyr::slice(1) %>%
+      dplyr::mutate(tot_po4 = 2) %>%
+      define_water_df() %>%
+      dissolve_cu_df()
+  )
 
   expect_equal(water1$cu, water2$defined_cu)
 })

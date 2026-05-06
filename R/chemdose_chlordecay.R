@@ -46,30 +46,45 @@
 #' @returns `chemdose_chlordecay` returns an updated disinfectant residual in the free_chlorine or combined_chlorine water slot in units of M.
 #' Use [convert_units] to convert to mg/L.
 #'
-chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_type = "chlorine", use_chlorine_slot = FALSE) {
+chemdose_chlordecay <- function(
+  water,
+  cl2_dose,
+  time,
+  treatment = "raw",
+  cl_type = "chlorine",
+  use_chlorine_slot = FALSE
+) {
   # Check arguments
   if (!is.logical(use_chlorine_slot)) {
     stop("'use_chlorine_slot' argument must be TRUE or FALSE.")
   }
 
   if (missing(time)) {
-    stop("Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay.")
+    stop(
+      "Missing value for reaction time. Please check the function inputs required to calculate chlorine/chloramine decay."
+    )
   }
 
   if (!(cl_type %in% c("chlorine", "chloramine"))) {
-    stop("cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay.")
+    stop(
+      "cl_type should be 'chlorine' or 'chloramine'. Please check the spelling for cl_type to calculate chlorine/chloramine decay."
+    )
   }
 
   if (missing(cl2_dose)) {
     if (use_chlorine_slot) {
       cl2_dose <- 0
     } else {
-      stop("Missing value for chlorine dose. Specify 'cl_dose' or use 'use_chlorine_slot = TRUE' to use the residual chlorine in the water object.")
+      stop(
+        "Missing value for chlorine dose. Specify 'cl_dose' or use 'use_chlorine_slot = TRUE' to use the residual chlorine in the water object."
+      )
     }
   }
 
   if (use_chlorine_slot & cl2_dose > 0) {
-    warning("Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.")
+    warning(
+      "Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'."
+    )
   }
 
   if (use_chlorine_slot & cl_type == "chlorine") {
@@ -156,7 +171,8 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
   if (cl2_dose == 0) {
     ct <- 0
   } else {
-    root_ct <- stats::uniroot(solve_decay,
+    root_ct <- stats::uniroot(
+      solve_decay,
       interval = c(0, cl2_dose),
       a = coeffs$a,
       b = coeffs$b,
@@ -176,13 +192,17 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
     # chlorine residual correction Eq. 5-118
     ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
     if (water@free_chlorine > 0 & !use_chlorine_slot) {
-      warning("Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.")
+      warning(
+        "Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'."
+      )
     }
 
     water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
   } else if (cl_type == "chloramine") {
     if (water@combined_chlorine > 0 & !use_chlorine_slot) {
-      warning("Existing 'combined_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.")
+      warning(
+        "Existing 'combined_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'."
+      )
     }
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
@@ -232,11 +252,18 @@ chemdose_chlordecay <- function(water, cl2_dose, time, treatment = "raw", cl_typ
 #' @returns `chemdose_chlordecay_df` returns a data frame containing a water class column with updated free_chlorine or
 #'  combined_chlorine residuals. Optionally, it also adds columns for each of those slots individually.
 
-chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "disinfected",
-                                   pluck_cols = FALSE, water_prefix = TRUE,
-                                   cl2_dose = "use_col", time = "use_col",
-                                   treatment = "use_col", cl_type = "use_col",
-                                   use_chlorine_slot = "use_col") {
+chemdose_chlordecay_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "disinfected",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  cl2_dose = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  use_chlorine_slot = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   cl2_dose <- tryCatch(cl2_dose, error = function(e) enquo(cl2_dose))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -247,10 +274,16 @@ chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "
   validate_water_helpers(df, input_water)
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, list(
-    "cl2_dose" = cl2_dose, "time" = time,
-    "treatment" = treatment, "cl_type" = cl_type, "use_chlorine_slot" = use_chlorine_slot
-  ))
+  arguments <- construct_helper(
+    df,
+    list(
+      "cl2_dose" = cl2_dose,
+      "time" = time,
+      "treatment" = treatment,
+      "cl_type" = cl_type,
+      "use_chlorine_slot" = use_chlorine_slot
+    )
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -259,7 +292,8 @@ chemdose_chlordecay_df <- function(df, input_water = "defined", output_water = "
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(treatment = "raw", cl_type = "chlorine", use_chlorine_slot = FALSE)
   )
   df <- defaults_added$data

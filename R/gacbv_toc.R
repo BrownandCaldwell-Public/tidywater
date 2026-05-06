@@ -41,8 +41,12 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
     stop("Target DOC is a required argument to predict bed volumes.")
   }
 
-  if (any((target_doc / water@doc) < min(breakthrough_df$x_norm) |
-    (target_doc / water@doc) > max(breakthrough_df$x_norm))) {
+  if (
+    any(
+      (target_doc / water@doc) < min(breakthrough_df$x_norm) |
+        (target_doc / water@doc) > max(breakthrough_df$x_norm)
+    )
+  ) {
     stop("Target DOC is outside of range for the chosen model. Use `gacrun_toc` for complete breakthrough curve.")
   }
 
@@ -78,8 +82,15 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
 #' @returns `gacbv_toc_df` returns a data frame with columns for bed volumes.
 #'
 
-gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
-                         media_size = "use_col", ebct = "use_col", target_doc = "use_col", water_prefix = TRUE) {
+gacbv_toc_df <- function(
+  df,
+  input_water = "defined",
+  model = "use_col",
+  media_size = "use_col",
+  ebct = "use_col",
+  target_doc = "use_col",
+  water_prefix = TRUE
+) {
   validate_water_helpers(df, input_water)
   bed_volume <- NULL # Quiet RCMD check global variable note
 
@@ -90,7 +101,10 @@ gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
   target_doc <- tryCatch(target_doc, error = function(e) enquo(target_doc))
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list("model" = model, "media_size" = media_size, "ebct" = ebct, "target_doc" = target_doc))
+  arguments <- construct_helper(
+    df,
+    all_args = list("model" = model, "media_size" = media_size, "ebct" = ebct, "target_doc" = target_doc)
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -99,20 +113,24 @@ gacbv_toc_df <- function(df, input_water = "defined", model = "use_col",
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(model = "Zachman", media_size = "12x40", ebct = "10")
   )
   df <- defaults_added$data
 
-  bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    gacbv_toc(
-      water = df[[input_water]][[i]],
-      model = df[[final_names$model]][i],
-      media_size = df[[final_names$media_size]][i],
-      ebct = as.numeric(df[[final_names$ebct]][i]),
-      target_doc = df[[final_names$target_doc]][i]
-    )
-  }))
+  bv_df <- do.call(
+    rbind,
+    lapply(seq_len(nrow(df)), function(i) {
+      gacbv_toc(
+        water = df[[input_water]][[i]],
+        model = df[[final_names$model]][i],
+        media_size = df[[final_names$media_size]][i],
+        ebct = as.numeric(df[[final_names$ebct]][i]),
+        target_doc = df[[final_names$target_doc]][i]
+      )
+    })
+  )
 
   # bv_df <- df[, !names(df) %in% defaults_added$defaults_used]
 

@@ -59,7 +59,9 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 
   if (dose == 0) {
     data.frame(
-      "ct_actual" = 0, "glog_removal" = 0, "vlog_removal" = 0,
+      "ct_actual" = 0,
+      "glog_removal" = 0,
+      "vlog_removal" = 0,
       "clog_removal" = 0
     )
   }
@@ -89,7 +91,9 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
   crypto_log_removal <- 0.0397 * 1.09757^temp * ct_actual
 
   data.frame(
-    "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = virus_log_removal,
+    "ct_actual" = ct_actual,
+    "glog_removal" = giardia_log_removal,
+    "vlog_removal" = virus_log_removal,
     "clog_removal" = crypto_log_removal
   )
 }
@@ -115,9 +119,15 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
 #' @export
 #' @returns `solvect_o3_df` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 
-solvect_o3_df <- function(df, input_water = "defined",
-                          time = "use_col", dose = "use_col", kd = "use_col", baffle = "use_col",
-                          water_prefix = TRUE) {
+solvect_o3_df <- function(
+  df,
+  input_water = "defined",
+  time = "use_col",
+  dose = "use_col",
+  kd = "use_col",
+  baffle = "use_col",
+  water_prefix = TRUE
+) {
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring
@@ -135,21 +145,25 @@ solvect_o3_df <- function(df, input_water = "defined",
 
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(time = 0, dose = 0, kd = NA, baffle = 0)
   )
 
   df <- defaults_added$data
 
-  ct_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    solvect_o3(
-      water = df[[input_water]][[i]],
-      time = df[[final_names$time]][i],
-      dose = df[[final_names$dose]][i],
-      kd = df[[final_names$kd]][i],
-      baffle = df[[final_names$baffle]][i]
-    )
-  }))
+  ct_df <- do.call(
+    rbind,
+    lapply(seq_len(nrow(df)), function(i) {
+      solvect_o3(
+        water = df[[input_water]][[i]],
+        time = df[[final_names$time]][i],
+        dose = df[[final_names$dose]][i],
+        kd = df[[final_names$kd]][i],
+        baffle = df[[final_names$baffle]][i]
+      )
+    })
+  )
 
   if (water_prefix) {
     names(ct_df) <- paste0(input_water, "_", names(ct_df))

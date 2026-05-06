@@ -42,8 +42,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished) {
 
   match_row <- with(
     tidywater::toc_compliance_table,
-    toc_raw > toc_min & toc_raw <= toc_max &
-      alk_raw > alk_min & alk_raw <= alk_max
+    toc_raw > toc_min & toc_raw <= toc_max & alk_raw > alk_min & alk_raw <= alk_max
   )
 
   required_compliance <- tidywater::toc_compliance_table$required_compliance[match_row]
@@ -91,9 +90,14 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
   toc_raw <- tryCatch(toc_raw, error = function(e) enquo(toc_raw))
   toc_finished <- tryCatch(toc_finished, error = function(e) enquo(toc_finished))
 
-  arguments <- construct_helper(df, all_args = list(
-    "alk_raw" = alk_raw, "toc_raw" = toc_raw, "toc_finished" = toc_finished
-  ))
+  arguments <- construct_helper(
+    df,
+    all_args = list(
+      "alk_raw" = alk_raw,
+      "toc_raw" = toc_raw,
+      "toc_finished" = toc_finished
+    )
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -103,9 +107,12 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
 
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(
-      alk_raw = 0, toc_raw = 0, toc_finished = 0
+      alk_raw = 0,
+      toc_raw = 0,
+      toc_finished = 0
     )
   )
   df <- defaults_added$data
@@ -122,7 +129,9 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
   toc_list_aligned <- lapply(toc_list, function(x) {
     x <- as.data.frame(x)
     missing <- setdiff(all_cols, names(x))
-    for (col in missing) x[[col]] <- NA
+    for (col in missing) {
+      x[[col]] <- NA
+    }
     x[all_cols] # Reorder columns
   })
 

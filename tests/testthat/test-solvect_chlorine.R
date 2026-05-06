@@ -30,10 +30,15 @@ test_that("solvect_chlorine fails without ph and temp.", {
 test_that("solvect_chlorine correctly uses free_chlorine slot", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 1))
   ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
-  ct_use <- suppressWarnings(solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only"))
+  ct_use <- suppressWarnings(solvect_chlorine(
+    water1,
+    time = 30,
+    residual = 5,
+    baffle = 0.3,
+    free_cl_slot = "slot_only"
+  ))
   ct_use2 <- suppressWarnings(solvect_chlorine(water1, time = 30, baffle = 0.3, free_cl_slot = "slot_only")) # no residual argument
   ct_use3 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, free_cl_slot = "sum_with_residual")
-
 
   expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
   expect_equal(round(ct_use2$ct_required), 10)
@@ -46,7 +51,6 @@ test_that("solvect_chlorine correctly uses free_chlorine slot", {
 test_that("solvect_chlorine works.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   ct <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3)
-
 
   expect_equal(round(ct$ct_required, 2), 18.52)
   expect_equal(round(ct$ct_actual), 45)
@@ -75,7 +79,6 @@ test_that("solvect_chlorine warns appropriately about virus log removal", {
   water2 <- suppressWarnings(define_water(ph = 5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
   water3 <- suppressWarnings(define_water(ph = 12, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
 
-
   expect_warning(solvect_chlorine(water1, time = 0.5, residual = 1, baffle = 0.3)) # contact time out of range
   expect_warning(solvect_chlorine(water2, time = 30, residual = 5, baffle = 0.3)) # pH out of range
   expect_warning(solvect_chlorine(water3, time = 30, residual = 5, baffle = 0.3))
@@ -85,16 +88,30 @@ test_that("solvect_chlorine warns appropriately about virus log removal", {
 test_that("solvect_chlorine_df outputs are the same as base function, solvect_chlorine", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05,
+    br = 50
   )) %>%
     solvect_chlorine(time = 30, residual = 5, baffle = .7)
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = .7))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 50) %>%
+      define_water_df() %>%
+      solvect_chlorine_df(time = 30, residual = 5, baffle = .7)
+  )
 
   expect_equal(water1$ct_required, water2$defined_ct_required)
 })
@@ -103,11 +120,13 @@ test_that("solvect_chlorine_df outputs are the same as base function, solvect_ch
 
 test_that("solvect_chlorine_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = .5))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 50) %>%
+      define_water_df() %>%
+      solvect_chlorine_df(time = 30, residual = 5, baffle = .5)
+  )
 
   expect_true(is.data.frame(water1))
 })
@@ -131,16 +150,19 @@ test_that("solvect_chlorine_df can use a column and/or function argument for tim
     define_water_df() %>%
     suppressWarnings(solvect_chlorine_df(
       time = seq(2, 24, 2),
-      residual = 5, baffle = .5,
+      residual = 5,
+      baffle = .5,
       water_prefix = FALSE
     ))
 
-  water3 <- suppressWarnings(water_df %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    merge(time) %>%
-    rename(ChlorTime = time) %>%
-    solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime))
+  water3 <- suppressWarnings(
+    water_df %>%
+      mutate(br = 50) %>%
+      define_water_df() %>%
+      merge(time) %>%
+      rename(ChlorTime = time) %>%
+      solvect_chlorine_df(residual = c(5, 8), baffle = .5, time = ChlorTime)
+  )
 
   expect_equal(water1$defined_ct_required, water2$ct_required) # test different ways to input time
   expect_equal(ncol(water3), ncol(water0) + 7) # adds cols for time, residual, baffle, and ct_actual, ct_req, glog_removal, vlog_removal
@@ -165,15 +187,19 @@ test_that("solvect_chlorine_df correctly handles arguments with multiple values"
 test_that("solvect_chlorine_df correctly uses free_chlorine slot", {
   testthat::skip_on_cran()
 
-  residual_df <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    chemdose_ph_df(naocl = 10) %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = 0.3))
+  residual_df <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_ph_df(naocl = 10) %>%
+      solvect_chlorine_df(time = 30, residual = 5, baffle = 0.3)
+  )
 
-  free_cl_slot_df <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    chemdose_ph_df(naocl = 10) %>%
-    solvect_chlorine_df(time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only"))
+  free_cl_slot_df <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_ph_df(naocl = 10) %>%
+      solvect_chlorine_df(time = 30, residual = 5, baffle = 0.3, free_cl_slot = "slot_only")
+  )
 
   expect_error(expect_equal(residual_df$defined_ct_required, free_cl_slot_df$dosed_chem_ct_required))
 })

@@ -43,7 +43,6 @@ test_that("regulate_toc_df is same s as base function", {
   expect_equal(base$toc_compliance_status, regulated$toc_compliance_status)
   expect_equal(base$toc_removal_percent, regulated$toc_removal_percent)
 
-
   base2 <- regulate_toc(50, 4, 3.9)
 
   regulated2 <- water_df[9, ] %>%
@@ -90,19 +89,25 @@ test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
 })
 
 test_that("regulate_toc_df can take column and argument inputs", {
-  regulated1 <- suppressWarnings(water_df %>%
-    select(toc_raw = toc, alk_raw = alk) %>%
-    mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
-    regulate_toc_df())
+  regulated1 <- suppressWarnings(
+    water_df %>%
+      select(toc_raw = toc, alk_raw = alk) %>%
+      mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
+      regulate_toc_df()
+  )
 
-  regulated2 <- suppressWarnings(water_df %>%
-    select(toc_raw = toc) %>%
-    mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
-    regulate_toc_df(alk_raw = 80))
+  regulated2 <- suppressWarnings(
+    water_df %>%
+      select(toc_raw = toc) %>%
+      mutate(toc_finished = seq(0.1, 1.2, .1)) %>%
+      regulate_toc_df(alk_raw = 80)
+  )
 
-  regulated3 <- suppressWarnings(water_df %>%
-    select(alk_raw = alk) %>%
-    regulate_toc_df(toc_raw = c(2, 4), toc_finished = .7))
+  regulated3 <- suppressWarnings(
+    water_df %>%
+      select(alk_raw = alk) %>%
+      regulate_toc_df(toc_raw = c(2, 4), toc_finished = .7)
+  )
 
   expect_equal(regulated1[2, ]$toc_removal_percent, regulated2[2, ]$toc_removal_percent)
   expect_equal(regulated3[3, ]$toc_removal_percent, regulated1[7, ]$toc_removal_percent)

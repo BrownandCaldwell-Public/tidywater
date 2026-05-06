@@ -43,6 +43,7 @@ test_that("chemdose ph works", {
   test6 <- suppressWarnings(chemdose_ph(water4, naoh = 80))
   test7 <- suppressWarnings(chemdose_ph(water1, nh42so4 = 5))
   test8 <- suppressWarnings(chemdose_ph(water4, nh4oh = 5))
+  test9 <- suppressWarnings(chemdose_ph(water2, pacl = 10))
 
   # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
@@ -61,11 +62,14 @@ test_that("chemdose ph works", {
   expect_equal(round(test7@alk, 0), 56)
   expect_equal(round(test8@ph, 1), 9.7)
   expect_equal(round(test8@alk, 0), 32)
+  expect_equal(round(test9@ph, 1), 7.1)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_po4 = 5) %>%
-    chemdose_ph())
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, tot_po4 = 5) %>%
+      chemdose_ph()
+  )
 
   water2 <- water1 %>%
     chemdose_ph()
@@ -91,8 +95,10 @@ test_that("Phosphate dose works as expected.", {
 })
 
 test_that("Starting chlorine residual does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, free_chlorine = 1) %>%
-    chemdose_ph())
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, free_chlorine = 1) %>%
+      chemdose_ph()
+  )
 
   water2 <- water1 %>%
     chemdose_ph()
@@ -106,8 +112,10 @@ test_that("Starting chlorine residual does not affect starting pH.", {
 })
 
 test_that("Starting ammonia does not affect starting pH.", {
-  water1 <- suppressWarnings(define_water(ph = 7, alk = 10, tot_nh3 = 1) %>%
-    chemdose_ph())
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, tot_nh3 = 1) %>%
+      chemdose_ph()
+  )
 
   water2 <- water1 %>%
     chemdose_ph()
@@ -175,8 +183,21 @@ test_that("Warning when water slot is NA", {
 test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
   testthat::skip_on_cran()
   water0 <- define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   water1 <- chemdose_ph(water0, naoh = 10)
@@ -228,16 +249,20 @@ test_that("chemdose_ph_df outputs the same as base, chemdose_ph", {
 
 test_that("chemdose_ph_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df[1, ] %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 10))
+  water1 <- suppressWarnings(
+    water_df[1, ] %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 10)
+  )
 
   water2 <- purrr::pluck(water1, "dosed_chem", 1)
 
-  water3 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(naoh = 10) %>%
-    chemdose_ph_df(output_water = "diff_name"))
+  water3 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(naoh = 10) %>%
+      chemdose_ph_df(output_water = "diff_name")
+  )
 
   expect_s4_class(water2, "water") # check class
   expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
@@ -246,10 +271,12 @@ test_that("chemdose_ph_df output is list of water class objects, and can handle 
 # Check that this function can be piped to the next one
 test_that("chemdose_ph_df works", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(naoh = 10) %>%
-    chemdose_ph_df())
+  water1 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(naoh = 10) %>%
+      chemdose_ph_df()
+  )
 
   expect_equal(ncol(water1), 3) # check if pipe worked
 })
@@ -257,19 +284,25 @@ test_that("chemdose_ph_df works", {
 # Check that variety of ways to input chemicals work
 test_that("chemdose_ph_df can handle different ways to input chem doses", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 10, output_water = "dosed_chem"))
+  water1 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 10, output_water = "dosed_chem")
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(naoh = 10) %>%
-    chemdose_ph_df())
+  water2 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(naoh = 10) %>%
+      chemdose_ph_df()
+  )
 
-  water3 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(naoh = seq(0, 11, 1)) %>%
-    chemdose_ph_df(hcl = c(5, 8)))
+  water3 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(naoh = seq(0, 11, 1)) %>%
+      chemdose_ph_df(hcl = c(5, 8))
+  )
 
   water4 <- water3 %>%
     slice(21) # same starting wq as water 5
@@ -292,9 +325,11 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
 # Check that na_to_zero implementation works
 test_that("chemdose_ph_df na_to_zero argument works", {
   testthat::skip_on_cran()
-  water <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12)))
+  water <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12))
+  )
   expect_equal(water$naoh[50], 0)
   expect_equal(water$naoh[100], 0)
 })

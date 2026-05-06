@@ -46,7 +46,16 @@
 #'
 #' @returns `chemdose_dbp` returns a single water class object with predicted DBP concentrations.
 #'
-chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine", location = "plant", correction = TRUE, coeff = NULL) {
+chemdose_dbp <- function(
+  water,
+  cl2,
+  time,
+  treatment = "raw",
+  cl_type = "chorine",
+  location = "plant",
+  correction = TRUE,
+  coeff = NULL
+) {
   modeled_dbp <- ID <- group <- ID_ind <- percent <- alias <- ave <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("ph", "temp", "br"))
 
@@ -146,8 +155,12 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 
   # check coeff
   if (!is.null(coeff)) {
-    if (!is.data.frame(coeff)) stop("coeff must be a dataframe.")
-    if (!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
+    if (!is.data.frame(coeff)) {
+      stop("coeff must be a dataframe.")
+    }
+    if (!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) {
+      stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
+    }
     if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
       stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
     } else if (any(duplicated(coeff$ID))) {
@@ -168,8 +181,13 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       predicted_dbp <- rbind(predicted_dbp, coeff)
     }
     # modeled_dbp = A * toc^a * cl2^b * br^c * temp^d * ph^e * time^f
-    predicted_dbp$modeled_dbp <- predicted_dbp$A * toc^predicted_dbp$a * cl2^predicted_dbp$b * br^predicted_dbp$c *
-      temp^predicted_dbp$d * ph^predicted_dbp$e * time^predicted_dbp$f
+    predicted_dbp$modeled_dbp <- predicted_dbp$A *
+      toc^predicted_dbp$a *
+      cl2^predicted_dbp$b *
+      br^predicted_dbp$c *
+      temp^predicted_dbp$d *
+      ph^predicted_dbp$e *
+      time^predicted_dbp$f
   } else {
     treat <- treatment
     predicted_dbp <- subset(tidywater::dbpcoeffs, treatment == treat)
@@ -178,8 +196,13 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
       predicted_dbp <- rbind(predicted_dbp, coeff)
     }
     # modeled_dbp = A * (doc * uv254)^a * cl2^b * br^c * d^(ph - ph_const) * e^(temp - 20) * time^f
-    predicted_dbp$modeled_dbp <- predicted_dbp$A * (doc * uv254)^predicted_dbp$a * cl2^predicted_dbp$b *
-      br^predicted_dbp$c * predicted_dbp$d^(ph - predicted_dbp$ph_const) * predicted_dbp$e^(temp - 20) * time^predicted_dbp$f
+    predicted_dbp$modeled_dbp <- predicted_dbp$A *
+      (doc * uv254)^predicted_dbp$a *
+      cl2^predicted_dbp$b *
+      br^predicted_dbp$c *
+      predicted_dbp$d^(ph - predicted_dbp$ph_const) *
+      predicted_dbp$e^(temp - 20) *
+      time^predicted_dbp$f
   }
 
   # apply dbp correction factors based on selected location for "raw" and "coag" treatment (corrections do not apply to "gac" treatment), U.S. EPA (2001) Table 5-7
@@ -272,9 +295,20 @@ chemdose_dbp <- function(water, cl2, time, treatment = "raw", cl_type = "chorine
 #' @returns `chemdose_dbp_df` returns a data frame containing a water class column with updated tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa
 #' concentrations. Optionally, it also adds columns for those slots individually.
 
-chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfected", pluck_cols = FALSE, water_prefix = TRUE,
-                            cl2 = "use_col", time = "use_col",
-                            treatment = "use_col", cl_type = "use_col", location = "use_col", correction = TRUE, coeff = NULL) {
+chemdose_dbp_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "disinfected",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  cl2 = "use_col",
+  time = "use_col",
+  treatment = "use_col",
+  cl_type = "use_col",
+  location = "use_col",
+  correction = TRUE,
+  coeff = NULL
+) {
   # This allows for the function to process unquoted column names without erroring
   cl2 <- tryCatch(cl2, error = function(e) enquo(cl2))
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -287,9 +321,14 @@ chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfe
 
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(
-    df, list(
-      "cl2" = cl2, "time" = time, "treatment" = treatment,
-      "cl_type" = cl_type, "location" = location, "correction" = correction
+    df,
+    list(
+      "cl2" = cl2,
+      "time" = time,
+      "treatment" = treatment,
+      "cl_type" = cl_type,
+      "location" = location,
+      "correction" = correction
     )
   )
   final_names <- arguments$final_names
@@ -300,7 +339,8 @@ chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfe
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(treatment = "raw", cl_type = "chlorine", location = "plant", correction = TRUE)
   )
   df <- defaults_added$data
@@ -329,7 +369,10 @@ chemdose_dbp_df <- function(df, input_water = "defined", output_water = "disinfe
   }
   if (pluck_cols == "all") {
     output <- output |>
-      pluck_water(c(output_water), c("tthm", "chcl3", "chcl2br", "chbr2cl", "chbr3", "haa5", "mcaa", "dcaa", "tcaa", "mbaa", "dbaa"))
+      pluck_water(
+        c(output_water),
+        c("tthm", "chcl3", "chcl2br", "chbr2cl", "chbr3", "haa5", "mcaa", "dcaa", "tcaa", "mbaa", "dbaa")
+      )
     if (!water_prefix) {
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }

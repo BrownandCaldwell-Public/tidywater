@@ -13,3 +13,6 @@
 ^DISCLAIMER\.md$
 ^GOVERNANCE\.md$
 ^SECURITY\.md$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -43,23 +43,40 @@ test_that("opensys_ph works", {
 test_that("opensys_ph_df outputs are the same as base function, opensys_ph.", {
   testthat::skip_on_cran()
   water0 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
 
   water1 <- opensys_ph(water0)
 
-  water2 <- suppressWarnings(water_df %>%
-    dplyr::slice(1) %>%
-    define_water_df() %>%
-    opensys_ph_df(pluck_cols = TRUE))
+  water2 <- suppressWarnings(
+    water_df %>%
+      dplyr::slice(1) %>%
+      define_water_df() %>%
+      opensys_ph_df(pluck_cols = TRUE)
+  )
 
   # test that pluck_cols does the same thing as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    dplyr::slice(1) %>%
-    define_water_df() %>%
-    opensys_ph_df() %>%
-    pluck_water(c("opensys"), c("ph", "alk")))
+  water3 <- suppressWarnings(
+    water_df %>%
+      dplyr::slice(1) %>%
+      define_water_df() %>%
+      opensys_ph_df() %>%
+      pluck_water(c("opensys"), c("ph", "alk"))
+  )
 
   expect_equal(water1@ph, water2$opensys_ph)
   expect_equal(water1@alk, water2$opensys_alk)

@@ -51,7 +51,16 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #' @export
 #' @returns A numeric value for solids mass in lb/day.
 #'
-solvemass_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, toc_removed = 0, caco3_removed = 0, turb, b = 1.5) {
+solvemass_solids <- function(
+  alum = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
+  flow,
+  toc_removed = 0,
+  caco3_removed = 0,
+  turb,
+  b = 1.5
+) {
   suspended <- turb * b
   # 2 mol of Fe added per mol of ferric sulfate
   fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)

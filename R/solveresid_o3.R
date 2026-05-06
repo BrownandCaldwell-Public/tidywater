@@ -68,8 +68,13 @@ solveresid_o3 <- function(water, dose, time) {
 #' @export
 #' @returns `solveresid_o3_df` returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 
-solveresid_o3_df <- function(df, input_water = "defined", output_column = "o3resid",
-                             dose = "use_col", time = "use_col") {
+solveresid_o3_df <- function(
+  df,
+  input_water = "defined",
+  output_column = "o3resid",
+  dose = "use_col",
+  time = "use_col"
+) {
   validate_water_helpers(df, input_water)
 
   # This allows for the function to process unquoted column names without erroring

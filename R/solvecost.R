@@ -96,7 +96,18 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @export
 #' @returns A numeric value for disposal costs, $/time.
 #'
-solvecost_solids <- function(alum = 0, ferricchloride = 0, ferricsulfate = 0, flow, toc_removed = 0, caco3_removed = 0, turb, b = 1.5, cost, time = "day") {
+solvecost_solids <- function(
+  alum = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
+  flow,
+  toc_removed = 0,
+  caco3_removed = 0,
+  turb,
+  b = 1.5,
+  cost,
+  time = "day"
+) {
   lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, toc_removed, caco3_removed, turb, b)
   cost_day <- cost * lb_day # $/lb * lb/day
 

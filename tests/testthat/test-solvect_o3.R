@@ -34,7 +34,10 @@ test_that("solvect_o3 returns 0's for all outputs when baffle is 0 or missing", 
 
 test_that("solvect_o3 throws an error when kd is 0", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
-  expect_error(solvect_o3(water1, time = 10, kd = 0, dose = 3, baffle = .2), "kd must be less than zero for decay curve")
+  expect_error(
+    solvect_o3(water1, time = 10, kd = 0, dose = 3, baffle = .2),
+    "kd must be less than zero for decay curve"
+  )
 })
 
 test_that("solvect_o3 fails without ph, temp, alk, doc, uv, and br.", {
@@ -58,7 +61,6 @@ test_that("solvect_o3 works.", {
   ozone <- solvect_o3(water1, time = 30, dose = 5, baffle = 0.3)
   ozone2 <- solvect_o3(water1, time = 30, dose = 5, baffle = 0.3, kd = -0.5)
 
-
   expect_equal(round(ozone$ct_actual, 2), 9.84)
   expect_equal(round(ozone$glog_removal, 2), 42.67)
   expect_equal(round(ozone$vlog_removal, 2), 86.93)
@@ -73,11 +75,23 @@ test_that("solvect_o3 works.", {
 # HELPERS ----
 test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13, mg = 4,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  water0 <- define_water(
+    7.9,
+    20,
+    50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05,
+    br = 50
   )
   water1 <- water0 %>%
     solvect_o3(time = 10, dose = 5, kd = -0.5, baffle = .7)
@@ -108,11 +122,12 @@ test_that("solvect_o3_df outputs are the same as base function, solvect_o3", {
 
 test_that("solvect_o3_df is a data frame", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df[1, ] %>%
-    mutate(br = 50) %>%
-    define_water_df() %>%
-    solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7))
-
+  water1 <- suppressWarnings(
+    water_df[1, ] %>%
+      mutate(br = 50) %>%
+      define_water_df() %>%
+      solvect_o3_df(time = 10, dose = 5, kd = -0.5, baffle = .7)
+  )
 
   expect_true(is.data.frame(water1))
 })
@@ -126,18 +141,24 @@ test_that("solvect_o3_df can use a column and/or function argument for time and 
     define_water_df()
 
   time <- data.frame(time = seq(2, 10, 2))
-  water1 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    merge(time) %>%
-    solvect_o3_df(dose = 5, kd = -0.5, baffle = .7))
+  water1 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      merge(time) %>%
+      solvect_o3_df(dose = 5, kd = -0.5, baffle = .7)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    solvect_o3_df(
-      time = seq(2, 10, 2),
-      dose = 5, kd = -0.5, baffle = .7
-    ) %>%
-    unique())
+  water2 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      solvect_o3_df(
+        time = seq(2, 10, 2),
+        dose = 5,
+        kd = -0.5,
+        baffle = .7
+      ) %>%
+      unique()
+  )
 
   water3 <- water_df %>%
     define_water_df() %>%

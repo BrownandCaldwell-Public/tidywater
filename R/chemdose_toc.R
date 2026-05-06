@@ -14,6 +14,8 @@
 #' @param alum Amount of hydrated aluminum sulfate added in mg/L: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride Amount of ferric chloride added in mg/L: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+#' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
+#' @param pacl Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
 #' @param caoh2 Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
@@ -38,34 +40,46 @@
 #'
 #' @returns `chemdose_toc` returns a single water class object with an updated DOC, TOC, and UV254 concentration.
 #'
-chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum", caoh2 = 0) {
+chemdose_toc <- function(
+  water,
+  alum = 0,
+  ferricchloride = 0,
+  ferricsulfate = 0,
+  ach = 0,
+  pacl = 0,
+  coeff = "Alum",
+  caoh2 = 0
+) {
   validate_water(water, c("ph", "doc", "uv254"))
 
   if (is.character(coeff)) {
     edwardscoeff <- tidywater::edwardscoeff
     coeff <- subset(edwardscoeff, edwardscoeff$ID == coeff)
     if (nrow(coeff) != 1) {
-      stop("coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector.")
+      stop(
+        "coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector."
+      )
     }
   } else if (is.data.frame(coeff)) {
     expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
     if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-      stop("coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string.")
+      stop(
+        "coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string."
+      )
     }
   } else {
     stop("coeff must be specified with a string or data frame. See documentation for acceptable formats.")
   }
 
-  if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0) {
+  if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
     warning("No coagulants dosed. Final water will equal input water.")
-  } else if (alum > 0 & (ferricchloride > 0 | ferricsulfate > 0)) {
+  } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
     warning("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
     warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeff' argument.")
-  } else if (alum > 0 & any(grepl("Ferric", coeff))) {
+  } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
     warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
   }
-
 
   # Alum - hydration included
   alum <- convert_units(alum, "alum", endunit = "mM")
@@ -73,11 +87,15 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
   ferricchloride <- convert_units(ferricchloride, "ferricchloride", endunit = "mM")
   # Ferric sulfate
   ferricsulfate <- convert_units(ferricsulfate, "ferricsulfate", endunit = "mM")
+  # ACH - hydration included
+  ach <- convert_units(ach, "ach", endunit = "mM")
+  # PACL as Al2O3
+  pacl <- convert_units(pacl, "al2o3", endunit = "mM")
 
   # Convert coagulant units to mMol/L as Al3+ or Fe3+ for DOC model
-  coag <- alum * 2 + ferricchloride * 1 + ferricsulfate * 2
+  coag <- alum * 2 + ferricchloride * 1 + ferricsulfate * 2 + ach * 2 + pacl * 2
   # Convert to meq/L for UV model
-  coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3
+  coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
   # Edwards calculations
   if (caoh2 > 0) {
@@ -103,7 +121,9 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 
     # Rearrangement of equation from wolfram alpha
     adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-      b * coag * xterm + b * water@doc * sterm - 1) /
+      b * coag * xterm +
+      b * water@doc * sterm -
+      1) /
       (2 * b)
 
     if (coag == 0) {
@@ -147,14 +167,26 @@ chemdose_toc <- function(water, alum = 0, ferricchloride = 0, ferricsulfate = 0,
 #' @returns `chemdose_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 #'
-chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagulated",
-                            pluck_cols = FALSE, water_prefix = TRUE,
-                            alum = "use_col", ferricchloride = "use_col", ferricsulfate = "use_col", caoh2 = "use_col",
-                            coeff = "use_col") {
+chemdose_toc_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "coagulated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  alum = "use_col",
+  ferricchloride = "use_col",
+  ferricsulfate = "use_col",
+  ach = "use_col",
+  pacl = "use_col",
+  caoh2 = "use_col",
+  coeff = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
+  ach <- tryCatch(ach, error = function(e) enquo(ach))
+  pacl <- tryCatch(pacl, error = function(e) enquo(pacl))
   caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
   # account for character and data frame inputs for coeff
   is_coeff_df <- is.data.frame(coeff)
@@ -162,15 +194,20 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
     coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
   }
 
-
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list(
-    "alum" = alum, "ferricchloride" = ferricchloride,
-    "ferricsulfate" = ferricsulfate,
-    "caoh2" = caoh2,
-    "coeff" = if (is_coeff_df) "coeff_df" else coeff
-  ))
+  arguments <- construct_helper(
+    df,
+    all_args = list(
+      "alum" = alum,
+      "ferricchloride" = ferricchloride,
+      "ferricsulfate" = ferricsulfate,
+      "ach" = ach,
+      "pacl" = pacl,
+      "caoh2" = caoh2,
+      "coeff" = if (is_coeff_df) "coeff_df" else coeff
+    )
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -179,8 +216,9 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
-    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, coeff = "Alum", caoh2 = 0)
+    df,
+    final_names,
+    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, pacl = 0, coeff = "Alum", caoh2 = 0)
   )
   df <- defaults_added$data
 
@@ -190,6 +228,8 @@ chemdose_toc_df <- function(df, input_water = "defined", output_water = "coagula
       alum = df[[final_names$alum]][i],
       ferricchloride = df[[final_names$ferricchloride]][i],
       ferricsulfate = df[[final_names$ferricsulfate]][i],
+      ach = df[[final_names$ach]][i],
+      pacl = df[[final_names$pacl]][i],
       caoh2 = df[[final_names$caoh2]][i],
       coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i]
     )

@@ -70,11 +70,23 @@ test_that("ozonate_bromate works.", {
 
 test_that("ozonate_bromate_df outputs are the same as base function, ozonate_bromate", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13, mg = 4,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+  water0 <- define_water(
+    7.9,
+    20,
+    50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05,
+    br = 50
   )
   water1 <- water0 %>%
     ozonate_bromate(dose = 3, time = 5)
@@ -117,22 +129,26 @@ test_that("ozonate_bromate_df outputs are the same as base function, ozonate_bro
 
 test_that("ozonate_bromate_df output is list of water class objects, and can handle an ouput_water arg", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 60) %>%
-    define_water_df() %>%
-    ozonate_bromate_df(time = 5, dose = 3))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 60) %>%
+      define_water_df() %>%
+      ozonate_bromate_df(time = 5, dose = 3)
+  )
 
   water2 <- purrr::pluck(water1, "ozonated", 1)
 
-  water3 <- suppressWarnings(water_df %>%
-    mutate(br = 60) %>%
-    define_water_df() %>%
-    mutate(
-      dose = 3,
-      time = 5
-    ) %>%
-    ozonate_bromate_df(output_water = "diff_name"))
+  water3 <- suppressWarnings(
+    water_df %>%
+      mutate(br = 60) %>%
+      define_water_df() %>%
+      mutate(
+        dose = 3,
+        time = 5
+      ) %>%
+      ozonate_bromate_df(output_water = "diff_name")
+  )
 
   expect_s4_class(water2, "water") # check class
   expect_true(exists("diff_name", water3)) # check if output_water arg works
@@ -142,30 +158,36 @@ test_that("ozonate_bromate_df output is list of water class objects, and can han
 
 test_that("ozonate_bromate_df can use a column or function argument for chemical dose, time", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df("watta") %>%
-    ozonate_bromate_df(input_water = "watta", time = 5, dose = 3, pluck_cols = TRUE))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df("watta") %>%
+      ozonate_bromate_df(input_water = "watta", time = 5, dose = 3, pluck_cols = TRUE)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    mutate(
-      time = 5,
-      dose = 3
-    ) %>%
-    ozonate_bromate_df(pluck_cols = TRUE))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df() %>%
+      mutate(
+        time = 5,
+        dose = 3
+      ) %>%
+      ozonate_bromate_df(pluck_cols = TRUE)
+  )
 
   # pluck_cols does the same thing as pluck_water
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    mutate(time = 5) %>%
-    ozonate_bromate_df(dose = 3) %>%
-    pluck_water("ozonated", c("bro3")))
+  water3 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df() %>%
+      mutate(time = 5) %>%
+      ozonate_bromate_df(dose = 3) %>%
+      pluck_water("ozonated", c("bro3"))
+  )
 
   expect_equal(water1$ozonated_bro3, water2$ozonated_bro3) # test different ways to input args
   # Test that inputting time/dose separately (in column and as an argument) gives same results
@@ -174,27 +196,33 @@ test_that("ozonate_bromate_df can use a column or function argument for chemical
 
 test_that("ozonate_bromate_df multiple models", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    merge(data.frame(model = c("Sohn", "Galey"))) %>%
-    ozonate_bromate_df(time = 5, dose = 3) %>%
-    pluck_water("ozonated", c("bro3")))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df() %>%
+      merge(data.frame(model = c("Sohn", "Galey"))) %>%
+      ozonate_bromate_df(time = 5, dose = 3) %>%
+      pluck_water("ozonated", c("bro3"))
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    ozonate_bromate_df(time = 5, dose = 3, model = "Sohn") %>%
-    pluck_water("ozonated", c("bro3")))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df() %>%
+      ozonate_bromate_df(time = 5, dose = 3, model = "Sohn") %>%
+      pluck_water("ozonated", c("bro3"))
+  )
 
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(br = 80) %>%
-    define_water_df() %>%
-    ozonate_bromate_df(time = 5, dose = 3, model = c("Sohn", "Galey")) %>%
-    pluck_water("ozonated", c("bro3")))
+  water3 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(br = 80) %>%
+      define_water_df() %>%
+      ozonate_bromate_df(time = 5, dose = 3, model = c("Sohn", "Galey")) %>%
+      pluck_water("ozonated", c("bro3"))
+  )
 
   expect_equal(water1$ozonated_bro3[1], water2$ozonated_bro3) # test different ways to input args
   expect_equal(water1$ozonated_bro3, water3$ozonated_bro3)
@@ -204,12 +232,16 @@ test_that("ozonate_bromate_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
     define_water_df("water")
-  expect_error(water %>%
-    mutate(dose = 5) %>%
-    ozonate_bromate_df(input_water = "water", time = 5, dose = 5))
-  expect_error(water %>%
-    mutate(time = 5) %>%
-    ozonate_bromate_df(input_water = "water", time = 5, dose = 5))
+  expect_error(
+    water %>%
+      mutate(dose = 5) %>%
+      ozonate_bromate_df(input_water = "water", time = 5, dose = 5)
+  )
+  expect_error(
+    water %>%
+      mutate(time = 5) %>%
+      ozonate_bromate_df(input_water = "water", time = 5, dose = 5)
+  )
 })
 
 test_that("ozonate_bromate_df correctly handles arguments with multiple values", {

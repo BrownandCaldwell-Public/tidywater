@@ -2,18 +2,73 @@
 library(dplyr)
 
 test_that("Blend waters gives error when ratios don't sum to 1 and runs otherwise.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
-  water2 <- define_water(ph = 5, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
-  water3 <- define_water(ph = 10, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
+  water1 <- define_water(
+    ph = 7,
+    temp = 25,
+    alk = 100,
+    so4 = 0,
+    ca = 0,
+    mg = 0,
+    cond = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1
+  )
+  water2 <- define_water(
+    ph = 5,
+    temp = 25,
+    alk = 100,
+    so4 = 0,
+    ca = 0,
+    mg = 0,
+    cond = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1
+  )
+  water3 <- define_water(
+    ph = 10,
+    temp = 25,
+    alk = 100,
+    so4 = 0,
+    ca = 0,
+    mg = 0,
+    cond = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1
+  )
 
   expect_error(blend_waters(c(water1, water2, water3), c(.5, .5, .5)))
   expect_no_error(blend_waters(c(water1, water2, water3), c(1 / 3, 1 / 3, 1 / 3)))
 })
 
 test_that("Blend waters outputs same water when ratio is 1 or the blending waters have the same parameters.", {
-  water1 <- define_water(ph = 7, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
+  water1 <- define_water(
+    ph = 7,
+    temp = 25,
+    alk = 100,
+    so4 = 0,
+    ca = 0,
+    mg = 0,
+    cond = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1
+  )
   water2 <- water1
-  water3 <- define_water(ph = 10, temp = 25, alk = 100, so4 = 0, ca = 0, mg = 0, cond = 100, toc = 5, doc = 4.8, uv254 = .1)
+  water3 <- define_water(
+    ph = 10,
+    temp = 25,
+    alk = 100,
+    so4 = 0,
+    ca = 0,
+    mg = 0,
+    cond = 100,
+    toc = 5,
+    doc = 4.8,
+    uv254 = .1
+  )
 
   blend1 <- blend_waters(c(water1, water3), c(1, 0))
   blend2 <- blend_waters(c(water1, water3), c(0, 1))
@@ -42,8 +97,10 @@ test_that("Blend waters conserves DOC.", {
 })
 
 test_that("Blend waters correctly handles list of estimated parameters.", {
-  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
-    chemdose_ph(naoh = 5))
+  water1 <- suppressWarnings(
+    define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
+      chemdose_ph(naoh = 5)
+  )
   water2 <- define_water(ph = 7, temp = 25, alk = 100, cond = 100) %>%
     balance_ions()
   water3 <- suppressWarnings(define_water(ph = 10, temp = 10, alk = 200, tot_hard = 100, cl = 100, na = 100))
@@ -83,22 +140,50 @@ test_that("Blend waters warns about chloramines.", {
 test_that("blend_waters_df outputs are the same as base function, blend_waters", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   ))
 
   water2 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )) %>%
     chemdose_ph(naoh = 20)
 
   blend1 <- blend_waters(waters = c(water1, water2), ratios = c(.4, .6))
 
-  water2 <- suppressWarnings(water_df[1, ] %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 20) %>%
-    blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6)))
+  water2 <- suppressWarnings(
+    water_df[1, ] %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 20) %>%
+      blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6))
+  )
 
   blend2 <- purrr::pluck(water2, "blended", 1)
 
@@ -108,11 +193,13 @@ test_that("blend_waters_df outputs are the same as base function, blend_waters",
 # Test that output is a column of water class lists, and changing the output column name works
 test_that("blend_waters_df outputs a column of water class lists, and output_water arg works", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 20) %>%
-    blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6), output_water = "testoutput"))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 20) %>%
+      blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6), output_water = "testoutput")
+  )
 
   blend2 <- purrr::pluck(water2, 4, 1)
 
@@ -124,23 +211,27 @@ test_that("blend_waters_df outputs a column of water class lists, and output_wat
 # Check that this function can handle different ways to input ratios
 test_that("blend_waters_df can handle different ways to input ratios", {
   testthat::skip_on_cran()
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 20) %>%
-    blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6)))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 20) %>%
+      blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6))
+  )
 
   blend2 <- purrr::pluck(water2, "blended", 1)
 
-  water3 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df() %>%
-    chemdose_ph_df(naoh = 20) %>%
-    mutate(
-      ratio1 = .4,
-      ratio2 = .6
-    ) %>%
-    blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c("ratio1", "ratio2")))
+  water3 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df() %>%
+      chemdose_ph_df(naoh = 20) %>%
+      mutate(
+        ratio1 = .4,
+        ratio2 = .6
+      ) %>%
+      blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c("ratio1", "ratio2"))
+  )
 
   blend3 <- purrr::pluck(water3, "blended", 1)
 
@@ -153,8 +244,21 @@ test_that("blend_waters_df can handle water columns mixed with objects", {
     slice(1:3) %>%
     define_water_df("A")
   water5 <- define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   blend4 <- water4 %>%

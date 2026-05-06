@@ -77,7 +77,13 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     }
 
     # Determine ph_range key
-    ph_key <- if (ph >= 6 && ph <= 9) "6-9" else if (ph == 10) "10" else NULL
+    ph_key <- if (ph >= 6 && ph <= 9) {
+      "6-9"
+    } else if (ph == 10) {
+      "10"
+    } else {
+      NULL
+    }
 
     # Filter the relevant rows
     vlog_table <- subset(
@@ -98,11 +104,18 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
 
     if (any(is.na(vlog_removal))) {
       vlog_removal <- NA_real_
-      warning("pH or contact time out of range for virus log removal calculation. See EPA Guidance Manual Table E-7 for valid ranges.")
+      warning(
+        "pH or contact time out of range for virus log removal calculation. See EPA Guidance Manual Table E-7 for valid ranges."
+      )
     }
   }
 
-  data.frame("ct_required" = ct_required, "ct_actual" = ct_actual, "glog_removal" = giardia_log_removal, "vlog_removal" = vlog_removal)
+  data.frame(
+    "ct_required" = ct_required,
+    "ct_actual" = ct_actual,
+    "glog_removal" = giardia_log_removal,
+    "vlog_removal" = vlog_removal
+  )
 }
 
 
@@ -130,10 +143,15 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
 #' @returns `solvect_chlorine_df` returns a data frame containing the original data frame and columns for required CT, actual CT, and giardia log removal.
 #' @export
 
-solvect_chlorine_df <- function(df, input_water = "defined",
-                                time = "use_col", residual = "use_col", baffle = "use_col",
-                                free_cl_slot = "residual_only",
-                                water_prefix = TRUE) {
+solvect_chlorine_df <- function(
+  df,
+  input_water = "defined",
+  time = "use_col",
+  residual = "use_col",
+  baffle = "use_col",
+  free_cl_slot = "residual_only",
+  water_prefix = TRUE
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   time <- tryCatch(time, error = function(e) enquo(time))
@@ -147,15 +165,18 @@ solvect_chlorine_df <- function(df, input_water = "defined",
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
-  ct_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    solvect_chlorine(
-      water = df[[input_water]][[i]],
-      time = df[[final_names$time]][i],
-      residual = df[[final_names$residual]][i],
-      baffle = df[[final_names$baffle]][i],
-      free_cl_slot = free_cl_slot
-    )
-  }))
+  ct_df <- do.call(
+    rbind,
+    lapply(seq_len(nrow(df)), function(i) {
+      solvect_chlorine(
+        water = df[[input_water]][[i]],
+        time = df[[final_names$time]][i],
+        residual = df[[final_names$residual]][i],
+        baffle = df[[final_names$baffle]][i],
+        free_cl_slot = free_cl_slot
+      )
+    })
+  )
 
   if (water_prefix) {
     names(ct_df) <- paste0(input_water, "_", names(ct_df))

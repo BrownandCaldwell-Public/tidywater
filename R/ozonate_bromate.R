@@ -45,7 +45,9 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 
   # Other parameters depend on model
   if (is.na(water@alk) & model %in% c("Sohn", "Song")) {
-    stop("Alkalinity required for selected model. Use one of 'Ozekin', 'Galey', 'Siddiqui' instead or add alkalinity when defining water.")
+    stop(
+      "Alkalinity required for selected model. Use one of 'Ozekin', 'Galey', 'Siddiqui' instead or add alkalinity when defining water."
+    )
   }
   if (is.na(water@doc) & model != "Sohn") {
     stop("DOC required for selected model. Use 'Sohn' to use UV254 instead or add DOC when defining water.")
@@ -69,15 +71,28 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   solve_bro3 <- subset(tidywater::bromatecoeffs, model == mod & ammonia == ifelse(nh4 == 0, F, T))
 
   if (nrow(solve_bro3) == 0 & nh4 == 0) {
-    stop("Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',
-         specify nh4 in define_water, or dose it with chemdose_ph.")
+    stop(
+      "Selected model not applicable to waters with no ammonia. Select one of 'Ozekin', 'Sohn', 'Galey', 'Siddiqui',
+         specify nh4 in define_water, or dose it with chemdose_ph."
+    )
   } else if (nrow(solve_bro3) == 0 & nh4 > 0) {
-    stop("Selected model not applicable to water with ammonia. Select one of 'Ozekin', 'Sohn', 'Song' or change nh4 to 0.")
+    stop(
+      "Selected model not applicable to water with ammonia. Select one of 'Ozekin', 'Sohn', 'Song' or change nh4 to 0."
+    )
   }
 
   # bro3 = A * br^a * doc^b * uv254^c * ph^d * alk^e * dose^f * time^g * nh4^h * temp^i * I^(temp - 20)
-  water@bro3 <- solve_bro3$A * br^solve_bro3$a * doc^solve_bro3$b * uv254^solve_bro3$c * ph^solve_bro3$d *
-    alk^solve_bro3$e * dose^solve_bro3$f * time^solve_bro3$g * nh4^solve_bro3$h * temp^solve_bro3$i * solve_bro3$I^(temp - 20)
+  water@bro3 <- solve_bro3$A *
+    br^solve_bro3$a *
+    doc^solve_bro3$b *
+    uv254^solve_bro3$c *
+    ph^solve_bro3$d *
+    alk^solve_bro3$e *
+    dose^solve_bro3$f *
+    time^solve_bro3$g *
+    nh4^solve_bro3$h *
+    temp^solve_bro3$i *
+    solve_bro3$I^(temp - 20)
 
   return(water)
 }
@@ -107,8 +122,16 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
 #' @returns `ozonate_bromate_df` returns a data frame containing a water class column with updated bro3
 #' concentration. Optionally, it also adds columns for each of those slots individually.
 
-ozonate_bromate_df <- function(df, input_water = "defined", output_water = "ozonated", pluck_cols = FALSE, water_prefix = TRUE,
-                               dose = "use_col", time = "use_col", model = "use_col") {
+ozonate_bromate_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "ozonated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  dose = "use_col",
+  time = "use_col",
+  model = "use_col"
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
@@ -125,7 +148,8 @@ ozonate_bromate_df <- function(df, input_water = "defined", output_water = "ozon
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(model = "Ozekin")
   )
   df <- defaults_added$data

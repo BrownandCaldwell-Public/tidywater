@@ -77,7 +77,6 @@ test_that("chemdose_chloramine uses both slot and dose when slots are set to TRU
   # both
   water3 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 65, free_chlorine = 2, tot_nh3 = 2))
 
-
   expect_warning(chemdose_chloramine(water1, time = 40, cl2 = 2, nh3 = 2, use_free_cl_slot = TRUE))
   expect_warning(chemdose_chloramine(water2, time = 40, cl2 = 2, nh3 = 4, use_tot_nh3_slot = TRUE))
   warnings <- capture_warnings(chemdose_chloramine(water3, time = 10, cl2 = 1, nh3 = 4))
@@ -95,7 +94,10 @@ test_that("chemdose_chloramine uses slot only when dose is zero or missing or us
   water5 <- chemdose_chloramine(water2, time = 40, cl2 = 5, use_tot_nh3_slot = TRUE)
   expect_warning(chemdose_chloramine(water2, time = 40, cl2 = 5), "slot")
   expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE), "ignored")
-  expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE, use_free_cl_slot = TRUE), "BOTH")
+  expect_warning(
+    chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE, use_free_cl_slot = TRUE),
+    "BOTH"
+  )
   expect_equal(water4@nh2cl, water5@nh2cl)
 })
 
@@ -104,8 +106,21 @@ test_that("chemdose_chloramine uses slot only when dose is zero or missing or us
 test_that("chemdose_chloramine_df outputs the same as base, chemdose_chloramine", {
   testthat::skip_on_cran()
   water0 <- define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   water1 <- chemdose_chloramine(water0, time = 20, nh3 = 1, cl2 = 1)
@@ -127,18 +142,43 @@ test_that("chemdose_chloramine_df outputs the same as base, chemdose_chloramine"
   expect_equal(ncol(water2), ncol(water3))
   expect_equal(water2$chloraminated_combined_chlorine[1], water3$chloraminated_combined_chlorine[1])
 
-  water3 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, ca = 13, mg = 4, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, free_chlorine = 2, tot_nh3 = 2
-  ) %>%
-    chemdose_chloramine(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE))
+  water3 <- suppressWarnings(
+    define_water(
+      ph = 7.9,
+      temp = 20,
+      alk = 50,
+      tot_hard = 50,
+      ca = 13,
+      mg = 4,
+      na = 20,
+      k = 20,
+      cl = 30,
+      so4 = 20,
+      tds = 200,
+      cond = 100,
+      toc = 2,
+      doc = 1.8,
+      uv254 = 0.05,
+      free_chlorine = 2,
+      tot_nh3 = 2
+    ) %>%
+      chemdose_chloramine(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE)
+  )
 
-
-  water4 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    mutate(free_chlorine = 2, tot_nh3 = 2) %>%
-    define_water_df() %>%
-    chemdose_chloramine_df(time = 30, nh3 = 4, cl2 = 5, use_free_cl_slot = TRUE, use_tot_nh3_slot = TRUE, pluck_cols = TRUE))
+  water4 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      mutate(free_chlorine = 2, tot_nh3 = 2) %>%
+      define_water_df() %>%
+      chemdose_chloramine_df(
+        time = 30,
+        nh3 = 4,
+        cl2 = 5,
+        use_free_cl_slot = TRUE,
+        use_tot_nh3_slot = TRUE,
+        pluck_cols = TRUE
+      )
+  )
 
   expect_equal(water4$chloraminated_free_chlorine[1], water3@free_chlorine)
   expect_equal(water4$chloraminated_combined_chlorine[1], water3@combined_chlorine)
@@ -155,10 +195,12 @@ test_that("chemdose_chloramine_df output is list of water class objects, and can
 
   water2 <- purrr::pluck(water1, "chloraminated", 1)
 
-  water3 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(nh3 = 3) %>%
-    chemdose_chloramine_df(output_water = "diff_name", time = 10, cl2 = 3))
+  water3 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(nh3 = 3) %>%
+      chemdose_chloramine_df(output_water = "diff_name", time = 10, cl2 = 3)
+  )
 
   expect_s4_class(water2, "water") # check class
   expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
@@ -167,14 +209,16 @@ test_that("chemdose_chloramine_df output is list of water class objects, and can
 # Check that this function can be piped to the next one
 test_that("chemdose_chloramine_df works", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(
-      nh3 = 2,
-      cl2 = 3,
-      time = 10
-    ) %>%
-    chemdose_chloramine_df())
+  water1 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(
+        nh3 = 2,
+        cl2 = 3,
+        time = 10
+      ) %>%
+      chemdose_chloramine_df()
+  )
 
   expect_equal(ncol(water1), 5) # check if pipe worked
 })
@@ -182,27 +226,33 @@ test_that("chemdose_chloramine_df works", {
 # Check that variety of ways to input chemicals work
 test_that("chemdose_chloramine_df can handle different ways to input chem doses", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    chemdose_chloramine_df(nh3 = 3, cl2 = 5, time = 30, pluck_cols = TRUE))
+  water1 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_chloramine_df(nh3 = 3, cl2 = 5, time = 30, pluck_cols = TRUE)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    mutate(tot_nh3 = 2) %>%
-    define_water_df() %>%
-    mutate(
-      nh3 = 3,
-      cl2 = 5,
-      time = 30
-    ) %>%
-    chemdose_chloramine_df(pluck_cols = TRUE))
+  water2 <- suppressWarnings(
+    water_df %>%
+      mutate(tot_nh3 = 2) %>%
+      define_water_df() %>%
+      mutate(
+        nh3 = 3,
+        cl2 = 5,
+        time = 30
+      ) %>%
+      chemdose_chloramine_df(pluck_cols = TRUE)
+  )
 
   # test different ways to input chemical
   expect_equal(water1$chloraminated_free_chlorine, water2$chloraminated_free_chlorine)
 
-  water3 <- suppressWarnings(water_df %>%
-    define_water_df() %>%
-    mutate(nh3 = seq(0, 11, 1)) %>%
-    chemdose_chloramine_df(cl2 = c(5, 8), time = 30, pluck_cols = TRUE))
+  water3 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(nh3 = seq(0, 11, 1)) %>%
+      chemdose_chloramine_df(cl2 = c(5, 8), time = 30, pluck_cols = TRUE)
+  )
 
   water4 <- water3 %>%
     slice(4) # same starting wq as water 5
@@ -220,20 +270,24 @@ test_that("chemdose_chloramine_df can handle different ways to input chem doses"
     water5$chloraminated_free_chlorine
   )
 
-  water6 <- suppressWarnings(water_df %>%
-    mutate(tot_nh3 = 2) %>%
-    define_water_df() %>%
-    mutate(nh3 = 3) %>%
-    chemdose_chloramine_df(use_tot_nh3_slot = TRUE, cl2 = 5, time = 30, pluck_cols = TRUE))
+  water6 <- suppressWarnings(
+    water_df %>%
+      mutate(tot_nh3 = 2) %>%
+      define_water_df() %>%
+      mutate(nh3 = 3) %>%
+      chemdose_chloramine_df(use_tot_nh3_slot = TRUE, cl2 = 5, time = 30, pluck_cols = TRUE)
+  )
 
-  water7 <- suppressWarnings(water_df %>%
-    mutate(tot_nh3 = 2) %>%
-    define_water_df() %>%
-    mutate(
-      nh3 = 3,
-      use_tot_nh3_slot = TRUE
-    ) %>%
-    chemdose_chloramine_df(cl2 = 5, time = 30, pluck_cols = TRUE))
+  water7 <- suppressWarnings(
+    water_df %>%
+      mutate(tot_nh3 = 2) %>%
+      define_water_df() %>%
+      mutate(
+        nh3 = 3,
+        use_tot_nh3_slot = TRUE
+      ) %>%
+      chemdose_chloramine_df(cl2 = 5, time = 30, pluck_cols = TRUE)
+  )
 
   # test different ways to call use_slot
   expect_equal(water6$chloraminated_combined_chlorine, water7$chloraminated_combined_chlorine)
@@ -243,7 +297,6 @@ test_that("chemdose_chloramine_df can handle different ways to input chem doses"
     expect_equal(water2$chloraminated_combined_chlorine, water7$chloraminated_combined_chlorine)
   )
 })
-
 
 # note that this test only passes when chemdose_chlorine uses the original alpha0TOTNH and alpha1TOTNH
 #  test_that("chemdose_chloramine works.", {
@@ -287,7 +340,6 @@ test_that("chemdose_chloramine_df can handle different ways to input chem doses"
 #   expect_lt(abs(0 - water8@tot_nh3), TH_nh3)
 #
 # })
-
 
 ######################
 # EPA script, generate numbers for the last test

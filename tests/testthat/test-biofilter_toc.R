@@ -71,11 +71,22 @@ test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
 
 test_that("biofilter_toc_df outputs are the same as base function, biofilter_toc", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13, mg = 4,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05
+  water0 <- define_water(
+    7.9,
+    20,
+    50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   water1 <- biofilter_toc(water0, ebct = 10)
@@ -159,13 +170,17 @@ test_that("biofilter_toc_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
     define_water_df("water")
-  expect_error(water %>%
-    mutate(ebct = 5) %>%
-    biofilter_toc_df(input_water = "water", ebct = 10, ozonated = FALSE))
+  expect_error(
+    water %>%
+      mutate(ebct = 5) %>%
+      biofilter_toc_df(input_water = "water", ebct = 10, ozonated = FALSE)
+  )
 
-  expect_error(water %>%
-    mutate(ozonated = FALSE) %>%
-    biofilter_toc_df(input_water = "water", ebct = 10, ozonated = TRUE))
+  expect_error(
+    water %>%
+      mutate(ozonated = FALSE) %>%
+      biofilter_toc_df(input_water = "water", ebct = 10, ozonated = TRUE)
+  )
 })
 
 test_that("biofilter_toc_df correctly handles arguments with multiple numbers", {

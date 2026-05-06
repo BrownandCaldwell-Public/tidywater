@@ -52,15 +52,9 @@ test_that("gacrun_toc works.", {
 
 test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tds = 200,
-    toc = 2, doc = 1.8, uv254 = 0.05
-  )
+  water0 <- define_water(7.9, 20, 50, tds = 200, toc = 2, doc = 1.8, uv254 = 0.05)
 
-  water1 <- define_water(8.5, 25, 80,
-    tds = 100,
-    toc = 3, doc = 2.8, uv254 = .08
-  )
+  water1 <- define_water(8.5, 25, 80, tds = 100, toc = 3, doc = 2.8, uv254 = .08)
 
   water2 <- water0 %>%
     gacrun_toc(model = "WTP")
@@ -79,14 +73,16 @@ test_that("gacrun_toc_df outputs are the same as base function, gacrun_toc", {
 # Test that output is a data frame with the correct number of columns
 test_that("gacrun_toc_df output is data frame", {
   testthat::skip_on_cran()
-  water0 <- suppressWarnings(water_df %>%
-    define_water_df("raw") %>%
-    mutate(
-      model = "WTP",
-      media_size = "12x40",
-      ebct = 10,
-      bvs = list(c(2000, 20000, 100))
-    ))
+  water0 <- suppressWarnings(
+    water_df %>%
+      define_water_df("raw") %>%
+      mutate(
+        model = "WTP",
+        media_size = "12x40",
+        ebct = 10,
+        bvs = list(c(2000, 20000, 100))
+      )
+  )
 
   water1 <- water0 %>%
     gacrun_toc_df(input_water = "raw") %>%

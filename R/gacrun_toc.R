@@ -110,8 +110,15 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
 #'
 #' @returns `gacrun_toc_df` returns a data frame containing columns of the breakthrough curve (breakthrough and bed volume).
 #'
-gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
-                          ebct = "use_col", model = "use_col", media_size = "use_col", bvs = "use_col") {
+gacrun_toc_df <- function(
+  df,
+  input_water = "defined",
+  water_prefix = TRUE,
+  ebct = "use_col",
+  model = "use_col",
+  media_size = "use_col",
+  bvs = "use_col"
+) {
   # This allows for the function to process unquoted column names without erroring
   ebct <- tryCatch(ebct, error = function(e) enquo(ebct))
   model <- tryCatch(model, error = function(e) enquo(model))
@@ -125,10 +132,15 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
 
   validate_water_helpers(df, input_water)
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, all_args = list(
-    "ebct" = ebct, "model" = model,
-    "media_size" = media_size, "bvs" = bvs
-  ))
+  arguments <- construct_helper(
+    df,
+    all_args = list(
+      "ebct" = ebct,
+      "model" = model,
+      "media_size" = media_size,
+      "bvs" = bvs
+    )
+  )
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -137,27 +149,31 @@ gacrun_toc_df <- function(df, input_water = "defined", water_prefix = TRUE,
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(ebct = 10, model = "Zachman", media_size = "12x40", bvs = list(c(2000, 20000, 100)))
   )
   df <- defaults_added$data %>%
     transform(ID = seq(1, nrow(df), 1))
 
-  bv_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    result <- gacrun_toc(
-      water = df[[input_water]][[i]],
-      ebct = df[[final_names$ebct]][i],
-      model = df[[final_names$model]][i],
-      media_size = df[[final_names$media_size]][i],
-      bvs = if (any(df[[final_names$bvs]][[i]] == "custom")) {
-        input_bvs
-      } else {
-        df[[final_names$bvs]][[i]]
-      }
-    )
-    result$ID <- df$ID[i]
-    return(result)
-  }))
+  bv_df <- do.call(
+    rbind,
+    lapply(seq_len(nrow(df)), function(i) {
+      result <- gacrun_toc(
+        water = df[[input_water]][[i]],
+        ebct = df[[final_names$ebct]][i],
+        model = df[[final_names$model]][i],
+        media_size = df[[final_names$media_size]][i],
+        bvs = if (any(df[[final_names$bvs]][[i]] == "custom")) {
+          input_bvs
+        } else {
+          df[[final_names$bvs]][[i]]
+        }
+      )
+      result$ID <- df$ID[i]
+      return(result)
+    })
+  )
 
   # Rename columns in bv_df except for 'ID'
   if (water_prefix) {

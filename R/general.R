@@ -47,12 +47,20 @@ summarize_wq <- function(water, params = c("general")) {
 
   general <- general %>%
     tidyr::pivot_longer(c(pH:TOC), names_to = "param", values_to = "result") %>%
-    mutate(units = c(
-      "-", "deg C", "mg/L as CaCO3", "mg/L as CaCO3",
-      "mg/L", "uS/cm", "mg/L"
-    ))
+    mutate(
+      units = c(
+        "-",
+        "deg C",
+        "mg/L as CaCO3",
+        "mg/L as CaCO3",
+        "mg/L",
+        "uS/cm",
+        "mg/L"
+      )
+    )
 
-  gen_tab <- knitr::kable(general,
+  gen_tab <- knitr::kable(
+    general,
     format = "simple",
     col.names = c("General water quality parameters", "Result", "Units")
   )
@@ -72,7 +80,8 @@ summarize_wq <- function(water, params = c("general")) {
   ions <- ions %>%
     tidyr::pivot_longer(c(Na:CO3), names_to = "ion", values_to = "c_mg")
 
-  ions_tab <- knitr::kable(ions,
+  ions_tab <- knitr::kable(
+    ions,
     format = "simple",
     col.names = c("Major ions", "Concentration (mg/L)"),
     # format.args = list(scientific = TRUE),
@@ -87,7 +96,6 @@ summarize_wq <- function(water, params = c("general")) {
     Bromoform = ifelse(length(water@chbr3) == 0, NA, water@chbr3),
     `Total trihalomethanes` = ifelse(length(water@tthm) == 0, NA, water@tthm)
   )
-
 
   haa5 <- data.frame(
     `Chloroacetic acid` = ifelse(length(water@mcaa) == 0, NA, water@mcaa),
@@ -112,15 +120,9 @@ summarize_wq <- function(water, params = c("general")) {
     tidyr::pivot_longer(tidyr::everything(), names_to = "param", values_to = "result") %>%
     mutate(result = round(result, 2))
 
-  thm_tab <- knitr::kable(tthm,
-    format = "simple",
-    col.names = c("THMs", "Modeled concentration (ug/L)")
-  )
+  thm_tab <- knitr::kable(tthm, format = "simple", col.names = c("THMs", "Modeled concentration (ug/L)"))
 
-  haa_tab <- knitr::kable(haa5,
-    format = "simple",
-    col.names = c("HAAs", "Modeled concentration (ug/L)")
-  )
+  haa_tab <- knitr::kable(haa5, format = "simple", col.names = c("HAAs", "Modeled concentration (ug/L)"))
 
   # Print tables
   tables_list <- list()
@@ -187,15 +189,32 @@ plot_ions <- function(water) {
     tidyr::pivot_longer(c(Na:OH), names_to = "ion", values_to = "concentration") %>%
     dplyr::mutate(
       type = ifelse(ion %in% c("Na", "Ca", "Mg", "K", "NH4", "H"), "Cations", "Anions"),
-      ion = factor(ion, levels = c(
-        "Ca", "Mg", "Na", "K", "NH4", "H",
-        "HCO3", "CO3", "SO4", "Cl", "H2PO4", "HPO4", "PO4", "OCl", "OH"
-      )),
+      ion = factor(
+        ion,
+        levels = c(
+          "Ca",
+          "Mg",
+          "Na",
+          "K",
+          "NH4",
+          "H",
+          "HCO3",
+          "CO3",
+          "SO4",
+          "Cl",
+          "H2PO4",
+          "HPO4",
+          "PO4",
+          "OCl",
+          "OH"
+        )
+      ),
       concentration = ifelse(is.na(concentration), 0, concentration)
     ) %>%
     dplyr::arrange(ion) %>%
     dplyr::mutate(
-      label_pos = cumsum(concentration) - concentration / 2, .by = type,
+      label_pos = cumsum(concentration) - concentration / 2,
+      .by = type,
       label_y = ifelse(type == "Cations", 2 - .2, 1 - .2)
     ) %>%
     dplyr::filter(
@@ -211,12 +230,11 @@ plot_ions <- function(water) {
   plot %>%
     ggplot(aes(x = concentration, y = type, fill = ion)) +
     geom_bar(stat = "identity", width = 0.5, alpha = 0.5, color = "black") +
-    geom_text(aes(label = label, fontface = "bold", angle = 90),
-      size = 3.5, position = position_stack(vjust = 0.5)
-    ) +
+    geom_text(aes(label = label, fontface = "bold", angle = 90), size = 3.5, position = position_stack(vjust = 0.5)) +
     ggrepel::geom_text_repel(
       aes(
-        x = label_pos, y = label_y,
+        x = label_pos,
+        y = label_y,
         label = repel_label,
         fontface = "bold"
       ),
@@ -230,7 +248,8 @@ plot_ions <- function(water) {
       legend.position = "none"
     ) +
     labs(
-      x = "Concentration (eq/L)", y = "Major Cations and Anions",
+      x = "Concentration (eq/L)",
+      y = "Major Cations and Anions",
       subtitle = paste0("pH=", water@ph, "\nAlkalinity=", water@alk)
     )
 }
@@ -362,19 +381,40 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
 
   mytransition_line <- dic_contourplot[, c("Finished_ph", "Finished_controlling_solid", "Finished_dic")]
   split_data <- split(mytransition_line, mytransition_line$Finished_ph)
-  transitionline <- do.call(rbind, lapply(split_data, function(df) {
-    df$transition <- c(NA, ifelse(df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1], "Y", NA))
-    df[!is.na(df$transition), ]
-  }))
+  transitionline <- do.call(
+    rbind,
+    lapply(split_data, function(df) {
+      df$transition <- c(
+        NA,
+        ifelse(
+          df$Finished_controlling_solid[-length(df$Finished_controlling_solid)] != df$Finished_controlling_solid[-1],
+          "Y",
+          NA
+        )
+      )
+      df[!is.na(df$transition), ]
+    })
+  )
 
   dic_contourplot %>%
     ggplot() +
     geom_raster(aes(x = dic, y = Finished_ph, fill = `log_pb`), interpolate = TRUE) +
-    geom_line(data = transitionline, aes(x = Finished_dic, y = Finished_ph), color = "white", linewidth = 1.2, linetype = "dashed") +
-    geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`),
-      bins = 100, color = "gray", alpha = 0.5
+    geom_line(
+      data = transitionline,
+      aes(x = Finished_dic, y = Finished_ph),
+      color = "white",
+      linewidth = 1.2,
+      linetype = "dashed"
     ) +
-    geom_point(data = df, aes(x = dic, y = ph, color = "Historical"), shape = 21, fill = "#63666A", size = 1.75, stroke = 1) +
+    geom_contour(aes(x = dic, y = Finished_ph, z = `log_pb`), bins = 100, color = "gray", alpha = 0.5) +
+    geom_point(
+      data = df,
+      aes(x = dic, y = ph, color = "Historical"),
+      shape = 21,
+      fill = "#63666A",
+      size = 1.75,
+      stroke = 1
+    ) +
     scale_fill_viridis_c(
       option = "B",
       breaks = range(dic_contourplot$log_pb),
@@ -396,35 +436,27 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     guides(fill = guide_colorbar(title.position = "top"))
 }
 
-#' @title Calculate unit conversions for common compounds
-#'
-#' @description This function takes a value and converts units based on compound name.
-#'
-#' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
-#' and the same units with "m", "u", "n" prefixes
-#' @param endunit Desired units, currently accepts same as start units
-#'
-#' @examples
-#' convert_units(50, "ca") # converts from mg/L to M by default
-#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
-#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
-#'
-#' @export
-#'
-#' @returns A numeric value for the converted parameter.
-#'
-convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
-  milli_list <- c("mg/L", "mg/L CaCO3", "mg/L N", "mM", "meq/L")
-  mcro_list <- c("ug/L", "ug/L CaCO3", "ug/L N", "uM", "ueq/L")
-  nano_list <- c("ng/L", "ng/L CaCO3", "ng/L N", "nM", "neq/L")
-  stand_list <- c("g/L", "g/L CaCO3", "g/L N", "M", "eq/L")
 
+# Internal conversion function
+# This function generates a cached table of unit conversions with every combo of formula and units in the compile_tidywater_data file.
+# If we fail to lookup a unit conversion in our cached table we look here
+# This function is ~20x slower than the cache lookup
+convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  unit_multipliers <- get("unit_multipliers")
+  formula_to_charge <- get("formula_to_charge")
   gram_list <- c(
-    "ng/L", "ug/L", "mg/L", "g/L",
-    "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
-    "ng/L N", "ug/L N", "mg/L N", "g/L N"
+    "ng/L",
+    "ug/L",
+    "mg/L",
+    "g/L",
+    "ng/L CaCO3",
+    "ug/L CaCO3",
+    "mg/L CaCO3",
+    "g/L CaCO3",
+    "ng/L N",
+    "ug/L N",
+    "mg/L N",
+    "g/L N"
   )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
@@ -432,37 +464,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
 
-  # Determine multiplier for order of magnitude conversion
-  # In the same list, no multiplier needed
-  if ((startunit %in% milli_list & endunit %in% milli_list) |
-    (startunit %in% stand_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% nano_list) |
-    (startunit %in% mcro_list & endunit %in% mcro_list)) {
-    multiplier <- 1
-    # m - standard, n-u, u-n
-  } else if ((startunit %in% milli_list & endunit %in% stand_list) |
-    (startunit %in% mcro_list & endunit %in% milli_list) |
-    (startunit %in% nano_list & endunit %in% mcro_list)) {
-    multiplier <- 1e-3
-  } else if ((startunit %in% stand_list & endunit %in% milli_list) |
-    (startunit %in% milli_list & endunit %in% mcro_list) |
-    (startunit %in% mcro_list & endunit %in% nano_list)) {
-    multiplier <- 1e3
-    # u - standard
-  } else if ((startunit %in% mcro_list & endunit %in% stand_list) |
-    (startunit %in% nano_list & endunit %in% milli_list)) {
-    multiplier <- 1e-6
-  } else if ((startunit %in% stand_list & endunit %in% mcro_list) |
-    (startunit %in% milli_list & endunit %in% nano_list)) {
-    multiplier <- 1e6
-    # n - standard
-  } else if (startunit %in% nano_list & endunit %in% stand_list) {
-    multiplier <- 1e-9
-  } else if (startunit %in% stand_list & endunit %in% nano_list) {
-    multiplier <- 1e9
-  } else {
+  # Look up the unit multipliers for starting and end units
+  start_mult <- unit_multipliers[[startunit]]
+  end_mult <- unit_multipliers[[endunit]]
+  if (is.null(start_mult) || is.null(end_mult)) {
+    # If we didn't find multipliers these units are not supported
     stop("Units not supported")
   }
+  # Calculate the net multiplier
+  multiplier <- start_mult / end_mult
 
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
@@ -470,11 +480,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
-    if ((startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))) {
+    if (
+      (startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
+        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))
+    ) {
       molar_weight <- caco3_mw
-    } else if ((startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-      (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))) {
+    } else if (
+      (startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
+        (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))
+    ) {
       molar_weight <- n_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
@@ -482,16 +496,15 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop(paste("Chemical formula", formula, "not supported"))
+    stop(paste("Chemical formula not supported: ", formula))
   }
 
   # Determine charge for equivalents
-  if (formula %in% c("na", "k", "cl", "hcl", "naoh", "nahco3", "naf", "hno3", "nh4", "nh3", "f", "br", "no3", "bro3", "kmno4", "dic")) {
-    charge <- 1
-  } else if (formula %in% c("so4", "caco3", "caso4", "h2so4", "na2co3", "caoh2", "mgoh2", "mg", "ca", "pb", "cacl2", "caocl2", "mn")) {
-    charge <- 2
-  } else if (formula %in% c("h3po4", "al", "fe", "alum", "fecl3", "fe2so43", "na3po4", "po4")) {
-    charge <- 3
+  # Look up our known charges in our hashtable
+  table_charge <- formula_to_charge[[formula]]
+  if (!is.null(table_charge)) {
+    # If we found a charge in the hash table use that
+    charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     # This is included so that charge can be in equations later without impacting results
     charge <- 1
@@ -526,12 +539,45 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
     value / molar_weight * n_mw
     # same lists
-  } else if ((startunit %in% gram_list & endunit %in% gram_list) |
-    (startunit %in% mole_list & endunit %in% mole_list) |
-    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
+  } else if (
+    (startunit %in% gram_list & endunit %in% gram_list) |
+      (startunit %in% mole_list & endunit %in% mole_list) |
+      (startunit %in% eqvl_list & endunit %in% eqvl_list)
+  ) {
     value * multiplier
   } else {
     stop("Units not supported")
+  }
+}
+
+#' @title Calculate unit conversions for common compounds
+#'
+#' @description This function takes a value and converts units based on compound name.
+#'
+#' @param value Value to be converted
+#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' and the same units with "m", "u", "n" prefixes
+#' @param endunit Desired units, currently accepts same as start units
+#'
+#' @examples
+#' convert_units(50, "ca") # converts from mg/L to M by default
+#' convert_units(50, "ca", "mg/L", "mg/L CaCO3")
+#' convert_units(50, "ca", startunit = "mg/L", endunit = "eq/L")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted parameter.
+#'
+convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+  convert_units_cache <- get("convert_units_cache")
+  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
+  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+  if (is.null(lookup)) {
+    # Fallback to full implementation
+    convert_units_private(value, formula, startunit, endunit)
+  } else {
+    value * lookup
   }
 }
 
@@ -645,7 +691,9 @@ correct_k <- function(water) {
   # k2po4 = {h+}{hpo42-}/{h2po4-}
   k2po4 <- K_temp_adjust(discons["k2po4", ]$deltah, discons["k2po4", ]$k, temp) / activity_z2
   # k3po4 = {h+}{po43-}/{hpo42-}
-  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) * activity_z2 / (activity_z1 * activity_z3)
+  k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp) *
+    activity_z2 /
+    (activity_z1 * activity_z3)
   # kocl = {h+}{ocl-}/{hocl}
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
@@ -660,10 +708,18 @@ correct_k <- function(water) {
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
 
   return(data.frame(
-    "k1co3" = k1co3, "k2co3" = k2co3,
-    "k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4,
-    "kocl" = kocl, "knh4" = knh4, "kso4" = kso4,
-    "kbo3" = kbo3, "k1sio4" = k1sio4, "k2sio4" = k2sio4, "kch3coo" = kch3coo
+    "k1co3" = k1co3,
+    "k2co3" = k2co3,
+    "k1po4" = k1po4,
+    "k2po4" = k2po4,
+    "k3po4" = k3po4,
+    "kocl" = kocl,
+    "knh4" = knh4,
+    "kso4" = kso4,
+    "kbo3" = kbo3,
+    "k1sio4" = k1sio4,
+    "k2sio4" = k2sio4,
+    "kch3coo" = kch3coo
   ))
 }
 
@@ -681,10 +737,14 @@ validate_water <- function(water, slots) {
   # Check if any slots are NA
   if (any(sapply(slots, function(sl) is.na(methods::slot(water, sl))))) {
     # Paste all missing slots together.
-    missing <- gsub(" +", ", ", trimws(paste(
-      sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
-      collapse = " "
-    )))
+    missing <- gsub(
+      " +",
+      ", ",
+      trimws(paste(
+        sapply(slots, function(sl) ifelse(is.na(methods::slot(water, sl)), sl, "")),
+        collapse = " "
+      ))
+    )
 
     stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
   }
@@ -694,10 +754,14 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    stop("Specified input_water column not found. Check spelling or create a water class column using define_water_df().")
+    stop(
+      "Specified input_water column not found. Check spelling or create a water class column using define_water_df()."
+    )
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    stop("Specified input_water does not contain water class objects. Use define_water_df() or specify a different column.")
+    stop(
+      "Specified input_water does not contain water class objects. Use define_water_df() or specify a different column."
+    )
   }
 }
 
@@ -755,55 +819,64 @@ calculate_alpha0_phosphate <- function(h, k) {
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 
-calculate_alpha1_phosphate <- function(h, k) { # H2PO4
+calculate_alpha1_phosphate <- function(h, k) {
+  # H2PO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * k1 / h
 }
 
-calculate_alpha2_phosphate <- function(h, k) { # HPO4
+calculate_alpha2_phosphate <- function(h, k) {
+  # HPO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
-calculate_alpha3_phosphate <- function(h, k) { # PO4
+calculate_alpha3_phosphate <- function(h, k) {
+  # PO4
   k1 <- k$k1po4
   k2 <- k$k2po4
   k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 * k3 / h^3)
 }
 
-calculate_alpha1_hypochlorite <- function(h, k) { # OCl-
+calculate_alpha1_hypochlorite <- function(h, k) {
+  # OCl-
   k1 <- k$kocl
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
-calculate_alpha1_ammonia <- function(h, k) { # NH4+
+calculate_alpha1_ammonia <- function(h, k) {
+  # NH4+
   k1 <- k$knh4
   1 / (1 + k1 / h) # calculating how much is in the protonated form with +1 charge
 }
 
-calculate_alpha1_borate <- function(h, k) { # H4BO4-
+calculate_alpha1_borate <- function(h, k) {
+  # H4BO4-
   k1 <- k$kbo3
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
-calculate_alpha1_silicate <- function(h, k) { # H3SiO4-
+calculate_alpha1_silicate <- function(h, k) {
+  # H3SiO4-
   k1 <- k$k1sio4
   k2 <- k$k2sio4
   1 / (1 + h / k1 + k2 / h) # calculating how much is in the deprotonated form with -1 charge
 }
 
-calculate_alpha2_silicate <- function(h, k) { # H2SiO4 2-
+calculate_alpha2_silicate <- function(h, k) {
+  # H2SiO4 2-
   k1 <- k$k1sio4
   k2 <- k$k2sio4
   1 / (1 + h / k2 + h^2 / (k1 * k2)) # calculating how much is deprotonated with -2 charge
 }
 
-calculate_alpha1_acetate <- function(h, k) { # CH3COO-
+calculate_alpha1_acetate <- function(h, k) {
+  # CH3COO-
   k1 <- k$kch3coo
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
@@ -825,12 +898,25 @@ K_temp_adjust <- function(deltah, ka, temp) {
 
 calculate_ionicstrength <- function(water) {
   # From all ions: IS = 0.5 * sum(M * z^2)
-  0.5 * (sum(water@na, water@cl, water@k, water@hco3, water@h2po4, water@h, water@oh, water@ocl,
-    water@f, water@br, water@bro3, water@nh4,
-    na.rm = TRUE
-  ) * 1^2 +
-    sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
-    sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
+  0.5 *
+    (sum(
+      water@na,
+      water@cl,
+      water@k,
+      water@hco3,
+      water@h2po4,
+      water@h,
+      water@oh,
+      water@ocl,
+      water@f,
+      water@br,
+      water@bro3,
+      water@nh4,
+      na.rm = TRUE
+    ) *
+      1^2 +
+      sum(water@ca, water@mg, water@so4, water@co3, water@hpo4, water@mn, na.rm = TRUE) * 2^2 +
+      sum(water@po4, water@fe, water@al, na.rm = TRUE) * 3^2)
 }
 
 correlate_ionicstrength <- function(result, from = "cond", to = "is") {
@@ -875,9 +961,10 @@ construct_helper <- function(df, all_args) {
 
   inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
 
-
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop("Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column.")
+    stop(
+      "Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column."
+    )
   }
 
   # Get the new names for relevant columns

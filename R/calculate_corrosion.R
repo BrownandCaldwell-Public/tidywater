@@ -59,9 +59,15 @@
 #'
 #' @returns `calculate_corrosion` returns a data frame with corrosion and scaling indices as individual columns.
 #'
-calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"), form = "calcite") {
+calculate_corrosion <- function(
+  water,
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
+) {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    warning("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
+    warning(
+      "Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated."
+    )
   }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
     warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
@@ -131,7 +137,9 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
   if ("larsonskold" %in% index) {
     validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      warning("Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate.")
+      warning(
+        "Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate."
+      )
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     # epm = equivalents per million
@@ -235,10 +243,7 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
       {
         # First try with a restricted interval
         # cat("\nFirst Solver\n")
-        stats::uniroot(solve_x,
-          water = water,
-          interval = c(-50, 50)
-        )
+        stats::uniroot(solve_x, water = water, interval = c(-50, 50))
       },
       error = function(e) {
         tryCatch(
@@ -256,30 +261,19 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
             upper <- x_range[interval_min[best] + 1]
 
             # Run uniroot on idenfied interval
-            stats::uniroot(solve_x,
-              water = water,
-              interval = c(lower, upper)
-            )
+            stats::uniroot(solve_x, water = water, interval = c(lower, upper))
           },
           error = function(e) {
             tryCatch(
               {
                 # cat("Extend int down\n")
-                stats::uniroot(solve_x,
-                  water = water,
-                  interval = c(-1300, -100),
-                  extendInt = "downX"
-                )
+                stats::uniroot(solve_x, water = water, interval = c(-1300, -100), extendInt = "downX")
               },
               error = function(e) {
                 tryCatch(
                   {
                     # cat("Extend int up\n")
-                    stats::uniroot(solve_x,
-                      water = water,
-                      interval = c(-1, 500),
-                      extendInt = "upX"
-                    )
+                    stats::uniroot(solve_x, water = water, interval = c(-1, 500), extendInt = "upX")
                   },
                   error = function(e) {
                     stop("Water outside range for CCPP solver.")
@@ -291,7 +285,6 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
         )
       }
     )
-
 
     caco3_precip <- -root_x$root
 
@@ -318,22 +311,29 @@ calculate_corrosion <- function(water, index = c("aggressive", "ryznar", "langel
 #'
 #' @returns `calculate_corrosion_df` returns the a data frame containing specified corrosion and scaling indices as columns.
 
-calculate_corrosion_df <- function(df, input_water = "defined", water_prefix = TRUE,
-                                   index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
-                                   form = "calcite") {
+calculate_corrosion_df <- function(
+  df,
+  input_water = "defined",
+  water_prefix = TRUE,
+  index = c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"),
+  form = "calcite"
+) {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
 
   validate_water_helpers(df, input_water)
 
-  indices_df <- do.call(rbind, lapply(seq_len(nrow(df)), function(i) {
-    calculate_corrosion(
-      water = df[[input_water]][[i]],
-      index = index,
-      form = form
-    )
-  }))
+  indices_df <- do.call(
+    rbind,
+    lapply(seq_len(nrow(df)), function(i) {
+      calculate_corrosion(
+        water = df[[input_water]][[i]],
+        index = index,
+        form = form
+      )
+    })
+  )
 
   if (water_prefix) {
     names(indices_df) <- paste0(input_water, "_", names(indices_df))

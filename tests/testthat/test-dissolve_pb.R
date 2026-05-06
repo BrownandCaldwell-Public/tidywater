@@ -27,7 +27,15 @@ test_that("dissolve_pb works.", {
   water1 <- suppressWarnings(define_water(ph = 7, alk = 100, tds = 200, so4 = 120, cl = 50, tot_hard = 90)) %>%
     dissolve_pb()
 
-  water2 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, cl = 100, tot_po4 = 2, so4 = 100, tot_hard = 50)) %>%
+  water2 <- suppressWarnings(define_water(
+    ph = 7,
+    alk = 100,
+    temp = 25,
+    cl = 100,
+    tot_po4 = 2,
+    so4 = 100,
+    tot_hard = 50
+  )) %>%
     dissolve_pb()
 
   water3 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, tds = 200)) %>%
@@ -36,9 +44,23 @@ test_that("dissolve_pb works.", {
   # starting wq in the app, except for pH. Raised pH here because this was outputting different
   # controlling solids when code had errors
   water4 <- suppressWarnings(define_water(
-    ph = 8.5, temp = 25, alk = 100, tot_hard = 150, na = 25, k = 25, cl = 20,
-    so4 = 40, cond = 500, toc = 3, doc = 3.2, uv = 0.07, br = 50, f = 2,
-    fe = 5, mn = 10, al = 2
+    ph = 8.5,
+    temp = 25,
+    alk = 100,
+    tot_hard = 150,
+    na = 25,
+    k = 25,
+    cl = 20,
+    so4 = 40,
+    cond = 500,
+    toc = 3,
+    doc = 3.2,
+    uv = 0.07,
+    br = 50,
+    f = 2,
+    fe = 5,
+    mn = 10,
+    al = 2
   )) %>%
     dissolve_pb()
 
@@ -61,9 +83,21 @@ test_that("dissolve_pb works.", {
 test_that("dissolve_pb_df outputs are the same as base function, dissolve_pb", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50,
-    ca = 13, mg = 4, na = 20, k = 20, cl = 30, so4 = 20, tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )) %>%
     dissolve_pb()
 

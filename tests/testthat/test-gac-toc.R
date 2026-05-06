@@ -62,11 +62,22 @@ test_that("gac_toc works", {
 
 test_that("gac_toc_df outputs are the same as base function, gac_toc", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13, mg = 4,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05
+  water0 <- define_water(
+    7.9,
+    20,
+    50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   water1 <- water0 %>%
@@ -85,17 +96,19 @@ test_that("gac_toc_df outputs are the same as base function, gac_toc", {
 # Test that output is a column of water class lists
 test_that("gac_toc_df output is list of water class objects", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    mutate(
-      model = "Zachman",
-      media_size = "12x40",
-      ebct = 10,
-      bed_vol = 10000,
-      pretreat = "coag"
-    ) %>%
-    gac_toc_df(input_water = "raw"))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df("raw") %>%
+      mutate(
+        model = "Zachman",
+        media_size = "12x40",
+        ebct = 10,
+        bed_vol = 10000,
+        pretreat = "coag"
+      ) %>%
+      gac_toc_df(input_water = "raw")
+  )
 
   water2 <- purrr::pluck(water1, "gaced", 1)
 
@@ -105,26 +118,32 @@ test_that("gac_toc_df output is list of water class objects", {
 # Check gac_toc_df can use a column or function argument for chemical dose and both methods gives same results
 test_that("gac_toc_df can use a column or function argument for chemical dose", {
   testthat::skip_on_cran()
-  water1 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000, pluck_cols = TRUE))
+  water1 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df("raw") %>%
+      gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000, pluck_cols = TRUE)
+  )
 
-  water2 <- suppressWarnings(water_df %>%
-    slice(1) %>%
-    define_water_df("raw") %>%
-    mutate(
-      model = "WTP",
-      bed_vol = 15000
-    ) %>%
-    gac_toc_df(input_water = "raw", pluck_cols = TRUE))
+  water2 <- suppressWarnings(
+    water_df %>%
+      slice(1) %>%
+      define_water_df("raw") %>%
+      mutate(
+        model = "WTP",
+        bed_vol = 15000
+      ) %>%
+      gac_toc_df(input_water = "raw", pluck_cols = TRUE)
+  )
 
   # check that pluck_cols does the same as pluck_water
-  water3 <- suppressWarnings(water_df[1, ] %>%
-    define_water_df("raw") %>%
-    mutate(model = "WTP") %>%
-    gac_toc_df(input_water = "raw", bed_vol = 15000) %>%
-    pluck_water("gaced", c("toc", "doc", "uv254")))
+  water3 <- suppressWarnings(
+    water_df[1, ] %>%
+      define_water_df("raw") %>%
+      mutate(model = "WTP") %>%
+      gac_toc_df(input_water = "raw", bed_vol = 15000) %>%
+      pluck_water("gaced", c("toc", "doc", "uv254"))
+  )
 
   expect_equal(water1$gaced_doc, water2$gaced_doc) # test different ways to input args
   expect_equal(water1$gaced_uv254, water2$gaced_uv254)
@@ -139,12 +158,16 @@ test_that("gac_toc_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
     define_water_df("raw")
-  expect_error(water %>%
-    mutate(model = "WTP") %>%
-    gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000))
-  expect_error(water %>%
-    mutate(bed_vol = 15000) %>%
-    gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000))
+  expect_error(
+    water %>%
+      mutate(model = "WTP") %>%
+      gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000)
+  )
+  expect_error(
+    water %>%
+      mutate(bed_vol = 15000) %>%
+      gac_toc_df(input_water = "raw", model = "WTP", bed_vol = 15000)
+  )
 })
 
 # Check that correctly handles arguments with multiple numbers

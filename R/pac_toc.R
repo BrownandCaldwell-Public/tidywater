@@ -48,11 +48,19 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   # warnings and errors for bounds of PAC dose, time.
   # High dose/time not allowed because model form results in negative DOC.
-  if (dose < 5) warning("PAC dose is less than model bound of 5 mg/L")
-  if (dose > 30) stop("PAC model does not work for PAC dose >30. Adjust dose argument.")
+  if (dose < 5) {
+    warning("PAC dose is less than model bound of 5 mg/L")
+  }
+  if (dose > 30) {
+    stop("PAC model does not work for PAC dose >30. Adjust dose argument.")
+  }
 
-  if (time < 10) warning("Time is less than model bounds of 10 min")
-  if (time > 60) stop("PAC model does not work for time > 60 mins. Adjust time argument.")
+  if (time < 10) {
+    warning("Time is less than model bounds of 10 min")
+  }
+  if (time > 60) {
+    stop("PAC model does not work for time > 60 mins. Adjust time argument.")
+  }
 
   # water warnings
   if (!is.na(water@toc) & water@toc < water@doc) {
@@ -119,8 +127,16 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 #' @returns `pac_toc_df` returns a data frame containing a water class column with updated DOC, TOC, and UV254
 #' concentrations. Optionally, it also adds columns for each of those slots individually.
 
-pac_toc_df <- function(df, input_water = "defined", output_water = "paced", pluck_cols = FALSE, water_prefix = TRUE,
-                       dose = "use_col", time = "use_col", type = "use_col") {
+pac_toc_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "paced",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  dose = "use_col",
+  time = "use_col",
+  type = "use_col"
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   dose <- tryCatch(dose, error = function(e) enquo(dose))
@@ -137,7 +153,8 @@ pac_toc_df <- function(df, input_water = "defined", output_water = "paced", pluc
   }
   # Add columns with default arguments
   defaults_added <- handle_defaults(
-    df, final_names,
+    df,
+    final_names,
     list(type = "bituminous")
   )
   df <- defaults_added$data

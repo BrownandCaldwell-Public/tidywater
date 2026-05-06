@@ -49,11 +49,22 @@ test_that("gacbv_toc works.", {
 
 test_that("gacbv_toc_df outputs are the same as base function, gacbv_toc", {
   testthat::skip_on_cran()
-  water0 <- define_water(7.9, 20, 50,
-    tot_hard = 50, ca = 13, mg = 4,
-    na = 20, k = 20, cl = 30, so4 = 20,
-    tds = 200, cond = 100,
-    toc = 2, doc = 1.8, uv254 = 0.05
+  water0 <- define_water(
+    7.9,
+    20,
+    50,
+    tot_hard = 50,
+    ca = 13,
+    mg = 4,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05
   )
 
   water1 <- water0 %>%
@@ -70,14 +81,16 @@ test_that("gacbv_toc_df outputs are the same as base function, gacbv_toc", {
 # Test that output is a data frame with the correct number of columns
 test_that("gacbv_toc_df output is data frame", {
   testthat::skip_on_cran()
-  water0 <- suppressWarnings(water_df[1, ] %>%
-    define_water_df("raw") %>%
-    transform(
-      model = "Zachman",
-      media_size = "12x40",
-      ebct = 10,
-      target_doc = 0.6
-    ))
+  water0 <- suppressWarnings(
+    water_df[1, ] %>%
+      define_water_df("raw") %>%
+      transform(
+        model = "Zachman",
+        media_size = "12x40",
+        ebct = 10,
+        target_doc = 0.6
+      )
+  )
 
   water1 <- water0 %>%
     gacbv_toc_df(input_water = "raw")

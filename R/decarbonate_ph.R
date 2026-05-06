@@ -42,7 +42,6 @@ decarbonate_ph <- function(water, co2_removed) {
 }
 
 
-
 #' @rdname decarbonate_ph
 #' @param df a data frame containing a water class column, which has already been computed using
 #' [define_water_df]. The df may include a column with names for each of the chemicals being dosed.
@@ -64,9 +63,14 @@ decarbonate_ph <- function(water, co2_removed) {
 #' @returns `decarbonate_ph_df` returns a data frame containing a water class column with updated ph and alk (and pH dependent ions).
 #' Optionally, it also adds columns for each of those slots individually.
 
-decarbonate_ph_df <- function(df, input_water = "defined", output_water = "decarbonated",
-                              pluck_cols = FALSE, water_prefix = TRUE,
-                              co2_removed = "use_col") {
+decarbonate_ph_df <- function(
+  df,
+  input_water = "defined",
+  output_water = "decarbonated",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  co2_removed = "use_col"
+) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
   co2_removed <- tryCatch(co2_removed, error = function(e) enquo(co2_removed))

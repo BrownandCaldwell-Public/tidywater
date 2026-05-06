@@ -1,12 +1,14 @@
 test_that("_chain works", {
   expect_warning(define_water_chain(water_df))
-  water0 <- suppressWarnings(water_df %>%
-    transform(
-      br = 50,
-      tot_po4 = 2
-    ) %>%
-    dplyr::select(-free_chlorine) %>%
-    define_water_chain())
+  water0 <- suppressWarnings(
+    water_df %>%
+      transform(
+        br = 50,
+        tot_po4 = 2
+      ) %>%
+      dplyr::select(-free_chlorine) %>%
+      define_water_chain()
+  )
 
   expect_warning(balance_ions_chain(water0))
 
@@ -42,15 +44,19 @@ test_that("_chain works", {
 
   expect_warning(dissolve_pb_once(water0))
 
-  expect_warning(water0 %>%
-    dplyr::slice(1) %>%
-    solvect_chlorine_once(time = 30, residual = 1, baffle = 0.7))
+  expect_warning(
+    water0 %>%
+      dplyr::slice(1) %>%
+      solvect_chlorine_once(time = 30, residual = 1, baffle = 0.7)
+  )
 
   expect_warning(solvect_o3_once(water0, time = 10, dose = 2, kd = -0.5, baffle = 0.9))
 
-  expect_warning(water0 %>%
-    dplyr::slice(1) %>%
-    solvedose_alk_once(target_alk = 150, chemical = "naoh"))
+  expect_warning(
+    water0 %>%
+      dplyr::slice(1) %>%
+      solvedose_alk_once(target_alk = 150, chemical = "naoh")
+  )
 
   expect_warning(solvedose_ph_once(water0, target_ph = 8.5, chemical = "caoh2"))
 

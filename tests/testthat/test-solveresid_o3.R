@@ -4,7 +4,6 @@ library(dplyr)
 test_that("solveresid_o3 returns the input residual when time is 0, or an error when time is missing.", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
 
-
   expect_equal(solveresid_o3(water1, time = 0, dose = 2), 2)
   expect_error(solveresid_o3(water1, dose = 2))
 })
@@ -43,8 +42,20 @@ test_that("solveresid_o3 works.", {
 test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water(
-    ph = 7.9, temp = 20, alk = 50, tot_hard = 50, na = 20, k = 20,
-    cl = 30, so4 = 20, tds = 200, cond = 100, toc = 2, doc = 1.8, uv254 = 0.05, br = 50
+    ph = 7.9,
+    temp = 20,
+    alk = 50,
+    tot_hard = 50,
+    na = 20,
+    k = 20,
+    cl = 30,
+    so4 = 20,
+    tds = 200,
+    cond = 100,
+    toc = 2,
+    doc = 1.8,
+    uv254 = 0.05,
+    br = 50
   )) %>%
     solveresid_o3(time = 30, dose = 5)
 
@@ -66,7 +77,6 @@ test_that("solveresid_o3_df is a data frame", {
     mutate(br = 50) %>%
     define_water_df() %>%
     solveresid_o3_df(time = 30, dose = 5)
-
 
   expect_true(is.data.frame(water1))
 })
