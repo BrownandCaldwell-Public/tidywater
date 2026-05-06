@@ -36,6 +36,7 @@ chemdose_ph(
   ferricchloride = 0,
   ferricsulfate = 0,
   ach = 0,
+  pacl = 0,
   kmno4 = 0,
   naf = 0,
   na3po4 = 0,
@@ -72,6 +73,7 @@ chemdose_ph_df(
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
+  pacl = "use_col",
   kmno4 = "use_col",
   naf = "use_col",
   na3po4 = "use_col",
@@ -186,6 +188,12 @@ chemdose_ph_df(
 
   Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl\*2H2O +
   HCO3 -\> 2Al(OH)3(am) + Cl + 2H2O + CO2
+
+- pacl:
+
+  Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al
+  ratio = 0.9): Al2(OH)4.2Cl(1.8) + \#HCO3 -\> 2Al(OH)3(am) + 1.8Cl +
+  \#H2O + \#CO2....
 
 - kmno4:
 
