@@ -22,6 +22,8 @@ chemdose_toc(
   alum = 0,
   ferricchloride = 0,
   ferricsulfate = 0,
+  ach = 0,
+  pacl = 0,
   coeff = "Alum",
   caoh2 = 0
 )
@@ -35,6 +37,8 @@ chemdose_toc_df(
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
+  ach = "use_col",
+  pacl = "use_col",
   caoh2 = "use_col",
   coeff = "use_col"
 )
@@ -71,6 +75,17 @@ See reference list at:
 
   Amount of ferric sulfate added in mg/L: Fe2(SO4)3\*8.8H2O + 6HCO3 -\>
   2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
+
+- ach:
+
+  Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl\*2H2O +
+  HCO3 -\> 2Al(OH)3(am) + Cl + 2H2O + CO2
+
+- pacl:
+
+  Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al
+  ratio = 0.9): Al2(OH)4.2Cl(1.8) + \#HCO3 -\> 2Al(OH)3(am) + 1.8Cl +
+  \#H2O + \#CO2....
 
 - coeff:
 
