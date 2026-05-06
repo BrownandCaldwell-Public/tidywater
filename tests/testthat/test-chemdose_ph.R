@@ -43,6 +43,7 @@ test_that("chemdose ph works", {
   test6 <- suppressWarnings(chemdose_ph(water4, naoh = 80))
   test7 <- suppressWarnings(chemdose_ph(water1, nh42so4 = 5))
   test8 <- suppressWarnings(chemdose_ph(water4, nh4oh = 5))
+  test9 <- suppressWarnings(chemdose_ph(water2, pacl = 10))
 
   # Rounded values from waterpro and WTP spot check
   expect_equal(round(test1@ph, 1), 5.7)
@@ -61,6 +62,7 @@ test_that("chemdose ph works", {
   expect_equal(round(test7@alk, 0), 56)
   expect_equal(round(test8@ph, 1), 9.7)
   expect_equal(round(test8@alk, 0), 32)
+  expect_equal(round(test9@ph, 1), 7.1)
 })
 
 test_that("Starting phosphate residual does not affect starting pH.", {

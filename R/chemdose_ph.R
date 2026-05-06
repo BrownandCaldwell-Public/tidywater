@@ -246,7 +246,7 @@ chemdose_ph <- function(
       "Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown."
     )
   }
-  # PACl: 0.9 mol Cl/1 mol Al * (1 mol Al/2 mol Al2O3)
+  # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al) 
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach + (.9 * 2) * pacl
   dosed_water@cl <- water@cl + cl_dose
 
