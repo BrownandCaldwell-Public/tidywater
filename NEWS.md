@@ -212,3 +212,4 @@ Improved pluck does allow multiple parameters and waters in one function.
 * Initial release
 * Acid/base equilibrium with assumption activity = concentration
 * Helper functions `_chain` and `_once` for applying models to data frames.
+* Updated chemdose_ph_chain to fix colum naming issues 
