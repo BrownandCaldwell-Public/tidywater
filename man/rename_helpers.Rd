@@ -107,6 +107,7 @@ chemdose_ph_chain(
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
+  pacl = "use_col",
   kmno4 = "use_col",
   naf = "use_col",
   na3po4 = "use_col",
