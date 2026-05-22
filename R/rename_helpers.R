@@ -196,7 +196,6 @@ chemdose_ph_chain <- function(
     ferricchloride = ferricchloride,
     ferricsulfate = ferricsulfate,
     ach = ach,
-    pacl = pacl,
     kmno4 = kmno4,
     naf = naf,
     na3po4 = na3po4,
