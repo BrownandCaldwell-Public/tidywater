@@ -28,7 +28,7 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
   suva_treated <- 100
   tthm <- 100
   haa5 <- 100
-  
+
   #if there is both raw and treated water use those values as inputs for alk and tocs.
   if (!missing(raw_water) && !missing(treated_water)) {
     validate_water(raw_water, c("alk", "toc"))
@@ -36,29 +36,27 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
     alk_raw <- raw_water@alk
     toc_raw <- raw_water@toc
     toc_finished <- treated_water@toc
-  
 
-  #warning to see if alterntive compliances can be applied based on DBP
-  if (is.na(treated_water@tthm) || is.na(treated_water@haa5)) {
-    warning(
-      "Treated Water DBPs (TTHM or HAA5) are missing. Alternative compliance based on DBPs (§ 141.135 (a)(2)(iii and iv)) may not be applied."
-    )
-  } else {
-    tthm <- treated_water@tthm
-    haa5 <- treated_water@haa5
+    #warning to see if alterntive compliances can be applied based on DBP
+    if (is.na(treated_water@tthm) || is.na(treated_water@haa5)) {
+      warning(
+        "Treated Water DBPs (TTHM or HAA5) are missing. Alternative compliance based on DBPs (§ 141.135 (a)(2)(iii and iv)) may not be applied."
+      )
+    } else {
+      tthm <- treated_water@tthm
+      haa5 <- treated_water@haa5
+    }
+
+    #check if SUVA can be calculated
+    if (is.na(raw_water@uv254) && is.na(treated_water@uv254)) {
+      warning(
+        "Raw and Treated water SUVA is missing. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v and vi)) will not be applied."
+      )
+    } else {
+      suva_raw <- (raw_water@uv254 / raw_water@doc) * 100
+      suva_treated <- (treated_water@uv254 / treated_water@doc) * 100
+    }
   }
-
-  #check if SUVA can be calculated
-  if (is.na(raw_water@uv254) && is.na(treated_water@uv254)) {
-    warning(
-      "Raw and Treated water SUVA is missing. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v and vi)) will not be applied."
-    )
-  } else {
-    suva_raw <- (raw_water@uv254 / raw_water@doc) * 100
-    suva_treated <- (treated_water@uv254 / treated_water@doc) * 100
-  }
-
-}
   #calc removal percentage
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
@@ -74,51 +72,44 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
   #alternative compliances
   if (toc_raw <= 2) {
     warning("Raw water TOC < 2 mg/L. Altternative compliance (§ 141.135 (a)(2)(i)).")
-   
   } else if (toc_finished <= 2) {
     warning("Finished water TOC < 2 mg/L. Altternative compliance (§ 141.135 (a)(2)(ii))")
-  
   } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
     warning(
       "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iii))"
     )
-    
   } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
     warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iv)).")
-   
   } else if (suva_raw < 2) {
     warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v)).")
-    
   } else if (suva_treated < 2) {
     warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(vi)).")
-    
-  }
-  else {
-  match_row <- with(
-    tidywater::toc_compliance_table,
-    toc_raw > toc_min & toc_raw <= toc_max & alk_raw > alk_min & alk_raw <= alk_max
-  )
-
-  required_compliance <- tidywater::toc_compliance_table$required_compliance[match_row]
-
-  if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
-    return(data.frame(
-      toc_compliance_status = "In Compliance",
-      toc_removal_percent = as.character(round(removal, 1))
-    ))
   } else {
-    return(data.frame(
-      toc_compliance_status = "Not Compliant",
-      toc_removal_percent = paste0(as.character(round(removal, 1)), "%"),
-      comment = paste0("Minimum removal required: ", required_compliance, "%")
-    ))
-  }
+    match_row <- with(
+      tidywater::toc_compliance_table,
+      toc_raw > toc_min & toc_raw <= toc_max & alk_raw > alk_min & alk_raw <= alk_max
+    )
+
+    required_compliance <- tidywater::toc_compliance_table$required_compliance[match_row]
+
+    if (length(required_compliance) > 0 && !is.na(required_compliance) && removal >= required_compliance) {
+      return(data.frame(
+        toc_compliance_status = "In Compliance",
+        toc_removal_percent = as.character(round(removal, 1))
+      ))
+    } else {
+      return(data.frame(
+        toc_compliance_status = "Not Compliant",
+        toc_removal_percent = paste0(as.character(round(removal, 1)), "%"),
+        comment = paste0("Minimum removal required: ", required_compliance, "%")
+      ))
+    }
   }
 
-  return (data.frame(
-      toc_compliance_status = "In Compliance (Alternate see warning)",
-      toc_removal_percent = "Not Calculated"
-    ))
+  return(data.frame(
+    toc_compliance_status = "In Compliance (Alternate see warning)",
+    toc_removal_percent = "Not Calculated"
+  ))
 }
 #' @rdname regulate_toc
 #'
