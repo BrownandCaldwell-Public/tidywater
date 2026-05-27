@@ -20,98 +20,80 @@
 #' @returns A data frame containing the TOC removal compliance status.
 
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
-regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finished) {
+regulate_toc <- function(raw_water = "default", treated_water = "default", alk_raw, toc_raw, toc_finished) {
   required_compliance <- NA
 
-  validate_water(raw_water, c("alk", "toc"))
-  validate_water(treated_water, c("toc"))
+  # Initalizing values arbitrarily high so they don't trigger alternate compliance later
+  suva_raw <- 100
+  suva_treated <- 100
+  tthm <- 100
+  haa5 <- 100
   
   #if there is both raw and treated water use those values as inputs for alk and tocs.
-  if(!missing(raw_water) && !missing(treated_water)) {
-    
+  if (!missing(raw_water) && !missing(treated_water)) {
+    validate_water(raw_water, c("alk", "toc"))
+    validate_water(treated_water, c("toc"))
     alk_raw <- raw_water@alk
     toc_raw <- raw_water@toc
     toc_finished <- treated_water@toc
-  }
   
-  #warning to see if alterntive compliances can be applied based on DBP 
-  if (is.na(raw_water@tthm)|| is.na(raw_water@haa5)){
-    warning("Raw Water DBPs (TTHM or HAA5) are missing. Alternative compliance based on DBPs (§ 141.135 (a)(2)(iii and iv)) cannot be applied.")
-  }
-  else{
-    tthm<- raw_water@tthm
-    haa5<- raw_water@haa5
-  }
-#check if SUVA can be calculated 
-   if(is.na(raw_water@uv254)|| is.na(treated_water@uv254)){
-    warning("Raw Water SUVA is missing. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v and vi)) cannot be applied.")
-  }
-  else{
-     suva_raw<- (raw_water@uv254/raw_water@doc)*100
-     suva_treated<- (treated_water@uv254/treated_water@doc)*100
-   }
 
+  #warning to see if alterntive compliances can be applied based on DBP
+  if (is.na(treated_water@tthm) || is.na(treated_water@haa5)) {
+    warning(
+      "Treated Water DBPs (TTHM or HAA5) are missing. Alternative compliance based on DBPs (§ 141.135 (a)(2)(iii and iv)) may not be applied."
+    )
+  } else {
+    tthm <- treated_water@tthm
+    haa5 <- treated_water@haa5
+  }
+
+  #check if SUVA can be calculated
+  if (is.na(raw_water@uv254) && is.na(treated_water@uv254)) {
+    warning(
+      "Raw and Treated water SUVA is missing. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v and vi)) will not be applied."
+    )
+  } else {
+    suva_raw <- (raw_water@uv254 / raw_water@doc) * 100
+    suva_treated <- (treated_water@uv254 / treated_water@doc) * 100
+  }
+
+}
   #calc removal percentage
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 
-#error bound to make sure that the function actually does something 
+  #error bound to make sure that the function actually does something
   if (removal <= 0) {
-    warning("Finished water TOC is greater than or equal to raw TOC. No removal ocurred.")
+    warning("Finished water TOC is greater than or equal to raw TOC. No removal occurred.")
     return(data.frame(
       toc_compliance_status = "Not Calculated",
       toc_removal_percent = "Not Calculated"
     ))
   }
 
-
-
-  #alternative compliances 
+  #alternative compliances
   if (toc_raw <= 2) {
     warning("Raw water TOC < 2 mg/L. Altternative compliance (§ 141.135 (a)(2)(i)).")
-    return(data.frame(
-      toc_compliance_status = "In Compliance (Alternate)",
-      toc_removal_percent = "Not Calculated"
-    ))
-  }
-  else if (toc_finished <= 2) {
+   
+  } else if (toc_finished <= 2) {
     warning("Finished water TOC < 2 mg/L. Altternative compliance (§ 141.135 (a)(2)(ii))")
-    return(data.frame(
-      toc_compliance_status = "In Compliance (Alternate)",
-      toc_removal_percent = "Not Calculated"
-    ))
-  }
-  else if (toc_raw<4&alk_raw>60&(tthm<0.04||haa5<0.03)){
-   warning("Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iii))")
-    return(data.frame(
-      toc_compliance_status = "In Compliance (Alternate)",
-      toc_removal_percent = "Not Calculated"
-    ))
-  }
-  else if (tthm<0.04 & haa5 <0.03){
-    warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iv)).")
-    return(data.frame(
-      toc_compliance_status = "In Compliance (Alternate)",
-      toc_removal_percent = "Not Calculated"
-    ))
-  }
-  else if (suva_raw<2){
-    warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v)).")
-    return(data.frame(
-      toc_compliance_status = "In Compliance (Alternate)",
-      toc_removal_percent = "Not Calculated"
-    ))
-  }
-    else if (suva_treated<2){
-      warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(vi)).")
-      return(data.frame(
-        toc_compliance_status = "In Compliance (Alternate)",
-        toc_removal_percent = "Not Calculated"
-      ))
-    }
   
-
-
-
+  } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
+    warning(
+      "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iii))"
+    )
+    
+  } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
+    warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iv)).")
+   
+  } else if (suva_raw < 2) {
+    warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v)).")
+    
+  } else if (suva_treated < 2) {
+    warning("SUVA < 2. Alternative compliance based on SUVA (§ 141.135 (a)(2)(vi)).")
+    
+  }
+  else {
   match_row <- with(
     tidywater::toc_compliance_table,
     toc_raw > toc_min & toc_raw <= toc_max & alk_raw > alk_min & alk_raw <= alk_max
@@ -131,7 +113,12 @@ regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finishe
       comment = paste0("Minimum removal required: ", required_compliance, "%")
     ))
   }
+  }
 
+  return (data.frame(
+      toc_compliance_status = "In Compliance (Alternate see warning)",
+      toc_removal_percent = "Not Calculated"
+    ))
 }
 #' @rdname regulate_toc
 #'
