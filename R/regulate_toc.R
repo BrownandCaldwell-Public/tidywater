@@ -35,7 +35,7 @@ regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finishe
   }
   
   #warning to see if alterntive compliances can be applied based on DBP 
-  if (missing(raw_water@tthm)|| missing(raw_water@haa5)){
+  if (is.na(raw_water@tthm)|| is.na(raw_water@haa5)){
     warning("Raw Water DBPs (TTHM or HAA5) are missing. Alternative compliance based on DBPs (§ 141.135 (a)(2)(iii and iv)) cannot be applied.")
   }
   else{
@@ -43,12 +43,12 @@ regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finishe
     haa5<- raw_water@haa5
   }
 #check if SUVA can be calculated 
-   if(missing(raw_water@suva)|| missing(treated_water@suva)){
+   if(is.na(raw_water@uv254)|| is.na(treated_water@uv254)){
     warning("Raw Water SUVA is missing. Alternative compliance based on SUVA (§ 141.135 (a)(2)(v and vi)) cannot be applied.")
   }
   else{
-     suva_raw<- raw_water@suva
-     suva_treated<- treated_water@suva
+     suva_raw<- (raw_water@uv254/raw_water@doc)*100
+     suva_treated<- (treated_water@uv254/treated_water@doc)*100
    }
 
   #calc removal percentage
@@ -108,7 +108,7 @@ regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finishe
         toc_removal_percent = "Not Calculated"
       ))
     }
-  }
+  
 
 
 
@@ -132,7 +132,7 @@ regulate_toc <- function(raw_water, treated_water, alk_raw, toc_raw, toc_finishe
     ))
   }
 
-
+}
 #' @rdname regulate_toc
 #'
 #' @param df a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
