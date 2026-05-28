@@ -57,6 +57,8 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
       suva_treated <- (treated_water@uv254 / treated_water@doc) * 100
     }
   }
+
+  
   #calc removal percentage
   removal <- (toc_raw - toc_finished) / toc_raw * 100
 

@@ -1,10 +1,10 @@
 library(dplyr)
 
 test_that("regulate_toc works", {
-  reg_1 <- regulate_toc(50, 5, 2)
-  reg_2 <- regulate_toc(50, 5, 4)
+  reg_1 <- regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 2)
+  reg_2 <- regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 4)
 
-  expect_equal(reg_1$toc_compliance_status, "In Compliance")
+  expect_equal(reg_1$toc_compliance_status, "In Compliance (Alternate see warning)")
   expect_equal(ncol(reg_1), 2)
   expect_equal(reg_2$toc_compliance_status, "Not Compliant")
   expect_equal(ncol(reg_2), 3)
@@ -13,27 +13,27 @@ test_that("regulate_toc works", {
 
 test_that("regulate_toc warns when finished water TOC >= raw TOC, or raw TOC <= 2 mg/L", {
   # finished > raw
-  expect_warning(regulate_toc(50, 3, 4))
-  water1 <- suppressWarnings(regulate_toc(50, 3, 4))
+  expect_warning(regulate_toc(alk_raw = 50, toc_raw = 3, toc_finished = 4))
+  water1 <- suppressWarnings(regulate_toc(alk_raw = 50, toc_raw = 3, toc_finished = 4))
   expect_equal(water1$toc_compliance_status, "Not Calculated")
   expect_equal(water1$toc_removal_percent, "Not Calculated")
 
   # finished = raw
-  expect_warning(regulate_toc(50, 5, 5))
-  water2 <- suppressWarnings(regulate_toc(50, 5, 5))
+  expect_warning(regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 5))
+  water2 <- suppressWarnings(regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 5))
   expect_equal(water2$toc_compliance_status, "Not Calculated")
   expect_equal(water2$toc_removal_percent, "Not Calculated")
 
   # raw < 2
-  expect_warning(regulate_toc(65, 1, .5))
-  water3 <- suppressWarnings(regulate_toc(65, 1, .5))
-  expect_equal(water3$toc_compliance_status, "Not Calculated")
+  expect_warning(regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5))
+  water3 <- suppressWarnings(regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5))
+  expect_equal(water3$toc_compliance_status, "In Compliance (Alternate see warning)")
   expect_equal(water3$toc_removal_percent, "Not Calculated")
 })
 
 
 test_that("regulate_toc_df is same s as base function", {
-  base <- regulate_toc(100, 4, 2)
+  base <- regulate_toc(alk_raw = 100, toc_raw = 4, toc_finished = 2)
 
   regulated <- water_df[3, ] %>%
     select(toc_raw = toc, alk_raw = alk) %>%
@@ -43,7 +43,7 @@ test_that("regulate_toc_df is same s as base function", {
   expect_equal(base$toc_compliance_status, regulated$toc_compliance_status)
   expect_equal(base$toc_removal_percent, regulated$toc_removal_percent)
 
-  base2 <- regulate_toc(50, 4, 3.9)
+  base2 <- regulate_toc(alk_raw = 50, toc_raw = 4, toc_finished = 3.9)
 
   regulated2 <- water_df[9, ] %>%
     select(toc_raw = toc, alk_raw = alk) %>%
@@ -70,7 +70,7 @@ test_that("regulate_toc_df warns when raw TOC <= 2 mg/L", {
 
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
-  expect_equal(water1[1, ]$toc_compliance_status, "Not Calculated")
+  expect_equal(water1[1, ]$toc_compliance_status, "In Compliance (Alternate see warning)")
   expect_equal(water1[5, ]$toc_compliance_status, "Not Compliant")
   expect_equal(water1[12, ]$toc_compliance_status, "In Compliance")
 })
