@@ -75,8 +75,8 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
   } else if (toc_finished <= 2) {
     warning("Finished water TOC < 2 mg/L. Altternative compliance (§ 141.135 (a)(2)(ii))")
   } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
-    warning(
-      "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iii))"
+    warning( "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L).
+              Alternative compliance (§ 141.135 (a)(2)(iii))"
     )
   } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
     warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L). Alternative compliance (§ 141.135 (a)(2)(iv)).")
