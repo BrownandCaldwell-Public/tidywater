@@ -8,16 +8,26 @@
 #' "In compliance"; otherwise, it prints "Not in compliance" and stops execution
 #' with an error message.
 
+#' @param raw_water A water object of class "water" created by [define_water()] containing raw water parameters. If provided, the function will use the `alk` and `toc` slots from this object as inputs. If not provided, `alk_raw` and `toc_raw` must be specified.
+#' @param treated_water A water object of class "water" created by [define_water()] containing treated water parameters. If provided, the function will use the `toc` slot from this object as input for finished water TOC. If not provided, `toc_finished` must be specified.
 #' @param alk_raw Raw water alkalinity (mg/L as calcium carbonate).
 #' @param toc_raw Raw water total organic carbon (mg/L).
 #' @param toc_finished Finished water total organic carbon (mg/L).
+#' @param skip_alternate Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.
 #'
 #' @examples
-#' regulate_toc(50, 5, 2)
+#' regulate_toc(alk_raw=50, toc_raw=5, toc_finished=2)
 #'
 #' @export
 #'
 #' @returns A data frame containing the TOC removal compliance status.
+#' 
+#' @examples
+#' regulate_toc(raw_water = define_water(alk = 50, toc = 5), treated_water = define_water(toc = 2), skip_alternate = TRUE)
+#' 
+#' @export
+#' 
+#' @returns A data frame containing the TOC removal compliance status, with alternative compliance checks skipped.
 # See link here for regulations https://github.com/BrownandCaldwell/tidywater/issues/328
 regulate_toc <- function(raw_water = "default", treated_water = "default", alk_raw, toc_raw, toc_finished, skip_alternate = FALSE) {
   required_compliance <- NA_real_
