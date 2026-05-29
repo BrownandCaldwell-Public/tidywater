@@ -181,6 +181,8 @@ chemdose_toc_df <- function(
   caoh2 = "use_col",
   coeff = "use_col"
 ) {
+
+  
   # This allows for the function to process unquoted column names without erroring
   alum <- tryCatch(alum, error = function(e) enquo(alum))
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
@@ -222,7 +224,10 @@ chemdose_toc_df <- function(
   )
   df <- defaults_added$data
 
+warning_counts<-list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     chemdose_toc(
       water = df[[input_water]][[i]],
       alum = df[[final_names$alum]][i],
@@ -232,9 +237,18 @@ chemdose_toc_df <- function(
       pacl = df[[final_names$pacl]][i],
       caoh2 = df[[final_names$caoh2]][i],
       coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
 
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
   if (pluck_cols) {
