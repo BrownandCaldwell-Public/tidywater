@@ -70,6 +70,7 @@ molec_properties <- data.frame(
   ncl3 = c(120.365, NA),
   n = c(14.0067, NA),
   dic = c(12.011, NA),
+  h20 =c(18.015,NA),
 
   # Coagulants. They do their own thing.
   alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
