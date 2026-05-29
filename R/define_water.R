@@ -465,12 +465,12 @@ define_water <- function(
 #'
 #' This function allows [define_water] to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
-#'
+#'@rdname define_water
 #' @param df a data frame containing columns with all the desired parameters with column names matching argument names in define_water
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #' @param pluck_cols Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
-#'
+#' 
 #' @seealso [define_water]
 #'
 #' @examples
@@ -507,6 +507,8 @@ define_water_df <- function(
   combined_chlorine = "use_col",
   tot_po4 = "use_col",
   tot_nh3 = "use_col",
+  tot_bo3 = "use_col",
+  tot_sio4 = "use_col",
   tot_ch3coo = "use_col",
   tds = "use_col",
   cond = "use_col",
@@ -517,10 +519,13 @@ define_water_df <- function(
   f = "use_col",
   fe = "use_col",
   al = "use_col",
-  mn = "use_col"
+  mn = "use_col",
+  no3 = "use_col"
 ) {
  
-water_args <- list(
+arguments<-construct_helper(
+ df, 
+ list(
     "ph"=ph,
     "temp"=temp,
     "alk"=alk,
@@ -536,6 +541,8 @@ water_args <- list(
     "combined_chlorine"=combined_chlorine,
     "tot_po4"=tot_po4,
     "tot_nh3"=tot_nh3,
+    "tot_bo3"=tot_bo3,
+    "tot_sio4"=tot_sio4,
     "tot_ch3coo"=tot_ch3coo,
     "tds"=tds,
     "cond"=cond,
@@ -546,16 +553,19 @@ water_args <- list(
     "f"=f,
     "fe"=fe,
     "al"=al,
-    "mn"=mn
-  )
+    "mn"=mn,
+    "no3"=no3
+  ))
 
-  water_input <- df[, names(df) %in% names(water_args)]
+  final_names <- unlist(arguments$final_names)
+
+  water_input <- df[, final_names[final_names %in% names(df)], drop = FALSE]
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     do.call(define_water, water_input[i, ])
   })
 
-  output <- df[, !names(df) %in% names(water_args), drop = FALSE]
+  output <- df[, !names(df) %in% names(final_names), drop = FALSE]
 
   if (pluck_cols) {
     output <- output |>

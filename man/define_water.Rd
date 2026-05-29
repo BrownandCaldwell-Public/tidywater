@@ -2,6 +2,7 @@
 % Please edit documentation in R/define_water.R
 \name{define_water}
 \alias{define_water}
+\alias{define_water_df}
 \title{Create a water class object given water quality parameters}
 \source{
 Crittenden et al. (2012) equation 5-38 - ionic strength from TDS
@@ -43,6 +44,42 @@ define_water(
   al,
   mn,
   no3
+)
+
+define_water_df(
+  df,
+  output_water = "defined",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  ph = "use_col",
+  temp = "use_col",
+  alk = "use_col",
+  tot_hard = "use_col",
+  ca = "use_col",
+  mg = "use_col",
+  na = "use_col",
+  k = "use_col",
+  cl = "use_col",
+  so4 = "use_col",
+  mno4 = "use_col",
+  free_chlorine = "use_col",
+  combined_chlorine = "use_col",
+  tot_po4 = "use_col",
+  tot_nh3 = "use_col",
+  tot_bo3 = "use_col",
+  tot_sio4 = "use_col",
+  tot_ch3coo = "use_col",
+  tds = "use_col",
+  cond = "use_col",
+  toc = "use_col",
+  doc = "use_col",
+  uv254 = "use_col",
+  br = "use_col",
+  f = "use_col",
+  fe = "use_col",
+  al = "use_col",
+  mn = "use_col",
+  no3 = "use_col"
 )
 }
 \arguments{
@@ -103,6 +140,14 @@ define_water(
 \item{mn}{Manganese in ug/L Mn2+}
 
 \item{no3}{Nitrate in mg/L as N}
+
+\item{df}{a data frame containing columns with all the desired parameters with column names matching argument names in define_water}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
+
+\item{pluck_cols}{Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
@@ -181,9 +226,14 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{dcbaa}{dichlorobromoacetic acid, numeric, ug/L.}
 \item{tbaa}{tribromoacetic acid, numeric, ug/L.}
 }
+
+A data frame containing a water class column.
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+
+This function allows \link{define_water} to be added to a piped data frame.
+Its output is a \code{water} class, and can therefore be chained with "downstream" tidywater functions.
 }
 \details{
 Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity.
@@ -194,4 +244,17 @@ Calcium defaults to 65 percent of the total hardness when not specified. DOC def
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 
+\donttest{
+example_df <- water_df \%>\%
+  define_water_df() \%>\%
+  balance_ions_df()
+
+example_df <- water_df \%>\%
+  define_water_df(output_water = "This is a column of water") \%>\%
+  balance_ions_df(input_water = "This is a column of water")
+}
+
+}
+\seealso{
+\link{define_water}
 }
