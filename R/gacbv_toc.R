@@ -119,19 +119,28 @@ gacbv_toc_df <- function(
   )
   df <- defaults_added$data
 
+  warning_counts <- list()
   bv_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
+       withCallingHandlers(
       gacbv_toc(
         water = df[[input_water]][[i]],
         model = df[[final_names$model]][i],
         media_size = df[[final_names$media_size]][i],
         ebct = as.numeric(df[[final_names$ebct]][i]),
         target_doc = df[[final_names$target_doc]][i]
-      )
+      ),
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
+      })
     })
   )
-
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
   # bv_df <- df[, !names(df) %in% defaults_added$defaults_used]
 
   if (water_prefix) {
