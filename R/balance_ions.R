@@ -175,7 +175,7 @@ balance_ions_df <- function(
   warning_counts <- list()
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    withCallinfHandlers(
+    withCallingHandlers(
     balance_ions(
       water = df[[input_water]][[i]],
       anion = anion,
