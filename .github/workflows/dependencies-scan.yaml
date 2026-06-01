@@ -10,11 +10,8 @@ on:
 name: dependecies-scan
 
 jobs:
-  oyster-check:
+  vulnerabilities:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -23,22 +20,14 @@ jobs:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::oysteR
-          needs: oysteR
 
-      - name: Set working directory
-        run: cd ${{ github.workspace }}
-
-      - name: Oyster package vulnerabilites
-        run: |
-          audit <- oysteR::audit_description()
-          vulnerabilities <- oysteR::get_vulnerabilities(audit)
-          if(nrow(vulnerabilities) != 0) {
-            print(vulnerabilities)
-            quit(save = "no", 1)
-          } else {
-            print("No vulnerable packages identified.")
-            quit(save = "no", 0)
-          }
+      - name: Check for vulnerable packages
         shell: Rscript {0}
+        run: |
+          db <- pak::pkg_security_check()
+          if (nrow(db) > 0) {
+            print(db)
+            quit(save = "no", status = 1)
+          } else {
+            message("No vulnerable packages found.")
+          }
