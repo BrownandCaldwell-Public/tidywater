@@ -92,39 +92,39 @@ regulate_toc <- function(raw_water = "default", treated_water = "default", alk_r
   # Alternative compliance
   if (!skip_alternate) {
     if (toc_raw <= 2) {
-      warning("Raw water TOC < 2 mg/L. Altternative compliance (sect 141.135 (a)(2)(i)).")
+      warning("Raw water TOC < 2 mg/L, TOC is low enough (sect 141.135 (a)(2)(i)).")
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
       ))
     } else if (toc_finished <= 2) {
-      warning("Finished water TOC < 2 mg/L. Altternative compliance (sect 141.135 (a)(2)(ii))")
+      warning("Finished water TOC < 2 mg/L, TOC is low enough (sect 141.135 (a)(2)(ii))")
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
       ))
     } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
       warning(
-        "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L). Alternative compliance (sect 141.135 (a)(2)(iii))"
+        "Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iii))"
       )
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
       ))
     } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
-      warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L). Alternative compliance (sect 141.135 (a)(2)(iv)).")
+      warning("DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iv)).")
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
       ))
     } else if (suva_raw < 2) {
-      warning("SUVA < 2. Alternative compliance based on SUVA (sect 141.135 (a)(2)(v)).")
+      warning("SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(v)).")
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
       ))
     } else if (suva_treated < 2) {
-      warning("SUVA < 2. Alternative compliance based on SUVA (sect 141.135 (a)(2)(vi)).")
+      warning("SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(vi)).")
       return(data.frame(
         toc_compliance_status = "In Compliance (Alternate see warning)",
         toc_removal_percent = "Not Calculated"
