@@ -63,5 +63,5 @@ test_that("_chain works", {
   expect_warning(solveresid_o3_once(water0, dose = 2, time = 10))
 
   water1 <- suppressWarnings(chemdose_ph_chain(water0, hcl = 1))
-  (blend_waters_chain(water1, waters = c("defined_water", "dosed_chem_water"), ratios = c(0.5, 0.5)))
+  expect_warning(blend_waters_chain(water1, waters = c("defined_water", "dosed_chem_water"), ratios = c(0.5, 0.5)))
 })
