@@ -32,11 +32,11 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   }
 
   # check for acceptable cations/anions
-  if (!(anion %in% c("cl", "so4"))) {
-    stop("Anion must be one of 'cl' or 'so4'. No other ions supported at this time.")
+  if (!(anion %in% c("cl", "so4", "f", "br"))) {
+    stop("Anion must be one of 'cl', 'so4', 'f', or 'br'.")
   }
-  if (!(cation %in% c("na", "k", "ca", "mg"))) {
-    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'. No other ions supported at this time.")
+  if (!(cation %in% c("na", "k", "ca", "mg", "fe", "al", "mn"))) {
+    stop("Cation must be one of 'na', 'k', 'ca', 'mg', 'fe', 'al', or 'mn'.")
   }
 
   # Set up ions to be changed
@@ -44,12 +44,25 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   k_new <- water@k
   ca_new <- water@ca
   mg_new <- water@mg
+  fe_new <- water@fe
+  al_new <- water@al
+  mn_new <- water@mn
 
   cl_new <- water@cl
   so4_new <- water@so4
+  f_new <- water@f 
+  br_new <- water@br
 
   # calculate charge
-  cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
+  cations <- sum(water@na,
+    2 * water@ca,
+    2 * water@mg, 
+    water@k, 
+    water@h, 
+    3* water@fe, 
+    3*water@al, 
+    2* water@mn, na.rm = TRUE)
+  
   anions <- sum(
     water@cl,
     2 * water@so4,
@@ -60,6 +73,8 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
     3 * water@po4,
     water@oh,
     water@ocl,
+    water@f,
+    water@br,
     na.rm = TRUE
   )
 
@@ -74,9 +89,14 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   add_k <- 0
   add_ca <- 0
   add_mg <- 0
+  add_fe <- 0
+  add_al <- 0 
+  add_mn <- 0 
 
   add_cl <- 0
   add_so4 <- 0
+  add_f <- 0
+  add_br <- 0 
 
   # Add either sodium or potassium if cations are needed
   # Sodium is preferred because it's often present and not measured.
@@ -101,6 +121,21 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       mg_new <- ifelse(is.na(water@mg), add_mg, water@mg + add_mg)
       water@estimated <- paste(water@estimated, "mg", sep = "_")
     }
+    else if (cation == "fe") {
+      add_fe <- add_cat / 3
+      fe_new <- ifelse(is.na(water@fe), add_fe, water@fe + add_fe)
+      water@estimated <- paste(water@estimated, "fe", sep = "_")
+    }
+    else if (cation == "al") {
+      add_al <- add_cat / 3
+      al_new <- ifelse(is.na(water@al), add_al, water@al + add_al)
+      water@estimated <- paste(water@estimated, "al", sep = "_")
+    }else if (cation == "mn") {
+      add_mn <- add_cat / 2
+      mn_new <- ifelse(is.na(water@mn), add_mn, water@mn + add_mn)
+      water@estimated <- paste(water@estimated, "mn", sep = "_")
+    }
+    
     # add chloride or sulfate if anions are needed
     # Similar logic to cations, although sulfate is typically at higher concentrations than potassium.
     # Pretty standard to add Na and Cl because those are just regular salt. It does affect CSMR, but almost nothing else.
@@ -114,16 +149,30 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       add_so4 <- add_ani / 2
       so4_new <- ifelse(is.na(water@so4), add_so4, water@so4 + add_so4)
       water@estimated <- paste(water@estimated, "so4", sep = "_")
+    } else if (anion == "f") {
+      add_f <- add_ani 
+      f_new <- ifelse(is.na(water@f), add_f, water@f + add_f)
+      water@estimated <- paste(water@estimated, "f", sep = "_")
+    } else if (anion == "br") {
+      add_br <- add_ani 
+      br_new <- ifelse(is.na(water@br), add_br, water@br + add_br)
+      water@estimated <- paste(water@estimated, "br", sep = "_")
     }
+
   }
 
   water@na <- na_new
   water@k <- k_new
   water@ca <- ca_new
   water@mg <- mg_new
+  water@fe <- fe_new
+  water@al <- al_new 
+  water@mn <- mn_new
 
   water@cl <- cl_new
   water@so4 <- so4_new
+  water@f <- f_new
+  water@br <- br_new
 
   # Update TDS/cond/IS if needed.
   if (grepl("tds", water@estimated) & grepl("cond", water@estimated)) {
@@ -133,9 +182,14 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       convert_units(add_k, "k", "M", "mg/L") +
       convert_units(add_ca, "ca", "M", "mg/L") +
       convert_units(add_mg, "mg", "M", "mg/L") +
+      convert_units(add_fe, "fe", "M", "mg/L") +
+      convert_units(add_al, "al", "M", "mg/L") +
+      convert_units(add_mn, "mn", "M", "mg/L") +
 
       convert_units(add_cl, "cl", "M", "mg/L") +
-      convert_units(add_so4, "so4", "M", "mg/L")
+      convert_units(add_so4, "so4", "M", "mg/L")+
+      convert_units(add_f, "f", "M", "mg/L") +
+      convert_units(add_br, "br", "M", "mg/L")
 
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
