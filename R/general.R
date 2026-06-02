@@ -530,9 +530,9 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     value / charge * multiplier
     # g CaCO3 - g
   } else if (startunit %in% caco_list & endunit %in% gram_list & !(endunit %in% caco_list)) {
-    value / caco3_mw * molar_weight
+    value / caco3_mw * molar_weight * 2 / charge
   } else if (endunit %in% caco_list & startunit %in% gram_list & !(startunit %in% caco_list)) {
-    value / molar_weight * caco3_mw
+    value / molar_weight * caco3_mw * charge / 2
     # g N - g
   } else if (startunit %in% n_list & endunit %in% gram_list & !(endunit %in% n_list)) {
     value / n_mw * molar_weight
