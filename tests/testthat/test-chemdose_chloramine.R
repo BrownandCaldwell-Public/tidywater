@@ -199,11 +199,11 @@ test_that("chemdose_chloramine_df output is list of water class objects, and can
     water_df %>%
       define_water_df() %>%
       mutate(nh3 = 3) %>%
-      chemdose_chloramine_df(output_water = "diff_name", time = 10, cl2 = 3)
+      chemdose_chloramine_df(output_water = "diff_name", time = 10, cl2 = 3 )
   )
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[2]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one
@@ -217,10 +217,10 @@ test_that("chemdose_chloramine_df works", {
         cl2 = 3,
         time = 10
       ) %>%
-      chemdose_chloramine_df()
+      chemdose_chloramine_df(keep_dose_cols = TRUE)
   )
 
-  expect_equal(ncol(water1), 2) # check if pipe worked
+  expect_equal(ncol(water1), 5) # check if pipe worked
 })
 
 # Check that variety of ways to input chemicals work

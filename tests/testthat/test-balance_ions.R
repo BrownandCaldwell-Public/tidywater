@@ -292,7 +292,7 @@ test_that("balance_ions_df can be piped and handle an output_water argument", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
     balance_ions_df(output_water = "different_column") %>%
-    chemdose_ph_df(naoh = 20)
+    chemdose_ph_df(naoh = 20, keep_dose_cols = TRUE)
 
   expect_equal(names(water1[2]), "different_column") # check output_water arg
   expect_equal(ncol(water1), 4) # check if pipe worked

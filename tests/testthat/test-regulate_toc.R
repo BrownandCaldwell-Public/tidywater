@@ -61,8 +61,8 @@ test_that("regulate_toc_df warns when raw TOC <= 2 mg/L", {
 
   regulated <- water_df %>%
     define_water_df() %>%
-    chemdose_ph_df(alum = 30, output_water = "dosed") %>%
-    chemdose_toc_df("dosed") %>%
+    chemdose_ph_df(alum = 30, output_water = "dosed", keep_dose_cols = TRUE) %>%
+    chemdose_toc_df("dosed", keep_dose_cols = TRUE) %>%
     pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
     select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
 
