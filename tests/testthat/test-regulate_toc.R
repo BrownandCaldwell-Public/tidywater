@@ -4,31 +4,39 @@ test_that("regulate_toc works", {
   reg_1 <- regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 2)
   reg_2 <- regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 4)
 
-  expect_equal(reg_1$toc_compliance_status, "In Compliance (Alternate see warning)")
-  expect_equal(ncol(reg_1), 2)
-  expect_equal(reg_2$toc_compliance_status, "Not Compliant")
+  expect_equal(reg_1$toc_compliance_status, TRUE)
+  expect_equal(ncol(reg_1), 3)
+  expect_equal(reg_2$toc_compliance_status, FALSE)
   expect_equal(ncol(reg_2), 3)
 })
 
 
-test_that("regulate_toc warns when finished water TOC >= raw TOC, or raw TOC <= 2 mg/L", {
+test_that("regulate_toc works for TOC >= raw TOC (not compliant), or raw TOC <= 2 mg/L (alternate compliance), and
+TOC <= 2 mg/L without alternate compliance", {
   # finished > raw
-  expect_warning(regulate_toc(alk_raw = 50, toc_raw = 3, toc_finished = 4))
-  water1 <- suppressWarnings(regulate_toc(alk_raw = 50, toc_raw = 3, toc_finished = 4))
-  expect_equal(water1$toc_compliance_status, "Not Calculated")
-  expect_equal(water1$toc_removal_percent, "Not Calculated")
+  water1 <- (regulate_toc(alk_raw = 50, toc_raw = 3, toc_finished = 4))
+  expect_equal(water1$toc_compliance_status, FALSE)
+  expect_equal(water1$toc_removal_percent, -33.3)
 
   # finished = raw
-  expect_warning(regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 5))
-  water2 <- suppressWarnings(regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 5))
-  expect_equal(water2$toc_compliance_status, "Not Calculated")
-  expect_equal(water2$toc_removal_percent, "Not Calculated")
+  water2 <- (regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 5))
+  expect_equal(water2$toc_compliance_status, FALSE)
+  expect_equal(water2$toc_removal_percent, 0)
 
   # raw < 2
-  expect_warning(regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5))
-  water3 <- suppressWarnings(regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5))
-  expect_equal(water3$toc_compliance_status, "In Compliance (Alternate see warning)")
-  expect_equal(water3$toc_removal_percent, "Not Calculated")
+  water3 <- (regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5))
+  expect_equal(water3$toc_compliance_status, TRUE)
+  expect_equal(water3$toc_removal_percent, 50)
+
+   # raw < 2 (no alternative compliance)
+  water4 <- (regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 1.5, skip_alternate = TRUE))
+  expect_equal(water4$toc_compliance_status, FALSE)
+  expect_equal(water4$toc_removal_percent, -50)
+
+   # raw < 2 (no alternative compliance (finished < raw))
+  water5 <- (regulate_toc(alk_raw = 65, toc_raw = 1, toc_finished = 0.5, skip_alternate = TRUE))
+  expect_equal(water5$toc_compliance_status, FALSE)
+  expect_equal(water5$toc_removal_percent, 50)
 })
 
 
@@ -56,7 +64,7 @@ test_that("regulate_toc_df is same s as base function", {
 })
 
 
-test_that("regulate_toc_df warns when raw TOC <= 2 mg/L", {
+test_that("regulate_toc_df indicates as such when raw TOC <= 2 mg/L", {
   testthat::skip_on_cran()
 
   regulated <- water_df %>%
@@ -66,26 +74,22 @@ test_that("regulate_toc_df warns when raw TOC <= 2 mg/L", {
     pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
     select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk)
 
-  expect_warning(regulated[1, ] %>% regulate_toc_df(), "Raw water TOC < 2")
-
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
-  expect_equal(water1[1, ]$toc_compliance_status, "In Compliance (Alternate see warning)")
-  expect_equal(water1[5, ]$toc_compliance_status, "Not Compliant")
-  expect_equal(water1[12, ]$toc_compliance_status, "In Compliance")
+  expect_equal(water1[1, ]$toc_compliance_status, TRUE)
+  expect_equal(water1[5, ]$toc_compliance_status, FALSE)
+  expect_equal(water1[12, ]$toc_compliance_status, TRUE)
 })
 
 
-test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
+test_that("regulate_toc_df indicates when finished water TOC >= raw TOC", {
   regulated <- water_df %>%
     select(toc_raw = toc, alk_raw = alk) %>%
     mutate(toc_finished = 3.9)
 
-  expect_warning(slice(regulated, 1) %>% regulate_toc_df(), "Finished water TOC is greater than or equal")
-
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 
-  expect_equal(slice(water1, 1)$toc_compliance_status, "Not Calculated")
+  expect_equal(slice(water1, 2)$toc_compliance_status, FALSE)
 })
 
 test_that("regulate_toc_df can take column and argument inputs", {
@@ -114,4 +118,46 @@ test_that("regulate_toc_df can take column and argument inputs", {
 
   expect_equal(nrow(regulated2), 12) # no cross join
   expect_equal(nrow(regulated3), 24) # cross joined
+})
+
+
+test_that("regulate_toc can take water objects as inputs", {
+  water1 <- define_water(alk = 50, toc = 5)
+  water2 <- define_water(toc = 2)
+  result <- regulate_toc(raw_water = water1, treated_water = water2)
+  expect_equal(result$toc_compliance_status, TRUE)
+  expect_equal(result$toc_removal_percent, 60)
+})
+
+
+test_that("regulate_toc can skip alternate compliance for water object imputs",{
+  water1 <- define_water(alk = 65, toc = 1)
+  water2 <- define_water(toc = 1.5)
+  result <- regulate_toc(raw_water = water1, treated_water = water2, skip_alternate = TRUE)
+  expect_equal(result$toc_compliance_status, FALSE)
+  expect_equal(result$toc_removal_percent, -50)
+})
+
+test_that("alternate compliance  4 (dbp, alk, and toc) works",{
+
+  water1 <- define_water(ph = 7, alk = 70, toc = 3)
+  water2 <- define_water(ph = 7, alk = 70, br = 10, toc = 1.5)
+  dpbwater <- chemdose_dbp(water2, cl2 = 2, time = 3)
+  result <- regulate_toc(raw_water = water1, treated_water = water2, skip_alternate = TRUE)
+  expect_equal(result$toc_compliance_status, TRUE)
+  expect_equal(result$toc_removal_percent, 50)
+
+  result2 <- regulate_toc(raw_water = water1, treated_water = dpbwater, skip_alternate = FALSE)
+  expect_equal(result2$toc_compliance_status, TRUE)
+  expect_equal(result2$toc_removal_percent, 50)
+
+  water3 <- define_water(alk = 70, toc = 2.5)
+  water4 <- define_water(ph=7, br = 10, toc = 2.1)
+  dpbwater2 <- chemdose_dbp(water4, cl2 = 2, time = 3)
+  result3 <- regulate_toc(raw_water = water3, treated_water = dpbwater2, skip_alternate = FALSE)
+  expect_equal(result3$toc_compliance_status, TRUE)
+
+  result4 <- regulate_toc(raw_water = water3, treated_water = dpbwater2, skip_alternate = TRUE)
+  expect_equal(result4$toc_compliance_status, FALSE)
+
 })
