@@ -333,3 +333,33 @@ test_that("chemdose_ph_df na_to_zero argument works", {
   expect_equal(water$naoh[50], 0)
   expect_equal(water$naoh[100], 0)
 })
+
+
+#test that double dosing the same chemical no longer happens
+test_that("chemdose_ph_df does not double dose", {
+  testthat::skip_on_cran()
+ Test <- expect_warning(tibble(ph = 8.11, alk = 120, temp  =19.2, cond = 537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "ferric_dosed", ferricsulfate = 60, pluck_cols = TRUE) %>% #Creates ferricsulfate column
+        solvedose_ph_once(input_water = "ferric_dosed", target_ph = 7.8, chemical = "caoh2") %>% 
+#Ferric gets dosed again with the second chemdose
+        chemdose_ph_df("ferric_dosed", output_water = "limedosed", caoh2 = dose_required, pluck_cols = TRUE)
+)
+  
+  expect_equal(Test$limedosed_ph, 7.8)
+ 
+})
+
+#check it DOES double dose if keep_dose_cols = TRUE
+test_that("chemdose_ph_df double doses when keep_dose_cols = TRUE", {testthat::skip_on_cran()
+ Test <- expect_warning(tibble(ph = 8.11, alk = 120, temp  =19.2, cond = 537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "ferric_dosed", ferricsulfate = 60, pluck_cols = TRUE, keep_dose_cols = TRUE) %>% #Creates ferricsulfate column
+        solvedose_ph_once(input_water = "ferric_dosed", target_ph = 7.8, chemical = "caoh2") %>% 
+#Ferric gets dosed again with the second chemdose
+        chemdose_ph_df("ferric_dosed", output_water = "limedosed", caoh2 = dose_required, pluck_cols = TRUE, keep_dose_cols = TRUE)
+)
+  
+  expect_equal(Test$limedosed_ph, 6.71)
+ 
+})
