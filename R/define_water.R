@@ -559,7 +559,7 @@ arguments<-construct_helper(
 
   final_names <- unlist(arguments$final_names)
 
-  water_input <- df[, final_names[final_names %in% names(df)], drop = FALSE]
+  water_input <- df[, names(df) %in% names(final_names)]
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     do.call(define_water, water_input[i, ])
