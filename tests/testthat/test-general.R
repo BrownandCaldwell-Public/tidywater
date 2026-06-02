@@ -24,7 +24,7 @@ test_that("Unit conversion between mg/L and mg/L CaCO3 works.", {
   hco3_caco3 <- 80
   expect_equal(
     convert_units(hco3_caco3, "hco3", startunit = "mg/L CaCO3", endunit = "mg/L"),
-    hco3_caco3 * mweights$hco3 / mweights$caco3
+    hco3_caco3 * mweights$hco3 / mweights$caco3 * 2
   )
 })
 
