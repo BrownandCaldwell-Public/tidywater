@@ -23,7 +23,7 @@
 #' @param nh3 Applied ammonia dose (mg/L as N), defaults to 0. If not specified, use tot_nh3 slot in water.
 #' @param use_free_cl_slot Defaults to FALSE. If TRUE, uses free_chlorine slot in water. If TRUE AND there is a cl2 input, both the free_chlorine water slot and chlorine dose will be used.
 #' @param use_tot_nh3_slot Defaults to FALSE. If TRUE, uses tot_nh3 slot in water. If TRUE AND there is a nh3 input, both the tot_nh3 water slot and ammonia dose will be used.
-#'
+#' 
 #' @examples
 #' breakpoint <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) %>%
 #'   chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, use_free_cl_slot = TRUE)
@@ -34,7 +34,14 @@
 #'
 #' @returns `chemdose_chloramine` returns a water class object with predicted chlorine and chloramine concentrations.
 #'
-chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot = FALSE, use_tot_nh3_slot = FALSE) {
+chemdose_chloramine <- function(
+  water, 
+  time, 
+  cl2 = 0, 
+  nh3 = 0, 
+  use_free_cl_slot = FALSE, 
+  use_tot_nh3_slot = FALSE) {
+  
   validate_water(water, c("ph", "alk", "temp"))
 
   if (missing(time)) {
@@ -335,6 +342,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 #' @param output_water name of the output column storing updated water class object. Default is "chloraminated".
 #' @param pluck_cols Extract water slots modified by the function ("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3") into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #'
 #' @examples
 #' \donttest{
@@ -365,6 +373,7 @@ chemdose_chloramine_df <- function(
   output_water = "chloraminated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   time = "use_col",
   cl2 = "use_col",
   nh3 = "use_col",
@@ -424,6 +433,11 @@ chemdose_chloramine_df <- function(
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
+ if (!keep_dose_cols){
+    
+    output<-output[,!colnames(output) %in% ( c("cl2", "nh3"))]
+
+   }
 
   return(output)
 }

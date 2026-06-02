@@ -128,14 +128,14 @@ test_that("chemdose_chloramine_df outputs the same as base, chemdose_chloramine"
   water2 <- water_df %>%
     slice(1) %>%
     define_water_df() %>%
-    chemdose_chloramine_df(nh3 = 1, cl2 = 1, time = 20) %>%
+    chemdose_chloramine_df(nh3 = 1, cl2 = 1, time = 20, keep_dose_cols = TRUE) %>%
     pluck_water(c("chloraminated"), c("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3"))
 
   # check that pluck_cols does the same thing as pluck_Water
   water3 <- water_df %>%
     slice(1) %>%
     define_water_df() %>%
-    chemdose_chloramine_df(nh3 = 1, cl2 = 1, time = 20, pluck_cols = TRUE)
+    chemdose_chloramine_df(nh3 = 1, cl2 = 1, time = 20, pluck_cols = TRUE, keep_dose_cols = TRUE)
 
   expect_equal(water2$chloraminated_free_chlorine[1], water1@free_chlorine)
   expect_equal(water2$chloraminated_combined_chlorine[1], water1@combined_chlorine)
@@ -203,7 +203,7 @@ test_that("chemdose_chloramine_df output is list of water class objects, and can
   )
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[5]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[2]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one
@@ -220,7 +220,7 @@ test_that("chemdose_chloramine_df works", {
       chemdose_chloramine_df()
   )
 
-  expect_equal(ncol(water1), 5) # check if pipe worked
+  expect_equal(ncol(water1), 2) # check if pipe worked
 })
 
 # Check that variety of ways to input chemicals work

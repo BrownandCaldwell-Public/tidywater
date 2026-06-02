@@ -269,6 +269,7 @@ chemdose_dbp <- function(
 #' Alternatively, specify "all" to get all DBP species in addition: (tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa)
 #' Defaults to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
@@ -301,6 +302,7 @@ chemdose_dbp_df <- function(
   output_water = "disinfected",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
@@ -377,6 +379,10 @@ chemdose_dbp_df <- function(
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
+
+   if (!keep_dose_cols) {
+     output <- output[, !colnames(output) %in% "cl2", drop = FALSE]
+   }
 
   return(output)
 }
