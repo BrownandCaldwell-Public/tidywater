@@ -265,7 +265,7 @@ test_that("chemdose_ph_df output is list of water class objects, and can handle 
   )
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[2]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one
@@ -278,7 +278,7 @@ test_that("chemdose_ph_df works", {
       chemdose_ph_df()
   )
 
-  expect_equal(ncol(water1), 3) # check if pipe worked
+  expect_equal(ncol(water1), 2) # check if pipe worked
 })
 
 # Check that variety of ways to input chemicals work
@@ -314,7 +314,7 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
     pluck_water(water1, "dosed_chem", "toc")$dosed_chem_toc,
     pluck_water(water2, "dosed_chem", "toc")$dosed_chem_toc
   ) # test different ways to input chemical
-  expect_equal(ncol(water3), 4) # both naoh and hcl dosed
+  expect_equal(ncol(water3), 2) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(
     pluck_water(water4, "dosed_chem", "ph")$dosed_chem_ph,
@@ -322,13 +322,13 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
   )) # since HCl added to water3, pH should be different
 })
 
-# Check that na_to_zero implementation works
+# Check that na_to_zero implementation works, and keep_dose_cols works
 test_that("chemdose_ph_df na_to_zero argument works", {
   testthat::skip_on_cran()
   water <- suppressWarnings(
     water_df %>%
       define_water_df() %>%
-      chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12))
+      chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12), keep_dose_cols = TRUE)
   )
   expect_equal(water$naoh[50], 0)
   expect_equal(water$naoh[100], 0)

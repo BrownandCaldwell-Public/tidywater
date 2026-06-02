@@ -403,6 +403,7 @@ chemdose_ph <- function(
 #' @param na_to_zero option to convert all NA values in the data frame to zeros. Default value is TRUE.
 #' @param pluck_cols Extract primary water slots modified by the function (ph, alk) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #'
 #' @examples
 #' \donttest{
@@ -431,6 +432,7 @@ chemdose_ph_df <- function(
   na_to_zero = TRUE,
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
@@ -583,6 +585,7 @@ chemdose_ph_df <- function(
     })
   }
 
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     chemdose_ph(
       water = df[[input_water]][[i]],
@@ -627,5 +630,12 @@ chemdose_ph_df <- function(
     }
   }
 
+  if (!keep_dose_cols){
+     
+    output<-output[,!colnames(output) %in% (unlist(final_names))]
+
+   }
+
   return(output)
+
 }
