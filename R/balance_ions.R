@@ -152,7 +152,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       convert_units(add_mg, "mg", "M", "mg/L") +
     
       convert_units(add_cl, "cl", "M", "mg/L") +
-      convert_units(add_so4, "so4", "M", "mg/L")+
+      convert_units(add_so4, "so4", "M", "mg/L")
 
     water@cond <- correlate_ionicstrength(water@tds, from = "tds", to = "cond")
     # Similarly, IS should only update from the ion balance if TDS and cond were estimates.
