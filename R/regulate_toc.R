@@ -23,7 +23,8 @@
 #' @returns A data frame containing the TOC removal compliance status.
 #' 
 #' @examples
-#' regulate_toc(raw_water = define_water(alk = 50, toc = 5), treated_water = define_water(toc = 2), skip_alternate = TRUE)
+#' regulate_toc(raw_water = define_water(alk = 50, toc = 5), 
+#' treated_water = define_water(toc = 2), skip_alternate = TRUE)
 #' 
 #' @export
 #' 
