@@ -57,7 +57,8 @@ with an error message.
 \examples{
 regulate_toc(alk_raw=50, toc_raw=5, toc_finished=2)
 
-regulate_toc(raw_water = define_water(alk = 50, toc = 5), treated_water = define_water(toc = 2), skip_alternate = TRUE)
+regulate_toc(raw_water = define_water(alk = 50, toc = 5), 
+treated_water = define_water(toc = 2), skip_alternate = TRUE)
 
 
 regulated <- water_df \%>\%
