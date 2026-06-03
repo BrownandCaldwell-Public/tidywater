@@ -177,6 +177,10 @@ warning_counts <- list()
     names(ct_df) <- paste0(input_water, "_", names(ct_df))
   }
 
+ for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
+
   output <- cbind(df, ct_df)
   return(output)
 }
