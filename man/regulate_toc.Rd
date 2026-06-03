@@ -59,7 +59,8 @@ water1 <- define_water(alk = 70, toc = 4)
 water2 <- define_water(toc = 2.5)
 regulate_toc(raw_water = water1, treated_water = water2)
 
-regulate_toc(raw_water = define_water(alk = 50, toc = 5), treated_water = define_water(toc = 2), skip_alternate = TRUE)
+regulate_toc(raw_water = define_water(alk = 50, toc = 5), 
+treated_water = define_water(toc = 2), skip_alternate = TRUE)
 
 
 regulated <- water_df \%>\%
