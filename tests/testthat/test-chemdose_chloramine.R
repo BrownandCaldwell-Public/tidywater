@@ -298,6 +298,97 @@ test_that("chemdose_chloramine_df can handle different ways to input chem doses"
   )
 })
 
+
+
+
+test_that("chemdose_chloramine_df is OK with time col and input?", {
+  testthat::skip_on_cran()
+  
+# init vals for later calls
+  vals<-tibble(ph=4:9,toc=2, uv254 = 0.5, alk = 70 )
+  water0<-suppressWarnings(vals |> 
+    define_water_df())
+
+
+#waters with time cols too test how function handles other named cols that are also function args
+  water1<-water0 |> 
+    mutate(time=10)
+
+  water2<-water0 |> 
+    mutate(time=5) 
+
+
+#setup for normal dosing (time is in function call)
+
+  dosed1<-water0 |> 
+    chemdose_chloramine_df(cl2 = 5, nh3=5, time = 10, output_water = "dosed1", pluck_cols = TRUE )
+
+  expect_equal(dosed1$dosed1_free_chlorine[1], 0.0000000000009970627935001929)
+
+#trying to dose with time in the function call while there being a time column existing already
+  
+dosed2<-expect_error(water1 |> 
+  chemdose_chloramine_df(cl2_dose = 5, nh3=5, time = 10, output_water = "dosed2", pluck_cols = TRUE ))
+  
+  
+#dosing with a time col but no time in function call 
+  
+  dosed3<- water1 |> 
+    chemdose_chloramine_df(cl2 = 5, nh3=5, output_water = "dosed3", pluck_cols = TRUE )
+
+
+expect_equal(dosed3$dosed3_free_chlorine[1], dosed1$dosed1_free_chlorine[1])
+
+  
+
+}
+)
+
+test_that("are previous columns named cl 2 dropped when keep dose cols = false", {
+
+  #setup test water
+  water0<-suppressWarnings(water_df |> 
+    slice(1) |> 
+    define_water_df())
+
+    dosedwater<-water0 |> 
+      chemdose_chloramine_df( cl2=5, nh3 = 2, time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE)
+  
+
+    #check normal functionality 
+  expect_equal(ncol(dosedwater), 3)
+
+    dosedwater<-water0 |> 
+      chemdose_chloramine_df( cl2=5, nh3 = 2, time = 10, pluck_cols = FALSE, keep_dose_cols = TRUE)
+  
+
+    #check normal functionality 
+  expect_equal(ncol(dosedwater), 5)
+
+# check how function handles cl cols that are there before 
+  
+  water0<-water0 |> 
+    mutate(cl2 = 10)
+
+  dosedwater<-expect_error(water0 |>  
+    chemdose_chloramine_df( cl2=5, nh3 = 2, time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE))
+
+  dosedwater1<-water0 |> 
+    chemdose_chloramine_df( nh3 = 2, time = 10, pluck_cols = FALSE, keep_dose_cols = TRUE)
+
+  dosedwater2<-water0 |> 
+    chemdose_chloramine_df( nh3 = 2, time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE)
+
+  expect_equal(ncol(dosedwater1), 5)
+  expect_equal(ncol(dosedwater2), 3)
+  # previously named cl2 cols are expected to throw a warning when called additionally in chemdose_chloramine_df and 
+  # are expected to be droped when keep_dose_cols = FALSE, even if they were there before
+})
+
+
+
+
+
 # note that this test only passes when chemdose_chlorine uses the original alpha0TOTNH and alpha1TOTNH
 #  test_that("chemdose_chloramine works.", {
 #   water1 <- suppressWarnings(define_water(7.5, 20, 50, free_chlorine = 10, tot_nh3 = 1))
