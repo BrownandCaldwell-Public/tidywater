@@ -152,21 +152,33 @@ solvect_o3_df <- function(
 
   df <- defaults_added$data
 
+warning_counts <- list()
+
   ct_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
+      withCallingHandlers(
       solvect_o3(
         water = df[[input_water]][[i]],
         time = df[[final_names$time]][i],
         dose = df[[final_names$dose]][i],
         kd = df[[final_names$kd]][i],
         baffle = df[[final_names$baffle]][i]
-      )
+      ),
+      warning =function(w) {
+        msg<-conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
+      })
     })
   )
 
   if (water_prefix) {
     names(ct_df) <- paste0(input_water, "_", names(ct_df))
+  }
+
+ for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   output <- cbind(df, ct_df)

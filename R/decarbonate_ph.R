@@ -83,12 +83,23 @@ decarbonate_ph_df <- function(
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
+  warning_counts <- list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    decarbonate_ph(
-      water = df[[input_water]][[i]],
-      co2_removed = df[[final_names$co2_removed]][i]
+    withCallingHandlers(
+      decarbonate_ph(
+        water = df[[input_water]][[i]],
+        co2_removed = df[[final_names$co2_removed]][i]
+      ),
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
+      }
     )
   })
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   output <- df
 

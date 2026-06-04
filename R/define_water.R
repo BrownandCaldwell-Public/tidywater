@@ -561,11 +561,22 @@ arguments<-construct_helper(
 
   water_input <- df[, names(df) %in% names(final_names)]
 
+  warning_counts<-list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    do.call(define_water, water_input[i, ])
+    withCallingHandlers(do.call(define_water, water_input[i, ]),warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
 
   output <- df[, !names(df) %in% names(final_names), drop = FALSE]
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
+
+  output <- df[, !names(df) %in% define_water_args, drop = FALSE]
 
   if (pluck_cols) {
     output <- output |>

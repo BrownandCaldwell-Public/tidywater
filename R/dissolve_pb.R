@@ -279,17 +279,30 @@ dissolve_pb_df <- function(
     stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
   }
 
+warning_counts <- list()
+
   pb_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
+      withCallingHandlers(
       dissolve_pb(
         water = df[[input_water]][[i]],
         hydroxypyromorphite = hydroxypyromorphite,
         pyromorphite = pyromorphite,
         laurionite = laurionite
-      )
+      ),
+      warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
     })
   )
+
+for (msg in names(warning_counts)) {
+  cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+}
 
   names(pb_df) <- c(output_col_solid, output_col_result)
   if (water_prefix) {

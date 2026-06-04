@@ -233,21 +233,46 @@ blend_waters_df <- function(df, waters, ratios, output_water = "blended") {
   output <- df
   output$waters <- apply(output[, water_names], 1, function(row) as.list(row))
 
+warning_counts1 <- list()
+warning_counts2 <- list()
+
   if (is.numeric(ratios)) {
     output$ratios <- replicate(nrow(output), ratios, simplify = FALSE) # vector of ratios
   } else {
     output$ratios <- lapply(seq_len(nrow(output)), function(i) {
+      withCallingHandlers(
       # column names
-      as.numeric(unlist(output[i, ratios]))
+      as.numeric(unlist(output[i, ratios])),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts1[[msg]] <<- (warning_counts1[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
     })
   }
 
+  for (msg in names(warning_counts1)) {
+    cli::cli_warn("{msg} ({warning_counts1[[msg]]} row{?s} affected.)")
+  }
+
   output[[output_water]] <- lapply(seq_len(nrow(output)), function(i) {
+      withCallingHandlers(
     blend_waters(
       waters = output$waters[[i]],
       ratios = output$ratios[[i]]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts2[[msg]] <<- (warning_counts2[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
+
+  for (msg in names(warning_counts2)) {
+    cli::cli_warn("{msg} ({warning_counts2[[msg]]} row{?s} affected.)")
+  }
 
   cols_to_remove <- c("waters", "ratios", grep("merging_water_", names(output), value = TRUE))
   output <- output[, !(names(output) %in% cols_to_remove)]
