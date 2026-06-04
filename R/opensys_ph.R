@@ -91,13 +91,25 @@ opensys_ph_df <- function(
   )
   df <- defaults_added$data
 
+warning_counts <- list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     opensys_ph(
       water = df[[input_water]][[i]],
       partialpressure = df[[final_names$partialpressure]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+      invokeRestart("muffleWarning")
   })
+})
 
+for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
+    
   output <- df[, !names(df) %in% defaults_added$defaults_used]
   output <- df
 
@@ -110,4 +122,4 @@ opensys_ph_df <- function(
   }
 
   return(output)
-}
+  }

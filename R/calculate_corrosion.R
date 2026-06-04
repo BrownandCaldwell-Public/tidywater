@@ -322,18 +322,31 @@ calculate_corrosion_df <- function(
     stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
   }
 
+  warning_counts <- list()
+
   validate_water_helpers(df, input_water)
 
   indices_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
-      calculate_corrosion(
-        water = df[[input_water]][[i]],
-        index = index,
-        form = form
+      withCallingHandlers(
+        calculate_corrosion(
+          water = df[[input_water]][[i]],
+          index = index,
+          form = form
+        ),
+        warning = function(w) {
+          msg <- conditionMessage(w)
+          warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+          invokeRestart("muffleWarning")
+        }
       )
     })
   )
+
+for (msg in names(warning_counts)){
+  cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+}
 
   if (water_prefix) {
     names(indices_df) <- paste0(input_water, "_", names(indices_df))

@@ -1,5 +1,6 @@
 # Development version
 
+* Updated warnings on _df functions so repeated errors are reported as a single warning. 
 * fixed issues with converting to g/L caco3 in `convert_units`
 * Updated chemdose_ph_chain to fix colum naming issues
 * Borate and silicate fixed used pH solver. Error introduced with previous alkalinity update.

@@ -59,15 +59,27 @@ dissolve_cu <- function(water) {
 
 dissolve_cu_df <- function(df, input_water = "defined", water_prefix = TRUE) {
   validate_water_helpers(df, input_water)
+warning_counts <- list()
 
   cu_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
-      dissolve_cu(
-        water = df[[input_water]][[i]]
+      withCallingHandlers(
+        dissolve_cu(
+          water = df[[input_water]][[i]]
+        ),
+        warning = function(w) {
+          msg <- conditionMessage(w)
+          warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+          invokeRestart("muffleWarning")
+        }
       )
     })
   )
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   if (water_prefix) {
     names(cu_df) <- paste0(input_water, "_", names(cu_df))
