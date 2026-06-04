@@ -404,16 +404,29 @@ chemdose_chloramine_df <- function(
   )
   df <- defaults_added$data
 
+warning_counts <-list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    chemdose_chloramine(
-      water = df[[input_water]][[i]],
-      cl2 = df[[final_names$cl2]][i],
-      nh3 = df[[final_names$nh3]][i],
-      time = df[[final_names$time]][i],
-      use_free_cl_slot = df[[final_names$use_free_cl_slot]][i],
+    withCallingHandlers(
+      chemdose_chloramine(
+        water = df[[input_water]][[i]],
+        cl2 = df[[final_names$cl2]][i],
+        nh3 = df[[final_names$nh3]][i],
+        time = df[[final_names$time]][i],
+        use_free_cl_slot = df[[final_names$use_free_cl_slot]][i],
       use_tot_nh3_slot = df[[final_names$use_tot_nh3_slot]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 

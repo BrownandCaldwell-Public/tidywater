@@ -345,20 +345,32 @@ chemdose_dbp_df <- function(
   )
   df <- defaults_added$data
 
+  warning_counts <- list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    chemdose_dbp(
-      water = df[[input_water]][[i]],
-      cl2 = df[[final_names$cl2]][i],
+    withCallingHandlers(
+      chemdose_dbp(
+        water = df[[input_water]][[i]],
+        cl2 = df[[final_names$cl2]][i],
       time = df[[final_names$time]][i],
       treatment = df[[final_names$treatment]][i],
       cl_type = df[[final_names$cl_type]][i],
       location = df[[final_names$location]][i],
       correction = df[[final_names$correction]][i],
       coeff = if (!is.null(coeff)) coeff else NULL
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    })
   })
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   if (pluck_cols == TRUE) {
     output <- output |>

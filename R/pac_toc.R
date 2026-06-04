@@ -159,14 +159,27 @@ pac_toc_df <- function(
   )
   df <- defaults_added$data
 
+warning_counts <- list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     pac_toc(
       water = df[[input_water]][[i]],
       dose = df[[final_names$dose]][i],
       time = df[[final_names$time]][i],
       type = df[[final_names$type]][i]
-    )
+    ),
+    warning = function(w) {
+      msg<-conditionMessage(w)
+      warning_counts[[msg]]<<-(warning_counts[[msg]] %||% 0) +1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 

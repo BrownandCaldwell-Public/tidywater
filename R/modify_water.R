@@ -125,16 +125,29 @@ modify_water_df <- function(
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
   final_names <- arguments$final_names
 
+warning_counts <- list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
-    modify_water(
-      water = df[[input_water]][[i]],
-      slot = df[[final_names$slot]][[i]],
-      value = df[[final_names$value]][[i]],
-      units = df[[final_names$units]][[i]]
+    withCallingHandlers(
+      modify_water(
+        water = df[[input_water]][[i]],
+        slot = df[[final_names$slot]][[i]],
+        value = df[[final_names$value]][[i]],
+        units = df[[final_names$units]][[i]]
+      ),
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
+      }
     )
   })
-
+for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
+
+  
 
   return(output)
 }
