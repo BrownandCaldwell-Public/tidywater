@@ -3,6 +3,7 @@
 * Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
 drops the output dosing columns unless told to keep to prevent double dosing.
 * Updated chemdose_ph_chain to fix colum naming issues.
+* Updated warnings on _df functions so repeated errors are reported as a single warning. 
 * fixed issues with converting to g/L caco3 in `convert_units`
 * Updated chemdose_ph_chain to fix colum naming issues
 * Borate and silicate fixed used pH solver. Error introduced with previous alkalinity update.

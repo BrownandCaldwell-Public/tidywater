@@ -156,24 +156,39 @@ gacrun_toc_df <- function(
   df <- defaults_added$data %>%
     transform(ID = seq(1, nrow(df), 1))
 
+warning_counts <- list()
+
   bv_df <- do.call(
     rbind,
     lapply(seq_len(nrow(df)), function(i) {
-      result <- gacrun_toc(
-        water = df[[input_water]][[i]],
-        ebct = df[[final_names$ebct]][i],
-        model = df[[final_names$model]][i],
-        media_size = df[[final_names$media_size]][i],
-        bvs = if (any(df[[final_names$bvs]][[i]] == "custom")) {
-          input_bvs
-        } else {
-          df[[final_names$bvs]][[i]]
+      withCallingHandlers(
+        {
+          result <- gacrun_toc(
+            water = df[[input_water]][[i]],
+            ebct = df[[final_names$ebct]][i],
+            model = df[[final_names$model]][i],
+            media_size = df[[final_names$media_size]][i],
+            bvs = if (any(df[[final_names$bvs]][[i]] == "custom")) {
+              input_bvs
+            } else {
+              df[[final_names$bvs]][[i]]
+            }
+          )
+          result$ID <- df$ID[i]
+          result
+        },
+        warning = function(w) {
+          msg <- conditionMessage(w)
+          warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+          invokeRestart("muffleWarning")
         }
       )
-      result$ID <- df$ID[i]
-      return(result)
     })
   )
+
+for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   # Rename columns in bv_df except for 'ID'
   if (water_prefix) {

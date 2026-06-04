@@ -252,14 +252,25 @@ solvedose_ph_df <- function(
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
+  warning_counts <- list()
+
   df[[output_column]] <- sapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     solvedose_ph(
       water = df[[input_water]][[i]],
       chemical = df[[final_names$chemical]][i],
       target_ph = df[[final_names$target_ph]][i]
-    )
+    ),
+    warning =function(w) {
+        msg<-conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
   })
-
+  })
+  for (msg in names(warning_counts)) {
+      cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    }
+  
   return(df)
 }
 
@@ -300,13 +311,26 @@ solvedose_alk_df <- function(
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
 
+  warning_counts <- list()
+
   df[[output_column]] <- sapply(seq_len(nrow(df)), function(i) {
-    solvedose_alk(
-      water = df[[input_water]][[i]],
-      chemical = df[[final_names$chemical]][i],
-      target_alk = df[[final_names$target_alk]][i]
+    withCallingHandlers(
+      solvedose_alk(
+        water = df[[input_water]][[i]],
+        chemical = df[[final_names$chemical]][i],
+        target_alk = df[[final_names$target_alk]][i]
+      ),
+      warning = function(w) {
+        msg<-conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        invokeRestart("muffleWarning")
+      }
     )
   })
+
+ for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   return(df)
 }
