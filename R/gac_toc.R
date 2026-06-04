@@ -141,7 +141,10 @@ gac_toc_df <- function(
   )
   df <- defaults_added$data
 
+  warning_counts <- list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     gac_toc(
       water = df[[input_water]][[i]],
       model = df[[final_names$model]][i],
@@ -149,9 +152,17 @@ gac_toc_df <- function(
       ebct = as.numeric(df[[final_names$ebct]][i]),
       bed_vol = df[[final_names$bed_vol]][i],
       pretreat = df[[final_names$pretreat]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
-
+for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
   if (pluck_cols) {

@@ -37,7 +37,8 @@ Imports:
     methods,
     rlang,
     deSolve,
-    lifecycle
+    lifecycle,
+    cli
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 4.1)
