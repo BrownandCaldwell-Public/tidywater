@@ -358,3 +358,27 @@ test_that("define_water_df correctly calculates dic", {
 
   expect_equal(dic_mol, water1$defined_dic)
 })
+
+
+# Testing that define_water_df has "use_col" the right way 
+
+test_that("define_water_df use_col reads values correctly from matching columns", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(define_water_df(slice(water_df, 1)))
+  expect_equal(water1$defined[[1]]@ph,  7.9)
+  expect_equal(water1$defined[[1]]@alk, 50)
+})
+
+test_that("define_water_df use_col works when arg names don't match as in water_df", {
+  testthat::skip_on_cran()
+  
+  water1 <- suppressWarnings(tibble(alk=160, ph=7, toc=4, temp=25) |> 
+    define_water_df())
+   
+  expect_equal(water1$defined[[1]]@alk, 160)
+  expect_equal(water1$defined[[1]]@ph, 7)
+  expect_equal(water1$defined[[1]]@toc, 4)
+  expect_equal(water1$defined[[1]]@temp, 25)
+
+})
+

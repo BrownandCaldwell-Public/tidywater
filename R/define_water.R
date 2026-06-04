@@ -571,12 +571,12 @@ arguments<-construct_helper(
   )
   })
 
-  output <- df[, !names(df) %in% names(final_names), drop = FALSE]
+ 
   for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
-  output <- df[, !names(df) %in% define_water_args, drop = FALSE]
+   output <- df[, !names(df) %in% names(final_names), drop = FALSE]
 
   if (pluck_cols) {
     output <- output |>
