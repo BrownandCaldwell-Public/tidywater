@@ -76,7 +76,7 @@ check_water <- function(water, skip_models = FALSE) {
   results <- tibble::add_row(results,
     check = "Total hardness check",
     value = NA_character_,
-    flag  = "tot_hard, Ca, or Mg missing — cannot compare"
+    flag  = "tot_hard, Ca, or Mg missing."
   )
 }
 

@@ -7,19 +7,20 @@
 check_water(water, skip_models = FALSE)
 }
 \arguments{
-\item{water}{a water class object
-' @param skip_models a boolean to specify whether to skip the check for applicable models, defaults to FALSE}
+\item{water}{a water class object}
+
+\item{skip_models}{a boolean to specify whether to skip the check for applicable models, defaults to FALSE}
 }
 \value{
 a tibble with the check, value, and flag for any issues found. If skip_models = FALSE, also includes a check for applicable models with tidywater functions.
 }
 \description{
-This function takes a previously defines water class input and checks common missmatch issues with water quality.
-It returns a tablw wwith the check, the value, and a flag if there is an issue.
-It will also check to see what other tidywater models are aplicable to the input water unless the user specifies to skip that step.
+This function takes a previously defines water class input and checks common mismatch issues with water quality.
+It returns a table wwith the check, the value, and a flag if there is an issue.
+It will also check to see what other tidywater models are applicable to the input water unless the user specifies to skip that step.
 }
 \details{
-This function serves as a heuristc check for users to check common issues with water data.
+This function serves as a heuristic check for users to check common issues with water data.
 }
 \examples{
 
