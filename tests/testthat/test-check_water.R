@@ -8,10 +8,10 @@ test_that("check water does what it ought to", {
   expect_error(check_water(df))
 
   #pull a water from water df 
-water1<-water_df |> 
+water1<-supressWarnings(water_df |> 
   dplyr::slice(1) |> 
   as.list() |> 
-  do.call(define_water, args = _ )
+  do.call(define_water, args = _ ))
   
   check1<-check_water(water1)
 
@@ -19,7 +19,7 @@ water1<-water_df |>
 #should be 5 total once acplicable models is in 
   
 #handles NA values 
-water2 <-define_water()
+water2 <-supressWarnings(define_water())
   
   check2<-check_water(water2)
 
@@ -30,8 +30,8 @@ water2 <-define_water()
 
 test_that("Check aplicable models works",{
 
-water1<-define_water()
-water2<-define_water(ph=7, alk = 70)
+water1<-suppressWarnings(define_water())
+water2<-supressWarnings(define_water(ph=7, alk = 70))
   
 
 check1<-check_water(water1)
