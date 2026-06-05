@@ -1,6 +1,8 @@
 #test functionality 
 
 test_that("check water does what it ought to", {
+testthat::skip_on_cran()
+
 
 # passing a nonwater object
   df<-data.frame(ph=2, alk = 70)
@@ -8,7 +10,7 @@ test_that("check water does what it ought to", {
   expect_error(check_water(df))
 
   #pull a water from water df 
-water1<-supressWarnings(water_df |> 
+water1<-suppressWarnings(water_df |> 
   dplyr::slice(1) |> 
   as.list() |> 
   do.call(define_water, args = _ ))
@@ -19,7 +21,7 @@ water1<-supressWarnings(water_df |>
 #should be 5 total once acplicable models is in 
   
 #handles NA values 
-water2 <-supressWarnings(define_water())
+water2 <-suppressWarnings(define_water())
   
   check2<-check_water(water2)
 
@@ -29,9 +31,9 @@ water2 <-supressWarnings(define_water())
 })
 
 test_that("Check aplicable models works",{
-
+testthat::skip_on_cran()
 water1<-suppressWarnings(define_water())
-water2<-supressWarnings(define_water(ph=7, alk = 70))
+water2<-suppressWarnings(define_water(ph=7, alk = 70))
   
 
 check1<-check_water(water1)
@@ -42,7 +44,10 @@ check2<-check_water(water2)
   
   expect_equal(check2$value[5], "chemdose_ph, decarbonate_ph, dissolve_cu, opensys_ph, chemdose_chloramine, calculate_corrosion")
   
-  
+  #check skip works 
 
+  check3<-check_water(water2, skip_models = TRUE)
+
+  expect_equal(nrow(check3), 4)
 
 })

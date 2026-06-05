@@ -1,18 +1,29 @@
-# Behavior: 
-# returns a tibble with cols for CHECK, VALUE, and FLAG:
+#' @title check a water object for common issues and applicable models
+#' 
+#' @description This function takes a previously defines water class input and checks common missmatch issues with water quality. 
+#' It returns a tablw wwith the check, the value, and a flag if there is an issue. 
+#' It will also check to see what other tidywater models are aplicable to the input water unless the user specifies to skip that step.
+#' 
+#' @details This function serves as a heuristc check for users to check common issues with water data.
+#' 
+#' @param water a water class object
+#' ' @param skip_models a boolean to specify whether to skip the check for applicable models, defaults to FALSE
+#' 
+#' @examples 
+#' 
+#' water1<-define_water(ph=7, alk = 70)
+#' check_water(water1)
+#' 
+#' water2<-define_water( ph=7, alk = 70, ca = 20, na = 20, cl = 20, so4 = 20)
+#' check_water(water2, skip_models = TRUE)
+#' 
+#' 
+#' @export
+#' 
+#' @returns a tibble with the check, value, and flag for any issues found. If skip_models = FALSE, also includes a check for applicable models with tidywater functions.
 
-# Ion Balance RPD -- cat vs an RPD, flagg if > 10%
-# TDS check -- measured/estimated TDS vs. sum-of-ions TDS, flagged if diference is large 
-# Ionic strength -- flag if major ions are missing 
-# Applicable models
 
-# Migrate warnings from define_water 
-# - hardness RPD >10% 
-# - chlorng and ammonia both present 
-# - major ions missing (ionic strength warning) 
-
-
-check_water <- function(water) {
+check_water <- function(water, skip_models = FALSE) {
 
 #vallidate water!!
   
@@ -177,7 +188,7 @@ check_water <- function(water) {
 #   }
   
   
-  
+  if (!skip_models){
 # each nessacary paramater for each function 
 models <- list(
  "chemdose_ph, decarbonate_ph, dissolve_cu, opensys_ph, chemdose_chloramine, calculate_corrosion" = c("ph", "alk"),
@@ -212,7 +223,7 @@ final_models <- Filter(function(v) all(!is.na(sapply(v, function(sl) methods::sl
     flag = NA_character_
   ) 
   }
-  
+}
   
   return(results)
 }
