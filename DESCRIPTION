@@ -38,7 +38,8 @@ Imports:
     rlang,
     deSolve,
     lifecycle,
-    cli
+    cli,
+    tibble
 Roxygen: list(markdown = TRUE)
 Depends: 
     R (>= 4.1)
