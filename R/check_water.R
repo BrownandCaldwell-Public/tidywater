@@ -16,7 +16,7 @@ check_water <- function(water) {
 
 #vallidate water!!
   
- if (!is(water, "water")){
+ if (!methods::is(water, "water")){
    stop("input object needs to be a water class")
  }
 
@@ -150,7 +150,7 @@ check_water <- function(water) {
     )
  }
   else if ((water@tot_nh3 > 0) & !(water@free_chlorine > 0 | water@combined_chlorine > 0)){
-    results<-add_row(results,
+    results<-tibble::add_row(results,
     check = "Chloramine formation",
     value ="There is no total Nitrogen",
     flag = "Chloramines will not be formed because N is missing"
