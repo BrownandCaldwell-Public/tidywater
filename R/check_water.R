@@ -1,7 +1,7 @@
 #' @title check a water object for common issues and applicable models
 #' 
-#' @description This function takes a previously defines water class input and checks common mismatch issues with water quality. 
-#' It returns a table wwith the check, the value, and a flag if there is an issue. 
+#' @description This function takes a previously defined water class input and checks common mismatch issues with water quality. 
+#' It returns a table with the check, the value, and a flag if there is an issue. 
 #' It will also check to see what other tidywater models are applicable to the input water unless the user specifies to skip that step.
 #' 
 #' @details This function serves as a heuristic check for users to check common issues with water data.
@@ -25,10 +25,10 @@
 
 check_water <- function(water, skip_models = FALSE) {
 
-#vallidate water!!
+#validate water!!
   
  if (!methods::is(water, "water")){
-   stop("input object needs to be a water class")
+   stop("Input object needs to be a water class (an S4 object)")
  }
 
 
@@ -38,6 +38,33 @@ check_water <- function(water, skip_models = FALSE) {
     value = character(),
     flag = character()
   )
+ 
+
+
+ hard_calc <- calculate_hardness(
+  convert_units(water@ca, "ca", "M", "mg/L"),
+  convert_units(water@mg, "mg", "M", "mg/L")
+)
+
+  if ((!is.na(water@tot_hard) & !is.na(water@ca) & !is.na(water@mg)) &
+    (water@tot_hard != 0 & water@ca != 0 & water@mg != 0)) {
+  check_tot_hard <- abs(water@tot_hard - hard_calc) /
+    mean(c(water@tot_hard, hard_calc))
+  results <- tibble::add_row(results,
+    check = "Total hardness check",
+    value = paste0(round(check_tot_hard * 100, 1), "%"),
+    flag  = if (check_tot_hard > 0.10) "Total hardness does not match calculated hardness from Ca and Mg" else "None"
+  )
+} else {
+  results <- tibble::add_row(results,
+    check = "Total hardness check",
+    value = NA_character_,
+    flag  = "tot_hard, Ca, or Mg missing."
+  )
+}
+
+
+
 #ion bal RPD 
   
    cations <- sum(
@@ -61,76 +88,67 @@ check_water <- function(water, skip_models = FALSE) {
     na.rm = TRUE
   )
 
-  PD<- abs(2*(anions-cations)/(anions+cations))*100
-
-  if ((!is.na(water@tot_hard) & !is.na(water@ca) & !is.na(water@mg)) &
-    (water@tot_hard != 0 & water@ca != 0 & water@mg != 0)) {
-  check_tot_hard <- abs(water@tot_hard - calculate_hardness(water@ca, water@mg)) /
-    mean(c(water@tot_hard, calculate_hardness(water@ca, water@mg)))
-  results <- tibble::add_row(results,
-    check = "Total hardness check",
-    value = paste0(round(check_tot_hard * 100, 1), "%"),
-    flag  = if (check_tot_hard > 0.10) "Total hardness does not match calculated hardness from Ca and Mg" else "none"
-  )
-} else {
-  results <- tibble::add_row(results,
-    check = "Total hardness check",
-    value = NA_character_,
-    flag  = "tot_hard, Ca, or Mg missing."
-  )
-}
-
-
-
-  # should this be >= or stay as >
-  if (is.na(PD)){
+  IONS_PD<- abs(2*(anions-cations)/(anions+cations))*100
+  
+  
+  if (is.na(IONS_PD)){
     results<-tibble::add_row(results,
     check = "Ion Balance Reasonable Percent Difference",
     value =NA_character_,
     flag = "Ions are missing, cannot compare to sum of ions"
     )
   }
-  else if (PD<=10){
+  else if (IONS_PD<=10){
     results<-tibble::add_row(results,
     check = "Ion Balance Reasonable Percent Difference",
-    value =paste0(round(PD, 1),"%"),
-    flag = "none"
+    value =paste0(round(IONS_PD, 1),"%"),
+    flag = "None"
     )
 
   }
   else{
     results<-tibble::add_row(results,
     check = "Ion Balance Reasonable Percent Difference",
-    value =paste0(round(PD, 1),"%"),
+    value =paste0(round(IONS_PD, 1),"%"),
     flag = "Unreasonable PD > 10%"
     )
   }
 
 # TDS check I'm essentially doing the same thing as before 
-  ions<-cations+anions
+  
+  # unit convrsions!
+  ions_mgL <- sum(
+  convert_units(water@na,  "na",  "M", "mg/L"),
+  convert_units(water@cl,  "cl",  "M", "mg/L"),
+  convert_units(water@ca,  "ca",  "M", "mg/L"),
+  convert_units(water@mg,  "mg",  "M", "mg/L"),
+  convert_units(water@k,   "k",   "M", "mg/L"),
+  convert_units(water@so4, "so4", "M", "mg/L"),
+  na.rm = TRUE
+)
 
-# re use same PD varible (maybe issue if tds is NA?)
-  PD <- abs(2*(ions-water@tds)/(ions+water@tds))
+  TDS_PD <- abs(2 * (ions_mgL - water@tds) / (ions_mgL + water@tds)) * 100
 
-  if (is.na(PD)){
-    results<-tibble::add_row(results,
+  if (is.na(TDS_PD)){
+    results<-tibble::add_row(
+    results,
     check = "TDS check",
     value =NA_character_,
     flag = "TDS missing, cannot compare to sum of ions"
     )
   }
-  else if (PD<=10){
+  else if (TDS_PD<=10){
     results<-tibble::add_row(results,
     check = "TDS check",
-    value =paste0(round(PD, 1),"%"),
-    flag = "none"
+    value =paste0(round(TDS_PD, 1),"%"),
+    flag = "None"
     )
 
   }
   else{
     results<-tibble::add_row(results,
     check = "TDS check",
-    value =paste0(round(PD, 1),"%"),
+    value =paste0(round(TDS_PD, 1),"%"),
     flag = "Unreasonable PD > 10%"
     )
   }
@@ -142,7 +160,7 @@ check_water <- function(water, skip_models = FALSE) {
     results<-tibble::add_row(results,
     check = "Ionic strength test",
     value =NA_character_,
-    flag = "none"
+    flag = "None"
     )
  }
   else if (is.na(water@ca)&is.na(water@na)){
@@ -169,6 +187,20 @@ check_water <- function(water, skip_models = FALSE) {
 
   # Chloramine check
   
+  if (is.na(water@tot_nh3)){
+    water@tot_nh3<-0
+  }
+  
+  if (is.na(water@free_chlorine)){
+    water@free_chlorine<-0
+  }
+  
+  if (is.na(water@combined_chlorine)){
+    water@combined_chlorine<-0
+  }
+
+
+
   if (water@tot_nh3 > 0 & (water@free_chlorine > 0 | water@combined_chlorine > 0)) {
     results<-tibble::add_row(results,
     check = "Chloramine formation",
@@ -230,18 +262,18 @@ final_models <- Filter(function(v) all(!is.na(sapply(v, function(sl) methods::sl
   
 
 
-  if(!length(final_models)==0){
+  if(length(final_models)>0){
   results<-tibble::add_row(results,
     check = "Applicable models",
     value =paste(names(final_models), collapse = "; "),
-    flag = NA_character_
+    flag = "None"
   )
 }
   else{
    results<-tibble::add_row(results,
     check = "Applicable models",
     value = "No applicable models...",
-    flag = NA_character_
+    flag = "None"
   ) 
   }
 }
