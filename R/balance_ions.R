@@ -44,15 +44,10 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   k_new <- water@k
   ca_new <- water@ca
   mg_new <- water@mg
-  fe_new <- water@fe
-  al_new <- water@al
-  mn_new <- water@mn
 
   cl_new <- water@cl
   so4_new <- water@so4
-  f_new <- water@f 
-  br_new <- water@br
-
+  
   # calculate charge
   cations <- sum(water@na,
     2 * water@ca,
