@@ -5,9 +5,9 @@ test_that("regulate_toc works", {
   reg_2 <- regulate_toc(alk_raw = 50, toc_raw = 5, toc_finished = 4)
 
   expect_equal(reg_1$toc_compliance_status, TRUE)
-  expect_equal(ncol(reg_1), 3)
+  expect_equal(ncol(reg_1), 4)
   expect_equal(reg_2$toc_compliance_status, FALSE)
-  expect_equal(ncol(reg_2), 3)
+  expect_equal(ncol(reg_2), 4)
 })
 
 
@@ -124,11 +124,27 @@ test_that("regulate_toc_df can take column and argument inputs", {
 test_that("regulate_toc can take water objects as inputs", {
   water1 <- define_water(alk = 50, toc = 5)
   water2 <- define_water(toc = 2)
-  result <- regulate_toc(raw_water = water1, treated_water = water2)
-  expect_equal(result$toc_compliance_status, TRUE)
-  expect_equal(result$toc_removal_percent, 60)
-})
 
+  # same calc as in function 
+  removal <- ((5 - 2) / 5) * 100
+
+  result <- suppressWarnings(regulate_toc(raw_water = water1, treated_water = water2))
+  expect_equal(result$toc_compliance_status, TRUE)
+  expect_equal(result$toc_removal_percent, removal)
+  expect_equal(result$required_removal,0)
+  # test errors if numerics are passed as water inputs, or water objects are put into numeric inputs
+  # also check that numerics from water class slots can corretley be passed into numeric inputs
+  expect_error(regulate_toc(raw_water= 1, treated_water= 1))
+
+  expect_error(regulate_toc(alk_raw =  water1, toc_raw  = water2, toc_finished = water2))
+
+  result2<- suppressWarnings(regulate_toc(alk_raw=water1@alk, toc_raw=water1@toc, toc_finished=water2@toc))
+
+  #new result is equal to old result, Reproducibility  
+  expect_equal(result, result2)
+
+  expect_equal(result2$comment, "Finished water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(ii))." )
+})
 
 test_that("regulate_toc can skip alternate compliance for water object imputs",{
   water1 <- define_water(alk = 65, toc = 1)

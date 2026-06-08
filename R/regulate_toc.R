@@ -89,36 +89,42 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished, raw_water , treated_wat
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+        required_removal = 0,
         comment = "Raw water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(i))."
       ))
     } else if (toc_finished <= 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+        required_removal = 0,
         comment = "Finished water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(ii))."
       ))
     } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
      return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+                required_removal = 0,
         comment="Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iii))."
       ))
     } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+        required_removal = 0,        
         comment = "DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iv))."
       ))
     } else if (suva_raw < 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+        required_removal = 0,
         comment = "SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(v))."
       ))
     } else if (suva_treated < 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
+        required_removal = 0,
         comment = "SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(vi))."
       ))
     }
@@ -130,6 +136,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished, raw_water , treated_wat
     return(data.frame(
       toc_compliance_status = FALSE,
       toc_removal_percent =  (round(removal, 1)),
+      required_removal = NA_real_,
       comment = "Finished water TOC is greater than or equal to raw TOC. No removal occurred."
     ))
   }
@@ -149,6 +156,7 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
     return(data.frame(
       toc_compliance_status = TRUE,
       toc_removal_percent = (round(removal, 1)),
+      required_removal = min_req,
       comment = "Standard compliance met"
     ))
   }
@@ -156,7 +164,8 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
     return(data.frame(
       toc_compliance_status = FALSE,
       toc_removal_percent = (round(removal, 1)),
-      comment = paste0("Minimum removal required: ", min_req, "%")
+      required_removal = min_req,
+      comment = "Standard compliance not met"
     ))
   } 
   
