@@ -170,7 +170,11 @@ test_that("Balance ions results in neutral charge.", {
     toc = 5,
     doc = 4.8,
     uv254 = .1,
-    br = 50
+    br = 50,
+    fe= 1,
+    al = 1,
+    mn = 1,
+    f =1
   )
   water4 <- balance_ions(water3)
   expect_equal(
