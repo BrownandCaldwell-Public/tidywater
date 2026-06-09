@@ -93,10 +93,10 @@ chemdose_dbp <- function(
 
   # uv254 warnings
   if (treatment == "coag" & (uv254 < 0.016 | uv254 > 0.215)) {
-    cli::cli_warn("UV254 is outside the model bounds (0.016 \u2264 UV254 \u2264 0.215 cm⁻¹) for coagulated water.")
+    cli::cli_warn("UV254 is outside the model bounds (0.016 \u2264 UV254 \u2264 0.215 cm^-1) for coagulated water.")
   }
   if (treatment == "gac" & (uv254 < 0.001 | uv254 > 0.048)) {
-    cli::cli_warn("UV254 is outside the model bounds (0.001 \u2264 UV254 \u2264 0.048 cm⁻¹) for GAC treated water.")
+    cli::cli_warn("UV254 is outside the model bounds (0.001 \u2264 UV254 \u2264 0.048 cm^-1) for GAC treated water.")
   }
 
   # cl2 warnings

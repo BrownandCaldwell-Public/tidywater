@@ -118,10 +118,10 @@ chemdose_chlordecay <- function(
     }
     # uv254 warnings
     if (treatment == "raw" & (uv254 < 0.010 | uv254 > 0.730)) {
-      cli::cli_warn("UV254 is outside the model bounds (0.010 \u2264 UV254 \u2264 0.730 cm⁻¹) for raw water.")
+      cli::cli_warn("UV254 is outside the model bounds (0.010 \u2264 UV254 \u2264 0.730 cm^-1) for raw water.")
     }
     if (treatment == "coag" & (uv254 < 0.012 | uv254 > 0.250)) {
-      cli::cli_warn("UV254 is outside the model bounds (0.012 \u2264 UV254 \u2264 0.250 cm⁻¹) for coagulated water.")
+      cli::cli_warn("UV254 is outside the model bounds (0.012 \u2264 UV254 \u2264 0.250 cm^-1) for coagulated water.")
     }
     # cl2_dose warnings
     if (treatment == "raw" & (cl2_dose < 0.995 | cl2_dose > 41.7)) {
