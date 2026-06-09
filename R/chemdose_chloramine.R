@@ -141,7 +141,7 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
   # Calculate equilibrium constants for chloramine system adjusted for temperature
   KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5)) # 10^-7.6
-  pkw <- round((4787.3 / (T_K)) + (7.1321 * log10(T_K)) + (0.010365 * T_K) - 22.801, 1)
+  pkw <-  K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
   KW <- 10^-pkw
   H <- 10^-ph
   OH <- KW / H

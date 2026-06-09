@@ -111,7 +111,7 @@ blend_waters <- function(waters, ratios) {
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
   tempa <- blended_water@temp + 273.15 # absolute temperature (K)
-  pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1) # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
+  pkw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, blended_water@temp)
   blended_water@kw <- 10^-pkw
 
   # Calculate new pH
