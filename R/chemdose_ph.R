@@ -575,6 +575,7 @@ chemdose_ph_df <- function(
   )
   df <- defaults_added$data
 
+  
   # If na_to_zero is TRUE, change all NA chemical doses in the dataframe to zero
   if (na_to_zero) {
     chemicals <- unlist(unname(final_names[names(final_names) != "softening_correction"]))
@@ -584,7 +585,10 @@ chemdose_ph_df <- function(
     })
   }
 
+  warning_counts<-list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     chemdose_ph(
       water = df[[input_water]][[i]],
       hcl = df[[final_names$hcl]][i],
@@ -615,8 +619,19 @@ chemdose_ph_df <- function(
       naf = df[[final_names$naf]][i],
       na3po4 = df[[final_names$na3po4]][i],
       softening_correction = df[[final_names$softening_correction]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
+
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
