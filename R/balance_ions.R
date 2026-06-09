@@ -28,15 +28,15 @@
 #'
 balance_ions <- function(water, anion = "cl", cation = "na") {
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   # check for acceptable cations/anions
   if (!(anion %in% c("cl", "so4"))) {
-    stop("Anion must be one of 'cl', or 'so4.")
+    cli::cli_abort("{.arg anion} must be one of {.val cl} or {.val so4}.")
   }
   if (!(cation %in% c("na", "k", "ca", "mg"))) {
-    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'.")
+    cli::cli_abort("{.arg cation} must be one of {.val na}, {.val k}, {.val ca}, or {.val mg}.")
   }
 
   # Set up ions to be changed
@@ -74,9 +74,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
   )
 
   if (is.na(cations) | is.na(anions)) {
-    stop(
-      "Missing cations or anions for balance. Make sure pH and alkalinity are specified when define_water is called."
-    )
+    cli::cli_abort("Missing cations or anions for ion balance. Make sure {.arg ph} and {.arg alk} are specified in {.fn define_water}.")
   }
 
   # Initialize these objects so they can be used later.

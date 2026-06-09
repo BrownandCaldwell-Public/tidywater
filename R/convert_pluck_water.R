@@ -53,10 +53,10 @@ convert_water <- function(water) {
 
 convert_watermg <- function(water) {
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
+    cli::cli_abort("No source water defined. Create a water using {.fn define_water}.")
   }
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
   ks <- correct_k(water)
   h <- 10^-water@ph
@@ -117,10 +117,10 @@ convert_watermg <- function(water) {
 
 pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (missing(parameter)) {
-    stop("Parameter not specified to pluck.")
+    cli::cli_abort("No parameter specified to pluck.")
   }
   if (!any(input_waters %in% colnames(df))) {
-    stop("One or more specified waters doesn't exist in dataframe. Check column names.")
+    cli::cli_abort("One or more specified water columns do not exist in the data frame. Check column names.")
   }
 
   plucked <- data.frame(row.names = seq(1, nrow(df)))
@@ -128,7 +128,7 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (length(parameter) == 1 && parameter == "all") {
     for (water in input_waters) {
       if (!methods::is(df[[water]][[1]], "water")) {
-        stop("All waters must be of class 'water'.")
+        cli::cli_abort("All waters must be of class {.cls water}.")
       }
 
       temp <- do.call(rbind, lapply(df[[water]], convert_water))
@@ -137,12 +137,12 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
     }
   } else {
     if (!any(parameter %in% methods::slotNames("water"))) {
-      stop("One or more parameters doesn't exist in water class.")
+      cli::cli_abort("One or more parameters do not exist in the water class.")
     }
 
     for (water in input_waters) {
       if (!methods::is(df[[water]][[1]], "water")) {
-        stop("All waters must be of class 'water'.")
+        cli::cli_abort("All waters must be of class {.cls water}.")
       }
       output_column <- paste0(water, "_", parameter)
 
