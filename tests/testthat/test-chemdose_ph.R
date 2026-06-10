@@ -369,7 +369,7 @@ test_that("chemdose_ph_df returns dosed cols when  keep_dose_cols = TRUE", {test
   # because both waters were dosed twice thre should be 2 chemdose cols for each chemical but the order of the columns 
   # should be different because of the order of dosing, so just check that the number of columns is correct and
   # that the chemical dose columns are present, but not in the same order
-  expect_equal(ncols(water1), ncols(water2))
+  expect_equal(ncol(water1), ncol(water2))
   expect_error(expect_equal(colnames(water1), colnames(water2)))
   
  
