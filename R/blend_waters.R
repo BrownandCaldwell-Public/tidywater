@@ -111,8 +111,9 @@ blend_waters <- function(waters, ratios) {
   # Calculate new pH, H+ and OH- concentrations
   # Calculate kw from temp
   tempa <- blended_water@temp + 273.15 # absolute temperature (K)
-  pkw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, blended_water@temp)
-  blended_water@kw <- 10^-pkw
+  discons <- tidywater::discons
+  blended_water@kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, blended_water@temp)
+
 
   # Calculate new pH
   ph <- solve_ph(blended_water)

@@ -139,10 +139,10 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
 
   ks <- correct_k(water)
 
+  discons <- tidywater::discons
   # Calculate equilibrium constants for chloramine system adjusted for temperature
   KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5)) # 10^-7.6
-  pkw <-  K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
-  KW <- 10^-pkw
+  KW <-  K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
   H <- 10^-ph
   OH <- KW / H
 
