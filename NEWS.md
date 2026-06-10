@@ -1,5 +1,6 @@
 # Development version
 
+* Code consistency improved with making Kw uniformly calculated with K_temp_adjust.
 * Updated warnings on _df functions so repeated errors are reported as a single warning. 
 * fixed issues with converting to g/L caco3 in `convert_units`
 * Updated chemdose_ph_chain to fix colum naming issues
