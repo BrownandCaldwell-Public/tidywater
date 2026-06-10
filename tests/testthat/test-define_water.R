@@ -384,7 +384,7 @@ test_that("define_water_df use_col works when arg names don't match as in water_
 
   PH<-7
   ALKALINITY<-160
-  water2<-suppressWarnings(tibble::tibble(temp=25, ph=PH, alk=ALKALINITY) |> 
+  water2<-suppressWarnings(tibble(temp=25, ph=PH, alk=ALKALINITY) |> 
     slice(1) |> 
     define_water_df()
 )
