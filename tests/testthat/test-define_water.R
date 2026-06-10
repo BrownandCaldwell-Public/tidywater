@@ -365,8 +365,8 @@ test_that("define_water_df correctly calculates dic", {
 test_that("define_water_df use_col reads values correctly from matching columns", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water_df(slice(water_df, 1)))
-  expect_equal(water1$defined[[1]]@ph,  7.9)
-  expect_equal(water1$defined[[1]]@alk, 50)
+  expect_equal(water1$defined[[1]]@ph,  water_df$ph[1])
+  expect_equal(water1$defined[[1]]@alk, water_df$alk[1])
 })
 
 test_that("define_water_df use_col works when arg names don't match as in water_df", {
@@ -380,5 +380,18 @@ test_that("define_water_df use_col works when arg names don't match as in water_
   expect_equal(water1$defined[[1]]@toc, 4)
   expect_equal(water1$defined[[1]]@temp, 25)
 
+
+
+  PH<-7
+  ALKALINITY<-160
+  water2<-suppressWarnings(tibble::tibble(temp=25, ph=PH, alk=ALKALINITY) |> 
+    slice(1) |> 
+    define_water_df()
+)
+  
+  expect_equal(water2$defined[[1]]@alk, water1$defined[[1]]@alk)
+  expect_equal(water2$defined[[1]]@ph, water1$defined[[1]]@ph)
+  
+  
 })
 
