@@ -261,7 +261,6 @@ define_water <- function(
   # Calculate temperature dependent constants
   
   kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
-  pkw <- -log10(kw)
 
   h <- 10^-ph # assume activity = concentration to start
   oh <- kw / h # assume activity = concentration to start
