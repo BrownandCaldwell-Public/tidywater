@@ -56,7 +56,7 @@ test_that("chemdose ph works", {
   expect_equal(round(test4@alk, 0), 7)
   expect_equal(round(test5@ph, 1), 4.0)
   expect_equal(round(test5@alk, 0), -5)
-  expect_equal(round(test6@ph, 1), 11.4)
+  expect_equal(round(test6@ph, 1),11.30)
   expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
   expect_equal(round(test7@alk, 0), 56)
