@@ -41,9 +41,7 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
 
   if (missing(bed_vol)) {
-    stop(
-      "Bed volume is a required argument to predict final water quality. Use `gacrun_toc` for complete breakthrough curve."
-    )
+    cli::cli_abort("{.arg bed_vol} is required to predict final water quality. Use {.fn gacrun_toc} for the complete breakthrough curve.")
   }
 
   bv_index <- which.min(abs(breakthrough_df$bv - bed_vol)) # retrieves index of bv that's closest to bv arg
