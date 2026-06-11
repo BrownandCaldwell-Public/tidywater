@@ -36,7 +36,7 @@ test_that("solvect_o3 throws an error when kd is 0", {
   water1 <- suppressWarnings(define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 30))
   expect_error(
     solvect_o3(water1, time = 10, kd = 0, dose = 3, baffle = .2),
-    "kd must be less than zero for decay curve"
+    "kd.*must be less than zero"
   )
 })
 

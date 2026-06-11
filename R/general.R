@@ -28,10 +28,10 @@
 summarize_wq <- function(water, params = c("general")) {
   pH <- TOC <- Na <- CO3 <- result <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
-    stop("Input must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
   if (any(!params %in% c("general", "ions", "dbps"))) {
-    stop("params must be one or more of c('general', 'ions', 'dbps')")
+    cli::cli_abort("{.arg params} must be one or more of {.val general}, {.val ions}, or {.val dbps}.")
   }
 
   # Compile general WQ parameters
@@ -163,7 +163,7 @@ summarise_wq <- summarize_wq
 plot_ions <- function(water) {
   type <- concentration <- label_pos <- ion <- label_y <- label <- repel_label <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   # Compile major ions to plot
@@ -292,39 +292,37 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
 
   if (!"ph" %in% colnames(df)) {
-    stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
+    cli::cli_abort("No {.val ph} column found in the data frame. Ensure pH is included as {.val ph}.")
   }
   if (!"dic" %in% colnames(df)) {
-    stop("DIC column not present in the dataframe. Ensure that DIC is included as 'dic'.")
+    cli::cli_abort("No {.val dic} column found in the data frame. Ensure DIC is included as {.val dic}.")
   }
   if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
-    warning("Alkalinity will be recalculated from the input DIC.")
+    cli::cli_warn("Alkalinity will be recalculated from the input DIC.")
   }
   if (!missing(temp)) {
     temp <- temp
   } else if ("temp" %in% colnames(df)) {
     if (length(unique(df$temp)) > 1) {
       temp <- as.numeric(df$temp[1])
-      message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
-      warning(message)
+      cli::cli_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
     } else {
       temp <- df$temp[1]
     }
   } else {
-    stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
+    cli::cli_abort("No {.arg temp} provided. Add a {.val temp} column to {.arg df} or pass {.arg temp} directly.")
   }
   if (!missing(tds)) {
     tds <- tds
   } else if ("tds" %in% colnames(df)) {
     if (length(unique(df$tds)) > 1) {
       tds <- as.numeric(df$tds[1])
-      message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
-      warning(message)
+      cli::cli_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
     } else {
       tds <- df$tds[1]
     }
   } else {
-    stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
+    cli::cli_abort("No {.arg tds} provided. Add a {.val tds} column to {.arg df} or pass {.arg tds} directly.")
   }
   if (missing(ph_range)) {
     min_ph <- min(df$ph)
@@ -469,7 +467,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   end_mult <- unit_multipliers[[endunit]]
   if (is.null(start_mult) || is.null(end_mult)) {
     # If we didn't find multipliers these units are not supported
-    stop("Units not supported")
+    cli::cli_abort("Units not supported.")
   }
   # Calculate the net multiplier
   multiplier <- start_mult / end_mult
@@ -496,7 +494,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
-    stop(paste("Chemical formula not supported: ", formula))
+    cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
   # Determine charge for equivalents
@@ -509,7 +507,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     # This is included so that charge can be in equations later without impacting results
     charge <- 1
   } else {
-    stop("Unable to find charge for equivalent conversion")
+    cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
   # Unit conversion
@@ -546,7 +544,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   ) {
     value * multiplier
   } else {
-    stop("Units not supported")
+    cli::cli_abort("Units not supported.")
   }
 }
 
@@ -612,7 +610,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   } else if (type == "ca") {
     ca_hard
   } else {
-    stop("Unsupported type. Specify 'total' or 'ca'")
+    cli::cli_abort("{.arg type} must be {.val total} or {.val ca}.")
   }
 }
 
@@ -728,10 +726,10 @@ correct_k <- function(water) {
 validate_water <- function(water, slots) {
   # Make sure a water is present.
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
+    cli::cli_abort("No source water defined. Create a water using {.fn define_water}.")
   }
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   # Check if any slots are NA
@@ -746,7 +744,7 @@ validate_water <- function(water, slots) {
       ))
     )
 
-    stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
+    cli::cli_abort("Water is missing the following modeling parameter(s): {missing}. Specify in {.fn define_water}.")
   }
 }
 
@@ -754,14 +752,10 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    stop(
-      "Specified input_water column not found. Check spelling or create a water class column using define_water_df()."
-    )
+    cli::cli_abort("Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}.")
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    stop(
-      "Specified input_water does not contain water class objects. Use define_water_df() or specify a different column."
-    )
+    cli::cli_abort("Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column.")
   }
 }
 
@@ -769,22 +763,22 @@ validate_args <- function(num_args = list(), str_args = list(), log_args = list(
   all_args <- c(num_args, str_args, log_args, misc_args)
   for (arg in names(all_args)) {
     if (is.null(all_args[[arg]])) {
-      stop("argument '", arg, "' is missing, with no default")
+      cli::cli_abort("Argument {.arg {arg}} is missing, with no default.")
     }
   }
   for (arg in names(num_args)) {
     if (!is.numeric(num_args[[arg]])) {
-      stop("argument '", arg, "' must be numeric.")
+      cli::cli_abort("Argument {.arg {arg}} must be numeric.")
     }
   }
   for (arg in names(str_args)) {
     if (!is.character(str_args[[arg]])) {
-      stop("argument '", arg, "' must be specified as a string.")
+      cli::cli_abort("Argument {.arg {arg}} must be a string.")
     }
   }
   for (arg in names(log_args)) {
     if (!is.logical(log_args[[arg]])) {
-      stop("argument '", arg, "' must be either TRUE or FALSE.")
+      cli::cli_abort("Argument {.arg {arg}} must be {.code TRUE} or {.code FALSE}.")
     }
   }
 }
@@ -935,7 +929,7 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
   } else if (from == "cond" & to == "tds") {
     result * (1.6 * 10^-5) / (2.5 * 10^-5)
   } else {
-    stop("from and to arguments must be one of 'is', 'tds', or 'cond'.")
+    cli::cli_abort("{.arg from} and {.arg to} must be one of {.val is}, {.val tds}, or {.val cond}.")
   }
 }
 
@@ -962,9 +956,7 @@ construct_helper <- function(df, all_args) {
   inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
 
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop(
-      "Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column."
-    )
+    cli::cli_abort("Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column.")
   }
 
   # Get the new names for relevant columns

@@ -38,7 +38,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
   breakthrough_df <- gacrun_toc(water, ebct, model, media_size)
 
   if (missing(target_doc)) {
-    stop("Target DOC is a required argument to predict bed volumes.")
+    cli::cli_abort("{.arg target_doc} is required to predict bed volumes.")
   }
 
   if (
@@ -47,7 +47,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
         (target_doc / water@doc) > max(breakthrough_df$x_norm)
     )
   ) {
-    stop("Target DOC is outside of range for the chosen model. Use `gacrun_toc` for complete breakthrough curve.")
+    cli::cli_abort("{.arg target_doc} is outside the range for the chosen model. Use {.fn gacrun_toc} for the complete breakthrough curve.")
   }
 
   x_index <- sapply(target_doc * water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
