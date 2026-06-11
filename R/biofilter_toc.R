@@ -22,7 +22,7 @@
 #'
 biofilter_toc <- function(water, ebct, ozonated = TRUE) {
   if (!is.logical(ozonated)) {
-    stop("ozonate must be set to TRUE or FALSE.")
+    cli::cli_abort("{.arg ozonated} must be {.code TRUE} or {.code FALSE}.")
   }
 
   temp <- water@temp

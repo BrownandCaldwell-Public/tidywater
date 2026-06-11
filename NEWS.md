@@ -1,5 +1,7 @@
 # Development version
 
+* Updated warnings across tidywater to use cli.
+* Added additional ions to ballance ions function calculation (Fe, Al, Mn, F, Br).
 * Updated warnings on _df functions so repeated errors are reported as a single warning. 
 * fixed issues with converting to g/L caco3 in `convert_units`
 * Updated chemdose_ph_chain to fix colum naming issues

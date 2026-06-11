@@ -37,10 +37,10 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
   if (model == "Zachman") {
     # check that media_size and ebct are inputted correctly
     if (media_size != "12x40" && media_size != "8x30") {
-      stop("GAC media size must be either 12x40 or 8x30.")
+      cli::cli_abort("GAC media size must be {.val 12x40} or {.val 8x30}.")
     }
     if (ebct != 10 && ebct != 20) {
-      stop("Zachman model only apply for GAC reactors with ebct of 10 or 20 minutes.")
+      cli::cli_abort("The Zachman model only applies for GAC reactors with {.arg ebct} of 10 or 20 minutes.")
     }
 
     x_norm <- seq(20, 70, 0.5) # x_norm represents the normalized effluent TOC concentration
@@ -85,7 +85,7 @@ gacrun_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40"
     toc_eff <- A0 + Af / (1 + B * exp(-D * bv))
     x_norm <- toc_eff / water@toc # ranges 10 to 72.5%
   } else {
-    stop("Please choose either Zachman or WTP as the model.")
+    cli::cli_abort("{.arg model} must be {.val Zachman} or {.val WTP}.")
   }
 
   breakthrough <- data.frame(bv = bv, x_norm = x_norm)

@@ -31,7 +31,7 @@ solvecost_chem <- function(dose, flow, strength = 100, cost, time = "day") {
   } else if (time == "year") {
     cost_day * 365.25
   } else {
-    stop("time must be one of 'day', 'month', 'year'.")
+    cli::cli_abort("{.arg time} must be one of {.val day}, {.val month}, or {.val year}.")
   }
 }
 
@@ -64,7 +64,7 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
   } else if (time == "year") {
     cost_day * 365.25
   } else {
-    stop("time must be one of 'day', 'month', 'year'.")
+    cli::cli_abort("{.arg time} must be one of {.val day}, {.val month}, or {.val year}.")
   }
 }
 
@@ -118,7 +118,7 @@ solvecost_solids <- function(
   } else if (time == "year") {
     cost_day * 365.25
   } else {
-    stop("time must be one of 'day', 'month', 'year'.")
+    cli::cli_abort("{.arg time} must be one of {.val day}, {.val month}, or {.val year}.")
   }
 }
 
@@ -149,6 +149,6 @@ solvecost_labor <- function(fte, cost, time = "day") {
   } else if (time == "year") {
     cost_day * 365.25
   } else {
-    stop("time must be one of 'day', 'month', 'year'.")
+    cli::cli_abort("{.arg time} must be one of {.val day}, {.val month}, or {.val year}.")
   }
 }
