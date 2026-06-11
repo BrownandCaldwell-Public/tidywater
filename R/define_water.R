@@ -523,7 +523,7 @@ define_water_df <- function(
   no3 = "use_col"
 ) {
  
-# unquo 
+# Process unquoted column names
   ph <- tryCatch(ph, error = function(e) enquo(ph))
   temp <- tryCatch(temp, error = function(e) enquo(temp))
   alk <- tryCatch(alk, error = function(e) enquo(alk))
