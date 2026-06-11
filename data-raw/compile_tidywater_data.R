@@ -109,7 +109,7 @@ discons <- data.frame(
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
   # Acetate
   add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
-  add_row(ID = "water", k =  10^-14   , deltah=  62730 ) # H2O <--> H+ + OH- 
+  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) # H2O <--> H+ + OH- 
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
