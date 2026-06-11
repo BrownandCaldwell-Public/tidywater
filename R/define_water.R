@@ -523,9 +523,40 @@ define_water_df <- function(
   no3 = "use_col"
 ) {
  
-arguments<-construct_helper(
+# unquo 
+  ph <- tryCatch(ph, error = function(e) enquo(ph))
+  temp <- tryCatch(temp, error = function(e) enquo(temp))
+  alk <- tryCatch(alk, error = function(e) enquo(alk))
+  tot_hard <- tryCatch(tot_hard, error = function(e) enquo(tot_hard))
+  ca <- tryCatch(ca, error = function(e) enquo(ca))
+  mg <- tryCatch(mg, error = function(e) enquo(mg))
+  na <- tryCatch(na, error = function(e) enquo(na))
+  k <- tryCatch(k, error = function(e) enquo(k))
+  cl <- tryCatch(cl, error = function(e) enquo(cl))
+  so4 <- tryCatch(so4, error = function(e) enquo(so4))
+  mno4 <- tryCatch(mno4, error = function(e) enquo(mno4))
+  free_chlorine <- tryCatch(free_chlorine, error = function(e) enquo(free_chlorine))
+  combined_chlorine <- tryCatch(combined_chlorine, error = function(e) enquo(combined_chlorine))
+  tot_po4 <- tryCatch(tot_po4, error = function(e) enquo(tot_po4))
+  tot_nh3 <- tryCatch(tot_nh3, error = function(e) enquo(tot_nh3))
+  tot_bo3 <- tryCatch(tot_bo3, error = function(e) enquo(tot_bo3))
+  tot_sio4 <- tryCatch(tot_sio4, error = function(e) enquo(tot_sio4))
+  tot_ch3coo <- tryCatch(tot_ch3coo, error = function(e) enquo(tot_ch3coo))
+  tds <- tryCatch(tds, error = function(e) enquo(tds))
+  cond <- tryCatch(cond, error = function(e) enquo(cond))
+  toc <- tryCatch(toc, error = function(e) enquo(toc))
+  doc <- tryCatch(doc, error = function(e) enquo(doc))
+  uv254 <- tryCatch(uv254, error = function(e) enquo(uv254))
+  br <- tryCatch(br, error = function(e) enquo(br))
+  f <- tryCatch(f, error = function(e) enquo(f))
+  fe <- tryCatch(fe, error = function(e) enquo(fe))
+  al <- tryCatch(al, error = function(e) enquo(al))
+  mn <- tryCatch(mn, error = function(e) enquo(mn))
+  no3 <- tryCatch(no3, error = function(e) enquo(no3))
+
+arguments <- construct_helper(
  df, 
- list(
+ all_args = list(
     "ph"=ph,
     "temp"=temp,
     "alk"=alk,
@@ -557,10 +588,13 @@ arguments<-construct_helper(
     "no3"=no3
   ))
 
-  final_names <- unlist(arguments$final_names)
+  final_names <- arguments$final_names
+  
+  water_input <- df[, names(df) %in% unname(final_names)]
 
-  water_input <- df[, names(df) %in% names(final_names)]
-
+col_map <- final_names[final_names %in% names(water_input)]
+names(water_input)[match(col_map, names(water_input))] <- names(col_map)
+  
   warning_counts<-list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(do.call(define_water, water_input[i, ]),warning = function(w) {
@@ -576,7 +610,7 @@ arguments<-construct_helper(
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
-   output <- df[, !names(df) %in% names(final_names), drop = FALSE]
+   output <- df[, !names(df) %in% unname(final_names), drop = FALSE]
 
   if (pluck_cols) {
     output <- output |>
