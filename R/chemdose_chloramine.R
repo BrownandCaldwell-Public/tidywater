@@ -50,8 +50,8 @@ chemdose_chloramine <- function(water, time, cl2 = 0, nh3 = 0, use_free_cl_slot 
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2
     if (!use_free_cl_slot) {
-      cli::cli_warn("Chlorine dose not specified; using {.field free_chlorine} 
-      slot ({water@free_chlorine} mol/L) as the initial free chlorine.")
+      cli::cli_warn("Chlorine dose not specified; function used {.field free_chlorine} 
+      slot ({water@free_chlorine} mol/L) in given water as the initial free chlorine.")
     }
   } else if (!use_free_cl_slot) {
     TOTCl_ini <- convert_units(cl2, "cl2")
