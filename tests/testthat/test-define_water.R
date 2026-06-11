@@ -369,7 +369,7 @@ test_that("define_water_df use_col reads values correctly from matching columns"
   expect_equal(water1$defined[[1]]@alk, water_df$alk[1])
 })
 
-test_that("define_water_df use_col works when arg names don't match as in water_df", {
+test_that("define_water_df works when arguments are not existing data frame columns", {
   testthat::skip_on_cran()
   
   water1 <- suppressWarnings(data.frame(alk=160, ph=7, toc=4, temp=25) |> 
