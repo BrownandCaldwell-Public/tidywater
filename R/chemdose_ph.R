@@ -226,7 +226,7 @@ chemdose_ph <- function(
   if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0 | pacl > 0) & is.na(water@cl)) {
     cli::cli_warn("Chloride-containing chemical dosed, but {.field cl} slot is {.val NA}; slot not updated because background Cl is unknown.")
   }
-  # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al) 
+  # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al)
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach + (.9 * 2) * pacl
   dosed_water@cl <- water@cl + cl_dose
 
@@ -465,6 +465,7 @@ chemdose_ph_df <- function(
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   ach <- tryCatch(ach, error = function(e) enquo(ach))
+  pacl <- tryCatch(pacl, error = function(e) enquo(pacl))
   caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
   caso4 <- tryCatch(caso4, error = function(e) enquo(caso4))
 
