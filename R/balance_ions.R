@@ -33,10 +33,10 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
   # check for acceptable cations/anions
   if (!(anion %in% c("cl", "so4"))) {
-    stop("Anion must be one of 'cl' or 'so4'. No other ions supported at this time.")
+    stop("Anion must be one of 'cl', or 'so4.")
   }
   if (!(cation %in% c("na", "k", "ca", "mg"))) {
-    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'. No other ions supported at this time.")
+    stop("Cation must be one of 'na', 'k', 'ca', or 'mg'.")
   }
 
   # Set up ions to be changed
@@ -47,9 +47,17 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
 
   cl_new <- water@cl
   so4_new <- water@so4
-
+  
   # calculate charge
-  cations <- sum(water@na, 2 * water@ca, 2 * water@mg, water@k, water@h, na.rm = TRUE)
+  cations <- sum(water@na,
+    2 * water@ca,
+    2 * water@mg, 
+    water@k, 
+    water@h, 
+    3* water@fe, 
+    3*water@al, 
+    2* water@mn, na.rm = TRUE)
+  
   anions <- sum(
     water@cl,
     2 * water@so4,
@@ -60,6 +68,8 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
     3 * water@po4,
     water@oh,
     water@ocl,
+    water@f,
+    water@br,
     na.rm = TRUE
   )
 
@@ -101,6 +111,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       mg_new <- ifelse(is.na(water@mg), add_mg, water@mg + add_mg)
       water@estimated <- paste(water@estimated, "mg", sep = "_")
     }
+    
     # add chloride or sulfate if anions are needed
     # Similar logic to cations, although sulfate is typically at higher concentrations than potassium.
     # Pretty standard to add Na and Cl because those are just regular salt. It does affect CSMR, but almost nothing else.
@@ -115,6 +126,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       so4_new <- ifelse(is.na(water@so4), add_so4, water@so4 + add_so4)
       water@estimated <- paste(water@estimated, "so4", sep = "_")
     }
+
   }
 
   water@na <- na_new
@@ -133,7 +145,7 @@ balance_ions <- function(water, anion = "cl", cation = "na") {
       convert_units(add_k, "k", "M", "mg/L") +
       convert_units(add_ca, "ca", "M", "mg/L") +
       convert_units(add_mg, "mg", "M", "mg/L") +
-
+    
       convert_units(add_cl, "cl", "M", "mg/L") +
       convert_units(add_so4, "so4", "M", "mg/L")
 
