@@ -48,7 +48,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
         use_kd <- TRUE
       } else {
         use_kd <- FALSE
-        stop("kd must be less than zero for decay curve")
+        cli::cli_abort("{.arg kd} must be less than zero for the decay curve.")
       }
     } else {
       use_kd <- FALSE

@@ -29,10 +29,10 @@ dissolve_cu <- function(water) {
 
   # warnings if inputs are outside conditions the model was developed
   if (po4 < 0.2 || po4 > 3.1) {
-    warning("This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.")
+    cli::cli_warn("This model was fit on waters with phosphate residual between 0.2 and 3.1 mg/L.")
   }
   if (water@ph > 8.52 || water@ph < 6.48) {
-    warning("This model was not developed with pH values outside 6.48-8.52.")
+    cli::cli_warn("This model was not developed for pH values outside 6.48 to 8.52.")
   }
 
   cu <- 56.68 * (exp(-0.77 * water@ph)) * exp(-0.20 * water@tot_po4) * (water@dic^0.59)

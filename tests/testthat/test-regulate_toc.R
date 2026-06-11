@@ -81,7 +81,7 @@ test_that("regulate_toc_df warns when finished water TOC >= raw TOC", {
     select(toc_raw = toc, alk_raw = alk) %>%
     mutate(toc_finished = 3.9)
 
-  expect_warning(slice(regulated, 1) %>% regulate_toc_df(), "Finished water TOC is greater than or equal")
+  expect_warning(slice(regulated, 1) %>% regulate_toc_df(), "Finished water TOC is >= raw TOC")
 
   water1 <- suppressWarnings(regulate_toc_df(regulated))
 

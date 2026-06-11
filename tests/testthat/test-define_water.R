@@ -74,7 +74,7 @@ test_that("Define water gives missing value warnings.", {
       uv254 = .1,
       br = 50
     ),
-    "Missing.+pH.+"
+    "Missing.+ph.+"
   )
   expect_warning(
     define_water(
@@ -93,7 +93,7 @@ test_that("Define water gives missing value warnings.", {
       uv254 = .1,
       br = 50
     ),
-    "Missing.+alkalinity.+"
+    "Missing.+alk.+"
   )
   expect_warning(
     define_water(
@@ -111,7 +111,7 @@ test_that("Define water gives missing value warnings.", {
       uv254 = .1,
       br = 50
     ),
-    "Missing.+DOC+"
+    "Missing.+doc.+"
   )
 })
 
