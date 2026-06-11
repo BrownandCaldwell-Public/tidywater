@@ -31,11 +31,11 @@
 solvedose_ph <- function(water, target_ph, chemical) {
   validate_water(water, c("ph", "alk"))
   if (missing(target_ph)) {
-    stop("No target pH defined. Enter a target pH for the chemical dose.")
+    cli::cli_abort("No target pH defined. Enter a {.arg target_ph} for the chemical dose.")
   }
 
   if ((target_ph > 14 | target_ph < 1) & !is.na(target_ph)) {
-    stop("Target pH should be between 1-14.")
+    cli::cli_abort("{.arg target_ph} must be between 1 and 14.")
   }
 
   if (
@@ -52,7 +52,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
         "mgoh2"
       ))
   ) {
-    stop("Selected chemical addition not supported.")
+    cli::cli_abort("Selected chemical addition is not supported.")
   }
 
   # This is the function to minimize
@@ -99,7 +99,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
       (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_ph > water@ph) |
       is.na(target_ph)
   ) {
-    warning("Target pH cannot be reached with selected chemical. NA returned.")
+    cli::cli_warn("Target pH cannot be reached with the selected chemical; {.val NA} returned.")
     return(NA)
   } else {
     chemdose <- stats::uniroot(
@@ -144,7 +144,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 solvedose_alk <- function(water, target_alk, chemical) {
   validate_water(water, c("ph", "alk"))
   if (missing(target_alk)) {
-    stop("No target alkalinity defined. Enter a target alkalinity (mg/L CaCO3) for the chemical dose.")
+    cli::cli_abort("No target alkalinity defined. Enter a {.arg target_alk} in mg/L as CaCO3.")
   }
 
   if (
@@ -162,7 +162,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
       )) ==
       FALSE
   ) {
-    stop("Selected chemical addition not supported.")
+    cli::cli_abort("Selected chemical addition is not supported.")
   }
 
   # This is the function to minimize
@@ -203,7 +203,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
       (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_alk >= water@alk) |
       is.na(target_alk)
   ) {
-    warning("Target alkalinity cannot be reached with selected chemical. NA returned.")
+    cli::cli_warn("Target alkalinity cannot be reached with the selected chemical; {.val NA} returned.")
     return(NA)
   } else {
     chemdose <- stats::uniroot(
