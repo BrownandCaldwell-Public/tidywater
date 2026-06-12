@@ -188,7 +188,7 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
 #'
 #' regulated <- water_df %>%
 #'   dplyr::select(toc_raw = toc, alk_raw = alk) %>%
-#'   regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
+#'   regulate_toc_df(toc_finished = seq(2, 4, 0.1))
 #'
 #' regulated <- water_df %>%
 #'   define_water_df() %>%
@@ -197,14 +197,48 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
 #'   pluck_water(c("coagulated", "defined"), c("toc", "alk")) %>%
 #'   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
 #'   regulate_toc_df()
-#'
+#' 
+#' water_raw <- define_water(alk = 50, toc = 5)
+#' water_treated <- define_water(toc = 2)
+#' regulated
+#'  
 #' @export
 #'
 #' @returns A data frame with compliance status, removal percent, and optional note columns.
 
-regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_finished = "use_col") {
+regulate_toc_df <- function(df, 
+  alk_raw = "use_col", 
+  toc_raw = "use_col", 
+toc_finished = "use_col", 
+input_raw_water = "defined", 
+input_treated_water = "treated",
+skip_alternate = FALSE)
+ {
   calc <- NULL # Quiet RCMD check global variable note
 
+  if (!missing(input_raw_water) && !missing(input_treated_water)) {
+
+      
+raw<- (df[[input_raw_water]])
+treated <- (df[[input_treated_water]])
+
+for (i in seq_len(nrow(df))) {
+  validate_water(raw[[i]], c("alk", "toc"))
+  validate_water(treated[[i]], c("toc"))
+}
+
+toc_list <- lapply(seq_len(nrow(df)), function(i) {
+  regulate_toc(
+    raw_water = raw[[i]],
+    treated_water = treated[[i]],
+    skip_alternate = skip_alternate
+    )
+  }) 
+} else{
+   
+
+  
+  
   alk_raw <- tryCatch(alk_raw, error = function(e) enquo(alk_raw))
   toc_raw <- tryCatch(toc_raw, error = function(e) enquo(toc_raw))
   toc_finished <- tryCatch(toc_finished, error = function(e) enquo(toc_finished))
@@ -235,7 +269,8 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
     )
   )
   df <- defaults_added$data
-
+    
+  
   toc_list <- lapply(seq_len(nrow(df)), function(i) {
     regulate_toc(
       alk_raw = df[[final_names$alk_raw]][i],
@@ -243,6 +278,7 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
       toc_finished = df[[final_names$toc_finished]][i]
     )
   })
+}
 
   all_cols <- unique(unlist(lapply(toc_list, names)))
   toc_list_aligned <- lapply(toc_list, function(x) {
@@ -257,4 +293,4 @@ regulate_toc_df <- function(df, alk_raw = "use_col", toc_raw = "use_col", toc_fi
   toc_df <- do.call(rbind, toc_list_aligned)
   output <- cbind(df, toc_df)
   return(output)
-}
+  }

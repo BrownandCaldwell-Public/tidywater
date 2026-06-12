@@ -120,6 +120,24 @@ test_that("regulate_toc_df can take column and argument inputs", {
   expect_equal(nrow(regulated3), 24) # cross joined
 })
 
+test_that("regulate_toc_df can take water objects as inputs", {
+  water_df2 <- water_df |> 
+    define_water_df()
+
+  result <- suppressWarnings(regulate_toc_df(water_df2))
+  expect_equal(nrow(result), nrow(water_df2))
+  expect_equal(ncol(result), ncol(water_df2) + 7)
+
+  water1<-water_df |> define_water_df()
+  water2<-water_df |> define_water_df() |> 
+    mutate(toc <- (water_df$toc)/1.5)
+  water3df<-data.frame(water1, water2)
+
+  result2 <- suppressWarnings(regulate_toc_df(water3df,))
+
+
+})
+
 
 test_that("regulate_toc can take water objects as inputs", {
   water1 <- define_water(alk = 50, toc = 5)
