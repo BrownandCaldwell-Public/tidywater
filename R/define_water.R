@@ -581,6 +581,12 @@ arguments <- construct_helper(
   ))
 
   final_names <- arguments$final_names
+ 
+  if (length(arguments$new_cols) > 0) {
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
+  }
+  
+
   
   water_input <- df[, names(df) %in% unname(final_names)]
 

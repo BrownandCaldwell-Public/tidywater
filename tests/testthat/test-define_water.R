@@ -382,27 +382,27 @@ test_that("define_water_df works when arguments are not existing data frame colu
 
 
 
-  pH<-7
-  ALKALINITY<-160
-  water2<-suppressWarnings(tibble(temp=25, ph=pH, alk=ALKALINITY) |> 
-    slice(1) |> 
-    define_water_df()
+water2 <-suppressWarnings(water_df |> 
+  select(-ph) |> 
+  mutate(alkalinity = alk) |> 
+  define_water_df(ph=7.9, alk = alkalinity)
 )
-  
-  expect_equal(water2$defined[[1]]@alk, water1$defined[[1]]@alk)
-  expect_equal(water2$defined[[1]]@ph, water1$defined[[1]]@ph)
-       
+  wtr2<-water_df |> 
+    define_water_df()
+
+  expect_equal(wtr2$defined[[1]], wtr2$defined[[1]])
+  expect_error(expect_equal(wtr2$defined[[2]], water2$defined[[2]]))
   
 wtrdf<-water_df |> 
      rename(PH=ph, ALK=alk, TEMP=temp, TOC=toc) 
   
-water2<-define_water_df(wtrdf, ph=PH, alk=ALK, temp=TEMP, toc=TOC)
+water3<-define_water_df(wtrdf, ph=PH, alk=ALK, temp=TEMP, toc=TOC)
 
   
-  water3<- water_df |> 
+  water4<- water_df |> 
     define_water_df() 
 
-  expect_equal(water2$defined[[1]],water3$defined[[1]])
+  expect_equal(water3$defined[[1]],water4$defined[[1]])
   
 }) 
 
