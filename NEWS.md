@@ -1,10 +1,11 @@
 # Development version
 
+* Define_water_df now uses colum mapping to call arguments. 
 * Updated warnings across tidywater to use cli.
 * Added additional ions to ballance ions function calculation (Fe, Al, Mn, F, Br).
 * Updated warnings on _df functions so repeated errors are reported as a single warning. 
-* fixed issues with converting to g/L caco3 in `convert_units`
-* Updated chemdose_ph_chain to fix colum naming issues
+* fixed issues with converting to g/L caco3 in `convert_units`.
+* Updated chemdose_ph_chain to fix colum naming issues.
 * Borate and silicate fixed used pH solver. Error introduced with previous alkalinity update.
 * `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
 * Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
