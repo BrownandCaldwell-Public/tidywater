@@ -181,6 +181,8 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
 #' @rdname regulate_toc
 #'
 #' @param df a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
+#' @param input_raw_water a name of the column of water class data to be used as the input raw water for this function. Default is "defined".
+#' @param input_treated_water a name of the column of water class data to be used as the input treated water for this function. Default is "treated".
 #'
 #' @examples
 #'
