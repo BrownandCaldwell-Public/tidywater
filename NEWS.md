@@ -1,6 +1,8 @@
 # Development version
 
 * Define_water_df now uses colum mapping to call arguments. 
+* Code consistency improved with making Kw uniformly calculated with K_temp_adjust. Kw calculation now uses
+Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/mol) is constant across temp ranges. 
 * Updated warnings across tidywater to use cli.
 * Added additional ions to ballance ions function calculation (Fe, Al, Mn, F, Br).
 * Updated warnings on _df functions so repeated errors are reported as a single warning. 
