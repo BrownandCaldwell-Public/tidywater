@@ -259,10 +259,8 @@ define_water <- function(
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
-  tempa <- temp + 273.15 # absolute temperature (K)
-  # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
-  pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
-  kw <- 10^-pkw
+  
+  kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
 
   h <- 10^-ph # assume activity = concentration to start
   oh <- kw / h # assume activity = concentration to start
