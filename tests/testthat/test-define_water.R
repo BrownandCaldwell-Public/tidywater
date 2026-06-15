@@ -390,7 +390,10 @@ water2 <-suppressWarnings(water_df |>
   wtr2<-water_df |> 
     define_water_df()
 
-  expect_equal(wtr2$defined[[1]], wtr2$defined[[1]])
+
+  # because the first row of water2 has the samme ph as the first row of water_df then the first waters should be equal 
+  # but because the second rows have different ph values, then the second waters should not be equal
+  expect_equal(wtr2$defined[[1]], water2$defined[[1]])
   expect_error(expect_equal(wtr2$defined[[2]], water2$defined[[2]]))
   
 wtrdf<-water_df |> 
