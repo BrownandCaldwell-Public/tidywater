@@ -355,14 +355,14 @@ test_that("chemdose_ph_df na_to_zero argument works", {
 test_that("chemdose_ph_df does not double dose", {
   testthat::skip_on_cran()
   
-  water1<-suppressWarnings(tibble(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+  water1<-suppressWarnings(data.frame(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
         define_water_df("raw") %>% 
-        chemdose_ph_df("raw", output_water = "dosed1", ferricsulfate = 60, caoh2 = 22.1, pluck_cols = FALSE))
+        chemdose_ph_df("raw", output_water = "dosed1", ferricsulfate = 60, caoh2 = 22.1, pluck_cols = FALSE, keep_dose_cols = TRUE))
   
-  water2<-suppressWarnings(tibble(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+  water2<-suppressWarnings(data.frame(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
         define_water_df("raw") %>% 
-        chemdose_ph_df("raw", output_water = "dosed2", ferricsulfate = 60,  pluck_cols = FALSE)) |> 
-        chemdose_ph_df("raw", output_water = "dosed2", caoh2 = 22.1,  pluck_cols = FALSE)
+        chemdose_ph_df("raw", output_water = "dosed2", ferricsulfate = 60,  pluck_cols = FALSE, keep_dose_cols = TRUE) %>%  
+        chemdose_ph_df("raw", output_water = "dosed2", caoh2 = 22.1,  pluck_cols = FALSE, keep_dose_cols = TRUE))
   
   expect_equal(water1$dosed1[[1]]@ph, water2$dosed2[[1]]@ph)
 
