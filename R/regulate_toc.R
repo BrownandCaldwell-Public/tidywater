@@ -201,6 +201,11 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
 #' water_raw <- define_water(alk = 50, toc = 5)
 #' water_treated <- define_water(toc = 2)
 #' regulated
+#' 
+#' water1<-water_df |> 
+#'  define_water_df() |> 
+#'  chemdose_toc_df(output_water= "dosed", alum=20) |> 
+#'  regulate_toc_df(input_raw_water = "defined", input_treated_water= "dosed")
 #'  
 #' @export
 #'

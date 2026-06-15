@@ -18,7 +18,10 @@ regulate_toc_df(
   df,
   alk_raw = "use_col",
   toc_raw = "use_col",
-  toc_finished = "use_col"
+  toc_finished = "use_col",
+  input_raw_water = "defined",
+  input_treated_water = "treated",
+  skip_alternate = FALSE
 )
 }
 \arguments{
@@ -35,6 +38,10 @@ regulate_toc_df(
 \item{skip_alternate}{Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.}
 
 \item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC}
+
+\item{input_raw_water}{a name of the column of water class data to be used as the input raw water for this function. Default is "defined".}
+
+\item{input_treated_water}{a name of the column of water class data to be used as the input treated water for this function. Default is "treated".}
 }
 \value{
 A data frame containing the TOC removal compliance status, and a comment with the reasoning for the compliance status.
@@ -65,7 +72,7 @@ treated_water = define_water(toc = 2), skip_alternate = TRUE)
 
 regulated <- water_df \%>\%
   dplyr::select(toc_raw = toc, alk_raw = alk) \%>\%
-  regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
+  regulate_toc_df(toc_finished = seq(2, 4, 0.1))
 
 regulated <- water_df \%>\%
   define_water_df() \%>\%
@@ -75,4 +82,13 @@ regulated <- water_df \%>\%
   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
   regulate_toc_df()
 
+water_raw <- define_water(alk = 50, toc = 5)
+water_treated <- define_water(toc = 2)
+regulated
+
+water1<-water_df |> 
+ define_water_df() |> 
+ chemdose_toc_df(output_water= "dosed", alum=20) |> 
+ regulate_toc_df(input_raw_water = "defined", input_treated_water= "dosed")
+ 
 }
