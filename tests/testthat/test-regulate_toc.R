@@ -158,6 +158,11 @@ test_that("regulate_toc can take water objects as inputs", {
 
   result2<- suppressWarnings(regulate_toc(alk_raw=water1@alk, toc_raw=water1@toc, toc_finished=water2@toc))
 
+#expect warning that water inputs will be used over individual parameters if both are provided
+  
+  expect_warning(regulate_toc(raw_water=water1, treated_water=water2, alk_raw= 50, toc_raw = 5, toc_finished = 2),
+  "Both water objects and individual parameters provided. Water object parameters will be used, and individual parameters will be ignored.")
+
   #new result is equal to old result, Reproducibility  
   expect_equal(result, result2)
 
