@@ -36,10 +36,10 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   pactype <- NULL # Quiet RCMD check global variable note
   validate_water(water, c("doc"))
   if (missing(dose) | !is.numeric(dose) | dose < 0) {
-    stop("PAC dose must be specified as a non-negative number.")
+    cli::cli_abort("{.arg dose} must be a non-negative number.")
   }
   if (missing(time) | !is.numeric(time) | time < 0) {
-    stop("Reaction time must be specified as a non-negative number.")
+    cli::cli_abort("{.arg time} must be a non-negative number.")
   }
 
   doc <- water@doc
@@ -49,41 +49,41 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   # warnings and errors for bounds of PAC dose, time.
   # High dose/time not allowed because model form results in negative DOC.
   if (dose < 5) {
-    warning("PAC dose is less than model bound of 5 mg/L")
+    cli::cli_warn("{.arg dose} is below the model lower bound of 5 mg/L.")
   }
   if (dose > 30) {
-    stop("PAC model does not work for PAC dose >30. Adjust dose argument.")
+    cli::cli_abort("{.arg dose} exceeds the model upper bound of 30 mg/L. Adjust {.arg dose}.")
   }
 
   if (time < 10) {
-    warning("Time is less than model bounds of 10 min")
+    cli::cli_warn("{.arg time} is below the model lower bound of 10 min.")
   }
   if (time > 60) {
-    stop("PAC model does not work for time > 60 mins. Adjust time argument.")
+    cli::cli_abort("{.arg time} exceeds the model upper bound of 60 min. Adjust {.arg time}.")
   }
 
   # water warnings
   if (!is.na(water@toc) & water@toc < water@doc) {
-    warning("TOC of input water less than DOC. TOC will be set equal to DOC.")
+    cli::cli_warn("TOC of input water is less than DOC; TOC will be set equal to DOC.")
   }
   if (is.na(water@toc)) {
-    warning("Input water TOC not specified. Output water TOC will be NA.")
+    cli::cli_warn("Input water TOC not specified; output TOC will be {.val NA}.")
   }
 
   if (doc < 1.3 || doc > 5.4) {
-    warning("DOC concentration is outside the model bounds of 1.3 to 5.4 mg/L")
+    cli::cli_warn("DOC is outside the model bounds (1.3 to 5.4 mg/L).")
   }
 
   # make case insensitive
   type <- tolower(type)
   if (!type %in% c("bituminous", "wood", "lignite")) {
-    stop("Invalid PAC type. Choose either 'bituminous', 'wood' or 'lignite'.")
+    cli::cli_abort("{.arg pac_type} must be {.val bituminous}, {.val wood}, or {.val lignite}.")
   }
 
   coeffs <- subset(tidywater::pactoccoeffs, pactype == type)
 
   if (dose == 0 | time == 0) {
-    warning("No PAC added or reaction time is zero. Final water will equal input water.")
+    cli::cli_warn("No PAC added or reaction time is zero; final water will equal input water.")
     remaining <- 1
   } else if (doc < 1.3) {
     # Because of the form of the equation, DOC<1.3 results in negative DOC. Assume same % removal as DOC0=1.3

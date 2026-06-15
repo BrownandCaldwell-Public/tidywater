@@ -96,7 +96,7 @@ test_that("chemdose_chloramine uses slot only when dose is zero or missing or us
   expect_warning(chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE), "ignored")
   expect_warning(
     chemdose_chloramine(water3, time = 10, cl2 = 1, use_tot_nh3_slot = TRUE, use_free_cl_slot = TRUE),
-    "BOTH"
+    "[Bb]oth"
   )
   expect_equal(water4@nh2cl, water5@nh2cl)
 })

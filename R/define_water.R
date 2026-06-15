@@ -160,12 +160,12 @@ define_water <- function(
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
     ph <- NA_real_
-    warning("Missing value for pH. Carbonate balance will not be calculated.")
+    cli::cli_warn("Missing value for {.arg ph}; carbonate balance will not be calculated.")
   }
 
   if (missing(alk)) {
     alk <- NA_real_
-    warning("Missing value for alkalinity. Carbonate balance will not be calculated.")
+    cli::cli_warn("Missing value for {.arg alk}; carbonate balance will not be calculated.")
   }
 
   tot_hard <- ifelse(missing(tot_hard), NA_real_, tot_hard)
@@ -175,28 +175,26 @@ define_water <- function(
   if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
     check_tot_hard <- abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
     if (check_tot_hard > 0.10) {
-      warning("User entered total hardness is >10% different than calculated hardness.")
+      cli::cli_warn("User-entered total hardness differs >10% from calculated hardness.")
     }
   }
 
   if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
     ca <- convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
-    warning("Missing value for calcium. Value estimated from total hardness and magnesium.")
+    cli::cli_warn("Missing value for {.arg ca}; estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & !is.na(ca)) {
     mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
-    warning("Missing value for magnesium. Value estimated from total hardness and calcium.")
+    cli::cli_warn("Missing value for {.arg mg}; estimated from total hardness and calcium.")
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
     ca <- convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
     mg <- convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
-    warning(
-      "Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used."
-    )
+    cli::cli_warn("Missing values for {.arg ca} and {.arg mg}; estimated from total hardness using a 65%/35% Ca/Mg split.")
     estimated <- paste(estimated, "ca", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   }
@@ -204,9 +202,7 @@ define_water <- function(
   if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
     tot_hard <- calculate_hardness(ca, 0) / .65
     mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
-    warning(
-      "Missing values for magnesium and total hardness but calcium supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used."
-    )
+    cli::cli_warn("Missing values for {.arg mg} and {.arg tot_hard}; estimated from calcium using a 65%/35% Ca/Mg split.")
     estimated <- paste(estimated, "tothard", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   } else if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
@@ -247,28 +243,24 @@ define_water <- function(
     toc <- NA_real_
     doc <- NA_real_
   } else if (missing(toc) & !missing(doc)) {
-    warning("Missing value for TOC. DOC assumed to be 95% of TOC.")
+    cli::cli_warn("Missing value for {.arg toc}; DOC assumed to be 95% of TOC.")
     toc <- doc / 0.95
     estimated <- paste(estimated, "toc", sep = "_")
   } else if (missing(doc) & !missing(toc)) {
-    warning("Missing value for DOC. Default value of 95% of TOC will be used.")
+    cli::cli_warn("Missing value for {.arg doc}; defaulting to 95% of TOC.")
     doc <- toc * 0.95
     estimated <- paste(estimated, "doc", sep = "_")
   }
 
   if (tot_nh3 > 0 & (free_chlorine > 0 | combined_chlorine > 0)) {
-    warning(
-      "Both chlorine and ammonia are present and may form chloramines.\nUse chemdose_chloramine for breakpoint caclulations."
-    )
+    cli::cli_warn("Both chlorine and ammonia are present and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
-  tempa <- temp + 273.15 # absolute temperature (K)
-  # water equilibrium rate constant temperature conversion from Harned & Hamer (1933)
-  pkw <- round((4787.3 / (tempa)) + (7.1321 * log10(tempa)) + (0.010365 * tempa) - 22.801, 1)
-  kw <- 10^-pkw
+  
+  kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
 
   h <- 10^-ph # assume activity = concentration to start
   oh <- kw / h # assume activity = concentration to start
@@ -395,9 +387,7 @@ define_water <- function(
     water@cond <- correlate_ionicstrength(water@is, from = "is", to = "cond")
     estimated <- paste(estimated, "cond", sep = "_")
   } else {
-    warning(
-      "Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1."
-    )
+    cli::cli_warn("Major ions, TDS, and conductivity are all missing; assuming ideal conditions. Ionic strength will be {.val NA} and activity coefficients will be 1.")
     water@is <- NA_real_
   }
 

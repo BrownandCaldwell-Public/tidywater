@@ -45,11 +45,11 @@ chemdose_chloramine <- function(
   validate_water(water, c("ph", "alk", "temp"))
 
   if (missing(time)) {
-    stop("Missing value for reaction time. Please check the function inputs required to run chemdose_chloramine")
+    cli::cli_abort("Missing value for {.arg time}. Please check the inputs required to run {.fn chemdose_chloramine}.")
   }
 
   if (time < 1) {
-    stop("Time is less than 1 minute. Please set time to >= 1 minute.")
+    cli::cli_abort("{.arg time} is less than 1 minute; please set {.arg time} >= 1.")
   }
 
   if (missing(cl2)) {
@@ -57,35 +57,26 @@ chemdose_chloramine <- function(
     cl2 <- water@free_chlorine
     TOTCl_ini <- cl2
     if (!use_free_cl_slot) {
-      message <- sprintf(
-        "Chlorine dose not specified, function used free_chlorine slot in water (%f mol/L) as the initial free chlorine.",
-        water@free_chlorine
-      )
-      warning(message)
+      cli::cli_warn("Chlorine dose not specified; function used {.field free_chlorine} 
+      slot ({water@free_chlorine} mol/L) in given water as the initial free chlorine.")
     }
   } else if (!use_free_cl_slot) {
     TOTCl_ini <- convert_units(cl2, "cl2")
     if (water@free_chlorine > 0) {
-      message <- sprintf(
-        "Chlorine dose was used as the initial free chlorine. Free chlorine in water (%f mol/L) was ignored.
-              If you want to use ONLY free chlorine in water, please set use_free_cl_slot to TRUE and remove chlorine dose.
-              If want to use BOTH free chlorine in water and chlorine dose, please set use_free_cl_slot to TRUE.",
-        water@free_chlorine
-      )
-      warning(message)
+      cli::cli_warn(c("Chlorine dose was used; {.field free_chlorine} slot 
+      ({water@free_chlorine} mol/L) was ignored.", "i" = "To use ONLY the water slot, 
+      set {.code use_free_cl_slot = TRUE} and remove {.arg cl2}.", "i" = "To use BOTH, 
+      set {.code use_free_cl_slot = TRUE}."))
     }
   } else if (use_free_cl_slot) {
     validate_water(water, "free_chlorine")
     TOTCl_ini <- water@free_chlorine + convert_units(cl2, "cl2")
 
     if (cl2 > 0) {
-      message <- sprintf(
-        "Chlorine dose and free chlorine slot in water (%f mol/L) were BOTH used.
-            If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-            If you want to use ONLY the free chlorine water slot, remove chlorine dose.",
-        water@free_chlorine
-      )
-      warning(message)
+      cli::cli_warn(c("Both {.arg cl2} dose and {.field free_chlorine} slot 
+      ({water@free_chlorine} mol/L) were used.", "i" = "To use ONLY the dose, 
+      set {.code use_free_cl_slot = FALSE}.", "i" = "To use ONLY the water slot, 
+      remove {.arg cl2}."))
     }
   }
 
@@ -94,45 +85,37 @@ chemdose_chloramine <- function(
     nh3 <- water@tot_nh3
     TOTNH_ini <- nh3
     if (!use_tot_nh3_slot) {
-      message <- sprintf(
-        "Ammonia dose not specified, function used the tot_nh3 slot in water (%f mol/L) as the initial free ammonia.",
-        water@tot_nh3
-      )
-      warning(message)
+      cli::cli_warn("Ammonia dose not specified; using {.field tot_nh3} slot 
+      ({water@tot_nh3} mol/L) as the initial free ammonia.")
     }
   } else if (!use_tot_nh3_slot) {
     TOTNH_ini <- convert_units(nh3, "n")
     if (water@tot_nh3 > 0) {
-      message <- sprintf(
-        "Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (%f mol/L) was ignored.
-              If you want to use ONLY tot_nh3 slot in water, please set use_tot_nh3_slot to TRUE and remove ammonia dose.
-              If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.",
-        water@tot_nh3
-      )
-      warning(message)
+      cli::cli_warn(c("Ammonia dose was used; {.field tot_nh3} slot 
+      ({water@tot_nh3} mol/L) was ignored.", "i" = "To use ONLY the water slot, 
+      set {.code use_tot_nh3_slot = TRUE} and remove {.arg nh3}.", 
+      "i" = "To use BOTH, set {.code use_tot_nh3_slot = TRUE}."))
     }
   } else if (use_tot_nh3_slot) {
     validate_water(water, "tot_nh3")
     TOTNH_ini <- water@tot_nh3 + convert_units(nh3, "n")
     if (nh3 > 0) {
-      message <- sprintf(
-        "Ammonia dose and tot_nh3 slot in water (%f mol/L) were BOTH used.
-            If you want to use ONLY ammonia dose, please set use_tot_nh3_slot to FALSE.
-            If you want to use ONLY the tot_nh3 slot in water, remove ammonia dose.",
-        water@tot_nh3
-      )
-      warning(message)
+      cli::cli_warn(c("Both {.arg nh3} dose and {.field tot_nh3} slot 
+      ({water@tot_nh3} mol/L) were used.", "i" = "To use ONLY the dose, 
+      set {.code use_tot_nh3_slot = FALSE}.", "i" = "To use ONLY the water slot, 
+      remove {.arg nh3}."))
     }
   }
 
   if (!is.na(water@nh2cl) | !is.na(water@nhcl2) | !is.na(water@ncl3)) {
-    warning(
-      "Chloramine species present in water class object, check slots @nh2cl, @nhcl2, @ncl3. The present concentrations will be used as initial values in function calculation."
-    )
+    cli::cli_warn("Chloramine species present in water class object. Check slots 
+    {.field nh2cl}, {.field nhcl2}, {.field ncl3}. Present concentrations will be used 
+    as initial values.")
   }
 
   if (water@combined_chlorine != 0) {
-    warning("Chloramine present in water as combined_chloramine. Combined chlorine slot will be overridden.")
+    cli::cli_warn("Chloramine present in water as {.field combined_chloramine}; 
+    this slot will be overridden.")
   }
 
   time <- time * 60
@@ -146,10 +129,10 @@ chemdose_chloramine <- function(
 
   ks <- correct_k(water)
 
+  discons <- tidywater::discons
   # Calculate equilibrium constants for chloramine system adjusted for temperature
   KHOCl <- 10^(-(1.18e-4 * T_K^2 - 7.86e-2 * T_K + 20.5)) # 10^-7.6
-  pkw <- round((4787.3 / (T_K)) + (7.1321 * log10(T_K)) + (0.010365 * T_K) - 22.801, 1)
-  KW <- 10^-pkw
+  KW <-  K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
   H <- 10^-ph
   OH <- KW / H
 

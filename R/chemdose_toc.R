@@ -56,29 +56,25 @@ chemdose_toc <- function(
     edwardscoeff <- tidywater::edwardscoeff
     coeff <- subset(edwardscoeff, edwardscoeff$ID == coeff)
     if (nrow(coeff) != 1) {
-      stop(
-        "coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector."
-      )
+      cli::cli_abort("{.arg coeff} must be one of {.val Alum}, {.val Ferric}, {.val General Alum}, {.val General Ferric}, {.val Low DOC}, or a data frame of coefficients.")
     }
   } else if (is.data.frame(coeff)) {
     expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
     if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-      stop(
-        "coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string."
-      )
+      cli::cli_abort("{.arg coeff} must be a data frame with columns: {.val k1}, {.val k2}, {.val x1}, {.val x2}, {.val x3}, {.val b}.")
     }
   } else {
-    stop("coeff must be specified with a string or data frame. See documentation for acceptable formats.")
+    cli::cli_abort("{.arg coeff} must be a string or data frame. See documentation for acceptable formats.")
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
-    warning("No coagulants dosed. Final water will equal input water.")
+    cli::cli_warn("No coagulants dosed; final water will equal input water.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
-    warning("Both alum and ferric coagulants entered.")
+    cli::cli_warn("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeff' argument.")
+    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
-    warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
+    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
   }
 
   # Alum - hydration included

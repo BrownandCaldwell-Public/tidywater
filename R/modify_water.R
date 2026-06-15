@@ -24,10 +24,10 @@
 modify_water <- function(water, slot, value, units) {
   # Make sure a water is present.
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
+    cli::cli_abort("No source water defined. Create a water using {.fn define_water}.")
   }
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   tthmlist <- c("chcl3", "chcl2br", "chbr2cl", "chbr3")
@@ -35,7 +35,7 @@ modify_water <- function(water, slot, value, units) {
   haa9list <- c("bcaa", "cdbaa", "dcbaa", "baa")
 
   if (missing(units)) {
-    stop("Units missing. Typical units include: 'mg/L', 'ug/L', 'M'")
+    cli::cli_abort("{.arg units} missing. Typical units include {.val mg/L}, {.val ug/L}, or {.val M}.")
   }
 
   for (i in seq_along(slot)) {
@@ -44,7 +44,7 @@ modify_water <- function(water, slot, value, units) {
     units_n <- units[i]
 
     if (!is.numeric(value_n)) {
-      stop("value must be numeric")
+      cli::cli_abort("{.arg value} must be numeric.")
     }
 
     # Check lists
@@ -56,7 +56,7 @@ modify_water <- function(water, slot, value, units) {
       } else if (units_n == "ug/L") {
         new_value <- value_n * 10^3
       } else {
-        stop(paste(slot_n, "must be specified in mg/L or ug/L"))
+        cli::cli_abort("{slot_n} must be specified in {.val mg/L} or {.val ug/L}.")
       }
     } else if (slot_n %in% c("uv254")) {
       if (units_n == "cm-1") {
@@ -64,7 +64,7 @@ modify_water <- function(water, slot, value, units) {
       } else if (units_n == "m-1") {
         new_value <- value_n / 100
       } else {
-        stop(paste(slot_n, "must be specified in cm-1 or m-1"))
+        cli::cli_abort("{slot_n} must be specified in {.val cm-1} or {.val m-1}.")
       }
     } else if (slot_n %in% c(tthmlist, haa5list, haa9list, "tthm", "haa5")) {
       if (units_n == "ug/L") {
@@ -72,10 +72,10 @@ modify_water <- function(water, slot, value, units) {
       } else if (units_n == "mg/L") {
         new_value <- value_n / 10^3
       } else {
-        stop(paste(slot_n, "must be specified in ug/L or mg/L"))
+        cli::cli_abort("{slot_n} must be specified in {.val ug/L} or {.val mg/L}.")
       }
     } else {
-      stop(paste(slot_n, "is not a supported slot for modify water. Check spelling or change using `define_water`."))
+      cli::cli_abort("{slot_n} is not a supported slot for {.fn modify_water}. Check spelling or use {.fn define_water}.")
     }
     methods::slot(water, slot_n) <- new_value
   }

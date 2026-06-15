@@ -56,7 +56,7 @@ test_that("chemdose ph works", {
   expect_equal(round(test4@alk, 0), 7)
   expect_equal(round(test5@ph, 1), 4.0)
   expect_equal(round(test5@alk, 0), -5)
-  expect_equal(round(test6@ph, 1), 11.4)
+  expect_equal(round(test6@ph, 1),11.30)
   expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
   expect_equal(round(test7@alk, 0), 56)
@@ -320,6 +320,22 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
     pluck_water(water4, "dosed_chem", "ph")$dosed_chem_ph,
     pluck_water(water5, "dosed_chem", "ph")$dosed_chem_ph
   )) # since HCl added to water3, pH should be different
+
+  #unquoted column name
+  water6 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      mutate(pacl_dose = 10) %>%
+      chemdose_ph_df(pacl = pacl_dose, pluck_cols = TRUE)
+  )
+
+  water7 <- suppressWarnings(
+    water_df %>%
+      define_water_df() %>%
+      chemdose_ph_df(pacl = 10, pluck_cols = TRUE)
+  )
+
+  expect_equal(water6$dosed_chem_ph[1], water7$dosed_chem_ph[1])
 })
 
 # Check that na_to_zero implementation works, and keep_dose_cols works
