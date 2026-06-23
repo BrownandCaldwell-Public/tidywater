@@ -136,9 +136,9 @@ out <- deSolve::ode(
 #Determine time necessary for 0.5-log elimination
 # Calculate the 0.5-log thresholds for 1,4-dioxane, caffeine, and sucralose
 
-threshold_diox <- water@dioxane * 10^(-0.5)
-threshold_carb <- water@carbamazepine * 10^(-0.5)
-threshold_sucralose <- water@sucralose * 10^(-0.5)
+threshold_diox <- 10^(-0.5)
+threshold_carb <- 10^(-0.5)
+threshold_sucralose <- 10^(-0.5)
 
 
 # init elim times 
@@ -148,32 +148,32 @@ time_sucralose <- NA_real_
 
 
 
-# Find the crossing time for 1,4-dioxane
-for (i in seq_len(nrow(out) - 1)) {
-  if ((out[i, 34] > threshold_diox && out[i + 1, 34] <= threshold_diox) ||
-      (out[i, 34] < threshold_diox && out[i + 1, 34] >= threshold_diox)) {
-    time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
-    break
-  }
-}
+# # Find the crossing time for 1,4-dioxane
+# for (i in seq_len(nrow(out) - 1)) {
+#   if ((out[i, 34] > threshold_diox && out[i + 1, 34] <= threshold_diox) ||
+#       (out[i, 34] < threshold_diox && out[i + 1, 34] >= threshold_diox)) {
+#     time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
+#     break
+#   }
+# }
 
-# Find the crossing time for caffeine
-for (i in seq_len(nrow(out) - 1)) {
-  if ((out[i, 61] > threshold_carb && out[i + 1, 61] <= threshold_carb) ||
-      (out[i, 61] < threshold_carb && out[i + 1, 61] >= threshold_carb)) {
-    time_carb <- approx(x = out[c(i, i + 1), 61], y = t[c(i, i + 1)], xout = threshold_carb)$y
-    break
-  }
-}
+# # Find the crossing time for caffeine
+# for (i in seq_len(nrow(out) - 1)) {
+#   if ((out[i, 61] > threshold_carb && out[i + 1, 61] <= threshold_carb) ||
+#       (out[i, 61] < threshold_carb && out[i + 1, 61] >= threshold_carb)) {
+#     time_carb <- approx(x = out[c(i, i + 1), 61], y = t[c(i, i + 1)], xout = threshold_carb)$y
+#     break
+#   }
+# }
 
-# Find the crossing time for sucralose
-for (i in seq_len(nrow(out) - 1)) {
-  if ((out[i, 62] > threshold_sucralose && out[i + 1, 62] <= threshold_sucralose) ||
-      (out[i, 62] < threshold_sucralose && out[i + 1, 62] >= threshold_sucralose)) {
-    time_sucralose <- approx(x = out[c(i, i + 1), 62], y = t[c(i, i + 1)], xout = threshold_sucralose)$y
-    break
-  }
-}
+# # Find the crossing time for sucralose
+# for (i in seq_len(nrow(out) - 1)) {
+#   if ((out[i, 62] > threshold_sucralose && out[i + 1, 62] <= threshold_sucralose) ||
+#       (out[i, 62] < threshold_sucralose && out[i + 1, 62] >= threshold_sucralose)) {
+#     time_sucralose <- approx(x = out[c(i, i + 1), 62], y = t[c(i, i + 1)], xout = threshold_sucralose)$y
+#     break
+#   }
+# }
 
 
 
@@ -183,9 +183,11 @@ merged_ODE <- function(t, y, params) {
   # # Extract app and t_f from parms (deSolve passes a single parms argument)
 
   with(as.list(c(y,params)), {
-
-  dydt <-rep(0,length(y))  # Initialize derivatives to zero
     
+
+  # Initialize all derivatives to zero
+  dydt <- setNames(rep(0, length(y)), names(y))
+
   # Absorbance coefficients (M-1 cm-1)
   a_H2O2       <- 18   * H2O2
   a_HO2_minus  <- 228  * HO2_minus
