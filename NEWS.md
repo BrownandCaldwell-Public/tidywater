@@ -1,5 +1,8 @@
 # Development version
 
+* Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
+drops the output dosing columns unless told to keep to prevent double dosing.
+* Updated chemdose_ph_chain to fix colum naming issues.
 * Code consistency improved with making Kw uniformly calculated with K_temp_adjust. Kw calculation now uses
 Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/mol) is constant across temp ranges. 
 * Updated warnings across tidywater to use cli.
