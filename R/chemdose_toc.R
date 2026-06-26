@@ -144,6 +144,7 @@ chemdose_toc <- function(
 #' @param output_water name of the output column storing updated water class object. Default is "coagulated".
 #' @param pluck_cols Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #'
 #' @examples
 #' \donttest{
@@ -169,6 +170,7 @@ chemdose_toc_df <- function(
   output_water = "coagulated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
@@ -254,6 +256,12 @@ warning_counts<-list()
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
+
+   if (!keep_dose_cols){
+     
+    output<-output[,!colnames(output) %in% (unlist(final_names))]
+
+   }
 
   return(output)
 }

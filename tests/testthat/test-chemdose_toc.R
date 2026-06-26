@@ -76,7 +76,8 @@ test_that("chemdose_toc_df is a data frame and has correct classes in output col
       alum = 20,
       output_water = "coag",
       pluck_cols = T,
-      water_prefix = FALSE
+      water_prefix = FALSE,
+      keep_dose_cols = TRUE
     )
 
   expect_true(is.data.frame(water1))

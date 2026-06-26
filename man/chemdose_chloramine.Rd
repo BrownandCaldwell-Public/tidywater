@@ -23,6 +23,7 @@ chemdose_chloramine_df(
   output_water = "chloraminated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   time = "use_col",
   cl2 = "use_col",
   nh3 = "use_col",
@@ -53,6 +54,8 @@ The df may include a column named for the applied chlorine dose (cl2_dose), and 
 \item{pluck_cols}{Extract water slots modified by the function ("free_chlorine", "nh2cl", "nhcl2", "ncl3", "combined_chlorine", "tot_nh3") into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
+
+\item{keep_dose_cols}{Option to keep the original chemical dose columns in the output data frame. Default is FALSE.}
 }
 \value{
 \code{chemdose_chloramine} returns a water class object with predicted chlorine and chloramine concentrations.
