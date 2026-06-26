@@ -5,7 +5,14 @@
 \alias{regulate_toc_df}
 \title{Determine if TOC removal meets Stage 1 DBP Rule requirements}
 \usage{
-regulate_toc(alk_raw, toc_raw, toc_finished)
+regulate_toc(
+  raw_water = "default",
+  treated_water = "default",
+  alk_raw,
+  toc_raw,
+  toc_finished,
+  skip_alternate = FALSE
+)
 
 regulate_toc_df(
   df,
@@ -15,16 +22,24 @@ regulate_toc_df(
 )
 }
 \arguments{
+\item{raw_water}{A water object of class "water" created by \code{\link[=define_water]{define_water()}} containing raw water parameters. If provided, the function will use the \code{alk} and \code{toc} slots from this object as inputs. If not provided, \code{alk_raw} and \code{toc_raw} must be specified.}
+
+\item{treated_water}{A water object of class "water" created by \code{\link[=define_water]{define_water()}} containing treated water parameters. If provided, the function will use the \code{toc} slot from this object as input for finished water TOC. If not provided, \code{toc_finished} must be specified.}
+
 \item{alk_raw}{Raw water alkalinity (mg/L as calcium carbonate).}
 
 \item{toc_raw}{Raw water total organic carbon (mg/L).}
 
 \item{toc_finished}{Finished water total organic carbon (mg/L).}
 
+\item{skip_alternate}{Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.}
+
 \item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC}
 }
 \value{
 A data frame containing the TOC removal compliance status.
+
+A data frame containing the TOC removal compliance status, with alternative compliance checks skipped.
 
 A data frame with compliance status, removal percent, and optional note columns.
 }
@@ -40,7 +55,10 @@ TOC, alkalinity, and removal percentage. If the conditions are met, it prints
 with an error message.
 }
 \examples{
-regulate_toc(50, 5, 2)
+regulate_toc(alk_raw=50, toc_raw=5, toc_finished=2)
+
+regulate_toc(raw_water = define_water(alk = 50, toc = 5), 
+treated_water = define_water(toc = 2), skip_alternate = TRUE)
 
 
 regulated <- water_df \%>\%

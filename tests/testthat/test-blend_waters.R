@@ -197,7 +197,7 @@ test_that("blend_waters_df outputs a column of water class lists, and output_wat
     water_df %>%
       slice(1) %>%
       define_water_df() %>%
-      chemdose_ph_df(naoh = 20) %>%
+      chemdose_ph_df(naoh = 20, keep_dose_cols = TRUE) %>%
       blend_waters_df(waters = c("defined", "dosed_chem"), ratios = c(.4, .6), output_water = "testoutput")
   )
 
