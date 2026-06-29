@@ -358,3 +358,55 @@ test_that("define_water_df correctly calculates dic", {
 
   expect_equal(dic_mol, water1$defined_dic)
 })
+
+
+# Testing that define_water_df has "use_col" the right way 
+
+test_that("define_water_df use_col reads values correctly from matching columns", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(define_water_df(slice(water_df, 1)))
+  expect_equal(water1$defined[[1]]@ph,  water_df$ph[1])
+  expect_equal(water1$defined[[1]]@alk, water_df$alk[1])
+})
+
+test_that("define_water_df works when arguments are not existing data frame columns", {
+  testthat::skip_on_cran()
+  
+  water1 <- suppressWarnings(data.frame(alk=160, ph=7, toc=4, temp=25) |> 
+    define_water_df())
+   
+  expect_equal(water1$defined[[1]]@alk, 160)
+  expect_equal(water1$defined[[1]]@ph, 7)
+  expect_equal(water1$defined[[1]]@toc, 4)
+  expect_equal(water1$defined[[1]]@temp, 25)
+
+
+
+water2 <-suppressWarnings(water_df |> 
+  select(-ph) |> 
+  mutate(alkalinity = alk) |> 
+  define_water_df(ph=7.9, alk = alkalinity)
+)
+  wtr2<-water_df |> 
+    define_water_df()
+
+
+  # because the first row of water2 has the samme ph as the first row of water_df then the first waters should be equal 
+  # but because the second rows have different ph values, then the second waters should not be equal
+  expect_equal(wtr2$defined[[1]], water2$defined[[1]])
+  expect_error(expect_equal(wtr2$defined[[2]], water2$defined[[2]]))
+  
+wtrdf<-water_df |> 
+     rename(PH=ph, ALK=alk, TEMP=temp, TOC=toc) 
+  
+water3<-define_water_df(wtrdf, ph=PH, alk=ALK, temp=TEMP, toc=TOC)
+
+  
+  water4<- water_df |> 
+    define_water_df() 
+
+  expect_equal(water3$defined[[1]],water4$defined[[1]])
+  
+}) 
+
+

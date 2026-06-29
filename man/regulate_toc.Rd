@@ -37,6 +37,8 @@ regulate_toc_df(
 
 \item{skip_alternate}{Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.}
 
+\item{skip_alternate}{Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.}
+
 \item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC}
 
 \item{input_raw_water}{a name of the column of water class data to be used as the input raw water for this function. Default is "defined".}
@@ -45,6 +47,8 @@ regulate_toc_df(
 }
 \value{
 A data frame containing the TOC removal compliance status, and a comment with the reasoning for the compliance status.
+
+A data frame containing the TOC removal compliance status, with alternative compliance checks skipped.
 
 A data frame with compliance status, removal percent, and optional note columns.
 }

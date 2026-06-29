@@ -181,8 +181,15 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
       comment = "Raw TOC <= 2 mg/L but alternate compliance skipped. No standard compliance table entry applies."
     ))
   }
-}
 
+  min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_real_
+
+  data.frame(
+    toc_compliance_status = "Not Compliant",
+    toc_removal_percent = paste0(as.character(round(removal, 1)), "%"),
+    comment = paste0("Minimum removal required: ", min_req, "%")
+  )
+}
 #' @rdname regulate_toc
 #'
 #' @param df a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC
