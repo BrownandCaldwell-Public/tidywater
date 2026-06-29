@@ -32,7 +32,7 @@
 regulate_toc <- function(alk_raw, toc_raw, toc_finished, raw_water , treated_water , skip_alternate = FALSE) {
   required_compliance <- NA_real_
 
-if(!missing(raw_water) && !missing(treated_water)& (!missing(alk_raw) | !missing(toc_raw) | !missing(toc_finished))){
+if(!missing(raw_water) & !missing(treated_water)& (!missing(alk_raw) | !missing(toc_raw) | !missing(toc_finished))){
 cli::cli_warn("Both water objects and individual parameters provided. Water object parameters will be used, and individual parameters will be ignored.")
 
 }
@@ -44,7 +44,7 @@ cli::cli_warn("Both water objects and individual parameters provided. Water obje
   haa5 <- 100
 
   # If water objects are provided, use them as inputs
-  if (!missing(raw_water) && !missing(treated_water)) {
+  if (!missing(raw_water) & !missing(treated_water)) {
     validate_water(raw_water, c("alk", "toc"))
     validate_water(treated_water, c("toc"))
 
@@ -95,42 +95,42 @@ cli::cli_warn("Both water objects and individual parameters provided. Water obje
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
         required_removal = 0,
-        comment = "Raw water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(i))."
+        comment = "Raw water TOC < 2 mg/L meets alternative compliance (sect 141.135 (a)(2)(i))."
       ))
     } else if (toc_finished <= 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
         required_removal = 0,
-        comment = "Finished water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(ii))."
+        comment = "Treated water TOC < 2 mg/L meets alternative compliance (sect 141.135 (a)(2)(ii))."
       ))
-    } else if (toc_raw < 4 && alk_raw > 60 && (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
+    } else if (toc_raw < 4 & alk_raw > 60 & (0.001 * tthm < 0.04 || 0.001 * haa5 < 0.03)) {
      return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
                 required_removal = 0,
-        comment="Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (either TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iii))."
+        comment="Raw water TOC < 4 mg/L, alkalinity > 60 mg/L, and DBPs (TTHM < 0.04 mg/L or HAA5 < 0.03 mg/L) meets alternative compliance (sect 141.135 (a)(2)(iii))."
       ))
-    } else if (0.001 * tthm < 0.04 && 0.001 * haa5 < 0.03) {
+    } else if (0.001 * tthm < 0.04 & 0.001 * haa5 < 0.03) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
         required_removal = 0,        
-        comment = "DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L); DBPs are low enough (sect 141.135 (a)(2)(iv))."
+        comment = "Low DBPs (TTHM < 0.04 mg/L and HAA5 < 0.03 mg/L) meet alternative compliance (sect 141.135 (a)(2)(iv))."
       ))
     } else if (suva_raw < 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
         required_removal = 0,
-        comment = "SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(v))."
+        comment = "Raw water SUVA < 2 meets alternative compliance (sect 141.135 (a)(2)(v))."
       ))
     } else if (suva_treated < 2) {
       return(data.frame(
         toc_compliance_status = TRUE,
         toc_removal_percent = (round(removal, 1)),
         required_removal = 0,
-        comment = "SUVA < 2. Alternative compliance based on SUVA; SUVA is low enough (sect 141.135 (a)(2)(vi))."
+        comment = "Treated water SUVA < 2 meets alternative compliance (sect 141.135 (a)(2)(vi))."
       ))
     }
     
@@ -142,7 +142,7 @@ cli::cli_warn("Both water objects and individual parameters provided. Water obje
       toc_compliance_status = FALSE,
       toc_removal_percent =  (round(removal, 1)),
       required_removal = NA_real_,
-      comment = "Finished water TOC is greater than or equal to raw TOC. No removal occurred."
+      comment = "Treated water TOC is greater than or equal to raw TOC. No removal occurred."
     ))
   }
 
@@ -157,7 +157,7 @@ cli::cli_warn("Both water objects and individual parameters provided. Water obje
 min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_real_
   
   
-  if (length(required_compliance) > 0 && !is.na(required_compliance[1]) && removal >= required_compliance[1]) {
+  if (length(required_compliance) > 0 & !is.na(required_compliance[1]) & removal >= required_compliance[1]) {
     return(data.frame(
       toc_compliance_status = TRUE,
       toc_removal_percent = (round(removal, 1)),
@@ -165,7 +165,7 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
       comment = "Standard compliance met"
     ))
   }
-  else if (length(required_compliance) > 0 && !is.na(required_compliance[1]) && removal < required_compliance[1]) {
+  else if (length(required_compliance) > 0 & !is.na(required_compliance[1]) & removal < required_compliance[1]) {
     return(data.frame(
       toc_compliance_status = FALSE,
       toc_removal_percent = (round(removal, 1)),
@@ -174,11 +174,11 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
     ))
   } 
   
-  if (toc_raw <= 2 && skip_alternate) {
+  if (toc_raw <= 2 & skip_alternate) {
     return(data.frame(
       toc_compliance_status = FALSE,
       toc_removal_percent = round(removal, 1),
-      comment = "Raw TOC <= 2 mg/L but alternate compliance skipped. No standard compliance table entry applies."
+      comment = "Raw TOC <= 2 mg/L but alternative compliance skipped. No standard compliance table entry applies."
     ))
   }
 
@@ -210,10 +210,6 @@ min_req <- if (length(required_compliance) > 0) required_compliance[1] else NA_r
 #'   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) %>%
 #'   regulate_toc_df()
 #' 
-#' water_raw <- define_water(alk = 50, toc = 5)
-#' water_treated <- define_water(toc = 2)
-#' regulated
-#' 
 #' water1<-water_df |> 
 #'  define_water_df() |> 
 #'  chemdose_toc_df(output_water= "dosed", alum=20) |> 
@@ -233,7 +229,7 @@ skip_alternate = FALSE)
  {
   calc <- NULL # Quiet RCMD check global variable note
 
-  if (!missing(input_raw_water) && !missing(input_treated_water)) {
+  if (!missing(input_raw_water) & !missing(input_treated_water)) {
 
       
 raw<- (df[[input_raw_water]])
