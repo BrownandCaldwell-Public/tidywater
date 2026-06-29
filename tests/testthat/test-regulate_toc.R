@@ -166,7 +166,7 @@ test_that("regulate_toc can take water objects as inputs", {
   #new result is equal to old result, Reproducibility  
   expect_equal(result, result2)
 
-  expect_equal(result2$comment, "Finished water TOC < 2 mg/L meets alternate compliance (sect 141.135 (a)(2)(ii))." )
+  expect_equal(result2$comment, "Treated water TOC < 2 mg/L meets alternative compliance (sect 141.135 (a)(2)(ii))." )
 })
 
 test_that("regulate_toc can skip alternate compliance for water object imputs",{
