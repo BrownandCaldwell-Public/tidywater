@@ -136,6 +136,15 @@ check_water <- function(water, skip_models = FALSE) {
       use chemdose_chloramine for breakpoint calcs.")
     ))
  }
+  
+# ionic strength check
+  
+  if (is.na(water@is)){
+    results<-append(results,
+    list(
+      paste0("Ionic strength: IS missing.")
+    ))
+  }
 
 
 #  applicable  models
@@ -154,7 +163,7 @@ models <- list(
 
   
   # take each paramater associated with a group of functions and see if those paramaters are !na  in the input water
-  #filters out function groups that have na paramaters in the water
+  # filters out function groups that have na paramaters in the water
 final_models <- Filter(function(v) all(!is.na(sapply(v, function(sl) methods::slot(water, sl)))), models)  
   
 
@@ -173,7 +182,7 @@ final_models <- Filter(function(v) all(!is.na(sapply(v, function(sl) methods::sl
     )
   ) 
   }
-}
+  }
   if (length(results)==1){
     results<-append(results, paste0("No issues found with water input."))
   }
