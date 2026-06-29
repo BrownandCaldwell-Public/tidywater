@@ -172,12 +172,6 @@ define_water <- function(
   ca <- ifelse(missing(ca), NA_real_, ca)
   mg <- ifelse(missing(mg), NA_real_, mg)
 
-  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
-    check_tot_hard <- abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
-    if (check_tot_hard > 0.10) {
-      cli::cli_warn("User-entered total hardness differs >10% from calculated hardness.")
-    }
-  }
 
   if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
     ca <- convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
@@ -250,10 +244,6 @@ define_water <- function(
     cli::cli_warn("Missing value for {.arg doc}; defaulting to 95% of TOC.")
     doc <- toc * 0.95
     estimated <- paste(estimated, "doc", sep = "_")
-  }
-
-  if (tot_nh3 > 0 & (free_chlorine > 0 | combined_chlorine > 0)) {
-    cli::cli_warn("Both chlorine and ammonia are present and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
