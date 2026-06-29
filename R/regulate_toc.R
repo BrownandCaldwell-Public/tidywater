@@ -40,8 +40,8 @@ cli::cli_warn("Both water objects and individual parameters provided. Water obje
   # Initialize high so alternate checks do not trigger unless valid values are set
   suva_raw <- 100
   suva_treated <- 100
-  tthm <- 100
-  haa5 <- 100
+  tthm <- 1E6
+  haa5 <- 1E6
 
   # If water objects are provided, use them as inputs
   if (!missing(raw_water) & !missing(treated_water)) {
