@@ -9,7 +9,7 @@
 #  object which holds the params for vol and all that? Probably not, also it would be not very tidywater standard lol. 
 
 
-# is caffiene other weird species nessacary??
+# is caffiene and other weird species nessacary??
 
 
 
@@ -65,8 +65,6 @@ uvaop_model<-function(water, exposure_time, path, vol, area, back_transmitance, 
 
 # code then inits the state vector for the ode solver, but I expect that this will be different when we incorporate water objects
 # or maybe this is output water, which I wil say it is for now. 
-
-output_water <- water
 
   state<-c(
     NH3 =water@tot_nh3,
