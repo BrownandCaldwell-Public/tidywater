@@ -13,7 +13,7 @@
 
 
 
-uvaop_model<-function(water, exposure_time, path, vol, area, back_transmitance, irradiance, dose){
+uvaop_model<-function(water, exposure_time, path, vol, area, back_transmitance, irradiance, b_scavenging, dose){
   # water is a water object from tidywater
   # exposure_time is in seconds
   # path is in cm
@@ -119,6 +119,7 @@ params<- list(
   A = area, 
   E0 = flux, 
   a_background = absorbance,
+  b_scavenging = b_scavenging,
   dose = dose)
 
 time <- seq(0, exposure_time, by = 1)  
@@ -143,18 +144,23 @@ threshold_sucralose <- 10^(-0.5)
 time_diox <- NA_real_
 time_carb <- NA_real_
 time_sucralose <- NA_real_
+ 
+#return(out)
 
+# Find the crossing time for 1,4-dioxane
+for (i in seq_len(nrow(out) - 1)) {
+  if ((out[i, 34] > threshold_diox & out[i + 1, 34] <= threshold_diox) ||
+      (out[i, 34] < threshold_diox & out[i + 1, 34] >= threshold_diox)) {
+    time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
+    break
+  }
+}
 
-
-# # Find the crossing time for 1,4-dioxane
-# for (i in seq_len(nrow(out) - 1)) {
-#   if ((out[i, 34] > threshold_diox && out[i + 1, 34] <= threshold_diox) ||
-#       (out[i, 34] < threshold_diox && out[i + 1, 34] >= threshold_diox)) {
-#     time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
-#     break
-#   }
-# }
-
+ return(list(
+  out=out,
+  time_diox=time_diox
+ )) 
+  
 # # Find the crossing time for caffeine
 # for (i in seq_len(nrow(out) - 1)) {
 #   if ((out[i, 61] > threshold_carb && out[i + 1, 61] <= threshold_carb) ||
@@ -671,9 +677,9 @@ merged_ODE <- function(t, y, params) {
   # -----------------------------------------------------------------------
   # Background OH scavenging and OH exposure
   # -----------------------------------------------------------------------
-  r_background_scavenging <- params$a_background * OH_rad
+  r_background_scavenging <- params$b_scavenging * OH_rad
   dydt["OH_rad"]     <- dydt["OH_rad"]     - r_background_scavenging
-  dydt["OHexposure"] <- dydt["OHexposure"] + OH_rad
+  dydt["OHexposure"] <- OH_rad
 
   # -----------------------------------------------------------------------
   # Carbamazepine reactions
@@ -687,4 +693,5 @@ merged_ODE <- function(t, y, params) {
   return(list(dydt))
   })
   }
+
 
