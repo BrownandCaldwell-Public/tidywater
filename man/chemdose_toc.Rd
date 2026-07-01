@@ -29,6 +29,7 @@ chemdose_toc_df(
   output_water = "coagulated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
@@ -67,6 +68,8 @@ and a column named for the set of coefficients to use.}
 \item{pluck_cols}{Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
+
+\item{keep_dose_cols}{Option to keep the original chemical dose columns in the output data frame. Default is FALSE.}
 }
 \value{
 \code{chemdose_toc} returns a single water class object with an updated DOC, TOC, and UV254 concentration.
