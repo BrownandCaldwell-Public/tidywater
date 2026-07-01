@@ -83,7 +83,8 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     N2O3=0,
     N2O4=0,
     NO3_minus=0,
-    dioxane=0,
+    # init contaminants here for now
+    dioxane=1e-6,
     doc=water@doc,
     O2=0,
     H=10^(-water@ph),
@@ -107,10 +108,10 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     H_plus=10^(-water@ph),
     #these are the same, probably wrong
     NOM=0,
-    caffeine=0,
-    sucralose=0,
+    caffeine=1e-6,
+    sucralose=1e-6,
     OHexposure=0,
-    carbamazepine=0
+    carbamazepine=1e-6
   )
   
   
@@ -357,7 +358,7 @@ merged_ODE <- function(t, y, params) {
   # -----------------------------------------------------------------------
 
   # R_C5: H2O2 + hv -> 2OH•
-  r_C5 <- pf * (a_H2O2 / a_total) * phi_H2O2
+  r_C5 <- pf * (a_H2O2 / a_total) * phi_H2O2*10e10
   dydt["H2O2"]   <- dydt["H2O2"]   - r_C5
   dydt["OH_rad"] <- dydt["OH_rad"] + 2 * r_C5
 
