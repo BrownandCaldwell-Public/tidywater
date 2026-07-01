@@ -13,7 +13,8 @@
 
 
 
-uvaop_model<-function(water, exposure_time, path, vol, area, back_transmitance, irradiance, b_scavenging, dose){
+uvaop_model<-function(water, exposure_time, path, vol, area, 
+  back_transmitance, irradiance, dose, b_scavenging = oh_scavenging(water)){
   # water is a water object from tidywater
   # exposure_time is in seconds
   # path is in cm

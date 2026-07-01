@@ -3,7 +3,7 @@
 #
 # so far this has all been taken from Syd's arcadia sheet
 
-oh_scavenging <- function(water) {
+oh_scavenging <- function(water,kdoc ="standard") {
   # K vals from syd's arcadia sheet
   # k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
   # k(OH,DOC/TOC) SRDOM	1.86E+04	L/mg s-1	Westerhoff et al. 2007
@@ -14,6 +14,8 @@ oh_scavenging <- function(water) {
   # k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
   uvabs254 <- water@uv254
+
+ validate_water(water, c("toc", "alk", "no3", "ph", "uv254"))
 
   # avaraging k from literature vals for DOC
   DOC_avg <- mean(c(
@@ -32,7 +34,7 @@ oh_scavenging <- function(water) {
 
 
   k <- list(
-    DOC = DOC_avg, # L/mg s-1
+    DOC = if (kdoc=="standard") 2.5e4 else DOC_avg, # L/mg s-1
     DOC_SRDOM = 1.86E+04, # L/mg s-1
     HCO3 = 8.50E+06, # M-1 s-1
     CO3 = 3.90E+08, # M-1 s-1
