@@ -14,8 +14,10 @@ solvemass_solids(
   flow,
   toc_removed = 0,
   caco3_removed = 0,
+  polymer = 0,
   turb,
-  b = 1.5
+  b = 1.5,
+  details = FALSE
 )
 }
 \arguments{
@@ -31,12 +33,16 @@ solvemass_solids(
 
 \item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
 
+\item{polymer}{Amount of polymer added in mg/L as chemical. Is fully removed with the solids. (need to update this description)}
+
 \item{turb}{Turbidity removed in NTU}
 
 \item{b}{Correlation factor from turbidity to suspended solids. Defaults to 1.5.}
+
+\item{details}{Option to return a list with the solids mass and the individual contributions of each solids component. Defaults to FALSE.}
 }
 \value{
-A numeric value for solids mass in lb/day.
+A numeric value for solids mass in lb/day. If details = TRUE, returns a named list with total and per-component values in lb/day.
 }
 \description{
 This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow as MGD to determine solids production.
@@ -50,5 +56,14 @@ mass_data <- tibble(
   flow = 10
 ) \%>\%
   mutate(mass = solvemass_solids(alum = alum, flow = flow, turb = 20))
+
+mass_details_true <- tibble(
+  ferricsulfate = seq(10, 50, 10),
+  polymer = seq(1, 5, 1),
+  flow = 10
+) \%>\%
+  mutate(mass = solvemass_solids(ferricsulfate = ferricsulfate, polymer = polymer, flow = flow, turb = 20))
+
+
 #'
 }

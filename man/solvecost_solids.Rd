@@ -14,6 +14,7 @@ solvecost_solids(
   flow,
   toc_removed = 0,
   caco3_removed = 0,
+  polymer = 0,
   turb,
   b = 1.5,
   cost,
@@ -32,6 +33,8 @@ solvecost_solids(
 \item{toc_removed}{Amount of total organic carbon removed by the treatment process in mg/L}
 
 \item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
+
+\item{polymer}{Amount of polymer added in mg/L as chemical. Is fully removed with the solids. (need to update this description)}
 
 \item{turb}{Turbidity removed in NTU}
 

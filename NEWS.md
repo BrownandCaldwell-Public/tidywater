@@ -1,20 +1,21 @@
 # Development version
 
-* Define_water_df now uses colum mapping to call arguments. 
+* Define_water_df now uses column mapping to call arguments. 
 * Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
 drops the output dosing columns unless told to keep to prevent double dosing.
-* Updated chemdose_ph_chain to fix colum naming issues.
+* Updated chemdose_ph_chain to fix column naming issues.
 * Code consistency improved with making Kw uniformly calculated with K_temp_adjust. Kw calculation now uses
 Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/mol) is constant across temp ranges. 
 * Updated warnings across tidywater to use cli.
 * Added additional ions to ballance ions function calculation (Fe, Al, Mn, F, Br).
 * Updated warnings on _df functions so repeated errors are reported as a single warning. 
 * fixed issues with converting to g/L caco3 in `convert_units`.
-* Updated chemdose_ph_chain to fix colum naming issues.
+* Updated chemdose_ph_chain to fix column naming issues.
 * Borate and silicate fixed used pH solver. Error introduced with previous alkalinity update.
 * `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
 * Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
 * Add ACH and PACl to `chemdose_toc`. Supports one molar mass, check documentation for units.
+* Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day.
 
 
 # tidywater 0.10.0
