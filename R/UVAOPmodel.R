@@ -13,8 +13,7 @@
 
 
 
-uvaop_model<-function(water, exposure_time, path, vol, area, 
-  back_transmitance, irradiance, dose, b_scavenging = oh_scavenging(water)){
+uvaop_model<-function(water, exposure_time, path, vol, area, back_transmitance, irradiance, dose, sc){
   # water is a water object from tidywater
   # exposure_time is in seconds
   # path is in cm
@@ -83,11 +82,11 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     N2O3=0,
     N2O4=0,
     NO3_minus=0,
-    dioxane=0,
+    dioxane=1e-6,
     doc=water@doc,
     O2=0,
     H=10^(-water@ph),
-    OH_minus=10^(-14+water@ph),
+    OH_minus=10^(-14/(10^-(water@ph))),
     HCO3_minus=water@hco3,
     H2CO3=water@h2co3,
     CO3_2=water@co3,
@@ -107,10 +106,10 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     H_plus=10^(-water@ph),
     #these are the same, probably wrong
     NOM=0,
-    caffeine=0,
-    sucralose=0,
+    caffeine=1e-6,
+    sucralose=1e-6,
     OHexposure=0,
-    carbamazepine=0
+    carbamazepine=1e-6
   )
   
   
@@ -120,8 +119,7 @@ params<- list(
   A = area, 
   E0 = flux, 
   a_background = absorbance,
-  b_scavenging = b_scavenging,
-  dose = dose)
+  dose = dose2)
 
 time <- seq(0, exposure_time, by = 1)  
   
@@ -130,10 +128,7 @@ out <- deSolve::ode(
   times = time, 
   func = merged_ODE , 
   parms = params,
-  method= "lsoda",
-  rtol = 1e-6,
-  atol = 1e-8,
-  maxsteps = 1e6)
+  method= "lsoda")
 
 
 #Determine time necessary for 0.5-log elimination
@@ -148,23 +143,18 @@ threshold_sucralose <- 10^(-0.5)
 time_diox <- NA_real_
 time_carb <- NA_real_
 time_sucralose <- NA_real_
- 
-#return(out)
 
-# Find the crossing time for 1,4-dioxane
+return(out)
+
+# # Find the crossing time for 1,4-dioxane
 # for (i in seq_len(nrow(out) - 1)) {
-#   if ((out[i, 34] > threshold_diox & out[i + 1, 34] <= threshold_diox) ||
-#       (out[i, 34] < threshold_diox & out[i + 1, 34] >= threshold_diox)) {
+#   if ((out[i, 34] > threshold_diox && out[i + 1, 34] <= threshold_diox) ||
+#       (out[i, 34] < threshold_diox && out[i + 1, 34] >= threshold_diox)) {
 #     time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
 #     break
 #   }
-#}
+# }
 
- return(list(
-  out=out,
-  time_diox=time_diox
- )) 
-  
 # # Find the crossing time for caffeine
 # for (i in seq_len(nrow(out) - 1)) {
 #   if ((out[i, 61] > threshold_carb && out[i + 1, 61] <= threshold_carb) ||
@@ -681,9 +671,9 @@ merged_ODE <- function(t, y, params) {
   # -----------------------------------------------------------------------
   # Background OH scavenging and OH exposure
   # -----------------------------------------------------------------------
-  r_background_scavenging <- params$b_scavenging * OH_rad
+  r_background_scavenging <- params$a_background * OH_rad
   dydt["OH_rad"]     <- dydt["OH_rad"]     - r_background_scavenging
-  dydt["OHexposure"] <- OH_rad
+  dydt["OHexposure"] <- dydt["OHexposure"] + OH_rad
 
   # -----------------------------------------------------------------------
   # Carbamazepine reactions
@@ -697,5 +687,3 @@ merged_ODE <- function(t, y, params) {
   return(list(dydt))
   })
   }
-
-
