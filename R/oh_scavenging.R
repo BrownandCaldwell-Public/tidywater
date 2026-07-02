@@ -19,18 +19,21 @@ oh_scavenging <- function(water,kdoc ="standard") {
 
   # avaraging k from literature vals for DOC
   DOC_avg <- mean(c(
-    2.50E+04, # arson et al. 1988
-    2.94E+08, #found by BC
-    3.00E+08, #Larson and Zepp (1988)
-    2.90E+00, # Brezonik and Fulkerson-Brekken (1998)
-    2.70E+00, #Katsoyiannis et al. (2011)
-    2.00E+00, #Katsoyiannis et al. (2011)
-    2.10E+00, #Katsoyiannis et al. (2011)
-    6.35E+08, #Vinge et al (2021)
-    2.00E+08 #Wols et al (2014) - 33
+    2.50E+04, # arson et al. 1988 L/mg s^-1
+    # same that the scavenging calc uses 
+
+    2.94E+08, #found by BC L/mg s^-1
+
+   # 3.00E+08, #Larson and Zepp (1988) Mc^-1s^-1
+
+    # 2.90E+00, # Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
+    # 2.70E+00, #Katsoyiannis et al. (2011) Mc^-1s^-1
+    # 2.00E+00, #Katsoyiannis et al. (2011) Mc^-1s^-1
+    # 2.10E+00, #Katsoyiannis et al. (2011) Mc^-1s^-1
+    # 6.35E+08, #Vinge et al (2021) M^-1 s^-1
+    # 2.00E+08 #Wols et al (2014) - 33 M^-1 s^-1
   ))
-# taking avarage jumps the scavenging by a lot because the one that syd was using was a magnitude of 
-  # e04 and many of the others jump to e08 so big jump in the expected scavenging rate!
+# not sure how to deal with different units... maybe 3 different avareages??
 
 
   k <- list(

@@ -131,7 +131,10 @@ out <- deSolve::ode(
   times = time, 
   func = merged_ODE , 
   parms = params,
-  method= "lsoda")
+  method= "lsoda",
+  rtol = 1e-6,
+  atol = 1e-8,
+  maxsteps = 1e6)
 
 
 #Determine time necessary for 0.5-log elimination
@@ -150,13 +153,13 @@ time_sucralose <- NA_real_
 #return(out)
 
 # Find the crossing time for 1,4-dioxane
-for (i in seq_len(nrow(out) - 1)) {
-  if ((out[i, 34] > threshold_diox & out[i + 1, 34] <= threshold_diox) ||
-      (out[i, 34] < threshold_diox & out[i + 1, 34] >= threshold_diox)) {
-    time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
-    break
-  }
-}
+# for (i in seq_len(nrow(out) - 1)) {
+#   if ((out[i, 34] > threshold_diox & out[i + 1, 34] <= threshold_diox) ||
+#       (out[i, 34] < threshold_diox & out[i + 1, 34] >= threshold_diox)) {
+#     time_diox <- approx(x = out[c(i, i + 1), 34], y = t[c(i, i + 1)], xout = threshold_diox)$y
+#     break
+#   }
+#}
 
  return(list(
   out=out,
@@ -358,7 +361,7 @@ merged_ODE <- function(t, y, params) {
   # -----------------------------------------------------------------------
 
   # R_C5: H2O2 + hv -> 2OH•
-  r_C5 <- pf * (a_H2O2 / a_total) * phi_H2O2*10e10
+  r_C5 <- pf * (a_H2O2 / a_total) * phi_H2O2
   dydt["H2O2"]   <- dydt["H2O2"]   - r_C5
   dydt["OH_rad"] <- dydt["OH_rad"] + 2 * r_C5
 
