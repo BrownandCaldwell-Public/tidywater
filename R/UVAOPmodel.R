@@ -83,8 +83,7 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     N2O3=0,
     N2O4=0,
     NO3_minus=0,
-    # init contaminants here for now
-    dioxane=1e-6,
+    dioxane=0,
     doc=water@doc,
     O2=0,
     H=10^(-water@ph),
@@ -108,10 +107,10 @@ uvaop_model<-function(water, exposure_time, path, vol, area,
     H_plus=10^(-water@ph),
     #these are the same, probably wrong
     NOM=0,
-    caffeine=1e-6,
-    sucralose=1e-6,
+    caffeine=0,
+    sucralose=0,
     OHexposure=0,
-    carbamazepine=1e-6
+    carbamazepine=0
   )
   
   
