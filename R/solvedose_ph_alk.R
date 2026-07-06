@@ -110,12 +110,12 @@ solvedose_ph <- function(water, target_ph, chemical) {
       water = water,
       extendInt = "up"
     )
-    args<-list(chemdose$root)
+    args<-list(water, chemdose$root)
     #pirate!
-    names(args)<-chemical
+    names(args)<-c("water", chemical)
 
     if (chemdose$root > 200) {
-      check_ph <- chemdose_ph(water,args)@ph
+      check_ph <- do.call(chemdose_ph, args)@ph
       if (abs(check_ph - target_ph) > 0.1) {
         cli::cli_warn(("Solvedose_ph could not find a reliable dose to reach pH {target_ph}.
                         The water may have insufficient buffering capacity."))
