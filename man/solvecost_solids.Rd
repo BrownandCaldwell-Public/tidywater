@@ -34,7 +34,7 @@ solvecost_solids(
 
 \item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
 
-\item{polymer}{Amount of polymer added in mg/L as chemical. Is fully removed with the solids. (need to update this description)}
+\item{polymer}{Amount of polymer removed in mg/L as chemical}
 
 \item{turb}{Turbidity removed in NTU}
 

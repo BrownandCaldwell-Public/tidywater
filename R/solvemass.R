@@ -34,7 +34,7 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 #' @param flow Plant flow in MGD
 #' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
 #' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
-#' @param polymer Amount of polymer added in mg/L as chemical. Is fully removed with the solids. (need to update this description) 
+#' @param polymer Amount of polymer removed in mg/L as chemical
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
 #' @param details Option to return a list with the solids mass and the individual contributions of each solids component. Defaults to FALSE.
@@ -77,18 +77,25 @@ solvemass_solids <- function(
   suspended <- turb * b
   # 2 mol of Fe added per mol of ferric sulfate
   fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
-  fe_factor <- (2 * (tidywater::mweights$fe + 3 * tidywater::mweights$oh + 3 * 18.0153)) / tidywater::mweights$ferricsulfate # no mweights$h2o
+  fe_factor <- (2 * (tidywater::mweights$fe + 3 * tidywater::mweights$oh + 3 * 18.0153)) / tidywater::mweights$ferricsulfate
+  flow_factor <- 8.34 * flow
 
-  total_solids <- 8.34 * flow * (0.44 * alum + fe_factor * fe + ferricchloride + suspended + toc_removed + caco3_removed + polymer)
+  
+  coagulant_solids = flow_factor * (0.44 * alum + fe_factor * fe + ferricchloride)
+  turbidity_solids = flow_factor * suspended
+  toc_solids = flow_factor * toc_removed
+  hardness_solids = flow_factor * caco3_removed
+  polymer_solids = flow_factor * polymer
+  total_solids <- coagulant_solids + turbidity_solids + toc_solids + hardness_solids + polymer_solids
 
   if (details == TRUE) {
     solids <- list(
       total_solids = total_solids,
-      coagulant_solids = 8.34 * flow * (0.44 * alum + fe_factor * fe + ferricchloride),
-      turbidity_solids = 8.34 * flow * suspended,
-      toc_solids = 8.34 * flow * toc_removed,
-      hardness_solids = 8.34 * flow * caco3_removed,
-      polymer_solids = 8.34 * flow * polymer
+      coagulant_solids = coagulant_solids,
+      turbidity_solids = turbidity_solids,
+      toc_solids = toc_solids,
+      hardness_solids = hardness_solids,
+      polymer_solids = polymer_solids
     )
     return(solids)
   } else {

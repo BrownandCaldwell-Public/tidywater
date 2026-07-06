@@ -15,7 +15,7 @@ Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/m
 * `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
 * Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
 * Add ACH and PACl to `chemdose_toc`. Supports one molar mass, check documentation for units.
-* Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day.
+* Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
 
 
 # tidywater 0.10.0

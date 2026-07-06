@@ -71,7 +71,7 @@ test_that("solvecost_solids returns 0 when inputs are 0, missing, or the wrong f
 test_that("solvecost_solids works.", {
   expect_equal(round(solvecost_solids(alum = 20, flow = 30, cost = 0.2, turb = 2, time = "year")), 215670)
   expect_equal(round(solvecost_solids(ferricchloride = 20, flow = 30, cost = 0.2, turb = .1, time = "month")), 30669)
-  expect_equal(round(solvecost_solids(ferricsulfate = 20, flow = 30, cost = 0.2, turb = 3, time = "day")), 806)
+  expect_equal(round(solvecost_solids(ferricsulfate = 20, flow = 30, cost = 0.2, turb = 3, time = "day")), 341)
   expect_equal(round(solvecost_solids(alum = 20, ferricchloride = 30, flow = 30, cost = 0.2, turb = 2, b = .5)), 1992)
 })
 
