@@ -62,7 +62,8 @@ mass_details_true <- tibble(
   polymer = seq(1, 5, 1),
   flow = 10
 ) \%>\%
-  mutate(mass = solvemass_solids(ferricsulfate = ferricsulfate, polymer = polymer, flow = flow, turb = 20))
+  mutate(mass = solvemass_solids(ferricsulfate = ferricsulfate, 
+         polymer = polymer, flow = flow, turb = 20))
 
 
 #'
