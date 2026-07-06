@@ -67,7 +67,7 @@ convert_watermg <- function(water) {
   water@k <- convert_units(water@k, "k", "M", "mg/L")
   water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
   water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
-  water@mno4 <- convert_units(water@mno4, "mno4", "M", "mg/L") # added
+  water@mno4 <- convert_units(water@mno4, "mno4", "M", "mg/L")
   water@no3 <- convert_units(water@no3, "no3", "M", "mg/L N")
   water@h2co3 <- convert_units(water@h2co3, "h2co3", "M", "mg/L")
   water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
@@ -76,17 +76,17 @@ convert_watermg <- function(water) {
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
   water@nh4 <- convert_units(water@nh4, "nh4", "M", "mg/L N")
-  water@bo3 <- convert_units(water@bo3, "bo3", "M", "mg/L") # added
-  water@h3sio4 <- convert_units(water@h3sio4, "h3sio4", "M", "mg/L") # added
-  water@h2sio4 <- convert_units(water@h2sio4, "h2sio4", "M", "mg/L") # added
-  water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L") # added
+  water@bo3 <- convert_units(water@bo3, "bo3", "M", "mg/L") 
+  water@h3sio4 <- convert_units(water@h3sio4, "h3sio4", "M", "mg/L") 
+  water@h2sio4 <- convert_units(water@h2sio4, "h2sio4", "M", "mg/L") 
+  water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L") 
   # don't convert h and oh
   water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
   water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
-  water@tot_bo3 <- convert_units(water@tot_bo3, "bo3", "M", "mg/L") # added
-  water@tot_sio4 <- convert_units(water@tot_sio4, "sio4", "M", "mg/L") # added
-  water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L") # added
+  water@tot_bo3 <- convert_units(water@tot_bo3, "bo3", "M", "mg/L")
+  water@tot_sio4 <- convert_units(water@tot_sio4, "sio4", "M", "mg/L")
+  water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L") 
 
   water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
   water@f <- convert_units(water@f, "f", "M", "mg/L")
@@ -96,7 +96,7 @@ convert_watermg <- function(water) {
   water@free_chlorine <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
   water@combined_chlorine <- convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
-  water@nh2cl <- convert_units(water@nh2cl, "nh2cl", "M", "mg/L") # do we want to convert these chloramines?
+  water@nh2cl <- convert_units(water@nh2cl, "nh2cl", "M", "mg/L")
   water@nhcl2 <- convert_units(water@nhcl2, "nhcl2", "M", "mg/L")
   water@ncl3 <- convert_units(water@ncl3, "ncl3", "M", "mg/L")
 
