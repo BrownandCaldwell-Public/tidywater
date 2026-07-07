@@ -60,6 +60,16 @@ test_that("Solve dose pH doesn't error when target pH is close to starting.", {
   expect_no_error(solvedose_ph(water2, 8, "naoh"))
 })
 
+test_that("Solve dose pH throws a warning when alk is low", {
+  # water with high ph 
+  water<-define_water(ph = 12.75, temp = 25, alk = 1000, tds = 3530, ca = 70, mg = 10, so4 = 0)
+
+  # solve dose is really high, @ 993,5
+  solve<-solvedose_ph(water, 7, "h2so4")
+  # high solvedose from uniroot strugles and an error is thrown 
+  expect_warning(solve)
+
+})
 
 # Solve Dose Alkalinity ----
 
