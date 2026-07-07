@@ -33,6 +33,7 @@ chemdose_dbp_df(
   output_water = "disinfected",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
@@ -74,6 +75,8 @@ Alternatively, specify "all" to get all DBP species in addition: (tthm, chcl3, c
 Defaults to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
+
+\item{keep_dose_cols}{Option to keep the original chemical dose columns in the output data frame. Default is FALSE.}
 }
 \value{
 \code{chemdose_dbp} returns a single water class object with predicted DBP concentrations.

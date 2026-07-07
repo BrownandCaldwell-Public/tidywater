@@ -296,3 +296,47 @@ test_that("users can provide their own dbp coefficients to chemdose_dbp_df.", {
   expect_false(identical(water1$disinfected_chcl3, water2$disinfected_chcl3))
   expect_false(any(is.na(water2$disinfected_chcl3)) || identical(water2$disinfected_chcl3, 0))
 })
+
+
+test_that("are previous columns named cl 2 dropped when keep dose cols = false", {
+
+  #setup test water
+  water0<-suppressWarnings(water_df |> 
+    slice(1) |> 
+    mutate(br = 80) |>
+    define_water_df()) 
+    
+
+    dosedwater<-water0 |> 
+      chemdose_dbp_df( cl2=5,  time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE)
+  
+
+    #check normal functionality 
+  expect_equal(ncol(dosedwater), 4)
+
+    dosedwater<-water0 |> 
+      chemdose_dbp_df( cl2=5,time = 10, pluck_cols = FALSE, keep_dose_cols = TRUE)
+  
+
+    #check normal functionality 
+  expect_equal(ncol(dosedwater), 5)
+
+# check how function handles cl cols that are there before 
+  
+  water0<-water0 |> 
+    mutate(cl2 = 10)
+
+  dosedwater<-expect_error(water0 |>  
+    chemdose_dbp_df( cl2=5,  time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE))
+
+  dosedwater1<-water0 |> 
+    chemdose_dbp_df( time = 10, pluck_cols = FALSE, keep_dose_cols = TRUE)
+
+  dosedwater2<-water0 |> 
+    chemdose_dbp_df( time = 10, pluck_cols = FALSE, keep_dose_cols = FALSE)
+
+  expect_equal(ncol(dosedwater1), 5)
+  expect_equal(ncol(dosedwater2), 4) # cl2 cols should be dropped, but time should still be there
+  # previously named cl2 cols are expected to throw a warning when called additionally in chemdose_dbp_df and 
+  # are expected to be droped when keep_dose_cols = FALSE, even if they were there before
+})
