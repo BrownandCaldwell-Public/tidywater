@@ -172,12 +172,6 @@ define_water <- function(
   ca <- ifelse(missing(ca), NA_real_, ca)
   mg <- ifelse(missing(mg), NA_real_, mg)
 
-  if ((!is.na(tot_hard) & !is.na(ca) & !is.na(mg)) & (tot_hard != 0 & ca != 0 & mg != 0)) {
-    check_tot_hard <- abs(tot_hard - calculate_hardness(ca, mg)) / mean(c(tot_hard, calculate_hardness(ca, mg)))
-    if (check_tot_hard > 0.10) {
-      cli::cli_warn("User-entered total hardness differs >10% from calculated hardness.")
-    }
-  }
 
   if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
     ca <- convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
@@ -250,10 +244,6 @@ define_water <- function(
     cli::cli_warn("Missing value for {.arg doc}; defaulting to 95% of TOC.")
     doc <- toc * 0.95
     estimated <- paste(estimated, "doc", sep = "_")
-  }
-
-  if (tot_nh3 > 0 & (free_chlorine > 0 | combined_chlorine > 0)) {
-    cli::cli_warn("Both chlorine and ammonia are present and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
@@ -455,12 +445,12 @@ define_water <- function(
 #'
 #' This function allows [define_water] to be added to a piped data frame.
 #' Its output is a `water` class, and can therefore be chained with "downstream" tidywater functions.
-#'
+#'@rdname define_water
 #' @param df a data frame containing columns with all the desired parameters with column names matching argument names in define_water
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #' @param pluck_cols Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
-#'
+#' 
 #' @seealso [define_water]
 #'
 #' @examples
@@ -477,38 +467,120 @@ define_water <- function(
 #' @export
 #' @returns A data frame containing a water class column.
 
-define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, water_prefix = TRUE) {
-  define_water_args <- c(
-    "ph",
-    "temp",
-    "alk",
-    "tot_hard",
-    "ca",
-    "mg",
-    "na",
-    "k",
-    "cl",
-    "so4",
-    "mno4",
-    "free_chlorine",
-    "combined_chlorine",
-    "tot_po4",
-    "tot_nh3",
-    "tot_ch3coo",
-    "tds",
-    "cond",
-    "toc",
-    "doc",
-    "uv254",
-    "br",
-    "f",
-    "fe",
-    "al",
-    "mn"
-  )
+define_water_df <- function(
+  df, 
+  output_water = "defined",
+  pluck_cols = FALSE, 
+  water_prefix = TRUE,
+  ph= "use_col",
+  temp = "use_col",
+  alk = "use_col",
+  tot_hard = "use_col",
+  ca = "use_col",
+  mg = "use_col",
+  na = "use_col",
+  k = "use_col",
+  cl = "use_col",
+  so4 = "use_col",
+  mno4 = "use_col", 
+  free_chlorine = "use_col",
+  combined_chlorine = "use_col",
+  tot_po4 = "use_col",
+  tot_nh3 = "use_col",
+  tot_bo3 = "use_col",
+  tot_sio4 = "use_col",
+  tot_ch3coo = "use_col",
+  tds = "use_col",
+  cond = "use_col",
+  toc = "use_col",
+  doc = "use_col",
+  uv254 = "use_col",
+  br = "use_col",
+  f = "use_col",
+  fe = "use_col",
+  al = "use_col",
+  mn = "use_col",
+  no3 = "use_col"
+) {
+ 
+# Process unquoted column names
+  ph <- tryCatch(ph, error = function(e) enquo(ph))
+  temp <- tryCatch(temp, error = function(e) enquo(temp))
+  alk <- tryCatch(alk, error = function(e) enquo(alk))
+  tot_hard <- tryCatch(tot_hard, error = function(e) enquo(tot_hard))
+  ca <- tryCatch(ca, error = function(e) enquo(ca))
+  mg <- tryCatch(mg, error = function(e) enquo(mg))
+  na <- tryCatch(na, error = function(e) enquo(na))
+  k <- tryCatch(k, error = function(e) enquo(k))
+  cl <- tryCatch(cl, error = function(e) enquo(cl))
+  so4 <- tryCatch(so4, error = function(e) enquo(so4))
+  mno4 <- tryCatch(mno4, error = function(e) enquo(mno4))
+  free_chlorine <- tryCatch(free_chlorine, error = function(e) enquo(free_chlorine))
+  combined_chlorine <- tryCatch(combined_chlorine, error = function(e) enquo(combined_chlorine))
+  tot_po4 <- tryCatch(tot_po4, error = function(e) enquo(tot_po4))
+  tot_nh3 <- tryCatch(tot_nh3, error = function(e) enquo(tot_nh3))
+  tot_bo3 <- tryCatch(tot_bo3, error = function(e) enquo(tot_bo3))
+  tot_sio4 <- tryCatch(tot_sio4, error = function(e) enquo(tot_sio4))
+  tot_ch3coo <- tryCatch(tot_ch3coo, error = function(e) enquo(tot_ch3coo))
+  tds <- tryCatch(tds, error = function(e) enquo(tds))
+  cond <- tryCatch(cond, error = function(e) enquo(cond))
+  toc <- tryCatch(toc, error = function(e) enquo(toc))
+  doc <- tryCatch(doc, error = function(e) enquo(doc))
+  uv254 <- tryCatch(uv254, error = function(e) enquo(uv254))
+  br <- tryCatch(br, error = function(e) enquo(br))
+  f <- tryCatch(f, error = function(e) enquo(f))
+  fe <- tryCatch(fe, error = function(e) enquo(fe))
+  al <- tryCatch(al, error = function(e) enquo(al))
+  mn <- tryCatch(mn, error = function(e) enquo(mn))
+  no3 <- tryCatch(no3, error = function(e) enquo(no3))
 
-  water_input <- df[, names(df) %in% define_water_args]
+arguments <- construct_helper(
+ df, 
+ all_args = list(
+    "ph"=ph,
+    "temp"=temp,
+    "alk"=alk,
+    "tot_hard"=tot_hard,
+    "ca"=ca,
+    "mg"=mg,
+    "na"=na,
+    "k"=k,
+    "cl"=cl,
+    "so4"=so4,
+    "mno4"=mno4,
+    "free_chlorine"=free_chlorine,
+    "combined_chlorine"=combined_chlorine,
+    "tot_po4"=tot_po4,
+    "tot_nh3"=tot_nh3,
+    "tot_bo3"=tot_bo3,
+    "tot_sio4"=tot_sio4,
+    "tot_ch3coo"=tot_ch3coo,
+    "tds"=tds,
+    "cond"=cond,
+    "toc"=toc,
+    "doc"=doc,
+    "uv254"=uv254,
+    "br"=br,
+    "f"=f,
+    "fe"=fe,
+    "al"=al,
+    "mn"=mn,
+    "no3"=no3
+  ))
 
+  final_names <- arguments$final_names
+ 
+  if (length(arguments$new_cols) > 0) {
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
+  }
+  
+
+  
+  water_input <- df[, names(df) %in% unname(final_names)]
+
+col_map <- final_names[final_names %in% names(water_input)]
+names(water_input)[match(col_map, names(water_input))] <- names(col_map)
+  
   warning_counts<-list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(do.call(define_water, water_input[i, ]),warning = function(w) {
@@ -519,11 +591,12 @@ define_water_df <- function(df, output_water = "defined", pluck_cols = FALSE, wa
   )
   })
 
+ 
   for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
-  output <- df[, !names(df) %in% define_water_args, drop = FALSE]
+   output <- df[, !names(df) %in% unname(final_names), drop = FALSE]
 
   if (pluck_cols) {
     output <- output |>
