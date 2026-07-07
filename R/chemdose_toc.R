@@ -108,6 +108,29 @@ chemdose_toc <- function(
       water@doc <- water@doc - removed
       water@toc <- water@doc - removed
     }
+  } else if (water@ph >= 8) {
+    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+
+    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
+    b <- coeff$b
+
+    # Rearrangement of equation from wolfram alpha
+    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+      b * coag * xterm +
+      b * water@doc * sterm -
+      1) /
+      (2 * b)
+
+    if (coag == 0) {
+      water@doc <- water@doc
+      water@uv254 <- water@uv254
+    } else {
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    }
+    cli::cli_warn("pH is greater than 8. Model may not be valid for this water.")
   } else {
     nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
 
