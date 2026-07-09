@@ -100,6 +100,7 @@ chemdose_toc <- function(
     suva<-5
     cli::cli_warn("SUVA is unnaturally high, forcing SUVA to 5")
   }
+  else suva<-suva
   # Edwards calculations
   if (caoh2 > 0) {
     water <- chemdose_ph(water, caoh2 = caoh2)
