@@ -64,6 +64,24 @@ test_that("chemdose_toc works.", {
   expect_error(suppressWarnings(chemdose_toc(water1, alum = 30, caoh2 = 2))) # softening requires alk
 })
 
+test_that("Edwards model flatlines the xterm for ph>=8",{
+  testthat::skip_on_cran()
+
+  water1<- suppressWarnings(define_water(ph = 6, uv254=0.1, toc = 4))
+  water2<- suppressWarnings(define_water(ph = 8, uv254=0.1, toc = 4))
+  water3<- suppressWarnings(define_water(ph = 10, uv254=0.1, toc = 4))
+  
+  dosed1<-suppressWarnings(chemdose_toc(water1,alum=40))
+  dosed2<-suppressWarnings(chemdose_toc(water2,alum=40))  
+  dosed3<-suppressWarnings(chemdose_toc(water3,alum=40))
+  
+  # resulting toc for below 8 and 8 should be diffrent 
+  expect_equal(dosed2@toc,dosed3@doc)
+  # resulting toc for 8 and 10 should be the same 
+  expect_false(dosed1@toc == dosed2@toc)
+
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_toc helpers ----
