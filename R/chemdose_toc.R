@@ -93,6 +93,13 @@ chemdose_toc <- function(
   # Convert to meq/L for UV model
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
+  # setup suva for calculations 
+  suva<- calc_suva(water@doc, water@uv254)
+  # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
+  if (suva>5) {
+    suva<-5
+    cli::cli_warn("SUVA is unnaturally high, forcing SUVA to 5")
+  }
   # Edwards calculations
   if (caoh2 > 0) {
     water <- chemdose_ph(water, caoh2 = caoh2)
@@ -104,14 +111,14 @@ chemdose_toc <- function(
       water@doc <- water@doc
       water@uv254 <- water@uv254
     } else {
-      water@uv254 <- 0.01685 * removed^0.8367 * calc_suva(water@doc, water@uv254)^1.2501
+      water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
       water@doc <- water@doc - removed
       water@toc <- water@doc - removed
     }
   } else if (water@ph >= 8) {
-    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
-    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
     xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
     b <- coeff$b
 
@@ -132,9 +139,9 @@ chemdose_toc <- function(
     }
     cli::cli_warn("pH is greater than 8. Model may not be valid for this water.")
   } else {
-    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
-    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
     xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
     b <- coeff$b
 
