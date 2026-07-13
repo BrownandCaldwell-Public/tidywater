@@ -5,7 +5,7 @@
 \alias{solvedose_ph_df}
 \title{Calculate a desired chemical dose for a target pH}
 \usage{
-solvedose_ph(water, target_ph, chemical)
+solvedose_ph(water, target_ph, chemical, check_input = FALSE)
 
 solvedose_ph_df(
   df,
