@@ -28,7 +28,7 @@
 #' @export
 #' @returns  `solvedose_ph` returns a numeric value for the required chemical dose.
 #'
-solvedose_ph <- function(water, target_ph, chemical) {
+solvedose_ph <- function(water, target_ph, chemical, check_input = FALSE) {
   validate_water(water, c("ph", "alk"))
   if (missing(target_ph)) {
     cli::cli_abort("No target pH defined. Enter a {.arg target_ph} for the chemical dose.")
@@ -114,11 +114,33 @@ solvedose_ph <- function(water, target_ph, chemical) {
     #pirate!
     names(args)<-c("water", chemical)
 
+    if (check_input == TRUE){
+      # check argument (default false) checks the output of solvedose with a chemdose_ph call
+      # computationally more expensive, but a good check nonetheless!
+      dosed <- do.call(chemdose_ph, args)
+        if (dosed@alk <= 0) {
+        cli::cli_warn(paste0("Solvedose_ph returns an unresaonable alk value(",
+        round(dosed@alk,2),
+         "), input water may have insufficent buffering capacity"))
+        }
+        else if ((dosed@ph-chemdose$root)/chemdose$root > 0.05 ){
+        cli::cli_warn(paste0("Solvedose_ph returns unresaonable ph values( ",
+        round(dosed@ph,1),
+         "input water may have insufficent buffering capacity"))
+        }
+    }
+
+    #  additional checks that runs if the dose is encountering strange, high dose, low alk scenarios 
+     if (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & chemdose$root >= 30 & water@alk < 30 ){
+     cli::cli_warn("Low alk and high dose with these chemicals may mean the water has insufficient buffering capacity,
+       use check_input")
+     }
+    # check if root is very high, may point to low buffering 
     if (chemdose$root > 200) {
       check_ph <- do.call(chemdose_ph, args)@ph
       if (abs(check_ph - target_ph) > 0.1) {
         cli::cli_warn(("Solvedose_ph could not find a reliable dose to reach pH {target_ph}.
-                        The water may have insufficient buffering capacity."))
+                        The water may have insufficient buffering capacity. Try check_input."))
       }
     }
 
