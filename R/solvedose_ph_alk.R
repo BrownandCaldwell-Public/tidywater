@@ -16,6 +16,8 @@
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+#' @param check_input The function will automatically check if the dose found works
+#' with a call to solvedose_ph, computationally more expensive. Default = FALSE. 
 #'
 #' @seealso [chemdose_ph], [solvedose_alk]
 #'
