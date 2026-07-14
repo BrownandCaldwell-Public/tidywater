@@ -35,6 +35,7 @@ methods::setClass(
     so4 = "numeric",
     mno4 = "numeric",
     no3 = "numeric",
+    no2 = "numeric",
     # pH dependent ions
     h2co3 = "numeric",
     hco3 = "numeric",
@@ -127,6 +128,7 @@ methods::setClass(
     so4 = NA_real_,
     mno4 = NA_real_,
     no3 = NA_real_,
+    no2 = NA_real_,
     # pH dependent ions
     h2co3 = NA_real_,
     hco3 = NA_real_,
