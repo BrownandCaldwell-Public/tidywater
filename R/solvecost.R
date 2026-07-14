@@ -78,7 +78,7 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @param flow Plant flow in MGD
 #' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
 #' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
-#' @param polymer Amount of polymer removed in mg/L as chemical
+#' @param polymer Amount of polymer added in mg/L as chemical
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
 #' @param cost Disposal cost in $/lb
