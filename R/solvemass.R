@@ -77,12 +77,12 @@ solvemass_solids <- function(
 ) {
   suspended <- turb * b
   # 2 mol of Fe added per mol of ferric sulfate
-  fe <- ferricsulfate * (tidywater::mweights$fe * 2 / tidywater::mweights$ferricsulfate)
-  fe_factor <- (2 * (tidywater::mweights$fe + 3 * tidywater::mweights$oh + 3 * 18.0153)) / tidywater::mweights$ferricsulfate
+  fe_factor <- (2 * (tidywater::mweights$fe + 3 * tidywater::mweights$oh + 3 * tidywater::mweights$h2o)) / tidywater::mweights$ferricsulfate
+  alum_factor <- (2 * (tidywater::mweights$al + 3 * tidywater::mweights$oh + 3 * tidywater::mweights$h2o)) / tidywater::mweights$alum
   flow_factor <- 8.34 * flow
 
   
-  coagulant_solids = flow_factor * (0.44 * alum + fe_factor * fe + ferricchloride)
+  coagulant_solids = flow_factor * (alum_factor * alum + fe_factor * ferricsulfate + ferricchloride)
   turbidity_solids = flow_factor * suspended
   toc_solids = flow_factor * toc_removed
   hardness_solids = flow_factor * caco3_removed

@@ -44,7 +44,7 @@ test_that("solvemass_solids returns 0 when inputs are 0, missing, or the wrong f
 })
 
 test_that("solvemass_solids works.", {
-  expect_equal(round(solvemass_solids(alum = 20, flow = 30, turb = 2)), 2952)
+  expect_equal(round(solvemass_solids(alum = 20, flow = 30, turb = 2)), 2974)
 
   test_df <- water_df %>%
     mutate(
@@ -53,10 +53,10 @@ test_that("solvemass_solids works.", {
       mass = solvemass_solids(alum = alum, flow = flow, turb = 50)
     )
 
-  expect_equal(test_df$mass[1], 8.34 * 2 * (0.44 * 20 + (50 * 1.5)))
+  expect_equal(round(test_df$mass[1]), round(8.34 * 2 * (0.44434 * 20 + (50 * 1.5))))
 
   # test ferricsulfate conversion factor and polymer inputs
-  expect_equal(round(solvemass_solids(ferricsulfate = 20, flow = 30, turb = 2)), 1327)
+  expect_equal(round(solvemass_solids(ferricsulfate = 20, flow = 30, turb = 2)), 3635)
   expect_equal(round(solvemass_solids(polymer = 5, flow = 30, turb = 2)), 2002)
 })
 
