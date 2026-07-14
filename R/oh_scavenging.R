@@ -1,4 +1,4 @@
-oh_scavenging <- function(water, dose=0) {
+oh_scavenging <- function(water, dose=0, kdoc_adjust="default") {
   # K vals from syd's arcadia sheet
   # k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
   # k(OH,DOC/TOC) SRDOM	1.86E+04	L/mg s-1	Westerhoff et al. 2007
@@ -28,6 +28,8 @@ oh_scavenging <- function(water, dose=0) {
     H2O2 = 2.70E+07 # M-1 s-1
   )
 
+  if(kdoc_adjust != "default") k$DOC<-kdoc_adjust                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+  
 # init scavenging terms to 0 
   k_S_NO3<-0
   k_S_NO3<-0
@@ -55,7 +57,7 @@ oh_scavenging <- function(water, dose=0) {
   k_S_NO3 <- k$NO3 * water@no3 # s-1
   k_S_HCO3 <-water@hco3* k$HCO3 # s-1
   k_S_CO3 <- water@co3 * k$CO3 # s-1
-  k_S_NO2 <- k$NO2 * water@no2
+  k_S_NO2 <- k$NO2 * water@no2 # s-1
   k_S_H2O2 <- k$H2O2 * dose # s-1
   }
 
