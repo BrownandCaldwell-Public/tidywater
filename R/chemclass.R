@@ -19,13 +19,17 @@ methods::setClass(
   prototype(
     # defaults
     chemical = "",
+    # empty default 
     strength = 100,
     # default strength 100 like TW already assumes
     dose_unit = "mg/L",
     # TW chemicals typically in mg/L as now
     hydration = NA_real_,
+    # empty default 
     cost = NA_real_,
+    # empty default 
     solids_formula = ""
+    # empty default
   )
 )
 
