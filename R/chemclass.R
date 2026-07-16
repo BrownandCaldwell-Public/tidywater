@@ -2,12 +2,12 @@
 methods::setClass(
   "chemical",
   representation(
-    # formula 
+    # formula
     # strength
-    # dose unit 
-    # hydration 
-    # cost 
-    # solids formula 
+    # dose unit
+    # hydration
+    # cost
+    # solids formula
 
     chemical = "character",
     strength = "numeric",
@@ -15,13 +15,14 @@ methods::setClass(
     hydration = "numeric",
     cost = "numeric",
     solids_formula = "character"
-
   ),
   prototype(
-   # defaults 
-   chemical = "",
-    strength = NA_real_,
-    dose_unit = "",
+    # defaults
+    chemical = "",
+    strength = 100,
+    # default strength 100 like TW already assumes
+    dose_unit = "mg/L",
+    # TW chemicals typically in mg/L as now
     hydration = NA_real_,
     cost = NA_real_,
     solids_formula = ""
@@ -29,4 +30,15 @@ methods::setClass(
 )
 
 # functions/ methods
+
+methods::setMethod(
+  "show",
+  "chemical",
+  function(object) {
+    # General parameters
+    cat("Chemical Name: ", object@chemical, "\n")
+    cat("Strength : ", object@strength, "%", "\n")
+    cat("Dosage Units: ", object@dose_unit, "\nUse summary functions or slot names to view other parameters.\n")
+  }
+)
 
