@@ -99,7 +99,6 @@ methods::setMethod(
 
     dose <- object@dose
 
-    # this implementation would req a new function specifically for converting chemicals
     object@dose <- tidywater::convert_units( dose, chemical, input_unit, "mg/L")
 
     object@dose_unit <- "mg/L"
@@ -113,17 +112,29 @@ methods::setMethod(
   "chemical",
   function(object){
     
-    cat("select output unit")
+    cat("select output unit (enter number)")
 
+    dose<- readline(prompt = "options: 
+      1) mg/L
+      2) M
+      3) ug/L
+      ")
+    
+    switch(dose,
+      '1' = end_unit<- "mg/L",
+      '2' = end_unit<- "M",
+      '3' = end_unit<- "ug/L"
+
+    )
+    
     input_unit <- object@dose_unit
 
     chemical <- object@chemical
 
     dose <- object@dose
 
-    end_unit<-"mg/L"
+    #end_unit<-"mg/L"
 
-    # this implementation would req a new function specifically for converting chemicals
     object@dose <- tidywater::convert_units( dose, chemical, input_unit, end_unit)
 
     object@dose_unit <- end_unit
