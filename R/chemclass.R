@@ -1,4 +1,8 @@
 
+
+
+
+
 methods::setClass(
   "chemical",
   representation(
@@ -77,6 +81,7 @@ setGeneric("PACL_specifics", function(object, m_value, n_value) standardGeneric(
 
 # functions/ methods
 
+# Summary function (show is a default generic so it dosen't need to be defined above)
 methods::setMethod(
   "show",
   "chemical",
@@ -88,6 +93,8 @@ methods::setMethod(
   }
 )
 
+# Specific convert to mg/L, not sure how usefull this one is, but maybe for users who have a smaller programing backround this could be 
+# usefull 
 methods::setMethod(
   "convert_to_mg_L",
   "chemical",
@@ -110,6 +117,8 @@ methods::setMethod(
   }
 )
 
+
+# method to covert internal units for the chemical, relies on TW convert units, which has chems in it already. 
 methods::setMethod(
   "convert_chem",
   "chemical",
@@ -146,6 +155,8 @@ methods::setMethod(
   }
 )
 
+
+# Method for setting unique molecular weight for PACL, way to include hydration later? 
 methods::setMethod(
   "PACL_specifics",
   "chemical",
