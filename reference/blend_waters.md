@@ -87,14 +87,9 @@ example_df <- water_df %>%
   dplyr::slice_head(n = 3) %>%
   define_water_df() %>%
   blend_waters_df(waters = c("defined", waterA), ratios = c(.8, .2))
-#> Warning: The following parameters are missing in some of the waters and will be set to NA in the blend:
-#>    tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4
-#> To fix this, make sure all waters provided have the same parameters specified.
-#> Warning: The following parameters are missing in some of the waters and will be set to NA in the blend:
-#>    tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4
-#> To fix this, make sure all waters provided have the same parameters specified.
-#> Warning: The following parameters are missing in some of the waters and will be set to NA in the blend:
-#>    tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4
-#> To fix this, make sure all waters provided have the same parameters specified.
+#> Warning: The following parameters are missing in some of the waters and will be set to
+#> NA in the blend: tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4 To fix this,
+#> make sure all waters provided have the same parameters specified. (3 rows
+#> affected.)
 # }
 ```

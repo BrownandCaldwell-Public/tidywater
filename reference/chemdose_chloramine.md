@@ -152,65 +152,11 @@ breakpoint <- water_df %>%
     use_tot_nh3_slot = TRUE,
     pluck_cols = TRUE
   )
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
+#> Warning: Both chlorine and ammonia are present and may form chloramines. Use
+#> chemdose_chloramine for breakpoint caclulations. (12 rows affected.)
 #> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
+#> If you want to use ONLY the chlorine dose, please set use_free_cl_slot to
+#> FALSE.  If you want to use ONLY the free chlorine water slot, remove chlorine
+#> dose. (12 rows affected.)
 # }
 ```

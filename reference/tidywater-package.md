@@ -29,6 +29,8 @@ Useful links:
 
 Authors:
 
+- Sierra Johnson <sjohnson2@brwncald.com>
+
 - Libby McKenna <lmckenna@brwncald.com>
 
 - Riley Mulhern <rmulhern@brwncald.com>

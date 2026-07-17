@@ -90,6 +90,6 @@ example_df <- water_df %>%
   define_water_df() %>%
   dplyr::mutate(finAlk = seq(100, 210, 10)) %>%
   solvedose_alk_df(chemical = "na2co3", target_alk = finAlk)
-#> Warning: Target alkalinity cannot be reached with selected chemical. NA returned.
-#> Warning: Target alkalinity cannot be reached with selected chemical. NA returned.
+#> Warning: Target alkalinity cannot be reached with selected chemical. NA returned. (2
+#> rows affected.)
 ```

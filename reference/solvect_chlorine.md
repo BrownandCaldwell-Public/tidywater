@@ -109,10 +109,8 @@ example_ct <- define_water(ph = 7.5, temp = 25) %>%
 ct_calc <- water_df %>%
   define_water_df() %>%
   solvect_chlorine_df(residual = 2, time = 10, baffle = .5)
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
+#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table
+#> E-7 (4 rows affected.)
 
 chlor_resid <- water_df %>%
   dplyr::mutate(br = 50) %>%
@@ -123,8 +121,6 @@ chlor_resid <- water_df %>%
     baffle = 0.7
   ) %>%
   solvect_chlorine_df()
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7
+#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table
+#> E-7 (4 rows affected.)
 ```

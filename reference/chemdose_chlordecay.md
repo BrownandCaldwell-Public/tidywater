@@ -157,12 +157,8 @@ example_df <- water_df %>%
   dplyr::mutate(br = 50) %>%
   define_water_df() %>%
   chemdose_chlordecay_df(input_water = "defined", cl2_dose = 4, time = 8)
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum results instead, set 'use_chlorine_slot = TRUE'.
+#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum
+#> results instead, set 'use_chlorine_slot = TRUE'. (6 rows affected.)
 
 example_df <- water_df %>%
   dplyr::mutate(
@@ -181,17 +177,8 @@ example_df <- water_df %>%
     cl_type = "chloramine",
     pluck_cols = TRUE
   )
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
+#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is
+#> not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot =
+#> FALSE'. (12 rows affected.)
 # }
 ```

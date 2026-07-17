@@ -37,12 +37,6 @@ and a column for dissolved copper in mg/L.
 cu_calc <- water_df %>%
   define_water_df() %>%
   dissolve_cu_df()
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L.
+#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L. (8
+#> rows affected.)
 ```
