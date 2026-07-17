@@ -1,4 +1,25 @@
-
+#'@title Create a chemical class object given a chemical's paramaters
+#'
+#' @description This function matches user input chemicals with a database of common chemicals, allowing the user to define and use
+#' a greater variety of chemical paramaters in their calculations.  
+#' 
+#' @details Coming soon to theaters near you!
+#'
+#' @param formula Accociated chemical formula
+#' @param dose Dosage of the chemical 
+#' @param strength from 100% to 1%, measure of the ammount of chemical to its solution
+#' @param dose_unit Units the chemical is in, defaults to mg/L as chemical 
+#' @param hydration Waters of hydration
+#' @param cost How much the chemical costs 
+#' 
+#' @examples 
+#' 
+#' naoh_50p <- define_chemical(formula="naoh",dose=12, strength = 50, dose_unit = "M")
+#' 
+#' @export
+#' 
+#' @return An S4 chemical class object with user defined paramaters. 
+#'   
 
 
 
