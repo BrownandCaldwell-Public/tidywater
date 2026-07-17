@@ -15,7 +15,8 @@ methods::setClass(
     dose_unit = "character",
     hydration = "numeric",
     cost = "numeric",
-    solids_formula = "character"
+    solids_formula = "character",
+    molecular_weight = "numeric"
   ),
   prototype(
     # defaults
@@ -31,8 +32,9 @@ methods::setClass(
     # empty default
     cost = NA_real_,
     # empty default
-    solids_formula = ""
+    solids_formula = "",
     # empty default
+    molecular_weight=NA_real_
   )
 )
 
@@ -71,6 +73,7 @@ methods::setClass(
 # generics 
 setGeneric("convert_to_mg_L", function(object ) standardGeneric("convert_to_mg_L"))
 setGeneric("convert_chem", function(object ) standardGeneric("convert_chem"))
+setGeneric("PACL_specifics", function(object, m_value, n_value) standardGeneric("PACL_specifics") )
 
 # functions/ methods
 
@@ -138,6 +141,21 @@ methods::setMethod(
     object@dose <- tidywater::convert_units( dose, chemical, input_unit, end_unit)
 
     object@dose_unit <- end_unit
+
+    return(object)
+  }
+)
+
+methods::setMethod(
+  "PACL_specifics",
+  "chemical",
+  function(object, m_value, n_value){
+
+    if (object@chemical != "pacl") return()
+
+    PACL_MW <- (m_value*26.981539)+(n_value*15.999)
+
+    object@molecular_weight<- PACL_MW
 
     return(object)
   }
