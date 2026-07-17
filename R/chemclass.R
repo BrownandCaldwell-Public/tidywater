@@ -9,7 +9,7 @@ methods::setClass(
     # cost
     # solids formula
 
-    chemical = "character",
+    formula = "character",
     dose = "numeric",
     strength = "numeric",
     dose_unit = "character",
@@ -19,7 +19,7 @@ methods::setClass(
   ),
   prototype(
     # defaults
-    chemical = "",
+    formula = NA_character_,
     # empty default
     dose = NA_real_,
     # default units below
@@ -31,7 +31,7 @@ methods::setClass(
     # empty default
     cost = NA_real_,
     # empty default
-    solids_formula = ""
+    solids_formula = NA_character_
     # empty default
   )
 )
@@ -79,7 +79,8 @@ methods::setMethod(
   "chemical",
   function(object) {
     # General parameters
-    cat("Chemical Name: ", object@chemical, "\n")
+    cat("Chemical Name: ", object@formula, "\n")
+    cat("Dose: ", object@dose, "\n")
     cat("Strength : ", object@strength, "%", "\n")
     cat("Dosage Units: ", object@dose_unit, "\nUse summary functions or slot names to view other parameters.\n")
   }
@@ -95,7 +96,7 @@ methods::setMethod(
 
     input_unit <- object@dose_unit
 
-    chemical <- object@chemical
+    chemical <- object@formula
 
     dose <- object@dose
 
@@ -129,7 +130,7 @@ methods::setMethod(
     
     input_unit <- object@dose_unit
 
-    chemical <- object@chemical
+    chemical <- object@formula
 
     dose <- object@dose
 

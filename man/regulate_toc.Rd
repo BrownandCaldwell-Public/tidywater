@@ -82,10 +82,6 @@ regulated <- water_df \%>\%
   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
   regulate_toc_df()
 
-water_raw <- define_water(alk = 50, toc = 5)
-water_treated <- define_water(toc = 2)
-regulated
-
 water1<-water_df |> 
  define_water_df() |> 
  chemdose_toc_df(output_water= "dosed", alum=20) |> 
