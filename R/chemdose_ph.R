@@ -246,7 +246,7 @@ chemdose_ph <- function(
       "Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown."
     )
   }
-  # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al) 
+  # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al)
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach + (.9 * 2) * pacl
   dosed_water@cl <- water@cl + cl_dose
 
@@ -487,6 +487,7 @@ chemdose_ph_df <- function(
   ferricchloride <- tryCatch(ferricchloride, error = function(e) enquo(ferricchloride))
   ferricsulfate <- tryCatch(ferricsulfate, error = function(e) enquo(ferricsulfate))
   ach <- tryCatch(ach, error = function(e) enquo(ach))
+  pacl <- tryCatch(pacl, error = function(e) enquo(pacl))
   caco3 <- tryCatch(caco3, error = function(e) enquo(caco3))
   caso4 <- tryCatch(caso4, error = function(e) enquo(caso4))
 
@@ -574,6 +575,7 @@ chemdose_ph_df <- function(
   )
   df <- defaults_added$data
 
+  
   # If na_to_zero is TRUE, change all NA chemical doses in the dataframe to zero
   if (na_to_zero) {
     chemicals <- unlist(unname(final_names[names(final_names) != "softening_correction"]))
@@ -583,7 +585,10 @@ chemdose_ph_df <- function(
     })
   }
 
+  warning_counts<-list()
+
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
+    withCallingHandlers(
     chemdose_ph(
       water = df[[input_water]][[i]],
       hcl = df[[final_names$hcl]][i],
@@ -614,8 +619,19 @@ chemdose_ph_df <- function(
       naf = df[[final_names$naf]][i],
       na3po4 = df[[final_names$na3po4]][i],
       softening_correction = df[[final_names$softening_correction]][i]
-    )
+    ),
+    warning = function(w) {
+      msg <- conditionMessage(w)
+      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+      invokeRestart("muffleWarning")
+    }
+  )
   })
+
+
+  for (msg in names(warning_counts)) {
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
