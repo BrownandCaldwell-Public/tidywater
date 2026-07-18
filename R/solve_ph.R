@@ -13,7 +13,6 @@ solve_ph <- function(
   no3_dose = 0
 ) {
   # Correct eq constants
-  # water@ks <- correct_k(water)
   gamma1 <- calculate_activity(1, water@is, water@temp)
 
   #### SOLVE FOR pH
