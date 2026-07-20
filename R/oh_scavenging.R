@@ -1,10 +1,10 @@
-oh_scavenging <- function(water, dose = 0, kdoc_adjust = "default") {
+oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
   # K vals from syd's arcadia sheet
   # k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
   # k(OH,DOC/TOC) SRDOM	1.86E+04	L/mg s-1	Westerhoff et al. 2007
   # k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
   # k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
-  # k(OH,NO2-)	1.00E+09	M-1 s-1	Buxton et al.,1988
+  # k(OH,NO2-)	1.00E+10
   # k(OH,NO3-)	1.00E+05	M-1 s-1	Keen et al., 2012
   # k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
@@ -16,6 +16,8 @@ oh_scavenging <- function(water, dose = 0, kdoc_adjust = "default") {
   # 6.35E+08, #Vinge et al (2021) M^-1 s^-1
   # 2.00E+08 #Wols et al (2014) - 33 M^-1 s^-1
 
+  # found that best k DOC value to fid our existing data is 48065
+
   validate_water(water, c("ph"))
 
   if (is.na(water@dic)) {
@@ -26,6 +28,7 @@ oh_scavenging <- function(water, dose = 0, kdoc_adjust = "default") {
   # List of each constituent k value to access easier and for clarity.
   k <- list(
     DOC = 2.5e4,
+    # 48065
     DOC_SRDOM = 1.86E+04, # L/mg s-1
     HCO3 = 8.50E+06, # M-1 s-1
     CO3 = 3.90E+08, # M-1 s-1
