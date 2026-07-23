@@ -37,9 +37,9 @@ methods::setClass(
     # empty default
     cost = NA_real_,
     # empty default
-    solids_formula = NA_character_,
+    solids_formula = NA_character_
     # empty default
-    molecular_weight=NA_real_
+    # molecular_weight=NA_real_
   )
 )
 
