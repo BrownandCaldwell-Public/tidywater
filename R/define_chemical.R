@@ -11,6 +11,7 @@
 #' @param dose_unit Units the chemical is in, defaults to mg/L as chemical 
 #' @param hydration Waters of hydration
 #' @param cost How much the chemical costs 
+#' @param solids_formula formula for solids 
 #' 
 #' @examples 
 #' 
