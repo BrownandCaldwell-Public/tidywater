@@ -83,7 +83,7 @@ define_water_df(
 )
 }
 \arguments{
-\item{ph}{water pH}
+\item{ph}{Water pH}
 
 \item{temp}{Temperature in degree C}
 
