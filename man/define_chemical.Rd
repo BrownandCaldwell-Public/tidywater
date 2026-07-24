@@ -10,11 +10,12 @@ define_chemical(
   strength = 100,
   dose_unit = "mg/L as chemical",
   hydration = NA_real_,
-  cost = NA_real_
+  cost = NA_real_,
+  solids_formula = NA_real_
 )
 }
 \arguments{
-\item{formula}{Accociated chemical formula}
+\item{formula}{Associated chemical formula}
 
 \item{dose}{Dosage of the chemical}
 
@@ -25,6 +26,8 @@ define_chemical(
 \item{hydration}{Waters of hydration}
 
 \item{cost}{How much the chemical costs}
+
+\item{solids_formula}{formula for solids}
 }
 \value{
 An S4 chemical class object with user defined paramaters.
