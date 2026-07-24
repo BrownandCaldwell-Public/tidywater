@@ -57,7 +57,8 @@ chemical <- methods::new(
   strength = strength,
   dose_unit=dose_unit,
   hydration=hydration,
-  cost = cost
+  cost = cost,
+  solids_formula = solids_formula
 )
 
  return(chemical) 
