@@ -19,8 +19,9 @@ methods::setClass(
     dose_unit = "character",
     hydration = "numeric",
     cost = "numeric",
-    solids_formula = "character",
-    molecular_weight = "numeric"
+    solids_formula = "character"
+    #molecular_weight = "numeric"
+    # maybe add in later 
   ),
   prototype(
     # defaults
@@ -36,9 +37,9 @@ methods::setClass(
     # empty default
     cost = NA_real_,
     # empty default
-    solids_formula = NA_character_,
+    solids_formula = NA_character_
     # empty default
-    molecular_weight=NA_real_
+    # molecular_weight=NA_real_
   )
 )
 
@@ -74,10 +75,7 @@ methods::setClass(
 #  )
 
 
-# generics 
-setGeneric("convert_to_mg_L", function(object ) standardGeneric("convert_to_mg_L"))
-setGeneric("convert_chem", function(object ) standardGeneric("convert_chem"))
-setGeneric("PACL_specifics", function(object, m_value, n_value) standardGeneric("PACL_specifics") )
+
 
 # functions/ methods
 
@@ -91,84 +89,5 @@ methods::setMethod(
     cat("Dose: ", object@dose, "\n")
     cat("Strength : ", object@strength, "%", "\n")
     cat("Dosage Units: ", object@dose_unit, "\nUse summary functions or slot names to view other parameters.\n")
-  }
-)
-
-# Specific convert to mg/L, not sure how usefull this one is, but maybe for users who have a smaller programing backround this could be 
-# usefull 
-methods::setMethod(
-  "convert_to_mg_L",
-  "chemical",
-  function(object) {
-    if (object@dose_unit == "mg/L") {
-      return()
-    }
-
-    input_unit <- object@dose_unit
-
-    chemical <- object@formula
-
-    dose <- object@dose
-
-    object@dose <- tidywater::convert_units( dose, chemical, input_unit, "mg/L")
-
-    object@dose_unit <- "mg/L"
-
-    return(object)
-  }
-)
-
-
-# method to covert internal units for the chemical, relies on TW convert units, which has chems in it already. 
-methods::setMethod(
-  "convert_chem",
-  "chemical",
-  function(object){
-    
-    cat("select output unit (enter number)")
-
-    dose<- readline(prompt = "options: 
-      1) mg/L
-      2) M
-      3) ug/L
-      ")
-    
-    switch(dose,
-      '1' = end_unit<- "mg/L",
-      '2' = end_unit<- "M",
-      '3' = end_unit<- "ug/L"
-
-    )
-    
-    input_unit <- object@dose_unit
-
-    chemical <- object@formula
-
-    dose <- object@dose
-
-    #end_unit<-"mg/L"
-
-    object@dose <- tidywater::convert_units( dose, chemical, input_unit, end_unit)
-
-    object@dose_unit <- end_unit
-
-    return(object)
-  }
-)
-
-
-# Method for setting unique molecular weight for PACL, way to include hydration later? 
-methods::setMethod(
-  "PACL_specifics",
-  "chemical",
-  function(object, m_value, n_value){
-
-    if (object@chemical != "pacl") return()
-
-    PACL_MW <- (m_value*26.981539)+(n_value*15.999)
-
-    object@molecular_weight<- PACL_MW
-
-    return(object)
   }
 )
