@@ -30,8 +30,8 @@ define_chemical<-function(
   strength = 100, 
   dose_unit = 'mg/L as chemical', 
   hydration = NA_real_,
-  cost = NA_real_
-
+  cost = NA_real_,
+  solids_formula = NA_real_
 ) {
 
   # If things are missing, error. If missing formula, abort. 
