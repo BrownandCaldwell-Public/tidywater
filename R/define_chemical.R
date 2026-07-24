@@ -5,12 +5,13 @@
 #' 
 #' @details Coming soon to theaters near you!
 #'
-#' @param formula Accociated chemical formula
+#' @param formula Associated chemical formula
 #' @param dose Dosage of the chemical 
 #' @param strength from 100% to 1%, measure of the ammount of chemical to its solution
 #' @param dose_unit Units the chemical is in, defaults to mg/L as chemical 
 #' @param hydration Waters of hydration
 #' @param cost How much the chemical costs 
+#' @param solids_formula formula for solids 
 #' 
 #' @examples 
 #' 
@@ -30,8 +31,8 @@ define_chemical<-function(
   strength = 100, 
   dose_unit = 'mg/L as chemical', 
   hydration = NA_real_,
-  cost = NA_real_
-
+  cost = NA_real_,
+  solids_formula = NA_real_
 ) {
 
   # If things are missing, error. If missing formula, abort. 
@@ -56,7 +57,8 @@ chemical <- methods::new(
   strength = strength,
   dose_unit=dose_unit,
   hydration=hydration,
-  cost = cost
+  cost = cost,
+  solids_formula = solids_formula
 )
 
  return(chemical) 
