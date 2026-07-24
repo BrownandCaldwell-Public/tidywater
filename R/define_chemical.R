@@ -5,7 +5,7 @@
 #' 
 #' @details Coming soon to theaters near you!
 #'
-#' @param formula Accociated chemical formula
+#' @param formula Associated chemical formula
 #' @param dose Dosage of the chemical 
 #' @param strength from 100% to 1%, measure of the ammount of chemical to its solution
 #' @param dose_unit Units the chemical is in, defaults to mg/L as chemical 
