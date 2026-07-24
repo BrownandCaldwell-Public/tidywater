@@ -11,7 +11,7 @@ define_chemical(
   dose_unit = "mg/L as chemical",
   hydration = NA_real_,
   cost = NA_real_,
-  solids_formula = NA_real_
+  solids_formula = NA_character_
 )
 }
 \arguments{
