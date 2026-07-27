@@ -31,6 +31,12 @@ test_that("Unit conversion between mg/L and mg/L CaCO3 works.", {
     convert_units(soda_ash, "na2co3", startunit = "mg/L CaCO3", endunit = "mg/L"),
     soda_ash * mweights$na2co3 / mweights$caco3
   )
+  naoh_mg <- 10
+  expect_equal(
+    convert_units(naoh_mg, "naoh", startunit = "mg/L", endunit = "mg/L CaCO3"),
+    naoh_mg / mweights$naoh * mweights$caco3 / 2
+  )
+
 })
 
 test_that("Unit conversion to same units works.", {
