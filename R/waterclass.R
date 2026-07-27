@@ -49,6 +49,10 @@ methods::setClass(
     ch3coo = "numeric",
     h = "numeric",
     oh = "numeric",
+    h3cit = "numeric",
+    h2cit = "numeric",
+    h1cit = "numeric",
+    cit = "numeric",
     # total of pH dependent ions
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
@@ -141,6 +145,10 @@ methods::setClass(
     ch3coo = NA_real_,
     h = NA_real_,
     oh = NA_real_,
+    h3cit = NA_real_,
+    h2cit = NA_real_,
+    h1cit = NA_real_,
+    cit = NA_real_,
     # total of pH dependent ions
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,

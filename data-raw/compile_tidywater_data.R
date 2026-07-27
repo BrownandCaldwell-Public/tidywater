@@ -56,6 +56,7 @@ molec_properties <- data.frame(
   nh4oh = c(18.04 + 17.008, 1),
   nh42so4 = c(18.04 * 2 + 96.0626, NA),
   kmno4 = c(158.032, 1),
+  c6h8o7 = c(192.12, 0),
 
   # Stuff that isn't made of ions. No charge.
   cl2 = c(70.906, NA),
@@ -109,7 +110,8 @@ discons <- data.frame(
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
   # Acetate
   add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
-  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) # H2O <--> H+ + OH- 
+  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) %>% # H2O <--> H+ + OH- 
+  add_row(ID= c( "k1cit","k2cit","k3cit"  ), k = c(10^-3.13, 10^-4.72, 10^-6.33),  deltah = c(-22, -3.5, 2.3)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit 
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)

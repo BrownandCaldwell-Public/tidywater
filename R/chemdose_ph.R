@@ -72,6 +72,7 @@ chemdose_ph <- function(
   h3po4 = 0,
   hno3 = 0,
   ch3cooh = 0,
+  c6h8o7 = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -121,6 +122,8 @@ chemdose_ph <- function(
   hno3 <- convert_units(hno3, "hno3")
   # Acetic acid (CH3COOH) dose
   ch3cooh <- convert_units(ch3cooh, "ch3cooh")
+  # Citric Acid here 
+  c6h8o7 <- convert_units(c6h8o7, "c6h8o7")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
