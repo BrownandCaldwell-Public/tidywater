@@ -72,7 +72,7 @@ chemdose_ph <- function(
   h3po4 = 0,
   hno3 = 0,
   ch3cooh = 0,
-  c6h8o7 = 0,
+  citric = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -123,7 +123,7 @@ chemdose_ph <- function(
   # Acetic acid (CH3COOH) dose
   ch3cooh <- convert_units(ch3cooh, "ch3cooh")
   # Citric Acid here 
-  c6h8o7 <- convert_units(c6h8o7, "c6h8o7")
+  citric <- convert_units(citric, "c6h8o7")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
@@ -260,6 +260,10 @@ chemdose_ph <- function(
   ch3cooh_dose <- ch3cooh
   dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
 
+  # Total Citric Acid
+  citric_dose <- citric 
+  dosed_water@tot_citric <- citric_dose
+
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
   dosed_water@tds <- water@tds +
@@ -275,7 +279,8 @@ chemdose_ph <- function(
     convert_units(nh4_dose, "nh4", "M", "mg/L") +
     convert_units(mno4_dose, "mno4", "M", "mg/L") +
     convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") +
-    convert_units(no3_dose, "no3", "M", "mg/L")
+    convert_units(no3_dose, "no3", "M", "mg/L") +
+    convert_units(citric_dose, "citric", "M", "mg/L") 
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     cli::cli_warn("Calculated TDS after chemical removal is < 0; TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
@@ -333,6 +338,12 @@ chemdose_ph <- function(
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
 
+dosed_water@tot_cit<-dosed_water@tot_cit
+dosed_water@cit<-dosed_water@tot_cit * calculate_alpha0_citric(h,ks)
+dosed_water@hcit<-dosed_water@tot_cit * calculate_alpha1_citric(h,ks)
+dosed_water@h2cit<-dosed_water@tot_cit * calculate_alpha2_citric(h,ks)
+dosed_water@h3cit<-dosed_water@tot_cit * calculate_alpha3_citric(h,ks)
+  
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
   dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)

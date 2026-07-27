@@ -56,7 +56,7 @@ molec_properties <- data.frame(
   nh4oh = c(18.04 + 17.008, 1),
   nh42so4 = c(18.04 * 2 + 96.0626, NA),
   kmno4 = c(158.032, 1),
-  c6h8o7 = c(192.12, 0),
+  citric = c(192.12, 0),
 
   # Stuff that isn't made of ions. No charge.
   cl2 = c(70.906, NA),

@@ -156,6 +156,7 @@ methods::setClass(
     tot_bo3 = NA_real_,
     tot_sio4 = NA_real_,
     tot_ch3coo = NA_real_,
+    tot_cit = NA_real_,
 
     # Additional ions
     br = NA_real_,
