@@ -138,7 +138,7 @@ chemdose_toc <- function(
       water@toc <- nonadsorb + adsorb
       water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
     }
-    cli::cli_warn("pH is greater than 8. Model may not be valid for this water.")
+    cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
   } else {
     nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
