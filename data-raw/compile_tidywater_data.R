@@ -34,27 +34,26 @@ molec_properties <- data.frame(
   no3 = c(62.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
-  # Chemicals. These only have a charge if both ions have the same charge.
-  # Except: Use the anion charge if the cation is H+, use the cation charge if the anion is OH-.
+  # Chemicals. Everything has a charge.
   caco3 = c(100.0869, 2),
   caso4 = c(136.141, 2),
   hcl = c(36.46094, 1),
   h2so4 = c(98.079, 2),
   h3po4 = c(97.995181, 3),
   naoh = c(39.9971, 1),
-  na2co3 = c(105.98844, NA),
+  na2co3 = c(105.98844, 2),
   nahco3 = c(84.00661, 1),
   caoh2 = c(74.09268, 2),
   mgoh2 = c(58.31968, 2),
-  cacl2 = c(110.98, NA),
+  cacl2 = c(110.98, 2),
   ch3cooh = c(60.05, 1),
-  fecl3 = c(55.845 + 35.453 * 3, NA),
-  na3po4 = c(163.939, NA),
+  fecl3 = c(55.845 + 35.453 * 3, 3),
+  na3po4 = c(163.939, 3),
   h2co3 = c(62.024, 2),
   naf = c(41.9882, 1),
   hno3 = c(63.0128, 1),
   nh4oh = c(18.04 + 17.008, 1),
-  nh42so4 = c(18.04 * 2 + 96.0626, NA),
+  nh42so4 = c(18.04 * 2 + 96.0626, 2),
   kmno4 = c(158.032, 1),
 
   # Stuff that isn't made of ions. No charge.
