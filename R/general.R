@@ -569,9 +569,27 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
-  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
+  mweights<-get("mweights")
+  molecNames<-names(mweights)
+
+  # normalize strings
+  formula <- tolower(gsub("\\s", "", formula))
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
+
+
+  
+  # formula matcher
+  if (!(formula %in% molecNames)) {
+    bestFormula <- agrep(formula, molecNames, max.distance = 1)
+    if (length(bestFormula) > 0) {
+      formula <- molecNames[bestFormula[1]]
+      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+    }
+    # else: fall through — convert_units_private will error with a clear message
+  }
+
+
 
   unit_matcher <- c(
     "ng/l" = "ng/L",
@@ -597,8 +615,8 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   )
 
 
-  bestStart <- agrep(startunit, names(unit_matcher), max.distance = 2)
-  bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 2)  
+  bestStart <- agrep(startunit, names(unit_matcher), max.distance = 1)
+  bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 1)
 
   # space and upper case matching
   if (startunit%in% names(unit_matcher)){
