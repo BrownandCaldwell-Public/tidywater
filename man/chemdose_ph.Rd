@@ -89,6 +89,8 @@ chemdose_ph_df(
 
 \item{ch3cooh}{Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO-}
 
+\item{citric}{Amount of citric acid added in mg/L: C3H4OH(COOH)3 -> 3H+ C3H4OH(COO)}
+
 \item{co2}{Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*}
 
 \item{naoh}{Amount of caustic added in mg/L: NaOH -> Na + OH}
