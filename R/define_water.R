@@ -346,6 +346,7 @@ define_water <- function(
     tot_bo3 = tot_bo3,
     tot_sio4 = tot_sio4,
     tot_ch3coo = tot_ch3coo,
+    tot_cit = 0, 
     kw = kw,
     is = 0,
     alk_eq = alk_eq,

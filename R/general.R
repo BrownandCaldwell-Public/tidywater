@@ -704,11 +704,19 @@ correct_k <- function(water) {
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
+  # k1cit = {h+}{h2cit-}/{h3cit}
+  k1cit <- K_temp_adjust(discons["k1cit", ]$deltah, discons["k1cit", ]$k, temp) / activity_z1^2
+  # k2cit = {h+}{hcit2-}/{h2cit-}
+  k2cit <- K_temp_adjust(discons["k2cit", ]$deltah, discons["k2cit", ]$k, temp) / activity_z2
+  # k3cit = {h+}{cit3-}/{hcit2-}
+  k3cit <- K_temp_adjust(discons["k3cit", ]$deltah, discons["k3cit", ]$k, temp) *
+    activity_z2 /
+    (activity_z1 * activity_z3)
 
   return(data.frame(
     "k1co3" = k1co3,
     "k2co3" = k2co3,
-    
+
     "k1po4" = k1po4,
     "k2po4" = k2po4,
     "k3po4" = k3po4,
@@ -718,7 +726,11 @@ correct_k <- function(water) {
     "kbo3" = kbo3,
     "k1sio4" = k1sio4,
     "k2sio4" = k2sio4,
-    "kch3coo" = kch3coo
+    "kch3coo" = kch3coo,
+    "kch3coo" = kch3coo,
+    "k1cit" = k1cit,
+    "k2cit" = k2cit,
+    "k3cit" = k3cit
   ))
 }
 
