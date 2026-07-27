@@ -262,7 +262,7 @@ chemdose_ph <- function(
 
   # Total Citric Acid
   citric_dose <- citric 
-  dosed_water@tot_citric <- citric_dose
+  dosed_water@tot_cit <- citric_dose
 
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.

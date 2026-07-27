@@ -121,7 +121,7 @@ solve_ph <- function(
     no3_dose = no3_dose,
     tot_cit = water@tot_cit,
     cit = water@cit,
-    hcit = water@hcit,
+    h1cit = water@h1cit,
     h2cit = water@h2cit,
     h3cit = water@h3cit,
     tol = 1e-14
