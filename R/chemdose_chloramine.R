@@ -137,26 +137,7 @@ chemdose_chloramine <- function(
   # Calculate alpha values
   alpha0TOTCl <- 1 / (1 + KHOCl / H)
   alpha1TOTCl <- 1 / (1 + H / KHOCl)
-
-  # calculate_alpha_carbonate functions are defined below, followed the same logic as phosphate to define alpha0 -- any reason this is still included here despite being in general now?
-  # calculate_alpha0_carbonate <- function(h, k) {
-  #   k1 <- k$k1co3
-  #   k2 <- k$k2co3
-  #   1 / (1 + (k1 / h) + (k1 * k2 / h^2))
-  # }
-
-  # calculate_alpha1_carbonate <- function(h, k) {
-  #   k1 <- k$k1co3
-  #   k2 <- k$k2co3
-  #   calculate_alpha0_carbonate(h, k) * k1 / h
-  # }
-
-  # calculate_alpha2_carbonate <- function(h, k) {
-  #   k1 <- k$k1co3
-  #   k2 <- k$k2co3
-  #   calculate_alpha0_carbonate(h, k) * (k1 * k2 / h^2)
-  # }
-  # alpha0TOTCO <- 1/(1 + KH2CO3/H + KH2CO3*KHCO3/H^2)
+  
   alpha0TOTCO <- calculate_alpha0_carbonate(H, water@ks)
   alpha1TOTCO <- calculate_alpha1_carbonate(H, water@ks)
   alpha2TOTCO <- calculate_alpha2_carbonate(H, water@ks)

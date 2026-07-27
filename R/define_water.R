@@ -107,6 +107,8 @@
 #'   \item{nh2cl}{monochloramine, numeric, mol/L.}
 #'   \item{nhcl2}{dichloramine, numeric, mol/L.}
 #'   \item{ncl3}{trichloramine, numeric, mol/L.}
+#'   \item{estimated}{list of parameters that were estimated based on other inputs.}
+#'   \item{ks}{data frame with corrected equilibrium constants given defined water initial temperature and ionic strength}
 #'   \item{chcl3}{chloroform, numeric, ug/L.}
 #'   \item{chcl2br}{bromodichloromethane, numeric, ug/L.}
 #'   \item{chbr2cl}{dibromodichloromethane, numeric, ug/L.}

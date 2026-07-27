@@ -14,6 +14,7 @@ solve_ph <- function(
 ) {
   # Correct eq constants
   gamma1 <- calculate_activity(1, water@is, water@temp)
+  k <- if (!is.na(water@is)) correct_k(water) else water@ks
 
   #### SOLVE FOR pH
   solve_h <- function(
@@ -50,22 +51,22 @@ solve_ph <- function(
       (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 *
-        (calculate_alpha1_phosphate(h, water@ks) +
-          2 * calculate_alpha2_phosphate(h, water@ks) +
-          3 * calculate_alpha3_phosphate(h, water@ks)) +
+        (calculate_alpha1_phosphate(h, k) +
+          2 * calculate_alpha2_phosphate(h, k) +
+          3 * calculate_alpha3_phosphate(h, k)) +
       tot_co3 *
-        (calculate_alpha1_carbonate(h, water@ks) +
-          2 * calculate_alpha2_carbonate(h, water@ks)) +
-      tot_ocl * calculate_alpha1_hypochlorite(h, water@ks) +
-      tot_bo3 * calculate_alpha1_borate(h, water@ks) +
+        (calculate_alpha1_carbonate(h, k) +
+          2 * calculate_alpha2_carbonate(h, k)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, k) +
+      tot_bo3 * calculate_alpha1_borate(h, k) +
       tot_sio4 *
-        (calculate_alpha1_silicate(h, water@ks) +
-          2 * calculate_alpha2_silicate(h, water@ks)) +
-      tot_ch3coo * calculate_alpha1_acetate(h, water@ks) +
+        (calculate_alpha1_silicate(h, k) +
+          2 * calculate_alpha2_silicate(h, k)) +
+      tot_ch3coo * calculate_alpha1_acetate(h, k) +
       cl_dose +
       mno4_dose +
       no3_dose -
-      (h + na_dose + 2 * ca_dose + 2 * mg_dose + tot_nh3 * calculate_alpha1_ammonia(h, water@ks)) -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose + tot_nh3 * calculate_alpha1_ammonia(h, k)) -
       (carbonate_alk_eq + oh_i) -
       3 * po4_i -
       2 * hpo4_i -
