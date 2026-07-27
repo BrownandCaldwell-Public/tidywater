@@ -16,7 +16,7 @@ a tibble with the check, value, and flag for any issues found. If skip_models = 
 }
 \description{
 This function takes a previously defined water class input and checks common mismatch issues with water quality.
-It returns a table with the check, the value, and a flag if there is an issue.
+It returns a list with the check, the value, and a flag if there is an issue.
 It will also check to see what other tidywater models are applicable to the input water unless the user specifies to skip that step.
 }
 \details{
