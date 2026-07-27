@@ -98,7 +98,7 @@ chemdose_toc <- function(
   # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
   if (suva>5) {
     suva<-5
-    cli::cli_warn("SUVA is unnaturally high, forcing SUVA to 5")
+    cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
   }
   else suva<-suva
   # Edwards calculations
