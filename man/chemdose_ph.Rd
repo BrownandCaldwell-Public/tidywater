@@ -12,6 +12,7 @@ chemdose_ph(
   h3po4 = 0,
   hno3 = 0,
   ch3cooh = 0,
+  citric = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
