@@ -82,7 +82,7 @@ solve_ph <- function(
       h_i -
       bo3_i -
       2 * h2sio4_i -
-      h3sio4_i  -
+      h3sio4_i  +
       tot_cit *
         (calculate_alpha1_citric(h, ks) +
           2 * calculate_alpha2_citric(h, ks) +
