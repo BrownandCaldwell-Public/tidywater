@@ -29,7 +29,7 @@ test_that("Unit conversion between mg/L and mg/L CaCO3 works.", {
   soda_ash <- 10
   expect_equal(
     convert_units(soda_ash, "na2co3", startunit = "mg/L CaCO3", endunit = "mg/L"),
-    soda_ash / mweights$na2co3 * mweights$caco3
+    soda_ash * mweights$na2co3 / mweights$caco3
   )
 })
 
