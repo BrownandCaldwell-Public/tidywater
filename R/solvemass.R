@@ -26,14 +26,15 @@ solvemass_chem <- function(dose, flow, strength = 100) {
 
 #' Determine solids lb/day
 #'
-#' This function takes coagulant doses in mg/L as chemical, removed turbidity, and plant flow as MGD to determine solids production.
+#' This function takes coagulant doses in mg/L as chemical, removed turbidity, hardness removal in mg/L as chemical, and plant flow as MGD to determine solids production.
 #'
 #' @param alum  Amount of hydrated aluminum sulfate added in mg/L as chemical: Al2(SO4)3*14H2O + 6HCO3 -> 2Al(OH)3(am) +3SO4 + 14H2O + 6CO2
 #' @param ferricchloride  Amount of ferric chloride added in mg/L as chemical: FeCl3 + 3HCO3 -> Fe(OH)3(am) + 3Cl + 3CO2
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L as chemical: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
 #' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
-#' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
+#' @param ca_removed Amount of calcium hardness removed by softening as mg/L CaCO3
+#' @param mg_removed Amount of magnesium hardness removed by softening as mg/L Mg(OH)2
 #' @param polymer Amount of polymer added in mg/L as chemical
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
@@ -69,14 +70,14 @@ solvemass_solids <- function(
   ferricsulfate = 0,
   flow,
   toc_removed = 0,
-  caco3_removed = 0,
+  ca_removed = 0,
+  mg_removed = 0,
   polymer = 0,
   turb,
   b = 1.5,
   details = FALSE
 ) {
   suspended <- turb * b
-  # 2 mol of Fe added per mol of ferric sulfate
   fe_factor <- (2 * (tidywater::mweights$fe + 3 * tidywater::mweights$oh + 3 * tidywater::mweights$h2o)) / tidywater::mweights$ferricsulfate
   alum_factor <- (2 * (tidywater::mweights$al + 3 * tidywater::mweights$oh + 3 * tidywater::mweights$h2o)) / tidywater::mweights$alum
   flow_factor <- 8.34 * flow
@@ -85,7 +86,7 @@ solvemass_solids <- function(
   coagulant_solids = flow_factor * (alum_factor * alum + fe_factor * ferricsulfate + ferricchloride)
   turbidity_solids = flow_factor * suspended
   toc_solids = flow_factor * toc_removed
-  hardness_solids = flow_factor * caco3_removed
+  hardness_solids = flow_factor * (ca_removed + convert_units(mg_removed, "mgoh2", "mg/L", "mg/L CaCO3"))
   polymer_solids = flow_factor * polymer
   total_solids <- coagulant_solids + turbidity_solids + toc_solids + hardness_solids + polymer_solids
 
