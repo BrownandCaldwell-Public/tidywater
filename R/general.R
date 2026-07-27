@@ -877,28 +877,24 @@ calculate_alpha1_acetate <- function(h, k) {
 }
 
 calculate_alpha0_citric <- function (h , k ){
-  # c6h8o7
   k1 <- k$k1cit
   k2 <- k$k2cit
   k3 <- k$k3cit
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 calculate_alpha1_citric <- function (h , k ){
-  # c6h8o7
   k1 <- k$k1cit
   k2 <- k$k2cit
   k3 <- k$k3cit
   calculate_alpha0_citric(h, k) * k1 / h
 }
 calculate_alpha2_citric <- function (h , k ){
-  # c6h8o7
   k1 <- k$k1cit
   k2 <- k$k2cit
   k3 <- k$k3cit
   calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
 }
 calculate_alpha3_citric <- function (h , k ){
-  # c6h8o7
   k1 <- k$k1cit
   k2 <- k$k2cit
   k3 <- k$k3cit

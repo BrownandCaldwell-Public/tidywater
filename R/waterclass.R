@@ -60,6 +60,7 @@ methods::setClass(
     tot_bo3 = "numeric",
     tot_sio4 = "numeric",
     tot_ch3coo = "numeric",
+    tot_cit = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",

@@ -123,7 +123,7 @@ chemdose_ph <- function(
   # Acetic acid (CH3COOH) dose
   ch3cooh <- convert_units(ch3cooh, "ch3cooh")
   # Citric Acid here 
-  citric <- convert_units(citric, "c6h8o7")
+  citric <- convert_units(citric, "citric")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
 
@@ -338,9 +338,8 @@ chemdose_ph <- function(
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
 
-dosed_water@tot_cit<-dosed_water@tot_cit
 dosed_water@cit<-dosed_water@tot_cit * calculate_alpha0_citric(h,ks)
-dosed_water@hcit<-dosed_water@tot_cit * calculate_alpha1_citric(h,ks)
+dosed_water@h1cit<-dosed_water@tot_cit * calculate_alpha1_citric(h,ks)
 dosed_water@h2cit<-dosed_water@tot_cit * calculate_alpha2_citric(h,ks)
 dosed_water@h3cit<-dosed_water@tot_cit * calculate_alpha3_citric(h,ks)
   
