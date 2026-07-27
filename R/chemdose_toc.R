@@ -93,6 +93,14 @@ chemdose_toc <- function(
   # Convert to meq/L for UV model
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
+  # setup suva for calculations 
+  suva<- calc_suva(water@doc, water@uv254)
+  # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
+  if (suva>5) {
+    suva<-5
+    cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
+  }
+  else suva<-suva
   # Edwards calculations
   if (caoh2 > 0) {
     water <- chemdose_ph(water, caoh2 = caoh2)
@@ -104,14 +112,37 @@ chemdose_toc <- function(
       water@doc <- water@doc
       water@uv254 <- water@uv254
     } else {
-      water@uv254 <- 0.01685 * removed^0.8367 * calc_suva(water@doc, water@uv254)^1.2501
+      water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
       water@doc <- water@doc - removed
       water@toc <- water@doc - removed
     }
-  } else {
-    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+  } else if (water@ph >= 8) {
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
-    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
+    xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
+    b <- coeff$b
+
+    # Rearrangement of equation from wolfram alpha
+    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+      b * coag * xterm +
+      b * water@doc * sterm -
+      1) /
+      (2 * b)
+
+    if (coag == 0) {
+      water@doc <- water@doc
+      water@uv254 <- water@uv254
+    } else {
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    }
+    cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
+  } else {
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
+
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
     xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
     b <- coeff$b
 
