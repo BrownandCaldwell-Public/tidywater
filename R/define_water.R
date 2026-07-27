@@ -10,7 +10,7 @@
 #' @source Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37 - ionic strength from ion concentrations
 #' @source Harned and Owen (1958), Crittenden et al. (2012) equation 5-45 - Temperature correction of dielectric constant (relative permittivity)
 #'
-#' @param ph water pH
+#' @param ph Water pH
 #' @param temp Temperature in degree C
 #' @param alk Alkalinity in mg/L as CaCO3
 #' @param tot_hard Total hardness in mg/L as CaCO3
@@ -76,6 +76,7 @@
 #'   \item{so4}{sulfate, numeric, mols/L.}
 #'   \item{mno4}{permanganate, numeric, mols/L.}
 #'   \item{no3}{nitrate, numeric, mols/L.}
+#'   \item{h2co3}{carbonic acid, numeric, mols/L.}
 #'   \item{hco3}{bicarbonate, numeric, mols/L.}
 #'   \item{co3}{carbonate, numeric, mols/L.}
 #'   \item{h2po4}{phosphoric acid, numeric, mols/L.}
