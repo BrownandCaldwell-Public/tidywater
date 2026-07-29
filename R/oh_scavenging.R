@@ -1,4 +1,4 @@
-oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
+oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
   # K vals from syd's arcadia sheet
   # k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
   # k(OH,DOC/TOC) SRDOM	1.86E+04	L/mg s-1	Westerhoff et al. 2007
@@ -16,16 +16,20 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
   # 6.35E+08, #Vinge et al (2021) M^-1 s^-1
   # 2.00E+08 #Wols et al (2014) - 33 M^-1 s^-1
 
-  # found that best k DOC value to fid our existing data is 48065
+  # found that best k DOC value to find our existing data is 48065
 
   validate_water(water, c("ph"))
 
   if (is.na(water@dic)) {
     dic <- 0
+        # assume that DIC is 0 if not specified to calculate carbonate balances
+        # doing this because nathans original script calculated the balance like this 
+        # it may be a little useless because TW has built in, far better, carb bal calcs
+    
+        cli::cli_warn("No alk or dic provided. Assuming that dic = 0 to calculate carbonate balance.")
+
   } else {
-    # assume that DIC is 0 if not specified to calculate carbonate ballances
     dic <- water@dic
-    cli::cli_warn("No alk or dic provided. Assuming that dic = 0 to calculate carbonate balance.")
   }
   # List of each constituent k value to access easier and for clarity.
   k <- list(
@@ -42,12 +46,11 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
   pka_h2co3 <- 6.35
   pka_hco3 <- 10.33
 
-  if (kdoc_adjust != "default") {
+  if (kdoc_adjust != 2.5e4) {
     k$DOC <- kdoc_adjust
   }
 
   # init scavenging terms to 0
-  k_S_NO3 <- 0
   k_S_NO3 <- 0
   k_S_DOC <- 0
   k_S_HCO3 <- 0
@@ -94,9 +97,7 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
     k_S_H2O2 <- 0
   }
 
-  # summ all of the scavenging terms
+  # sum all of the scavenging terms
   SC <- (k_S_DOC) + k_S_NO3 + k_S_HCO3 + k_S_CO3 + k_S_H2O2 + k_S_NO2
   return(SC)
 }
-
-#2.6% difference from Syd's original values
