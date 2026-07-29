@@ -22,12 +22,11 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
 
   if (is.na(water@dic)) {
     dic <- 0
-        # assume that DIC is 0 if not specified to calculate carbonate balances
-        # doing this because nathans original script calculated the balance like this 
-        # it may be a little useless because TW has built in, far better, carb bal calcs
-    
-        cli::cli_warn("No alk or dic provided. Assuming that dic = 0 to calculate carbonate balance.")
+    # assume that DIC is 0 if not specified to calculate carbonate balances
+    # doing this because nathan's original script calculated the balance like this
+    # it may be a little useless because TW has built in, far better, carb bal calcs
 
+    cli::cli_warn("No alk or dic provided. Assuming that dic = 0 to calculate carbonate balance.")
   } else {
     dic <- water@dic
   }
@@ -50,18 +49,15 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
     k$DOC <- kdoc_adjust
   }
 
-  # init scavenging terms to 0
-  k_S_NO3 <- 0
-  k_S_DOC <- 0
-  k_S_HCO3 <- 0
-  k_S_CO3 <- 0
-  k_S_NO2 <- 0
-  k_S_H2O2 <- 0
+  k_S <- list(
+    k_S_DOC <- k$DOC * water@toc, # s-1
+    k_S_NO3 <- k$NO3 * water@no3, # s-1
+    k_S_NO2 <- k$NO2 * water@no2, # s-1
+    k_S_H2O2 <- k$H2O2 * dose, # s-1
+    k_S_HCO3 = 0,
+    k_S_CO3 = 0
+  )
 
-  k_S_DOC <- k$DOC * water@toc # s-1
-  k_S_NO3 <- k$NO3 * water@no3 # s-1
-  k_S_NO2 <- k$NO2 * water@no2 # s-1
-  k_S_H2O2 <- k$H2O2 * dose # s-1
   # checking to see how HCO3 and CO3 are calculated, if uv and alk exist, use the same formulas as in Syd's original
   # if not, use simpler logic.
   if ((!is.na(water@alk) & water@alk != 0)) {
@@ -78,26 +74,12 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
   }
 
   # turn each NA value to 0 because NA's will mess up execution and 0's just won't contribute anything.
-  if (is.na(k_S_DOC)) {
-    k_S_DOC <- 0
-  }
-  if (is.na(k_S_NO3)) {
-    k_S_NO3 <- 0
-  }
-  if (is.na(k_S_HCO3)) {
-    k_S_HCO3 <- 0
-  }
-  if (is.na(k_S_CO3)) {
-    k_S_CO3 <- 0
-  }
-  if (is.na(k_S_NO2)) {
-    k_S_NO2 <- 0
-  }
-  if (is.na(k_S_H2O2)) {
-    k_S_H2O2 <- 0
-  }
+  my_list <- lapply(my_list, function(x) {
+    x[is.na(x)] <- 0
+    return(x)
+  })
 
   # sum all of the scavenging terms
-  SC <- (k_S_DOC) + k_S_NO3 + k_S_HCO3 + k_S_CO3 + k_S_H2O2 + k_S_NO2
+  SC <- sum(k_S)
   return(SC)
 }
