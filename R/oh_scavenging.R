@@ -23,7 +23,9 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
   if (is.na(water@dic)) {
     dic <- 0
   } else {
+    # assume that DIC is 0 if not specified to calculate carbonate ballances
     dic <- water@dic
+    cli::cli_warn("No alk or dic provided. Assuming that dic = 0 to calculate carbonate balance.")
   }
   # List of each constituent k value to access easier and for clarity.
   k <- list(
@@ -59,11 +61,10 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = "default") {
   k_S_H2O2 <- k$H2O2 * dose # s-1
   # checking to see how HCO3 and CO3 are calculated, if uv and alk exist, use the same formulas as in Syd's original
   # if not, use simpler logic.
-  if ((!is.na(water@alk) & water@alk != 0) & (!is.na(water@uv254) & water@uv254 != 0)) {
-    k_S_HCO3 <- (((water@alk / (100 * 1000)) + 10^-(water@uv254) - 10^-(14 - water@uv254)) /
-      (2 * ((10^-10.33) / (10^-water@uv254)) + 1)) *
+  if ((!is.na(water@alk) & water@alk != 0)) {
+    k_S_HCO3 <- water@hco3 *
       k$HCO3 # s-1
-    k_S_CO3 <- ((10^-10.3) / (10^-water@ph)) * (k_S_HCO3 / k$DOC_SRDOM) * k$CO3 # s-1
+    k_S_CO3 <- water@co3 * k$CO3 # s-1
   } else {
     hco3 <- (water@dic * (10^-water@ph) * (10^-pka_h2co3)) /
       ((10^-water@ph) * (10^-water@ph) + (10^-water@ph) * 10^(-pka_h2co3) + (10^(-pka_h2co3)) * 10^(-pka_hco3))
