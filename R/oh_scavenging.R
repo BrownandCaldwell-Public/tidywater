@@ -20,7 +20,7 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
 
   validate_water(water, c("ph"))
 
-  if (is.na(water@dic)) {
+  if (is.na(water@dic) & is.na(water@alk)) {
     dic <- 0
     # assume that DIC is 0 if not specified to calculate carbonate balances
     # doing this because nathan's original script calculated the balance like this
@@ -50,10 +50,10 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
   }
 
   k_S <- list(
-    k_S_DOC <- k$DOC * water@toc, # s-1
-    k_S_NO3 <- k$NO3 * water@no3, # s-1
-    k_S_NO2 <- k$NO2 * water@no2, # s-1
-    k_S_H2O2 <- k$H2O2 * dose, # s-1
+    k_S_DOC = k$DOC * water@toc, # s-1
+    k_S_NO3 = k$NO3 * water@no3, # s-1
+    k_S_NO2 = k$NO2 * water@no2, # s-1
+    k_S_H2O2 = k$H2O2 * dose, # s-1
     k_S_HCO3 = 0,
     k_S_CO3 = 0
   )
@@ -65,21 +65,21 @@ oh_scavenger <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
       k$HCO3 # s-1
     k_S_CO3 <- water@co3 * k$CO3 # s-1
   } else {
-    hco3 <- (water@dic * (10^-water@ph) * (10^-pka_h2co3)) /
+    hco3 <- (dic * (10^-water@ph) * (10^-pka_h2co3)) /
       ((10^-water@ph) * (10^-water@ph) + (10^-water@ph) * 10^(-pka_h2co3) + (10^(-pka_h2co3)) * 10^(-pka_hco3))
-    co3 <- (water@dic * (10^-pka_h2co3) * (10^-pka_hco3)) /
+    co3 <- (dic * (10^-pka_h2co3) * (10^-pka_hco3)) /
       ((10^-water@ph) * (10^-water@ph) + (10^-water@ph) * 10^(-pka_h2co3) + (10^(-pka_h2co3)) * 10^(-pka_hco3))
     k_S_HCO3 <- hco3 * k$HCO3 # s-1
     k_S_CO3 <- co3 * k$CO3 # s-1
   }
 
   # turn each NA value to 0 because NA's will mess up execution and 0's just won't contribute anything.
-  my_list <- lapply(my_list, function(x) {
+k_S <- lapply(k_S, function(x) {
     x[is.na(x)] <- 0
     return(x)
   })
 
   # sum all of the scavenging terms
-  SC <- sum(k_S)
+  SC <- sum(unlist(k_S))
   return(SC)
 }
