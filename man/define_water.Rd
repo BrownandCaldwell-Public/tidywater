@@ -83,7 +83,7 @@ define_water_df(
 )
 }
 \arguments{
-\item{ph}{water pH}
+\item{ph}{Water pH}
 
 \item{temp}{Temperature in degree C}
 
@@ -180,6 +180,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{so4}{sulfate, numeric, mols/L.}
 \item{mno4}{permanganate, numeric, mols/L.}
 \item{no3}{nitrate, numeric, mols/L.}
+\item{h2co3}{carbonic acid, numeric, mols/L.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
 \item{h2po4}{phosphoric acid, numeric, mols/L.}
