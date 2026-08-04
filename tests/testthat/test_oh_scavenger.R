@@ -24,8 +24,8 @@ test_that("changing scavenger's rate constant for DOC works", {
   water1 <- suppressWarnings(define_water(ph=7, doc=3, alk = 70, no3 = 4))
  h2o2_dose<-20
 
-  backround_SC <- oh_scavenger(water1, h2o2_dose)
-  backround_SC_adjusted <- oh_scavenger(water1, h2o2_dose, 48065)
+  backround_SC <- suppressWarnings(oh_scavenger(water1, h2o2_dose))
+  backround_SC_adjusted <- suppressWarnings(oh_scavenger(water1, h2o2_dose, 48065))
 
   expect_error(expect_equal(backround_SC, backround_SC_adjusted))
 })
