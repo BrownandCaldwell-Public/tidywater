@@ -49,6 +49,8 @@
 #' backround_scavenging <- oh_scavenger(water1, h2o2_dose)
 #' 
 #' backround_SC_adjusted <- oh_scavenger(water1, h2o2_dose, 48065)
+#'
+#' @export
 
 
 
