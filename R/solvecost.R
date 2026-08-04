@@ -77,7 +77,9 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
 #' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
-#' @param caco3_removed Amount of hardness removed by softening as mg/L CaCO3
+#' @param ca_removed Amount of calcium removed by softening as mg/L CaCO3
+#' @param mg_removed Amount of magnesium removed by softening as mg/L Mg(OH)2
+#' @param polymer Amount of polymer added in mg/L as chemical
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.
 #' @param cost Disposal cost in $/lb
@@ -102,13 +104,15 @@ solvecost_solids <- function(
   ferricsulfate = 0,
   flow,
   toc_removed = 0,
-  caco3_removed = 0,
+  ca_removed = 0,
+  mg_removed = 0,
+  polymer = 0,
   turb,
   b = 1.5,
   cost,
   time = "day"
 ) {
-  lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, toc_removed, caco3_removed, turb, b)
+  lb_day <- solvemass_solids(alum, ferricchloride, ferricsulfate, flow, toc_removed, ca_removed, mg_removed, polymer,turb, b, details = FALSE) # kept details = FALSE for now since it seems we only wanted to extract total_solids anyway
   cost_day <- cost * lb_day # $/lb * lb/day
 
   if (time == "day") {
