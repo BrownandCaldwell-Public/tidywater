@@ -21,7 +21,7 @@ test_that("scavenger works with alk params", {
 
 test_that("changing scavenger's rate constant for DOC works", {
   # water with experimental params
-  water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
+  water1 <- suppressWarnings(define_water(ph=7, doc=3, alk = 70, no3 = 4))
  h2o2_dose<-20
 
   backround_SC <- oh_scavenger(water1, h2o2_dose)
