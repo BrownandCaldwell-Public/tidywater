@@ -3,20 +3,48 @@
 \name{oh_scavenger}
 \alias{oh_scavenger}
 \title{OH scavenger}
+\source{
+See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
+
+Katsoyiannis et al. (2011)
+
+Vinge et al (2021)
+
+Wols et al (2014)
+
+Brezonik and Fulkerson-Brekken (1998)
+
+Buxton et al.,1988
+
+Coddington et al. 1999
+
+Vinge et al 2020
+
+Larson et al. 1988
+}
 \usage{
 oh_scavenger(water, dose = 0, kdoc_adjust = 25000)
+}
+\arguments{
+\item{water}{source water of TW 'water' object type}
+
+\item{dose}{hydrogen peroxide (h2o2) dose applied, defaults to 0}
+
+\item{kdoc_adjust}{user input for a different k_DOC rate constant for fitting data, defaults to literature value}
 }
 \description{
 The backround hydroxyl radical scavenging term is a measure of the degredation rate of non target consituients in a water. The term is defined as the
 sum of the reaction rate of the constituient multiplied by the concentration of the constiuitent: sum(k_i * \link{C}i) where k_i is the reaction rate of a contaminant and \link{C}i its concentration.
 Suporting Information in Wang et al. 2019 provides the definition and additional methods for calculating backround scavenging.
+}
+\details{
+oh scavenger model for reuse
 
 Scavenging rates used in the code:
 k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
-k(OH,DOC/TOC) SRDOM	1.86E+04	L/mg s-1	Westerhoff et al. 2007
 k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
 k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
-k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington, J.W., Hurst, J.K., Lymar, S.V., 1999. Hydroxyl radical formation during peroxynitrous acid decomposition. Journal of the American Chemical Society 121 (11), 2438e2443. ; Vinge et al 2020 Nitrate with benefits optimizing radical production
+k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020
 k(OH,NO3-)	1.00E+05	M-1 s-1	Keen et al., 2012
 k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
@@ -32,6 +60,11 @@ other K values, with different units
 
 ATTICUS VERIFY THESE VALUES
 }
-\details{
-oh scavenger model for reuse
+\examples{
+water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
+h2o2_dose<-20
+
+backround_scavenging <- oh_scavenger(water1, h2o2_dose)
+
+backround_SC_adjusted <- oh_scavenger(water1, h2o2_dose, 48065)
 }

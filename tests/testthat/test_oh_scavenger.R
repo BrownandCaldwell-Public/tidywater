@@ -1,34 +1,31 @@
 test_that("scavenger works with alk params", {
-  # water with experimental params
-})
+  water_alk <- suppressWarnings(define_water(ph = 7, doc = 3, alk = 70, no3 = 4))
+  water_no_alk <- suppressWarnings(define_water(ph = 7, doc = 3, no3 = 4))
 
+  SC_alk <- oh_scavenger(water_alk, dose = 0)
+  #no alk
+  SC_base <- suppressWarnings(oh_scavenger(water_no_alk, dose = 0))
 
-test_that("scavenger has reasonable PD from real data", {
-  # water with experimental params
-  real_data <- data.frame(
-    ph = c(5, 5, 7.5, 7.5, 10, 10, 5.6, 5.6, 5.6),
-    toc = c(3, 3, 3, 3, 3, 3, 3, 0.3, 0.3),
-    tic = c(0, 0, 1.68611e-5, 0.000021, 0.000328722222222222, 0.000371055555555556,0,0,0),
-    no2 = c(0, 0, 0, 0, 0, 0, 0.007, 0.007, 0.007),
-    reported_scavenging = c(6.43E+04, 5.48E+04, 5.98E+04, 6.00E+04, 1.50E+05, 1.98E+05, 2.16E+04, 1.82E+04, 2.02E+04)
-  )
+  # no negative scavenging!
+  expect_true(SC_base >0)
+  expect_true(SC_alk >0)
 
-  waters<-real_data |> 
-    select(-reported_scavenging) |> 
-    define_water_df()
+  # alk contributes to scavenging via HCO3/CO3, so SC should be higher with alk
+  expect_true(SC_alk > SC_base)
 
-
-  
-for (i in 1:19) {
-  waters$defined[[i]]@dic <- waters$dic[[i]]
-  waters$defined[[i]]@no2 <- waters$no2[[i]] / 14007
-}
-
-
-
+  # adding h2o2 increases scavenging
+  sc_alk_h2o2 <- oh_scavenger(water_alk, dose = 20)
+  expect_true(sc_alk_h2o2 > SC_alk)
 })
 
 
 test_that("changing scavenger's rate constant for DOC works", {
   # water with experimental params
+  water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
+ h2o2_dose<-20
+
+  backround_SC <- oh_scavenger(water1, h2o2_dose)
+  backround_SC_adjusted <- oh_scavenger(water1, h2o2_dose, 48065)
+
+  expect_error(expect_equal(backround_SC, backround_SC_adjusted))
 })
