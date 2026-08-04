@@ -580,6 +580,59 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
+#' @title Convert flow 
+#' 
+#' @description given units for a flow, convert to different units of flow 
+#' 
+#' @param value Value of flow to be converted 
+#' @param startunit Current units of flow 
+#' @param endunit Desired units of flow 
+#' 
+#' @examples 
+#' flow <- 40 #in MGD 
+#' 
+#' convert_flow(flow, "MGD", "gpm")
+#' 
+#' @export 
+#' 
+#' @returns A numeric value for the converted flow 
+
+convert_flow <- function(value, startunit, endunit){
+
+  startunit<-tolower(gsub("\\s","",startunit))
+  endunit<-tolower(gsub("\\s","",endunit))
+
+  startmultiplier<-0
+  endmultiplier<-0
+
+  # idea is convert units to gpm then reconvert end unit 
+  startunits<-list(
+  mgs=59999999.7, mgm=1000000.0,mgh=16666.67,mgd=694.444,
+  gps = 60, gpm = 1, gph=0.016667, gpd= 0.000694,
+  cfs = 448.831,cfm=7.48052,cfh = 0.124674,cfd=0.005195,
+  `l/s` = 15.8503, `l/m`=0.264172,`l/h`=0.004403,`l/d`=0.000183,
+  `m3/s`=15850.32,`m3/m`=264.172,`m3/h`=4.40287,`m3/day`=0.183453
+  )
+  endunits<-list(
+  mgs=59999999.7^-1, mgm=1000000.0^-1,mgh=16666.67^-1,mgd=694.444^-1,
+  gps = 60^-1, gpm = 1, gph=0.016667^-1, gpd =0.000694^-1,
+  cfs = 448.831^-1,cfm=7.48052^-1,cfh = 0.124674^-1,cfd=0.005195^-1,
+  `l/s`= 15.8503^-1, `l/m`=0.264172^-1,`l/h`=0.004403^-1,`l/d`=0.000183^-1,
+  `m3/s`=15850.32^-1,`m3/m`=264.172^-1,`m3/h`=4.40287^-1,`m3/day`=0.183453^-1
+  )
+
+  if(startunit %in% names(startunits))  startmultiplier<-startunits[[startunit]]
+  else cli::cli_abort("Units not suported")  
+  if(endunit %in% names(endunits)) endmultiplier<-endunits[[endunit]]
+  else cli::cli_abort("Units not suported")
+   
+  totalmultiplier<-startmultiplier*endmultiplier
+
+  return(value*totalmultiplier)
+
+}
+
+
 #' @title Calculate hardness from calcium and magnesium
 #'
 #' @description This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
