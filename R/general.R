@@ -500,7 +500,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   # Determine charge for equivalents
   # Look up our known charges in our hashtable
   table_charge <- formula_to_charge[[formula]]
-  if (!is.null(table_charge)) {
+  if (!is.null(table_charge) && !is.na(table_charge)) {
     # If we found a charge in the hash table use that
     charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
