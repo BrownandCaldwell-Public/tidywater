@@ -1,6 +1,6 @@
 #' oh scavenger model for reuse 
 #' 
-#' @title OH scavenger 
+#' @title oh scavenging function
 #' 
 #' @description The backround hydroxyl radical scavenging term is a measure of the degredation rate of non target consituients in a water. The term is defined as the 
 #' sum of the reaction rate of the constituient multiplied by the concentration of the constiuitent: sum(k_i * [C]i) where k_i is the reaction rate of a contaminant and [C]i its concentration.

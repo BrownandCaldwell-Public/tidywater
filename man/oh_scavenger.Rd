@@ -2,7 +2,7 @@
 % Please edit documentation in R/oh_scavenging.R
 \name{oh_scavenger}
 \alias{oh_scavenger}
-\title{OH scavenger}
+\title{oh scavenging function}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
