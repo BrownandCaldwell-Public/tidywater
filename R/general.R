@@ -500,7 +500,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   # Determine charge for equivalents
   # Look up our known charges in our hashtable
   table_charge <- formula_to_charge[[formula]]
-  if (!is.null(table_charge)) {
+  if (!is.null(table_charge) && !is.na(table_charge)) {
     # If we found a charge in the hash table use that
     charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
@@ -611,6 +611,13 @@ if (grepl("as", endunit)) {
 }
 
 
+if (grepl("as", endunit)) {
+  mw <- mweights[[formula]]
+  if (grepl("n", endunit)) return(value * (14.01 / mw)^-1)
+  else if (grepl("p", endunit)) return(value * (30.97 / mw)^-1)
+  else if (grepl("cl", endunit)) return(value * (70.90 / mw)^-1)
+  else cli::cli_abort("Formula not supported for endunit...")
+}
 
   unit_matcher <- c(
     "ng/l" = "ng/L",
