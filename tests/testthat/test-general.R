@@ -60,25 +60,62 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
 })
 
 test_that("Aliasing works", {
-
-  # correct conversion 
+  # correct conversion
   hcl_mg <- 10
   hcl_caco3 <- convert_units(hcl_mg, "hcl", endunit = "mg/L CaCO3")
 
-  # start unit 
-  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
+  # start unit
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
   #end unit
-  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
-  # typos 
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
+  # typos
   expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
 
-  # formula matching 
-  expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3") )
+  # formula matching
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3"))
 
-  # warning on formula typo 
+  # warning on formula typo
   expect_warning(convert_units(hcl_mg, "hxl", startunit = "mg/L", endunit = "mg/L CaCO3"))
 })
 
+
+test_that("As N/P/Cl works", {
+  mglNH4 <- 20
+
+  mglasN <- convert_units(mglNH4, "nh4", startunit = "mg/L", endunit = "mg/L as N")
+
+  mglasN_eq <- (mglNH4 / 18.04) * 14.0067
+
+  expect_equal(mglasN, mglasN_eq)
+
+  mglPO4 <- 20
+
+  mglasP <- convert_units(mglPO4, "po4", startunit = "mg/L", endunit = "mg/L as P")
+
+  mglasNP_eq <- (mglPO4 / 94.97) * 30.97
+
+  expect_equal(mglasP, mglasNP_eq)
+
+  mglNHCl2 <- 20
+
+  mglasCl <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L as cl")
+
+  mglasCl_eq <- (mglNHCl2 / 85.92) * 35.453
+
+  expect_equal(mglasCl, mglasCl_eq)
+
+  mglasN_start <- convert_units(mglasN_eq, "nh4", startunit = "mg/L as N", endunit = "mg/L")
+
+  expect_equal(mglasN_start, mglNH4)
+
+  mglasP_start <- convert_units(mglasNP_eq, "po4", startunit = "mg/L as P", endunit = "mg/L")
+
+  expect_equal(mglasP_start, mglPO4)
+
+  mglasCl_start <- convert_units(mglasCl_eq, "nhcl2", startunit = "mg/L as cl", endunit = "mg/L")
+
+  expect_equal(mglasCl_start, mglNHCl2)
+})
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
