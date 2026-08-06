@@ -17,15 +17,14 @@
 #' Other reported k_doc values from literature
 #' 
 #' other K values, with different units
-#' 2.90E+00,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
-#' 2.70E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 2.00E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 2.10E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
+#' 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
+#' 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+#' 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+#' 2.10E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+#' 3.50E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 #' 6.35E+08, Vinge et al (2021) M^-1 s^-1
 #' 2.00E+08 Wols et al (2014) - 33 M^-1 s^-1
-#' 
-#' ATTICUS VERIFY THESE VALUES 
-#' 
+#'  
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source Katsoyiannis et al. (2011)
 #' @source Vinge et al (2021)
@@ -36,11 +35,9 @@
 #' @source Vinge et al 2020 
 #' @source Larson et al. 1988
 #' 
-#' 
 #' @param water source water of TW 'water' object type 
 #' @param dose hydrogen peroxide (h2o2) dose applied, defaults to 0 
 #' @param kdoc_adjust user input for a different k_DOC rate constant for fitting data, defaults to literature value 
-#' 
 #' 
 #' @examples
 #' water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
