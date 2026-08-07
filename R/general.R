@@ -599,8 +599,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 #' @export
 #'
 #' @returns A numeric value for the converted flow
-
-convert_flow <- function(value, startunit, endunit,  sg = 1) {
+convert_flow <- function(value, startunit, endunit, sg = 1) {
   startunit <- tolower(gsub("\\s", "", startunit))
   endunit <- tolower(gsub("\\s", "", endunit))
 
@@ -609,8 +608,8 @@ convert_flow <- function(value, startunit, endunit,  sg = 1) {
 
   # idea is convert units to gpm then reconvert end unit
 
-  # volumertic
-  volumetricstartunits <- list(
+  # volumetric
+  volumetricstartunits <- c(
     mgs = 59999999.7,
     mgm = 1000000.0,
     mgh = 16666.67,
@@ -632,85 +631,58 @@ convert_flow <- function(value, startunit, endunit,  sg = 1) {
     `m3/h` = 4.40287,
     `m3/day` = 0.183453
   )
-  volumetricendunits <- list(
-    mgs = 59999999.7^-1,
-    mgm = 1000000.0^-1,
-    mgh = 16666.67^-1,
-    mgd = 694.444^-1,
-    gps = 60^-1,
-    gpm = 1,
-    gph = 0.016667^-1,
-    gpd = 0.000694^-1,
-    cfs = 448.831^-1,
-    cfm = 7.48052^-1,
-    cfh = 0.124674^-1,
-    cfd = 0.005195^-1,
-    `l/s` = 15.8503^-1,
-    `l/m` = 0.264172^-1,
-    `l/h` = 0.004403^-1,
-    `l/d` = 0.000183^-1,
-    `m3/s` = 15850.32^-1,
-    `m3/m` = 264.172^-1,
-    `m3/h` = 4.40287^-1,
-    `m3/day` = 0.183453^-1
-  )
+  volumetricendunits <- 1 / volumetricstartunits
 
-  #to pound /min
+  # to pound / min
   # Mass Rate -> lbs/min
-  massstartunits <- list(
+  massstartunits <- c(
     `kg/s` = 132.277, `kg/m` = 2.20462, `kg/min` = 2.20462, `kg/h` = 0.036744, `kg/d` = 0.001531, `kg/day` = 0.001531,
     `g/s` = 0.132277, `g/m` = 0.002205, `g/min` = 0.002205, `g/h` = 0.000037, `g/d` = 0.00000153, `g/day` = 0.00000153,
     `lb/s` = 60.0000, `lbs/s` = 60.0000, `lb/m` = 1, `lbs/m` = 1, `lb/min` = 1, `lbs/min` = 1,
     `lb/h` = 0.016667, `lbs/h` = 0.016667, `lb/d` = 0.0006944, `lbs/d` = 0.0006944, `lb/day` = 0.0006944, `lbs/day` = 0.0006944
   )
-  
+
   # lbs/min -> Mass Rate
-  massendunits <- list(
-    `kg/s` = 132.277^-1, `kg/m` = 2.20462^-1, `kg/min` = 2.20462^-1, `kg/h` = 0.036744^-1, `kg/d` = 0.001531^-1, `kg/day` = 0.001531^-1,
-    `g/s` = 0.132277^-1, `g/m` = 0.002205^-1, `g/min` = 0.002205^-1, `g/h` = 0.000037^-1, `g/d` = 0.00000153^-1, `g/day` = 0.00000153^-1,
-    `lb/s` = 60.0000^-1, `lbs/s` = 60.0000^-1, `lb/m` = 1, `lbs/m` = 1, `lb/min` = 1, `lbs/min` = 1,
-    `lb/h` = 0.016667^-1, `lbs/h` = 0.016667^-1, `lb/d` = 0.0006944^-1, `lbs/d` = 0.0006944^-1, `lb/day` = 0.0006944^-1, `lbs/day` = 0.0006944^-1
-  )
-  # if(!startunit %in% names(startunits))  cli::cli_abort("Start units not suported")
-  # if(!endunit %in% names(endunits)) cli::cli_abort("End units not suported")
+  massendunits <- 1 / massstartunits
+
+  # if(!startunit %in% names(startunits))  cli::cli_abort("Start units not supported")
+  # if(!endunit %in% names(endunits)) cli::cli_abort("End units not supported")
 
   # volumetric flow to volumetric flow
   if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)) {
-    startmultiplier <- volumetricstartunits[[startunit]]
-    endmultiplier <- volumetricendunits[[endunit]]
+    startmultiplier <- volumetricstartunits[startunit]
+    endmultiplier <- volumetricendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
     return(value * totalmultiplier)
   }
 
-
-    if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
-    startmultiplier <-massstartunits[[startunit]]
-    endmultiplier <-massendunits[[endunit]]
+  if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
+    startmultiplier <- massstartunits[startunit]
+    endmultiplier <- massendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
     return(value * totalmultiplier)
-  } 
-  
-  # volumetrtic to mass
-  if (startunit %in% names(volumetricstartunits) && endunit %in% names(massendunits)) {
-    gpm <- value * volumetricstartunits[[startunit]]
-    # Physical bridge: GPM -> lbs/min
-    lbs_min <- gpm * 8.34008 * sg 
+  }
 
-    return(lbs_min * massendunits[[endunit]])
+  # volumetric to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(massendunits)) {
+    gpm <- value * volumetricstartunits[startunit]
+    # Physical bridge: GPM -> lbs/min
+    lbs_min <- gpm * 8.34008 * sg
+
+    return(lbs_min * massendunits[endunit])
   }
 
   # mass to volumetric
   if (startunit %in% names(massstartunits) && endunit %in% names(volumetricendunits)) {
-    lbs_min <- value * massstartunits[[startunit]]
+    lbs_min <- value * massstartunits[startunit]
 
-    gpm <- lbs_min / (8.34008 * sg )
+    gpm <- lbs_min / (8.34008 * sg)
 
-    return(gpm * volumetricendunits[[endunit]])
+    return(gpm * volumetricendunits[endunit])
   }
 
-  cli::cli_abort("Startunits or endunit is not accepted")
+  cli::cli_abort("Start unit or end unit is not accepted")
 }
-
 
 #' @title Calculate hardness from calcium and magnesium
 #'
