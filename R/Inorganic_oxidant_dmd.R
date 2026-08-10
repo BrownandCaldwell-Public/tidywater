@@ -16,15 +16,15 @@
 #'
 #' so basically, the function should look like multiplying concentrations of each oxidant by their number, adding those numbers, then subtracting them from the cl dose. Cool and easy
 #' @examples
-#' inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 3)
+#' inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 1)
 #'
-#' water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 3)
+#' water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 1)
 #' cl_residual <- inorg_ox_dmd(20, water = water1)
 #'
 #' @export
 #'
 
-inorg_ox_dmd <- function(cl_dose, mg, fe, nh3, water = "none") {
+inorg_ox_dmd <- function(cl_dose, mg, fe, nh3, water ) {
   # make a multplying funct because both the if and else will use same function, and I want to try a different approach! functional programing 
   cl_residual <- function(dose, mg, fe, nh3) {
     mg <- mg * 1.29
@@ -38,16 +38,17 @@ inorg_ox_dmd <- function(cl_dose, mg, fe, nh3, water = "none") {
     }
   }
 
-  if (water == "none") {
-    return(cl_residual(dose = dose, mg = mg, fe = fe, nh3 = nh3))
+  if (missing(water)) {
+    return(cl_residual(dose = cl_dose, mg = mg, fe = fe, nh3 = nh3))
   } else {
-    validate_water(water, c(mg, fe, nh3))
+    validate_water(water, c("mg", "fe", "tot_nh3"))
 
     # convert each species to mg/l
-    mg <- convert_units(water@mg, mg, "M", "mg/L")
-    cl <- convert_units(water@cl, cl, "M", "mg/L")
-    nh3 <- convert_units(water@tot_nh3, nh4, "M", "mg/L")
+    mg  <- convert_units(water@mg, "mg", "M", "mg/L")
+    fe  <- convert_units(water@fe, "fe", "M", "mg/L")
+    # tot nh3 stored as N 
+    nh3 <- convert_units(water@tot_nh3, "n", "M", "mg/L")
 
-    return(cl_residual(dose = dose, mg = mg, fe = fe, nh3 = nh3))
+    return(cl_residual(dose = cl_dose, mg = mg, fe = fe, nh3 = nh3))
   }
 }
