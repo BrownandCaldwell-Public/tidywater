@@ -51,14 +51,13 @@ k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 Other reported k_doc values from literature
 
 other K values, with different units
-2.90E+00,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
-2.70E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
-2.00E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
-2.10E+00, Katsoyiannis et al. (2011) Mc^-1s^-1
+2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
+2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+2.10E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
+3.50E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 6.35E+08, Vinge et al (2021) M^-1 s^-1
 2.00E+08 Wols et al (2014) - 33 M^-1 s^-1
-
-ATTICUS VERIFY THESE VALUES
 }
 \examples{
 water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
