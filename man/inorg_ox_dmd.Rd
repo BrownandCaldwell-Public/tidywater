@@ -4,7 +4,7 @@
 \alias{inorg_ox_dmd}
 \title{Inorganic Oxidant Demand}
 \usage{
-inorg_ox_dmd(cl_dose, mg, fe, nh3, water = "none")
+inorg_ox_dmd(cl_dose, mg, fe, nh3, water)
 }
 \arguments{
 \item{cl_dose}{chlorine dose}
@@ -29,9 +29,9 @@ so basically, the function should look like multiplying concentrations of each o
 Calculates Cl residual from inorganic scavengers: Mg, Fe, and Ammonia.
 }
 \examples{
-inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 3)
+inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 1)
 
-water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 3)
+water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 1)
 cl_residual <- inorg_ox_dmd(20, water = water1)
 
 }
