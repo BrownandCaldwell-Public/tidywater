@@ -76,6 +76,21 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
   )
 })
 
+
+test_that("Flowrate converter works", {
+
+MGD<-10
+  
+  MGH_eq<-round(10/24,1)
+
+  # soft tests aliasing with capitals
+  MGH<-round(convert_flow(MGD, startunit = "MGD", endunit = " MGH"),1)
+
+  expect_equal(MGH_eq, MGH)
+
+  
+  
+})
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {

@@ -610,7 +610,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
 
   # volumetric
   volumetricstartunits <- c(
-    mgs = 59999999.7,
+    mgs = 60000000,
     mgm = 1000000.0,
     mgh = 16666.67,
     mgd = 694.444,
@@ -653,14 +653,14 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
     startmultiplier <- volumetricstartunits[startunit]
     endmultiplier <- volumetricendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
-    return(value * totalmultiplier)
+    return(unname(value * totalmultiplier))
   }
 
   if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
     startmultiplier <- massstartunits[startunit]
     endmultiplier <- massendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
-    return(value * totalmultiplier)
+    return(unname(value * totalmultiplier))
   }
 
   # volumetric to mass
