@@ -16,7 +16,7 @@
 #'
 #' so basically, the function should look like multiplying concentrations of each oxidant by their number, adding those numbers, then subtracting them from the cl dose. Cool and easy
 #' @examples
-#' inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 1)
+#' inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, tot_nh3 = 1)
 #'
 #' water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 1)
 #' cl_residual <- inorg_ox_dmd(20, water = water1)
