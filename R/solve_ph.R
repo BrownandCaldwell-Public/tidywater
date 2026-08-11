@@ -14,7 +14,7 @@ solve_ph <- function(
 ) {
   # Correct eq constants
   gamma1 <- calculate_activity(1, water@is, water@temp)
-  k <- if (!is.na(water@is)) correct_k(water) else water@ks
+  k <- water@ks
 
   #### SOLVE FOR pH
   solve_h <- function(
