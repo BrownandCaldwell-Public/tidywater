@@ -17,12 +17,6 @@ inorg_ox_dmd(cl_dose, mg, fe, nh3, water)
 
 \item{water}{input water, if provided will override individal species input
 
-Look at MWH textbook maybe to understand how to implement these reactions, whicha are esentially breakpoint reactions.
-I think its essentially a ratio from the gitHub comments
-weight ratio = 1.5 mol/mol 71 g cl2/ 14 g N = 7.61 mg cl2/mgN. So I think that this is saying that for every mg of N 7.61 g of Cl2 will be consumed.
-and for Fe, its .64 c cl2/g fe
-and for permanganate its 1.29
-
 so basically, the function should look like multiplying concentrations of each oxidant by their number, adding those numbers, then subtracting them from the cl dose. Cool and easy}
 }
 \description{
@@ -31,7 +25,7 @@ Calculates Cl residual from inorganic scavengers: Mg, Fe, and Ammonia.
 \examples{
 inorg_ox_dmd(cl_dose = 20, mg = 1, fe = 2, nh3 = 1)
 
-water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, nh3 = 1)
+water1<-define_water(ph = 7, alk = 70, mg = 1, fe = 2, tot_nh3 = 1)
 cl_residual <- inorg_ox_dmd(20, water = water1)
 
 }
