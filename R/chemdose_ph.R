@@ -279,6 +279,7 @@ chemdose_ph <- function(
   }
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
+  dosed_water@ks <- if (!is.na(dosed_water@is)) correct_k(dosed_water) else dosed_water@ks
 
   # Calculate new pH, H+ and OH- concentrations
   ph <- solve_ph(
@@ -300,9 +301,6 @@ chemdose_ph <- function(
   # Convert from pH to concentration (not activity)
   h <- (10^-ph) / calculate_activity(1, water@is, water@temp)
   oh <- dosed_water@kw / (h * calculate_activity(1, water@is, water@temp)^2)
-
-  # correct k if IS was available and changed
-  dosed_water@ks <- if (!is.na(dosed_water@is)) correct_k(dosed_water) else dosed_water@ks
 
   # Carbonate and phosphate ions and ocl ions
 
