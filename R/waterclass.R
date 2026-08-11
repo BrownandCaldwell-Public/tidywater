@@ -74,6 +74,7 @@ methods::setClass(
 
     # Miscellaneous
     estimated = "character",
+    ks = "data.frame",
 
     # DBPs
     chcl3 = "numeric", # chloroform
@@ -167,6 +168,7 @@ methods::setClass(
 
     # Miscellaneous
     estimated = "",
+    ks = data.frame(),
 
     # DBPs
     chcl3 = NA_real_, # chloroform
