@@ -57,7 +57,6 @@ convert_watermg <- function(water) {
   if (!methods::is(water, "water")) {
     cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
-  ks <- correct_k(water)
   h <- 10^-water@ph
 
   # listed in order of appearance in define_water

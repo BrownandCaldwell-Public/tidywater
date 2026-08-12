@@ -279,6 +279,7 @@ chemdose_ph <- function(
   }
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
   dosed_water@cond <- correlate_ionicstrength(dosed_water@tds, from = "tds", to = "cond")
+  dosed_water@ks <- if (!is.na(dosed_water@is)) correct_k(dosed_water) else dosed_water@ks
 
   # Calculate new pH, H+ and OH- concentrations
   ph <- solve_ph(
@@ -301,34 +302,32 @@ chemdose_ph <- function(
   h <- (10^-ph) / calculate_activity(1, water@is, water@temp)
   oh <- dosed_water@kw / (h * calculate_activity(1, water@is, water@temp)^2)
 
-  # Correct eq constants
-  ks <- correct_k(dosed_water)
-
   # Carbonate and phosphate ions and ocl ions
-  alpha0 <- calculate_alpha0_carbonate(h, ks)
-  alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
-  alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+
+  alpha0 <- calculate_alpha0_carbonate(h, dosed_water@ks)
+  alpha1 <- calculate_alpha1_carbonate(h, dosed_water@ks) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, dosed_water@ks) # proportion of total carbonate as CO32-
   dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
-  alpha0p <- calculate_alpha0_phosphate(h, ks)
-  alpha1p <- calculate_alpha1_phosphate(h, ks)
-  alpha2p <- calculate_alpha2_phosphate(h, ks)
-  alpha3p <- calculate_alpha3_phosphate(h, ks)
+  alpha0p <- calculate_alpha0_phosphate(h, dosed_water@ks)
+  alpha1p <- calculate_alpha1_phosphate(h, dosed_water@ks)
+  alpha2p <- calculate_alpha2_phosphate(h, dosed_water@ks)
+  alpha3p <- calculate_alpha3_phosphate(h, dosed_water@ks)
 
   dosed_water@h2po4 <- dosed_water@tot_po4 * alpha1p
   dosed_water@hpo4 <- dosed_water@tot_po4 * alpha2p
   dosed_water@po4 <- dosed_water@tot_po4 * alpha3p
   h3po4 <- dosed_water@tot_po4 * alpha0p
 
-  dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, ks)
-  dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, ks)
+  dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, dosed_water@ks)
+  dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, dosed_water@ks)
 
-  dosed_water@bo3 <- dosed_water@tot_bo3 * calculate_alpha1_borate(h, ks)
-  dosed_water@h3sio4 <- dosed_water@tot_sio4 * calculate_alpha1_silicate(h, ks)
-  dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
-  dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
+  dosed_water@bo3 <- dosed_water@tot_bo3 * calculate_alpha1_borate(h, dosed_water@ks)
+  dosed_water@h3sio4 <- dosed_water@tot_sio4 * calculate_alpha1_silicate(h, dosed_water@ks)
+  dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, dosed_water@ks)
+  dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, dosed_water@ks)
 
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
