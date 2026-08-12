@@ -107,6 +107,8 @@
 #'   \item{nh2cl}{monochloramine, numeric, mol/L.}
 #'   \item{nhcl2}{dichloramine, numeric, mol/L.}
 #'   \item{ncl3}{trichloramine, numeric, mol/L.}
+#'   \item{estimated}{list of parameters that were estimated based on other inputs.}
+#'   \item{ks}{data frame with corrected equilibrium constants given defined water initial temperature and ionic strength}
 #'   \item{chcl3}{chloroform, numeric, ug/L.}
 #'   \item{chcl2br}{bromodichloromethane, numeric, ug/L.}
 #'   \item{chbr2cl}{dibromodichloromethane, numeric, ug/L.}
@@ -384,7 +386,7 @@ define_water <- function(
   }
 
   # Eq constants
-  ks <- correct_k(water)
+  water@ks <- correct_k(water)
 
   # Recalculate H and OH concentration (not activity)
   gamma1 <- calculate_activity(1, water@is, water@temp)
@@ -394,27 +396,27 @@ define_water <- function(
   water@oh <- oh
 
   # Carbonate and phosphate ions and ocl ions
-  alpha0 <- calculate_alpha0_carbonate(h, ks)
-  alpha1 <- calculate_alpha1_carbonate(h, ks) # proportion of total carbonate as HCO3-
-  alpha2 <- calculate_alpha2_carbonate(h, ks) # proportion of total carbonate as CO32-
+  alpha0 <- calculate_alpha0_carbonate(h, water@ks)
+  alpha1 <- calculate_alpha1_carbonate(h, water@ks) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, water@ks) # proportion of total carbonate as CO32-
 
-  alpha0p <- calculate_alpha0_phosphate(h, ks)
-  alpha1p <- calculate_alpha1_phosphate(h, ks)
-  alpha2p <- calculate_alpha2_phosphate(h, ks)
-  alpha3p <- calculate_alpha3_phosphate(h, ks)
+  alpha0p <- calculate_alpha0_phosphate(h, water@ks)
+  alpha1p <- calculate_alpha1_phosphate(h, water@ks)
+  alpha2p <- calculate_alpha2_phosphate(h, water@ks)
+  alpha3p <- calculate_alpha3_phosphate(h, water@ks)
 
   water@h2po4 <- tot_po4 * alpha1p
   water@hpo4 <- tot_po4 * alpha2p
   water@po4 <- tot_po4 * alpha3p
   h3po4 <- tot_po4 * alpha0p
 
-  water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, ks)
-  water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, ks)
-  water@ch3coo <- tot_ch3coo * calculate_alpha1_acetate(h, ks)
+  water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, water@ks)
+  water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, water@ks)
+  water@ch3coo <- tot_ch3coo * calculate_alpha1_acetate(h, water@ks)
 
-  water@bo3 <- tot_bo3 * calculate_alpha1_borate(h, ks)
-  water@h3sio4 <- tot_sio4 * calculate_alpha1_silicate(h, ks)
-  water@h2sio4 <- tot_sio4 * calculate_alpha2_silicate(h, ks)
+  water@bo3 <- tot_bo3 * calculate_alpha1_borate(h, water@ks)
+  water@h3sio4 <- tot_sio4 * calculate_alpha1_silicate(h, water@ks)
+  water@h2sio4 <- tot_sio4 * calculate_alpha2_silicate(h, water@ks)
 
   # Calculate individual and total alkalinity
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
