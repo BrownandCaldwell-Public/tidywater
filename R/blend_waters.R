@@ -68,7 +68,8 @@ blend_waters <- function(waters, ratios) {
   not_averaged <- c(
     "ph",
     "kw",
-    "estimated"
+    "estimated",
+    "ks"
   )
   parameters <- setdiff(parameters, not_averaged)
 
@@ -111,7 +112,8 @@ blend_waters <- function(waters, ratios) {
   tempa <- blended_water@temp + 273.15 # absolute temperature (K)
   discons <- tidywater::discons
   blended_water@kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, blended_water@temp)
-
+  # Correct eq constants
+  blended_water@ks <- correct_k(blended_water)
 
   # Calculate new pH
   ph <- solve_ph(blended_water)
@@ -121,29 +123,26 @@ blend_waters <- function(waters, ratios) {
   blended_water@h <- h
   blended_water@ph <- ph
 
-  # Correct eq constants
-  k <- correct_k(blended_water)
-
   # Recalculate carbonate, dic, phosphate, ocl, and nh4 speciation given new pH
-  alpha0 <- calculate_alpha0_carbonate(h, k) # proportion of total carbonate as H2CO3
-  alpha1 <- calculate_alpha1_carbonate(h, k) # proportion of total carbonate as HCO3-
-  alpha2 <- calculate_alpha2_carbonate(h, k) # proportion of total carbonate as CO32-
+  alpha0 <- calculate_alpha0_carbonate(h, blended_water@ks) # proportion of total carbonate as H2CO3
+  alpha1 <- calculate_alpha1_carbonate(h, blended_water@ks) # proportion of total carbonate as HCO3-
+  alpha2 <- calculate_alpha2_carbonate(h, blended_water@ks) # proportion of total carbonate as CO32-
   blended_water@h2co3 <- blended_water@tot_co3 * alpha0
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
 
   blended_water@dic <- blended_water@tot_co3 * tidywater::mweights$dic * 1000
 
-  alpha1p <- calculate_alpha1_phosphate(h, k) # proportion of total phosphate as H2PO4-
-  alpha2p <- calculate_alpha2_phosphate(h, k) # proportion of total phosphate as HPO42-
-  alpha3p <- calculate_alpha3_phosphate(h, k) # proportion of total phosphate as PO43-
+  alpha1p <- calculate_alpha1_phosphate(h, blended_water@ks) # proportion of total phosphate as H2PO4-
+  alpha2p <- calculate_alpha2_phosphate(h, blended_water@ks) # proportion of total phosphate as HPO42-
+  alpha3p <- calculate_alpha3_phosphate(h, blended_water@ks) # proportion of total phosphate as PO43-
 
   blended_water@h2po4 <- blended_water@tot_po4 * alpha1p
   blended_water@hpo4 <- blended_water@tot_po4 * alpha2p
   blended_water@po4 <- blended_water@tot_po4 * alpha3p
 
-  blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, k)
-  blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, k)
+  blended_water@ocl <- blended_water@free_chlorine * calculate_alpha1_hypochlorite(h, blended_water@ks)
+  blended_water@nh4 <- blended_water@tot_nh3 * calculate_alpha1_ammonia(h, blended_water@ks)
 
   if (
     blended_water@tot_nh3 > 0 &
