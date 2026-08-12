@@ -116,8 +116,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   gamma_3 <- calculate_activity(3, water@is, water@temp)
   gamma_4 <- calculate_activity(4, water@is, water@temp)
 
-  # Correction of carbonate, phosphate, and sulfate equilibrium constants
-  k <- correct_k(water)
+  # Currently not correcting carbonate, phosphate, and sulfate equilibrium constants
 
   # * Calculate lead solid solubility based on controlling solid ----
   solids <- subset(leadsol_K, grepl("solid", constant_name))

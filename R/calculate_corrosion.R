@@ -158,8 +158,7 @@ calculate_corrosion <- function(
 
   if ("langelier" %in% index | "ryznar" %in% index) {
     validate_water(water, c("temp", "ca", "alk_eq", "hco3", "ph"))
-    ks <- correct_k(water)
-    pk2co3 <- -log10(ks$k2co3)
+    pk2co3 <- -log10(water@ks$k2co3)
     gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
     tempa <- water@temp + 273.15
