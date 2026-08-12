@@ -99,14 +99,20 @@ chemdose_ph <- function(
   softening_correction = FALSE
 ) {
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
-    cli::cli_warn("Both chlorine- and ammonia-based chemicals were dosed and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    cli::cli_warn(
+      "Both chlorine- and ammonia-based chemicals were dosed and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
+    )
   }
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & water@tot_nh3 > 0) {
-    cli::cli_warn("A chlorine-based chemical was dosed into a water containing ammonia, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    cli::cli_warn(
+      "A chlorine-based chemical was dosed into a water containing ammonia, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
+    )
   }
 
   if ((nh4oh > 0 | nh42so4 > 0) & (water@free_chlorine > 0 | water@combined_chlorine > 0)) {
-    cli::cli_warn("An ammonia-based chemical was dosed into a water containing chlorine, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    cli::cli_warn(
+      "An ammonia-based chemical was dosed into a water containing chlorine, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
+    )
   }
 
   validate_water(water, c("ph", "alk"))
@@ -123,7 +129,7 @@ chemdose_ph <- function(
   hno3 <- convert_units(hno3, "hno3")
   # Acetic acid (CH3COOH) dose
   ch3cooh <- convert_units(ch3cooh, "ch3cooh")
-  # Citric Acid here 
+  # Citric Acid here
   citric <- convert_units(citric, "citric")
   # Carbon dioxide
   co2 <- convert_units(co2, "co2")
@@ -185,21 +191,27 @@ chemdose_ph <- function(
 
   # Total sodium
   if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0 | naf > 0 | na3po4 > 0) & is.na(water@na)) {
-    cli::cli_warn("Sodium-containing chemical dosed, but {.field na} slot is {.val NA}; slot not updated because background Na is unknown.")
+    cli::cli_warn(
+      "Sodium-containing chemical dosed, but {.field na} slot is {.val NA}; slot not updated because background Na is unknown."
+    )
   }
   na_dose <- naoh + 2 * na2co3 + nahco3 + naocl + naf + 3 * na3po4
   dosed_water@na <- water@na + na_dose
 
   # Total calcium
   if ((caoh2 > 0 | cacl2 > 0 | caco3 > 0 | caso4 > 0 | caocl2 > 0) & is.na(water@ca)) {
-    cli::cli_warn("Calcium-containing chemical dosed, but {.field ca} slot is {.val NA}; slot not updated because background Ca is unknown.")
+    cli::cli_warn(
+      "Calcium-containing chemical dosed, but {.field ca} slot is {.val NA}; slot not updated because background Ca is unknown."
+    )
   }
   ca_dose <- caoh2 + caocl2 / 2 + cacl2 + caco3 + caso4
   dosed_water@ca <- water@ca + ca_dose
 
   # Total magnesium
   if ((mgoh2 > 0) & is.na(water@mg)) {
-    cli::cli_warn("Magnesium-containing chemical dosed, but {.field mg} slot is {.val NA}; slot not updated because background Mg is unknown.")
+    cli::cli_warn(
+      "Magnesium-containing chemical dosed, but {.field mg} slot is {.val NA}; slot not updated because background Mg is unknown."
+    )
   }
   mg_dose <- mgoh2
   dosed_water@mg <- water@mg + mg_dose
@@ -207,28 +219,36 @@ chemdose_ph <- function(
   # Total potassium
 
   if (kmno4 > 0 & is.na(water@k)) {
-    cli::cli_warn("Potassium-containing chemical dosed, but {.field k} slot is {.val NA}; slot not updated because background K is unknown.")
+    cli::cli_warn(
+      "Potassium-containing chemical dosed, but {.field k} slot is {.val NA}; slot not updated because background K is unknown."
+    )
   }
   k_dose <- kmno4
   dosed_water@k <- water@k + k_dose
 
   # Total permanganate
   if (kmno4 > 0 & is.na(water@mno4)) {
-    cli::cli_warn("Permanganate-containing chemical dosed, but {.field mno4} slot is {.val NA}; slot not updated because background MnO4 is unknown.")
+    cli::cli_warn(
+      "Permanganate-containing chemical dosed, but {.field mno4} slot is {.val NA}; slot not updated because background MnO4 is unknown."
+    )
   }
   mno4_dose <- kmno4
   dosed_water@mno4 <- water@mno4 + mno4_dose
 
   # Total nitrate
   if (hno3 > 0 & is.na(water@no3)) {
-    cli::cli_warn("Nitrate-containing chemical dosed, but {.field no3} slot is {.val NA}; slot not updated because background NO3 is unknown.")
+    cli::cli_warn(
+      "Nitrate-containing chemical dosed, but {.field no3} slot is {.val NA}; slot not updated because background NO3 is unknown."
+    )
   }
   no3_dose <- hno3
   dosed_water@no3 <- water@no3 + no3_dose
 
   # Total chloride
   if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0 | pacl > 0) & is.na(water@cl)) {
-    cli::cli_warn("Chloride-containing chemical dosed, but {.field cl} slot is {.val NA}; slot not updated because background Cl is unknown.")
+    cli::cli_warn(
+      "Chloride-containing chemical dosed, but {.field cl} slot is {.val NA}; slot not updated because background Cl is unknown."
+    )
   }
   # PACl contribution: (PACl dose as Al2O3) * (2 mol Al/ mol Al2O3) * (0.9 mol Cl/1 mol Al)
   cl_dose <- hcl + cl2 + 2 * cacl2 + 3 * ferricchloride + ach + (.9 * 2) * pacl
@@ -236,7 +256,9 @@ chemdose_ph <- function(
 
   # Total sulfate
   if ((h2so4 > 0 | alum > 0 | ferricsulfate > 0 | nh42so4 > 0 | caso4 > 0) & is.na(water@so4)) {
-    cli::cli_warn("Sulfate-containing chemical dosed, but {.field so4} slot is {.val NA}; slot not updated because background SO4 is unknown.")
+    cli::cli_warn(
+      "Sulfate-containing chemical dosed, but {.field so4} slot is {.val NA}; slot not updated because background SO4 is unknown."
+    )
   }
   so4_dose <- h2so4 + 3 * alum + 3 * ferricsulfate + nh42so4 + caso4
   dosed_water@so4 <- water@so4 + so4_dose
@@ -262,7 +284,7 @@ chemdose_ph <- function(
   dosed_water@tot_ch3coo <- water@tot_ch3coo + ch3cooh_dose
 
   # Total Citric Acid
-  citric_dose <- citric 
+  citric_dose <- citric
   dosed_water@tot_cit <- citric_dose
 
   # Calculate dosed TDS/IS/conductivity
@@ -281,7 +303,7 @@ chemdose_ph <- function(
     convert_units(mno4_dose, "mno4", "M", "mg/L") +
     convert_units(ch3cooh_dose, "ch3cooh", "M", "mg/L") +
     convert_units(no3_dose, "no3", "M", "mg/L") +
-    convert_units(citric_dose, "citric", "M", "mg/L") 
+    convert_units(citric_dose, "citric", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
     cli::cli_warn("Calculated TDS after chemical removal is < 0; TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
@@ -339,11 +361,11 @@ chemdose_ph <- function(
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, ks)
 
-dosed_water@cit<-dosed_water@tot_cit * calculate_alpha0_citric(h,ks)
-dosed_water@h1cit<-dosed_water@tot_cit * calculate_alpha1_citric(h,ks)
-dosed_water@h2cit<-dosed_water@tot_cit * calculate_alpha2_citric(h,ks)
-dosed_water@h3cit<-dosed_water@tot_cit * calculate_alpha3_citric(h,ks)
-  
+  dosed_water@cit <- dosed_water@tot_cit * calculate_alpha0_citric(h, ks)
+  dosed_water@h1cit <- dosed_water@tot_cit * calculate_alpha1_citric(h, ks)
+  dosed_water@h2cit <- dosed_water@tot_cit * calculate_alpha2_citric(h, ks)
+  dosed_water@h3cit <- dosed_water@tot_cit * calculate_alpha3_citric(h, ks)
+
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
   dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)
@@ -569,7 +591,6 @@ chemdose_ph_df <- function(
   )
   df <- defaults_added$data
 
-  
   # If na_to_zero is TRUE, change all NA chemical doses in the dataframe to zero
   if (na_to_zero) {
     chemicals <- unlist(unname(final_names[names(final_names) != "softening_correction"]))
@@ -579,49 +600,48 @@ chemdose_ph_df <- function(
     })
   }
 
-  warning_counts<-list()
+  warning_counts <- list()
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(
-    chemdose_ph(
-      water = df[[input_water]][[i]],
-      hcl = df[[final_names$hcl]][i],
-      h2so4 = df[[final_names$h2so4]][i],
-      h3po4 = df[[final_names$h3po4]][i],
-      hno3 = df[[final_names$hno3]][i],
-      ch3cooh = df[[final_names$ch3cooh]][i],
-      co2 = df[[final_names$co2]][i],
-      naoh = df[[final_names$naoh]][i],
-      caoh2 = df[[final_names$caoh2]][i],
-      mgoh2 = df[[final_names$mgoh2]][i],
-      na2co3 = df[[final_names$na2co3]][i],
-      nahco3 = df[[final_names$nahco3]][i],
-      caco3 = df[[final_names$caco3]][i],
-      caso4 = df[[final_names$caso4]][i],
-      caocl2 = df[[final_names$caocl2]][i],
-      cacl2 = df[[final_names$cacl2]][i],
-      cl2 = df[[final_names$cl2]][i],
-      naocl = df[[final_names$naocl]][i],
-      nh4oh = df[[final_names$nh4oh]][i],
-      nh42so4 = df[[final_names$nh42so4]][i],
-      alum = df[[final_names$alum]][i],
-      ferricchloride = df[[final_names$ferricchloride]][i],
-      ferricsulfate = df[[final_names$ferricsulfate]][i],
-      ach = df[[final_names$ach]][i],
-      pacl = df[[final_names$pacl]][i],
-      kmno4 = df[[final_names$kmno4]][i],
-      naf = df[[final_names$naf]][i],
-      na3po4 = df[[final_names$na3po4]][i],
-      softening_correction = df[[final_names$softening_correction]][i]
-    ),
-    warning = function(w) {
-      msg <- conditionMessage(w)
-      warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
-      invokeRestart("muffleWarning")
-    }
-  )
+      chemdose_ph(
+        water = df[[input_water]][[i]],
+        hcl = df[[final_names$hcl]][i],
+        h2so4 = df[[final_names$h2so4]][i],
+        h3po4 = df[[final_names$h3po4]][i],
+        hno3 = df[[final_names$hno3]][i],
+        ch3cooh = df[[final_names$ch3cooh]][i],
+        co2 = df[[final_names$co2]][i],
+        naoh = df[[final_names$naoh]][i],
+        caoh2 = df[[final_names$caoh2]][i],
+        mgoh2 = df[[final_names$mgoh2]][i],
+        na2co3 = df[[final_names$na2co3]][i],
+        nahco3 = df[[final_names$nahco3]][i],
+        caco3 = df[[final_names$caco3]][i],
+        caso4 = df[[final_names$caso4]][i],
+        caocl2 = df[[final_names$caocl2]][i],
+        cacl2 = df[[final_names$cacl2]][i],
+        cl2 = df[[final_names$cl2]][i],
+        naocl = df[[final_names$naocl]][i],
+        nh4oh = df[[final_names$nh4oh]][i],
+        nh42so4 = df[[final_names$nh42so4]][i],
+        alum = df[[final_names$alum]][i],
+        ferricchloride = df[[final_names$ferricchloride]][i],
+        ferricsulfate = df[[final_names$ferricsulfate]][i],
+        ach = df[[final_names$ach]][i],
+        pacl = df[[final_names$pacl]][i],
+        kmno4 = df[[final_names$kmno4]][i],
+        naf = df[[final_names$naf]][i],
+        na3po4 = df[[final_names$na3po4]][i],
+        softening_correction = df[[final_names$softening_correction]][i]
+      ),
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+        invokeRestart("muffleWarning")
+      }
+    )
   })
-
 
   for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
@@ -637,12 +657,9 @@ chemdose_ph_df <- function(
     }
   }
 
-  if (!keep_dose_cols){
-     
-    output<-output[,!colnames(output) %in% (unlist(final_names))]
-
-   }
+  if (!keep_dose_cols) {
+    output <- output[, !colnames(output) %in% (unlist(final_names))]
+  }
 
   return(output)
-
 }
