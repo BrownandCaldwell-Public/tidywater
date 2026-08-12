@@ -42,19 +42,19 @@ molec_properties <- data.frame(
   h2so4 = c(98.079, 2),
   h3po4 = c(97.995181, 3),
   naoh = c(39.9971, 1),
-  na2co3 = c(105.98844, NA),
+  na2co3 = c(105.98844, 2),
   nahco3 = c(84.00661, 1),
   caoh2 = c(74.09268, 2),
   mgoh2 = c(58.31968, 2),
-  cacl2 = c(110.98, NA),
+  cacl2 = c(110.98, 2),
   ch3cooh = c(60.05, 1),
-  fecl3 = c(55.845 + 35.453 * 3, NA),
-  na3po4 = c(163.939, NA),
+  fecl3 = c(55.845 + 35.453 * 3, 3),
+  na3po4 = c(163.939, 3),
   h2co3 = c(62.024, 2),
   naf = c(41.9882, 1),
   hno3 = c(63.0128, 1),
   nh4oh = c(18.04 + 17.008, 1),
-  nh42so4 = c(18.04 * 2 + 96.0626, NA),
+  nh42so4 = c(18.04 * 2 + 96.0626, 2),
   kmno4 = c(158.032, 1),
   citric = c(192.12, 0),
 
@@ -71,7 +71,7 @@ molec_properties <- data.frame(
   ncl3 = c(120.365, NA),
   n = c(14.0067, NA),
   dic = c(12.011, NA),
-  h20 =c(18.015,NA),
+  h2o =c(18.015,NA),
 
   # Coagulants. They do their own thing.
   alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
