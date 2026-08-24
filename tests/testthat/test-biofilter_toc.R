@@ -65,6 +65,19 @@ test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
   expect_equal(round(dosed_water_low@toc, 2), 3.69)
 })
 
+test_that("biofilter_toc correctly implements reuse argument.", {
+  water <- suppressWarnings(define_water(ph = 7, temp = 15, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
+
+  noreuse_water <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE))
+  reuse_water1 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE))
+  reuse_water2 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 1, reuse = TRUE))
+  
+  expect_equal(round(reuse_water1@toc, 3), 4.96)
+  expect_false(round(reuse_water1@toc, 3) == round(noreuse_water@toc, 3))
+  expect_false(round(reuse_water2@toc, 3) == round(reuse_water1@toc, 3))
+
+})
+
 ################################################################################*
 ################################################################################*
 # biofilter_toc helpers ----

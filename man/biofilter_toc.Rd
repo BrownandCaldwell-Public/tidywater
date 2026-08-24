@@ -3,12 +3,12 @@
 \name{biofilter_toc}
 \alias{biofilter_toc}
 \alias{biofilter_toc_df}
-\title{Determine TOC removal from biofiltration using Terry & Summers BDOC model}
+\title{Determine TOC removal from biofiltration using Terry & Summers BDOC model or Peterson & Summers TOC model}
 \source{
-Terry and Summers 2018
+Terry and Summers 2018, Peterson and Summers 2021
 }
 \usage{
-biofilter_toc(water, ebct, ozonated = TRUE)
+biofilter_toc(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE)
 
 biofilter_toc_df(
   df,
@@ -17,7 +17,9 @@ biofilter_toc_df(
   pluck_cols = FALSE,
   water_prefix = TRUE,
   ebct = "use_col",
-  ozonated = "use_col"
+  ozonated = "use_col",
+  ozone_dose = "use_col",
+  reuse = "use_col"
 )
 }
 \arguments{
@@ -26,6 +28,11 @@ biofilter_toc_df(
 \item{ebct}{The empty bed contact time (min) used for the biofilter.}
 
 \item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise.}
+
+\item{ozone_dose}{The ozone dose (mg/L) applied to the water. Only used if \code{reuse = TRUE}.}
+
+\item{reuse}{Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise.
+If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column indicating the EBCT or whether the water is ozonated.}
@@ -46,7 +53,8 @@ concentrations. Optionally, it also adds columns for each of those slots individ
 }
 \description{
 This function applies the Terry model to a water created by \link{define_water} to determine biofiltered
-DOC (mg/L). All particulate TOC is assumed to be removed so TOC = DOC.
+DOC (mg/L). When the reuse argument is TRUE, the Peterson and Summers (2021) model is used to determine biofiltered TOC (mg/L).
+All particulate TOC is assumed to be removed so TOC = DOC.
 For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_df} helper
