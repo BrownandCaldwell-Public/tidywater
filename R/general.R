@@ -569,15 +569,13 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
-  mweights<-get("mweights")
-  molecNames<-names(mweights)
+  mweights <- get("mweights")
+  molecNames <- names(mweights)
 
   # normalize strings
   formula <- tolower(gsub("\\s", "", formula))
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
-
-
   
   # formula matcher
   if (!(formula %in% molecNames)) {
@@ -621,24 +619,23 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 1)
 
   # space and upper case matching
-  if (startunit%in% names(unit_matcher)){
-  startunit<-unit_matcher[[startunit]]
+  if (startunit %in% names(unit_matcher)){
+  startunit <- unit_matcher[[startunit]]
   } 
-    # making the length of the input unit be greater than 2 because there are too many matches for single letter inputs
-  # like M, without that than every M conversion is wrong. 
-  else if (length(bestStart) > 0 & nchar(startunit)>1) {
-      # true fuzzy atching
+  
+  # making the length of the input unit be greater than 1 because there are too many matches for single letter inputs
+  # like M, without that then every M conversion is wrong. 
+  else if (length(bestStart) > 0 & nchar(startunit) > 1) {
     startunit <- unit_matcher[[bestStart[1]]]
     cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
   }
 
-  if (endunit%in% names(unit_matcher)) {
-  endunit<-unit_matcher[[endunit]]
+  if (endunit %in% names(unit_matcher)) {
+  endunit <- unit_matcher[[endunit]]
   }
-  else if (length(bestEnd) > 0 & nchar(endunit)>1) {
+  else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
     endunit <- unit_matcher[[bestEnd[1]]]
         cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
-
   }
   
 

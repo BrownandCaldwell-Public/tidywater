@@ -88,11 +88,10 @@ test_that("Aliasing works", {
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/lcaco3"))
   #end unit
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
+  
   # typos 
   expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
-  # basically if the string has a length >2 and one matching character fuzzy matching will be used, it is VERY forgiving
-  expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles"))
-)
+  expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles")))
 
   # formula matching 
   expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3") )
