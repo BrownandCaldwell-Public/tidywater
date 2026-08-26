@@ -79,18 +79,31 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
 
 test_that("Flowrate converter works", {
 
-MGD<-10
-  
-  MGH_eq<-round(10/24,1)
+  MGD <- 10
+  KGD <- 100
 
-  # soft tests aliasing with capitals
-  MGH<-round(convert_flow(MGD, startunit = "MGD", endunit = " MGH"),1)
+  # volumetric to volumetric
+  MGH_eq1 <- round(10/24,1)
+  MGH1 <- round(convert_flow(MGD, startunit = "MGD", endunit = " MGH"),1) # also soft test aliasing
+  expect_equal(MGH_eq1, MGH1)
 
-  expect_equal(MGH_eq, MGH)
+  # mass to mass
+  lbs_day_eq1 <- round(KGD * 2.20462,0)
+  lbsday1 <- round(convert_flow(KGD, startunit = "kg/day", endunit = "lb/day"),0)
+  expect_equal(lbs_day_eq1, lbsday1)
 
-  
+  # volumetric to mass
+  lbs_day_eq2 <- signif(MGD * 8.34 * 10^6,3)
+  lbsday2 <- signif(convert_flow(MGD, startunit = "MGD", endunit = "lb/day", sg = 1),3)
+  expect_equal(lbs_day_eq2, lbsday2)
+
+  # mass to volumetric
+  MGD_eq2 <- signif(KGD / 3.785 / 10^6,3)
+  MGD2 <- signif(convert_flow(KGD, startunit = "kg/day", endunit = "MGD", sg = 1),3)
+  expect_equal(MGD_eq2, MGD2)
   
 })
+
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {

@@ -580,16 +580,14 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
-#' @title Convert flow
+#' @title Convert flow rate
 #'
-#' @description given units for a flow, convert to different units of flow
+#' @description Given units for flow rate, convert to different units of flow rate.
 #'
-#' @param value Value of flow to be converted
-#' @param startunit Current units of flow
-#' @param endunit Desired units of flow
-#' @param flowrate Flowrate for converting mass to volumetric flows
-#' @param sg specific gravity
-#' @param formula the formula of the compund being converted, default to 1 for water
+#' @param value Value of flow rate to be converted
+#' @param startunit Current units of flow rate
+#' @param endunit Desired units of flow rate
+#' @param sg Optional argument for specific gravity, default to 1. Required for converting between mass and volumetric flows.
 #'
 #' @examples
 #' flow <- 40 #in MGD
@@ -607,7 +605,6 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   endmultiplier <- 0
 
   # idea is convert units to gpm then reconvert end unit
-
   # volumetric
   volumetricstartunits <- c(
     mgs = 60000000,
@@ -645,17 +642,15 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   # lbs/min -> Mass Rate
   massendunits <- 1 / massstartunits
 
-  # if(!startunit %in% names(startunits))  cli::cli_abort("Start units not supported")
-  # if(!endunit %in% names(endunits)) cli::cli_abort("End units not supported")
-
-  # volumetric flow to volumetric flow
-  if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)) {
+  # volumetric flow to volumetric flow or mass to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)){
     startmultiplier <- volumetricstartunits[startunit]
     endmultiplier <- volumetricendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
     return(unname(value * totalmultiplier))
   }
 
+  # mass to mass
   if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
     startmultiplier <- massstartunits[startunit]
     endmultiplier <- massendunits[endunit]
@@ -669,7 +664,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
     # Physical bridge: GPM -> lbs/min
     lbs_min <- gpm * 8.34008 * sg
 
-    return(lbs_min * massendunits[endunit])
+    return(unname(lbs_min * massendunits[endunit]))
   }
 
   # mass to volumetric
@@ -678,7 +673,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
 
     gpm <- lbs_min / (8.34008 * sg)
 
-    return(gpm * volumetricendunits[endunit])
+    return(unname(gpm * volumetricendunits[endunit]))
   }
 
   cli::cli_abort("Start unit or end unit is not accepted")
