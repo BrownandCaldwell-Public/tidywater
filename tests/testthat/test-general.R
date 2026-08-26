@@ -76,6 +76,30 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
   )
 })
 
+test_that("Aliasing works", {
+
+  # correct conversion 
+  hcl_mg <- 10
+  hcl_caco3 <- convert_units(hcl_mg, "hcl", endunit = "mg/L CaCO3")
+
+  # start unit 
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L as CaCO3"))
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/lcaco3"))
+  #end unit
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
+  
+  # typos 
+  expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
+  expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles")))
+
+  # formula matching 
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3") )
+
+  # warning on formula typo 
+  expect_warning(convert_units(hcl_mg, "hxl", startunit = "mg/L", endunit = "mg/L CaCO3"))
+})
+
 # Summarize WQ ----
 
 test_that("Summarize WQ returns a kable and prints pH and Alkalinity.", {
