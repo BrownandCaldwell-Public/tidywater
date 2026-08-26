@@ -649,6 +649,105 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
 }
 
 
+#' @title Convert flow rate
+#'
+#' @description Given units for flow rate, convert to different units of flow rate.
+#'
+#' @param value Value of flow rate to be converted
+#' @param startunit Current units of flow rate
+#' @param endunit Desired units of flow rate
+#' @param sg Optional argument for specific gravity, default to 1. Required for converting between mass and volumetric flows.
+#'
+#' @examples
+#' flow <- 40 #in MGD
+#'
+#' convert_flow(flow, "MGD", "gpm")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted flow
+convert_flow <- function(value, startunit, endunit, sg = 1) {
+  startunit <- tolower(gsub("\\s", "", startunit))
+  endunit <- tolower(gsub("\\s", "", endunit))
+
+  startmultiplier <- 0
+  endmultiplier <- 0
+
+  # idea is convert units to gpm then reconvert end unit
+  # volumetric
+  volumetricstartunits <- c(
+    mgs = 60000000,
+    mgm = 1000000.0,
+    mgh = 16666.67,
+    mgd = 694.444,
+    gps = 60,
+    gpm = 1,
+    gph = 0.016667,
+    gpd = 0.000694,
+    cfs = 448.831,
+    cfm = 7.48052,
+    cfh = 0.124674,
+    cfd = 0.005195,
+    `l/s` = 15.8503,
+    `l/m` = 0.264172,
+    `l/h` = 0.004403,
+    `l/d` = 0.000183,
+    `m3/s` = 15850.32,
+    `m3/m` = 264.172,
+    `m3/h` = 4.40287,
+    `m3/day` = 0.183453
+  )
+  volumetricendunits <- 1 / volumetricstartunits
+
+  # to pound / min
+  # Mass Rate -> lbs/min
+  massstartunits <- c(
+    `kg/s` = 132.277, `kg/m` = 2.20462, `kg/min` = 2.20462, `kg/h` = 0.036744, `kg/d` = 0.001531, `kg/day` = 0.001531,
+    `g/s` = 0.132277, `g/m` = 0.002205, `g/min` = 0.002205, `g/h` = 0.000037, `g/d` = 0.00000153, `g/day` = 0.00000153,
+    `lb/s` = 60.0000, `lbs/s` = 60.0000, `lb/m` = 1, `lbs/m` = 1, `lb/min` = 1, `lbs/min` = 1,
+    `lb/h` = 0.016667, `lbs/h` = 0.016667, `lb/d` = 0.0006944, `lbs/d` = 0.0006944, `lb/day` = 0.0006944, `lbs/day` = 0.0006944
+  )
+
+  # lbs/min -> Mass Rate
+  massendunits <- 1 / massstartunits
+
+  # volumetric flow to volumetric flow or mass to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)){
+    startmultiplier <- volumetricstartunits[startunit]
+    endmultiplier <- volumetricendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # mass to mass
+  if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
+    startmultiplier <- massstartunits[startunit]
+    endmultiplier <- massendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # volumetric to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(massendunits)) {
+    gpm <- value * volumetricstartunits[startunit]
+    # Physical bridge: GPM -> lbs/min
+    lbs_min <- gpm * 8.34008 * sg
+
+    return(unname(lbs_min * massendunits[endunit]))
+  }
+
+  # mass to volumetric
+  if (startunit %in% names(massstartunits) && endunit %in% names(volumetricendunits)) {
+    lbs_min <- value * massstartunits[startunit]
+
+    gpm <- lbs_min / (8.34008 * sg)
+
+    return(unname(gpm * volumetricendunits[endunit]))
+  }
+
+  cli::cli_abort("Start unit or end unit is not accepted")
+}
+
 #' @title Calculate hardness from calcium and magnesium
 #'
 #' @description This function takes Ca and Mg in mg/L and returns hardness in mg/L as CaCO3
@@ -777,7 +876,7 @@ correct_k <- function(water) {
   return(data.frame(
     "k1co3" = k1co3,
     "k2co3" = k2co3,
-    
+
     "k1po4" = k1po4,
     "k2po4" = k2po4,
     "k3po4" = k3po4,
@@ -822,10 +921,14 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    cli::cli_abort("Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}.")
+    cli::cli_abort(
+      "Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}."
+    )
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    cli::cli_abort("Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column.")
+    cli::cli_abort(
+      "Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column."
+    )
   }
 }
 
@@ -1026,7 +1129,9 @@ construct_helper <- function(df, all_args) {
   inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
 
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    cli::cli_abort("Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column.")
+    cli::cli_abort(
+      "Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column."
+    )
   }
 
   # Get the new names for relevant columns
