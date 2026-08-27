@@ -888,25 +888,25 @@ calculate_alpha1_acetate <- function(h, k) {
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
-calculate_alpha0_citric <- function (h , k ){
+calculate_alpha0_citric <- function (h , k){
   k1 <- k$k1citric
   k2 <- k$k2citric
   k3 <- k$k3citric
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
-calculate_alpha1_citric <- function (h , k ){
+calculate_alpha1_citric <- function (h , k){
   k1 <- k$k1citric
   k2 <- k$k2citric
   k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * k1 / h
 }
-calculate_alpha2_citric <- function (h , k ){
+calculate_alpha2_citric <- function (h , k){
   k1 <- k$k1citric
   k2 <- k$k2citric
   k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
 }
-calculate_alpha3_citric <- function (h , k ){
+calculate_alpha3_citric <- function (h , k){
   k1 <- k$k1citric
   k2 <- k$k2citric
   k3 <- k$k3citric

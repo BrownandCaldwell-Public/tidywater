@@ -84,9 +84,9 @@ solve_ph <- function(
       2 * h2sio4_i -
       h3sio4_i  +
       tot_citric *
-        (calculate_alpha1_citric(h, ks) +
-          2 * calculate_alpha2_citric(h, ks) +
-          3 * calculate_alpha3_citric(h, ks))
+        (calculate_alpha1_citric(h, k) +
+          2 * calculate_alpha2_citric(h, k) +
+          3 * calculate_alpha3_citric(h, k))
   }
 
   root_h <- stats::uniroot(
