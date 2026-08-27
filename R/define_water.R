@@ -84,7 +84,7 @@
 #'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 #'   \item{po4}{phosphate, numeric, mols/L.}
 #'   \item{h2citric}{dihydrogen citrate, numeric, mols/L.}
-#'   \item{hcitric}{hydrogen citrate, numeric, mols/L.}
+#'   \item{h1citric}{hydrogen citrate, numeric, mols/L.}
 #'   \item{citric}{citrate ion, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
 #'   \item{bo3}{borate, numeric, mol/L.}
@@ -441,7 +441,7 @@ define_water <- function(
   h3po4 <- tot_po4 * alpha0p
 
   water@h2citric <- tot_citric * alpha1citric
-  water@hcitric <- tot_citric * alpha2citric
+  water@h1citric <- tot_citric * alpha2citric
   water@citric <- tot_citric * alpha3citric
   h3citric <- tot_citric * alpha0citric
 
@@ -455,7 +455,7 @@ define_water <- function(
 
   # Calculate individual and total alkalinity
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
-  water@citric_alk_eq <- (-1 * h3citric + 0 * water@h2citric + 1 * water@hcitric + 2 * water@citric)
+  water@citric_alk_eq <- (-1 * h3citric + 0 * water@h2citric + 1 * water@h1citric + 2 * water@citric)
   water@hypochlorite_alk_eq <- (1 * water@ocl)
   water@ammonium_alk_eq <- (1 * water@nh4)
   water@borate_alk_eq <- (1 * water@bo3)
