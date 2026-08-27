@@ -280,6 +280,9 @@ define_water <- function(
   kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp)
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp)
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp)
+  k1citric <- K_temp_adjust(discons["k1citric", ]$deltah, discons["k1citric", ]$k, temp)
+  k2citric <- K_temp_adjust(discons["k2citric", ]$deltah, discons["k2citric", ]$k, temp)
+  k3citric <- K_temp_adjust(discons["k3citric", ]$deltah, discons["k3citric", ]$k, temp)
 
   alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
