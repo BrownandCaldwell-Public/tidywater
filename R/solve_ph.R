@@ -47,11 +47,11 @@ solve_ph <- function(
     cl_dose,
     mno4_dose,
     no3_dose,
-    tot_cit,
-    h3cit, 
-    h2cit, 
-    h1cit,
-    cit
+    tot_citric,
+    h3citric,
+    h2citric,
+    h1citric,
+    citric
   ) {
     kw /
       (h * gamma1^2) +
@@ -83,7 +83,7 @@ solve_ph <- function(
       bo3_i -
       2 * h2sio4_i -
       h3sio4_i  +
-      tot_cit *
+      tot_citric *
         (calculate_alpha1_citric(h, ks) +
           2 * calculate_alpha2_citric(h, ks) +
           3 * calculate_alpha3_citric(h, ks))
@@ -119,11 +119,11 @@ solve_ph <- function(
     cl_dose = cl_dose,
     mno4_dose = mno4_dose,
     no3_dose = no3_dose,
-    tot_cit = water@tot_cit,
-    cit = water@cit,
-    h1cit = water@h1cit,
-    h2cit = water@h2cit,
-    h3cit = water@h3cit,
+    tot_citric = water@tot_citric,
+    citric = water@citric,
+    h1citric = water@h1citric,
+    h2citric = water@h2citric,
+    h3citric = water@h3citric,
     tol = 1e-14
   )
   phfinal <- -log10(root_h$root * gamma1)

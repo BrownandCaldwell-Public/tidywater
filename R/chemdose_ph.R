@@ -285,7 +285,7 @@ chemdose_ph <- function(
 
   # Total Citric Acid
   citric_dose <- citric
-  dosed_water@tot_cit <- citric_dose
+  dosed_water@tot_citric <- citric_dose
 
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
@@ -360,10 +360,10 @@ chemdose_ph <- function(
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, dosed_water@ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, dosed_water@ks)
 
-  dosed_water@cit <- dosed_water@tot_cit * calculate_alpha0_citric(h, ks)
-  dosed_water@h1cit <- dosed_water@tot_cit * calculate_alpha1_citric(h, ks)
-  dosed_water@h2cit <- dosed_water@tot_cit * calculate_alpha2_citric(h, ks)
-  dosed_water@h3cit <- dosed_water@tot_cit * calculate_alpha3_citric(h, ks)
+  dosed_water@citric <- dosed_water@tot_citric * calculate_alpha0_citric(h, ks)
+  dosed_water@h1citric <- dosed_water@tot_citric * calculate_alpha1_citric(h, ks)
+  dosed_water@h2citric <- dosed_water@tot_citric * calculate_alpha2_citric(h, ks)
+  dosed_water@h3citric <- dosed_water@tot_citric * calculate_alpha3_citric(h, ks)
 
   # Calculate individual and total alkalinity
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)

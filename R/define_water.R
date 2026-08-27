@@ -252,7 +252,7 @@ define_water <- function(
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
-  
+
   kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
 
   h <- 10^-ph # assume activity = concentration to start
@@ -348,7 +348,7 @@ define_water <- function(
     tot_bo3 = tot_bo3,
     tot_sio4 = tot_sio4,
     tot_ch3coo = tot_ch3coo,
-    tot_cit = 0, 
+    tot_citric = 0,
     kw = kw,
     is = 0,
     alk_eq = alk_eq,
@@ -454,7 +454,7 @@ define_water <- function(
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #' @param pluck_cols Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
-#' 
+#'
 #' @seealso [define_water]
 #'
 #' @examples
@@ -472,9 +472,9 @@ define_water <- function(
 #' @returns A data frame containing a water class column.
 
 define_water_df <- function(
-  df, 
+  df,
   output_water = "defined",
-  pluck_cols = FALSE, 
+  pluck_cols = FALSE,
   water_prefix = TRUE,
   ph= "use_col",
   temp = "use_col",
@@ -486,7 +486,7 @@ define_water_df <- function(
   k = "use_col",
   cl = "use_col",
   so4 = "use_col",
-  mno4 = "use_col", 
+  mno4 = "use_col",
   free_chlorine = "use_col",
   combined_chlorine = "use_col",
   tot_po4 = "use_col",
@@ -506,7 +506,7 @@ define_water_df <- function(
   mn = "use_col",
   no3 = "use_col"
 ) {
- 
+
 # Process unquoted column names
   ph <- tryCatch(ph, error = function(e) enquo(ph))
   temp <- tryCatch(temp, error = function(e) enquo(temp))
@@ -539,7 +539,7 @@ define_water_df <- function(
   no3 <- tryCatch(no3, error = function(e) enquo(no3))
 
 arguments <- construct_helper(
- df, 
+ df,
  all_args = list(
     "ph"=ph,
     "temp"=temp,
@@ -573,18 +573,18 @@ arguments <- construct_helper(
   ))
 
   final_names <- arguments$final_names
- 
+
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  
 
-  
+
+
   water_input <- df[, names(df) %in% unname(final_names)]
 
 col_map <- final_names[final_names %in% names(water_input)]
 names(water_input)[match(col_map, names(water_input))] <- names(col_map)
-  
+
   warning_counts<-list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(do.call(define_water, water_input[i, ]),warning = function(w) {
@@ -595,7 +595,7 @@ names(water_input)[match(col_map, names(water_input))] <- names(col_map)
   )
   })
 
- 
+
   for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }

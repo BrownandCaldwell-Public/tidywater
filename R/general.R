@@ -704,12 +704,12 @@ correct_k <- function(water) {
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
-  # k1cit = {h+}{h2cit-}/{h3cit}
-  k1cit <- K_temp_adjust(discons["k1cit", ]$deltah, discons["k1cit", ]$k, temp) / activity_z1^2
-  # k2cit = {h+}{hcit2-}/{h2cit-}
-  k2cit <- K_temp_adjust(discons["k2cit", ]$deltah, discons["k2cit", ]$k, temp) / activity_z2
-  # k3cit = {h+}{cit3-}/{hcit2-}
-  k3cit <- K_temp_adjust(discons["k3cit", ]$deltah, discons["k3cit", ]$k, temp) *
+  # k1citric = {h+}{h2citric-}/{h3citric}
+  k1citric <- K_temp_adjust(discons["k1citric", ]$deltah, discons["k1citric", ]$k, temp) / activity_z1^2
+  # k2citric = {h+}{hcitric2-}/{h2citric-}
+  k2citric <- K_temp_adjust(discons["k2citric", ]$deltah, discons["k2citric", ]$k, temp) / activity_z2
+  # k3citric = {h+}{citric3-}/{hcitric2-}
+  k3citric <- K_temp_adjust(discons["k3citric", ]$deltah, discons["k3citric", ]$k, temp) *
     activity_z2 /
     (activity_z1 * activity_z3)
 
@@ -728,9 +728,9 @@ correct_k <- function(water) {
     "k2sio4" = k2sio4,
     "kch3coo" = kch3coo,
     "kch3coo" = kch3coo,
-    "k1cit" = k1cit,
-    "k2cit" = k2cit,
-    "k3cit" = k3cit
+    "k1citric" = k1citric,
+    "k2citric" = k2citric,
+    "k3citric" = k3citric
   ))
 }
 
@@ -889,27 +889,27 @@ calculate_alpha1_acetate <- function(h, k) {
 }
 
 calculate_alpha0_citric <- function (h , k ){
-  k1 <- k$k1cit
-  k2 <- k$k2cit
-  k3 <- k$k3cit
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 calculate_alpha1_citric <- function (h , k ){
-  k1 <- k$k1cit
-  k2 <- k$k2cit
-  k3 <- k$k3cit
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * k1 / h
 }
 calculate_alpha2_citric <- function (h , k ){
-  k1 <- k$k1cit
-  k2 <- k$k2cit
-  k3 <- k$k3cit
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
 }
 calculate_alpha3_citric <- function (h , k ){
-  k1 <- k$k1cit
-  k2 <- k$k2cit
-  k3 <- k$k3cit
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * (k1 * k2 * k3 / h^3)
 }
 
