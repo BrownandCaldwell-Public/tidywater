@@ -998,17 +998,13 @@ calculate_alpha0_phosphate <- function(h, k) {
 
 calculate_alpha1_phosphate <- function(h, k) {
   # H2PO4
-  k1 <- k$k1po4
-  k2 <- k$k2po4
-  k3 <- k$k3po4
-  calculate_alpha0_phosphate(h, k) * k1 / h
+  calculate_alpha0_phosphate(h, k) * k$k1po4 / h
 }
 
 calculate_alpha2_phosphate <- function(h, k) {
   # HPO4
   k1 <- k$k1po4
   k2 <- k$k2po4
-  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
@@ -1066,17 +1062,13 @@ calculate_alpha0_citric <- function (h , k){
   1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
 }
 calculate_alpha1_citric <- function (h , k){
-  # H2Citirc
-  k1 <- k$k1citric
-  k2 <- k$k2citric
-  k3 <- k$k3citric
-  calculate_alpha0_citric(h, k) * k1 / h
+  # H2Citricc
+  calculate_alpha0_citric(h, k) * k$k1citric / h
 }
 calculate_alpha2_citric <- function (h , k){
   # H1Citric
   k1 <- k$k1citric
   k2 <- k$k2citric
-  k3 <- k$k3citric
   calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
 }
 calculate_alpha3_citric <- function (h , k){

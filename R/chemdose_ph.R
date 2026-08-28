@@ -285,7 +285,7 @@ chemdose_ph <- function(
 
   # Total Citric Acid
   citric_dose <- citric
-  dosed_water@tot_citric <- citric_dose
+  dosed_water@tot_citric <- water@tot_citric + citric_dose
 
   # Calculate dosed TDS/IS/conductivity
   # Assume that all parameters can be determined by calculating new TDS.
@@ -360,11 +360,10 @@ chemdose_ph <- function(
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, dosed_water@ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, dosed_water@ks)
 
-
-  dosed_water@h3citric <- dosed_water@tot_citric * calculate_alpha0_citric(h, ks)
-  dosed_water@h2citric <- dosed_water@tot_citric * calculate_alpha2_citric(h, ks)
-  dosed_water@h1citric <- dosed_water@tot_citric * calculate_alpha1_citric(h, ks)
-  dosed_water@citric <- dosed_water@tot_citric * calculate_alpha3_citric(h, ks)
+  dosed_water@h2citric <- dosed_water@tot_citric * calculate_alpha1_citric(h, dosed_water@ks)
+  dosed_water@h1citric <- dosed_water@tot_citric * calculate_alpha2_citric(h, dosed_water@ks)
+  dosed_water@citric <- dosed_water@tot_citric * calculate_alpha3_citric(h, dosed_water@ks)
+  h3citric <- dosed_water@tot_citric * calculate_alpha0_citric(h, dosed_water@ks)
 
 
   # Calculate individual and total alkalinity
@@ -373,6 +372,7 @@ chemdose_ph <- function(
   dosed_water@ammonium_alk_eq <- (1 * dosed_water@nh4)
   dosed_water@borate_alk_eq <- (1 * dosed_water@bo3)
   dosed_water@silicate_alk_eq <- (1 * dosed_water@h3sio4 + 2 * dosed_water@h2sio4)
+  dosed_water@citric_alk_eq <- (-1 * h3citric + 0 * dosed_water@h2citric + 1 * dosed_water@h1citric + 2 * dosed_water@citric)
   dosed_water@carbonate_alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3)
 
   # dosed_water@tot_co3 <- dosed_water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
@@ -380,9 +380,11 @@ chemdose_ph <- function(
   dosed_water@alk_eq <- sum(
     dosed_water@carbonate_alk_eq,
     dosed_water@phosphate_alk_eq,
+    dosed_water@citric_alk_eq, 
     dosed_water@ammonium_alk_eq,
     dosed_water@borate_alk_eq,
     dosed_water@silicate_alk_eq,
+    dosed_water@hypochlorite_alk_eq,
     -1 * h,
     oh
   )

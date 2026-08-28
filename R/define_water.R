@@ -464,9 +464,9 @@ define_water <- function(
     (water@ammonium_alk_eq +
       water@borate_alk_eq +
       water@phosphate_alk_eq +
-       water@citric_alk_eq +
+      water@citric_alk_eq +
       water@silicate_alk_eq +
-      hypochlorite_alk_eq +
+      water@hypochlorite_alk_eq +
       water@oh) +
     water@h
 

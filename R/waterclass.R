@@ -17,6 +17,7 @@ methods::setClass(
     borate_alk_eq = "numeric",
     silicate_alk_eq = "numeric",
     hypochlorite_alk_eq = "numeric",
+    citric_alk_eq = "numeric",
 
     # Carbon
     toc = "numeric",
@@ -115,6 +116,7 @@ methods::setClass(
     borate_alk_eq = NA_real_,
     silicate_alk_eq = NA_real_,
     hypochlorite_alk_eq = NA_real_,
+    citric_alk_eq = NA_real_,
 
     # Carbon
     toc = NA_real_,

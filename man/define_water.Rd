@@ -191,7 +191,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 \item{po4}{phosphate, numeric, mols/L.}
 \item{h2citric}{dihydrogen citrate, numeric, mols/L.}
-\item{hcitric}{hydrogen citrate, numeric, mols/L.}
+\item{h1citric}{hydrogen citrate, numeric, mols/L.}
 \item{citric}{citrate ion, numeric, mols/L.}
 \item{nh4}{ammonium, numeric, mol/L as N.}
 \item{bo3}{borate, numeric, mol/L.}
