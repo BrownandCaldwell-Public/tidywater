@@ -54,7 +54,7 @@
 
 scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
 
-  validate_water(water)
+  validate_water(water, c())
   # validate_water(water, c("ph", "tot_co3", "no2", "no3")) 
   # checking for tot_co3 will ensure there's hco3 and co3 defined. 
   # But do we need to check for anything? If something is NA, it'll just not contribute to scavenging
