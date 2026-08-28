@@ -26,11 +26,11 @@ Larson et al. 1988
 scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
 }
 \arguments{
-\item{water}{source water of TW 'water' object type}
+\item{water}{Source water of tidywater 'water' object type}
 
-\item{dose}{hydrogen peroxide (h2o2) dose applied, defaults to 0}
+\item{dose}{Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0}
 
-\item{kdoc_adjust}{user input for a different k_DOC rate constant for fitting data, defaults to literature value}
+\item{kdoc_adjust}{Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg s-1}
 }
 \value{
 \code{scavenge_oh} returns the total background hydroxyl radical scavenging term in units of s^-1.
@@ -53,7 +53,7 @@ k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
 Other reported k_doc values from literature
 
-other K values, with different units
+other K values, with different units -- are these all for k_DOC?
 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1

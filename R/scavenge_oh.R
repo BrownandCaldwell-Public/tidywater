@@ -16,7 +16,7 @@
 #' 
 #' Other reported k_doc values from literature
 #' 
-#' other K values, with different units
+#' other K values, with different units -- are these all for k_DOC?
 #' 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
 #' 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 #' 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
@@ -35,9 +35,9 @@
 #' @source Vinge et al 2020 
 #' @source Larson et al. 1988
 #' 
-#' @param water source water of TW 'water' object type 
-#' @param dose hydrogen peroxide (h2o2) dose applied, defaults to 0 
-#' @param kdoc_adjust user input for a different k_DOC rate constant for fitting data, defaults to literature value 
+#' @param water Source water of tidywater 'water' object type 
+#' @param dose Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0 
+#' @param kdoc_adjust Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg s-1
 #' 
 #' @examples
 #' water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
