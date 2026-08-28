@@ -894,7 +894,6 @@ correct_k <- function(water) {
     "k1sio4" = k1sio4,
     "k2sio4" = k2sio4,
     "kch3coo" = kch3coo,
-    "kch3coo" = kch3coo,
     "k1citric" = k1citric,
     "k2citric" = k2citric,
     "k3citric" = k3citric
