@@ -190,6 +190,15 @@ test_that("define_water accounts for multiple types of alkalinity", {
   expect_true(!is.na(water2@borate_alk_eq))
   expect_true(!is.na(water2@silicate_alk_eq))
   expect_false(identical(water2@alk_eq, water2@carbonate_alk_eq))
+
+  # Check that specific alkalinity values are calculated correctly
+  water3 <- suppressWarnings(define_water(ph = 8.9, temp = 20, alk = 190, tds = 480, tot_po4 = 0.18, tot_nh3 = 0.047, 
+                                         tot_bo3 = 0.71, tot_sio4 = 69))
+  
+  expect_true(round(water3@borate_alk_eq * 1000, 3) == 0.021) # 0.021
+  expect_true(round(water3@silicate_alk_eq * 1000, 3) == 0.112) # 0.110
+  # commented numbers on the side are from Anthony's spreadsheet with similar starting wq. He said the outputs are close enough!
+
 })
 
 # define_water helpers ----
