@@ -102,7 +102,7 @@ discons <- data.frame(
   # Ammonia
   add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
   # Borate
-  add_row(ID = "kbo3", k = 10^-9.24, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
+  add_row(ID = "kbo3", k = 10^-9.236, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
   # Silicate
   # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
