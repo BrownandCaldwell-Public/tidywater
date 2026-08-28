@@ -103,7 +103,6 @@ chemdose_toc <- function(
   else suva<-suva
   # Edwards calculations
   if (caoh2 > 0) {
-    water <- chemdose_ph(water, caoh2 = caoh2)
 
     removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
     removed <- removed / 0.87 # apply correction factor
@@ -114,7 +113,7 @@ chemdose_toc <- function(
     } else {
       water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
       water@doc <- water@doc - removed
-      water@toc <- water@doc - removed
+      water@toc <- water@doc
     }
   } else if (water@ph >= 8) {
     nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
