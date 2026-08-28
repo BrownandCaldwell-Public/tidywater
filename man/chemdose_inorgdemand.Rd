@@ -12,7 +12,7 @@ chemdose_inorgdemand(water, cl_dose)
 \item{cl_dose}{Chlorine dose in mg/L Cl2.}
 }
 \value{
-\code{chemdose_inorgdemand} returns a water class object with updated Cl slot that reflects inorganic scavenger demand.
+\code{chemdose_inorgdemand} returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
 }
 \description{
 Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia.

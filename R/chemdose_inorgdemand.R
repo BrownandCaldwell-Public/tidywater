@@ -12,7 +12,7 @@
 #'
 #' @export
 #' 
-#' @returns `chemdose_inorgdemand` returns a water class object with updated Cl slot that reflects inorganic scavenger demand.
+#' @returns `chemdose_inorgdemand` returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
 #'
 
 chemdose_inorgdemand <- function(water, cl_dose) {
@@ -32,7 +32,7 @@ chemdose_inorgdemand <- function(water, cl_dose) {
       cli::cli_abort("There is too much oxidant in the water, all available Cl will be used")
     } else {
       output_water <- water
-      output_water@cl <- residual
+      output_water@free_chlorine <- residual
       # do the mn, fe, nh3, and related slots get updated based on the oxidation reactions?
 
       return(output_water)

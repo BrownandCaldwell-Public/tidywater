@@ -9,6 +9,6 @@ test_that("chemdose_inorgdemand calculates correct Cl residual", {
   tot_cl_scavenged <- 1 * 1.29 + 2 * 0.64 + 1 * 7.6
   cl_residual2 <- cl_dose - tot_cl_scavenged
   
-  expect_equal(round(cl_residual1@cl, 1), round(cl_residual2, 1))
+  expect_equal(round(cl_residual1@free_chlorine, 1), round(cl_residual2, 1))
 
 })
