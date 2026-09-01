@@ -1,8 +1,11 @@
 #' @title Determine TOC removal from coagulation
 #'
 #' @description This function applies the Edwards (1997) model to a water created by [define_water] to determine coagulated
-#' DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
-#' Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+#' DOC. Option to model an input water to reuse processes using the reuse argument, which uses the Wilder & Korak (2025) models to
+#' predict coagulated DOC for reuse waters with effluent organic matter (EfOM). Model assumes all particulate TOC is removed; 
+#' therefore TOC = DOC in output.
+#' Coagulated UVA is from U.S. EPA (2001) equation 5-80 for Edwards (1997) model and a regression for the Wilder & Korak (2025) model. 
+#' Note that the models rely on pH of coagulation. If
 #' only raw water pH is known, utilize [chemdose_ph] first.
 #' For a single water use `chemdose_toc`; for a dataframe use `chemdose_toc_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
@@ -19,7 +22,10 @@
 #' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
 #' @param caoh2 Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
-#'
+#' @param reuse Option to specify input water as an input to a reuse treatment process, which will use Wilder & Korak (2025) models. Default FALSE.
+#' @param reuse_model Option to specify the model to be used for reuse treatment. Options are "Langmuir" or "Linear". Default is "Langmuir".
+#' @param fns Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.
+#' 
 #' @seealso [chemdose_ph]
 #'
 #' @source Edwards (1997)
@@ -48,7 +54,10 @@ chemdose_toc <- function(
   ach = 0,
   pacl = 0,
   coeff = "Alum",
-  caoh2 = 0
+  caoh2 = 0,
+  reuse = FALSE,
+  reuse_model = "Langmuir",
+  fns = NA_real_
 ) {
   validate_water(water, c("ph", "doc", "uv254"))
 
@@ -101,7 +110,9 @@ chemdose_toc <- function(
     cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
   }
   else suva<-suva
-  # Edwards calculations
+
+  if (reuse == FALSE) {
+    # Edwards calculations
   if (caoh2 > 0) {
     water <- chemdose_ph(water, caoh2 = caoh2)
 
@@ -162,6 +173,53 @@ chemdose_toc <- function(
       water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
     }
   }
+  } else {
+    # Wilder & Korak (2025) reuse model
+    if (alum == 0) {
+      cli::cli_warn("Wilder & Korak reuse model is only for alum coagulation. No alum dose entered; final water will equal input water.")
+      return(water)
+    }
+
+    if (reuse_model == "Langmuir") {
+      fns <- ifelse(is.na(fns), 0.649, fns) # need to make sure this is constant for the model, not using Fns = K1(SUVAi) + K2
+      x3 <- ifelse(is.na(fns), 4.82, 4.50)
+      x2 <- ifelse(is.na(fns), -74.3, -73.5)
+      x1 <- ifelse(is.na(fns), 289, 308)
+      b <- ifelse(is.na(fns), 0.308, 0.149)
+
+      doc_i <- water@doc
+      uv254_i <- water@uv254
+ 
+      doc_sorb <- doc_i * (1 - fns)
+      a <- x3 * water@ph^3 + x2 * water@ph^2 + x1 * water@ph # assumes water pH is coagulated pH
+      Y <- sqrt(a^2*b^2*coag^2 - 2*a*b*coag*(b*doc_sorb - 1) + (b*doc_sorb + 1)^2)
+      c_eq <- (Y - a*b*coag + b*doc_sorb - 1) / (2*b)
+
+      water@doc <- c_eq + fns * doc_i
+      water@toc <- water@doc # how to handle this? set it equal to doc?
+      water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
+
+    } else if (reuse_model == "Linear") {
+      fns <- ifelse(is.na(fns), 0.650, fns) # need to make sure this is constant for the model, not using Fns = K1(SUVAi) + K2
+      z2 <- ifelse(is.na(fns), 10.7, 5.06)
+      z1 <- ifelse(is.na(fns), -165, -79.5)
+      z0 <- ifelse(is.na(fns), 636, 320)
+
+      doc_i <- water@doc
+      uv254_i <- water@uv254
+ 
+      doc_sorb <- doc_i * (1 - fns)
+      slope <- z2 * water@ph^2 + z1 * water@ph + z0
+      tot_zterm <- ((1 - fns) * doc_i) / (coag * slope + 1)
+
+      water@doc <- tot_zterm + fns * doc_i
+      water@toc <- water@doc # how to handle this? set it equal to doc?
+      water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
+
+    } else {
+      cli::cli_abort("{.arg reuse_model} must be {.val Langmuir} or {.val Linear}.")
+    }
+  }
 
   return(water)
 }
@@ -208,7 +266,10 @@ chemdose_toc_df <- function(
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  coeff = "use_col"
+  coeff = "use_col",
+  reuse = "use_col",
+  reuse_model = "use_col",
+  fns = "use_col"
 ) {
 
   
@@ -219,6 +280,9 @@ chemdose_toc_df <- function(
   ach <- tryCatch(ach, error = function(e) enquo(ach))
   pacl <- tryCatch(pacl, error = function(e) enquo(pacl))
   caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
+  reuse <- tryCatch(reuse, error = function(e) enquo(reuse))
+  reuse_model <- tryCatch(reuse_model, error = function(e) enquo(reuse_model))
+  fns <- tryCatch(fns, error = function(e) enquo(fns))
   # account for character and data frame inputs for coeff
   is_coeff_df <- is.data.frame(coeff)
   if (!is_coeff_df) {
@@ -236,7 +300,10 @@ chemdose_toc_df <- function(
       "ach" = ach,
       "pacl" = pacl,
       "caoh2" = caoh2,
-      "coeff" = if (is_coeff_df) "coeff_df" else coeff
+      "coeff" = if (is_coeff_df) "coeff_df" else coeff,
+      "reuse" = reuse,
+      "reuse_model" = reuse_model,
+      "fns" = fns
     )
   )
   final_names <- arguments$final_names
@@ -249,7 +316,8 @@ chemdose_toc_df <- function(
   defaults_added <- handle_defaults(
     df,
     final_names,
-    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, pacl = 0, coeff = "Alum", caoh2 = 0)
+    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, pacl = 0, coeff = "Alum", caoh2 = 0,
+      reuse = FALSE, reuse_model = "Langmuir", fns = NA_real_)
   )
   df <- defaults_added$data
 
@@ -265,7 +333,10 @@ warning_counts<-list()
       ach = df[[final_names$ach]][i],
       pacl = df[[final_names$pacl]][i],
       caoh2 = df[[final_names$caoh2]][i],
-      coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i]
+      coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i],
+      reuse = df[[final_names$reuse]][i],
+      reuse_model = df[[final_names$reuse_model]][i],
+      fns = df[[final_names$fns]][i]
     ),
     warning = function(w) {
       msg <- conditionMessage(w)

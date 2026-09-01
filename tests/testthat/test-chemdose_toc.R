@@ -100,6 +100,21 @@ test_that("Edwards model does not go negative because of high SUVA",{
 
 })
 
+test_that("chemdose_toc works with reuse model", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
+
+  water1 <- chemdose_toc(water0, alum = 30)
+  water2 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Langmuir")
+  water3 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Linear")
+  water4 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Langmuir", fns = 0.4)
+
+  expect_false(water1@doc == water2@doc)
+  expect_false(water2@doc == water3@doc)
+  expect_false(water2@doc == water4@doc)
+  expect_equal(round(water2@doc, 2), 2.79) # one check for magnitude of expected output
+})
+
 ################################################################################*
 ################################################################################*
 # chemdose_toc helpers ----
