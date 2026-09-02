@@ -111,7 +111,7 @@ discons <- data.frame(
   # Acetate
   add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
   add_row(ID = "water", k =  10^-14   , deltah=  55830 ) %>% # H2O <--> H+ + OH-
-  add_row(ID= c( "k1citric","k2citric","k3citric"), k = c(10^-3.128, 10^-4.761, 10^-6.396),  deltah = c(-22, -3.5, 2.3)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit
+  add_row(ID= c( "k1citric","k2citric","k3citric"), k = c(10^-3.128, 10^-4.761, 10^-6.396),  deltah = c(3470, 1880, -3330)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
