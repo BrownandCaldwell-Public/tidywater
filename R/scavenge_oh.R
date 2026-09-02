@@ -69,7 +69,7 @@ scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
   )
 
   k_S <- list(
-    doc = k$doc * water@toc, # s-1  # check that we can use toc here instead of doc?
+    doc = k$doc * water@doc, # s-1
     no3 = k$no3 * water@no3, # s-1
     no2 = k$no2 * water@no2, # s-1
     h2o2 = k$h2o2 * dose, # s-1
