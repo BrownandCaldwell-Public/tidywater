@@ -22,8 +22,8 @@
 #' @param h2so4 Amount of sulfuric acid added in mg/L: H2SO4 -> 2H + SO4
 #' @param h3po4 Amount of phosphoric acid added in mg/L: H3PO4 -> 3H + PO4
 #' @param hno3 Amount of nitric acid added in mg/L: HNO3 -> H + NO3
-#' @param ch3cooh Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO-
-#' @param citric Amount of citric acid added in mg/L: C3H4OH(COOH)3 -> 3H+ C3H4OH(COO)
+#' @param ch3cooh Amount of acetic acid added in mg/L: CH3COOH -> H + CH3COO
+#' @param citric Amount of citric acid added in mg/L: C3H4OH(COOH)3 -> 3H+ C3H4OH(COO)3
 #' @param co2 Amount of carbon dioxide added in mg/L: CO2 (gas) + H2O -> H2CO3*
 #' @param naoh Amount of caustic added in mg/L: NaOH -> Na + OH
 #' @param caoh2 Amount of lime added in mg/L: Ca(OH)2 -> Ca + 2OH
@@ -380,7 +380,7 @@ chemdose_ph <- function(
   dosed_water@alk_eq <- sum(
     dosed_water@carbonate_alk_eq,
     dosed_water@phosphate_alk_eq,
-    dosed_water@citric_alk_eq, 
+    dosed_water@citric_alk_eq,
     dosed_water@ammonium_alk_eq,
     dosed_water@borate_alk_eq,
     dosed_water@silicate_alk_eq,
