@@ -31,8 +31,8 @@ solve_ph <- function(
     tot_nh3,
     ocl_i,
     nh4_i,
-    tot_bo3,
-    bo3_i,
+    tot_bo4,
+    h4bo4_i,
     tot_sio4,
     h2sio4_i,
     h3sio4_i,
@@ -63,7 +63,7 @@ solve_ph <- function(
         (calculate_alpha1_carbonate(h, k) +
           2 * calculate_alpha2_carbonate(h, k)) +
       tot_ocl * calculate_alpha1_hypochlorite(h, k) +
-      tot_bo3 * calculate_alpha1_borate(h, k) +
+      tot_bo4 * calculate_alpha1_borate(h, k) +
       tot_sio4 *
         (calculate_alpha1_silicate(h, k) +
           2 * calculate_alpha2_silicate(h, k)) +
@@ -79,7 +79,7 @@ solve_ph <- function(
       ocl_i +
       nh4_i +
       h_i -
-      bo3_i -
+      h4bo4_i -
       2 * h2sio4_i -
       h3sio4_i  +
       tot_citric *
@@ -105,8 +105,8 @@ solve_ph <- function(
     ocl_i = water@ocl,
     tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
-    tot_bo3 = water@tot_bo3,
-    bo3_i = water@bo3,
+    tot_bo4 = water@tot_bo4,
+    h4bo4_i = water@h4bo4,
     tot_sio4 = water@tot_sio4,
     h2sio4_i = water@h2sio4,
     h3sio4_i = water@h3sio4,

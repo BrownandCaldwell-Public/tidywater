@@ -864,8 +864,8 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
-  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # kbo4 = {oh-}{h3bo3}/{h4bo4-}
+  kbo4 <- K_temp_adjust(discons["kbo4", ]$deltah, discons["kbo4", ]$k, temp) / activity_z1^2
   # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
   # k2sio4 = {h+}{hsio43-}/{h2sio42-}
@@ -890,7 +890,7 @@ correct_k <- function(water) {
     "kocl" = kocl,
     "knh4" = knh4,
     "kso4" = kso4,
-    "kbo3" = kbo3,
+    "kbo4" = kbo4,
     "k1sio4" = k1sio4,
     "k2sio4" = k2sio4,
     "kch3coo" = kch3coo,
@@ -1030,7 +1030,7 @@ calculate_alpha1_ammonia <- function(h, k) {
 
 calculate_alpha1_borate <- function(h, k) {
   # H4BO4-
-  k1 <- k$kbo3
+  k1 <- k$kbo4
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 

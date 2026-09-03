@@ -30,7 +30,8 @@ molec_properties <- data.frame(
   h3sio4 = c(95.107, 1),
   h2sio4 = c(94.099, 2),
   sio4 = c(92.083, 4),
-  bo3 = c(58.809, 3),
+  h4bo4 = c(78.11, 1),
+  h3bo3 = c(61.83, 0),
   no3 = c(62.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
@@ -104,7 +105,7 @@ discons <- data.frame(
   # Ammonia
   add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
   # Borate
-  add_row(ID = "kbo3", k = 10^-9.236, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
+  add_row(ID = "kbo4", k = 10^-9.236, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
   # Silicate
   # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%

@@ -355,7 +355,8 @@ chemdose_ph <- function(
   dosed_water@ocl <- dosed_water@free_chlorine * calculate_alpha1_hypochlorite(h, dosed_water@ks)
   dosed_water@nh4 <- dosed_water@tot_nh3 * calculate_alpha1_ammonia(h, dosed_water@ks)
 
-  dosed_water@bo3 <- dosed_water@tot_bo3 * calculate_alpha1_borate(h, dosed_water@ks)
+  dosed_water@h4bo4 <- dosed_water@tot_bo4 * calculate_alpha1_borate(h, dosed_water@ks)
+  dosed_water@h3bo3 <- dosed_water@tot_bo4 - dosed_water@h4bo4
   dosed_water@h3sio4 <- dosed_water@tot_sio4 * calculate_alpha1_silicate(h, dosed_water@ks)
   dosed_water@h2sio4 <- dosed_water@tot_sio4 * calculate_alpha2_silicate(h, dosed_water@ks)
   dosed_water@ch3coo <- dosed_water@tot_ch3coo * calculate_alpha1_acetate(h, dosed_water@ks)
@@ -370,7 +371,7 @@ chemdose_ph <- function(
   dosed_water@phosphate_alk_eq <- (-1 * h3po4 + 0 * dosed_water@h2po4 + 1 * dosed_water@hpo4 + 2 * dosed_water@po4)
   dosed_water@hypochlorite_alk_eq <- (1 * dosed_water@ocl)
   dosed_water@ammonium_alk_eq <- (1 * dosed_water@nh4)
-  dosed_water@borate_alk_eq <- (1 * dosed_water@bo3)
+  dosed_water@borate_alk_eq <- (1 * dosed_water@h4bo4)
   dosed_water@silicate_alk_eq <- (1 * dosed_water@h3sio4 + 2 * dosed_water@h2sio4)
   dosed_water@citric_alk_eq <- (-1 * h3citric + 0 * dosed_water@h2citric + 1 * dosed_water@h1citric + 2 * dosed_water@citric)
   dosed_water@carbonate_alk_eq <- (dosed_water@hco3 + 2 * dosed_water@co3)
