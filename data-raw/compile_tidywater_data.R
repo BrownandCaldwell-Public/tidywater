@@ -34,7 +34,8 @@ molec_properties <- data.frame(
   no3 = c(62.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
-  # Chemicals. Everything has a charge.
+  # Chemicals. These only have a charge if both ions have the same charge.
+  # Except: Use the anion charge if the cation is H+, use the cation charge if the anion is OH-.
   caco3 = c(100.0869, 2),
   caso4 = c(136.141, 2),
   hcl = c(36.46094, 1),
@@ -55,6 +56,7 @@ molec_properties <- data.frame(
   nh4oh = c(18.04 + 17.008, 1),
   nh42so4 = c(18.04 * 2 + 96.0626, 2),
   kmno4 = c(158.032, 1),
+  citric = c(192.12, 0),
 
   # Stuff that isn't made of ions. No charge.
   cl2 = c(70.906, NA),
@@ -108,7 +110,8 @@ discons <- data.frame(
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
   # Acetate
   add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
-  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) # H2O <--> H+ + OH- 
+  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) %>% # H2O <--> H+ + OH-
+  add_row(ID= c( "k1citric","k2citric","k3citric"), k = c(10^-3.128, 10^-4.761, 10^-6.396),  deltah = c(3470, 1880, -3330)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)

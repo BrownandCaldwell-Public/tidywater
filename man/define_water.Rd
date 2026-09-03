@@ -31,6 +31,7 @@ define_water(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
+  tot_citric = 0,
   tot_bo3 = 0,
   tot_sio4 = 0,
   tds,
@@ -69,6 +70,7 @@ define_water_df(
   tot_bo3 = "use_col",
   tot_sio4 = "use_col",
   tot_ch3coo = "use_col",
+  tot_citric = "use_col",
   tds = "use_col",
   cond = "use_col",
   toc = "use_col",
@@ -114,6 +116,8 @@ define_water_df(
 \item{tot_nh3}{Total ammonia in mg/L as N}
 
 \item{tot_ch3coo}{Total acetate in mg/L}
+
+\item{tot_citric}{Total citric acid in mg/L}
 
 \item{tot_bo3}{Total borate (B(OH)4 -) in mg/L as B}
 
@@ -183,9 +187,12 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{h2co3}{carbonic acid, numeric, mols/L.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
-\item{h2po4}{phosphoric acid, numeric, mols/L.}
+\item{h2po4}{dihydrogen phosphate, numeric, mols/L.}
 \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 \item{po4}{phosphate, numeric, mols/L.}
+\item{h2citric}{dihydrogen citrate, numeric, mols/L.}
+\item{h1citric}{hydrogen citrate, numeric, mols/L.}
+\item{citric}{citrate ion, numeric, mols/L.}
 \item{nh4}{ammonium, numeric, mol/L as N.}
 \item{bo3}{borate, numeric, mol/L.}
 \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
@@ -199,6 +206,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{tot_bo3}{total borate, numeric, mol/L.}
 \item{tot_sio4}{total silicate, numeric, mol/L.}
 \item{tot_ch3coo}{total acetate, numeric, mol/L.}
+\item{tot_citric}{total citric acid, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
 \item{f}{fluoride, numeric, mol/L.}

@@ -28,6 +28,7 @@
 #' @param tot_bo3 Total borate (B(OH)4 -) in mg/L as B
 #' @param tot_sio4 Total silicate in mg/L as SiO2
 #' @param tot_ch3coo Total acetate in mg/L
+#' @param tot_citric Total citric acid in mg/L
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
 #' @param cond Electrical conductivity in uS/cm (optional if ions are known)
 #' @param toc Total organic carbon (TOC) in mg/L
@@ -79,9 +80,12 @@
 #'   \item{h2co3}{carbonic acid, numeric, mols/L.}
 #'   \item{hco3}{bicarbonate, numeric, mols/L.}
 #'   \item{co3}{carbonate, numeric, mols/L.}
-#'   \item{h2po4}{phosphoric acid, numeric, mols/L.}
+#'   \item{h2po4}{dihydrogen phosphate, numeric, mols/L.}
 #'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 #'   \item{po4}{phosphate, numeric, mols/L.}
+#'   \item{h2citric}{dihydrogen citrate, numeric, mols/L.}
+#'   \item{h1citric}{hydrogen citrate, numeric, mols/L.}
+#'   \item{citric}{citrate ion, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
 #'   \item{bo3}{borate, numeric, mol/L.}
 #'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
@@ -95,6 +99,7 @@
 #'   \item{tot_bo3}{total borate, numeric, mol/L.}
 #'   \item{tot_sio4}{total silicate, numeric, mol/L.}
 #'   \item{tot_ch3coo}{total acetate, numeric, mol/L.}
+#'   \item{tot_citric}{total citric acid, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
 #'   \item{bro3}{bromate, numeric, mol/L.}
 #'   \item{f}{fluoride, numeric, mol/L.}
@@ -143,6 +148,7 @@ define_water <- function(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
+  tot_citric = 0,
   tot_bo3 = 0,
   tot_sio4 = 0,
   tds,
@@ -224,6 +230,7 @@ define_water <- function(
   tot_bo3 <- convert_units(tot_bo3, "b")
   tot_sio4 <- convert_units(tot_sio4, "sio2")
   tot_ch3coo <- convert_units(tot_ch3coo, "ch3cooh")
+  tot_citric <- convert_units(tot_citric, "citric")
 
   br <- ifelse(missing(br), NA_real_, convert_units(br, "br", "ug/L", "M"))
   f <- ifelse(missing(f), NA_real_, convert_units(f, "f"))
@@ -252,7 +259,7 @@ define_water <- function(
   uv254 <- ifelse(missing(uv254), NA_real_, uv254)
 
   # Calculate temperature dependent constants
-  
+
   kw <- K_temp_adjust(discons["water", ]$deltah, discons["water", ]$k, temp)
 
   h <- 10^-ph # assume activity = concentration to start
@@ -273,6 +280,9 @@ define_water <- function(
   kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp)
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp)
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp)
+  k1citric <- K_temp_adjust(discons["k1citric", ]$deltah, discons["k1citric", ]$k, temp)
+  k2citric <- K_temp_adjust(discons["k2citric", ]$deltah, discons["k2citric", ]$k, temp)
+  k3citric <- K_temp_adjust(discons["k3citric", ]$deltah, discons["k3citric", ]$k, temp)
 
   alpha0 <- calculate_alpha0_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as H2CO3
   alpha1 <- calculate_alpha1_carbonate(h, data.frame("k1co3" = k1co3, "k2co3" = k2co3)) # proportion of total carbonate as HCO3-
@@ -281,6 +291,10 @@ define_water <- function(
   alpha1p <- calculate_alpha1_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as H2PO4-
   alpha2p <- calculate_alpha2_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as HPO4 2-
   alpha3p <- calculate_alpha3_phosphate(h, data.frame("k1po4" = k1po4, "k2po4" = k2po4, "k3po4" = k3po4)) # proportion of total phosphate as PO4 3-
+
+  alpha1citric <- calculate_alpha1_citric(h, data.frame("k1citric" = k1citric, "k2citric" = k2citric, "k3citric" = k3citric)) # proportion of total citric acid as H2Citric-
+  alpha2citric <- calculate_alpha2_citric(h, data.frame("k1citric" = k1citric, "k2citric" = k2citric, "k3citric" = k3citric)) # proportion of total citric acid as HCitric 2-
+  alpha3citric <- calculate_alpha3_citric(h, data.frame("k1citric" = k1citric, "k2citric" = k2citric, "k3citric" = k3citric)) # proportion of total citric acid as Citric 3-
 
   alpha1c <- calculate_alpha1_hypochlorite(h, data.frame("kocl" = kocl))
   alpha1n <- calculate_alpha1_ammonia(h, data.frame("knh4" = knh4))
@@ -293,6 +307,12 @@ define_water <- function(
   hpo4 <- tot_po4 * alpha2p
   po4 <- tot_po4 * alpha3p
   h3po4 <- tot_po4 - (h2po4 + hpo4 + po4)
+
+  h2citric <- tot_citric * alpha1citric
+  h1citric <- tot_citric * alpha2citric
+  citric <- tot_citric * alpha3citric
+  h3citric <- tot_citric - (h2citric + h1citric + citric)
+
   ocl <- free_chlorine * alpha1c
   nh4 <- tot_nh3 * alpha1n
 
@@ -301,12 +321,14 @@ define_water <- function(
   h2sio4 <- tot_sio4 * alpha2s
 
   phosphate_alk_eq <- (-1 * h3po4 + 0 * h2po4 + 1 * hpo4 + 2 * po4)
+  citric_alk_eq <- (-1 * h3citric + 0 * h2citric + 1 * h1citric + 2 * citric)
+
   hypochlorite_alk_eq <- (1 * ocl)
   ammonium_alk_eq <- (1 * nh4)
   borate_alk_eq <- (1 * bo3)
   silicate_alk_eq <- (1 * h3sio4 + 2 * h2sio4)
   carbonate_alk_eq <- alk_eq -
-    (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + hypochlorite_alk_eq + oh) +
+    (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + hypochlorite_alk_eq + oh + citric_alk_eq) +
     h
 
   tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
@@ -341,6 +363,9 @@ define_water <- function(
     h = h,
     oh = oh,
     tot_po4 = tot_po4,
+    h2citric = h2citric,
+    h1citric = h1citric,
+    citric = citric,
     free_chlorine = free_chlorine,
     combined_chlorine = combined_chlorine,
     tot_nh3 = tot_nh3,
@@ -348,6 +373,7 @@ define_water <- function(
     tot_bo3 = tot_bo3,
     tot_sio4 = tot_sio4,
     tot_ch3coo = tot_ch3coo,
+    tot_citric = tot_citric,
     kw = kw,
     is = 0,
     alk_eq = alk_eq,
@@ -404,10 +430,20 @@ define_water <- function(
   alpha2p <- calculate_alpha2_phosphate(h, water@ks)
   alpha3p <- calculate_alpha3_phosphate(h, water@ks)
 
+  alpha0citric <- calculate_alpha0_citric(h, water@ks)
+  alpha1citric <- calculate_alpha1_citric(h, water@ks)
+  alpha2citric <- calculate_alpha2_citric(h, water@ks)
+  alpha3citric <- calculate_alpha3_citric(h, water@ks)
+
   water@h2po4 <- tot_po4 * alpha1p
   water@hpo4 <- tot_po4 * alpha2p
   water@po4 <- tot_po4 * alpha3p
   h3po4 <- tot_po4 * alpha0p
+
+  water@h2citric <- tot_citric * alpha1citric
+  water@h1citric <- tot_citric * alpha2citric
+  water@citric <- tot_citric * alpha3citric
+  h3citric <- tot_citric * alpha0citric
 
   water@ocl <- free_chlorine * calculate_alpha1_hypochlorite(h, water@ks)
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, water@ks)
@@ -419,6 +455,7 @@ define_water <- function(
 
   # Calculate individual and total alkalinity
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
+  water@citric_alk_eq <- (-1 * h3citric + 0 * water@h2citric + 1 * water@h1citric + 2 * water@citric)
   water@hypochlorite_alk_eq <- (1 * water@ocl)
   water@ammonium_alk_eq <- (1 * water@nh4)
   water@borate_alk_eq <- (1 * water@bo3)
@@ -427,8 +464,9 @@ define_water <- function(
     (water@ammonium_alk_eq +
       water@borate_alk_eq +
       water@phosphate_alk_eq +
+      water@citric_alk_eq +
       water@silicate_alk_eq +
-      hypochlorite_alk_eq +
+      water@hypochlorite_alk_eq +
       water@oh) +
     water@h
 
@@ -453,7 +491,7 @@ define_water <- function(
 #' @param output_water name of the output column storing updated parameters with the class, water. Default is "defined".
 #' @param pluck_cols Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
-#' 
+#'
 #' @seealso [define_water]
 #'
 #' @examples
@@ -471,9 +509,9 @@ define_water <- function(
 #' @returns A data frame containing a water class column.
 
 define_water_df <- function(
-  df, 
+  df,
   output_water = "defined",
-  pluck_cols = FALSE, 
+  pluck_cols = FALSE,
   water_prefix = TRUE,
   ph= "use_col",
   temp = "use_col",
@@ -485,7 +523,7 @@ define_water_df <- function(
   k = "use_col",
   cl = "use_col",
   so4 = "use_col",
-  mno4 = "use_col", 
+  mno4 = "use_col",
   free_chlorine = "use_col",
   combined_chlorine = "use_col",
   tot_po4 = "use_col",
@@ -493,6 +531,7 @@ define_water_df <- function(
   tot_bo3 = "use_col",
   tot_sio4 = "use_col",
   tot_ch3coo = "use_col",
+  tot_citric = "use_col",
   tds = "use_col",
   cond = "use_col",
   toc = "use_col",
@@ -505,7 +544,7 @@ define_water_df <- function(
   mn = "use_col",
   no3 = "use_col"
 ) {
- 
+
 # Process unquoted column names
   ph <- tryCatch(ph, error = function(e) enquo(ph))
   temp <- tryCatch(temp, error = function(e) enquo(temp))
@@ -525,6 +564,7 @@ define_water_df <- function(
   tot_bo3 <- tryCatch(tot_bo3, error = function(e) enquo(tot_bo3))
   tot_sio4 <- tryCatch(tot_sio4, error = function(e) enquo(tot_sio4))
   tot_ch3coo <- tryCatch(tot_ch3coo, error = function(e) enquo(tot_ch3coo))
+  tot_citric <- tryCatch(tot_citric, error = function(e) enquo(tot_citric))
   tds <- tryCatch(tds, error = function(e) enquo(tds))
   cond <- tryCatch(cond, error = function(e) enquo(cond))
   toc <- tryCatch(toc, error = function(e) enquo(toc))
@@ -538,7 +578,7 @@ define_water_df <- function(
   no3 <- tryCatch(no3, error = function(e) enquo(no3))
 
 arguments <- construct_helper(
- df, 
+ df,
  all_args = list(
     "ph"=ph,
     "temp"=temp,
@@ -558,6 +598,7 @@ arguments <- construct_helper(
     "tot_bo3"=tot_bo3,
     "tot_sio4"=tot_sio4,
     "tot_ch3coo"=tot_ch3coo,
+    "tot_citric"=tot_citric,
     "tds"=tds,
     "cond"=cond,
     "toc"=toc,
@@ -572,18 +613,18 @@ arguments <- construct_helper(
   ))
 
   final_names <- arguments$final_names
- 
+
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
-  
 
-  
+
+
   water_input <- df[, names(df) %in% unname(final_names)]
 
 col_map <- final_names[final_names %in% names(water_input)]
 names(water_input)[match(col_map, names(water_input))] <- names(col_map)
-  
+
   warning_counts<-list()
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(do.call(define_water, water_input[i, ]),warning = function(w) {
@@ -594,7 +635,7 @@ names(water_input)[match(col_map, names(water_input))] <- names(col_map)
   )
   })
 
- 
+
   for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
