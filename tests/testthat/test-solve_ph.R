@@ -17,7 +17,7 @@ test_that("Solve pH returns correct pH with no chemical dosing.", {
   water10 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_po4 = 3)
   water11 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, free_chlorine = 3)
   water12 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_nh3 = 3)
-  water13 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_bo3 = 10)
+  water13 <- define_water(ph = 7, alk = 100, temp = 20, tds = 100, tot_bo4 = 10)
   water14 <- define_water(ph = 8, alk = 100, temp = 20, tds = 100, tot_sio4 = 10)
 
   expect_equal(solve_ph(water1), water1@ph)
