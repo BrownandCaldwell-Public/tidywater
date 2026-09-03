@@ -33,7 +33,10 @@ chemdose_inorgdemand <- function(water, cl_dose) {
     } else {
       output_water <- water
       output_water@free_chlorine <- residual
-      # do the mn, fe, nh3, and related slots get updated based on the oxidation reactions?
+      output_water@mn <- 0 
+      output_water@fe <- 0 # I think this approach assumes all Cl will be used to oxidize all 
+      # Mn/Fe/other compounds in order to have a residual, so if there is a residual then all the Mn/Fe/etc. have gotten oxidized right?
+      # how do we want to update nh3?
 
       return(output_water)
     }

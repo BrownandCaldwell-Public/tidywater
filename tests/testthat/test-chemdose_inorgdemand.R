@@ -12,3 +12,15 @@ test_that("chemdose_inorgdemand calculates correct Cl residual", {
   expect_equal(round(cl_residual1@free_chlorine, 1), round(cl_residual2, 1))
 
 })
+
+test_that("chemdose_inorgdemand correctly updates oxidized species", {
+
+  water <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1))
+  cl_dose <- 40
+
+  cl_residual1 <- chemdose_inorgdemand(cl_dose=cl_dose, water= water)
+  
+  expect_equal(round(cl_residual1@mn, 1), 0)
+  expect_equal(round(cl_residual1@fe, 1), 0)
+
+})
