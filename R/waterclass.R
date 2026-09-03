@@ -45,7 +45,6 @@ methods::setClass(
     nh4 = "numeric",
     h4bo4 = "numeric",
     h3bo3 = "numeric",
-    bo3 = "numeric",
     h3sio4 = "numeric",
     h2sio4 = "numeric",
     ch3coo = "numeric",
@@ -55,7 +54,7 @@ methods::setClass(
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
-    tot_bo3 = "numeric",
+    tot_bo4 = "numeric",
     tot_sio4 = "numeric",
     tot_ch3coo = "numeric",
     # Additional ions
@@ -140,7 +139,6 @@ methods::setClass(
     nh4 = NA_real_,
     h4bo4 = NA_real_,
     h3bo3 = NA_real_,
-    bo3 = NA_real_,
     h3sio4 = NA_real_,
     h2sio4 = NA_real_,
     ch3coo = NA_real_,
@@ -150,7 +148,7 @@ methods::setClass(
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
-    tot_bo3 = NA_real_,
+    tot_bo4 = NA_real_,
     tot_sio4 = NA_real_,
     tot_ch3coo = NA_real_,
 

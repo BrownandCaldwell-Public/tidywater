@@ -180,7 +180,7 @@ test_that("define_water accounts for multiple types of alkalinity", {
     alk = 100,
     tot_po4 = 5,
     tot_nh3 = 5,
-    tot_bo3 = 5,
+    tot_bo4 = 5,
     tot_sio4 = 5
   ))
 
@@ -193,7 +193,7 @@ test_that("define_water accounts for multiple types of alkalinity", {
 
   # Check that specific alkalinity values are calculated correctly
   water3 <- suppressWarnings(define_water(ph = 8.9, temp = 20, alk = 190, tds = 480, tot_po4 = 0.18, tot_nh3 = 0.047, 
-                                         tot_bo3 = 0.71, tot_sio4 = 69))
+                                         tot_bo4 = 0.71, tot_sio4 = 69))
   
   expect_true(round(water3@borate_alk_eq * 1000, 3) == 0.021) # 0.021
   expect_true(round(water3@silicate_alk_eq * 1000, 3) == 0.112) # 0.110

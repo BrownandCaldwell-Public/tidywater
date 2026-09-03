@@ -25,7 +25,7 @@
 #' @param combined_chlorine Combined chlorine (chloramines) in mg/L as Cl2. Used when a starting water has a chloramine residual.
 #' @param tot_po4 Phosphate in mg/L as PO4 3-. Used when a starting water has a phosphate residual.
 #' @param tot_nh3 Total ammonia in mg/L as N
-#' @param tot_bo3 Total borate (B(OH)4 -) in mg/L as B
+#' @param tot_bo4 Total borate (B(OH)4 -) in mg/L as B
 #' @param tot_sio4 Total silicate in mg/L as SiO2
 #' @param tot_ch3coo Total acetate in mg/L
 #' @param tds Total Dissolved Solids in mg/L (optional if ions are known)
@@ -83,7 +83,8 @@
 #'   \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 #'   \item{po4}{phosphate, numeric, mols/L.}
 #'   \item{nh4}{ammonium, numeric, mol/L as N.}
-#'   \item{bo3}{borate, numeric, mol/L.}
+#'   \item{h4bo4}{borate, numeric, mol/L.}
+#'   \item{h3bo3}{boric acid, numeric, mol/L.}
 #'   \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
 #'   \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
 #'   \item{ch3coo}{acetate, numeric, mol/L.}
@@ -92,7 +93,7 @@
 #'   \item{tot_po4}{total phosphate, numeric, mol/L.}
 #'   \item{tot_nh3}{total ammonia, numeric, mol/L.}
 #'   \item{tot_co3}{total carbonate, numeric, mol/L.}
-#'   \item{tot_bo3}{total borate, numeric, mol/L.}
+#'   \item{tot_bo4}{total borate, numeric, mol/L.}
 #'   \item{tot_sio4}{total silicate, numeric, mol/L.}
 #'   \item{tot_ch3coo}{total acetate, numeric, mol/L.}
 #'   \item{br}{bromide, numeric, mol/L.}
@@ -143,7 +144,7 @@ define_water <- function(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
-  tot_bo3 = 0,
+  tot_bo4 = 0,
   tot_sio4 = 0,
   tds,
   cond,
@@ -221,7 +222,7 @@ define_water <- function(
   free_chlorine <- convert_units(free_chlorine, "cl2")
   combined_chlorine <- convert_units(combined_chlorine, "cl2")
   tot_nh3 <- convert_units(tot_nh3, "n")
-  tot_bo3 <- convert_units(tot_bo3, "b")
+  tot_bo4 <- convert_units(tot_bo4, "b")
   tot_sio4 <- convert_units(tot_sio4, "sio2")
   tot_ch3coo <- convert_units(tot_ch3coo, "ch3cooh")
 
@@ -270,7 +271,7 @@ define_water <- function(
   k3po4 <- K_temp_adjust(discons["k3po4", ]$deltah, discons["k3po4", ]$k, temp)
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp)
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp)
-  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp)
+  kbo4 <- K_temp_adjust(discons["kbo4", ]$deltah, discons["kbo4", ]$k, temp)
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp)
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp)
 
@@ -284,7 +285,7 @@ define_water <- function(
 
   alpha1c <- calculate_alpha1_hypochlorite(h, data.frame("kocl" = kocl))
   alpha1n <- calculate_alpha1_ammonia(h, data.frame("knh4" = knh4))
-  alpha1b <- calculate_alpha1_borate(h, data.frame("kbo3" = kbo3))
+  alpha1b <- calculate_alpha1_borate(h, data.frame("kbo4" = kbo4))
   alpha1s <- calculate_alpha1_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
   alpha2s <- calculate_alpha2_silicate(h, data.frame("k1sio4" = k1sio4, "k2sio4" = k2sio4))
 
@@ -296,14 +297,15 @@ define_water <- function(
   ocl <- free_chlorine * alpha1c
   nh4 <- tot_nh3 * alpha1n
 
-  bo3 <- tot_bo3 * alpha1b
+  h4bo4 <- tot_bo4 * alpha1b
+  h3bo3 <- tot_bo4 - h4bo4
   h3sio4 <- tot_sio4 * alpha1s
   h2sio4 <- tot_sio4 * alpha2s
 
   phosphate_alk_eq <- (-1 * h3po4 + 0 * h2po4 + 1 * hpo4 + 2 * po4)
   hypochlorite_alk_eq <- (1 * ocl)
   ammonium_alk_eq <- (1 * nh4)
-  borate_alk_eq <- (1 * bo3)
+  borate_alk_eq <- (1 * h4bo4)
   silicate_alk_eq <- (1 * h3sio4 + 2 * h2sio4)
   carbonate_alk_eq <- alk_eq -
     (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + hypochlorite_alk_eq + oh) +
@@ -335,7 +337,8 @@ define_water <- function(
     po4 = po4,
     ocl = ocl,
     nh4 = nh4,
-    bo3 = bo3,
+    h4bo4 = h4bo4,
+    h3bo3 = h3bo3,
     h3sio4 = h3sio4,
     h2sio4 = h2sio4,
     h = h,
@@ -345,7 +348,7 @@ define_water <- function(
     combined_chlorine = combined_chlorine,
     tot_nh3 = tot_nh3,
     tot_co3 = tot_co3,
-    tot_bo3 = tot_bo3,
+    tot_bo4 = tot_bo4,
     tot_sio4 = tot_sio4,
     tot_ch3coo = tot_ch3coo,
     kw = kw,
@@ -413,7 +416,8 @@ define_water <- function(
   water@nh4 <- tot_nh3 * calculate_alpha1_ammonia(h, water@ks)
   water@ch3coo <- tot_ch3coo * calculate_alpha1_acetate(h, water@ks)
 
-  water@bo3 <- tot_bo3 * calculate_alpha1_borate(h, water@ks)
+  water@h4bo4 <- tot_bo4 * calculate_alpha1_borate(h, water@ks)
+  water@h3bo3 <- tot_bo4 - water@h4bo4
   water@h3sio4 <- tot_sio4 * calculate_alpha1_silicate(h, water@ks)
   water@h2sio4 <- tot_sio4 * calculate_alpha2_silicate(h, water@ks)
 
@@ -421,7 +425,7 @@ define_water <- function(
   water@phosphate_alk_eq <- (-1 * h3po4 + 0 * water@h2po4 + 1 * water@hpo4 + 2 * water@po4)
   water@hypochlorite_alk_eq <- (1 * water@ocl)
   water@ammonium_alk_eq <- (1 * water@nh4)
-  water@borate_alk_eq <- (1 * water@bo3)
+  water@borate_alk_eq <- (1 * water@h4bo4)
   water@silicate_alk_eq <- (1 * water@h3sio4 + 2 * water@h2sio4)
   water@carbonate_alk_eq <- alk_eq -
     (water@ammonium_alk_eq +
@@ -490,7 +494,7 @@ define_water_df <- function(
   combined_chlorine = "use_col",
   tot_po4 = "use_col",
   tot_nh3 = "use_col",
-  tot_bo3 = "use_col",
+  tot_bo4 = "use_col",
   tot_sio4 = "use_col",
   tot_ch3coo = "use_col",
   tds = "use_col",
@@ -522,7 +526,7 @@ define_water_df <- function(
   combined_chlorine <- tryCatch(combined_chlorine, error = function(e) enquo(combined_chlorine))
   tot_po4 <- tryCatch(tot_po4, error = function(e) enquo(tot_po4))
   tot_nh3 <- tryCatch(tot_nh3, error = function(e) enquo(tot_nh3))
-  tot_bo3 <- tryCatch(tot_bo3, error = function(e) enquo(tot_bo3))
+  tot_bo4 <- tryCatch(tot_bo4, error = function(e) enquo(tot_bo4))
   tot_sio4 <- tryCatch(tot_sio4, error = function(e) enquo(tot_sio4))
   tot_ch3coo <- tryCatch(tot_ch3coo, error = function(e) enquo(tot_ch3coo))
   tds <- tryCatch(tds, error = function(e) enquo(tds))
@@ -555,7 +559,7 @@ arguments <- construct_helper(
     "combined_chlorine"=combined_chlorine,
     "tot_po4"=tot_po4,
     "tot_nh3"=tot_nh3,
-    "tot_bo3"=tot_bo3,
+    "tot_bo4"=tot_bo4,
     "tot_sio4"=tot_sio4,
     "tot_ch3coo"=tot_ch3coo,
     "tds"=tds,
