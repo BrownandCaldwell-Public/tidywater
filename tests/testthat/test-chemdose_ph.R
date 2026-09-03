@@ -94,6 +94,35 @@ test_that("Phosphate dose works as expected.", {
   expect_equal(round(water4@ph, 1), 6.7)
 })
 
+test_that("Starting citric residual does not affect starting pH.", {
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, tot_citric = 5) %>%
+      chemdose_ph()
+  )
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water1@ph, water2@ph)
+  expect_equal(water2@ph, water3@ph)
+})
+
+test_that("Citric dose works as expected.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tot_citric = 0, temp = 25))
+
+  water2 <- chemdose_ph(water1, citric = 1) 
+  water3 <- chemdose_ph(water1, citric = 5) 
+  water4 <- chemdose_ph(water1, citric = 10)
+
+  expect_equal(round(water2@ph, 1), 7.0)
+  expect_equal(round(water3@ph, 1), 6.8)
+  expect_equal(round(water4@ph, 1), 6.7)
+})
+
 test_that("Starting chlorine residual does not affect starting pH.", {
   water1 <- suppressWarnings(
     define_water(ph = 7, alk = 10, free_chlorine = 1) %>%

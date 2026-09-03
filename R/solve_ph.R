@@ -10,7 +10,8 @@ solve_ph <- function(
   mg_dose = 0,
   cl_dose = 0,
   mno4_dose = 0,
-  no3_dose = 0
+  no3_dose = 0,
+  citric_dose = 0
 ) {
   # Correct eq constants
   gamma1 <- calculate_activity(1, water@is, water@temp)
@@ -45,7 +46,11 @@ solve_ph <- function(
     mg_dose,
     cl_dose,
     mno4_dose,
-    no3_dose
+    no3_dose,
+    tot_citric,
+    citric_i,
+    h1citric_i,
+    h2citric_i
   ) {
     kw /
       (h * gamma1^2) +
@@ -76,7 +81,14 @@ solve_ph <- function(
       h_i -
       h4bo4_i -
       2 * h2sio4_i -
-      h3sio4_i
+      h3sio4_i  +
+      tot_citric *
+        (calculate_alpha1_citric(h, k) +
+          2 * calculate_alpha2_citric(h, k) +
+          3 * calculate_alpha3_citric(h, k)) -
+      3 * citric_i -
+      2 * h1citric_i -
+      h2citric_i
   }
 
   root_h <- stats::uniroot(
@@ -109,6 +121,10 @@ solve_ph <- function(
     cl_dose = cl_dose,
     mno4_dose = mno4_dose,
     no3_dose = no3_dose,
+    tot_citric = water@tot_citric,
+    citric_i = water@citric,
+    h1citric_i = water@h1citric,
+    h2citric_i = water@h2citric,
     tol = 1e-14
   )
   phfinal <- -log10(root_h$root * gamma1)
