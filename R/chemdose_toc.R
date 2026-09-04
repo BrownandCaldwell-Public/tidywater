@@ -53,7 +53,7 @@ chemdose_toc <- function(
   ferricsulfate = 0,
   ach = 0,
   pacl = 0,
-  coeff = "Alum",
+  coeff = "Alum", # add fns here instead
   caoh2 = 0,
   reuse = FALSE,
   reuse_model = "Langmuir",
@@ -181,7 +181,7 @@ chemdose_toc <- function(
     }
 
     if (reuse_model == "Langmuir") {
-      fns <- ifelse(is.na(fns), 0.649, fns) # need to make sure this is constant for the model, not using Fns = K1(SUVAi) + K2
+      fns <- ifelse(is.na(fns), 0.649, fns)
       x3 <- ifelse(is.na(fns), 4.82, 4.50)
       x2 <- ifelse(is.na(fns), -74.3, -73.5)
       x1 <- ifelse(is.na(fns), 289, 308)
@@ -196,11 +196,11 @@ chemdose_toc <- function(
       c_eq <- (Y - a*b*coag + b*doc_sorb - 1) / (2*b)
 
       water@doc <- c_eq + fns * doc_i
-      water@toc <- water@doc # how to handle this? set it equal to doc?
+      water@toc <- water@doc
       water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
 
     } else if (reuse_model == "Linear") {
-      fns <- ifelse(is.na(fns), 0.650, fns) # need to make sure this is constant for the model, not using Fns = K1(SUVAi) + K2
+      fns <- ifelse(is.na(fns), 0.650, fns)
       z2 <- ifelse(is.na(fns), 10.7, 5.06)
       z1 <- ifelse(is.na(fns), -165, -79.5)
       z0 <- ifelse(is.na(fns), 636, 320)
@@ -213,7 +213,7 @@ chemdose_toc <- function(
       tot_zterm <- ((1 - fns) * doc_i) / (coag * slope + 1)
 
       water@doc <- tot_zterm + fns * doc_i
-      water@toc <- water@doc # how to handle this? set it equal to doc?
+      water@toc <- water@doc
       water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
 
     } else {

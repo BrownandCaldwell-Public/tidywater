@@ -15,6 +15,7 @@
 #' @param ozone_dose The ozone dose (mg/L) applied to the water. Only used if `reuse = TRUE`.
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
+#' @param media_type The type of media used in the biofilter. Default is "anthracite", other option is "gac". Only used if `reuse = TRUE`.
 #'
 #'
 #' @source Terry and Summers 2018, Peterson and Summers 2021
@@ -25,7 +26,7 @@
 #' @returns  `biofilter_toc` returns water class object with modeled DOC removal from biofiltration.
 #' @export
 #'
-biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE) {
+biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE, media_type = "anthracite") {
   if (!is.logical(ozonated)) {
     cli::cli_abort("{.arg ozonated} must be {.code TRUE} or {.code FALSE}.")
   }
@@ -45,14 +46,14 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     }
 
     # assumes media type associated with 0.0873 is BAC
-    toc_removal_percent <- 0.0873 + 0.0527 * spec_ozone + 0.0393 * ebct + 0.0139 * spec_ozone * ebct + 0.1323 
-    # equation is labeled as TOC Removal (%) but I'm a little unsure whether this output is 80 or 0.80 for example. Right now, assuming output is 80 as in 80%
-    TOC_removed <- water@toc * (toc_removal_percent / 100) # this model was for total organic carbon removal, not biodegradable
+    media <- ifelse(media_type == "gac", 1, 0)
+    toc_removal_percent <- 0.0873 * media + 0.0527 * spec_ozone + 0.0393 * ebct + 0.0139 * spec_ozone * ebct + 0.1323
+    TOC_removed <- water@toc * (toc_removal_percent / 100)
 
     # Update water object with new TOC and DOC values
     water@toc <- water@toc - TOC_removed
-    water@doc <- max(water@doc - TOC_removed, 0) # Ensure DOC does not go below 0, or a better way to handle this?
-    water@bdoc <- NA_real_ # Peterson and Summers only calcs TOC so not updating BDOC, or can assume a fraction?
+    water@doc <- max(water@doc - TOC_removed, 0)
+    water@bdoc <- water@bdoc # Peterson and Summers only calcs TOC so not updating BDOC for now - can revisit
 
   } else {
     # Terry and Summers (2018)
