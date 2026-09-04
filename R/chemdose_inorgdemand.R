@@ -1,6 +1,11 @@
 #'@title Inorganic Oxidant Demand
 #'
-#' @description Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia.
+#' @description Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia. The output water will have updated `free_chlorine` slot
+#' to reflect the chlorine residual after accounting for the inorganic demand. The `mn`, `fe`, and `tot_nh3` slots will be set to 0, as they are assumed to be fully oxidized by the chlorine dose.
+#' Other products of the oxidation reactions will not be tracked or updated in the output water object. 
+#' 
+#' The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. Additionally, use `chemdose_chloramine`  
+#' if interested in more precise breakpoint chlorination calculations.
 #'
 #' @param water Input water object with mn, fe, and tot_nh3 slots defined.
 #' @param cl_dose Chlorine dose in mg/L Cl2.
@@ -32,11 +37,10 @@ chemdose_inorgdemand <- function(water, cl_dose) {
       cli::cli_abort("There is too much oxidant in the water, all available Cl will be used")
     } else {
       output_water <- water
-      output_water@free_chlorine <- residual
+      output_water@free_chlorine <- convert_units(residual, "cl2")
       output_water@mn <- 0 
-      output_water@fe <- 0 # I think this approach assumes all Cl will be used to oxidize all 
-      # Mn/Fe/other compounds in order to have a residual, so if there is a residual then all the Mn/Fe/etc. have gotten oxidized right?
-      # how do we want to update nh3?
+      output_water@fe <- 0 
+      output_water@tot_nh3 <- 0
 
       return(output_water)
     }

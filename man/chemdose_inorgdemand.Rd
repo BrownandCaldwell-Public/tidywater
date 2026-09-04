@@ -15,7 +15,12 @@ chemdose_inorgdemand(water, cl_dose)
 \code{chemdose_inorgdemand} returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
 }
 \description{
-Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia.
+Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia. The output water will have updated \code{free_chlorine} slot
+to reflect the chlorine residual after accounting for the inorganic demand. The \code{mn}, \code{fe}, and \code{tot_nh3} slots will be set to 0, as they are assumed to be fully oxidized by the chlorine dose.
+Other products of the oxidation reactions will not be tracked or updated in the output water object.
+
+The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. Additionally, use \code{chemdose_chloramine}
+if interested in more precise breakpoint chlorination calculations.
 }
 \examples{
 
