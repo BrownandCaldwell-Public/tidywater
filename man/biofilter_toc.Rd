@@ -14,7 +14,8 @@ biofilter_toc(
   ozonated = TRUE,
   ozone_dose = 0,
   reuse = FALSE,
-  media_type = "anthracite"
+  media_type = "anthracite",
+  atp = 0
 )
 
 biofilter_toc_df(
@@ -41,7 +42,9 @@ biofilter_toc_df(
 \item{reuse}{Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise.
 If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.}
 
-\item{media_type}{The type of media used in the biofilter. Default is "anthracite", other option is "gac". Only used if \code{reuse = TRUE}.}
+\item{media_type}{The type of media used in the biofilter. Default is "anthracite", other options are "gac" and "sand". Only used if \code{reuse = TRUE}.}
+
+\item{atp}{The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. Defaults to 0.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column indicating the EBCT or whether the water is ozonated.}
@@ -62,8 +65,13 @@ concentrations. Optionally, it also adds columns for each of those slots individ
 }
 \description{
 This function applies the Terry model to a water created by \link{define_water} to determine biofiltered
-DOC (mg/L). When the reuse argument is TRUE, the Peterson and Summers (2021) model is used to determine biofiltered TOC (mg/L).
-All particulate TOC is assumed to be removed so TOC = DOC.
+DOC (mg/L). The Terry & Summers (2018) model does not adjust for ozone dose but assumes a constant biodegradable fraction based on
+whether or not the water was ozonated. When the reuse argument is TRUE, the Peterson and Summers (2021) model is used to determine biofiltered TOC (mg/L).
+The Peterson & Summers (2021) model does not adjust for temperature impacts due to a lack of collected temperature data in the metanalysis literature.
+Peterson & Summers (2021) is also a TOC-basis model, so the output water object's BDOC slot will not be updated.
+If a lab-measured ATP concentration is known, the Terry et al. (2024) model can be used to determine biofiltered DOC (mg/L) for both drinking water and reuse.
+The Terry et al. (2024) model has similar bdoc assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
+For all three models, all particulate TOC is assumed to be removed so TOC = DOC.
 For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
 For most arguments in the \verb{_df} helper

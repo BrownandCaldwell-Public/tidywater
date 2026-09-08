@@ -1,8 +1,13 @@
 #' @title Determine TOC removal from biofiltration using Terry & Summers BDOC model or Peterson & Summers TOC model
 #'
 #' @description This function applies the Terry model to a water created by [define_water] to determine biofiltered
-#' DOC (mg/L). When the reuse argument is TRUE, the Peterson and Summers (2021) model is used to determine biofiltered TOC (mg/L).
-#' All particulate TOC is assumed to be removed so TOC = DOC.
+#' DOC (mg/L). The Terry & Summers (2018) model does not adjust for ozone dose but assumes a constant biodegradable fraction based on 
+#' whether or not the water was ozonated. When the reuse argument is TRUE, the Peterson and Summers (2021) model is used to determine biofiltered TOC (mg/L).
+#' The Peterson & Summers (2021) model does not adjust for temperature impacts due to a lack of collected temperature data in the metanalysis literature. 
+#' Peterson & Summers (2021) is also a TOC-basis model, so the output water object's BDOC slot will not be updated.
+#' If a lab-measured ATP concentration is known, the Terry et al. (2024) model can be used to determine biofiltered DOC (mg/L) for both drinking water and reuse.
+#' The Terry et al. (2024) model has similar bdoc assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
+#' For all three models, all particulate TOC is assumed to be removed so TOC = DOC.
 #' For a single water use `biofilter_toc`; for a dataframe use `biofilter_toc_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
 #' For most arguments in the `_df` helper
@@ -15,7 +20,8 @@
 #' @param ozone_dose The ozone dose (mg/L) applied to the water. Only used if `reuse = TRUE`.
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
-#' @param media_type The type of media used in the biofilter. Default is "anthracite", other option is "gac". Only used if `reuse = TRUE`.
+#' @param media_type The type of media used in the biofilter. Default is "anthracite", other options are "gac" and "sand". Only used if `reuse = TRUE`.
+#' @param atp The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. Defaults to 0.
 #'
 #'
 #' @source Terry and Summers 2018, Peterson and Summers 2021
@@ -26,7 +32,7 @@
 #' @returns  `biofilter_toc` returns water class object with modeled DOC removal from biofiltration.
 #' @export
 #'
-biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE, media_type = "anthracite") {
+biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE, media_type = "anthracite", atp = 0) {
   if (!is.logical(ozonated)) {
     cli::cli_abort("{.arg ozonated} must be {.code TRUE} or {.code FALSE}.")
   }
@@ -35,7 +41,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
 
   validate_water(water, "doc")
 
-  if (reuse == TRUE) {
+  if (reuse == TRUE & atp == 0) {
     # Peterson and Summers (2021)
     spec_ozone <- ozone_dose / water@toc
     if (spec_ozone < 0 | spec_ozone > 1.2) {
@@ -47,15 +53,18 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
 
     # assumes media type associated with 0.0873 is BAC
     media <- ifelse(media_type == "gac", 1, 0)
-    toc_removal_percent <- 0.0873 * media + 0.0527 * spec_ozone + 0.0393 * ebct + 0.0139 * spec_ozone * ebct + 0.1323
-    TOC_removed <- water@toc * (toc_removal_percent / 100)
+    scaled_ozone <- (spec_ozone - 0.48) / 0.44 # mean and std dev values taken from Table 2
+    scaled_ebct <- (ebct - 14.4) / 8.5
+
+    toc_removal_percent <- 0.0873 * media + 0.0527 * scaled_ozone + 0.0393 * scaled_ebct + 0.0139 * scaled_ozone * scaled_ebct + 0.1323
+    TOC_removed <- water@toc * toc_removal_percent
 
     # Update water object with new TOC and DOC values
     water@toc <- water@toc - TOC_removed
     water@doc <- max(water@doc - TOC_removed, 0)
-    water@bdoc <- water@bdoc # Peterson and Summers only calcs TOC so not updating BDOC for now - can revisit
+    water@bdoc <- water@bdoc # model built on TOC basis so BDOC is not updated
 
-  } else {
+  } else if (reuse == FALSE & atp == 0) {
     # Terry and Summers (2018)
 
     # Define BDOC fractions
@@ -97,6 +106,32 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     water@doc <- doc_eff
     water@toc <- doc_eff
     water@bdoc <- BDOC_eff
+  } else if (atp > 0) {
+    # Terry et al. (2024) model for both drinking water and reuse when ATP data is available
+    if (reuse == FALSE) {
+      k <- 1.8E-04 # modeled k'' for drinking water from Table 2
+      bdoc_fraction <- 0.2
+    } else if (reuse == TRUE & ozonated == TRUE) {
+      k <- 0.40E-04 # modeled k'' for wastewater effluent
+      bdoc_fraction <- 0.6
+    } else if (reuse == TRUE & ozonated == FALSE) {
+      k <- 0.40E-04
+      bdoc_fraction <- 0.4
+    }
+    water@bdoc <- bdoc_fraction * water@doc # Update BDOC slot with initial concentration
+    
+    # adjust for temp in ATP measurement, assumes lab temp of 22C
+    atp_filter <- atp * (0.034 * temp + 0.203) # Eqn 5
+
+    bdoc0 <- bdoc_fraction * exp(-k * atp_filter * ebct) # Ceff/Cinf from Eqn 9
+
+    # Update water object with new TOC and DOC values
+    bdoc_rem <- water@bdoc * (1 - bdoc0)
+    water@doc <- water@doc - bdoc_rem
+    water@toc <- water@toc - bdoc_rem
+    water@bdoc <- water@bdoc * bdoc0
+  } else {
+    cli::cli_abort("Invalid combination of arguments. Please check your inputs.")
   }
 
   return(water)

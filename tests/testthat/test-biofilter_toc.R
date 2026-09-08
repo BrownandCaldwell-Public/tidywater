@@ -65,17 +65,35 @@ test_that("biofilter_toc correctly handles temperatures and ozonated water.", {
   expect_equal(round(dosed_water_low@toc, 2), 3.69)
 })
 
-test_that("biofilter_toc correctly implements reuse argument.", {
+test_that("biofilter_toc correctly implements reuse argument with no ATP.", {
   water <- suppressWarnings(define_water(ph = 7, temp = 15, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
 
   noreuse_water <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE))
   reuse_water1 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE))
   reuse_water2 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 1, reuse = TRUE))
   
-  expect_equal(round(reuse_water1@toc, 3), 4.96)
+  expect_equal(round(reuse_water1@toc, 3), 4.171)
   expect_false(round(reuse_water1@toc, 3) == round(noreuse_water@toc, 3))
   expect_false(round(reuse_water2@toc, 3) == round(reuse_water1@toc, 3))
 
+})
+
+test_that("biofilter_toc correctly implements ATP argument.", {
+  water <- suppressWarnings(define_water(ph = 7, temp = 10, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
+  warm_water <- suppressWarnings(define_water(ph = 7, temp = 22, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
+
+
+  dw_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 10))
+  reuse_nodose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = FALSE, reuse = TRUE, atp = 10))
+  reuse_dose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE, atp = 10))
+  temp_test <- suppressWarnings(biofilter_toc(warm_water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 10))
+
+  expect_true(!is.na(dw_atp@bdoc))
+  expect_false(round(dw_atp@doc, 3) == round(reuse_nodose_atp@doc, 3))
+  expect_false(round(reuse_dose_atp@doc, 3) == round(reuse_nodose_atp@doc, 3))
+  expect_true(dw_atp@doc > temp_test@doc) # colder temp adjustment decreases ATP and removal
+  expect_true(round(reuse_dose_atp@doc, 3) < round(reuse_nodose_atp@doc, 3)) # ozonated water has more removal than non-ozonated
+  expect_equal(round(reuse_dose_atp@doc, 3), 3.037)
 })
 
 ################################################################################*
