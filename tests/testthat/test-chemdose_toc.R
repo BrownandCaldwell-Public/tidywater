@@ -102,16 +102,36 @@ test_that("Edwards model does not go negative because of high SUVA",{
 test_that("chemdose_toc works with reuse model", {
   testthat::skip_on_cran()
   water0 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
+  custom_coeff <- data.frame(
+    fns = 0.6,
+    z0 = 620,
+    z1 = -160,
+    z2 = 9.2
+  )
 
   water1 <- chemdose_toc(water0, alum = 30)
   water2 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Langmuir")
   water3 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Linear")
   water4 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse Site Langmuir", fns = 0.4)
+  water5 <- chemdose_toc(water0, alum = 30, model_coeff = custom_coeff)
 
   expect_false(water1@doc == water2@doc)
   expect_false(water2@doc == water3@doc)
   expect_false(water2@doc == water4@doc)
+  expect_false(water5@doc == water2@doc)
   expect_equal(round(water2@doc, 2), 2.91) # one check for magnitude of expected output
+})
+
+test_that("chemdose_toc reuse model works at high pH", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(define_water(ph = 9, doc = 3.5, uv254 = 0.1))
+
+  water1 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Langmuir")
+  water2 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Linear")
+
+  expect_true(water1@doc > 0)
+  expect_true(water2@doc > 0)
+  expect_true(round(water1@doc, 1) == 2.6) # make sure it's a reasonable result
 })
 
 ################################################################################*
