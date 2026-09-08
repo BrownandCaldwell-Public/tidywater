@@ -98,10 +98,10 @@ function instead or an unquoted column name can be provided.
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
 dosed_water <- chemdose_ph(water, alum = 30) \%>\%
-  chemdose_toc(alum = 30, coeff = "Alum")
+  chemdose_toc(alum = 30, model_coeff = "Alum")
 
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
-  chemdose_toc(alum = 10, coeff = data.frame(
+  chemdose_toc(alum = 10, model_coeff = data.frame(
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
@@ -109,12 +109,12 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
 example_df <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
-  chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
+  chemdose_toc_df(ferricchloride = FerricDose, model_coeff = "Ferric")
 
 example_df <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
+  chemdose_toc_df(model_coeff = "Ferric", pluck_cols = TRUE)
 }
 
 }

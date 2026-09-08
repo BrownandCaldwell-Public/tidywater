@@ -33,10 +33,10 @@
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
 #' dosed_water <- chemdose_ph(water, alum = 30) %>%
-#'   chemdose_toc(alum = 30, coeff = "Alum")
+#'   chemdose_toc(alum = 30, model_coeff = "Alum")
 #'
 #' dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
-#'   chemdose_toc(alum = 10, coeff = data.frame(
+#'   chemdose_toc(alum = 10, model_coeff = data.frame(
 #'     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
 #'   ))
 #'
@@ -126,7 +126,6 @@ chemdose_toc <- function(
   if (model_type == "Edwards") {
     # Edwards (1997) DOC removal model
     if (caoh2 > 0) {
-      water <- chemdose_ph(water, caoh2 = caoh2)
 
       removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
       removed <- removed / 0.87 # apply correction factor
@@ -243,12 +242,12 @@ chemdose_toc <- function(
 #' example_df <- water_df %>%
 #'   define_water_df() %>%
 #'   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
-#'   chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
+#'   chemdose_toc_df(ferricchloride = FerricDose, model_coeff = "Ferric")
 #'
 #' example_df <- water_df %>%
 #'   define_water_df() %>%
 #'   dplyr::mutate(ferricchloride = seq(1, 12, 1)) %>%
-#'   chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
+#'   chemdose_toc_df(model_coeff = "Ferric", pluck_cols = TRUE)
 #' }
 #'
 #' @export
