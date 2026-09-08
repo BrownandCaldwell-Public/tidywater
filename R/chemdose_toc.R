@@ -19,11 +19,9 @@
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param pacl Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....
-#' @param coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
+#' @param model_coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 #' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
 #' @param caoh2 Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
-#' @param reuse Option to specify input water as an input to a reuse treatment process, which will use Wilder & Korak (2025) models. Default FALSE.
-#' @param reuse_model Option to specify the model to be used for reuse treatment. Options are "Langmuir" or "Linear". Default is "Langmuir".
 #' @param fns Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.
 #' 
 #' @seealso [chemdose_ph]
@@ -53,27 +51,41 @@ chemdose_toc <- function(
   ferricsulfate = 0,
   ach = 0,
   pacl = 0,
-  coeff = "Alum", # add fns here instead
+  model_coeff = "Alum",
   caoh2 = 0,
-  reuse = FALSE,
-  reuse_model = "Langmuir",
   fns = NA_real_
 ) {
   validate_water(water, c("ph", "doc", "uv254"))
 
-  if (is.character(coeff)) {
-    edwardscoeff <- tidywater::edwardscoeff
-    coeff <- subset(edwardscoeff, edwardscoeff$ID == coeff)
+  # Determine and validate model type
+  model_type <- "Edwards"  # Default
+  
+  if (is.character(model_coeff)) {
+    coeff <- subset(tidywater::chemdosetoccoeff, tidywater::chemdosetoccoeff$ID == model_coeff)
     if (nrow(coeff) != 1) {
-      cli::cli_abort("{.arg coeff} must be one of {.val Alum}, {.val Ferric}, {.val General Alum}, {.val General Ferric}, {.val Low DOC}, or a data frame of coefficients.")
+      cli::cli_abort("{.arg model_coeff} must be one of {.val Alum}, {.val Ferric}, {.val General Alum}, 
+      {.val General Ferric}, {.val Low DOC}, {.val Reuse General Langmuir}, {.val Reuse Site Langmuir}, 
+      {.val Reuse General Linear}, {.val Reuse Site Linear}, or a data frame of coefficients.")
     }
-  } else if (is.data.frame(coeff)) {
-    expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
-    if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-      cli::cli_abort("{.arg coeff} must be a data frame with columns: {.val k1}, {.val k2}, {.val x1}, {.val x2}, {.val x3}, {.val b}.")
+    if (grepl("Reuse", model_coeff)) {
+      model_type <- ifelse(grepl("Langmuir", model_coeff), "Reuse Langmuir", "Reuse Linear")
     }
+  } else if (is.data.frame(model_coeff)) {
+    # Check which model coefficients are provided
+    has_edwards_cols <- all(c("k1", "k2", "x1", "x2", "x3", "b") %in% colnames(model_coeff))
+    has_langmuir_cols <- all(c("fns", "x1", "x2", "x3", "b") %in% colnames(model_coeff))
+    has_linear_cols <- all(c("fns", "z0", "z1", "z2") %in% colnames(model_coeff))
+    
+    if (has_langmuir_cols) {
+      model_type <- "Reuse Langmuir"
+    } else if (has_linear_cols) {
+      model_type <- "Reuse Linear"
+    } else if (!has_edwards_cols) {
+      cli::cli_abort("{.arg model_coeff} dataframe must contain either: Edwards model {.val (k1, k2, x1, x2, x3, b)}, Langmuir reuse model {.val (fns, x1, x2, x3, b)}, or Linear reuse model {.val (fns, z0, z1, z2)} coefficients.")
+    }
+    coeff <- model_coeff[1, , drop = FALSE]
   } else {
-    cli::cli_abort("{.arg coeff} must be a string or data frame. See documentation for acceptable formats.")
+    cli::cli_abort("{.arg model_coeff} must be a string or data frame. See documentation for acceptable formats.")
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
@@ -81,9 +93,9 @@ chemdose_toc <- function(
   } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
     cli::cli_warn("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
+    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg model_coeff}.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
-    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
+    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg model_coeff}.")
   }
 
   # Alum - hydration included
@@ -111,118 +123,109 @@ chemdose_toc <- function(
   }
   else suva<-suva
 
-  if (reuse == FALSE) {
-    # Edwards calculations
-  if (caoh2 > 0) {
-    water <- chemdose_ph(water, caoh2 = caoh2)
+  if (model_type == "Edwards") {
+    # Edwards (1997) DOC removal model
+    if (caoh2 > 0) {
+      water <- chemdose_ph(water, caoh2 = caoh2)
 
-    removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
-    removed <- removed / 0.87 # apply correction factor
+      removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
+      removed <- removed / 0.87 # apply correction factor
 
-    if (coag == 0) {
-      water@doc <- water@doc
-      water@uv254 <- water@uv254
+      if (coag == 0) {
+        water@doc <- water@doc
+        water@uv254 <- water@uv254
+      } else {
+        water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
+        water@doc <- water@doc - removed
+        water@toc <- water@doc - removed
+      }
+    } else if (water@ph >= 8) {
+      nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
+
+      sterm <- (1 - suva * coeff$k1 - coeff$k2)
+      xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
+      b <- coeff$b
+
+      # Rearrangement of equation from wolfram alpha
+      adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+        b * coag * xterm +
+        b * water@doc * sterm -
+        1) /
+        (2 * b)
+
+      if (coag == 0) {
+        water@doc <- water@doc
+        water@uv254 <- water@uv254
+      } else {
+        water@doc <- nonadsorb + adsorb
+        water@toc <- nonadsorb + adsorb
+        water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+      }
+      cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
     } else {
-      water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
-      water@doc <- water@doc - removed
-      water@toc <- water@doc - removed
+      nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
+
+      sterm <- (1 - suva * coeff$k1 - coeff$k2)
+      xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
+      b <- coeff$b
+
+      # Rearrangement of equation from wolfram alpha
+      adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+        b * coag * xterm +
+        b * water@doc * sterm -
+        1) /
+        (2 * b)
+
+      if (coag == 0) {
+        water@doc <- water@doc
+        water@uv254 <- water@uv254
+      } else {
+        water@doc <- nonadsorb + adsorb
+        water@toc <- nonadsorb + adsorb
+        water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+      }
     }
-  } else if (water@ph >= 8) {
-    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
-
-    sterm <- (1 - suva * coeff$k1 - coeff$k2)
-    xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
-    b <- coeff$b
-
-    # Rearrangement of equation from wolfram alpha
-    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-      b * coag * xterm +
-      b * water@doc * sterm -
-      1) /
-      (2 * b)
-
-    if (coag == 0) {
-      water@doc <- water@doc
-      water@uv254 <- water@uv254
-    } else {
-      water@doc <- nonadsorb + adsorb
-      water@toc <- nonadsorb + adsorb
-      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
-    }
-    cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
-  } else {
-    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
-
-    sterm <- (1 - suva * coeff$k1 - coeff$k2)
-    xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
-    b <- coeff$b
-
-    # Rearrangement of equation from wolfram alpha
-    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
-      b * coag * xterm +
-      b * water@doc * sterm -
-      1) /
-      (2 * b)
-
-    if (coag == 0) {
-      water@doc <- water@doc
-      water@uv254 <- water@uv254
-    } else {
-      water@doc <- nonadsorb + adsorb
-      water@toc <- nonadsorb + adsorb
-      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
-    }
-  }
-  } else {
+  } else if (grepl("Reuse", model_type)) {
     # Wilder & Korak (2025) reuse model
     if (alum == 0) {
-      cli::cli_warn("Wilder & Korak reuse model is only for alum coagulation. No alum dose entered; final water will equal input water.")
+      cli::cli_warn("Reuse models are only for alum coagulation. No alum dose entered; final water will equal input water.")
       return(water)
     }
 
-    if (reuse_model == "Langmuir") {
-      fns <- ifelse(is.na(fns), 0.649, fns)
-      x3 <- ifelse(is.na(fns), 4.82, 4.50)
-      x2 <- ifelse(is.na(fns), -74.3, -73.5)
-      x1 <- ifelse(is.na(fns), 289, 308)
-      b <- ifelse(is.na(fns), 0.308, 0.149)
+    fns <- ifelse(is.na(coeff$fns), fns, coeff$fns)
+    if(is.na(fns)) {
+      cli::cli_abort("Fraction of non-sorbing DOC (fns) must be provided for site-specific reuse models.")
+    }
 
-      doc_i <- water@doc
-      uv254_i <- water@uv254
- 
-      doc_sorb <- doc_i * (1 - fns)
-      a <- x3 * water@ph^3 + x2 * water@ph^2 + x1 * water@ph # assumes water pH is coagulated pH
-      Y <- sqrt(a^2*b^2*coag^2 - 2*a*b*coag*(b*doc_sorb - 1) + (b*doc_sorb + 1)^2)
-      c_eq <- (Y - a*b*coag + b*doc_sorb - 1) / (2*b)
+    doc_i <- water@doc
+    uv254_i <- water@uv254
+    doc_sorb <- doc_i * (1 - fns)
 
+    if (model_type == "Reuse Langmuir") {
+      a <- coeff$x3 * water@ph^3 + coeff$x2 * water@ph^2 + coeff$x1 * water@ph
+      Y <- sqrt(a^2*coeff$b^2*coag^2 - 2*a*coeff$b*coag*(coeff$b*doc_sorb - 1) + (coeff$b*doc_sorb + 1)^2)
+      c_eq <- (Y - a*coeff$b*coag + coeff$b*doc_sorb - 1) / (2*coeff$b)
+      
       water@doc <- c_eq + fns * doc_i
       water@toc <- water@doc
       water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
-
-    } else if (reuse_model == "Linear") {
-      fns <- ifelse(is.na(fns), 0.650, fns)
-      z2 <- ifelse(is.na(fns), 10.7, 5.06)
-      z1 <- ifelse(is.na(fns), -165, -79.5)
-      z0 <- ifelse(is.na(fns), 636, 320)
-
-      doc_i <- water@doc
-      uv254_i <- water@uv254
- 
-      doc_sorb <- doc_i * (1 - fns)
+    
+    } else if (model_type == "Reuse Linear") {
+      z2 <- coeff$z2
+      z1 <- coeff$z1
+      z0 <- coeff$z0
+      
       slope <- z2 * water@ph^2 + z1 * water@ph + z0
       tot_zterm <- ((1 - fns) * doc_i) / (coag * slope + 1)
-
+      
       water@doc <- tot_zterm + fns * doc_i
       water@toc <- water@doc
       water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
-
-    } else {
-      cli::cli_abort("{.arg reuse_model} must be {.val Langmuir} or {.val Linear}.")
     }
   }
 
   return(water)
-}
+  }
 
 
 #' @rdname chemdose_toc
@@ -266,9 +269,7 @@ chemdose_toc_df <- function(
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  coeff = "use_col",
-  reuse = "use_col",
-  reuse_model = "use_col",
+  model_coeff = "use_col",
   fns = "use_col"
 ) {
 
@@ -280,13 +281,11 @@ chemdose_toc_df <- function(
   ach <- tryCatch(ach, error = function(e) enquo(ach))
   pacl <- tryCatch(pacl, error = function(e) enquo(pacl))
   caoh2 <- tryCatch(caoh2, error = function(e) enquo(caoh2))
-  reuse <- tryCatch(reuse, error = function(e) enquo(reuse))
-  reuse_model <- tryCatch(reuse_model, error = function(e) enquo(reuse_model))
   fns <- tryCatch(fns, error = function(e) enquo(fns))
-  # account for character and data frame inputs for coeff
-  is_coeff_df <- is.data.frame(coeff)
+  # account for character and data frame inputs for model_coeff
+  is_coeff_df <- is.data.frame(model_coeff)
   if (!is_coeff_df) {
-    coeff <- tryCatch(coeff, error = function(e) enquo(coeff))
+    model_coeff <- tryCatch(model_coeff, error = function(e) enquo(model_coeff))
   }
 
   validate_water_helpers(df, input_water)
@@ -300,9 +299,7 @@ chemdose_toc_df <- function(
       "ach" = ach,
       "pacl" = pacl,
       "caoh2" = caoh2,
-      "coeff" = if (is_coeff_df) "coeff_df" else coeff,
-      "reuse" = reuse,
-      "reuse_model" = reuse_model,
+      "model_coeff" = if (is_coeff_df) "coeff_df" else model_coeff,
       "fns" = fns
     )
   )
@@ -316,8 +313,8 @@ chemdose_toc_df <- function(
   defaults_added <- handle_defaults(
     df,
     final_names,
-    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, pacl = 0, coeff = "Alum", caoh2 = 0,
-      reuse = FALSE, reuse_model = "Langmuir", fns = NA_real_)
+    list(alum = 0, ferricchloride = 0, ferricsulfate = 0, ach = 0, pacl = 0, model_coeff = "Alum", caoh2 = 0,
+      fns = NA_real_)
   )
   df <- defaults_added$data
 
@@ -333,9 +330,7 @@ warning_counts<-list()
       ach = df[[final_names$ach]][i],
       pacl = df[[final_names$pacl]][i],
       caoh2 = df[[final_names$caoh2]][i],
-      coeff = if (is_coeff_df) coeff else df[[final_names$coeff]][i],
-      reuse = df[[final_names$reuse]][i],
-      reuse_model = df[[final_names$reuse_model]][i],
+      model_coeff = if (is_coeff_df) model_coeff else df[[final_names$model_coeff]][i],
       fns = df[[final_names$fns]][i]
     ),
     warning = function(w) {

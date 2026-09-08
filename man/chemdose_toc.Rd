@@ -19,10 +19,8 @@ chemdose_toc(
   ferricsulfate = 0,
   ach = 0,
   pacl = 0,
-  coeff = "Alum",
+  model_coeff = "Alum",
   caoh2 = 0,
-  reuse = FALSE,
-  reuse_model = "Langmuir",
   fns = NA_real_
 )
 
@@ -39,9 +37,7 @@ chemdose_toc_df(
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  coeff = "use_col",
-  reuse = "use_col",
-  reuse_model = "use_col",
+  model_coeff = "use_col",
   fns = "use_col"
 )
 }
@@ -58,14 +54,10 @@ chemdose_toc_df(
 
 \item{pacl}{Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....}
 
-\item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
+\item{model_coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
 data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
 
 \item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
-
-\item{reuse}{Option to specify input water as an input to a reuse treatment process, which will use Wilder & Korak (2025) models. Default FALSE.}
-
-\item{reuse_model}{Option to specify the model to be used for reuse treatment. Options are "Langmuir" or "Linear". Default is "Langmuir".}
 
 \item{fns}{Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.}
 

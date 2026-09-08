@@ -12,12 +12,12 @@ test_that("chemdose_toc returns the same water when coagulant dose is 0.", {
   expect_equal(water2, toc_rem2)
 })
 
-test_that("chemdose_toc does not run when coeff isn't supplied correctly.", {
+test_that("chemdose_toc does not run when model_coeff isn't supplied correctly.", {
   water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
 
-  expect_error(chemdose_toc(water1, coeff = "k1"))
-  expect_error(chemdose_toc(water1, coeff = c(1, 1, 1, 1, 1, 1)))
-  expect_error(chemdose_toc(water1, coeff = edwardscoeff[1]))
+  expect_error(chemdose_toc(water1, model_coeff = "k1"))
+  expect_error(chemdose_toc(water1, model_coeff = c(1, 1, 1, 1, 1, 1)))
+  expect_error(chemdose_toc(water1, model_coeff = chemdosetoccoeff[1]))
 })
 
 test_that("chemdose_toc handles inputs correctly.", {
@@ -31,11 +31,11 @@ test_that("chemdose_toc handles inputs correctly.", {
 test_that("chemdose_toc works.", {
   water1 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
   water2 <- chemdose_toc(water1, alum = 30)
-  water3 <- chemdose_toc(water1, ferricchloride = 50, coeff = "Ferric")
+  water3 <- chemdose_toc(water1, ferricchloride = 50, model_coeff = "Ferric")
   water4 <- chemdose_toc(
     water1,
     ferricchloride = 50,
-    coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
+    model_coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068)
   )
   # ACH and PACl are the same as alum when mols of Al3+ are the same
   water7 <- chemdose_toc(water1, ach = 30 * mweights$ach / mweights$alum)
@@ -84,7 +84,6 @@ test_that("Edwards model flatlines the xterm for ph>=8",{
 
 test_that("Edwards model does not go negative because of high SUVA",{
 
-  
   water1<- suppressWarnings(define_water(ph = 7, uv254=0.01, doc = 2, tds=50))
   water2<- suppressWarnings(define_water(ph = 7, uv254=0.1, doc = 2, tds=50))
   water3<- suppressWarnings(define_water(ph = 7, uv254=01, doc = 2, tds=50))
@@ -93,7 +92,7 @@ test_that("Edwards model does not go negative because of high SUVA",{
   dosed2<-suppressWarnings(chemdose_toc(water2,alum=20))  
   dosed3<-suppressWarnings(chemdose_toc(water3,alum=20))
 
-    # result from high SUVA should be same 
+  # result from high SUVA should be same 
   expect_equal(dosed2@doc,dosed3@doc)
   # result from SUVAs (one at SUVA=5 and one at SUVA<5) should be differnet
   expect_false(dosed1@doc == dosed2@doc)
@@ -105,14 +104,14 @@ test_that("chemdose_toc works with reuse model", {
   water0 <- suppressWarnings(define_water(ph = 7, doc = 3.5, uv254 = 0.1))
 
   water1 <- chemdose_toc(water0, alum = 30)
-  water2 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Langmuir")
-  water3 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Linear")
-  water4 <- chemdose_toc(water0, alum = 30, reuse = TRUE, reuse_model = "Langmuir", fns = 0.4)
+  water2 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Langmuir")
+  water3 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse General Linear")
+  water4 <- chemdose_toc(water0, alum = 30, model_coeff = "Reuse Site Langmuir", fns = 0.4)
 
   expect_false(water1@doc == water2@doc)
   expect_false(water2@doc == water3@doc)
   expect_false(water2@doc == water4@doc)
-  expect_equal(round(water2@doc, 2), 2.79) # one check for magnitude of expected output
+  expect_equal(round(water2@doc, 2), 2.91) # one check for magnitude of expected output
 })
 
 ################################################################################*
@@ -158,12 +157,12 @@ test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc",
     uv254 = 0.05
   )
 
-  water1 <- chemdose_toc(water0, ferricchloride = 40, coeff = "Ferric")
+  water1 <- chemdose_toc(water0, ferricchloride = 40, model_coeff = "Ferric")
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_df() %>%
-    chemdose_toc_df(ferricchloride = 40, coeff = "Ferric", output_water = "coag") %>%
+    chemdose_toc_df(ferricchloride = 40, model_coeff = "Ferric", output_water = "coag") %>%
     pluck_water("coag", c("toc", "doc", "uv254"))
 
   coag_doses <- data.frame(ferricchloride = seq(10, 100, 10))
@@ -172,7 +171,7 @@ test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc",
       slice(1) %>%
       define_water_df("raw") %>%
       merge(coag_doses) %>%
-      chemdose_toc_df("raw", "coag", coeff = "Ferric") %>%
+      chemdose_toc_df("raw", "coag", model_coeff = "Ferric") %>%
       pluck_water(c("coag"), c("doc"))
   )
 
@@ -184,7 +183,7 @@ test_that("chemdose_toc_df outputs are the same as base function, chemdose_toc",
       names(.)[names(.) == "ferricchloride"] <- "Coagulant"
       .
     } %>%
-    chemdose_toc_df("raw", "coag", coeff = "Ferric", ferricchloride = Coagulant) %>%
+    chemdose_toc_df("raw", "coag", model_coeff = "Ferric", ferricchloride = Coagulant) %>%
     pluck_water(c("coag"), c("doc"))
 
   expect_equal(water1@toc, water2$coag_toc)
@@ -202,7 +201,7 @@ test_that("chemdose_toc_df output is list of water class objects, and can handle
     water_df %>%
       slice(1) %>%
       define_water_df() %>%
-      chemdose_toc_df(input_water = "defined", ferricsulfate = 30, coeff = "Ferric")
+      chemdose_toc_df(input_water = "defined", ferricsulfate = 30, model_coeff = "Ferric")
   )
 
   water2 <- purrr::pluck(water1, "coagulated", 1)
@@ -228,7 +227,7 @@ test_that("chemdose_toc_df can use a column or function argument for chemical do
     chemdose_toc_df(
       input_water = "defined",
       ferricchloride = 40,
-      coeff = "Ferric",
+      model_coeff = "Ferric",
       pluck_cols = TRUE
     )
 
@@ -237,7 +236,7 @@ test_that("chemdose_toc_df can use a column or function argument for chemical do
     define_water_df() %>%
     mutate(
       ferricchloride = 40,
-      coeff = "Ferric"
+      model_coeff = "Ferric"
     ) %>%
     chemdose_toc_df(pluck_cols = T)
 
@@ -246,7 +245,7 @@ test_that("chemdose_toc_df can use a column or function argument for chemical do
     slice(1) %>%
     define_water_df("raw") %>%
     mutate(ferricchloride = 40) %>%
-    chemdose_toc_df(input_water = "raw", output_water = "final", coeff = "Ferric") %>%
+    chemdose_toc_df(input_water = "raw", output_water = "final", model_coeff = "Ferric") %>%
     pluck_water(input_waters = "final", c("toc", "doc", "uv254"))
 
   expect_equal(water1$coagulated_toc, water2$coagulated_toc) # test different ways to input chemical
@@ -290,14 +289,14 @@ test_that("chemdose_toc_df works with custom coefficients", {
   water1 <- water_df %>%
     slice(1) %>%
     define_water_df() %>%
-    chemdose_toc_df(alum = 20, coeff = custom_coeff, pluck_cols = TRUE)
+    chemdose_toc_df(alum = 20, model_coeff = custom_coeff, pluck_cols = TRUE)
 
   water2 <- water_df %>%
     slice(1) %>%
     define_water_df() %>%
     chemdose_toc_df(
       alum = 20,
-      coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068),
+      model_coeff = data.frame(x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068),
       pluck_cols = TRUE
     )
 

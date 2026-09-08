@@ -8,7 +8,14 @@
 Terry and Summers 2018, Peterson and Summers 2021
 }
 \usage{
-biofilter_toc(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = FALSE)
+biofilter_toc(
+  water,
+  ebct,
+  ozonated = TRUE,
+  ozone_dose = 0,
+  reuse = FALSE,
+  media_type = "anthracite"
+)
 
 biofilter_toc_df(
   df,
@@ -33,6 +40,8 @@ biofilter_toc_df(
 
 \item{reuse}{Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise.
 If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.}
+
+\item{media_type}{The type of media used in the biofilter. Default is "anthracite", other option is "gac". Only used if \code{reuse = TRUE}.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column indicating the EBCT or whether the water is ozonated.}
