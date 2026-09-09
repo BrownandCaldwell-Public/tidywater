@@ -98,7 +98,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
     }
     breaks <- sort(unique(unlist(lapply(ct_labels, get_breaks))))
     breaks <- c(breaks, Inf) # Add Inf for the upper bound
-    ct_category <- cut(ct_actual, breaks = breaks, labels = ct_labels, right = FALSE)
+    ct_category <- cut(ct_actual, breaks = breaks, labels = ct_labels[1:(length(breaks)-1)], right = FALSE)
 
     vlog_removal <- vlog_table[vlog_table$ct_range == as.character(ct_category), "vlog_removal"]
 
