@@ -577,8 +577,6 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
 
-
-  
   # formula matcher
   if (!(formula %in% molecNames)) {
     bestFormula <- agrep(formula, molecNames, max.distance = 1)
@@ -588,36 +586,25 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     }
     # else: fall through — convert_units_private will error with a clear message
   }
-
   
   # as 
-if (grepl("as", startunit)) {
-  mw <- mweights[[formula]]
-  if (grepl("n", startunit)) value <- value * (mweights[["n"]] / mw)^-1
-  else if (grepl("p", startunit)) value <- value * (30.97 / mw)^-1
-  else if (grepl("cl", startunit)) value <- value * ( mweights[["cl"]] / mw)^-1
-  else cli::cli_abort("Formula not supported for startunit...")
-  startunit <- "mg/l"  # now in mg/L of the compound, continue normally
+  if (grepl("as", startunit)) {
+    mw <- mweights[[formula]]
+    if (grepl("n", startunit)) value <- value * (mweights[["n"]] / mw)^-1
+    else if (grepl("p", startunit)) value <- value * (30.97 / mw)^-1
+    else if (grepl("cl", startunit)) value <- value * ( mweights[["cl"]] / mw)^-1
+    else cli::cli_abort("Formula not supported for startunit...")
+    startunit <- "mg/l"  # now in mg/L of the compound, continue normally
   # if endunit is also "as X", the block below will handle it
   # would this happen??
-}
+  }
 
-if (grepl("as", endunit)) {
-  mw <- mweights[[formula]]
-  if (grepl("n", endunit)) return(value * (mweights[["n"]] / mw))
-  else if (grepl("p", endunit)) return(value * (30.97 / mw))
-  else if (grepl("cl", endunit)) return(value * ( mweights[["cl"]] / mw))
-  else cli::cli_abort("Formula not supported for endunit...")
-}
-
-
-if (grepl("as", endunit)) {
-  mw <- mweights[[formula]]
-  if (grepl("n", endunit)) return(value * (14.01 / mw)^-1)
-  else if (grepl("p", endunit)) return(value * (30.97 / mw)^-1)
-  else if (grepl("cl", endunit)) return(value * (70.90 / mw)^-1)
-  else cli::cli_abort("Formula not supported for endunit...")
-}
+  if (grepl("as", endunit)) {
+    mw <- mweights[[formula]]
+    if (grepl("n", endunit)) return(value * (mweights[["n"]] / mw))
+    else if (grepl("p", endunit)) return(value * (30.97 / mw))
+    else if (grepl("cl", endunit)) return(value * ( mweights[["cl"]] / mw))
+  }
 
   unit_matcher <- c(
     "ng/l" = "ng/L",
@@ -671,7 +658,6 @@ if (grepl("as", endunit)) {
 
   }
   
-
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
