@@ -75,7 +75,8 @@ convert_watermg <- function(water) {
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
   water@nh4 <- convert_units(water@nh4, "nh4", "M", "mg/L N")
-  water@bo3 <- convert_units(water@bo3, "bo3", "M", "mg/L") 
+  water@h4bo4 <- convert_units(water@h4bo4, "h4bo4", "M", "mg/L")
+  water@h3bo3 <- convert_units(water@h3bo3, "h3bo3", "M", "mg/L")
   water@h3sio4 <- convert_units(water@h3sio4, "h3sio4", "M", "mg/L") 
   water@h2sio4 <- convert_units(water@h2sio4, "h2sio4", "M", "mg/L") 
   water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L") 
@@ -83,7 +84,7 @@ convert_watermg <- function(water) {
   water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
   water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
-  water@tot_bo3 <- convert_units(water@tot_bo3, "bo3", "M", "mg/L")
+  water@tot_bo4 <- convert_units(water@tot_bo4, "b", "M", "mg/L B")
   water@tot_sio4 <- convert_units(water@tot_sio4, "sio4", "M", "mg/L")
   water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L") 
 

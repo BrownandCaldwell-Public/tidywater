@@ -30,11 +30,13 @@ molec_properties <- data.frame(
   h3sio4 = c(95.107, 1),
   h2sio4 = c(94.099, 2),
   sio4 = c(92.083, 4),
-  bo3 = c(58.809, 3),
+  h4bo4 = c(78.11, 1),
+  h3bo3 = c(61.83, 0),
   no3 = c(62.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
-  # Chemicals. Everything has a charge.
+  # Chemicals. These only have a charge if both ions have the same charge.
+  # Except: Use the anion charge if the cation is H+, use the cation charge if the anion is OH-.
   caco3 = c(100.0869, 2),
   caso4 = c(136.141, 2),
   hcl = c(36.46094, 1),
@@ -55,6 +57,7 @@ molec_properties <- data.frame(
   nh4oh = c(18.04 + 17.008, 1),
   nh42so4 = c(18.04 * 2 + 96.0626, 2),
   kmno4 = c(158.032, 1),
+  citric = c(192.12, 0),
 
   # Stuff that isn't made of ions. No charge.
   cl2 = c(70.906, NA),
@@ -102,13 +105,14 @@ discons <- data.frame(
   # Ammonia
   add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
   # Borate
-  add_row(ID = "kbo3", k = 10^-9.24, deltah = -42000) %>% # H4BO4- <--> H3BO3 + OH-
+  add_row(ID = "kbo4", k = 10^-9.236, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
   # Silicate
   # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
   # Acetate
   add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
-  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) # H2O <--> H+ + OH- 
+  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) %>% # H2O <--> H+ + OH-
+  add_row(ID= c( "k1citric","k2citric","k3citric"), k = c(10^-3.128, 10^-4.761, 10^-6.396),  deltah = c(3470, 1880, -3330)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
