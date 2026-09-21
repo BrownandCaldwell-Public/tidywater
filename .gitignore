@@ -6,6 +6,7 @@
 .Ruserdata
 Rprof.out
 # Generated profiling output
+profile.html
 tools/*.html
 tools/Rprof*.out
 inst/doc
