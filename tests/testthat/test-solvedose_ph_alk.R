@@ -60,15 +60,38 @@ test_that("Solve dose pH doesn't error when target pH is close to starting.", {
   expect_no_error(solvedose_ph(water2, 8, "naoh"))
 })
 
-test_that("Solve dose pH throws a warning when alk is low", {
-  # water with high ph 
-  water<-define_water(ph = 12.75, temp = 25, alk = 1000, tds = 3530, ca = 70, mg = 10, so4 = 0)
+test_that("Solve dose pH rejects a discontinuous low-alkalinity solution", {
+  water <- define_water(
+    ph = 12.75,
+    temp = 25,
+    alk = 1000,
+    tds = 3530,
+    ca = 70,
+    mg = 10,
+    so4 = 0
+  )
 
-  # solve dose is really high, @ 993,5
-  solve<-expect_warning(solvedose_ph(water, 7, "h2so4"))
-  # high solvedose from uniroot strugles and an error is thrown 
+  expect_warning(
+    dose <- solvedose_ph(water, 7, "h2so4"),
+    "could not find a reliable dose"
+  )
+  expect_true(is.na(dose))
+})
 
+test_that("Solve dose pH retains valid high-dose solutions", {
+  water <- define_water(
+    ph = 12.75,
+    temp = 25,
+    alk = 4780,
+    tds = 3530,
+    ca = 70,
+    mg = 10,
+    so4 = 0
+  )
 
+  expect_no_warning(dose <- solvedose_ph(water, 7, "h2so4"))
+  expect_true(is.finite(dose))
+  expect_equal(round(chemdose_ph(water, h2so4 = dose)@ph, 1), 7)
 })
 
 # Solve Dose Alkalinity ----

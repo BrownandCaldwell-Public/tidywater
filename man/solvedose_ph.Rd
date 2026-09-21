@@ -5,7 +5,7 @@
 \alias{solvedose_ph_df}
 \title{Calculate a desired chemical dose for a target pH}
 \usage{
-solvedose_ph(water, target_ph, chemical, check_input = FALSE)
+solvedose_ph(water, target_ph, chemical)
 
 solvedose_ph_df(
   df,
@@ -22,9 +22,6 @@ solvedose_ph_df(
 
 \item{chemical}{The chemical to be added. Current supported chemicals include:
 acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
-
-\item{check_input}{The function will automatically check if the dose found works
-with a call to solvedose_ph, computationally more expensive. Default = FALSE.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}

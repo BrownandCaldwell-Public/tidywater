@@ -16,9 +16,6 @@
 #' @param target_ph The final pH to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2"; bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
-#' @param check_input The function will automatically check if the dose found works
-#' with a call to solvedose_ph, computationally more expensive. Default = FALSE. 
-#'
 #' @seealso [chemdose_ph], [solvedose_alk]
 #'
 #' @examples
@@ -30,7 +27,7 @@
 #' @export
 #' @returns  `solvedose_ph` returns a numeric value for the required chemical dose.
 #'
-solvedose_ph <- function(water, target_ph, chemical, check_input = FALSE) {
+solvedose_ph <- function(water, target_ph, chemical) {
   validate_water(water, c("ph", "alk"))
   if (missing(target_ph)) {
     cli::cli_abort("No target pH defined. Enter a {.arg target_ph} for the chemical dose.")
@@ -57,40 +54,23 @@ solvedose_ph <- function(water, target_ph, chemical, check_input = FALSE) {
     cli::cli_abort("Selected chemical addition is not supported.")
   }
 
-  # This is the function to minimize
+  evaluated_waters <- new.env(parent = emptyenv())
+
+  evaluate_dose <- function(dose) {
+    dose_args <- setNames(list(water, dose), c("water", chemical))
+    dosed_water <- suppressWarnings(do.call(chemdose_ph, dose_args))
+    assign(as.character(dose), dosed_water, envir = evaluated_waters)
+    dosed_water
+  }
+
+  # This is the function to minimize.
   match_ph <- function(root_dose, chemical, target_ph, water) {
-    hcl <- ifelse(chemical == "hcl", root_dose, 0)
-    h2so4 <- ifelse(chemical == "h2so4", root_dose, 0)
-    h3po4 <- ifelse(chemical == "h3po4", root_dose, 0)
-
-    naoh <- ifelse(chemical == "naoh", root_dose, 0)
-    na2co3 <- ifelse(chemical == "na2co3", root_dose, 0)
-    nahco3 <- ifelse(chemical == "nahco3", root_dose, 0)
-    caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
-    mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
-    co2 <- ifelse(chemical == "co2", root_dose, 0)
-
-    waterfin <- suppressWarnings(
-      chemdose_ph(
-        water,
-        hcl = hcl,
-        h2so4 = h2so4,
-        h3po4 = h3po4,
-        naoh = naoh,
-        na2co3 = na2co3,
-        nahco3 = nahco3,
-        caoh2 = caoh2,
-        mgoh2 = mgoh2,
-        co2 = co2
-      )
-    )
-
-    phfin <- waterfin@ph
+    dosed_water <- evaluate_dose(root_dose)
 
     if (chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2")) {
-      (phfin - target_ph)
+      dosed_water@ph - target_ph
     } else {
-      (target_ph - phfin)
+      target_ph - dosed_water@ph
     }
   }
 
@@ -112,38 +92,23 @@ solvedose_ph <- function(water, target_ph, chemical, check_input = FALSE) {
       water = water,
       extendInt = "up"
     )
-    args<-list(water, chemdose$root)
-    #pirate!
-    names(args)<-c("water", chemical)
+    dosed_water <- get(
+      as.character(chemdose$root),
+      envir = evaluated_waters,
+      inherits = FALSE
+    )
 
-    if (check_input == TRUE){
-      # check argument (default false) checks the output of solvedose with a chemdose_ph call
-      # computationally more expensive, but a good check nonetheless!
-      dosed <- do.call(chemdose_ph, args)
-        if (dosed@alk <= 0) {
-        cli::cli_warn(paste0("Solvedose_ph returns an unresaonable alk value(",
-        round(dosed@alk,2),
-         "), input water may have insufficent buffering capacity"))
-        }
-        else if ((dosed@ph-chemdose$root)/chemdose$root > 0.05 ){
-        cli::cli_warn(paste0("Solvedose_ph returns unresaonable ph values( ",
-        round(dosed@ph,1),
-         "input water may have insufficent buffering capacity"))
-        }
+    if (abs(chemdose$f.root) > 0.1) {
+      cli::cli_warn(
+        "solvedose_ph could not find a reliable dose to reach pH {target_ph}.\n         The water may have insufficient buffering capacity; {.val NA} returned."
+      )
+      return(NA_real_)
     }
 
-    #  additional checks that runs if the dose is encountering strange, high dose, low alk scenarios 
-     if (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & chemdose$root >= 30 & water@alk < 30 ){
-     cli::cli_warn("Low alk and high dose with these chemicals may mean the water has insufficient buffering capacity,
-       use check_input")
-     }
-    # check if root is very high, may point to low buffering 
-    if (chemdose$root > 200) {
-      check_ph <- do.call(chemdose_ph, args)@ph
-      if (abs(check_ph - target_ph) > 0.1) {
-        cli::cli_warn(("Solvedose_ph could not find a reliable dose to reach pH {target_ph}.
-                        The water may have insufficient buffering capacity. Try check_input."))
-      }
+    if (dosed_water@alk < 0) {
+      cli::cli_warn(
+        "Target pH reached; final alkalinity is {round(dosed_water@alk, 1)} mg/L as CaCO3.\n         Supplemental alkalinity may be required."
+      )
     }
 
     round(chemdose$root, 1)
@@ -292,21 +257,22 @@ solvedose_ph_df <- function(
 
   df[[output_column]] <- sapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(
-    solvedose_ph(
-      water = df[[input_water]][[i]],
-      chemical = df[[final_names$chemical]][i],
-      target_ph = df[[final_names$target_ph]][i]
-    ),
-    warning =function(w) {
-        msg<-conditionMessage(w)
-        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+      solvedose_ph(
+        water = df[[input_water]][[i]],
+        chemical = df[[final_names$chemical]][i],
+        target_ph = df[[final_names$target_ph]][i]
+      ),
+      warning = function(w) {
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
         invokeRestart("muffleWarning")
-  })
+      }
+    )
   })
   for (msg in names(warning_counts)) {
-      cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
-    }
-  
+    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
+
   return(df)
 }
 
@@ -357,14 +323,14 @@ solvedose_alk_df <- function(
         target_alk = df[[final_names$target_alk]][i]
       ),
       warning = function(w) {
-        msg<-conditionMessage(w)
-        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
+        msg <- conditionMessage(w)
+        warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
         invokeRestart("muffleWarning")
       }
     )
   })
 
- for (msg in names(warning_counts)) {
+  for (msg in names(warning_counts)) {
     cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
