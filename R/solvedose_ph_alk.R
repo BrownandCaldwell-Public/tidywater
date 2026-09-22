@@ -57,7 +57,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
   evaluated_waters <- new.env(parent = emptyenv())
 
   evaluate_dose <- function(dose) {
-    dose_args <- setNames(list(water, dose), c("water", chemical))
+    dose_args <- stats::setNames(list(water, dose), c("water", chemical))
     dosed_water <- suppressWarnings(do.call(chemdose_ph, dose_args))
     assign(as.character(dose), dosed_water, envir = evaluated_waters)
     dosed_water
