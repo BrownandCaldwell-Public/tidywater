@@ -100,14 +100,14 @@ solvedose_ph <- function(water, target_ph, chemical) {
 
     if (abs(chemdose$f.root) > 0.1) {
       cli::cli_warn(
-        "solvedose_ph could not find a reliable dose to reach pH {target_ph}.\n         The water may have insufficient buffering capacity; {.val NA} returned."
+        "solvedose_ph could not find a reliable dose to reach pH {target_ph}. The water may have insufficient buffering capacity; {.val NA} returned."
       )
       return(NA_real_)
     }
 
     if (dosed_water@alk < 0) {
       cli::cli_warn(
-        "Target pH reached; final alkalinity is {round(dosed_water@alk, 1)} mg/L as CaCO3.\n         Supplemental alkalinity may be required."
+        "Target pH reached; final alkalinity is {round(dosed_water@alk, 1)} mg/L as CaCO3. Supplemental alkalinity may be required."
       )
     }
 
