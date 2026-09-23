@@ -454,13 +454,34 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     "ng/L N",
     "ug/L N",
     "mg/L N",
-    "g/L N"
+    "g/L N",
+    "ng/L P",
+    "ug/L P",
+    "mg/L P",
+    "g/L P",
+    "ng/L Cl",
+    "ug/L Cl",
+    "mg/L Cl",
+    "g/L Cl"
   )
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
 
   caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
   n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
+  p_list <- c("mg/L P", "g/L P", "ug/L P", "ng/L P")
+  cl_list <- c("mg/L Cl", "g/L Cl", "ug/L Cl", "ng/L Cl")
+
+  # # as 
+  # if (grepl(" ", startunit)) {
+  #   mw <- mweights[[formula]]
+  #   if (grepl("n", startunit, ignore.case = TRUE)) value <- value * (mweights[["n"]] / mw)^-1
+  #   else if (grepl("caco3", startunit, ignore.case = TRUE)) value <- value * (mweights[["caco3"]] / mw)^-1
+  #   else if (grepl("p", startunit, ignore.case = TRUE)) value <- value * (30.97 / mw)^-1
+  #   else if (grepl("cl", startunit, ignore.case = TRUE)) value <- value * ( mweights[["cl"]] / mw)^-1
+  #   else cli::cli_abort("Formula not supported for startunit...")
+  #   startunit <- gsub("\\s.*", "", startunit)
+  # }
 
   # Look up the unit multipliers for starting and end units
   start_mult <- unit_multipliers[[startunit]]
@@ -475,6 +496,8 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   # Need molar mass of CaCO3 and N
   caco3_mw <- as.numeric(tidywater::mweights["caco3"])
   n_mw <- as.numeric(tidywater::mweights["n"])
+  p_mw <- as.numeric(30.97)
+  cl_mw <- as.numeric(tidywater::mweights["cl"])
 
   # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
@@ -488,6 +511,16 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
         (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))
     ) {
       molar_weight <- n_mw
+    } else if (
+      (startunit %in% p_list & endunit %in% c(mole_list, eqvl_list)) |
+        (endunit %in% p_list & startunit %in% c(mole_list, eqvl_list))
+    ) {
+      molar_weight <- p_mw
+    } else if (
+      (startunit %in% cl_list & endunit %in% c(mole_list, eqvl_list)) |
+        (endunit %in% cl_list & startunit %in% c(mole_list, eqvl_list))
+    ) {
+      molar_weight <- cl_mw
     } else {
       molar_weight <- as.numeric(tidywater::mweights[formula])
     }
@@ -536,6 +569,16 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     value / n_mw * molar_weight
   } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
     value / molar_weight * n_mw
+    # g P - g
+  } else if (startunit %in% p_list & endunit %in% gram_list & !(endunit %in% p_list)) {
+    value / p_mw * molar_weight
+  } else if (endunit %in% p_list & startunit %in% gram_list & !(startunit %in% p_list)) {
+    value / molar_weight * p_mw
+    # g Cl - g
+  } else if (startunit %in% cl_list & endunit %in% gram_list & !(endunit %in% cl_list)) {
+    value / cl_mw * molar_weight
+  } else if (endunit %in% cl_list & startunit %in% gram_list & !(startunit %in% cl_list)) {
+    value / molar_weight * cl_mw
     # same lists
   } else if (
     (startunit %in% gram_list & endunit %in% gram_list) |
@@ -546,6 +589,17 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   } else {
     cli::cli_abort("Units not supported.")
   }
+
+  # if (grepl(" ", endunit)) {
+  #   mw <- mweights[[formula]]
+  #   if (grepl("n", endunit, ignore.case = TRUE)) return(value * (mweights[["n"]] / mw))
+  #   else if (grepl("caco3", endunit, ignore.case = TRUE)) return(value * (mweights[["caco3"]] / mw))
+  #   else if (grepl("p", endunit, ignore.case = TRUE)) return(value * (30.97 / mw))
+  #   else if (grepl("cl", endunit, ignore.case = TRUE)) return(value * ( mweights[["cl"]] / mw))
+  # } else { 
+  #   return(value)
+  # }
+
 }
 
 #' @title Calculate unit conversions for common compounds
@@ -554,7 +608,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 #' @param value Value to be converted
 #' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl; M; eq/L;
 #' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
 #'
@@ -585,25 +639,6 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
       cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
     }
     # else: fall through — convert_units_private will error with a clear message
-  }
-  
-  # as 
-  if (grepl("as", startunit)) {
-    mw <- mweights[[formula]]
-    if (grepl("n", startunit)) value <- value * (mweights[["n"]] / mw)^-1
-    else if (grepl("p", startunit)) value <- value * (30.97 / mw)^-1
-    else if (grepl("cl", startunit)) value <- value * ( mweights[["cl"]] / mw)^-1
-    else cli::cli_abort("Formula not supported for startunit...")
-    startunit <- "mg/l"  # now in mg/L of the compound, continue normally
-  # if endunit is also "as X", the block below will handle it
-  # would this happen??
-  }
-
-  if (grepl("as", endunit)) {
-    mw <- mweights[[formula]]
-    if (grepl("n", endunit)) return(value * (mweights[["n"]] / mw))
-    else if (grepl("p", endunit)) return(value * (30.97 / mw))
-    else if (grepl("cl", endunit)) return(value * ( mweights[["cl"]] / mw))
   }
 
   unit_matcher <- c(
