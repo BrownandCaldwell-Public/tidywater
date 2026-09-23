@@ -440,165 +440,107 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
 # If we fail to lookup a unit conversion in our cached table we look here
 # This function is ~20x slower than the cache lookup
 convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+
   unit_multipliers <- get("unit_multipliers")
   formula_to_charge <- get("formula_to_charge")
-  gram_list <- c(
-    "ng/L",
-    "ug/L",
-    "mg/L",
-    "g/L",
-    "ng/L CaCO3",
-    "ug/L CaCO3",
-    "mg/L CaCO3",
-    "g/L CaCO3",
-    "ng/L N",
-    "ug/L N",
-    "mg/L N",
-    "g/L N",
-    "ng/L P",
-    "ug/L P",
-    "mg/L P",
-    "g/L P",
-    "ng/L Cl",
-    "ug/L Cl",
-    "mg/L Cl",
-    "g/L Cl"
+
+  # store info about "as X" compounds
+  basis_info <- c(
+    CaCO3 = as.numeric(tidywater::mweights["caco3"]),
+    N     = as.numeric(tidywater::mweights["n"]),
+    P     = 30.97,
+    Cl    = as.numeric(tidywater::mweights["cl"])
   )
+
+  mass_units <- c("ng/L", "ug/L", "mg/L", "g/L")
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
+  gram_list <- c(mass_units, as.vector(outer(mass_units, names(basis_info), paste)))
 
-  caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
-  n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
-  p_list <- c("mg/L P", "g/L P", "ug/L P", "ng/L P")
-  cl_list <- c("mg/L Cl", "g/L Cl", "ug/L Cl", "ng/L Cl")
+  # checking whether units are as compounds
+  start_basis <- sub("^.* ", "", startunit)
+  end_basis <- sub("^.* ", "", endunit)
 
-  # # as 
-  # if (grepl(" ", startunit)) {
-  #   mw <- mweights[[formula]]
-  #   if (grepl("n", startunit, ignore.case = TRUE)) value <- value * (mweights[["n"]] / mw)^-1
-  #   else if (grepl("caco3", startunit, ignore.case = TRUE)) value <- value * (mweights[["caco3"]] / mw)^-1
-  #   else if (grepl("p", startunit, ignore.case = TRUE)) value <- value * (30.97 / mw)^-1
-  #   else if (grepl("cl", startunit, ignore.case = TRUE)) value <- value * ( mweights[["cl"]] / mw)^-1
-  #   else cli::cli_abort("Formula not supported for startunit...")
-  #   startunit <- gsub("\\s.*", "", startunit)
-  # }
+  if (!start_basis %in% names(basis_info)) {
+    start_basis <- "formula"
+  }
 
-  # Look up the unit multipliers for starting and end units
+  if (!end_basis %in% names(basis_info)) {
+    end_basis <- "formula"
+  }
+
   start_mult <- unit_multipliers[[startunit]]
   end_mult <- unit_multipliers[[endunit]]
   if (is.null(start_mult) || is.null(end_mult)) {
-    # If we didn't find multipliers these units are not supported
     cli::cli_abort("Units not supported.")
   }
-  # Calculate the net multiplier
   multiplier <- start_mult / end_mult
 
-  # Need molar mass of CaCO3 and N
-  caco3_mw <- as.numeric(tidywater::mweights["caco3"])
-  n_mw <- as.numeric(tidywater::mweights["n"])
-  p_mw <- as.numeric(30.97)
-  cl_mw <- as.numeric(tidywater::mweights["cl"])
-
-  # Determine relevant molar weight
   if (formula %in% colnames(tidywater::mweights)) {
-    if (
-      (startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- caco3_mw
-    } else if (
-      (startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- n_mw
-    } else if (
-      (startunit %in% p_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% p_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- p_mw
-    } else if (
-      (startunit %in% cl_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% cl_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- cl_mw
+    formula_mw <- as.numeric(tidywater::mweights[formula])
+    special_basis <- c(start_basis, end_basis)
+    special_basis <- special_basis[special_basis != "formula"]
+    if (length(special_basis) > 0 && xor(startunit %in% c(mole_list, eqvl_list),
+        endunit %in% c(mole_list, eqvl_list))) {
+      molar_weight <- basis_info[[special_basis[1]]]
     } else {
-      molar_weight <- as.numeric(tidywater::mweights[formula])
+      molar_weight <- formula_mw
     }
-  } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
+  } else if (!(startunit %in% gram_list) && !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
     cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  # Determine charge for equivalents
-  # Look up our known charges in our hashtable
   table_charge <- formula_to_charge[[formula]]
   if (!is.null(table_charge) && !is.na(table_charge)) {
-    # If we found a charge in the hash table use that
     charge <- table_charge
-  } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
-    # This is included so that charge can be in equations later without impacting results
+  } else if (!(startunit %in% eqvl_list) && !(endunit %in% eqvl_list)) {
     charge <- 1
   } else {
     cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
-  # Unit conversion
-  # g - mol
-  if (startunit %in% gram_list & endunit %in% mole_list) {
+  basis_factor <- c(
+    formula = 1 / formula_mw,
+    CaCO3   = 2 / (basis_info[["CaCO3"]] * charge),
+    N       = 1 / basis_info[["N"]],
+    P       = 1 / basis_info[["P"]],
+    Cl      = 1 / basis_info[["Cl"]]
+  )
+
+  # g -> mol
+  if (startunit %in% gram_list && endunit %in% mole_list) {
     value / molar_weight * multiplier
-  } else if (startunit %in% mole_list & endunit %in% gram_list) {
+  # mol -> g
+  } else if (startunit %in% mole_list && endunit %in% gram_list) {
     value * molar_weight * multiplier
-    # g - eq
-  } else if (startunit %in% eqvl_list & endunit %in% gram_list) {
+  # eq -> g
+  } else if (startunit %in% eqvl_list && endunit %in% gram_list) {
     value / charge * molar_weight * multiplier
-  } else if (startunit %in% gram_list & endunit %in% eqvl_list) {
+  # g -> eq
+  } else if (startunit %in% gram_list && endunit %in% eqvl_list) {
     value / molar_weight * charge * multiplier
-    # mol - eq
-  } else if (startunit %in% mole_list & endunit %in% eqvl_list) {
+  # mol -> eq
+  } else if (startunit %in% mole_list && endunit %in% eqvl_list) {
     value * charge * multiplier
-  } else if (startunit %in% eqvl_list & endunit %in% mole_list) {
+  # eq -> mol
+  } else if (startunit %in% eqvl_list && endunit %in% mole_list) {
     value / charge * multiplier
-    # g CaCO3 - g
-  } else if (startunit %in% caco_list & endunit %in% gram_list & !(endunit %in% caco_list)) {
-    value / caco3_mw * molar_weight * 2 / charge
-  } else if (endunit %in% caco_list & startunit %in% gram_list & !(startunit %in% caco_list)) {
-    value / molar_weight * caco3_mw * charge / 2
-    # g N - g
-  } else if (startunit %in% n_list & endunit %in% gram_list & !(endunit %in% n_list)) {
-    value / n_mw * molar_weight
-  } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
-    value / molar_weight * n_mw
-    # g P - g
-  } else if (startunit %in% p_list & endunit %in% gram_list & !(endunit %in% p_list)) {
-    value / p_mw * molar_weight
-  } else if (endunit %in% p_list & startunit %in% gram_list & !(startunit %in% p_list)) {
-    value / molar_weight * p_mw
-    # g Cl - g
-  } else if (startunit %in% cl_list & endunit %in% gram_list & !(endunit %in% cl_list)) {
-    value / cl_mw * molar_weight
-  } else if (endunit %in% cl_list & startunit %in% gram_list & !(startunit %in% cl_list)) {
-    value / molar_weight * cl_mw
-    # same lists
-  } else if (
-    (startunit %in% gram_list & endunit %in% gram_list) |
-      (startunit %in% mole_list & endunit %in% mole_list) |
-      (startunit %in% eqvl_list & endunit %in% eqvl_list)
-  ) {
+  # Special mass-basis conversions
+  } else if (startunit %in% gram_list && endunit %in% gram_list && start_basis != end_basis) {
+    value *
+      basis_factor[[start_basis]] /
+      basis_factor[[end_basis]] *
+      multiplier
+  # Same dimension
+  } else if ((startunit %in% gram_list && endunit %in% gram_list) ||
+    (startunit %in% mole_list && endunit %in% mole_list) ||
+    (startunit %in% eqvl_list && endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     cli::cli_abort("Units not supported.")
   }
-
-  # if (grepl(" ", endunit)) {
-  #   mw <- mweights[[formula]]
-  #   if (grepl("n", endunit, ignore.case = TRUE)) return(value * (mweights[["n"]] / mw))
-  #   else if (grepl("caco3", endunit, ignore.case = TRUE)) return(value * (mweights[["caco3"]] / mw))
-  #   else if (grepl("p", endunit, ignore.case = TRUE)) return(value * (30.97 / mw))
-  #   else if (grepl("cl", endunit, ignore.case = TRUE)) return(value * ( mweights[["cl"]] / mw))
-  # } else { 
-  #   return(value)
-  # }
 
 }
 
@@ -658,6 +600,14 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     "ug/ln" = "ug/L N",
     "mg/ln" = "mg/L N",
     "g/ln" = "g/L N",
+    "ng/lp" = "ng/L P",
+    "ug/lp" = "ug/L P",
+    "mg/lp" = "mg/L P",
+    "g/lp" = "g/L P",
+    "ng/lcl" = "ng/L Cl",
+    "ug/lcl" = "ug/L Cl",
+    "mg/lcl" = "mg/L Cl",
+    "g/lcl" = "g/L Cl",
     "m" = "M",
     "mm" = "mM",
     "um" = "uM",

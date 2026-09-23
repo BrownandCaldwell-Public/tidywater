@@ -128,41 +128,37 @@ test_that("Aliasing works", {
 })
 
 
-test_that("As N/P/Cl works", {
+test_that("As CaCO3/N/P/Cl works", {
+  mglCa <- 20
+  mglasCaCO3 <- convert_units(mglCa, "ca", startunit = "mg/L", endunit = "mg/L CaCO3")
+  mglasCaCO3_eq <- (mglCa / 40.078) * 100.0869
+  expect_equal(mglasCaCO3, mglasCaCO3_eq)
+
   mglNH4 <- 20
-
-  mglasN <- convert_units(mglNH4, "nh4", startunit = "mg/L", endunit = "mg/L as N")
-
+  mglasN <- convert_units(mglNH4, "nh4", startunit = "mg/L", endunit = "mg/L N")
   mglasN_eq <- (mglNH4 / 18.04) * 14.0067
-
   expect_equal(mglasN, mglasN_eq)
 
   mglPO4 <- 20
-
-  mglasP <- convert_units(mglPO4, "po4", startunit = "mg/L", endunit = "mg/L as P")
-
+  mglasP <- convert_units(mglPO4, "po4", startunit = "mg/L", endunit = "mg/L P")
   mglasNP_eq <- (mglPO4 / 94.97) * 30.97
-
   expect_equal(mglasP, mglasNP_eq)
 
   mglNHCl2 <- 20
-
-  mglasCl <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L as cl")
-
+  mglasCl <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L cl")
   mglasCl_eq <- (mglNHCl2 / 85.92) * 35.453
-
   expect_equal(mglasCl, mglasCl_eq)
 
-  mglasN_start <- convert_units(mglasN_eq, "nh4", startunit = "mg/L as N", endunit = "mg/L")
+  mglasCaCO3_start <- convert_units(mglasCaCO3_eq, "ca", startunit = "mg/L CaCO3", endunit = "mg/L")
+  expect_equal(mglasCaCO3_start, mglCa)
 
+  mglasN_start <- convert_units(mglasN_eq, "nh4", startunit = "mg/L N", endunit = "mg/L")
   expect_equal(mglasN_start, mglNH4)
 
-  mglasP_start <- convert_units(mglasNP_eq, "po4", startunit = "mg/L as P", endunit = "mg/L")
-
+  mglasP_start <- convert_units(mglasNP_eq, "po4", startunit = "mg/L P", endunit = "mg/L")
   expect_equal(mglasP_start, mglPO4)
 
-  mglasCl_start <- convert_units(mglasCl_eq, "nhcl2", startunit = "mg/L as cl", endunit = "mg/L")
-
+  mglasCl_start <- convert_units(mglasCl_eq, "nhcl2", startunit = "mg/L cl", endunit = "mg/L")
   expect_equal(mglasCl_start, mglNHCl2)
 })
 # Summarize WQ ----
