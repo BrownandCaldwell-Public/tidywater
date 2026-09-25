@@ -1,6 +1,8 @@
-#' OH- scavenger model for reuse 
+#' Hydroxyl radical (OH radical) scavenging function
 #' 
-#' @title OH- scavenging function
+#' 
+#' 
+#' @title OH radical scavenging function
 #' 
 #' @description The background hydroxyl radical scavenging term is a measure of the degradation rate of non-target constituents in a water. The term is defined as the 
 #' sum of the reaction rate of the constituent multiplied by the concentration of the constituent: sum(k_i * [C]i) where k_i is the reaction rate of a contaminant and [C]i its concentration.
@@ -11,12 +13,15 @@
 #'   k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
 #'   k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
 #'   k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020 
-#'   k(OH,NO3-)	1.00E+05	M-1 s-1	Keen et al., 2012
+#'   k(OH,NO3-)	1.00E+05	M-1 s-1	Buxton et al.,1988
 #'   k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 #' 
 #' Other reported k_doc values from literature
 #' 
-#' other K values, with different units -- are these all for k_DOC?
+#' Other reported k_doc values from literature. NOTE: units below are inconsistent
+#' and are reproduced as-published — they are NOT directly usable as `kdoc_adjust`,
+#' which expects L/mg s-1. Values in Mc^-1s^-1 require division by 12,011 mg C/mol.
+#' See follow-up issue for normalizing these.
 #' 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
 #' 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 #' 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
