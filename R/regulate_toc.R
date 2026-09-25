@@ -33,7 +33,7 @@ regulate_toc <- function(alk_raw, toc_raw, toc_finished, raw_water , treated_wat
   required_compliance <- NA_real_
 
 if(!missing(raw_water) & !missing(treated_water)& (!missing(alk_raw) | !missing(toc_raw) | !missing(toc_finished))){
-cli::cli_warn("Both water objects and individual parameters provided. Water object parameters will be used, and individual parameters will be ignored.")
+tidywater_warn("Both water objects and individual parameters provided. Water object parameters will be used, and individual parameters will be ignored.")
 
 }
 

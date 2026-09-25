@@ -99,7 +99,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
       (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_ph > water@ph) |
       is.na(target_ph)
   ) {
-    cli::cli_warn("Target pH cannot be reached with the selected chemical; {.val NA} returned.")
+    tidywater_warn("Target pH cannot be reached with the selected chemical; {.val NA} returned.")
     return(NA)
   } else {
     chemdose <- stats::uniroot(
@@ -203,7 +203,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
       (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_alk >= water@alk) |
       is.na(target_alk)
   ) {
-    cli::cli_warn("Target alkalinity cannot be reached with the selected chemical; {.val NA} returned.")
+    tidywater_warn("Target alkalinity cannot be reached with the selected chemical; {.val NA} returned.")
     return(NA)
   } else {
     chemdose <- stats::uniroot(
@@ -268,7 +268,7 @@ solvedose_ph_df <- function(
   })
   })
   for (msg in names(warning_counts)) {
-      cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+      tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
     }
   
   return(df)
@@ -329,7 +329,7 @@ solvedose_alk_df <- function(
   })
 
  for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   return(df)

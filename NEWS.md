@@ -15,6 +15,9 @@ Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/m
 * `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
 * Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
 * Add ACH and PACl to `chemdose_toc`. Supports one molar mass, check documentation for units.
+* Warnings are now formatted through an internal helper that caches the rendered text of each message. Warning text is unchanged, but
+models that warn repeatedly (notably `chemdose_ph` inside `solvedose_ph`, where the warnings are suppressed anyway) are much faster.
+* Fixed an error in `biofilter_toc_df` when reporting how many rows a repeated warning affected.
 * Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
 
 

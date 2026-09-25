@@ -82,75 +82,75 @@ chemdose_dbp <- function(
 
   # toc/doc warnings
   if (treatment == "raw" & (toc < 1.2 | toc > 10.6)) {
-    cli::cli_warn("TOC is outside the model bounds (1.2 \u2264 TOC \u2264 10.6 mg/L).")
+    tidywater_warn("TOC is outside the model bounds (1.2 \u2264 TOC \u2264 10.6 mg/L).")
   }
   if (treatment == "coag" & (doc < 1.00 | doc > 7.77)) {
-    cli::cli_warn("DOC is outside the model bounds (1.00 \u2264 DOC \u2264 7.77 mg/L) for coagulated water.")
+    tidywater_warn("DOC is outside the model bounds (1.00 \u2264 DOC \u2264 7.77 mg/L) for coagulated water.")
   }
   if (treatment == "gac" & (doc < 0.14 | doc > 2.0)) {
-    cli::cli_warn("DOC is outside the model bounds (0.14 \u2264 DOC \u2264 2.0 mg/L) for GAC treated water.")
+    tidywater_warn("DOC is outside the model bounds (0.14 \u2264 DOC \u2264 2.0 mg/L) for GAC treated water.")
   }
 
   # uv254 warnings
   if (treatment == "coag" & (uv254 < 0.016 | uv254 > 0.215)) {
-    cli::cli_warn("UV254 is outside the model bounds (0.016 \u2264 UV254 \u2264 0.215 cm^-1) for coagulated water.")
+    tidywater_warn("UV254 is outside the model bounds (0.016 \u2264 UV254 \u2264 0.215 cm^-1) for coagulated water.")
   }
   if (treatment == "gac" & (uv254 < 0.001 | uv254 > 0.048)) {
-    cli::cli_warn("UV254 is outside the model bounds (0.001 \u2264 UV254 \u2264 0.048 cm^-1) for GAC treated water.")
+    tidywater_warn("UV254 is outside the model bounds (0.001 \u2264 UV254 \u2264 0.048 cm^-1) for GAC treated water.")
   }
 
   # cl2 warnings
   if (treatment == "raw" & (cl2 < 1.51 | cl2 > 33.55)) {
-    cli::cli_warn("Chlorine is outside the model bounds (1.51 \u2264 Cl2 \u2264 33.55 mg/L) for raw water.")
+    tidywater_warn("Chlorine is outside the model bounds (1.51 \u2264 Cl2 \u2264 33.55 mg/L) for raw water.")
   }
   if (treatment == "coag" & (cl2 < 1.11 | cl2 > 24.75)) {
-    cli::cli_warn("Chlorine is outside the model bounds (1.11 \u2264 Cl2 \u2264 24.75 mg/L) for coagulated water.")
+    tidywater_warn("Chlorine is outside the model bounds (1.11 \u2264 Cl2 \u2264 24.75 mg/L) for coagulated water.")
   }
   if (treatment == "gac" & (cl2 < 0.5 | cl2 > 3.0)) {
-    cli::cli_warn("Chlorine is outside the model bounds (0.5 \u2264 Cl2 \u2264 3.0 mg/L) for GAC treated water.")
+    tidywater_warn("Chlorine is outside the model bounds (0.5 \u2264 Cl2 \u2264 3.0 mg/L) for GAC treated water.")
   }
 
   # br warnings
   if (treatment == "raw" & (br < 7 | br > 600)) {
-    cli::cli_warn("Bromide is outside the model bounds (7 \u2264 Br \u2264 600 \u03bcg/L) for raw water.")
+    tidywater_warn("Bromide is outside the model bounds (7 \u2264 Br \u2264 600 \u03bcg/L) for raw water.")
   }
   if (treatment == "coag" & (br < 23 | br > 308)) {
-    cli::cli_warn("Bromide is outside the model bounds (23 \u2264 Br \u2264 308 \u03bcg/L) for coagulated water.")
+    tidywater_warn("Bromide is outside the model bounds (23 \u2264 Br \u2264 308 \u03bcg/L) for coagulated water.")
   }
   if (treatment == "gac" & (br < 10 | br > 570)) {
-    cli::cli_warn("Bromide is outside the model bounds (10 \u2264 Br \u2264 570 \u03bcg/L) for GAC treated water.")
+    tidywater_warn("Bromide is outside the model bounds (10 \u2264 Br \u2264 570 \u03bcg/L) for GAC treated water.")
   }
 
   # temp warnings
   if (treatment == "raw" & (temp < 15 | temp > 25)) {
-    cli::cli_warn("Temperature is outside the model bounds (15 \u2264 temp \u2264 25 \u00b0C) for raw water.")
+    tidywater_warn("Temperature is outside the model bounds (15 \u2264 temp \u2264 25 \u00b0C) for raw water.")
   }
   if (treatment == "coag" & temp != 20) {
-    cli::cli_warn("Temperature is outside the model bounds (temp = 20 \u00b0C) for coagulated water.")
+    tidywater_warn("Temperature is outside the model bounds (temp = 20 \u00b0C) for coagulated water.")
   }
   if (treatment == "gac" & (temp < 3 | temp > 33)) {
-    cli::cli_warn("Temperature is outside the model bounds (3 \u2264 temp \u2264 33 \u00b0C) for GAC treated water.")
+    tidywater_warn("Temperature is outside the model bounds (3 \u2264 temp \u2264 33 \u00b0C) for GAC treated water.")
   }
 
   # ph warnings
   if (treatment == "raw" & (ph < 6.5 | ph > 8.5)) {
-    cli::cli_warn("pH is outside the model bounds (6.5 \u2264 pH \u2264 8.5) for raw water.")
+    tidywater_warn("pH is outside the model bounds (6.5 \u2264 pH \u2264 8.5) for raw water.")
   }
   if (treatment == "coag" & ph != 7.5) {
-    cli::cli_warn("pH is outside the model bounds (pH = 7.5) for coagulated water.")
+    tidywater_warn("pH is outside the model bounds (pH = 7.5) for coagulated water.")
   }
   if (treatment == "gac" & (ph < 6.7 | ph > 10)) {
-    cli::cli_warn("pH is outside the model bounds (6.7 \u2264 pH \u2264 10) for GAC treated water.")
+    tidywater_warn("pH is outside the model bounds (6.7 \u2264 pH \u2264 10) for GAC treated water.")
   }
 
   # time warning
   if (time < 2 | time > 168) {
-    cli::cli_warn("{.arg time} is outside the model bounds (2 \u2264 time \u2264 168 hours).")
+    tidywater_warn("{.arg time} is outside the model bounds (2 \u2264 time \u2264 168 hours).")
   }
 
   # breakpoint warning
   if (water@tot_nh3 > 0) {
-    cli::cli_warn("Background ammonia present; chloramines may form. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    tidywater_warn("Background ammonia present; chloramines may form. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   # check coeff
@@ -371,7 +371,7 @@ chemdose_dbp_df <- function(
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   if (pluck_cols == TRUE) {
