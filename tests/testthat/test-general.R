@@ -127,6 +127,40 @@ test_that("Aliasing works", {
   expect_warning(convert_units(hcl_mg, "hxl", startunit = "mg/L", endunit = "mg/L CaCO3"))
 })
 
+test_that("Fuzzy matching warns about the specific argument that was corrected", {
+  expect_warning(
+    convert_units(10, "ca", startunit = "mg/Lx", endunit = "M"),
+    "Check startunit"
+  )
+  expect_warning(
+    convert_units(10, "ca", startunit = "mg/L", endunit = "nMM"),
+    "Check endunit"
+  )
+  expect_warning(
+    convert_units(10, "caa", startunit = "mg/L", endunit = "M"),
+    "Check formula"
+  )
+})
+
+test_that("Single character units are not fuzzy matched", {
+  # There are too many one-letter matches in the unit table, so a single character
+  # that isn't an exact alias must error rather than silently matching "M" or "m".
+  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "x", endunit = "M")))
+  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "mg/L", endunit = "q")))
+
+  # ...while the legitimate one-letter units still resolve exactly, with no warning.
+  expect_no_warning(mol <- convert_units(10, "ca", startunit = "mg/L", endunit = "M"))
+  expect_equal(convert_units(10, "ca", startunit = "mg/L", endunit = "m"), mol)
+})
+
+test_that("Canonical units and formulas convert without warning", {
+  expect_no_warning(convert_units(10, "ca", startunit = "mg/L", endunit = "M"))
+  expect_no_warning(convert_units(10, "ca", startunit = "mg/L CaCO3", endunit = "eq/L"))
+  expect_no_warning(convert_units(10, "naoh", startunit = "M", endunit = "mg/L"))
+  expect_no_warning(convert_units(10, "po4", startunit = "mg/L", endunit = "mg/L P"))
+  expect_no_warning(convert_units(10, "nh4", startunit = "mg/L", endunit = "mg/L N"))
+})
+
 
 test_that("As CaCO3/N/P/Cl works", {
   mglCa <- 20

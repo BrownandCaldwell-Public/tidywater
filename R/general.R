@@ -544,6 +544,44 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 
 }
 
+# Canonical unit names keyed by their normalized (lowercase, whitespace-stripped) form.
+# Built once when the package is loaded rather than on every convert_units call.
+unit_matcher <- c(
+  "ng/l" = "ng/L",
+  "ug/l" = "ug/L",
+  "mg/l" = "mg/L",
+  "g/l" = "g/L",
+  "ng/lcaco3" = "ng/L CaCO3",
+  "ug/lcaco3" = "ug/L CaCO3",
+  "mg/lcaco3" = "mg/L CaCO3",
+  "g/lcaco3" = "g/L CaCO3",
+  "ng/lascaco3" = "ng/L CaCO3",
+  "ug/lascaco3" = "ug/L CaCO3",
+  "mg/lascaco3" = "mg/L CaCO3",
+  "g/lascaco3" = "g/L CaCO3",
+  "ng/ln" = "ng/L N",
+  "ug/ln" = "ug/L N",
+  "mg/ln" = "mg/L N",
+  "g/ln" = "g/L N",
+  "ng/lp" = "ng/L P",
+  "ug/lp" = "ug/L P",
+  "mg/lp" = "mg/L P",
+  "g/lp" = "g/L P",
+  "ng/lcl" = "ng/L Cl",
+  "ug/lcl" = "ug/L Cl",
+  "mg/lcl" = "mg/L Cl",
+  "g/lcl" = "g/L Cl",
+  "m" = "M",
+  "mm" = "mM",
+  "um" = "uM",
+  "nm" = "nM",
+  "neq/l" = "neq/L",
+  "ueq/l" = "ueq/L",
+  "meq/l" = "meq/L",
+  "eq/l" = "eq/L"
+)
+unit_matcher_names <- names(unit_matcher)
+
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
@@ -565,14 +603,24 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
+
+  # Fast path: callers that already pass canonical units and formulas (which is every
+  # internal tidywater call) hit the cache directly and skip normalization and matching.
+  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+  if (!is.null(lookup)) {
+    return(value * lookup)
+  }
+
   mweights <- get("mweights")
   molecNames <- names(mweights)
+  unit_matcher <- get("unit_matcher")
+  unit_matcher_names <- get("unit_matcher_names")
 
   # normalize strings
   formula <- tolower(gsub("\\s", "", formula))
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
-  
+
   # formula matcher
   if (!(formula %in% molecNames)) {
     bestFormula <- agrep(formula, molecNames, max.distance = 1)
@@ -583,65 +631,31 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     # else: fall through — convert_units_private will error with a clear message
   }
 
-  unit_matcher <- c(
-    "ng/l" = "ng/L",
-    "ug/l" = "ug/L",
-    "mg/l" = "mg/L",
-    "g/l" = "g/L",
-    "ng/lcaco3" = "ng/L CaCO3",
-    "ug/lcaco3" = "ug/L CaCO3",
-    "mg/lcaco3" = "mg/L CaCO3",
-    "g/lcaco3" = "g/L CaCO3",
-    "ng/lascaco3" = "ng/L CaCO3",
-    "ug/lascaco3" = "ug/L CaCO3",
-    "mg/lascaco3" = "mg/L CaCO3",
-    "g/lascaco3" = "g/L CaCO3",
-    "ng/ln" = "ng/L N",
-    "ug/ln" = "ug/L N",
-    "mg/ln" = "mg/L N",
-    "g/ln" = "g/L N",
-    "ng/lp" = "ng/L P",
-    "ug/lp" = "ug/L P",
-    "mg/lp" = "mg/L P",
-    "g/lp" = "g/L P",
-    "ng/lcl" = "ng/L Cl",
-    "ug/lcl" = "ug/L Cl",
-    "mg/lcl" = "mg/L Cl",
-    "g/lcl" = "g/L Cl",
-    "m" = "M",
-    "mm" = "mM",
-    "um" = "uM",
-    "nm" = "nM",
-    "neq/l" = "neq/L",
-    "ueq/l" = "ueq/L",
-    "meq/l" = "meq/L",
-    "eq/l" = "eq/L"
-  )
-
-
-  bestStart <- agrep(startunit, names(unit_matcher), max.distance = 1)
-  bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 1)
-
   # space and upper case matching
-  if (startunit %in% names(unit_matcher)){
-  startunit <- unit_matcher[[startunit]]
-  } 
-  
+  if (startunit %in% unit_matcher_names) {
+    startunit <- unit_matcher[[startunit]]
+  }
   # making the length of the input unit be greater than 1 because there are too many matches for single letter inputs
-  # like M, without that then every M conversion is wrong. 
-  else if (length(bestStart) > 0 & nchar(startunit) > 1) {
-    startunit <- unit_matcher[[bestStart[1]]]
-    cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+  # like M, without that then every M conversion is wrong.
+  # nchar is checked first so the expensive fuzzy match only runs when it can be used.
+  else if (nchar(startunit) > 1) {
+    bestStart <- agrep(startunit, unit_matcher_names, max.distance = 1)
+    if (length(bestStart) > 0) {
+      startunit <- unit_matcher[[bestStart[1]]]
+      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+    }
   }
 
-  if (endunit %in% names(unit_matcher)) {
-  endunit <- unit_matcher[[endunit]]
+  if (endunit %in% unit_matcher_names) {
+    endunit <- unit_matcher[[endunit]]
+  } else if (nchar(endunit) > 1) {
+    bestEnd <- agrep(endunit, unit_matcher_names, max.distance = 1)
+    if (length(bestEnd) > 0) {
+      endunit <- unit_matcher[[bestEnd[1]]]
+      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
+    }
   }
-  else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
-    endunit <- unit_matcher[[bestEnd[1]]]
-        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
-  }
-  
+
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
