@@ -569,7 +569,76 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
-  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
+  mweights <- get("mweights")
+  molecNames <- names(mweights)
+
+  # normalize strings
+  formula <- tolower(gsub("\\s", "", formula))
+  startunit <- (tolower(gsub("\\s", "", startunit)))
+  endunit <- (tolower(gsub("\\s", "", endunit)))
+  
+  # formula matcher
+  if (!(formula %in% molecNames)) {
+    bestFormula <- agrep(formula, molecNames, max.distance = 1)
+    if (length(bestFormula) > 0) {
+      formula <- molecNames[bestFormula[1]]
+      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+    }
+    # else: fall through — convert_units_private will error with a clear message
+  }
+
+  unit_matcher <- c(
+    "ng/l" = "ng/L",
+    "ug/l" = "ug/L",
+    "mg/l" = "mg/L",
+    "g/l" = "g/L",
+    "ng/lcaco3" = "ng/L CaCO3",
+    "ug/lcaco3" = "ug/L CaCO3",
+    "mg/lcaco3" = "mg/L CaCO3",
+    "g/lcaco3" = "g/L CaCO3",
+    "ng/lascaco3" = "ng/L CaCO3",
+    "ug/lascaco3" = "ug/L CaCO3",
+    "mg/lascaco3" = "mg/L CaCO3",
+    "g/lascaco3" = "g/L CaCO3",
+    "ng/ln" = "ng/L N",
+    "ug/ln" = "ug/L N",
+    "mg/ln" = "mg/L N",
+    "g/ln" = "g/L N",
+    "m" = "M",
+    "mm" = "mM",
+    "um" = "uM",
+    "nm" = "nM",
+    "neq/l" = "neq/L",
+    "ueq/l" = "ueq/L",
+    "meq/l" = "meq/L",
+    "eq/l" = "eq/L"
+  )
+
+
+  bestStart <- agrep(startunit, names(unit_matcher), max.distance = 1)
+  bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 1)
+
+  # space and upper case matching
+  if (startunit %in% names(unit_matcher)){
+  startunit <- unit_matcher[[startunit]]
+  } 
+  
+  # making the length of the input unit be greater than 1 because there are too many matches for single letter inputs
+  # like M, without that then every M conversion is wrong. 
+  else if (length(bestStart) > 0 & nchar(startunit) > 1) {
+    startunit <- unit_matcher[[bestStart[1]]]
+    cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+  }
+
+  if (endunit %in% names(unit_matcher)) {
+  endunit <- unit_matcher[[endunit]]
+  }
+  else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
+    endunit <- unit_matcher[[bestEnd[1]]]
+        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
+  }
+  
+
   lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
   if (is.null(lookup)) {
     # Fallback to full implementation
@@ -579,6 +648,105 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 }
 
+
+#' @title Convert flow rate
+#'
+#' @description Given units for flow rate, convert to different units of flow rate.
+#'
+#' @param value Value of flow rate to be converted
+#' @param startunit Current units of flow rate
+#' @param endunit Desired units of flow rate
+#' @param sg Optional argument for specific gravity, default to 1. Required for converting between mass and volumetric flows.
+#'
+#' @examples
+#' flow <- 40 #in MGD
+#'
+#' convert_flow(flow, "MGD", "gpm")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted flow
+convert_flow <- function(value, startunit, endunit, sg = 1) {
+  startunit <- tolower(gsub("\\s", "", startunit))
+  endunit <- tolower(gsub("\\s", "", endunit))
+
+  startmultiplier <- 0
+  endmultiplier <- 0
+
+  # idea is convert units to gpm then reconvert end unit
+  # volumetric
+  volumetricstartunits <- c(
+    mgs = 60000000,
+    mgm = 1000000.0,
+    mgh = 16666.67,
+    mgd = 694.444,
+    gps = 60,
+    gpm = 1,
+    gph = 0.016667,
+    gpd = 0.000694,
+    cfs = 448.831,
+    cfm = 7.48052,
+    cfh = 0.124674,
+    cfd = 0.005195,
+    `l/s` = 15.8503,
+    `l/m` = 0.264172,
+    `l/h` = 0.004403,
+    `l/d` = 0.000183,
+    `m3/s` = 15850.32,
+    `m3/m` = 264.172,
+    `m3/h` = 4.40287,
+    `m3/day` = 0.183453
+  )
+  volumetricendunits <- 1 / volumetricstartunits
+
+  # to pound / min
+  # Mass Rate -> lbs/min
+  massstartunits <- c(
+    `kg/s` = 132.277, `kg/m` = 2.20462, `kg/min` = 2.20462, `kg/h` = 0.036744, `kg/d` = 0.001531, `kg/day` = 0.001531,
+    `g/s` = 0.132277, `g/m` = 0.002205, `g/min` = 0.002205, `g/h` = 0.000037, `g/d` = 0.00000153, `g/day` = 0.00000153,
+    `lb/s` = 60.0000, `lbs/s` = 60.0000, `lb/m` = 1, `lbs/m` = 1, `lb/min` = 1, `lbs/min` = 1,
+    `lb/h` = 0.016667, `lbs/h` = 0.016667, `lb/d` = 0.0006944, `lbs/d` = 0.0006944, `lb/day` = 0.0006944, `lbs/day` = 0.0006944
+  )
+
+  # lbs/min -> Mass Rate
+  massendunits <- 1 / massstartunits
+
+  # volumetric flow to volumetric flow or mass to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)){
+    startmultiplier <- volumetricstartunits[startunit]
+    endmultiplier <- volumetricendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # mass to mass
+  if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
+    startmultiplier <- massstartunits[startunit]
+    endmultiplier <- massendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # volumetric to mass
+  if (startunit %in% names(volumetricstartunits) && endunit %in% names(massendunits)) {
+    gpm <- value * volumetricstartunits[startunit]
+    # Physical bridge: GPM -> lbs/min
+    lbs_min <- gpm * 8.34008 * sg
+
+    return(unname(lbs_min * massendunits[endunit]))
+  }
+
+  # mass to volumetric
+  if (startunit %in% names(massstartunits) && endunit %in% names(volumetricendunits)) {
+    lbs_min <- value * massstartunits[startunit]
+
+    gpm <- lbs_min / (8.34008 * sg)
+
+    return(unname(gpm * volumetricendunits[endunit]))
+  }
+
+  cli::cli_abort("Start unit or end unit is not accepted")
+}
 
 #' @title Calculate hardness from calcium and magnesium
 #'
@@ -696,29 +864,39 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
-  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # kbo4 = {oh-}{h3bo3}/{h4bo4-}
+  kbo4 <- K_temp_adjust(discons["kbo4", ]$deltah, discons["kbo4", ]$k, temp) / activity_z1^2
   # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
   # k2sio4 = {h+}{hsio43-}/{h2sio42-}
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
+  # k1citric = {h+}{h2citric-}/{h3citric}
+  k1citric <- K_temp_adjust(discons["k1citric", ]$deltah, discons["k1citric", ]$k, temp) / activity_z1^2
+  # k2citric = {h+}{hcitric2-}/{h2citric-}
+  k2citric <- K_temp_adjust(discons["k2citric", ]$deltah, discons["k2citric", ]$k, temp) / activity_z2
+  # k3citric = {h+}{citric3-}/{hcitric2-}
+  k3citric <- K_temp_adjust(discons["k3citric", ]$deltah, discons["k3citric", ]$k, temp) *
+    activity_z2 /
+    (activity_z1 * activity_z3)
 
   return(data.frame(
     "k1co3" = k1co3,
     "k2co3" = k2co3,
-    
     "k1po4" = k1po4,
     "k2po4" = k2po4,
     "k3po4" = k3po4,
     "kocl" = kocl,
     "knh4" = knh4,
     "kso4" = kso4,
-    "kbo3" = kbo3,
+    "kbo4" = kbo4,
     "k1sio4" = k1sio4,
     "k2sio4" = k2sio4,
-    "kch3coo" = kch3coo
+    "kch3coo" = kch3coo,
+    "k1citric" = k1citric,
+    "k2citric" = k2citric,
+    "k3citric" = k3citric
   ))
 }
 
@@ -753,10 +931,14 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    cli::cli_abort("Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}.")
+    cli::cli_abort(
+      "Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}."
+    )
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    cli::cli_abort("Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column.")
+    cli::cli_abort(
+      "Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column."
+    )
   }
 }
 
@@ -816,17 +998,13 @@ calculate_alpha0_phosphate <- function(h, k) {
 
 calculate_alpha1_phosphate <- function(h, k) {
   # H2PO4
-  k1 <- k$k1po4
-  k2 <- k$k2po4
-  k3 <- k$k3po4
-  calculate_alpha0_phosphate(h, k) * k1 / h
+  calculate_alpha0_phosphate(h, k) * k$k1po4 / h
 }
 
 calculate_alpha2_phosphate <- function(h, k) {
   # HPO4
   k1 <- k$k1po4
   k2 <- k$k2po4
-  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
@@ -852,7 +1030,7 @@ calculate_alpha1_ammonia <- function(h, k) {
 
 calculate_alpha1_borate <- function(h, k) {
   # H4BO4-
-  k1 <- k$kbo3
+  k1 <- k$kbo4
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
@@ -874,6 +1052,31 @@ calculate_alpha1_acetate <- function(h, k) {
   # CH3COO-
   k1 <- k$kch3coo
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha0_citric <- function (h , k){
+  # H3Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
+  1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
+}
+calculate_alpha1_citric <- function (h , k){
+  # H2Citricc
+  calculate_alpha0_citric(h, k) * k$k1citric / h
+}
+calculate_alpha2_citric <- function (h , k){
+  # H1Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
+}
+calculate_alpha3_citric <- function (h , k){
+  #Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
+  calculate_alpha0_citric(h, k) * (k1 * k2 * k3 / h^3)
 }
 
 # General temperature correction for equilibrium constants
@@ -957,7 +1160,9 @@ construct_helper <- function(df, all_args) {
   inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
 
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    cli::cli_abort("Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column.")
+    cli::cli_abort(
+      "Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column."
+    )
   }
 
   # Get the new names for relevant columns

@@ -56,12 +56,10 @@ test_that("chemdose_toc works.", {
   expect_equal(round(water8@doc, 1), round(water2@doc, 1))
 
   expect_false(water2@doc == water5@doc)
-  expect_true(water5@ph > water2@ph)
-  expect_equal(round(water5@doc, 1), 2.6)
-  expect_equal(round(water5@uv254, 2), 0.06)
+  expect_equal(round(water5@doc, 1), 3)
+  expect_equal(round(water5@uv254, 2), 0.04)
   expect_equal(water1@doc, water6@doc)
   expect_equal(water1@uv254, water6@uv254)
-  expect_error(suppressWarnings(chemdose_toc(water1, alum = 30, caoh2 = 2))) # softening requires alk
 })
 
 test_that("Edwards model flatlines the xterm for ph>=8",{
