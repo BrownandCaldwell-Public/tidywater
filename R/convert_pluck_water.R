@@ -10,9 +10,8 @@
 #'
 #' Use [convert_water] to keep all slots in the same units as the water.
 #'
-#' Use [convert_watermg] to convert to more typical units. Converts the following slots from M to mg/L:
-#' na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.
-#' Converts these slots to ug/L: br, mn.  All other values remain unchanged.
+#' Use [convert_watermg] to convert to more typical units. Converts all non-NA water slots with ions to mg/L, with the exception of br and mn, which
+#' are converted to ug/L. All other values remain unchanged.
 #'
 #'
 #' @param water A water class object
@@ -53,39 +52,53 @@ convert_water <- function(water) {
 
 convert_watermg <- function(water) {
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
+    cli::cli_abort("No source water defined. Create a water using {.fn define_water}.")
   }
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using 'define_water'.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
-  ks <- correct_k(water)
   h <- 10^-water@ph
 
+  # listed in order of appearance in define_water
+  water@na <- convert_units(water@na, "na", "M", "mg/L")
   water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
   water@mg <- convert_units(water@mg, "mg", "M", "mg/L")
-  water@na <- convert_units(water@na, "na", "M", "mg/L")
   water@k <- convert_units(water@k, "k", "M", "mg/L")
   water@cl <- convert_units(water@cl, "cl", "M", "mg/L")
   water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
+  water@mno4 <- convert_units(water@mno4, "mno4", "M", "mg/L")
+  water@no3 <- convert_units(water@no3, "no3", "M", "mg/L N")
   water@h2co3 <- convert_units(water@h2co3, "h2co3", "M", "mg/L")
   water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
   water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")
-  water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
   water@h2po4 <- convert_units(water@h2po4, "h2po4", "M", "mg/L")
   water@hpo4 <- convert_units(water@hpo4, "hpo4", "M", "mg/L")
   water@po4 <- convert_units(water@po4, "po4", "M", "mg/L")
-  water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
-  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
-  water@free_chlorine <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
-  water@combined_chlorine <- convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
-  water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
-  water@no3 <- convert_units(water@no3, "no3", "M", "mg/L N")
   water@nh4 <- convert_units(water@nh4, "nh4", "M", "mg/L N")
+  water@h4bo4 <- convert_units(water@h4bo4, "h4bo4", "M", "mg/L")
+  water@h3bo3 <- convert_units(water@h3bo3, "h3bo3", "M", "mg/L")
+  water@h3sio4 <- convert_units(water@h3sio4, "h3sio4", "M", "mg/L") 
+  water@h2sio4 <- convert_units(water@h2sio4, "h2sio4", "M", "mg/L") 
+  water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L") 
+  # don't convert h and oh
+  water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
+  water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
+  water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
+  water@tot_bo4 <- convert_units(water@tot_bo4, "b", "M", "mg/L B")
+  water@tot_sio4 <- convert_units(water@tot_sio4, "sio4", "M", "mg/L")
+  water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L") 
 
+  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
   water@f <- convert_units(water@f, "f", "M", "mg/L")
   water@fe <- convert_units(water@fe, "fe", "M", "mg/L")
   water@al <- convert_units(water@al, "al", "M", "mg/L")
-  water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
+
+  water@free_chlorine <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
+  water@ocl <- convert_units(water@ocl, "ocl", "M", "mg/L")
+  water@combined_chlorine <- convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
+  water@nh2cl <- convert_units(water@nh2cl, "nh2cl", "M", "mg/L")
+  water@nhcl2 <- convert_units(water@nhcl2, "nhcl2", "M", "mg/L")
+  water@ncl3 <- convert_units(water@ncl3, "ncl3", "M", "mg/L")
 
   # These get converted to ug/L instead.
   water@br <- convert_units(water@br, "br", "M", "ug/L")
@@ -117,10 +130,10 @@ convert_watermg <- function(water) {
 
 pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (missing(parameter)) {
-    stop("Parameter not specified to pluck.")
+    cli::cli_abort("No parameter specified to pluck.")
   }
   if (!any(input_waters %in% colnames(df))) {
-    stop("One or more specified waters doesn't exist in dataframe. Check column names.")
+    cli::cli_abort("One or more specified water columns do not exist in the data frame. Check column names.")
   }
 
   plucked <- data.frame(row.names = seq(1, nrow(df)))
@@ -128,7 +141,7 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
   if (length(parameter) == 1 && parameter == "all") {
     for (water in input_waters) {
       if (!methods::is(df[[water]][[1]], "water")) {
-        stop("All waters must be of class 'water'.")
+        cli::cli_abort("All waters must be of class {.cls water}.")
       }
 
       temp <- do.call(rbind, lapply(df[[water]], convert_water))
@@ -137,12 +150,12 @@ pluck_water <- function(df, input_waters = c("defined"), parameter) {
     }
   } else {
     if (!any(parameter %in% methods::slotNames("water"))) {
-      stop("One or more parameters doesn't exist in water class.")
+      cli::cli_abort("One or more parameters do not exist in the water class.")
     }
 
     for (water in input_waters) {
       if (!methods::is(df[[water]][[1]], "water")) {
-        stop("All waters must be of class 'water'.")
+        cli::cli_abort("All waters must be of class {.cls water}.")
       }
       output_column <- paste0(water, "_", parameter)
 

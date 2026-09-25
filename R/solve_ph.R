@@ -10,11 +10,12 @@ solve_ph <- function(
   mg_dose = 0,
   cl_dose = 0,
   mno4_dose = 0,
-  no3_dose = 0
+  no3_dose = 0,
+  citric_dose = 0
 ) {
   # Correct eq constants
-  ks <- correct_k(water)
   gamma1 <- calculate_activity(1, water@is, water@temp)
+  k <- water@ks
 
   #### SOLVE FOR pH
   solve_h <- function(
@@ -30,8 +31,8 @@ solve_ph <- function(
     tot_nh3,
     ocl_i,
     nh4_i,
-    tot_bo3,
-    bo3_i,
+    tot_bo4,
+    h4bo4_i,
     tot_sio4,
     h2sio4_i,
     h3sio4_i,
@@ -45,28 +46,32 @@ solve_ph <- function(
     mg_dose,
     cl_dose,
     mno4_dose,
-    no3_dose
+    no3_dose,
+    tot_citric,
+    citric_i,
+    h1citric_i,
+    h2citric_i
   ) {
     kw /
       (h * gamma1^2) +
       2 * so4_dose +
       tot_po4 *
-        (calculate_alpha1_phosphate(h, ks) +
-          2 * calculate_alpha2_phosphate(h, ks) +
-          3 * calculate_alpha3_phosphate(h, ks)) +
+        (calculate_alpha1_phosphate(h, k) +
+          2 * calculate_alpha2_phosphate(h, k) +
+          3 * calculate_alpha3_phosphate(h, k)) +
       tot_co3 *
-        (calculate_alpha1_carbonate(h, ks) +
-          2 * calculate_alpha2_carbonate(h, ks)) +
-      tot_ocl * calculate_alpha1_hypochlorite(h, ks) +
-      tot_bo3 * calculate_alpha1_borate(h, ks) +
+        (calculate_alpha1_carbonate(h, k) +
+          2 * calculate_alpha2_carbonate(h, k)) +
+      tot_ocl * calculate_alpha1_hypochlorite(h, k) +
+      tot_bo4 * calculate_alpha1_borate(h, k) +
       tot_sio4 *
-        (calculate_alpha1_silicate(h, ks) +
-          2 * calculate_alpha2_silicate(h, ks)) +
-      tot_ch3coo * calculate_alpha1_acetate(h, ks) +
+        (calculate_alpha1_silicate(h, k) +
+          2 * calculate_alpha2_silicate(h, k)) +
+      tot_ch3coo * calculate_alpha1_acetate(h, k) +
       cl_dose +
       mno4_dose +
       no3_dose -
-      (h + na_dose + 2 * ca_dose + 2 * mg_dose + tot_nh3 * calculate_alpha1_ammonia(h, ks)) -
+      (h + na_dose + 2 * ca_dose + 2 * mg_dose + tot_nh3 * calculate_alpha1_ammonia(h, k)) -
       (carbonate_alk_eq + oh_i) -
       3 * po4_i -
       2 * hpo4_i -
@@ -74,9 +79,16 @@ solve_ph <- function(
       ocl_i +
       nh4_i +
       h_i -
-      bo3_i -
+      h4bo4_i -
       2 * h2sio4_i -
-      h3sio4_i
+      h3sio4_i  +
+      tot_citric *
+        (calculate_alpha1_citric(h, k) +
+          2 * calculate_alpha2_citric(h, k) +
+          3 * calculate_alpha3_citric(h, k)) -
+      3 * citric_i -
+      2 * h1citric_i -
+      h2citric_i
   }
 
   root_h <- stats::uniroot(
@@ -93,8 +105,8 @@ solve_ph <- function(
     ocl_i = water@ocl,
     tot_nh3 = water@tot_nh3,
     nh4_i = water@nh4,
-    tot_bo3 = water@tot_bo3,
-    bo3_i = water@bo3,
+    tot_bo4 = water@tot_bo4,
+    h4bo4_i = water@h4bo4,
     tot_sio4 = water@tot_sio4,
     h2sio4_i = water@h2sio4,
     h3sio4_i = water@h3sio4,
@@ -109,6 +121,10 @@ solve_ph <- function(
     cl_dose = cl_dose,
     mno4_dose = mno4_dose,
     no3_dose = no3_dose,
+    tot_citric = water@tot_citric,
+    citric_i = water@citric,
+    h1citric_i = water@h1citric,
+    h2citric_i = water@h2citric,
     tol = 1e-14
   )
   phfinal <- -log10(root_h$root * gamma1)

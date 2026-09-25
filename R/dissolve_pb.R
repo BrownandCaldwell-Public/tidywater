@@ -94,15 +94,15 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   water@so4 <- ifelse(is.na(water@so4), 0, water@so4)
 
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
-    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
+    cli::cli_abort("Hydroxypyromorphite equilibrium constant must be {.val Schock} or {.val Zhu}.")
   }
 
   if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
-    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")
+    cli::cli_abort("Pyromorphite equilibrium constant must be {.val Topolska} or {.val Xie}.")
   }
 
   if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
-    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
+    cli::cli_abort("Laurionite equilibrium constant must be {.val Nasanen} or {.val Lothenbach}.")
   }
 
   leadsol_K <- tidywater::leadsol_constants
@@ -116,8 +116,7 @@ dissolve_pb <- function(water, hydroxypyromorphite = "Schock", pyromorphite = "T
   gamma_3 <- calculate_activity(3, water@is, water@temp)
   gamma_4 <- calculate_activity(4, water@is, water@temp)
 
-  # Correction of carbonate, phosphate, and sulfate equilibrium constants
-  k <- correct_k(water)
+  # Currently not correcting carbonate, phosphate, and sulfate equilibrium constants
 
   # * Calculate lead solid solubility based on controlling solid ----
   solids <- subset(leadsol_K, grepl("solid", constant_name))
@@ -268,15 +267,15 @@ dissolve_pb_df <- function(
   validate_water_helpers(df, input_water)
 
   if (!(hydroxypyromorphite == "Schock" | hydroxypyromorphite == "Zhu")) {
-    stop("Hydroxypyromorphite equilibrium constant must be 'Schock' or 'Zhu'.")
+    cli::cli_abort("Hydroxypyromorphite equilibrium constant must be {.val Schock} or {.val Zhu}.")
   }
 
   if (!(pyromorphite == "Topolska" | pyromorphite == "Xie")) {
-    stop("Pyromorphite equilibrium constant must be 'Topolska' or 'Xie'.")
+    cli::cli_abort("Pyromorphite equilibrium constant must be {.val Topolska} or {.val Xie}.")
   }
 
   if (!(laurionite == "Nasanen" | laurionite == "Lothenbach")) {
-    stop("Laurionite equilibrium constant must be 'Nasanen' or 'Lothenbach'.")
+    cli::cli_abort("Laurionite equilibrium constant must be {.val Nasanen} or {.val Lothenbach}.")
   }
 
 warning_counts <- list()

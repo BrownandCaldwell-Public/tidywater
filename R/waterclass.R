@@ -17,6 +17,7 @@ methods::setClass(
     borate_alk_eq = "numeric",
     silicate_alk_eq = "numeric",
     hypochlorite_alk_eq = "numeric",
+    citric_alk_eq = "numeric",
 
     # Carbon
     toc = "numeric",
@@ -43,19 +44,24 @@ methods::setClass(
     hpo4 = "numeric",
     po4 = "numeric",
     nh4 = "numeric",
-    bo3 = "numeric",
+    h4bo4 = "numeric",
+    h3bo3 = "numeric",
     h3sio4 = "numeric",
     h2sio4 = "numeric",
     ch3coo = "numeric",
     h = "numeric",
     oh = "numeric",
+    h2citric = "numeric",
+    h1citric = "numeric",
+    citric = "numeric",
     # total of pH dependent ions
     tot_po4 = "numeric",
     tot_nh3 = "numeric",
     tot_co3 = "numeric",
-    tot_bo3 = "numeric",
+    tot_bo4 = "numeric",
     tot_sio4 = "numeric",
     tot_ch3coo = "numeric",
+    tot_citric = "numeric",
     # Additional ions
     br = "numeric",
     bro3 = "numeric",
@@ -74,6 +80,7 @@ methods::setClass(
 
     # Miscellaneous
     estimated = "character",
+    ks = "data.frame",
 
     # DBPs
     chcl3 = "numeric", # chloroform
@@ -109,6 +116,7 @@ methods::setClass(
     borate_alk_eq = NA_real_,
     silicate_alk_eq = NA_real_,
     hypochlorite_alk_eq = NA_real_,
+    citric_alk_eq = NA_real_,
 
     # Carbon
     toc = NA_real_,
@@ -135,19 +143,24 @@ methods::setClass(
     hpo4 = NA_real_,
     po4 = NA_real_,
     nh4 = NA_real_,
-    bo3 = NA_real_,
+    h4bo4 = NA_real_,
+    h3bo3 = NA_real_,
     h3sio4 = NA_real_,
     h2sio4 = NA_real_,
     ch3coo = NA_real_,
     h = NA_real_,
     oh = NA_real_,
+    h2citric = NA_real_,
+    h1citric = NA_real_,
+    citric = NA_real_,
     # total of pH dependent ions
     tot_po4 = NA_real_,
     tot_nh3 = NA_real_,
     tot_co3 = NA_real_,
-    tot_bo3 = NA_real_,
+    tot_bo4 = NA_real_,
     tot_sio4 = NA_real_,
     tot_ch3coo = NA_real_,
+    tot_citric = NA_real_,
 
     # Additional ions
     br = NA_real_,
@@ -167,6 +180,7 @@ methods::setClass(
 
     # Miscellaneous
     estimated = "",
+    ks = data.frame(),
 
     # DBPs
     chcl3 = NA_real_, # chloroform

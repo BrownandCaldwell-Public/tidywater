@@ -56,12 +56,46 @@ test_that("chemdose_toc works.", {
   expect_equal(round(water8@doc, 1), round(water2@doc, 1))
 
   expect_false(water2@doc == water5@doc)
-  expect_true(water5@ph > water2@ph)
-  expect_equal(round(water5@doc, 1), 2.6)
-  expect_equal(round(water5@uv254, 2), 0.06)
+  expect_equal(round(water5@doc, 1), 3)
+  expect_equal(round(water5@uv254, 2), 0.04)
   expect_equal(water1@doc, water6@doc)
   expect_equal(water1@uv254, water6@uv254)
-  expect_error(suppressWarnings(chemdose_toc(water1, alum = 30, caoh2 = 2))) # softening requires alk
+})
+
+test_that("Edwards model flatlines the xterm for ph>=8",{
+  testthat::skip_on_cran()
+
+  water1<- suppressWarnings(define_water(ph = 6, uv254=0.01, toc = 4))
+  water2<- suppressWarnings(define_water(ph = 8, uv254=0.01, toc = 4))
+  water3<- suppressWarnings(define_water(ph = 10, uv254=0.01, toc = 4))
+  
+  dosed1<-suppressWarnings(chemdose_toc(water1,alum=40))
+  dosed2<-suppressWarnings(chemdose_toc(water2,alum=40))  
+  dosed3<-suppressWarnings(chemdose_toc(water3,alum=40))
+  
+  # resulting toc for 8 and 10 should be the same
+  expect_equal(dosed2@doc,dosed3@doc)
+ # resulting toc for below 8 and 8 should be diffrent 
+  expect_false(dosed1@doc == dosed2@doc)
+
+})
+
+test_that("Edwards model does not go negative because of high SUVA",{
+
+  
+  water1<- suppressWarnings(define_water(ph = 7, uv254=0.01, doc = 2, tds=50))
+  water2<- suppressWarnings(define_water(ph = 7, uv254=0.1, doc = 2, tds=50))
+  water3<- suppressWarnings(define_water(ph = 7, uv254=01, doc = 2, tds=50))
+  
+  dosed1<-suppressWarnings(chemdose_toc(water1,alum=20))
+  dosed2<-suppressWarnings(chemdose_toc(water2,alum=20))  
+  dosed3<-suppressWarnings(chemdose_toc(water3,alum=20))
+
+    # result from high SUVA should be same 
+  expect_equal(dosed2@doc,dosed3@doc)
+  # result from SUVAs (one at SUVA=5 and one at SUVA<5) should be differnet
+  expect_false(dosed1@doc == dosed2@doc)
+
 })
 
 ################################################################################*
@@ -76,7 +110,8 @@ test_that("chemdose_toc_df is a data frame and has correct classes in output col
       alum = 20,
       output_water = "coag",
       pluck_cols = T,
-      water_prefix = FALSE
+      water_prefix = FALSE,
+      keep_dose_cols = TRUE
     )
 
   expect_true(is.data.frame(water1))

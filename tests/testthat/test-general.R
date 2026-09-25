@@ -26,6 +26,23 @@ test_that("Unit conversion between mg/L and mg/L CaCO3 works.", {
     convert_units(hco3_caco3, "hco3", startunit = "mg/L CaCO3", endunit = "mg/L"),
     hco3_caco3 * mweights$hco3 / mweights$caco3 * 2
   )
+  soda_ash <- 10
+  expect_equal(
+    convert_units(soda_ash, "na2co3", startunit = "mg/L CaCO3", endunit = "mg/L"),
+    soda_ash * mweights$na2co3 / mweights$caco3
+  )
+  naoh_mg <- 10
+  expect_equal(
+    convert_units(naoh_mg, "naoh", startunit = "mg/L", endunit = "mg/L CaCO3"),
+    naoh_mg / mweights$naoh * mweights$caco3 / 2
+  )
+
+  na3po4 <- 10
+  expect_equal(
+    convert_units(na3po4, "na3po4", startunit = "mg/L", endunit = "mg/L CaCO3"),
+    na3po4 / mweights$na3po4 * mweights$caco3 * 3 / 2
+  )
+
 })
 
 test_that("Unit conversion to same units works.", {
@@ -57,6 +74,57 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
     convert_units(ca_eq, "ca", startunit = "eq/L", endunit = "mg/L CaCO3"),
     ca_eq * mweights$caco3 * 1000 / 2
   )
+})
+
+test_that("Flowrate converter works", {
+
+  MGD <- 10
+  KGD <- 100
+
+  # volumetric to volumetric
+  MGH_eq1 <- round(10/24,1)
+  MGH1 <- round(convert_flow(MGD, startunit = "MGD", endunit = " MGH"),1) # also soft test aliasing
+  expect_equal(MGH_eq1, MGH1)
+
+  # mass to mass
+  lbs_day_eq1 <- round(KGD * 2.20462,0)
+  lbsday1 <- round(convert_flow(KGD, startunit = "kg/day", endunit = "lb/day"),0)
+  expect_equal(lbs_day_eq1, lbsday1)
+
+  # volumetric to mass
+  lbs_day_eq2 <- signif(MGD * 8.34 * 10^6,3)
+  lbsday2 <- signif(convert_flow(MGD, startunit = "MGD", endunit = "lb/day", sg = 1),3)
+  expect_equal(lbs_day_eq2, lbsday2)
+
+  # mass to volumetric
+  MGD_eq2 <- signif(KGD / 3.785 / 10^6,3)
+  MGD2 <- signif(convert_flow(KGD, startunit = "kg/day", endunit = "MGD", sg = 1),3)
+  expect_equal(MGD_eq2, MGD2)
+  
+})
+  
+test_that("Aliasing works", {
+
+  # correct conversion 
+  hcl_mg <- 10
+  hcl_caco3 <- convert_units(hcl_mg, "hcl", endunit = "mg/L CaCO3")
+
+  # start unit 
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L as CaCO3"))
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/lcaco3"))
+  #end unit
+  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
+  
+  # typos 
+  expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
+  expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles")))
+
+  # formula matching 
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3") )
+
+  # warning on formula typo 
+  expect_warning(convert_units(hcl_mg, "hxl", startunit = "mg/L", endunit = "mg/L CaCO3"))
 })
 
 # Summarize WQ ----

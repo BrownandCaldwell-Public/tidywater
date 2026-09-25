@@ -65,15 +65,13 @@ calculate_corrosion <- function(
   form = "calcite"
 ) {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    warning(
-      "Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated."
-    )
+    cli::cli_warn("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
   }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
-    warning("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
+    cli::cli_warn("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
   }
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
-    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
+    cli::cli_abort("{.arg index} must be one or more of {.val aggressive}, {.val ryznar}, {.val langelier}, {.val ccpp}, {.val larsonskold}, {.val csmr}.")
   }
 
   # Create the output data frame corrosion_indices
@@ -94,7 +92,7 @@ calculate_corrosion <- function(
   if ("aggressive" %in% index) {
     validate_water(water, c("ca", "ph", "alk"))
     if (grepl("ca", water@estimated)) {
-      warning("Calcium estimated by previous tidywater function, aggressiveness index calculation approximate.")
+      cli::cli_warn("Calcium estimated by previous tidywater function; aggressiveness index calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_aggressive")
     }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
@@ -115,7 +113,7 @@ calculate_corrosion <- function(
   if ("csmr" %in% index) {
     validate_water(water, c("cl", "so4"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      warning("Chloride or sulfate estimated by previous tidywater function, CSMR calculation approximate.")
+      cli::cli_warn("Chloride or sulfate estimated by previous tidywater function; CSMR calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
@@ -137,9 +135,7 @@ calculate_corrosion <- function(
   if ("larsonskold" %in% index) {
     validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      warning(
-        "Chloride or sulfate estimated by previous tidywater function, Larson-Skold index calculation approximate."
-      )
+      cli::cli_warn("Chloride or sulfate estimated by previous tidywater function; Larson-Skold index calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     # epm = equivalents per million
@@ -162,8 +158,7 @@ calculate_corrosion <- function(
 
   if ("langelier" %in% index | "ryznar" %in% index) {
     validate_water(water, c("temp", "ca", "alk_eq", "hco3", "ph"))
-    ks <- correct_k(water)
-    pk2co3 <- -log10(ks$k2co3)
+    pk2co3 <- -log10(water@ks$k2co3)
     gamma1 <- ifelse(!is.na(water@is), calculate_activity(1, water@is, water@temp), 1)
     gamma2 <- ifelse(!is.na(water@is), calculate_activity(2, water@is, water@temp), 1)
     tempa <- water@temp + 273.15
@@ -276,7 +271,7 @@ calculate_corrosion <- function(
                     stats::uniroot(solve_x, water = water, interval = c(-1, 500), extendInt = "upX")
                   },
                   error = function(e) {
-                    stop("Water outside range for CCPP solver.")
+                    cli::cli_abort("Water is outside the range of the CCPP solver.")
                   }
                 )
               }
@@ -319,7 +314,7 @@ calculate_corrosion_df <- function(
   form = "calcite"
 ) {
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
-    stop("Index must be one or more of c('aggressive', 'ryznar', 'langelier', 'ccpp', 'larsonskold', 'csmr')")
+    cli::cli_abort("{.arg index} must be one or more of {.val aggressive}, {.val ryznar}, {.val langelier}, {.val ccpp}, {.val larsonskold}, {.val csmr}.")
   }
 
   warning_counts <- list()

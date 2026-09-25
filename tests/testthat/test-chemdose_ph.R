@@ -56,7 +56,7 @@ test_that("chemdose ph works", {
   expect_equal(round(test4@alk, 0), 7)
   expect_equal(round(test5@ph, 1), 4.0)
   expect_equal(round(test5@alk, 0), -5)
-  expect_equal(round(test6@ph, 1), 11.4)
+  expect_equal(round(test6@ph, 1),11.30)
   expect_equal(round(test6@alk, 0), 119)
   expect_equal(round(test7@ph, 1), 6.7)
   expect_equal(round(test7@alk, 0), 56)
@@ -91,6 +91,35 @@ test_that("Phosphate dose works as expected.", {
 
   expect_equal(round(water2@ph, 1), 7.0)
   expect_equal(round(water3@ph, 1), 6.9)
+  expect_equal(round(water4@ph, 1), 6.7)
+})
+
+test_that("Starting citric residual does not affect starting pH.", {
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, tot_citric = 5) %>%
+      chemdose_ph()
+  )
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water1@ph, water2@ph)
+  expect_equal(water2@ph, water3@ph)
+})
+
+test_that("Citric dose works as expected.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tot_citric = 0, temp = 25))
+
+  water2 <- chemdose_ph(water1, citric = 1) 
+  water3 <- chemdose_ph(water1, citric = 5) 
+  water4 <- chemdose_ph(water1, citric = 10)
+
+  expect_equal(round(water2@ph, 1), 7.0)
+  expect_equal(round(water3@ph, 1), 6.8)
   expect_equal(round(water4@ph, 1), 6.7)
 })
 
@@ -265,7 +294,7 @@ test_that("chemdose_ph_df output is list of water class objects, and can handle 
   )
 
   expect_s4_class(water2, "water") # check class
-  expect_equal(names(water3[3]), "diff_name") # check if output_water arg works
+  expect_equal(names(water3[2]), "diff_name") # check if output_water arg works
 })
 
 # Check that this function can be piped to the next one
@@ -278,7 +307,7 @@ test_that("chemdose_ph_df works", {
       chemdose_ph_df()
   )
 
-  expect_equal(ncol(water1), 3) # check if pipe worked
+  expect_equal(ncol(water1), 2) # check if pipe worked
 })
 
 # Check that variety of ways to input chemicals work
@@ -314,7 +343,7 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
     pluck_water(water1, "dosed_chem", "toc")$dosed_chem_toc,
     pluck_water(water2, "dosed_chem", "toc")$dosed_chem_toc
   ) # test different ways to input chemical
-  expect_equal(ncol(water3), 4) # both naoh and hcl dosed
+  expect_equal(ncol(water3), 2) # both naoh and hcl dosed
   expect_equal(nrow(water3), 24) # joined correctly
   expect_error(expect_equal(
     pluck_water(water4, "dosed_chem", "ph")$dosed_chem_ph,
@@ -338,14 +367,55 @@ test_that("chemdose_ph_df can handle different ways to input chem doses", {
   expect_equal(water6$dosed_chem_ph[1], water7$dosed_chem_ph[1])
 })
 
-# Check that na_to_zero implementation works
+# Check that na_to_zero implementation works, and keep_dose_cols works
 test_that("chemdose_ph_df na_to_zero argument works", {
   testthat::skip_on_cran()
   water <- suppressWarnings(
     water_df %>%
       define_water_df() %>%
-      chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12))
+      chemdose_ph_df(naoh = c(1, 2, 3, 4, NA, 6, 7, 8, NA, 10, 11, 12), keep_dose_cols = TRUE)
   )
   expect_equal(water$naoh[50], 0)
   expect_equal(water$naoh[100], 0)
+})
+
+
+#test that double dosing the same chemical no longer happens
+test_that("chemdose_ph_df does not double dose", {
+  testthat::skip_on_cran()
+  
+  water1<-suppressWarnings(data.frame(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "dosed1", ferricsulfate = 60, caoh2 = 22.1, pluck_cols = FALSE, keep_dose_cols = TRUE))
+  
+  water2<-suppressWarnings(data.frame(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "dosed2", ferricsulfate = 60,  pluck_cols = FALSE, keep_dose_cols = TRUE) %>%  
+        chemdose_ph_df("raw", output_water = "dosed2", caoh2 = 22.1,  pluck_cols = FALSE, keep_dose_cols = TRUE))
+  
+  expect_equal(water1$dosed1[[1]]@ph, water2$dosed2[[1]]@ph)
+
+    
+ 
+})
+
+test_that("chemdose_ph_df returns dosed cols when  keep_dose_cols = TRUE", {testthat::skip_on_cran()
+ 
+  water1<-suppressWarnings(tibble(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "dosed1", ferricsulfate = 60, caoh2 = 22.1, pluck_cols = FALSE, keep_dose_cols = TRUE))
+  
+  water2<-suppressWarnings(tibble(ph=8.11, alk=120, temp=19.2, cond=537.5) %>% 
+        define_water_df("raw") %>% 
+        chemdose_ph_df("raw", output_water = "dosed2", ferricsulfate = 60,  pluck_cols = FALSE, keep_dose_cols = TRUE)) |> 
+        chemdose_ph_df("raw", output_water = "dosed2", caoh2 = 22.1,  pluck_cols = FALSE, keep_dose_cols = TRUE)
+  
+
+  # because both waters were dosed twice thre should be 2 chemdose cols for each chemical but the order of the columns 
+  # should be different because of the order of dosing, so just check that the number of columns is correct and
+  # that the chemical dose columns are present, but not in the same order
+  expect_equal(ncol(water1), ncol(water2))
+  expect_error(expect_equal(colnames(water1), colnames(water2)))
+  
+ 
 })

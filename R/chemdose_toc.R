@@ -56,29 +56,25 @@ chemdose_toc <- function(
     edwardscoeff <- tidywater::edwardscoeff
     coeff <- subset(edwardscoeff, edwardscoeff$ID == coeff)
     if (nrow(coeff) != 1) {
-      stop(
-        "coeff must be one of 'Alum', 'Ferric', 'General Alum', 'General Ferric', or 'Low DOC' or coefficients can be manually specified with a vector."
-      )
+      cli::cli_abort("{.arg coeff} must be one of {.val Alum}, {.val Ferric}, {.val General Alum}, {.val General Ferric}, {.val Low DOC}, or a data frame of coefficients.")
     }
   } else if (is.data.frame(coeff)) {
     expected_cols <- c("k1", "k2", "x1", "x2", "x3", "b")
     if (any(is.na(coeff)) || !all(expected_cols %in% colnames(coeff))) {
-      stop(
-        "coeff must be specified as a data frame and include 'k1', 'k2', 'x1', 'x2', 'x3', and 'b' or choose coefficients from Edwards model using a string."
-      )
+      cli::cli_abort("{.arg coeff} must be a data frame with columns: {.val k1}, {.val k2}, {.val x1}, {.val x2}, {.val x3}, {.val b}.")
     }
   } else {
-    stop("coeff must be specified with a string or data frame. See documentation for acceptable formats.")
+    cli::cli_abort("{.arg coeff} must be a string or data frame. See documentation for acceptable formats.")
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
-    warning("No coagulants dosed. Final water will equal input water.")
+    cli::cli_warn("No coagulants dosed; final water will equal input water.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
-    warning("Both alum and ferric coagulants entered.")
+    cli::cli_warn("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    warning("Ferric coagulants used with coefficients fit on Alum. Check 'coeff' argument.")
+    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
-    warning("Alum used with coefficients fit on Ferric. Check 'coeff' argument.")
+    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
   }
 
   # Alum - hydration included
@@ -97,9 +93,16 @@ chemdose_toc <- function(
   # Convert to meq/L for UV model
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
+  # setup suva for calculations 
+  suva<- calc_suva(water@doc, water@uv254)
+  # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
+  if (suva>5) {
+    suva<-5
+    cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
+  }
+  else suva<-suva
   # Edwards calculations
   if (caoh2 > 0) {
-    water <- chemdose_ph(water, caoh2 = caoh2)
 
     removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
     removed <- removed / 0.87 # apply correction factor
@@ -108,14 +111,37 @@ chemdose_toc <- function(
       water@doc <- water@doc
       water@uv254 <- water@uv254
     } else {
-      water@uv254 <- 0.01685 * removed^0.8367 * calc_suva(water@doc, water@uv254)^1.2501
+      water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
       water@doc <- water@doc - removed
-      water@toc <- water@doc - removed
+      water@toc <- water@doc
     }
-  } else {
-    nonadsorb <- water@doc * (coeff$k1 * calc_suva(water@doc, water@uv254) + coeff$k2)
+  } else if (water@ph >= 8) {
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
-    sterm <- (1 - calc_suva(water@doc, water@uv254) * coeff$k1 - coeff$k2)
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
+    xterm <- (coeff$x1 * 8 + coeff$x2 * 8^2 + coeff$x3 *8^3)
+    b <- coeff$b
+
+    # Rearrangement of equation from wolfram alpha
+    adsorb <- (sqrt(b^2 * (water@doc * sterm - coag * xterm)^2 + 2 * b * (coag * xterm + water@doc * sterm) + 1) -
+      b * coag * xterm +
+      b * water@doc * sterm -
+      1) /
+      (2 * b)
+
+    if (coag == 0) {
+      water@doc <- water@doc
+      water@uv254 <- water@uv254
+    } else {
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
+    }
+    cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
+  } else {
+    nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
+
+    sterm <- (1 - suva * coeff$k1 - coeff$k2)
     xterm <- (coeff$x1 * water@ph + coeff$x2 * water@ph^2 + coeff$x3 * water@ph^3)
     b <- coeff$b
 
@@ -148,6 +174,7 @@ chemdose_toc <- function(
 #' @param output_water name of the output column storing updated water class object. Default is "coagulated".
 #' @param pluck_cols Extract water slots modified by the function (doc, toc, uv254) into new numeric columns for easy access. Default to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #'
 #' @examples
 #' \donttest{
@@ -173,6 +200,7 @@ chemdose_toc_df <- function(
   output_water = "coagulated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
@@ -258,6 +286,12 @@ warning_counts<-list()
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
+
+   if (!keep_dose_cols){
+     
+    output<-output[,!colnames(output) %in% (unlist(final_names))]
+
+   }
 
   return(output)
 }

@@ -2,6 +2,7 @@
 % Please edit documentation in R/define_water.R
 \name{define_water}
 \alias{define_water}
+\alias{define_water_df}
 \title{Create a water class object given water quality parameters}
 \source{
 Crittenden et al. (2012) equation 5-38 - ionic strength from TDS
@@ -30,7 +31,8 @@ define_water(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
-  tot_bo3 = 0,
+  tot_bo4 = 0,
+  tot_citric = 0,
   tot_sio4 = 0,
   tds,
   cond,
@@ -44,9 +46,46 @@ define_water(
   mn,
   no3
 )
+
+define_water_df(
+  df,
+  output_water = "defined",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  ph = "use_col",
+  temp = "use_col",
+  alk = "use_col",
+  tot_hard = "use_col",
+  ca = "use_col",
+  mg = "use_col",
+  na = "use_col",
+  k = "use_col",
+  cl = "use_col",
+  so4 = "use_col",
+  mno4 = "use_col",
+  free_chlorine = "use_col",
+  combined_chlorine = "use_col",
+  tot_po4 = "use_col",
+  tot_nh3 = "use_col",
+  tot_bo4 = "use_col",
+  tot_sio4 = "use_col",
+  tot_ch3coo = "use_col",
+  tot_citric = "use_col",
+  tds = "use_col",
+  cond = "use_col",
+  toc = "use_col",
+  doc = "use_col",
+  uv254 = "use_col",
+  br = "use_col",
+  f = "use_col",
+  fe = "use_col",
+  al = "use_col",
+  mn = "use_col",
+  no3 = "use_col"
+)
 }
 \arguments{
-\item{ph}{water pH}
+\item{ph}{Water pH}
 
 \item{temp}{Temperature in degree C}
 
@@ -78,7 +117,9 @@ define_water(
 
 \item{tot_ch3coo}{Total acetate in mg/L}
 
-\item{tot_bo3}{Total borate (B(OH)4 -) in mg/L as B}
+\item{tot_bo4}{Total borate (B(OH)4 -) in mg/L as B}
+
+\item{tot_citric}{Total citric acid in mg/L}
 
 \item{tot_sio4}{Total silicate in mg/L as SiO2}
 
@@ -103,6 +144,14 @@ define_water(
 \item{mn}{Manganese in ug/L Mn2+}
 
 \item{no3}{Nitrate in mg/L as N}
+
+\item{df}{a data frame containing columns with all the desired parameters with column names matching argument names in define_water}
+
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
+
+\item{pluck_cols}{Extract primary water slots (ph, alk, doc, uv254) into new numeric columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 }
 \value{
 define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
@@ -135,13 +184,18 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{so4}{sulfate, numeric, mols/L.}
 \item{mno4}{permanganate, numeric, mols/L.}
 \item{no3}{nitrate, numeric, mols/L.}
+\item{h2co3}{carbonic acid, numeric, mols/L.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
-\item{h2po4}{phosphoric acid, numeric, mols/L.}
+\item{h2po4}{dihydrogen phosphate, numeric, mols/L.}
 \item{hpo4}{hydrogen phosphate, numeric, mols/L.}
 \item{po4}{phosphate, numeric, mols/L.}
+\item{h2citric}{dihydrogen citrate, numeric, mols/L.}
+\item{h1citric}{hydrogen citrate, numeric, mols/L.}
+\item{citric}{citrate ion, numeric, mols/L.}
 \item{nh4}{ammonium, numeric, mol/L as N.}
-\item{bo3}{borate, numeric, mol/L.}
+\item{h4bo4}{borate, numeric, mol/L.}
+\item{h3bo3}{boric acid, numeric, mol/L.}
 \item{h3sio4}{trihydrogen silicate, numeric, mol/L.}
 \item{h2sio4}{dihydrogen silicate, numeric, mol/L.}
 \item{ch3coo}{acetate, numeric, mol/L.}
@@ -150,9 +204,10 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{tot_po4}{total phosphate, numeric, mol/L.}
 \item{tot_nh3}{total ammonia, numeric, mol/L.}
 \item{tot_co3}{total carbonate, numeric, mol/L.}
-\item{tot_bo3}{total borate, numeric, mol/L.}
+\item{tot_bo4}{total borate, numeric, mol/L.}
 \item{tot_sio4}{total silicate, numeric, mol/L.}
 \item{tot_ch3coo}{total acetate, numeric, mol/L.}
+\item{tot_citric}{total citric acid, numeric, mol/L.}
 \item{br}{bromide, numeric, mol/L.}
 \item{bro3}{bromate, numeric, mol/L.}
 \item{f}{fluoride, numeric, mol/L.}
@@ -165,6 +220,8 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{nh2cl}{monochloramine, numeric, mol/L.}
 \item{nhcl2}{dichloramine, numeric, mol/L.}
 \item{ncl3}{trichloramine, numeric, mol/L.}
+\item{estimated}{list of parameters that were estimated based on other inputs.}
+\item{ks}{data frame with corrected equilibrium constants given defined water initial temperature and ionic strength}
 \item{chcl3}{chloroform, numeric, ug/L.}
 \item{chcl2br}{bromodichloromethane, numeric, ug/L.}
 \item{chbr2cl}{dibromodichloromethane, numeric, ug/L.}
@@ -181,9 +238,14 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{dcbaa}{dichlorobromoacetic acid, numeric, ug/L.}
 \item{tbaa}{tribromoacetic acid, numeric, ug/L.}
 }
+
+A data frame containing a water class column.
 }
 \description{
 This function takes user-defined water quality parameters and creates an S4 "water" class object that forms the input and output of all tidywater models.
+
+This function allows \link{define_water} to be added to a piped data frame.
+Its output is a \code{water} class, and can therefore be chained with "downstream" tidywater functions.
 }
 \details{
 Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity.
@@ -194,4 +256,17 @@ Calcium defaults to 65 percent of the total hardness when not specified. DOC def
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
 
+\donttest{
+example_df <- water_df \%>\%
+  define_water_df() \%>\%
+  balance_ions_df()
+
+example_df <- water_df \%>\%
+  define_water_df(output_water = "This is a column of water") \%>\%
+  balance_ions_df(input_water = "This is a column of water")
+}
+
+}
+\seealso{
+\link{define_water}
 }
