@@ -136,7 +136,7 @@ chemdose_toc <- function(
       } else {
         water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
         water@doc <- water@doc - removed
-        water@toc <- water@doc - removed
+        water@toc <- water@doc
       }
     } else if (water@ph >= 8) {
       nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)

@@ -21,7 +21,7 @@
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
 #' @param media_type The type of media used in the biofilter. Default is "anthracite", other options are "gac" and "sand". Only used if `reuse = TRUE`.
-#' @param atp The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. Defaults to 0.
+#' @param atp The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.
 #'
 #'
 #' @source Terry and Summers 2018, Peterson and Summers 2021
@@ -45,7 +45,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     # Peterson and Summers (2021)
     spec_ozone <- ozone_dose / water@toc
     if (spec_ozone < 0 | spec_ozone > 1.2) {
-      cli::cli_warn("Peterson and Summers model was validated for specific ozone range of 0 - 1.2. Model accuracy may be reduced outside this range.")
+      cli::cli_warn("Peterson and Summers model was validated for an ozone to TOC ratio of 0 - 1.2. Model accuracy may be reduced outside this range.")
     }
     if (ebct < 5 | ebct > 30) {
       cli::cli_warn("Peterson and Summers model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
