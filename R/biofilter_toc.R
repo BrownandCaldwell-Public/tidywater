@@ -24,7 +24,10 @@
 #' @param atp The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.
 #'
 #'
-#' @source Terry and Summers 2018, Peterson and Summers 2021
+#' @source Terry and Summers 2018
+#' @source Peterson and Summers 2021
+#' @source Terry et al. 2024
+#' 
 #' @examples
 #' water <- define_water(ph = 7, temp = 25, alk = 100, toc = 5.0, doc = 4.0, uv254 = .1) %>%
 #'   biofilter_toc(ebct = 10, ozonated = FALSE)
@@ -174,7 +177,9 @@ biofilter_toc_df <- function(
   ebct = "use_col",
   ozonated = "use_col",
   ozone_dose = "use_col",
-  reuse = "use_col"
+  reuse = "use_col",
+  media_type = "use_col",
+  atp = "use_col"
 ) {
   validate_water_helpers(df, input_water)
   # This allows for the function to process unquoted column names without erroring
@@ -182,15 +187,17 @@ biofilter_toc_df <- function(
   ozonated <- tryCatch(ozonated, error = function(e) enquo(ozonated))
   ozone_dose <- tryCatch(ozone_dose, error = function(e) enquo(ozone_dose))
   reuse <- tryCatch(reuse, error = function(e) enquo(reuse))
+  media_type <- tryCatch(media_type, error = function(e) enquo(media_type))
+  atp <- tryCatch(atp, error = function(e) enquo(atp))
 
-  arguments <- construct_helper(df, list("ebct" = ebct, "ozonated" = ozonated, "ozone_dose" = ozone_dose, "reuse" = reuse))
+  arguments <- construct_helper(df, list("ebct" = ebct, "ozonated" = ozonated, "ozone_dose" = ozone_dose, "reuse" = reuse, "media_type" = media_type, "atp" = atp))
   final_names <- arguments$final_names
   # Only join inputs if they aren't in existing dataframe
   if (length(arguments$new_cols) > 0) {
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
   # Add columns with default arguments
-  defaults_added <- handle_defaults(df, final_names, list(ozonated = TRUE, ozone_dose = 0, reuse = FALSE))
+  defaults_added <- handle_defaults(df, final_names, list(ozonated = TRUE, ozone_dose = 0, reuse = FALSE, media_type = "anthracite", atp = 0))
   df <- defaults_added$data
 
   warning_counts <- list()
@@ -201,7 +208,9 @@ biofilter_toc_df <- function(
         ebct = df[[final_names$ebct]][i],
         ozonated = df[[final_names$ozonated]][i],
         ozone_dose = df[[final_names$ozone_dose]][i],
-        reuse = df[[final_names$reuse]][i]
+        reuse = df[[final_names$reuse]][i],
+        media_type = df[[final_names$media_type]][i],
+        atp = df[[final_names$atp]][i]
       ),
       warning = function(w) {
         msg <- conditionMessage(w)
