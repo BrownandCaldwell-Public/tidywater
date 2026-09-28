@@ -76,7 +76,7 @@ chemdose_chlordecay <- function(
   }
 
   if (use_chlorine_slot & cl2_dose > 0) {
-    cli::cli_warn("Chlorine dose was summed with residual chlorine in the water object. If unintended, omit {.arg cl2_dose} or set {.code use_chlorine_slot = FALSE}.")
+    tidywater_warn("Chlorine dose was summed with residual chlorine in the water object. If unintended, omit {.arg cl2_dose} or set {.code use_chlorine_slot = FALSE}.")
   }
 
   if (use_chlorine_slot & cl_type == "chlorine") {
@@ -101,7 +101,7 @@ chemdose_chlordecay <- function(
 
   # breakpoint warning
   if (water@tot_nh3 > 0) {
-    cli::cli_warn("Background ammonia present; chloramines may form. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    tidywater_warn("Background ammonia present; chloramines may form. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   # chlorine decay model
@@ -111,28 +111,28 @@ chemdose_chlordecay <- function(
     }
     # toc warnings
     if (treatment == "raw" & (toc < 1.2 | toc > 16)) {
-      cli::cli_warn("TOC is outside the model bounds (1.2 \u2264 TOC \u2264 16 mg/L) for raw water.")
+      tidywater_warn("TOC is outside the model bounds (1.2 \u2264 TOC \u2264 16 mg/L) for raw water.")
     }
     if (treatment == "coag" & (toc < 1.0 | toc > 11.1)) {
-      cli::cli_warn("TOC is outside the model bounds (1.0 \u2264 TOC \u2264 11.1 mg/L) for coagulated water.")
+      tidywater_warn("TOC is outside the model bounds (1.0 \u2264 TOC \u2264 11.1 mg/L) for coagulated water.")
     }
     # uv254 warnings
     if (treatment == "raw" & (uv254 < 0.010 | uv254 > 0.730)) {
-      cli::cli_warn("UV254 is outside the model bounds (0.010 \u2264 UV254 \u2264 0.730 cm^-1) for raw water.")
+      tidywater_warn("UV254 is outside the model bounds (0.010 \u2264 UV254 \u2264 0.730 cm^-1) for raw water.")
     }
     if (treatment == "coag" & (uv254 < 0.012 | uv254 > 0.250)) {
-      cli::cli_warn("UV254 is outside the model bounds (0.012 \u2264 UV254 \u2264 0.250 cm^-1) for coagulated water.")
+      tidywater_warn("UV254 is outside the model bounds (0.012 \u2264 UV254 \u2264 0.250 cm^-1) for coagulated water.")
     }
     # cl2_dose warnings
     if (treatment == "raw" & (cl2_dose < 0.995 | cl2_dose > 41.7)) {
-      cli::cli_warn("Chlorine dose is outside the model bounds (0.995 \u2264 cl2_dose \u2264 41.7 mg/L) for raw water.")
+      tidywater_warn("Chlorine dose is outside the model bounds (0.995 \u2264 cl2_dose \u2264 41.7 mg/L) for raw water.")
     }
     if (treatment == "coag" & (cl2_dose < 1.11 | cl2_dose > 24.7)) {
-      cli::cli_warn("Chlorine dose is outside the model bounds (1.11 \u2264 cl2_dose \u2264 24.7 mg/L) for coagulated water.")
+      tidywater_warn("Chlorine dose is outside the model bounds (1.11 \u2264 cl2_dose \u2264 24.7 mg/L) for coagulated water.")
     }
     # time warning
     if (time < 0.25 | time > 120) {
-      cli::cli_warn("For chlorine decay, {.arg time} is outside the model bounds (0.25 \u2264 time \u2264 120 hours).")
+      tidywater_warn("For chlorine decay, {.arg time} is outside the model bounds (0.25 \u2264 time \u2264 120 hours).")
     }
 
     # get coefficients from defined clcoeffs table
@@ -184,13 +184,13 @@ chemdose_chlordecay <- function(
     # chlorine residual correction Eq. 5-118
     ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
     if (water@free_chlorine > 0 & !use_chlorine_slot) {
-      cli::cli_warn("Existing {.field free_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
+      tidywater_warn("Existing {.field free_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
     }
 
     water@free_chlorine <- convert_units(ct_corrected, "cl2", "mg/L", "M")
   } else if (cl_type == "chloramine") {
     if (water@combined_chlorine > 0 & !use_chlorine_slot) {
-      cli::cli_warn("Existing {.field combined_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
+      tidywater_warn("Existing {.field combined_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
     }
     water@combined_chlorine <- convert_units(ct, "cl2", "mg/L", "M")
   }
@@ -307,7 +307,7 @@ warning_counts <- list()
   })
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 

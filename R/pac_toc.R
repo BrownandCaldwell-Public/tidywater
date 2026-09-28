@@ -49,14 +49,14 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   # warnings and errors for bounds of PAC dose, time.
   # High dose/time not allowed because model form results in negative DOC.
   if (dose < 5) {
-    cli::cli_warn("{.arg dose} is below the model lower bound of 5 mg/L.")
+    tidywater_warn("{.arg dose} is below the model lower bound of 5 mg/L.")
   }
   if (dose > 30) {
     cli::cli_abort("{.arg dose} exceeds the model upper bound of 30 mg/L. Adjust {.arg dose}.")
   }
 
   if (time < 10) {
-    cli::cli_warn("{.arg time} is below the model lower bound of 10 min.")
+    tidywater_warn("{.arg time} is below the model lower bound of 10 min.")
   }
   if (time > 60) {
     cli::cli_abort("{.arg time} exceeds the model upper bound of 60 min. Adjust {.arg time}.")
@@ -64,14 +64,14 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   # water warnings
   if (!is.na(water@toc) & water@toc < water@doc) {
-    cli::cli_warn("TOC of input water is less than DOC; TOC will be set equal to DOC.")
+    tidywater_warn("TOC of input water is less than DOC; TOC will be set equal to DOC.")
   }
   if (is.na(water@toc)) {
-    cli::cli_warn("Input water TOC not specified; output TOC will be {.val NA}.")
+    tidywater_warn("Input water TOC not specified; output TOC will be {.val NA}.")
   }
 
   if (doc < 1.3 || doc > 5.4) {
-    cli::cli_warn("DOC is outside the model bounds (1.3 to 5.4 mg/L).")
+    tidywater_warn("DOC is outside the model bounds (1.3 to 5.4 mg/L).")
   }
 
   # make case insensitive
@@ -83,7 +83,7 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   coeffs <- subset(tidywater::pactoccoeffs, pactype == type)
 
   if (dose == 0 | time == 0) {
-    cli::cli_warn("No PAC added or reaction time is zero; final water will equal input water.")
+    tidywater_warn("No PAC added or reaction time is zero; final water will equal input water.")
     remaining <- 1
   } else if (doc < 1.3) {
     # Because of the form of the equation, DOC<1.3 results in negative DOC. Assume same % removal as DOC0=1.3
@@ -178,7 +178,7 @@ warning_counts <- list()
   })
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]

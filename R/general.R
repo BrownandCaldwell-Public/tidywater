@@ -298,14 +298,14 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     cli::cli_abort("No {.val dic} column found in the data frame. Ensure DIC is included as {.val dic}.")
   }
   if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
-    cli::cli_warn("Alkalinity will be recalculated from the input DIC.")
+    tidywater_warn("Alkalinity will be recalculated from the input DIC.")
   }
   if (!missing(temp)) {
     temp <- temp
   } else if ("temp" %in% colnames(df)) {
     if (length(unique(df$temp)) > 1) {
       temp <- as.numeric(df$temp[1])
-      cli::cli_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
+      tidywater_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
     } else {
       temp <- df$temp[1]
     }
@@ -317,7 +317,7 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   } else if ("tds" %in% colnames(df)) {
     if (length(unique(df$tds)) > 1) {
       tds <- as.numeric(df$tds[1])
-      cli::cli_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
+      tidywater_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
     } else {
       tds <- df$tds[1]
     }
@@ -582,7 +582,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     bestFormula <- agrep(formula, molecNames, max.distance = 1)
     if (length(bestFormula) > 0) {
       formula <- molecNames[bestFormula[1]]
-      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+      tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
     }
     # else: fall through — convert_units_private will error with a clear message
   }
@@ -627,7 +627,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   # like M, without that then every M conversion is wrong. 
   else if (length(bestStart) > 0 & nchar(startunit) > 1) {
     startunit <- unit_matcher[[bestStart[1]]]
-    cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+    tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
   }
 
   if (endunit %in% names(unit_matcher)) {
@@ -635,7 +635,7 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
   else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
     endunit <- unit_matcher[[bestEnd[1]]]
-        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
+        tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
   }
   
 

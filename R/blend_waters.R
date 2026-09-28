@@ -59,7 +59,7 @@ blend_waters <- function(waters, ratios) {
     missing1 <- setdiff(otherparams, parameters)
     if (!rlang::is_empty(missingn) | !rlang::is_empty(missing1)) {
       missing <- paste0(c(missingn, missing1), collapse = ", ")
-      cli::cli_warn(c("The following parameters are missing in some waters
+      tidywater_warn(c("The following parameters are missing in some waters
        and will be set to {.val NA} in the blend:", "i" = "{missing}",
         "i" = "Make sure all waters have the same parameters specified."))
     }
@@ -148,7 +148,7 @@ blend_waters <- function(waters, ratios) {
     blended_water@tot_nh3 > 0 &
       (blended_water@free_chlorine > 0 | blended_water@combined_chlorine > 0)
   ) {
-    cli::cli_warn("Both chlorine and ammonia are present and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
+    tidywater_warn("Both chlorine and ammonia are present and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   return(blended_water)
@@ -240,7 +240,7 @@ warning_counts2 <- list()
   }
 
   for (msg in names(warning_counts1)) {
-    cli::cli_warn("{msg} ({warning_counts1[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts1[[msg]]} row{?s} affected.)")
   }
 
   output[[output_water]] <- lapply(seq_len(nrow(output)), function(i) {
@@ -258,7 +258,7 @@ warning_counts2 <- list()
   })
 
   for (msg in names(warning_counts2)) {
-    cli::cli_warn("{msg} ({warning_counts2[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts2[[msg]]} row{?s} affected.)")
   }
 
   cols_to_remove <- c("waters", "ratios", grep("merging_water_", names(output), value = TRUE))

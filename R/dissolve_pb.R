@@ -300,7 +300,7 @@ warning_counts <- list()
   )
 
 for (msg in names(warning_counts)) {
-  cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
 }
 
   names(pb_df) <- c(output_col_solid, output_col_result)
