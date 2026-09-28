@@ -448,9 +448,10 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   basis_info <- c(
     CaCO3 = as.numeric(tidywater::mweights["caco3"]),
     N     = as.numeric(tidywater::mweights["n"]),
-    P     = 30.97,
-    Cl    = as.numeric(tidywater::mweights["cl"])
+    P     = as.numeric(tidywater::mweights["p"]),
+    Cl2   = as.numeric(tidywater::mweights["cl2"])
   )
+  basis_stoichiometry <- list(nh42so4 = c(N = 2))
 
   mass_units <- c("ng/L", "ug/L", "mg/L", "g/L")
   mole_list <- c("M", "mM", "uM", "nM")
@@ -476,17 +477,23 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   }
   multiplier <- start_mult / end_mult
 
-  if (formula %in% colnames(tidywater::mweights)) {
-    formula_mw <- as.numeric(tidywater::mweights[formula])
+  formula_mw <- if (formula %in% colnames(tidywater::mweights)) {
+    as.numeric(tidywater::mweights[formula])
+  } else {
+    NA_real_
+  }
+
+  if (!is.na(formula_mw)) {
     special_basis <- c(start_basis, end_basis)
     special_basis <- special_basis[special_basis != "formula"]
-    if (length(special_basis) > 0 && xor(startunit %in% c(mole_list, eqvl_list),
-        endunit %in% c(mole_list, eqvl_list))) {
+    if (length(special_basis) > 0 &
+        ((startunit %in% c(mole_list, eqvl_list)) !=
+          (endunit %in% c(mole_list, eqvl_list)))) {
       molar_weight <- basis_info[[special_basis[1]]]
     } else {
       molar_weight <- formula_mw
     }
-  } else if (!(startunit %in% gram_list) && !(endunit %in% gram_list)) {
+  } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
     molar_weight <- 0
   } else {
     cli::cli_abort("Chemical formula not supported: {formula}.")
@@ -495,48 +502,62 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   table_charge <- formula_to_charge[[formula]]
   if (!is.null(table_charge) && !is.na(table_charge)) {
     charge <- table_charge
-  } else if (!(startunit %in% eqvl_list) && !(endunit %in% eqvl_list)) {
+  } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     charge <- 1
   } else {
     cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
+  formula_basis_stoichiometry <- basis_stoichiometry[[formula]]
+  nitrogen_count <- formula_basis_stoichiometry[["N"]]
+  if (is.null(nitrogen_count)) {
+    nitrogen_count <- 1
+  }
+
   basis_factor <- c(
     formula = 1 / formula_mw,
     CaCO3   = 2 / (basis_info[["CaCO3"]] * charge),
-    N       = 1 / basis_info[["N"]],
+    N       = 1 / (basis_info[["N"]] * nitrogen_count),
     P       = 1 / basis_info[["P"]],
-    Cl      = 1 / basis_info[["Cl"]]
+    Cl2     = 1 / basis_info[["Cl2"]]
   )
 
   # g -> mol
-  if (startunit %in% gram_list && endunit %in% mole_list) {
+  if (startunit %in% gram_list & endunit %in% mole_list) {
     value / molar_weight * multiplier
   # mol -> g
-  } else if (startunit %in% mole_list && endunit %in% gram_list) {
+  } else if (startunit %in% mole_list & endunit %in% gram_list) {
     value * molar_weight * multiplier
   # eq -> g
-  } else if (startunit %in% eqvl_list && endunit %in% gram_list) {
+  } else if (startunit %in% eqvl_list & endunit %in% gram_list) {
     value / charge * molar_weight * multiplier
   # g -> eq
-  } else if (startunit %in% gram_list && endunit %in% eqvl_list) {
+  } else if (startunit %in% gram_list & endunit %in% eqvl_list) {
     value / molar_weight * charge * multiplier
   # mol -> eq
-  } else if (startunit %in% mole_list && endunit %in% eqvl_list) {
+  } else if (startunit %in% mole_list & endunit %in% eqvl_list) {
     value * charge * multiplier
   # eq -> mol
-  } else if (startunit %in% eqvl_list && endunit %in% mole_list) {
+  } else if (startunit %in% eqvl_list & endunit %in% mole_list) {
     value / charge * multiplier
   # Special mass-basis conversions
-  } else if (startunit %in% gram_list && endunit %in% gram_list && start_basis != end_basis) {
+  } else if (startunit %in% gram_list & endunit %in% gram_list &
+    start_basis != "formula" & end_basis != "formula" &
+    start_basis != end_basis) {
+    basis_charge <- c(CaCO3 = 2, N = 1, P = 1, Cl2 = 1)
+    value *
+      basis_info[[end_basis]] / basis_info[[start_basis]] *
+      basis_charge[[start_basis]] / basis_charge[[end_basis]] *
+      multiplier
+  } else if (startunit %in% gram_list & endunit %in% gram_list & start_basis != end_basis) {
     value *
       basis_factor[[start_basis]] /
       basis_factor[[end_basis]] *
       multiplier
   # Same dimension
-  } else if ((startunit %in% gram_list && endunit %in% gram_list) ||
-    (startunit %in% mole_list && endunit %in% mole_list) ||
-    (startunit %in% eqvl_list && endunit %in% eqvl_list)) {
+  } else if ((startunit %in% gram_list & endunit %in% gram_list) |
+    (startunit %in% mole_list & endunit %in% mole_list) |
+    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
     value * multiplier
   } else {
     cli::cli_abort("Units not supported.")
@@ -550,9 +571,10 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 #' @param value Value to be converted
 #' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl; M; eq/L;
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl2; M; eq/L;
 #' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
+#' @details Mass concentrations may be expressed as CaCO3, N, P, or molecular chlorine (Cl2).
 #'
 #' @examples
 #' convert_units(50, "ca") # converts from mg/L to M by default
@@ -604,10 +626,14 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
     "ug/lp" = "ug/L P",
     "mg/lp" = "mg/L P",
     "g/lp" = "g/L P",
-    "ng/lcl" = "ng/L Cl",
-    "ug/lcl" = "ug/L Cl",
-    "mg/lcl" = "mg/L Cl",
-    "g/lcl" = "g/L Cl",
+    "ng/lcl2" = "ng/L Cl2",
+    "ug/lcl2" = "ug/L Cl2",
+    "mg/lcl2" = "mg/L Cl2",
+    "g/lcl2" = "g/L Cl2",
+    "ng/lcl" = "ng/L Cl2",
+    "ug/lcl" = "ug/L Cl2",
+    "mg/lcl" = "mg/L Cl2",
+    "g/lcl" = "g/L Cl2",
     "m" = "M",
     "mm" = "mM",
     "um" = "uM",

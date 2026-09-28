@@ -11,7 +11,7 @@ convert_units(value, formula, startunit = "mg/L", endunit = "M")
 
 \item{formula}{Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq}
 
-\item{startunit}{Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl; M; eq/L;
+\item{startunit}{Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl2; M; eq/L;
 and the same units with "m", "u", "n" prefixes}
 
 \item{endunit}{Desired units, currently accepts same as start units}
@@ -21,6 +21,9 @@ A numeric value for the converted parameter.
 }
 \description{
 This function takes a value and converts units based on compound name.
+}
+\details{
+Mass concentrations may be expressed as CaCO3, N, P, or molecular chlorine (Cl2).
 }
 \examples{
 convert_units(50, "ca") # converts from mg/L to M by default
