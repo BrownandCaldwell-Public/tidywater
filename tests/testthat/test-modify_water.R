@@ -25,22 +25,19 @@ test_that("Modify water works", {
 test_that("Modify water works with multiple inputs", {
   water0 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
 
-  water1 <- modify_water(water0, slot = c("br", "na"), value = c(50, 50), units = c("ug/L", "mg/L"))
+  water1 <- modify_water(
+    water0,
+    slot = c("br", "na", "no2"),
+    value = c(50, 50, 1),
+    units = c("ug/L", "mg/L", "mg/L N")
+  )
 
   expect_s4_class(water1, "water")
   expect_equal(water1@br, convert_units(50, "br", "ug/L"))
   expect_equal(water1@na, convert_units(50, "na", "mg/L"))
-  expect_equal(water0@ph, water1@ph)
-})
-
-test_that("Modify water works for nitrite", {
-  water0 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
-
-  water1 <- modify_water(water0, "no2", 1, "mg/L N")
-
-  expect_equal(water1@no2, convert_units(1, "no2", "mg/L N", "M"))
   # 1 mg/L as N / 14.0067 g/mol N / 1000 mg/g
   expect_equal(water1@no2, 1 / 14.0067 / 1000)
+  expect_equal(water0@ph, water1@ph)
 })
 
 test_that("Modify water df takes and returns correct argument types and classes.", {
