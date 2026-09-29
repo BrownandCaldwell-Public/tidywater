@@ -150,6 +150,9 @@ and regenerate.
   convention: roughly a third of the suite is skipped this way (see
   `tests/testthat/test-balance_ions.R` for the pattern). Keep the fast single-water
   tests running on CRAN so the package is still meaningfully checked there.
+- Default to `|` and `&` in conditions. Use `||` or `&&` only when short-circuiting is actually
+  needed, e.g. `is.null(x) || is.na(x)`, where the right side would error or return `logical(0)` if
+  evaluated. Reviewers find unneeded `||`/`&&` confusing, and it has been a recurring review comment.
 - R >= 4.1 is the floor, so the native `|>` pipe is available; `%>%` is also
   re-exported and used throughout.
 

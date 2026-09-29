@@ -208,6 +208,7 @@ test_that("Mass as N or P accounts for atoms per formula", {
   expect_equal(convert_units(1, "nh42so4", "mM", "mg/L N"), 2 * mweights$n)
   expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "mM"), 1)
   expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "meq/L"), 2)
+  expect_equal(convert_units(mweights$nh42so4, "(NH4)2SO4", "mg/L", "mg/L N"), 2 * mweights$n)
 
   # PO4 has one P
   expect_equal(convert_units(1, "po4", "mM", "mg/L P"), mweights$p)
@@ -223,6 +224,13 @@ test_that("Mass as Cl2 counts active chlorines", {
   expect_equal(convert_units(1, "nhcl2", "mM", "mg/L Cl2"), 2 * mweights$cl2)
   expect_equal(convert_units(1, "ncl3", "mM", "mg/L Cl2"), 3 * mweights$cl2)
   expect_equal(convert_units(3 * mweights$cl2, "ncl3", "mg/L Cl2", "mM"), 1)
+
+  # Hypochlorite salts and HOCl
+  expect_equal(convert_units(1, "hocl", "mM", "mg/L Cl2"), mweights$cl2)
+  expect_equal(convert_units(1, "naocl", "mM", "mg/L Cl2"), mweights$cl2)
+  expect_equal(convert_units(1, "caocl2", "mM", "mg/L Cl2"), 2 * mweights$cl2)
+  expect_equal(convert_units(mweights$caocl2, "Ca(OCl)2", "mg/L", "mg/L Cl2"), 2 * mweights$cl2)
+  expect_equal(convert_units(mweights$naocl, "NaOCl", "mg/L", "mg/L Cl2"), mweights$cl2)
 })
 
 test_that("Conversions between bases match converting through the formula", {

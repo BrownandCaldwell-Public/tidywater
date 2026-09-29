@@ -459,13 +459,13 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   basis_count <- list(
     N = c(n = 1, nh3 = 1, nh4 = 1, nh4oh = 1, nh42so4 = 2, no3 = 1, hno3 = 1, no2 = 1, nh2cl = 1, nhcl2 = 1, ncl3 = 1),
     P = c(p = 1, po4 = 1, hpo4 = 1, h2po4 = 1, h3po4 = 1, na3po4 = 1),
-    Cl2 = c(cl2 = 1, ocl = 1, nh2cl = 1, nhcl2 = 2, ncl3 = 3)
+    Cl2 = c(cl2 = 1, hocl = 1, ocl = 1, naocl = 1, caocl2 = 2, nh2cl = 1, nhcl2 = 2, ncl3 = 3)
   )
 
   # Look up the unit multipliers for starting and end units
   start_mult <- unit_multipliers[[startunit]]
   end_mult <- unit_multipliers[[endunit]]
-  if (is.null(start_mult) || is.null(end_mult)) {
+  if (is.null(start_mult) | is.null(end_mult)) {
     cli::cli_abort("Units not supported.")
   }
   multiplier <- start_mult / end_mult
@@ -496,12 +496,13 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
     cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  get_charge <- function() {
-    charge <- formula_to_charge[[formula]]
-    if (is.null(charge) || is.na(charge) || charge == 0) {
-      cli::cli_abort("Unable to find charge for equivalent conversion.")
-    }
-    charge
+  # Charge is only needed for equivalents and mass as CaCO3
+  charge <- formula_to_charge[[formula]]
+  if (is.null(charge)) {
+    charge <- NA_real_
+  }
+  if (any(c(start_basis, end_basis) %in% c("eq", "CaCO3")) & (is.na(charge) | charge == 0)) {
+    cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
   # Moles of formula in one base unit (M, eq/L, g/L, or g/L as basis)
@@ -509,12 +510,12 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
     if (basis == "mol") {
       1
     } else if (basis == "eq") {
-      1 / get_charge()
+      1 / charge
     } else if (basis == "mass") {
       1 / as.numeric(tidywater::mweights[formula])
     } else if (basis == "CaCO3") {
       # 1 mol CaCO3 = 2 eq
-      2 / (basis_mw[["CaCO3"]] * get_charge())
+      2 / (basis_mw[["CaCO3"]] * charge)
     } else {
       count <- unname(basis_count[[basis]][formula])
       if (is.na(count)) {
@@ -559,7 +560,8 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
 
   # normalize strings
   if (!is.null(formula)) {
-    formula <- tolower(gsub("\\s", "", formula))
+    # Drop parentheses too so "Ca(OCl)2" matches "caocl2"
+    formula <- tolower(gsub("[[:space:]()]", "", formula))
   }
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
