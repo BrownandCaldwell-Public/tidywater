@@ -484,7 +484,8 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   start_basis <- unit_basis(startunit)
   end_basis <- unit_basis(endunit)
 
-  # Same dimension and basis (e.g. mg/L to g/L, mM to M) only changes the prefix, so no formula is needed
+  # Same dimension and basis (e.g. mg/L to g/L, mM to M) only changes the prefix, so no formula is needed.
+  # This returns early; everything below only runs when the basis changes.
   if (start_basis == end_basis) {
     return(value * multiplier)
   }
@@ -496,13 +497,20 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
     cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  # Charge is only needed for equivalents and mass as CaCO3
+  # Charge is only needed when converting to or from eq/L or mass as CaCO3.
+  # Conversions between mass, moles, and mass as N, P, or Cl2 don't use it.
   charge <- formula_to_charge[[formula]]
   if (is.null(charge)) {
     charge <- NA_real_
   }
-  if (any(c(start_basis, end_basis) %in% c("eq", "CaCO3")) & (is.na(charge) | charge == 0)) {
-    cli::cli_abort("Unable to find charge for equivalent conversion.")
+  if (is.na(charge) | charge == 0) {
+    if ("CaCO3" %in% c(start_basis, end_basis)) {
+      cli::cli_abort(
+        "{formula} has no charge, so it can't be converted to or from mg/L as CaCO3 (an equivalents basis)."
+      )
+    } else if ("eq" %in% c(start_basis, end_basis)) {
+      cli::cli_abort("Unable to find charge for equivalent conversion.")
+    }
   }
 
   # Moles of formula in one base unit (M, eq/L, g/L, or g/L as basis)
