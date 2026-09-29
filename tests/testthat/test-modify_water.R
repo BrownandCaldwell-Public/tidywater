@@ -33,6 +33,15 @@ test_that("Modify water works with multiple inputs", {
   expect_equal(water0@ph, water1@ph)
 })
 
+test_that("Modify water works for nitrite", {
+  water0 <- define_water(ph = 7, temp = 25, alk = 100, 0, 0, 0, 0, 0, 0, tds = 100, toc = 5, doc = 4.8, uv254 = .1)
+
+  water1 <- modify_water(water0, "no2", 1, "mg/L N")
+
+  expect_equal(water1@no2, convert_units(1, "no2", "mg/L N", "M"))
+  expect_equal(signif(water1@no2, 5), 7.1394e-5)
+})
+
 test_that("Modify water df takes and returns correct argument types and classes.", {
   testthat::skip_on_cran()
   water0 <- water_df %>%

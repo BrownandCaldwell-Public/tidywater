@@ -15,6 +15,14 @@ test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.
   expect_equal(water3@alk, water4@alk)
 })
 
+test_that("chemdose ph updates co2 with h2co3.", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 200))
+  water2 <- chemdose_ph(water1, h2so4 = 20)
+
+  expect_equal(water2@co2, water2@h2co3)
+  expect_true(water2@co2 > water1@co2)
+})
+
 test_that("chemdose ph corrects ph when softening", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
   water2 <- chemdose_ph(water1, caco3 = -100)

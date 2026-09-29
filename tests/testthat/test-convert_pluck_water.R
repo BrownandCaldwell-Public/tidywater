@@ -68,6 +68,17 @@ test_that("convert water mg works", {
   expect_equal(2.1, df_water$free_chlorine)
 })
 
+test_that("convert water mg converts no2 as N and co2 as CO2", {
+  water1 <- suppressWarnings(define_water(ph = 6.7, temp = 20, alk = 20, no3 = 2, no2 = 0.5))
+  df_water <- convert_watermg(water1)
+
+  expect_equal(0.5, df_water$no2)
+  expect_equal(2, df_water$no3)
+  # co2 is reported as mg/L CO2, h2co3 as mg/L H2CO3
+  expect_equal(df_water$co2, water1@h2co3 * 44.009 * 1000)
+  expect_equal(df_water$h2co3, water1@h2co3 * 62.024 * 1000)
+})
+
 ################################################################################*
 ################################################################################*
 # pluck_waters----

@@ -1,5 +1,12 @@
 # Development version
 
+* `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
+`no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()` (#514, @sierrajohnson).
+* The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in M). It is kept equal to `h2co3` by `define_water()`,
+`chemdose_ph()`, and `blend_waters()`, and `convert_watermg()` reports it in mg/L as CO2 (#470, @sierrajohnson).
+* The `define_water()` return documentation now lists every `water` slot, including `citric_alk_eq`, `no2`, and `co2`,
+and fixes the `ph` and `dcaa` entries (#469, @sierrajohnson).
+
 * Define_water_df now uses column mapping to call arguments. 
 * Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
 drops the output dosing columns unless told to keep to prevent double dosing.

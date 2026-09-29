@@ -172,6 +172,24 @@ test_that("define_water correctly calculates dic", {
   expect_equal(dic_mg, water1@dic)
 })
 
+test_that("define_water converts nitrite from mg/L as N to M", {
+  water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, no2 = 1))
+
+  expect_true(is.na(water0@no2))
+  # 1 mg/L as N / 14.0067 g/mol N / 1000 mg/g
+  expect_equal(signif(water1@no2, 5), 7.1394e-5)
+})
+
+test_that("define_water sets co2 equal to h2co3", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
+  water2 <- suppressWarnings(define_water(ph = 6, temp = 15, alk = 50, tds = 200))
+
+  expect_equal(water1@co2, water1@h2co3)
+  expect_equal(water2@co2, water2@h2co3)
+  expect_true(water2@co2 > 0)
+})
+
 test_that("define_water accounts for multiple types of alkalinity", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
   water2 <- suppressWarnings(define_water(
@@ -320,7 +338,16 @@ test_that("define_water_df correctly calculates dic", {
 })
 
 
-# Testing that define_water_df has "use_col" the right way 
+test_that("define_water_df passes no2 through", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(define_water_df(slice(water_df, 1:2), no2 = 0.5))
+  water2 <- suppressWarnings(define_water_df(mutate(slice(water_df, 1:2), no2 = 0.5)))
+
+  expect_equal(water1$defined[[1]]@no2, convert_units(0.5, "no2", "mg/L N", "M"))
+  expect_equal(water2$defined[[2]]@no2, convert_units(0.5, "no2", "mg/L N", "M"))
+})
+
+# Testing that define_water_df has "use_col" the right way
 
 test_that("define_water_df use_col reads values correctly from matching columns", {
   testthat::skip_on_cran()

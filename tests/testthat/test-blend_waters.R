@@ -96,6 +96,15 @@ test_that("Blend waters conserves DOC.", {
   expect_equal(blend1@doc, 4)
 })
 
+test_that("Blend waters blends no2 and recalculates co2.", {
+  water2 <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 100, cond = 100, no2 = 1))
+  water3 <- suppressWarnings(define_water(ph = 10, temp = 10, alk = 200, cond = 100, no2 = 0))
+
+  blend1 <- blend_waters(c(water2, water3), c(.5, .5))
+  expect_equal(blend1@no2, water2@no2 / 2)
+  expect_equal(blend1@co2, blend1@h2co3)
+})
+
 test_that("Blend waters correctly handles list of estimated parameters.", {
   water1 <- suppressWarnings(
     define_water(ph = 7, temp = 25, alk = 100, tds = 100) %>%
