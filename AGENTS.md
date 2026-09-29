@@ -213,9 +213,10 @@ Guidance on results:
 ## Pull requests
 
 - Branch from `main`.
-- Add a `NEWS.md` bullet at the top for any user-facing change, including the issue
-  number and GitHub username, following the
-  [tidyverse NEWS style](https://style.tidyverse.org/news.html).
+- Add a `NEWS.md` bullet at the top for any user-facing change, following the
+  [tidyverse NEWS style](https://style.tidyverse.org/news.html). The issue number and
+  GitHub username are only needed for contributors outside the tidywater core team
+  (Sierra Johnson @sierrajohnson, Libby McKenna @libbymckenna, Jiaming Yuan @jiamingy5).
 - The PR body should contain `Fixes #issue-number`.
 - **CI fails on NOTEs**, not just errors and warnings — `R-CMD-check.yaml` sets
   `error-on: '"note"'`. Undocumented arguments, mismatched usage sections, and
