@@ -14,8 +14,14 @@ test_that("scavenger works with alk params", {
   expect_true(SC_alk > SC_base)
 
   # adding h2o2 increases scavenging
-  sc_alk_h2o2 <- scavenge_oh(water_alk, dose = 20)
+  sc_alk_h2o2 <- scavenge_oh(water_alk, dose = 10)
   expect_true(sc_alk_h2o2 > SC_alk)
+
+  # numeric tests - values derived from UV-H2O2 spreadsheet tool
+  expect_equal(round(SC_alk), 87162)
+  expect_equal(round(SC_base), 75029)
+  expect_equal(round(sc_alk_h2o2), 95103)
+
 })
 
 
