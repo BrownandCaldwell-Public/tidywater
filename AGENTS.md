@@ -165,7 +165,7 @@ files. Never edit those to make a change pass.
   number with `|new - old| <= abs_tol + rel_tol * |old|`. Text and `NA` must match exactly.
 - The default is `rel_tol = 1e-8`. Loosen only where a solver limits precision, and say why in a comment. Current
   exceptions: CCPP and `opensys_ph` (`uniroot` at its default tolerance, `rel_tol = 1e-4`), and
-  `chemdose_chloramine` (ODE, `rel_tol = 1e-6`, `abs_tol = 1e-12` M).
+  `chemdose_chloramine` (ODE; differs ~1e-6 across platforms, so `rel_tol = 1e-4`, `abs_tol = 1e-12` M).
 - `regression_waters()` returns the shared scenario waters; their own outputs are pinned in
   `test-regression-define_water.R`.
 - `test-regression-wrappers.R` checks that every `_df` helper equals its base function row by row, and that the

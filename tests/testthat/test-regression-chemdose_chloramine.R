@@ -3,12 +3,13 @@
 #
 # Tolerance choice: chemdose_chloramine integrates an ODE with deSolve (lsoda,
 # atol = rtol = 1e-12), so results can drift slightly across platforms / deSolve
-# versions. We pin the whole water (so every slot is covered, including tot_nh3 and
-# combined_chlorine) with rel_tol = 1e-6. Chlorine species are stored in mol/L
+# versions. CI showed relative differences up to ~6e-6 between Windows, macOS and Ubuntu,
+# so we pin the whole water (every slot, including tot_nh3 and combined_chlorine) with
+# rel_tol = 1e-4. Chlorine species are stored in mol/L
 # (~1e-5 M for a few mg/L), and species that decay to ~0 (clipped at 0 or left at
 # ODE noise ~1e-15 M) would fail a pure relative test, so abs_tol = 1e-12 mol/L
 # (~7e-8 mg/L Cl2, far below anything meaningful) absorbs that noise.
-chloramine_tol <- list(rel_tol = 1e-6, abs_tol = 1e-12)
+chloramine_tol <- list(rel_tol = 1e-4, abs_tol = 1e-12)
 
 expect_golden_chloramine <- function(cases, name) {
   expect_golden(cases, name, rel_tol = chloramine_tol$rel_tol, abs_tol = chloramine_tol$abs_tol)
