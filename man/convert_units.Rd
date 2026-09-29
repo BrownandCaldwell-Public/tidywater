@@ -26,7 +26,8 @@ This function takes a value and converts units based on compound name.
 \details{
 Mass concentrations may be expressed as CaCO3, N, P, or molecular chlorine (Cl2).
 Mass as CaCO3 is an equivalents basis: 1 eq of the compound = 50 g as CaCO3, so 61 mg/L HCO3 is 50 mg/L as CaCO3.
-Mass as N, P, or Cl2 counts the atoms (or Cl2 units) in the compound: 1 mol of (NH4)2SO4 is 28 g as N.
+Mass as N or P counts the atoms in the compound: 1 mol of (NH4)2SO4 is 28 g as N.
+Mass as Cl2 counts oxidizing capacity: 1 mol of NHCl2 is 2 mol as Cl2.
 "mg/L Cl" is treated as "mg/L Cl2".
 }
 \examples{

@@ -33,6 +33,7 @@ molec_properties <- data.frame(
   h4bo4 = c(78.11, 1),
   h3bo3 = c(61.83, 0),
   no3 = c(62.005, 1),
+  no2 = c(46.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
   # Chemicals. These only have a charge if both ions have the same charge.

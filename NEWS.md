@@ -1,5 +1,10 @@
 # Development version
 
+* `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
+`no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
+* The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
+`define_water()`, `chemdose_ph()`, and `blend_waters()`.
+
 * Define_water_df now uses column mapping to call arguments. 
 * Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
 drops the output dosing columns unless told to keep to prevent double dosing.
@@ -15,6 +20,9 @@ Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/m
 * `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
 * Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
 * Add ACH and PACl to `chemdose_toc`. Supports one molar mass, check documentation for units.
+* Warnings are now formatted through an internal helper that caches the rendered text of each message. Warning text is unchanged, but
+models that warn repeatedly (notably `chemdose_ph` inside `solvedose_ph`, where the warnings are suppressed anyway) are much faster.
+* Fixed an error in `biofilter_toc_df` when reporting how many rows a repeated warning affected.
 * Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
 
 

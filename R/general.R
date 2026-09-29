@@ -298,14 +298,14 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
     cli::cli_abort("No {.val dic} column found in the data frame. Ensure DIC is included as {.val dic}.")
   }
   if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
-    cli::cli_warn("Alkalinity will be recalculated from the input DIC.")
+    tidywater_warn("Alkalinity will be recalculated from the input DIC.")
   }
   if (!missing(temp)) {
     temp <- temp
   } else if ("temp" %in% colnames(df)) {
     if (length(unique(df$temp)) > 1) {
       temp <- as.numeric(df$temp[1])
-      cli::cli_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
+      tidywater_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
     } else {
       temp <- df$temp[1]
     }
@@ -317,7 +317,7 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   } else if ("tds" %in% colnames(df)) {
     if (length(unique(df$tds)) > 1) {
       tds <- as.numeric(df$tds[1])
-      cli::cli_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
+      tidywater_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
     } else {
       tds <- df$tds[1]
     }
@@ -457,7 +457,7 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   # Cl2 counts active (+1) chlorines by oxidizing capacity, so NHCl2 = 2 Cl2 and NCl3 = 3 Cl2.
   # CaCO3 is an equivalents basis, so it uses the formula charge instead.
   basis_count <- list(
-    N = c(n = 1, nh3 = 1, nh4 = 1, nh4oh = 1, nh42so4 = 2, no3 = 1, hno3 = 1, nh2cl = 1, nhcl2 = 1, ncl3 = 1),
+    N = c(n = 1, nh3 = 1, nh4 = 1, nh4oh = 1, nh42so4 = 2, no3 = 1, hno3 = 1, no2 = 1, nh2cl = 1, nhcl2 = 1, ncl3 = 1),
     P = c(p = 1, po4 = 1, hpo4 = 1, h2po4 = 1, h3po4 = 1, na3po4 = 1),
     Cl2 = c(cl2 = 1, ocl = 1, nh2cl = 1, nhcl2 = 2, ncl3 = 3)
   )
@@ -570,7 +570,7 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
       bestFormula <- agrep(formula, molecNames, max.distance = 1)
       if (length(bestFormula) > 0) {
         formula <- molecNames[bestFormula[1]]
-        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+        tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
       }
       # else: fall through — convert_units_private will error with a clear message
     }
@@ -628,7 +628,7 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
   # like M, without that then every M conversion is wrong. 
   else if (length(bestStart) > 0 & nchar(startunit) > 1) {
     startunit <- unit_matcher[[bestStart[1]]]
-    cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+    tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
   }
 
   if (endunit %in% names(unit_matcher)) {
@@ -636,7 +636,7 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
   }
   else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
     endunit <- unit_matcher[[bestEnd[1]]]
-        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
+        tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
   }
   
   lookup <- if (!is.null(formula)) {

@@ -44,7 +44,8 @@ define_water(
   fe,
   al,
   mn,
-  no3
+  no3,
+  no2
 )
 
 define_water_df(
@@ -81,7 +82,8 @@ define_water_df(
   fe = "use_col",
   al = "use_col",
   mn = "use_col",
-  no3 = "use_col"
+  no3 = "use_col",
+  no2 = "use_col"
 )
 }
 \arguments{
@@ -145,6 +147,8 @@ define_water_df(
 
 \item{no3}{Nitrate in mg/L as N}
 
+\item{no2}{Nitrite in mg/L as N}
+
 \item{df}{a data frame containing columns with all the desired parameters with column names matching argument names in define_water}
 
 \item{output_water}{name of the output column storing updated parameters with the class, water. Default is "defined".}
@@ -156,7 +160,7 @@ define_water_df(
 \value{
 define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
 \describe{
-\item{pH}{pH, numeric, in standard units (SU).}
+\item{ph}{pH, numeric, in standard units (SU).}
 \item{temp}{temperature, numeric, in °C.}
 \item{alk}{alkalinity, numeric, mg/L as CaCO3.}
 \item{tds}{total dissolved solids, numeric, mg/L.}
@@ -170,6 +174,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
 \item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
 \item{hypochlorite_alk_eq}{hypochlorite alkalinity as equivalents, numeric, equivalent (eq).}
+\item{citric_alk_eq}{citrate alkalinity as equivalents, numeric, equivalent (eq).}
 \item{toc}{total organic carbon, numeric, mg/L.}
 \item{doc}{dissolved organic carbon, numeric, mg/L.}
 \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -184,7 +189,9 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{so4}{sulfate, numeric, mols/L.}
 \item{mno4}{permanganate, numeric, mols/L.}
 \item{no3}{nitrate, numeric, mols/L.}
-\item{h2co3}{carbonic acid, numeric, mols/L.}
+\item{no2}{nitrite, numeric, mols/L.}
+\item{h2co3}{carbonic acid (H2CO3*, the sum of dissolved CO2 and H2CO3), numeric, mols/L.}
+\item{co2}{dissolved carbon dioxide (H2CO3*, calculated from h2co3), numeric, mg/L as CO2.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
 \item{h2po4}{dihydrogen phosphate, numeric, mols/L.}
@@ -228,7 +235,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{chbr3}{bromoform, numeric, ug/L.}
 \item{tthm}{total trihalomethanes, numeric, ug/L.}
 \item{mcaa}{chloroacetic acid, numeric, ug/L.}
-\item{dmcaa}{dichloroacetic acid, numeric, ug/L.}
+\item{dcaa}{dichloroacetic acid, numeric, ug/L.}
 \item{tcaa}{trichloroacetic acid, numeric, ug/L.}
 \item{mbaa}{bromoacetic acid, numeric, ug/L.}
 \item{dbaa}{dibromoacetic acid, numeric, ug/L.}
