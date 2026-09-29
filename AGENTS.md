@@ -180,6 +180,8 @@ files. Never edit those to make a change pass.
 - **Intended numeric change:** this is a breaking change (see guardrail 4). Review the diff with
   `testthat::snapshot_review()`, then accept only the affected files. In the PR, list which goldens changed and
   why.
+- **New `water` slot:** every whole-water golden gains a line per slot. Confirm the snapshot diff only adds lines
+  for the new slot (no existing value changes) before accepting.
 
 **Known bugs are pinned as-is.** A case that captures a filed bug carries a `# KNOWN-BUG #<issue>` comment,
 and a `_knownbug<issue>` name suffix where the case exists for that bug. When you fix the issue, accept the new
