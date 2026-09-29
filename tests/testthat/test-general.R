@@ -50,6 +50,8 @@ test_that("Unit conversion to same units works.", {
   expect_equal(convert_units(.002, "caco3", startunit = "M", endunit = "M"), .002)
   expect_equal(convert_units(1000, "mgoh2", startunit = "mg/L", endunit = "g/L"), 1)
   expect_equal(convert_units(.002, "h2so4", startunit = "M", endunit = "mM"), 2)
+  expect_equal(convert_units(5, "xyz", startunit = "mM", endunit = "M"), .005)
+  expect_equal(convert_units(5, startunit = "mM", endunit = "M"), .005)
 })
 
 test_that("Unit conversion between M and eq/L works.", {
@@ -73,6 +75,11 @@ test_that("Unit conversion between mg/L or mg/L CaCO3 to eq/L works.", {
   expect_equal(
     convert_units(ca_eq, "ca", startunit = "eq/L", endunit = "mg/L CaCO3"),
     ca_eq * mweights$caco3 * 1000 / 2
+  )
+
+  expect_equal(
+    convert_units(10, "na", startunit = "mg/L", endunit = "mg/L CaCO3"),
+    10 / mweights$na * mweights$caco3 / 2
   )
 })
 
@@ -114,8 +121,8 @@ test_that("Aliasing works", {
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L as CaCO3"))
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/lcaco3"))
-  #end unit
-  expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))  
+  # end unit
+  expect_equal(hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
   # typos 
   expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
   expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles")))
@@ -128,7 +135,7 @@ test_that("Aliasing works", {
 })
 
 
-test_that("As CaCO3/N/P/Cl works", {
+test_that("As CaCO3/N/P/Cl2 works", {
   mglCa <- 20
   mglasCaCO3 <- convert_units(mglCa, "ca", startunit = "mg/L", endunit = "mg/L CaCO3")
   mglasCaCO3_eq <- (mglCa / 40.078) * 100.0869
@@ -145,9 +152,9 @@ test_that("As CaCO3/N/P/Cl works", {
   expect_equal(mglasP, mglasNP_eq)
 
   mglNHCl2 <- 20
-  mglasCl <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L cl")
-  mglasCl_eq <- (mglNHCl2 / 85.92) * 35.453
-  expect_equal(mglasCl, mglasCl_eq)
+  mglasCl2 <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L Cl2")
+  mglasCl2_eq <- (mglNHCl2 / 85.92) * mweights$cl2
+  expect_equal(mglasCl2, mglasCl2_eq)
 
   mglasCaCO3_start <- convert_units(mglasCaCO3_eq, "ca", startunit = "mg/L CaCO3", endunit = "mg/L")
   expect_equal(mglasCaCO3_start, mglCa)
@@ -158,8 +165,24 @@ test_that("As CaCO3/N/P/Cl works", {
   mglasP_start <- convert_units(mglasNP_eq, "po4", startunit = "mg/L P", endunit = "mg/L")
   expect_equal(mglasP_start, mglPO4)
 
-  mglasCl_start <- convert_units(mglasCl_eq, "nhcl2", startunit = "mg/L cl", endunit = "mg/L")
-  expect_equal(mglasCl_start, mglNHCl2)
+  mglasCl2_start <- convert_units(mglasCl2_eq, "nhcl2", startunit = "mg/L Cl2", endunit = "mg/L")
+  expect_equal(mglasCl2_start, mglNHCl2)
+
+  mglAmmoniumSulfate <- 20
+  mglasNFromAmmoniumSulfate <- convert_units(mglAmmoniumSulfate, "nh42so4", startunit = "mg/L", endunit = "mg/L N")
+  mglasNFromAmmoniumSulfate_eq <- (mglAmmoniumSulfate / mweights$nh42so4) * mweights$n * 2
+  expect_equal(mglasNFromAmmoniumSulfate, mglasNFromAmmoniumSulfate_eq)
+})
+
+test_that("Mass-unit scaling is preserved during basis conversions", {
+  expect_equal(
+    convert_units(1, "hcl", "g/L", "mg/L CaCO3"),
+    convert_units(1000, "hcl", "mg/L", "mg/L CaCO3")
+  )
+  expect_equal(
+    convert_units(100, "ca", "mg/L CaCO3", "mg/L N"),
+    100 / mweights$caco3 * mweights$n * 2
+  )
 })
 # Summarize WQ ----
 
