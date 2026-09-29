@@ -128,7 +128,7 @@ blend_waters <- function(waters, ratios) {
   alpha1 <- calculate_alpha1_carbonate(h, blended_water@ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, blended_water@ks) # proportion of total carbonate as CO32-
   blended_water@h2co3 <- blended_water@tot_co3 * alpha0
-  blended_water@co2 <- blended_water@h2co3
+  blended_water@co2 <- blended_water@h2co3 * tidywater::mweights$co2 * 1000
   blended_water@hco3 <- blended_water@tot_co3 * alpha1
   blended_water@co3 <- blended_water@tot_co3 * alpha2
 

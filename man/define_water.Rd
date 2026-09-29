@@ -191,7 +191,7 @@ define_water outputs a water class object where slots are filled or calculated b
 \item{no3}{nitrate, numeric, mols/L.}
 \item{no2}{nitrite, numeric, mols/L.}
 \item{h2co3}{carbonic acid (H2CO3*, the sum of dissolved CO2 and H2CO3), numeric, mols/L.}
-\item{co2}{dissolved carbon dioxide (H2CO3*, equal to h2co3), numeric, mols/L. Reported as mg/L CO2 by \link{convert_watermg}.}
+\item{co2}{dissolved carbon dioxide (H2CO3*, calculated from h2co3), numeric, mg/L as CO2.}
 \item{hco3}{bicarbonate, numeric, mols/L.}
 \item{co3}{carbonate, numeric, mols/L.}
 \item{h2po4}{dihydrogen phosphate, numeric, mols/L.}

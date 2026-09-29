@@ -181,12 +181,12 @@ test_that("define_water converts nitrite from mg/L as N to M", {
   expect_equal(signif(water1@no2, 5), 7.1394e-5)
 })
 
-test_that("define_water sets co2 equal to h2co3", {
+test_that("define_water calculates co2 in mg/L as CO2 from h2co3", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
   water2 <- suppressWarnings(define_water(ph = 6, temp = 15, alk = 50, tds = 200))
 
-  expect_equal(water1@co2, water1@h2co3)
-  expect_equal(water2@co2, water2@h2co3)
+  expect_equal(water1@co2, water1@h2co3 * 44.009 * 1000)
+  expect_equal(water2@co2, convert_units(water2@h2co3, "co2", "M", "mg/L"))
   expect_true(water2@co2 > 0)
 })
 

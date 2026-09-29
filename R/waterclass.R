@@ -39,7 +39,7 @@ methods::setClass(
     no2 = "numeric",
     # pH dependent ions
     h2co3 = "numeric",
-    co2 = "numeric", # CO2(aq) + H2CO3, i.e. H2CO3*
+    co2 = "numeric", # CO2(aq) + H2CO3, i.e. H2CO3*, in mg/L as CO2
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",

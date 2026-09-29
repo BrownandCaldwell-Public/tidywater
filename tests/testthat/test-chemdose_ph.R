@@ -19,7 +19,7 @@ test_that("chemdose ph updates co2 with h2co3.", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 200))
   water2 <- chemdose_ph(water1, h2so4 = 20)
 
-  expect_equal(water2@co2, water2@h2co3)
+  expect_equal(water2@co2, water2@h2co3 * 44.009 * 1000)
   expect_true(water2@co2 > water1@co2)
 })
 

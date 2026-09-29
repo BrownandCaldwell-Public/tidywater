@@ -102,7 +102,7 @@ test_that("Blend waters blends no2 and recalculates co2.", {
 
   blend1 <- blend_waters(c(water2, water3), c(.5, .5))
   expect_equal(blend1@no2, water2@no2 / 2)
-  expect_equal(blend1@co2, blend1@h2co3)
+  expect_equal(blend1@co2, blend1@h2co3 * 44.009 * 1000)
 })
 
 test_that("Blend waters correctly handles list of estimated parameters.", {
