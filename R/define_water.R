@@ -170,12 +170,12 @@ define_water <- function(
   # Handle missing arguments with warnings (not all parameters are needed for all models).
   if (missing(ph)) {
     ph <- NA_real_
-    cli::cli_warn("Missing value for {.arg ph}; carbonate balance will not be calculated.")
+    tidywater_warn("Missing value for {.arg ph}; carbonate balance will not be calculated.")
   }
 
   if (missing(alk)) {
     alk <- NA_real_
-    cli::cli_warn("Missing value for {.arg alk}; carbonate balance will not be calculated.")
+    tidywater_warn("Missing value for {.arg alk}; carbonate balance will not be calculated.")
   }
 
   tot_hard <- ifelse(missing(tot_hard), NA_real_, tot_hard)
@@ -185,20 +185,20 @@ define_water <- function(
 
   if (!is.na(tot_hard) & is.na(ca) & !is.na(mg)) {
     ca <- convert_units(tot_hard - convert_units(mg, "mg", "mg/L", "mg/L CaCO3"), "ca", "mg/L CaCO3", "mg/L")
-    cli::cli_warn("Missing value for {.arg ca}; estimated from total hardness and magnesium.")
+    tidywater_warn("Missing value for {.arg ca}; estimated from total hardness and magnesium.")
     estimated <- paste(estimated, "ca", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & !is.na(ca)) {
     mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
-    cli::cli_warn("Missing value for {.arg mg}; estimated from total hardness and calcium.")
+    tidywater_warn("Missing value for {.arg mg}; estimated from total hardness and calcium.")
     estimated <- paste(estimated, "mg", sep = "_")
   }
 
   if (!is.na(tot_hard) & is.na(mg) & is.na(ca)) {
     ca <- convert_units(tot_hard * 0.65, "ca", "mg/L CaCO3", "mg/L")
     mg <- convert_units(tot_hard * 0.35, "mg", "mg/L CaCO3", "mg/L")
-    cli::cli_warn("Missing values for {.arg ca} and {.arg mg}; estimated from total hardness using a 65%/35% Ca/Mg split.")
+    tidywater_warn("Missing values for {.arg ca} and {.arg mg}; estimated from total hardness using a 65%/35% Ca/Mg split.")
     estimated <- paste(estimated, "ca", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   }
@@ -206,7 +206,7 @@ define_water <- function(
   if (is.na(tot_hard) & !is.na(ca) & is.na(mg)) {
     tot_hard <- calculate_hardness(ca, 0) / .65
     mg <- convert_units(tot_hard - convert_units(ca, "ca", "mg/L", "mg/L CaCO3"), "mg", "mg/L CaCO3", "mg/L")
-    cli::cli_warn("Missing values for {.arg mg} and {.arg tot_hard}; estimated from calcium using a 65%/35% Ca/Mg split.")
+    tidywater_warn("Missing values for {.arg mg} and {.arg tot_hard}; estimated from calcium using a 65%/35% Ca/Mg split.")
     estimated <- paste(estimated, "tothard", sep = "_")
     estimated <- paste(estimated, "mg", sep = "_")
   } else if (is.na(tot_hard) & !is.na(ca) & !is.na(mg)) {
@@ -248,11 +248,11 @@ define_water <- function(
     toc <- NA_real_
     doc <- NA_real_
   } else if (missing(toc) & !missing(doc)) {
-    cli::cli_warn("Missing value for {.arg toc}; DOC assumed to be 95% of TOC.")
+    tidywater_warn("Missing value for {.arg toc}; DOC assumed to be 95% of TOC.")
     toc <- doc / 0.95
     estimated <- paste(estimated, "toc", sep = "_")
   } else if (missing(doc) & !missing(toc)) {
-    cli::cli_warn("Missing value for {.arg doc}; defaulting to 95% of TOC.")
+    tidywater_warn("Missing value for {.arg doc}; defaulting to 95% of TOC.")
     doc <- toc * 0.95
     estimated <- paste(estimated, "doc", sep = "_")
   }
@@ -409,7 +409,7 @@ define_water <- function(
     water@cond <- correlate_ionicstrength(water@is, from = "is", to = "cond")
     estimated <- paste(estimated, "cond", sep = "_")
   } else {
-    cli::cli_warn("Major ions, TDS, and conductivity are all missing; assuming ideal conditions. Ionic strength will be {.val NA} and activity coefficients will be 1.")
+    tidywater_warn("Major ions, TDS, and conductivity are all missing; assuming ideal conditions. Ionic strength will be {.val NA} and activity coefficients will be 1.")
     water@is <- NA_real_
   }
 
@@ -641,7 +641,7 @@ names(water_input)[match(col_map, names(water_input))] <- names(col_map)
 
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
    output <- df[, !names(df) %in% unname(final_names), drop = FALSE]
