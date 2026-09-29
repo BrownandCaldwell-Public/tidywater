@@ -477,8 +477,12 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   }
   multiplier <- start_mult / end_mult
 
-  formula_mw <- if (!is.null(formula) && formula %in% colnames(tidywater::mweights)) {
-    as.numeric(tidywater::mweights[formula])
+  formula_mw <- if (!is.null(formula)) {
+    if (formula %in% colnames(tidywater::mweights)) {
+      as.numeric(tidywater::mweights[formula])
+    } else {
+      NA_real_
+    }
   } else {
     NA_real_
   }
@@ -500,8 +504,14 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   }
 
   table_charge <- if (!is.null(formula)) formula_to_charge[[formula]] else NULL
-  if (!is.null(table_charge) && !is.na(table_charge)) {
-    charge <- table_charge
+  if (!is.null(table_charge)) {
+    if (!is.na(table_charge)) {
+      charge <- table_charge
+    } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
+      charge <- 1
+    } else {
+      cli::cli_abort("Unable to find charge for equivalent conversion.")
+    }
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
     charge <- 1
   } else {
@@ -603,13 +613,15 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
   endunit <- (tolower(gsub("\\s", "", endunit)))
   
   # formula matcher
-  if (!is.null(formula) && !(formula %in% molecNames)) {
-    bestFormula <- agrep(formula, molecNames, max.distance = 1)
-    if (length(bestFormula) > 0) {
-      formula <- molecNames[bestFormula[1]]
-      cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+  if (!is.null(formula)) {
+    if (!(formula %in% molecNames)) {
+      bestFormula <- agrep(formula, molecNames, max.distance = 1)
+      if (length(bestFormula) > 0) {
+        formula <- molecNames[bestFormula[1]]
+        cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+      }
+      # else: fall through — convert_units_private will error with a clear message
     }
-    # else: fall through — convert_units_private will error with a clear message
   }
 
   unit_matcher <- c(
@@ -752,7 +764,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   massendunits <- 1 / massstartunits
 
   # volumetric flow to volumetric flow or mass to mass
-  if (startunit %in% names(volumetricstartunits) && endunit %in% names(volumetricendunits)){
+  if (startunit %in% names(volumetricstartunits) & endunit %in% names(volumetricendunits)){
     startmultiplier <- volumetricstartunits[startunit]
     endmultiplier <- volumetricendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
@@ -760,7 +772,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   }
 
   # mass to mass
-  if (startunit %in% names(massstartunits) && endunit %in% names(massendunits)) {
+  if (startunit %in% names(massstartunits) & endunit %in% names(massendunits)) {
     startmultiplier <- massstartunits[startunit]
     endmultiplier <- massendunits[endunit]
     totalmultiplier <- startmultiplier * endmultiplier
@@ -768,7 +780,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   }
 
   # volumetric to mass
-  if (startunit %in% names(volumetricstartunits) && endunit %in% names(massendunits)) {
+  if (startunit %in% names(volumetricstartunits) & endunit %in% names(massendunits)) {
     gpm <- value * volumetricstartunits[startunit]
     # Physical bridge: GPM -> lbs/min
     lbs_min <- gpm * 8.34008 * sg
@@ -777,7 +789,7 @@ convert_flow <- function(value, startunit, endunit, sg = 1) {
   }
 
   # mass to volumetric
-  if (startunit %in% names(massstartunits) && endunit %in% names(volumetricendunits)) {
+  if (startunit %in% names(massstartunits) & endunit %in% names(volumetricendunits)) {
     lbs_min <- value * massstartunits[startunit]
 
     gpm <- lbs_min / (8.34008 * sg)
