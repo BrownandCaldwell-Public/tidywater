@@ -172,6 +172,24 @@ test_that("define_water correctly calculates dic", {
   expect_equal(dic_mg, water1@dic)
 })
 
+test_that("define_water converts nitrite from mg/L as N to M", {
+  water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, no2 = 1))
+
+  expect_true(is.na(water0@no2))
+  # 1 mg/L as N / 14.0067 g/mol N / 1000 mg/g
+  expect_equal(water1@no2, 1 / 14.0067 / 1000)
+})
+
+test_that("define_water calculates co2 in mg/L as CO2 from h2co3", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100))
+  water2 <- suppressWarnings(define_water(ph = 6, temp = 15, alk = 50, tds = 200))
+
+  expect_equal(water1@co2, water1@h2co3 * 44.009 * 1000)
+  expect_equal(water2@co2, convert_units(water2@h2co3, "co2", "M", "mg/L"))
+  expect_true(water2@co2 > 0)
+})
+
 test_that("define_water accounts for multiple types of alkalinity", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 50, na = 100, cl = 100))
   water2 <- suppressWarnings(define_water(
@@ -180,7 +198,7 @@ test_that("define_water accounts for multiple types of alkalinity", {
     alk = 100,
     tot_po4 = 5,
     tot_nh3 = 5,
-    tot_bo3 = 5,
+    tot_bo4 = 5,
     tot_sio4 = 5
   ))
 
@@ -190,6 +208,15 @@ test_that("define_water accounts for multiple types of alkalinity", {
   expect_true(!is.na(water2@borate_alk_eq))
   expect_true(!is.na(water2@silicate_alk_eq))
   expect_false(identical(water2@alk_eq, water2@carbonate_alk_eq))
+
+  # Check that specific alkalinity values are calculated correctly
+  water3 <- suppressWarnings(define_water(ph = 8.9, temp = 20, alk = 190, tds = 480, tot_po4 = 0.18, tot_nh3 = 0.047, 
+                                         tot_bo4 = 0.71, tot_sio4 = 69))
+  
+  expect_true(round(water3@borate_alk_eq * 1000, 3) == 0.021) # 0.021
+  expect_true(round(water3@silicate_alk_eq * 1000, 3) == 0.112) # 0.110
+  # commented numbers on the side are from Anthony's spreadsheet with similar starting wq. He said the outputs are close enough!
+
 })
 
 # define_water helpers ----
@@ -311,7 +338,16 @@ test_that("define_water_df correctly calculates dic", {
 })
 
 
-# Testing that define_water_df has "use_col" the right way 
+test_that("define_water_df passes no2 through", {
+  testthat::skip_on_cran()
+  water1 <- suppressWarnings(define_water_df(slice(water_df, 1:2), no2 = 0.5))
+  water2 <- suppressWarnings(define_water_df(mutate(slice(water_df, 1:2), no2 = 0.5)))
+
+  expect_equal(water1$defined[[1]]@no2, convert_units(0.5, "no2", "mg/L N", "M"))
+  expect_equal(water2$defined[[2]]@no2, convert_units(0.5, "no2", "mg/L N", "M"))
+})
+
+# Testing that define_water_df has "use_col" the right way
 
 test_that("define_water_df use_col reads values correctly from matching columns", {
   testthat::skip_on_cran()

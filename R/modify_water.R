@@ -48,7 +48,7 @@ modify_water <- function(water, slot, value, units) {
     }
 
     # Check lists
-    if (slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")) {
+    if (slot_n %in% c("na", "ca", "mg", "k", "cl", "so4", "no3", "no2", "br", "bro3", "f", "fe", "al", "mn")) {
       new_value <- convert_units(value_n, slot_n, units_n, "M")
     } else if (slot_n %in% c("toc", "doc", "bdoc")) {
       if (units_n == "mg/L") {
@@ -143,7 +143,7 @@ warning_counts <- list()
     )
   })
 for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
   output <- df[, !names(df) %in% c("slot", "value", "units"), drop = FALSE]
 

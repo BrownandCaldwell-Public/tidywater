@@ -68,13 +68,13 @@ chemdose_toc <- function(
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
-    cli::cli_warn("No coagulants dosed; final water will equal input water.")
+    tidywater_warn("No coagulants dosed; final water will equal input water.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
-    cli::cli_warn("Both alum and ferric coagulants entered.")
+    tidywater_warn("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
+    tidywater_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
-    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
+    tidywater_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
   }
 
   # Alum - hydration included
@@ -98,12 +98,11 @@ chemdose_toc <- function(
   # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
   if (suva>5) {
     suva<-5
-    cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
+    tidywater_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
   }
   else suva<-suva
   # Edwards calculations
   if (caoh2 > 0) {
-    water <- chemdose_ph(water, caoh2 = caoh2)
 
     removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
     removed <- removed / 0.87 # apply correction factor
@@ -114,7 +113,7 @@ chemdose_toc <- function(
     } else {
       water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
       water@doc <- water@doc - removed
-      water@toc <- water@doc - removed
+      water@toc <- water@doc
     }
   } else if (water@ph >= 8) {
     nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
@@ -138,7 +137,7 @@ chemdose_toc <- function(
       water@toc <- nonadsorb + adsorb
       water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
     }
-    cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
+    tidywater_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
   } else {
     nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
@@ -276,7 +275,7 @@ warning_counts<-list()
   })
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 

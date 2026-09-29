@@ -5,6 +5,7 @@
 ^CODE_OF_CONDUCT\.md$
 ^CONTRIBUTING\.md$
 ^data-raw$
+^tools$
 ^.*\.toml
 ^README\.Rmd$
 ^cran-comments\.md$
@@ -16,3 +17,4 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^AGENTS\.md$

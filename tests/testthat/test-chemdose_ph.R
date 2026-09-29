@@ -15,6 +15,14 @@ test_that("chemdose ph returns the same pH/alkalinity when no chemical is added.
   expect_equal(water3@alk, water4@alk)
 })
 
+test_that("chemdose ph updates co2 with h2co3.", {
+  water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 200))
+  water2 <- chemdose_ph(water1, h2so4 = 20)
+
+  expect_equal(water2@co2, water2@h2co3 * 44.009 * 1000)
+  expect_true(water2@co2 > water1@co2)
+})
+
 test_that("chemdose ph corrects ph when softening", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
   water2 <- chemdose_ph(water1, caco3 = -100)
@@ -91,6 +99,35 @@ test_that("Phosphate dose works as expected.", {
 
   expect_equal(round(water2@ph, 1), 7.0)
   expect_equal(round(water3@ph, 1), 6.9)
+  expect_equal(round(water4@ph, 1), 6.7)
+})
+
+test_that("Starting citric residual does not affect starting pH.", {
+  water1 <- suppressWarnings(
+    define_water(ph = 7, alk = 10, tot_citric = 5) %>%
+      chemdose_ph()
+  )
+
+  water2 <- water1 %>%
+    chemdose_ph()
+
+  water3 <- water2 %>%
+    chemdose_ph()
+
+  expect_equal(water1@ph, 7)
+  expect_equal(water1@ph, water2@ph)
+  expect_equal(water2@ph, water3@ph)
+})
+
+test_that("Citric dose works as expected.", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tot_citric = 0, temp = 25))
+
+  water2 <- chemdose_ph(water1, citric = 1) 
+  water3 <- chemdose_ph(water1, citric = 5) 
+  water4 <- chemdose_ph(water1, citric = 10)
+
+  expect_equal(round(water2@ph, 1), 7.0)
+  expect_equal(round(water3@ph, 1), 6.8)
   expect_equal(round(water4@ph, 1), 6.7)
 })
 
