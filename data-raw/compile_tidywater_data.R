@@ -33,6 +33,7 @@ molec_properties <- data.frame(
   h4bo4 = c(78.11, 1),
   h3bo3 = c(61.83, 0),
   no3 = c(62.005, 1),
+  no2 = c(46.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
   # Chemicals. These only have a charge if both ions have the same charge.
@@ -48,6 +49,8 @@ molec_properties <- data.frame(
   caoh2 = c(74.09268, 2),
   mgoh2 = c(58.31968, 2),
   cacl2 = c(110.98, 2),
+  naocl = c(22.98977 + 16 + 35.453, 1),
+  caocl2 = c(40.078 + 2 * (16 + 35.453), 2),
   ch3cooh = c(60.05, 1),
   fecl3 = c(55.845 + 35.453 * 3, 3),
   na3po4 = c(163.939, 3),
@@ -68,9 +71,11 @@ molec_properties <- data.frame(
   sio2 = c(60.0843, NA),
   nh3 = c(17.031, NA),
   nh2cl = c(51.48, NA),
+  hocl = c(1.008 + 16 + 35.453, NA),
   nhcl2 = c(85.92, NA),
   ncl3 = c(120.365, NA),
   n = c(14.0067, NA),
+  p = c(30.97, NA),
   dic = c(12.011, NA),
   h2o =c(18.015,NA),
 
@@ -1237,7 +1242,7 @@ unit_multipliers <- data.frame(
   "g/L CaCO3" = 1,
   "g/L N" = 1,
   "g/L P" = 1,
-  "g/L Cl" = 1,
+  "g/L Cl2" = 1,
   "M" = 1,
   "eq/L" = 1,
   # milli
@@ -1245,7 +1250,7 @@ unit_multipliers <- data.frame(
   "mg/L CaCO3" = 1e-3,
   "mg/L N" = 1e-3,
   "mg/L P" = 1e-3,
-  "mg/L Cl" = 1e-3,
+  "mg/L Cl2" = 1e-3,
   "mM" = 1e-3,
   "meq/L" = 1e-3,
   # micro
@@ -1253,7 +1258,7 @@ unit_multipliers <- data.frame(
   "ug/L CaCO3" = 1e-6,
   "ug/L N" = 1e-6,
   "ug/L P" = 1e-6,
-  "ug/L Cl" = 1e-6,
+  "ug/L Cl2" = 1e-6,
   "uM" = 1e-6,
   "ueq/L" = 1e-6,
   # nano
@@ -1261,7 +1266,7 @@ unit_multipliers <- data.frame(
   "ng/L CaCO3" = 1e-9,
   "ng/L N" = 1e-9,
   "ng/L P" = 1e-9,
-  "ng/L Cl" = 1e-9,
+  "ng/L Cl2" = 1e-9,
   "nM" = 1e-9,
   "neq/L" = 1e-9,
   # required to allow names with slashes

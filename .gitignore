@@ -1,8 +1,14 @@
 .Rproj.user
+.posit/
+.vscode/
 .Rhistory
 .RData
 .Ruserdata
 Rprof.out
+# Generated profiling output
+profile.html
+tools/*.html
+tools/Rprof*.out
 inst/doc
 # Excel and csv files are not allowed in this repo
 *.csv

@@ -65,10 +65,10 @@ calculate_corrosion <- function(
   form = "calcite"
 ) {
   if (is.na(water@ca) & ("aggressive" %in% index | "ryznar" %in% index | "langelier" %in% index | "ccpp" %in% index)) {
-    cli::cli_warn("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
+    tidywater_warn("Calcium or total hardness not specified. Aggressiveness, Ryznar, Langelier, and CCPP indices will not be calculated.")
   }
   if ((is.na(water@cl) | is.na(water@so4)) & ("larsonskold" %in% index | "csmr" %in% index)) {
-    cli::cli_warn("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
+    tidywater_warn("Chloride or sulfate not specified. Larson-Skold index and CSMR will not be calculated.")
   }
   if (any(!index %in% c("aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"))) {
     cli::cli_abort("{.arg index} must be one or more of {.val aggressive}, {.val ryznar}, {.val langelier}, {.val ccpp}, {.val larsonskold}, {.val csmr}.")
@@ -92,7 +92,7 @@ calculate_corrosion <- function(
   if ("aggressive" %in% index) {
     validate_water(water, c("ca", "ph", "alk"))
     if (grepl("ca", water@estimated)) {
-      cli::cli_warn("Calcium estimated by previous tidywater function; aggressiveness index calculation is approximate.")
+      tidywater_warn("Calcium estimated by previous tidywater function; aggressiveness index calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_aggressive")
     }
     ca_hard <- convert_units(water@ca, "ca", "M", "mg/L CaCO3")
@@ -113,7 +113,7 @@ calculate_corrosion <- function(
   if ("csmr" %in% index) {
     validate_water(water, c("cl", "so4"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      cli::cli_warn("Chloride or sulfate estimated by previous tidywater function; CSMR calculation is approximate.")
+      tidywater_warn("Chloride or sulfate estimated by previous tidywater function; CSMR calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     cl <- convert_units(water@cl, "cl", "M", "mg/L")
@@ -135,7 +135,7 @@ calculate_corrosion <- function(
   if ("larsonskold" %in% index) {
     validate_water(water, c("cl", "so4", "alk_eq"))
     if (grepl("cl", water@estimated) | grepl("so4", water@estimated)) {
-      cli::cli_warn("Chloride or sulfate estimated by previous tidywater function; Larson-Skold index calculation is approximate.")
+      tidywater_warn("Chloride or sulfate estimated by previous tidywater function; Larson-Skold index calculation is approximate.")
       water@estimated <- paste0(water@estimated, "_csmr")
     }
     # epm = equivalents per million
@@ -340,7 +340,7 @@ calculate_corrosion_df <- function(
   )
 
 for (msg in names(warning_counts)){
-  cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
 }
 
   if (water_prefix) {
