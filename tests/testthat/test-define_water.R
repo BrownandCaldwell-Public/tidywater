@@ -178,7 +178,7 @@ test_that("define_water converts nitrite from mg/L as N to M", {
 
   expect_true(is.na(water0@no2))
   # 1 mg/L as N / 14.0067 g/mol N / 1000 mg/g
-  expect_equal(signif(water1@no2, 5), 7.1394e-5)
+  expect_equal(water1@no2, 1 / 14.0067 / 1000)
 })
 
 test_that("define_water calculates co2 in mg/L as CO2 from h2co3", {

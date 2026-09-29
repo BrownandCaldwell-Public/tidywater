@@ -39,7 +39,8 @@ test_that("Modify water works for nitrite", {
   water1 <- modify_water(water0, "no2", 1, "mg/L N")
 
   expect_equal(water1@no2, convert_units(1, "no2", "mg/L N", "M"))
-  expect_equal(signif(water1@no2, 5), 7.1394e-5)
+  # 1 mg/L as N / 14.0067 g/mol N / 1000 mg/g
+  expect_equal(water1@no2, 1 / 14.0067 / 1000)
 })
 
 test_that("Modify water df takes and returns correct argument types and classes.", {
