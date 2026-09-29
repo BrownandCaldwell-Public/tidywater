@@ -508,6 +508,7 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
     cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
+  # Store elemental counts for formulas whose "as N" basis includes multiple N atoms.
   formula_basis_stoichiometry <- if (!is.null(formula)) {
     basis_stoichiometry[[formula]]
   } else {
