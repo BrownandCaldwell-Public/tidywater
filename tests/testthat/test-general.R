@@ -51,6 +51,7 @@ test_that("Unit conversion to same units works.", {
   expect_equal(convert_units(1000, "mgoh2", startunit = "mg/L", endunit = "g/L"), 1)
   expect_equal(convert_units(.002, "h2so4", startunit = "M", endunit = "mM"), 2)
   expect_equal(convert_units(5, "xyz", startunit = "mM", endunit = "M"), .005)
+  expect_equal(convert_units(5, startunit = "mM", endunit = "M"), .005)
 })
 
 test_that("Unit conversion between M and eq/L works.", {

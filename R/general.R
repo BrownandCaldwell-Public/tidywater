@@ -439,7 +439,7 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
 # This function generates a cached table of unit conversions with every combo of formula and units in the compile_tidywater_data file.
 # If we fail to lookup a unit conversion in our cached table we look here
 # This function is ~20x slower than the cache lookup
-convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+convert_units_private <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
 
   unit_multipliers <- get("unit_multipliers")
   formula_to_charge <- get("formula_to_charge")
@@ -477,7 +477,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
   }
   multiplier <- start_mult / end_mult
 
-  formula_mw <- if (formula %in% colnames(tidywater::mweights)) {
+  formula_mw <- if (!is.null(formula) && formula %in% colnames(tidywater::mweights)) {
     as.numeric(tidywater::mweights[formula])
   } else {
     NA_real_
@@ -499,7 +499,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  table_charge <- formula_to_charge[[formula]]
+  table_charge <- if (!is.null(formula)) formula_to_charge[[formula]] else NULL
   if (!is.null(table_charge) && !is.na(table_charge)) {
     charge <- table_charge
   } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
@@ -508,7 +508,11 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
     cli::cli_abort("Unable to find charge for equivalent conversion.")
   }
 
-  formula_basis_stoichiometry <- basis_stoichiometry[[formula]]
+  formula_basis_stoichiometry <- if (!is.null(formula)) {
+    basis_stoichiometry[[formula]]
+  } else {
+    NULL
+  }
   nitrogen_count <- formula_basis_stoichiometry[["N"]]
   if (is.null(nitrogen_count)) {
     nitrogen_count <- 1
@@ -570,7 +574,7 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #' @description This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
+#' @param formula Optional chemical formula. Required for conversions involving mass or equivalents; accepts compounds in mweights.
 #' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl2; M; eq/L;
 #' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
@@ -585,18 +589,20 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 #' @returns A numeric value for the converted parameter.
 #'
-convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
   mweights <- get("mweights")
   molecNames <- names(mweights)
 
   # normalize strings
-  formula <- tolower(gsub("\\s", "", formula))
+  if (!is.null(formula)) {
+    formula <- tolower(gsub("\\s", "", formula))
+  }
   startunit <- (tolower(gsub("\\s", "", startunit)))
   endunit <- (tolower(gsub("\\s", "", endunit)))
   
   # formula matcher
-  if (!(formula %in% molecNames)) {
+  if (!is.null(formula) && !(formula %in% molecNames)) {
     bestFormula <- agrep(formula, molecNames, max.distance = 1)
     if (length(bestFormula) > 0) {
       formula <- molecNames[bestFormula[1]]
@@ -668,7 +674,11 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
         cli::cli_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
   }
   
-  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+  lookup <- if (!is.null(formula)) {
+    convert_units_cache[[paste(formula, startunit, endunit)]]
+  } else {
+    NULL
+  }
   if (is.null(lookup)) {
     # Fallback to full implementation
     convert_units_private(value, formula, startunit, endunit)
