@@ -36,8 +36,10 @@ methods::setClass(
     so4 = "numeric",
     mno4 = "numeric",
     no3 = "numeric",
+    no2 = "numeric",
     # pH dependent ions
     h2co3 = "numeric",
+    co2 = "numeric", # CO2(aq) + H2CO3, i.e. H2CO3*, in mg/L as CO2
     hco3 = "numeric",
     co3 = "numeric",
     h2po4 = "numeric",
@@ -135,8 +137,10 @@ methods::setClass(
     so4 = NA_real_,
     mno4 = NA_real_,
     no3 = NA_real_,
+    no2 = NA_real_,
     # pH dependent ions
     h2co3 = NA_real_,
+    co2 = NA_real_,
     hco3 = NA_real_,
     co3 = NA_real_,
     h2po4 = NA_real_,
