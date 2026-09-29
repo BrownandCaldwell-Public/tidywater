@@ -61,8 +61,7 @@ scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
 
   # Should still work with DI water, so will not check any specific water slots
   validate_water(water, c())
-  # dose_M <- convert_units(dose, "h2o2", "mg/L", "M") # convert mg/L to M - would we technically want to use convert_chemical on this though?
-  dose_M <- dose / 34.0147 / 1000 # convert mg/L to M
+  dose_M <- convert_units(dose, "h2o2", "mg/L", "M")
 
   # List of each constituent k value to access easier and for clarity.
   k <- list(

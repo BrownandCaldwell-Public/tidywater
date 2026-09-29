@@ -2,7 +2,7 @@
 % Please edit documentation in R/scavenge_oh.R
 \name{scavenge_oh}
 \alias{scavenge_oh}
-\title{OH- scavenging function}
+\title{OH radical scavenging function}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
@@ -41,19 +41,22 @@ sum of the reaction rate of the constituent multiplied by the concentration of t
 Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging.
 }
 \details{
-OH- scavenger model for reuse
+Hydroxyl radical (OH radical) scavenging function
 
 Scavenging rates used in the code:
 k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
 k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
 k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
 k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020
-k(OH,NO3-)	1.00E+05	M-1 s-1	Keen et al., 2012
+k(OH,NO3-)	1.00E+05	M-1 s-1	Buxton et al.,1988
 k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
 Other reported k_doc values from literature
 
-other K values, with different units -- are these all for k_DOC?
+Other reported k_doc values from literature. NOTE: units below are inconsistent
+and are reproduced as-published — they are NOT directly usable as \code{kdoc_adjust},
+which expects L/mg s-1. Values in Mc^-1s^-1 require division by 12,011 mg C/mol.
+See follow-up issue for normalizing these.
 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
