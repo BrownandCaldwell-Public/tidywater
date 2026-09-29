@@ -115,8 +115,6 @@ test_that("Aliasing works", {
   hcl_mg <- 10
   hcl_caco3 <- convert_units(hcl_mg, "hcl", endunit = "mg/L CaCO3")
 
-  # start unit
-  expect_equal(hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
   # start unit 
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L CaCO3"))
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/L as CaCO3"))
@@ -153,7 +151,8 @@ test_that("As CaCO3/N/P/Cl2 works", {
 
   mglNHCl2 <- 20
   mglasCl2 <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L Cl2")
-  mglasCl2_eq <- (mglNHCl2 / 85.92) * mweights$cl2
+  # NHCl2 has two active chlorines, so 1 mol NHCl2 = 2 mol as Cl2
+  mglasCl2_eq <- (mglNHCl2 / 85.92) * mweights$cl2 * 2
   expect_equal(mglasCl2, mglasCl2_eq)
 
   mglasCaCO3_start <- convert_units(mglasCaCO3_eq, "ca", startunit = "mg/L CaCO3", endunit = "mg/L")
@@ -180,9 +179,81 @@ test_that("Mass-unit scaling is preserved during basis conversions", {
     convert_units(1000, "hcl", "mg/L", "mg/L CaCO3")
   )
   expect_equal(
-    convert_units(100, "ca", "mg/L CaCO3", "mg/L N"),
-    100 / mweights$caco3 * mweights$n * 2
+    convert_units(1, "nh4", "g/L N", "mg/L"),
+    convert_units(1000, "nh4", "mg/L N", "mg/L")
   )
+})
+
+test_that("Mass as CaCO3 goes through equivalents", {
+  # 1 meq/L HCO3 = 61 mg/L HCO3 = 50 mg/L as CaCO3, not 100
+  expect_equal(convert_units(mweights$hco3, "hco3", "mg/L", "mg/L CaCO3"), mweights$caco3 / 2)
+  expect_equal(convert_units(mweights$caco3 / 2, "hco3", "mg/L CaCO3", "mg/L"), mweights$hco3)
+  expect_equal(convert_units(mweights$caco3 / 2, "hco3", "mg/L CaCO3", "mM"), 1)
+  expect_equal(convert_units(mweights$caco3 / 2, "hco3", "mg/L CaCO3", "meq/L"), 1)
+  expect_equal(convert_units(1, "hco3", "mM", "mg/L CaCO3"), mweights$caco3 / 2)
+  # Divalent ions are unchanged: 1 mM Ca = 2 meq/L = 100 mg/L as CaCO3
+  expect_equal(convert_units(1, "ca", "mM", "mg/L CaCO3"), mweights$caco3)
+  expect_equal(convert_units(2, "ca", "meq/L", "mg/L CaCO3"), mweights$caco3)
+})
+
+test_that("Mass as N or P accounts for atoms per formula", {
+  # NH4 has one N
+  expect_equal(convert_units(mweights$nh4, "nh4", "mg/L", "mg/L N"), mweights$n)
+  expect_equal(convert_units(mweights$n, "nh4", "mg/L N", "mg/L"), mweights$nh4)
+  expect_equal(convert_units(1, "nh4", "mM", "mg/L N"), mweights$n)
+
+  # (NH4)2SO4 has two N
+  expect_equal(convert_units(mweights$nh42so4, "nh42so4", "mg/L", "mg/L N"), 2 * mweights$n)
+  expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "mg/L"), mweights$nh42so4)
+  expect_equal(convert_units(1, "nh42so4", "mM", "mg/L N"), 2 * mweights$n)
+  expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "mM"), 1)
+  expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "meq/L"), 2)
+
+  # PO4 has one P
+  expect_equal(convert_units(1, "po4", "mM", "mg/L P"), mweights$p)
+  expect_equal(convert_units(3, "po4", "meq/L", "mg/L P"), mweights$p)
+
+  # No N in calcium
+  expect_error(convert_units(10, "ca", "mg/L", "mg/L N"))
+})
+
+test_that("Mass as Cl2 counts active chlorines", {
+  expect_equal(convert_units(1, "ocl", "mM", "mg/L Cl2"), mweights$cl2)
+  expect_equal(convert_units(1, "nh2cl", "mM", "mg/L Cl2"), mweights$cl2)
+  expect_equal(convert_units(1, "nhcl2", "mM", "mg/L Cl2"), 2 * mweights$cl2)
+  expect_equal(convert_units(1, "ncl3", "mM", "mg/L Cl2"), 3 * mweights$cl2)
+  expect_equal(convert_units(3 * mweights$cl2, "ncl3", "mg/L Cl2", "mM"), 1)
+})
+
+test_that("Conversions between bases match converting through the formula", {
+  # 28 mg/L as N of (NH4)2SO4 = 1 mM = 2 meq/L = 100 mg/L as CaCO3
+  expect_equal(convert_units(2 * mweights$n, "nh42so4", "mg/L N", "mg/L CaCO3"), mweights$caco3)
+  expect_equal(convert_units(mweights$caco3, "nh42so4", "mg/L CaCO3", "mg/L N"), 2 * mweights$n)
+  expect_equal(convert_units(mweights$caco3 / 2, "nh4", "mg/L CaCO3", "mg/L N"), mweights$n)
+
+  for (f in c("nh4", "nh42so4", "po4", "hpo4", "h2po4")) {
+    for (b in c("mg/L N", "mg/L P")) {
+      direct <- try(convert_units(100, f, "mg/L CaCO3", b), silent = TRUE)
+      if (inherits(direct, "try-error")) next
+      two_step <- convert_units(convert_units(100, f, "mg/L CaCO3", "mg/L"), f, "mg/L", b)
+      expect_equal(direct, two_step)
+    }
+  }
+  # 100 mg/L as CaCO3 of PO4 = 2 meq/L = 2/3 mM PO4 = 2/3 mM P
+  expect_equal(convert_units(100, "po4", "mg/L CaCO3", "mg/L P"), 100 / mweights$caco3 * 2 / 3 * mweights$p)
+})
+
+test_that("Conversions within the same unit type don't need a formula", {
+  expect_equal(convert_units(1000, startunit = "mg/L", endunit = "g/L"), 1)
+  expect_equal(convert_units(1000, startunit = "ug/L CaCO3", endunit = "mg/L CaCO3"), 1)
+  expect_equal(convert_units(1, startunit = "mg/L N", endunit = "ug/L N"), 1000)
+  expect_equal(convert_units(5, startunit = "mM", endunit = "M"), .005)
+  expect_equal(convert_units(5, startunit = "meq/L", endunit = "eq/L"), .005)
+  expect_equal(convert_units(5, "xyz", startunit = "mg/L", endunit = "g/L"), .005)
+
+  expect_error(convert_units(10, startunit = "mg/L", endunit = "M"))
+  expect_error(convert_units(10, startunit = "mg/L", endunit = "mg/L CaCO3"))
+  expect_error(convert_units(10, startunit = "mM", endunit = "meq/L"))
 })
 # Summarize WQ ----
 

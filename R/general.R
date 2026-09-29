@@ -440,36 +440,29 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
 # If we fail to lookup a unit conversion in our cached table we look here
 # This function is ~20x slower than the cache lookup
 convert_units_private <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
-
   unit_multipliers <- get("unit_multipliers")
   formula_to_charge <- get("formula_to_charge")
 
-  # store info about "as X" compounds
-  basis_info <- c(
-    CaCO3 = as.numeric(tidywater::mweights["caco3"]),
-    N     = as.numeric(tidywater::mweights["n"]),
-    P     = as.numeric(tidywater::mweights["p"]),
-    Cl2   = as.numeric(tidywater::mweights["cl2"])
-  )
-  basis_stoichiometry <- list(nh42so4 = c(N = 2))
-
-  mass_units <- c("ng/L", "ug/L", "mg/L", "g/L")
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
-  gram_list <- c(mass_units, as.vector(outer(mass_units, names(basis_info), paste)))
 
-  # checking whether units are as compounds
-  start_basis <- sub("^.* ", "", startunit)
-  end_basis <- sub("^.* ", "", endunit)
+  # Molar weights of the "mg/L as X" bases
+  basis_mw <- c(
+    CaCO3 = as.numeric(tidywater::mweights["caco3"]),
+    N = as.numeric(tidywater::mweights["n"]),
+    P = as.numeric(tidywater::mweights["p"]),
+    Cl2 = as.numeric(tidywater::mweights["cl2"])
+  )
+  # Moles of basis per mole of formula for the elemental bases.
+  # Cl2 counts active (+1) chlorines by oxidizing capacity, so NHCl2 = 2 Cl2 and NCl3 = 3 Cl2.
+  # CaCO3 is an equivalents basis, so it uses the formula charge instead.
+  basis_count <- list(
+    N = c(n = 1, nh3 = 1, nh4 = 1, nh4oh = 1, nh42so4 = 2, no3 = 1, hno3 = 1, nh2cl = 1, nhcl2 = 1, ncl3 = 1),
+    P = c(p = 1, po4 = 1, hpo4 = 1, h2po4 = 1, h3po4 = 1, na3po4 = 1),
+    Cl2 = c(cl2 = 1, ocl = 1, nh2cl = 1, nhcl2 = 2, ncl3 = 3)
+  )
 
-  if (!start_basis %in% names(basis_info)) {
-    start_basis <- "formula"
-  }
-
-  if (!end_basis %in% names(basis_info)) {
-    end_basis <- "formula"
-  }
-
+  # Look up the unit multipliers for starting and end units
   start_mult <- unit_multipliers[[startunit]]
   end_mult <- unit_multipliers[[endunit]]
   if (is.null(start_mult) || is.null(end_mult)) {
@@ -477,107 +470,61 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   }
   multiplier <- start_mult / end_mult
 
-  formula_mw <- if (!is.null(formula)) {
-    if (formula %in% colnames(tidywater::mweights)) {
-      as.numeric(tidywater::mweights[formula])
+  # Classify each unit as moles, equivalents, plain mass, or mass as a basis
+  unit_basis <- function(unit) {
+    if (unit %in% mole_list) {
+      "mol"
+    } else if (unit %in% eqvl_list) {
+      "eq"
     } else {
-      NA_real_
+      basis <- sub("^[num]?g/L ?", "", unit)
+      if (basis == "") "mass" else basis
     }
-  } else {
-    NA_real_
+  }
+  start_basis <- unit_basis(startunit)
+  end_basis <- unit_basis(endunit)
+
+  # Same dimension and basis (e.g. mg/L to g/L, mM to M) only changes the prefix, so no formula is needed
+  if (start_basis == end_basis) {
+    return(value * multiplier)
   }
 
-  if (!is.na(formula_mw)) {
-    special_basis <- c(start_basis, end_basis)
-    special_basis <- special_basis[special_basis != "formula"]
-    if (length(special_basis) > 0 &
-        ((startunit %in% c(mole_list, eqvl_list)) !=
-          (endunit %in% c(mole_list, eqvl_list)))) {
-      molar_weight <- basis_info[[special_basis[1]]]
-    } else {
-      molar_weight <- formula_mw
-    }
-  } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
-    molar_weight <- 0
-  } else {
+  if (is.null(formula)) {
+    cli::cli_abort("A chemical formula is required to convert {startunit} to {endunit}.")
+  }
+  if (!(formula %in% colnames(tidywater::mweights))) {
     cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  table_charge <- if (!is.null(formula)) formula_to_charge[[formula]] else NULL
-  if (!is.null(table_charge)) {
-    if (!is.na(table_charge)) {
-      charge <- table_charge
-    } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
-      charge <- 1
-    } else {
+  get_charge <- function() {
+    charge <- formula_to_charge[[formula]]
+    if (is.null(charge) || is.na(charge) || charge == 0) {
       cli::cli_abort("Unable to find charge for equivalent conversion.")
     }
-  } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
-    charge <- 1
-  } else {
-    cli::cli_abort("Unable to find charge for equivalent conversion.")
+    charge
   }
 
-  # Store elemental counts for formulas whose "as N" basis includes multiple N atoms.
-  formula_basis_stoichiometry <- if (!is.null(formula)) {
-    basis_stoichiometry[[formula]]
-  } else {
-    NULL
-  }
-  nitrogen_count <- formula_basis_stoichiometry[["N"]]
-  if (is.null(nitrogen_count)) {
-    nitrogen_count <- 1
-  }
-
-  basis_factor <- c(
-    formula = 1 / formula_mw,
-    CaCO3   = 2 / (basis_info[["CaCO3"]] * charge),
-    N       = 1 / (basis_info[["N"]] * nitrogen_count),
-    P       = 1 / basis_info[["P"]],
-    Cl2     = 1 / basis_info[["Cl2"]]
-  )
-
-  # g -> mol
-  if (startunit %in% gram_list & endunit %in% mole_list) {
-    value / molar_weight * multiplier
-  # mol -> g
-  } else if (startunit %in% mole_list & endunit %in% gram_list) {
-    value * molar_weight * multiplier
-  # eq -> g
-  } else if (startunit %in% eqvl_list & endunit %in% gram_list) {
-    value / charge * molar_weight * multiplier
-  # g -> eq
-  } else if (startunit %in% gram_list & endunit %in% eqvl_list) {
-    value / molar_weight * charge * multiplier
-  # mol -> eq
-  } else if (startunit %in% mole_list & endunit %in% eqvl_list) {
-    value * charge * multiplier
-  # eq -> mol
-  } else if (startunit %in% eqvl_list & endunit %in% mole_list) {
-    value / charge * multiplier
-  # Special mass-basis conversions
-  } else if (startunit %in% gram_list & endunit %in% gram_list &
-    start_basis != "formula" & end_basis != "formula" &
-    start_basis != end_basis) {
-    basis_charge <- c(CaCO3 = 2, N = 1, P = 1, Cl2 = 1)
-    value *
-      basis_info[[end_basis]] / basis_info[[start_basis]] *
-      basis_charge[[start_basis]] / basis_charge[[end_basis]] *
-      multiplier
-  } else if (startunit %in% gram_list & endunit %in% gram_list & start_basis != end_basis) {
-    value *
-      basis_factor[[start_basis]] /
-      basis_factor[[end_basis]] *
-      multiplier
-  # Same dimension
-  } else if ((startunit %in% gram_list & endunit %in% gram_list) |
-    (startunit %in% mole_list & endunit %in% mole_list) |
-    (startunit %in% eqvl_list & endunit %in% eqvl_list)) {
-    value * multiplier
-  } else {
-    cli::cli_abort("Units not supported.")
+  # Moles of formula in one base unit (M, eq/L, g/L, or g/L as basis)
+  mol_per_unit <- function(basis) {
+    if (basis == "mol") {
+      1
+    } else if (basis == "eq") {
+      1 / get_charge()
+    } else if (basis == "mass") {
+      1 / as.numeric(tidywater::mweights[formula])
+    } else if (basis == "CaCO3") {
+      # 1 mol CaCO3 = 2 eq
+      2 / (basis_mw[["CaCO3"]] * get_charge())
+    } else {
+      count <- unname(basis_count[[basis]][formula])
+      if (is.na(count)) {
+        cli::cli_abort("Conversion to mg/L as {basis} not supported for {formula}.")
+      }
+      1 / (basis_mw[[basis]] * count)
+    }
   }
 
+  value * multiplier * mol_per_unit(start_basis) / mol_per_unit(end_basis)
 }
 
 #' @title Calculate unit conversions for common compounds
@@ -585,11 +532,16 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
 #' @description This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
-#' @param formula Optional chemical formula. Required for conversions involving mass or equivalents; accepts compounds in mweights.
+#' @param formula Chemical formula of compound; accepts compounds in mweights. Optional when converting within the same
+#' unit type and basis (e.g., mg/L to g/L, mM to M, meq/L to eq/L, or mg/L CaCO3 to g/L CaCO3).
 #' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl2; M; eq/L;
 #' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
 #' @details Mass concentrations may be expressed as CaCO3, N, P, or molecular chlorine (Cl2).
+#' Mass as CaCO3 is an equivalents basis: 1 eq of the compound = 50 g as CaCO3, so 61 mg/L HCO3 is 50 mg/L as CaCO3.
+#' Mass as N or P counts the atoms in the compound: 1 mol of (NH4)2SO4 is 28 g as N.
+#' Mass as Cl2 counts oxidizing capacity: 1 mol of NHCl2 is 2 mol as Cl2.
+#' "mg/L Cl" is treated as "mg/L Cl2".
 #'
 #' @examples
 #' convert_units(50, "ca") # converts from mg/L to M by default
