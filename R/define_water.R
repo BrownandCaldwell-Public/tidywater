@@ -40,6 +40,7 @@
 #' @param al Aluminum in mg/L Al3+
 #' @param mn Manganese in ug/L Mn2+
 #' @param no3 Nitrate in mg/L as N
+#' @param no2 Nitrite in mg/L as N
 #'
 #' @examples
 #' water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
@@ -49,7 +50,7 @@
 #'
 #' @return define_water outputs a water class object where slots are filled or calculated based on input parameters. Water slots have different units than those input into the define_water function, as listed below.
 #' \describe{
-#'   \item{pH}{pH, numeric, in standard units (SU).}
+#'   \item{ph}{pH, numeric, in standard units (SU).}
 #'   \item{temp}{temperature, numeric, in °C.}
 #'   \item{alk}{alkalinity, numeric, mg/L as CaCO3.}
 #'   \item{tds}{total dissolved solids, numeric, mg/L.}
@@ -63,6 +64,7 @@
 #'   \item{borate_alk_eq}{borate alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{silicate_alk_eq}{silicate alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{hypochlorite_alk_eq}{hypochlorite alkalinity as equivalents, numeric, equivalent (eq).}
+#'   \item{citric_alk_eq}{citrate alkalinity as equivalents, numeric, equivalent (eq).}
 #'   \item{toc}{total organic carbon, numeric, mg/L.}
 #'   \item{doc}{dissolved organic carbon, numeric, mg/L.}
 #'   \item{bdoc}{biodegradable organic carbon, numeric, mg/L.}
@@ -77,7 +79,9 @@
 #'   \item{so4}{sulfate, numeric, mols/L.}
 #'   \item{mno4}{permanganate, numeric, mols/L.}
 #'   \item{no3}{nitrate, numeric, mols/L.}
-#'   \item{h2co3}{carbonic acid, numeric, mols/L.}
+#'   \item{no2}{nitrite, numeric, mols/L.}
+#'   \item{h2co3}{carbonic acid (H2CO3*, the sum of dissolved CO2 and H2CO3), numeric, mols/L.}
+#'   \item{co2}{dissolved carbon dioxide (H2CO3*, calculated from h2co3), numeric, mg/L as CO2.}
 #'   \item{hco3}{bicarbonate, numeric, mols/L.}
 #'   \item{co3}{carbonate, numeric, mols/L.}
 #'   \item{h2po4}{dihydrogen phosphate, numeric, mols/L.}
@@ -121,7 +125,7 @@
 #'   \item{chbr3}{bromoform, numeric, ug/L.}
 #'   \item{tthm}{total trihalomethanes, numeric, ug/L.}
 #'   \item{mcaa}{chloroacetic acid, numeric, ug/L.}
-#'   \item{dmcaa}{dichloroacetic acid, numeric, ug/L.}
+#'   \item{dcaa}{dichloroacetic acid, numeric, ug/L.}
 #'   \item{tcaa}{trichloroacetic acid, numeric, ug/L.}
 #'   \item{mbaa}{bromoacetic acid, numeric, ug/L.}
 #'   \item{dbaa}{dibromoacetic acid, numeric, ug/L.}
@@ -162,7 +166,8 @@ define_water <- function(
   fe,
   al,
   mn,
-  no3
+  no3,
+  no2
 ) {
   # Initialize string for tracking which parameters were estimated
   estimated <- ""
@@ -239,6 +244,7 @@ define_water <- function(
   al <- ifelse(missing(al), NA_real_, convert_units(al, "al"))
   mn <- ifelse(missing(mn), NA_real_, convert_units(mn, "mn", "ug/L", "M"))
   no3 <- ifelse(missing(no3), NA_real_, convert_units(no3, "no3", "mg/L N", "M"))
+  no2 <- ifelse(missing(no2), NA_real_, convert_units(no2, "no2", "mg/L N", "M"))
 
   if (missing(toc) & missing(doc) & missing(uv254)) {
     toc <- NA_real_
@@ -388,7 +394,8 @@ define_water <- function(
     fe = fe,
     al = al,
     mn = mn,
-    no3 = no3
+    no3 = no3,
+    no2 = no2
   )
 
   # Determine ionic strength
@@ -476,6 +483,7 @@ define_water <- function(
 
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   water@h2co3 <- water@tot_co3 * alpha0
+  water@co2 <- water@h2co3 * tidywater::mweights$co2 * 1000
   water@hco3 <- water@tot_co3 * alpha1
   water@co3 <- water@tot_co3 * alpha2
   water@dic <- water@tot_co3 * tidywater::mweights$dic * 1000
@@ -546,7 +554,8 @@ define_water_df <- function(
   fe = "use_col",
   al = "use_col",
   mn = "use_col",
-  no3 = "use_col"
+  no3 = "use_col",
+  no2 = "use_col"
 ) {
 
 # Process unquoted column names
@@ -580,6 +589,7 @@ define_water_df <- function(
   al <- tryCatch(al, error = function(e) enquo(al))
   mn <- tryCatch(mn, error = function(e) enquo(mn))
   no3 <- tryCatch(no3, error = function(e) enquo(no3))
+  no2 <- tryCatch(no2, error = function(e) enquo(no2))
 
 arguments <- construct_helper(
  df,
@@ -613,7 +623,8 @@ arguments <- construct_helper(
     "fe"=fe,
     "al"=al,
     "mn"=mn,
-    "no3"=no3
+    "no3"=no3,
+    "no2"=no2
   ))
 
   final_names <- arguments$final_names

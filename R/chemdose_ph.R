@@ -339,6 +339,7 @@ chemdose_ph <- function(
   alpha1 <- calculate_alpha1_carbonate(h, dosed_water@ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, dosed_water@ks) # proportion of total carbonate as CO32-
   dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
+  dosed_water@co2 <- dosed_water@h2co3 * tidywater::mweights$co2 * 1000
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
