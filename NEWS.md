@@ -6,7 +6,7 @@
   * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
   factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
   alkalinity are unchanged.
-  * mg/L as N counts N atoms per formula, so (NH4)2SO4 is 2 N.
+  * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
 
