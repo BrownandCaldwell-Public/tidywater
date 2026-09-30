@@ -50,7 +50,7 @@ If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal.
 
 \item{media_type}{The type of media used in the biofilter. Default is "anthracite", other options are "gac" and "sand". Only used if \code{reuse = TRUE}.}
 
-\item{atp}{The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.}
+\item{atp}{The measured adenosine triphosphate (ATP) concentration at the top of the biofilter (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column indicating the EBCT or whether the water is ozonated.}

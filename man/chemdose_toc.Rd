@@ -7,6 +7,8 @@
 \source{
 Edwards (1997)
 
+Wilder & Korak (2025)
+
 U.S. EPA (2001)
 
 See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -55,7 +57,8 @@ chemdose_toc_df(
 \item{pacl}{Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....}
 
 \item{model_coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
+data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters, Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
+"Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. See reference list for more information.}
 
 \item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
 
