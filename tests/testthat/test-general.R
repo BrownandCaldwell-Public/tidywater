@@ -236,7 +236,7 @@ test_that("Mass as Cl2 counts active chlorines", {
 
 test_that("Conversions between bases match converting through the formula", {
   # (NH4)2SO4: 1 mol = 2 mol N = 2 eq
-  expect_equal(convert_units(1, "nh42so4", "mg/L N", "mg/L CaCO3"), (mweights$caco3 / 2) / mweights$n))
+  expect_equal(convert_units(1, "nh42so4", "mg/L N", "mg/L CaCO3"), (mweights$caco3 / 2) / mweights$n)
   expect_equal(convert_units(1, "nh42so4", "mg/L CaCO3", "mg/L N"), mweights$n / (mweights$caco3 / 2))
 
   # NH4: 1 mol = 1 mol N = 1 eq
