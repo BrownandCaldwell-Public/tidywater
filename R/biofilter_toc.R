@@ -21,7 +21,7 @@
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
 #' @param media_type The type of media used in the biofilter. Default is "anthracite", other options are "gac" and "sand". Only used if `reuse = TRUE`.
-#' @param atp The measured adenosine triphosphate (ATP) concentration (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.
+#' @param atp The measured adenosine triphosphate (ATP) concentration at the top of the biofilter (ng/mL at 22 degrees Celcius). Optional argument that will use Terry et al. (2024) model for both drinking water and reuse if nonzero value is provided. (This will also ignore ozone dose and media type for reuse models.) Defaults to 0.
 #'
 #'
 #' @source Terry and Summers 2018
@@ -111,6 +111,10 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     water@bdoc <- BDOC_eff
   } else if (atp > 0) {
     # Terry et al. (2024) model for both drinking water and reuse when ATP data is available
+    if (ebct < 5 | ebct > 30) {
+      cli::cli_warn("Terry et al. model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
+    }
+    
     if (reuse == FALSE) {
       k <- 1.8E-04 # modeled k'' for drinking water from Table 2
       bdoc_fraction <- 0.2
@@ -125,8 +129,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     
     # adjust for temp in ATP measurement, assumes lab temp of 22C
     atp_filter <- atp * (0.034 * temp + 0.203) # Eqn 5
+    x_total <- atp_filter * (0.132 * (ebct * log(ebct) - ebct) + 0.706 * ebct) # Eqn 7
 
-    bdoc0 <- bdoc_fraction * exp(-k * atp_filter * ebct) # Ceff/Cinf from Eqn 9
+    bdoc0 <- bdoc_fraction * exp(-k * x_total) # Ceff/Cinf from Eqn 9
 
     # Update water object with new TOC and DOC values
     bdoc_rem <- water@bdoc * (1 - bdoc0)

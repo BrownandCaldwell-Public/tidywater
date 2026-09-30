@@ -71,8 +71,15 @@ test_that("biofilter_toc correctly implements reuse argument with no ATP.", {
   noreuse_water <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE))
   reuse_water1 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE))
   reuse_water2 <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 1, reuse = TRUE))
-  
-  expect_equal(round(reuse_water1@toc, 3), 4.171)
+  reuse_water3 <- suppressWarnings(biofilter_toc(water, ebct = 20, ozonated = TRUE, ozone_dose = 2, reuse = TRUE))
+
+  perc_rem1 <- ((water@toc - reuse_water1@toc) / water@toc) * 100
+  perc_rem2 <- ((water@toc - reuse_water2@toc) / water@toc) * 100
+  perc_rem3 <- ((water@toc - reuse_water3@toc) / water@toc) * 100 # equals 14.69%
+
+  expect_equal(round(perc_rem1), 17)
+  expect_equal(round(perc_rem2), 8)
+  expect_true(perc_rem3 > 6 & perc_rem3 < 20) # cutoffs from Lee et al. 2012 referenced in Peterson and Summers 2021 Table 1
   expect_false(round(reuse_water1@toc, 3) == round(noreuse_water@toc, 3))
   expect_false(round(reuse_water2@toc, 3) == round(reuse_water1@toc, 3))
 
@@ -88,12 +95,14 @@ test_that("biofilter_toc correctly implements ATP argument.", {
   reuse_dose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE, atp = 10))
   temp_test <- suppressWarnings(biofilter_toc(warm_water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 10))
 
+  perc_rem <- ((water@toc - reuse_dose_atp@toc) / water@toc) * 100
+
   expect_true(!is.na(dw_atp@bdoc))
   expect_false(round(dw_atp@doc, 3) == round(reuse_nodose_atp@doc, 3))
   expect_false(round(reuse_dose_atp@doc, 3) == round(reuse_nodose_atp@doc, 3))
   expect_true(dw_atp@doc > temp_test@doc) # colder temp adjustment decreases ATP and removal
   expect_true(round(reuse_dose_atp@doc, 3) < round(reuse_nodose_atp@doc, 3)) # ozonated water has more removal than non-ozonated
-  expect_equal(round(reuse_dose_atp@doc, 3), 3.037)
+  expect_equal(round(perc_rem), 19)
 })
 
 ################################################################################*

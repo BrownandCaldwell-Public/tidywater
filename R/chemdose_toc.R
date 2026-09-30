@@ -20,13 +20,15 @@
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param pacl Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....
 #' @param model_coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b
+#' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters, Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
+#' "Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. See reference list for more information.
 #' @param caoh2 Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
 #' @param fns Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.
 #' 
 #' @seealso [chemdose_ph]
 #'
 #' @source Edwards (1997)
+#' @source Wilder & Korak (2025)
 #' @source U.S. EPA (2001)
 #' @source See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #'
@@ -114,17 +116,17 @@ chemdose_toc <- function(
   # Convert to meq/L for UV model
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
-  # setup suva for calculations 
-  suva<- calc_suva(water@doc, water@uv254)
-  # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
-  if (suva>5) {
-    suva<-5
-    cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
-  }
-  else suva<-suva
-
   if (model_type == "Edwards") {
     # Edwards (1997) DOC removal model
+    # setup suva for calculations 
+    suva<- calc_suva(water@doc, water@uv254)
+    # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
+    if (suva>5) {
+      suva<-5
+      cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
+    }
+    else suva<-suva
+
     if (caoh2 > 0) {
 
       removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
