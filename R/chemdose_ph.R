@@ -99,18 +99,18 @@ chemdose_ph <- function(
   softening_correction = FALSE
 ) {
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & (nh4oh > 0 | nh42so4 > 0)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Both chlorine- and ammonia-based chemicals were dosed and may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
     )
   }
   if ((cacl2 > 0 | cl2 > 0 | naocl > 0) & water@tot_nh3 > 0) {
-    cli::cli_warn(
+    tidywater_warn(
       "A chlorine-based chemical was dosed into a water containing ammonia, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
     )
   }
 
   if ((nh4oh > 0 | nh42so4 > 0) & (water@free_chlorine > 0 | water@combined_chlorine > 0)) {
-    cli::cli_warn(
+    tidywater_warn(
       "An ammonia-based chemical was dosed into a water containing chlorine, which may form chloramines. Use {.fn chemdose_chloramine} for breakpoint calculations."
     )
   }
@@ -191,7 +191,7 @@ chemdose_ph <- function(
 
   # Total sodium
   if ((naoh > 0 | na2co3 > 0 | nahco3 > 0 | naocl > 0 | naf > 0 | na3po4 > 0) & is.na(water@na)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Sodium-containing chemical dosed, but {.field na} slot is {.val NA}; slot not updated because background Na is unknown."
     )
   }
@@ -200,7 +200,7 @@ chemdose_ph <- function(
 
   # Total calcium
   if ((caoh2 > 0 | cacl2 > 0 | caco3 > 0 | caso4 > 0 | caocl2 > 0) & is.na(water@ca)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Calcium-containing chemical dosed, but {.field ca} slot is {.val NA}; slot not updated because background Ca is unknown."
     )
   }
@@ -209,7 +209,7 @@ chemdose_ph <- function(
 
   # Total magnesium
   if ((mgoh2 > 0) & is.na(water@mg)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Magnesium-containing chemical dosed, but {.field mg} slot is {.val NA}; slot not updated because background Mg is unknown."
     )
   }
@@ -219,7 +219,7 @@ chemdose_ph <- function(
   # Total potassium
 
   if (kmno4 > 0 & is.na(water@k)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Potassium-containing chemical dosed, but {.field k} slot is {.val NA}; slot not updated because background K is unknown."
     )
   }
@@ -228,7 +228,7 @@ chemdose_ph <- function(
 
   # Total permanganate
   if (kmno4 > 0 & is.na(water@mno4)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Permanganate-containing chemical dosed, but {.field mno4} slot is {.val NA}; slot not updated because background MnO4 is unknown."
     )
   }
@@ -237,7 +237,7 @@ chemdose_ph <- function(
 
   # Total nitrate
   if (hno3 > 0 & is.na(water@no3)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Nitrate-containing chemical dosed, but {.field no3} slot is {.val NA}; slot not updated because background NO3 is unknown."
     )
   }
@@ -246,7 +246,7 @@ chemdose_ph <- function(
 
   # Total chloride
   if ((hcl > 0 | cl2 > 0 | cacl2 > 0 | ferricchloride > 0 | ach > 0 | pacl > 0) & is.na(water@cl)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Chloride-containing chemical dosed, but {.field cl} slot is {.val NA}; slot not updated because background Cl is unknown."
     )
   }
@@ -256,7 +256,7 @@ chemdose_ph <- function(
 
   # Total sulfate
   if ((h2so4 > 0 | alum > 0 | ferricsulfate > 0 | nh42so4 > 0 | caso4 > 0) & is.na(water@so4)) {
-    cli::cli_warn(
+    tidywater_warn(
       "Sulfate-containing chemical dosed, but {.field so4} slot is {.val NA}; slot not updated because background SO4 is unknown."
     )
   }
@@ -305,7 +305,7 @@ chemdose_ph <- function(
     convert_units(no3_dose, "no3", "M", "mg/L") +
     convert_units(citric_dose, "citric", "M", "mg/L")
   if (!is.na(dosed_water@tds) & dosed_water@tds < 0) {
-    cli::cli_warn("Calculated TDS after chemical removal is < 0; TDS and ionic strength will be set to 0.")
+    tidywater_warn("Calculated TDS after chemical removal is < 0; TDS and ionic strength will be set to 0.")
     dosed_water@tds <- 0
   }
   dosed_water@is <- correlate_ionicstrength(dosed_water@tds, from = "tds")
@@ -339,6 +339,7 @@ chemdose_ph <- function(
   alpha1 <- calculate_alpha1_carbonate(h, dosed_water@ks) # proportion of total carbonate as HCO3-
   alpha2 <- calculate_alpha2_carbonate(h, dosed_water@ks) # proportion of total carbonate as CO32-
   dosed_water@h2co3 <- dosed_water@tot_co3 * alpha0
+  dosed_water@co2 <- dosed_water@h2co3 * tidywater::mweights$co2 * 1000
   dosed_water@hco3 <- dosed_water@tot_co3 * alpha1
   dosed_water@co3 <- dosed_water@tot_co3 * alpha2
 
@@ -404,7 +405,7 @@ chemdose_ph <- function(
     ch3cooh_dose <- 2 * convert_units(ch3cooh_dose, "c", "M", "mg/L") # 2 moles of C per 1 mole ch3cooh
     water@toc <- water@toc + ch3cooh_dose
     water@doc <- water@doc + ch3cooh_dose
-    cli::cli_warn("TOC and DOC changed in addition to pH due to acetic acid dose.")
+    tidywater_warn("TOC and DOC changed in addition to pH due to acetic acid dose.")
   }
 
   # update dic
@@ -648,7 +649,7 @@ chemdose_ph_df <- function(
   })
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   output <- df[, !names(df) %in% defaults_added$defaults_used]

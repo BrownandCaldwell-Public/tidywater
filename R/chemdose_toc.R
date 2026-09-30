@@ -91,13 +91,13 @@ chemdose_toc <- function(
   }
 
   if (alum <= 0 & ferricchloride <= 0 & ferricsulfate <= 0 & ach <= 0 & pacl <= 0) {
-    cli::cli_warn("No coagulants dosed; final water will equal input water.")
+    tidywater_warn("No coagulants dosed; final water will equal input water.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & (ferricchloride > 0 | ferricsulfate > 0)) {
-    cli::cli_warn("Both alum and ferric coagulants entered.")
+    tidywater_warn("Both alum and ferric coagulants entered.")
   } else if ((ferricchloride > 0 | ferricsulfate > 0) & any(grepl("Alum", coeff))) {
-    cli::cli_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg model_coeff}.")
+    tidywater_warn("Ferric coagulants used with coefficients fit on Alum. Check {.arg coeff}.")
   } else if ((alum > 0 | ach > 0 | pacl > 0) & any(grepl("Ferric", coeff))) {
-    cli::cli_warn("Alum used with coefficients fit on Ferric. Check {.arg model_coeff}.")
+    tidywater_warn("Alum used with coefficients fit on Ferric. Check {.arg coeff}.")
   }
 
   # Alum - hydration included
@@ -117,15 +117,16 @@ chemdose_toc <- function(
   coag2 <- alum * 2 * 3 + ferricchloride * 1 * 3 + ferricsulfate * 2 * 3 + ach * 2 * 3 + pacl * 2 * 3
 
   if (model_type == "Edwards") {
-    # Edwards (1997) DOC removal model
-    # setup suva for calculations 
+
+  # setup suva for calculations 
     suva<- calc_suva(water@doc, water@uv254)
     # suva over 5 is cray cray so if its larger than that set suva to 5 and warn
     if (suva>5) {
       suva<-5
-      cli::cli_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
+      tidywater_warn("SUVA is outside Edwards model range; assuming SUVA == 5 for modeling.")
     }
     else suva<-suva
+    # Edwards calculations
 
     if (caoh2 > 0) {
 
@@ -162,7 +163,7 @@ chemdose_toc <- function(
         water@toc <- nonadsorb + adsorb
         water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
       }
-      cli::cli_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
+      tidywater_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
     } else {
       nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
@@ -189,13 +190,13 @@ chemdose_toc <- function(
   } else if (grepl("Reuse", model_type)) {
     # Wilder & Korak (2025) reuse model
     if (alum == 0) {
-      cli::cli_warn("Reuse models are only for alum coagulation. No alum dose entered; final water will equal input water.")
+      tidywater_warn("Reuse models are only for alum coagulation. No alum dose entered; final water will equal input water.")
       return(water)
     }
 
     fns <- ifelse(is.na(coeff$fns), fns, coeff$fns)
     if(is.na(fns)) {
-      cli::cli_abort("Fraction of non-sorbing DOC (fns) must be provided for site-specific reuse models.")
+      tidywater_warn("Fraction of non-sorbing DOC (fns) must be provided for site-specific reuse models.")
     }
 
     doc_i <- water@doc
@@ -343,7 +344,7 @@ warning_counts<-list()
   })
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 

@@ -68,6 +68,7 @@ convert_watermg <- function(water) {
   water@so4 <- convert_units(water@so4, "so4", "M", "mg/L")
   water@mno4 <- convert_units(water@mno4, "mno4", "M", "mg/L")
   water@no3 <- convert_units(water@no3, "no3", "M", "mg/L N")
+  water@no2 <- convert_units(water@no2, "no2", "M", "mg/L N")
   water@h2co3 <- convert_units(water@h2co3, "h2co3", "M", "mg/L")
   water@hco3 <- convert_units(water@hco3, "hco3", "M", "mg/L")
   water@co3 <- convert_units(water@co3, "co3", "M", "mg/L")

@@ -40,13 +40,13 @@ define_chemical<-function(
     cli::cli_abort("No formula provided, no formula no chemical.")
   }
   if (missing(dose)){
-    cli::cli_warn("No dose provided, defaulting to zero.")
+    tidywater_warn("No dose provided, defaulting to zero.")
   }
   if (missing(strength)){
-    cli::cli_warn("No strength provided, defaulting to 100% strength")
+    tidywater_warn("No strength provided, defaulting to 100% strength")
   }
   if (missing(dose_unit)){
-    cli::cli_warn("No dose_unit provided, defaulting to mg/L as chemical.")
+    tidywater_warn("No dose_unit provided, defaulting to mg/L as chemical.")
   }
 
   
