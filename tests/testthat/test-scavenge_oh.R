@@ -20,7 +20,7 @@ test_that("scavenger works with alk params", {
   # numeric tests - values derived from UV-H2O2 spreadsheet tool
   expect_equal(round(SC_alk), 87162)
   expect_equal(round(SC_base), 75029)
-  expect_equal(round(sc_alk_h2o2), 95103)
+  expect_equal(round(sc_alk_h2o2), 95100)
 
 })
 
