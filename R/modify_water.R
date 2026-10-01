@@ -32,7 +32,7 @@ modify_water <- function(water, slot, value, units) {
 
   tthmlist <- c("chcl3", "chcl2br", "chbr2cl", "chbr3")
   haa5list <- c("mcaa", "dcaa", "tcaa", "mbaa", "dbaa")
-  haa9list <- c("bcaa", "cdbaa", "dcbaa", "baa")
+  haa9list <- c("bcaa", "cdbaa", "dcbaa", "tbaa")
 
   if (missing(units)) {
     cli::cli_abort("{.arg units} missing. Typical units include {.val mg/L}, {.val ug/L}, or {.val M}.")
@@ -54,7 +54,7 @@ modify_water <- function(water, slot, value, units) {
       if (units_n == "mg/L") {
         new_value <- value_n
       } else if (units_n == "ug/L") {
-        new_value <- value_n * 10^3
+        new_value <- value_n / 10^3
       } else {
         cli::cli_abort("{slot_n} must be specified in {.val mg/L} or {.val ug/L}.")
       }
@@ -70,7 +70,7 @@ modify_water <- function(water, slot, value, units) {
       if (units_n == "ug/L") {
         new_value <- value_n
       } else if (units_n == "mg/L") {
-        new_value <- value_n / 10^3
+        new_value <- value_n * 10^3
       } else {
         cli::cli_abort("{slot_n} must be specified in {.val ug/L} or {.val mg/L}.")
       }
@@ -125,15 +125,26 @@ modify_water_df <- function(
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
   final_names <- arguments$final_names
 
+  # Constants apply to every row as given (not expanded into a grid), so vectors modify several slots at once.
+  all_args <- list("slot" = slot, "value" = value, "units" = units)
+  constants <- Filter(function(x) !inherits(x, "quosure") && !identical(x, "use_col"), all_args)
+  missing_cols <- setdiff(unlist(final_names[setdiff(names(all_args), names(constants))]), names(df))
+  if (length(missing_cols) > 0) {
+    cli::cli_abort("Column{?s} {.val {missing_cols}} not found in {.arg df}. Pass the argument directly or add the column.")
+  }
+  row_arg <- function(arg, i) {
+    if (arg %in% names(constants)) constants[[arg]] else df[[final_names[[arg]]]][[i]]
+  }
+
 warning_counts <- list()
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(
       modify_water(
         water = df[[input_water]][[i]],
-        slot = df[[final_names$slot]][[i]],
-        value = df[[final_names$value]][[i]],
-        units = df[[final_names$units]][[i]]
+        slot = row_arg("slot", i),
+        value = row_arg("value", i),
+        units = row_arg("units", i)
       ),
       warning = function(w) {
         msg <- conditionMessage(w)
