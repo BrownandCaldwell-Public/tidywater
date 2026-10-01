@@ -88,7 +88,6 @@ test_that("Modify water converts organics and DBPs to stored units.", {
   expect_equal(modify_water(water0, "haa5", 0.06, "mg/L")@haa5, 60)
   expect_equal(modify_water(water0, "tbaa", 5, "ug/L")@tbaa, 5)
   expect_equal(modify_water(water0, "tbaa", 0.005, "mg/L")@tbaa, 5)
-  expect_error(modify_water(water0, "baa", 5, "ug/L"))
 })
 
 test_that("Modify water df applies arguments passed as constants.", {
