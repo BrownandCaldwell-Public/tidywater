@@ -18,6 +18,11 @@ type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
+every internal tidywater call, now go straight to the lookup table, and the fuzzy unit matching only runs when it is
+actually needed. Numeric results are unchanged. A `startunit` or `endunit` of `""` now reports "Units not supported"
+instead of an internal fuzzy-matching error.
+
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
