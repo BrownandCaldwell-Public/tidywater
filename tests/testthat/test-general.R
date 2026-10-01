@@ -170,21 +170,21 @@ test_that("Canonical units and formulas convert without warning", {
 test_that("As CaCO3/N/P/Cl2 works", {
   mglCa <- 20
   mglasCaCO3 <- convert_units(mglCa, "ca", startunit = "mg/L", endunit = "mg/L CaCO3")
-  mglasCaCO3_eq <- (mglCa / 40.078) * 100.0869
+  mglasCaCO3_eq <- (mglCa / mweights$ca) * mweights$caco3
   expect_equal(mglasCaCO3, mglasCaCO3_eq)
   mglasCaCO3_start <- convert_units(mglasCaCO3_eq, "ca", startunit = "mg/L CaCO3", endunit = "mg/L")
   expect_equal(mglasCaCO3_start, mglCa)
 
   mglNH4 <- 20
   mglasN <- convert_units(mglNH4, "nh4", startunit = "mg/L", endunit = "mg/L N")
-  mglasN_eq <- (mglNH4 / 18.04) * 14.0067
+  mglasN_eq <- (mglNH4 / mweights$nh4) * mweights$n
   expect_equal(mglasN, mglasN_eq)
   mglasN_start <- convert_units(mglasN_eq, "nh4", startunit = "mg/L N", endunit = "mg/L")
   expect_equal(mglasN_start, mglNH4)
 
   mglPO4 <- 20
   mglasP <- convert_units(mglPO4, "po4", startunit = "mg/L", endunit = "mg/L P")
-  mglasNP_eq <- (mglPO4 / 94.97) * 30.97
+  mglasNP_eq <- (mglPO4 / mweights$po4) * mweights$p
   expect_equal(mglasP, mglasNP_eq)
   mglasP_start <- convert_units(mglasNP_eq, "po4", startunit = "mg/L P", endunit = "mg/L")
   expect_equal(mglasP_start, mglPO4)
@@ -192,7 +192,7 @@ test_that("As CaCO3/N/P/Cl2 works", {
   mglNHCl2 <- 20
   mglasCl2 <- convert_units(mglNHCl2, "nhcl2", startunit = "mg/L", endunit = "mg/L Cl2")
   # NHCl2 has two active chlorines, so 1 mol NHCl2 = 2 mol as Cl2
-  mglasCl2_eq <- (mglNHCl2 / 85.92) * mweights$cl2 * 2
+  mglasCl2_eq <- (mglNHCl2 / mweights$nhcl2) * mweights$cl2 * 2
   expect_equal(mglasCl2, mglasCl2_eq)
   mglasCl2_start <- convert_units(mglasCl2_eq, "nhcl2", startunit = "mg/L Cl2", endunit = "mg/L")
   expect_equal(mglasCl2_start, mglNHCl2)
@@ -270,8 +270,8 @@ test_that("Mass as Cl2 counts active chlorines", {
 
 test_that("Conversions between bases match converting through the formula", {
   # (NH4)2SO4: 1 mol = 2 mol N = 2 eq
-  expect_equal(convert_units(1, "nh42so4", "mg/L N", "mg/L CaCO3"), mweights$caco3 / (2 * mweights$n))
-  expect_equal(convert_units(1, "nh42so4", "mg/L CaCO3", "mg/L N"), 2 * mweights$n / mweights$caco3)
+  expect_equal(convert_units(1, "nh42so4", "mg/L N", "mg/L CaCO3"), (mweights$caco3 / 2) / mweights$n)
+  expect_equal(convert_units(1, "nh42so4", "mg/L CaCO3", "mg/L N"), mweights$n / (mweights$caco3 / 2))
 
   # NH4: 1 mol = 1 mol N = 1 eq
   expect_equal(convert_units(1, "nh4", "mg/L CaCO3", "mg/L N"), 1 / (mweights$caco3 / 2) * mweights$n)
