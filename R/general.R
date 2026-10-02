@@ -581,6 +581,14 @@ names(unit_matcher) <- normalize_unit_alias(canonical_units)
 unit_alias_extra_matcher <- unname(unit_alias_extra)
 names(unit_alias_extra_matcher) <- normalize_unit_alias(names(unit_alias_extra))
 unit_matcher <- c(unit_matcher, unit_alias_extra_matcher)
+# Lookup takes the first match, so a spelling that normalizes onto an existing key would
+# be silently ignored rather than reported. Fail at load instead of at conversion time.
+if (anyDuplicated(names(unit_matcher))) {
+  stop(
+    "Unit spellings collide after normalization: ",
+    paste(unique(names(unit_matcher)[duplicated(names(unit_matcher))]), collapse = ", ")
+  )
+}
 unit_matcher_names <- names(unit_matcher)
 
 #' @title Calculate unit conversions for common compounds
