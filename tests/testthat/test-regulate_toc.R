@@ -121,6 +121,7 @@ test_that("regulate_toc_df can take column and argument inputs", {
 })
 
 test_that("regulate_toc_df passes skip_alternate for numeric inputs", {
+  testthat::skip_on_cran()
   base <- suppressWarnings(regulate_toc(toc_raw = 1.8, toc_finished = 1.5, alk_raw = 80, skip_alternate = TRUE))
   regulated <- suppressWarnings(
     regulate_toc_df(data.frame(toc_raw = 1.8, toc_finished = 1.5, alk_raw = 80), skip_alternate = TRUE)

@@ -2,6 +2,12 @@
 
 ## Breaking changes
 
+* Deprecated `_once` and `_chain` wrappers now pass arguments to the right parameters, which changes their output
+(#526). `chemdose_toc_once()` previously ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and
+`chemdose_ph_once()` errored. `chemdose_dbp_once()` now respects `water_prefix`, so its output columns are prefixed by
+default.
+* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs, which can change
+`toc_compliance_status` (#529).
 * `convert_units()` now converts through moles of the formula, which changes some results (#156, #492):
   * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
   factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
@@ -42,10 +48,6 @@ Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/m
 models that warn repeatedly (notably `chemdose_ph` inside `solvedose_ph`, where the warnings are suppressed anyway) are much faster.
 * Fixed an error in `biofilter_toc_df` when reporting how many rows a repeated warning affected.
 * Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
-* Fixed deprecated `_once` and `_chain` wrappers passing arguments into the wrong parameters. `chemdose_toc_once()`
-ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and `chemdose_ph_once()` errored. `chemdose_dbp_once()`
-now respects `water_prefix` (#526).
-* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs (#529).
 
 
 # tidywater 0.10.0

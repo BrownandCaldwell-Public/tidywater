@@ -67,6 +67,7 @@ test_that("_chain works", {
 })
 
 test_that("deprecated wrappers pass arguments to the matching _df parameters", {
+  testthat::skip_on_cran()
   water0 <- water_df %>%
     dplyr::slice(1:3) %>%
     transform(br = 50) %>%
