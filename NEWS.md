@@ -9,6 +9,10 @@
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
+so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, `dic` is validated, and
+a new warning is given for DIC outside roughly 10 to 90 mg/L as C.
 
 ## New features
 
@@ -18,6 +22,10 @@ type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
+chloride or sulfate is missing, as the warning says, instead of erroring (#538).
+* `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
+state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by

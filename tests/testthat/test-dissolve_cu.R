@@ -8,7 +8,7 @@ test_that("DIC or alk is required for dissolve_cu", {
 
   expect_error(dissolve_cu(water1))
   expect_no_error(dissolve_cu(water2))
-  expect_equal(signif(dissolved$cu, 2), 0.49)
+  expect_equal(signif(dissolved$cu, 2), 0.33)
 })
 
 test_that("pH is required", {
@@ -23,7 +23,26 @@ test_that("warning when po4 is zero", {
   water2 <- suppressWarnings(define_water(ph = 4, alk = 60, tot_po4 = 2))
 
   expect_warning(dissolve_cu(water1))
-  expect_warning(dissolve_cu(water2))
+  # pH 4 with alk = 60 also puts DIC far above the model range
+  expect_warning(expect_warning(dissolve_cu(water2), "pH values"), "DIC")
+})
+
+test_that("warning when DIC is outside the model range", {
+  water1 <- suppressWarnings(define_water(ph = 8, alk = 5, tot_po4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7.5, alk = 400, tot_po4 = 2))
+
+  expect_warning(dissolve_cu(water1), "DIC")
+  expect_warning(dissolve_cu(water2), "DIC")
+})
+
+test_that("dissolve_cu uses orthophosphate in mg/L as PO4 (#508)", {
+  water0 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 0))
+  water3 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 3))
+
+  cu3 <- dissolve_cu(water3)$cu
+  # Lytle et al. (2018), PO4 in mg/L as PO4 and DIC in mg/L as C
+  expect_equal(cu3, 56.68 * exp(-0.77 * 7.5) * exp(-0.20 * 3) * water3@dic^0.59)
+  expect_lt(cu3, suppressWarnings(dissolve_cu(water0))$cu * 0.6)
 })
 
 # test that dissolve_cu works
@@ -40,10 +59,10 @@ test_that("dissolve_cu works.", {
   water4 <- suppressWarnings(define_water(ph = 7, alk = 100, temp = 25, ca = 100, tot_po4 = 0.5)) %>%
     dissolve_cu()
 
-  expect_equal(signif(water1$cu, 2), 1.9)
-  expect_equal(signif(water2$cu, 2), 0.78)
-  expect_equal(signif(water3$cu, 2), 1.6)
-  expect_equal(signif(water4$cu, 2), 1.9)
+  expect_equal(signif(water1$cu, 2), 1.3)
+  expect_equal(signif(water2$cu, 2), 0.53)
+  expect_equal(signif(water3$cu, 2), 1.1)
+  expect_equal(signif(water4$cu, 2), 1.7)
 })
 
 ################################################################################*

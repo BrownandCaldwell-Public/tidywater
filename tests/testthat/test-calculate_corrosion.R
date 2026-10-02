@@ -1,15 +1,45 @@
 # Calculate corrosion ----
 library(dplyr)
 
-test_that("most indices won't work without ca, cl, so4", {
+test_that("most indices won't work without ca", {
   water <- suppressWarnings(define_water(ph = 8, temp = 25, alk = 200, tds = 238))
 
   expect_error(suppressWarnings(calculate_corrosion(water, index = "aggressive")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "ryznar")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "langelier")))
   expect_error(suppressWarnings(calculate_corrosion(water, index = "ccpp")))
-  expect_error(suppressWarnings(calculate_corrosion(water, index = "larsonskold")))
-  expect_error(suppressWarnings(calculate_corrosion(water, index = "csmr")))
+})
+
+test_that("Larson-Skold and CSMR are skipped with a warning when cl or so4 is missing", {
+  water <- suppressWarnings(define_water(ph = 7.8, temp = 15, alk = 90, ca = 35))
+  water_cl <- suppressWarnings(define_water(ph = 7.8, temp = 15, alk = 90, ca = 35, cl = 20))
+
+  expect_warning(corrosion <- calculate_corrosion(water), "will not be calculated")
+  expect_true(is.na(corrosion$larsonskold))
+  expect_true(is.na(corrosion$csmr))
+  expect_false(anyNA(corrosion[c("aggressive", "ryznar", "langelier", "ccpp")]))
+  expect_equal(
+    corrosion[c("aggressive", "ryznar", "langelier", "ccpp")],
+    calculate_corrosion(water, index = c("aggressive", "ryznar", "langelier", "ccpp"))
+  )
+
+  expect_warning(corrosion_cl <- calculate_corrosion(water_cl, index = c("larsonskold", "csmr")), "will not be calculated")
+  expect_true(all(is.na(corrosion_cl)))
+})
+
+test_that("form is validated and CCPP always uses calcite", {
+  water <- suppressWarnings(define_water(
+    ph = 8, temp = 20, alk = 100, tot_hard = 150, ca = 40, na = 20, cl = 30, so4 = 40, tds = 300
+  ))
+
+  expect_error(calculate_corrosion(water, form = "calcit"), "must be one of")
+  expect_error(calculate_corrosion(water, form = c("calcite", "aragonite")), "must be one of")
+  expect_error(calculate_corrosion_df(define_water_df(water_df), form = "dolomite"), "must be one of")
+
+  calcite <- calculate_corrosion(water, index = c("langelier", "ccpp"), form = "calcite")
+  aragonite <- calculate_corrosion(water, index = c("langelier", "ccpp"), form = "aragonite")
+  expect_true(calcite$langelier > aragonite$langelier)
+  expect_equal(calcite$ccpp, aragonite$ccpp)
 })
 
 test_that("function catches index typos", {
