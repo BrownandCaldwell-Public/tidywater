@@ -11,7 +11,10 @@
 #' Use [convert_water] to keep all slots in the same units as the water.
 #'
 #' Use [convert_watermg] to convert to more typical units. Converts all non-NA water slots with ions to mg/L, with the exception of br and mn, which
-#' are converted to ug/L. All other values remain unchanged.
+#' are converted to ug/L. Total silicate is converted to mg/L as SiO2, and citrate species are converted to mg/L as citric acid,
+#' matching the [define_water] inputs. All other values remain unchanged.
+#'
+#' The `ks` slot (a data frame of corrected equilibrium constants) is not included in the output. Access it directly with `water@ks`.
 #'
 #'
 #' @param water A water class object
@@ -30,15 +33,16 @@
 #'
 #' @export
 #'
-#' @returns A data frame containing columns for all non-NA water slots.
+#' @returns A data frame containing columns for all non-NA water slots, except `ks`.
 
 convert_water <- function(water) {
-  nms <- methods::slotNames(water)
+  # ks is a data frame of equilibrium constants, not a single value, so it is not included.
+  nms <- setdiff(methods::slotNames(water), "ks")
   lst <- lapply(nms, function(nm) methods::slot(water, nm))
+  names(lst) <- nms
   df <- as.data.frame(lst)
-  names(df) <- nms
 
-  df[, sapply(df, function(col) any(!is.na(col)))]
+  df[, sapply(df, function(col) any(!is.na(col))), drop = FALSE]
 }
 
 #' @rdname convert_water
@@ -57,8 +61,6 @@ convert_watermg <- function(water) {
   if (!methods::is(water, "water")) {
     cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
-  h <- 10^-water@ph
-
   # listed in order of appearance in define_water
   water@na <- convert_units(water@na, "na", "M", "mg/L")
   water@ca <- convert_units(water@ca, "ca", "M", "mg/L")
@@ -80,14 +82,18 @@ convert_watermg <- function(water) {
   water@h3bo3 <- convert_units(water@h3bo3, "h3bo3", "M", "mg/L")
   water@h3sio4 <- convert_units(water@h3sio4, "h3sio4", "M", "mg/L") 
   water@h2sio4 <- convert_units(water@h2sio4, "h2sio4", "M", "mg/L") 
-  water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L") 
+  water@ch3coo <- convert_units(water@ch3coo, "ch3cooh", "M", "mg/L")
+  water@h2citric <- convert_units(water@h2citric, "citric", "M", "mg/L")
+  water@h1citric <- convert_units(water@h1citric, "citric", "M", "mg/L")
+  water@citric <- convert_units(water@citric, "citric", "M", "mg/L")
   # don't convert h and oh
   water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
   water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
   water@tot_bo4 <- convert_units(water@tot_bo4, "b", "M", "mg/L B")
-  water@tot_sio4 <- convert_units(water@tot_sio4, "sio4", "M", "mg/L")
-  water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L") 
+  water@tot_sio4 <- convert_units(water@tot_sio4, "sio2", "M", "mg/L")
+  water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L")
+  water@tot_citric <- convert_units(water@tot_citric, "citric", "M", "mg/L")
 
   water@bro3 <- convert_units(water@bro3, "bro3", "M", "mg/L")
   water@f <- convert_units(water@f, "f", "M", "mg/L")
@@ -116,7 +122,7 @@ convert_watermg <- function(water) {
 #' @param df a data frame containing a water class column, which has already
 #' been computed using [define_water]
 #' @param input_waters vector of names of the columns of water class data to be used as the input for this function.
-#' @param parameter vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots.
+#' @param parameter vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots except `ks` (see [convert_water]).
 #'
 #' @seealso [convert_water]
 #'
