@@ -2,6 +2,12 @@
 
 ## Breaking changes
 
+* Deprecated `_once` and `_chain` wrappers now pass arguments to the right parameters, which changes their output
+(#526). `chemdose_toc_once()` previously ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and
+`chemdose_ph_once()` errored. `chemdose_dbp_once()` now respects `water_prefix`, so its output columns are prefixed by
+default.
+* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs, which can change
+`toc_compliance_status` (#529).
 * `convert_units()` now converts through moles of the formula, which changes some results (#156, #492):
   * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
   factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
