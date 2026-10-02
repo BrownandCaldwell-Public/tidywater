@@ -91,6 +91,7 @@ test_that("Modify water converts organics and DBPs to stored units.", {
 })
 
 test_that("Modify water df applies arguments passed as constants.", {
+  testthat::skip_on_cran()
   water0 <- define_water(ph = 7, alk = 50, na = 20, cl = 20, tds = 200)
   df <- data.frame(id = 1:2)
   df$defined <- list(water0, water0)

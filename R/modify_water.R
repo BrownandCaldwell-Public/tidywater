@@ -85,8 +85,13 @@ modify_water <- function(water, slot, value, units) {
 
 #' @rdname modify_water
 #' @param df a data frame containing a water class column, which has already been computed using [define_water_df]
-#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined_water".
-#' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified_water".
+#' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
+#' @param output_water name of the output column storing updated parameters with the class, water. Default is "modified".
+#'
+#' @details In `modify_water_df`, `slot`, `value`, and `units` can each be a constant, an unquoted column name, or left as
+#' "use_col" to read a column of the same name ("slot", "value", "units"). Constants are applied to every row as
+#' given, so `slot = c("br", "na")`, `value = c(50, 60)`, `units = c("ug/L", "mg/L")` sets both slots on each water.
+#' Unlike other `_df` functions, vector constants are not expanded into one row per combination. Columns are read row by row.
 #'
 #' @examples
 #'

@@ -9,6 +9,10 @@
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
+It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
+* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
+was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
@@ -42,10 +46,6 @@ Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/m
 models that warn repeatedly (notably `chemdose_ph` inside `solvedose_ph`, where the warnings are suppressed anyway) are much faster.
 * Fixed an error in `biofilter_toc_df` when reporting how many rows a repeated warning affected.
 * Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
-* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
-It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
-* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
-was returned unchanged. It now errors when a column it needs is missing (#533).
 
 
 # tidywater 0.10.0
