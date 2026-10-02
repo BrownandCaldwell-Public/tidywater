@@ -166,6 +166,36 @@ test_that("Canonical units and formulas convert without warning", {
   expect_no_warning(convert_units(10, "nh4", startunit = "mg/L", endunit = "mg/L N"))
 })
 
+test_that("Units with a misplaced space are not silently accepted", {
+  # Canonical unit names contain spaces, so a unit split at the wrong boundary can
+  # look like a different valid combination once formula and units are joined.
+  # "mg/L" + "CaCO3 M" must not be treated as "mg/L CaCO3" + "M".
+  caco3_to_m <- convert_units(50, "ca", startunit = "mg/L CaCO3", endunit = "M")
+  expect_false(isTRUE(all.equal(
+    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "CaCO3 M")),
+    caco3_to_m
+  )))
+  expect_equal(
+    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "CaCO3 M")),
+    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "caco3m"))
+  )
+
+  # A formula that has absorbed a unit must still be rejected as a formula.
+  expect_error(suppressWarnings(convert_units(50, "ca mg/L", startunit = "CaCO3", endunit = "M")))
+
+  # Same shape for the N and P bases.
+  expect_equal(
+    suppressWarnings(convert_units(50, "nh4", startunit = "mg/L", endunit = "N mM")),
+    suppressWarnings(convert_units(50, "nh4", startunit = "mg/L", endunit = "nmm"))
+  )
+})
+
+test_that("Empty units are reported as unsupported", {
+  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "", endunit = "M")))
+  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "mg/L", endunit = "")))
+  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "", endunit = "")))
+})
+
 
 test_that("As CaCO3/N/P/Cl2 works", {
   mglCa <- 20

@@ -577,6 +577,8 @@ unit_matcher <- c(
   "eq/l" = "eq/L"
 )
 unit_matcher_names <- names(unit_matcher)
+# The canonical unit names themselves, used to gate the fast path in convert_units.
+canonical_units <- unique(unname(unit_matcher))
 
 #' @title Calculate unit conversions for common compounds
 #'
@@ -608,7 +610,10 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
 
   # Fast path: callers that already pass canonical units and formulas (which is every
   # internal tidywater call) hit the cache directly and skip normalization and matching.
-  if (!is.null(formula)) {
+  # Both units must be exact canonical names. Unit names contain spaces, so without
+  # that check paste() could build the key of a different valid combination -- e.g.
+  # ("ca", "mg/L", "CaCO3 M") and ("ca", "mg/L CaCO3", "M") both give "ca mg/L CaCO3 M".
+  if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
     lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
     if (!is.null(lookup)) {
       return(value * lookup)
