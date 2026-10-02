@@ -236,6 +236,21 @@ test_that("ozonate_bromate_df multiple models", {
   expect_equal(water1$ozonated_bro3, water3$ozonated_bro3)
 })
 
+test_that("ozonate_bromate_df Siddiqui model runs without time.", {
+  testthat::skip_on_cran()
+  water <- suppressWarnings(
+    water_df %>%
+      slice(1:2) %>%
+      mutate(br = 80) %>%
+      define_water_df()
+  )
+  water1 <- ozonate_bromate_df(water, dose = 3, model = "Siddiqui", pluck_cols = TRUE)
+  water2 <- ozonate_bromate_df(water, dose = 3, time = 10, model = "Siddiqui", pluck_cols = TRUE)
+
+  expect_equal(water1$ozonated_bro3, water2$ozonated_bro3)
+  expect_error(ozonate_bromate_df(water, dose = 3, model = "Ozekin"), "Reaction time")
+})
+
 test_that("ozonate_bromate_df errors with argument + column for same param", {
   testthat::skip_on_cran()
   water <- water_df %>%
