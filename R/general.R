@@ -653,19 +653,20 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
   # like M, without that then every M conversion is wrong.
   # nchar is checked first so the expensive fuzzy match only runs when it can be used.
   else if (nchar(startunit) > 1) {
-    bestStart <- agrep(startunit, unit_matcher_names, max.distance = 1)
-    if (length(bestStart) > 0) {
-      startunit <- unit_matcher[[bestStart[1]]]
+    dists <- adist(startunit, unit_matcher_names)
+    bestStart <- which.min(dists)
+    if (dists[bestStart] <= 1) {
+      startunit <- unit_matcher[[bestStart]]
       tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
     }
-  }
 
   if (endunit %in% unit_matcher_names) {
     endunit <- unit_matcher[[endunit]]
   } else if (nchar(endunit) > 1) {
-    bestEnd <- agrep(endunit, unit_matcher_names, max.distance = 1)
-    if (length(bestEnd) > 0) {
-      endunit <- unit_matcher[[bestEnd[1]]]
+    dists <- adist(endunit, unit_matcher_names)
+    bestEnd <- which.min(dists)
+    if (dists[bestEnd] <= 1) {
+      endunit <- unit_matcher[[bestEnd]]
       tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
     }
   }
