@@ -129,6 +129,7 @@ modify_water_df <- function(
   # This returns a dataframe of the input arguments and the correct column names for the others
   arguments <- construct_helper(df, all_args = list("slot" = slot, "value" = value, "units" = units))
   final_names <- arguments$final_names
+  # arguments$new_cols is deliberately unused: merging that expand.grid would split vector constants across rows.
 
   # Constants apply to every row as given (not expanded into a grid), so vectors modify several slots at once.
   all_args <- list("slot" = slot, "value" = value, "units" = units)
