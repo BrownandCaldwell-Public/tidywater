@@ -64,6 +64,14 @@ test_that("ozonate_bromate works.", {
   expect_equal(round(water7@bro3, 1), 1.2)
 })
 
+test_that("ozonate_bromate Siddiqui model runs without time.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, doc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- ozonate_bromate(water1, dose = 1, model = "Siddiqui")
+  water3 <- ozonate_bromate(water1, dose = 1, time = 10, model = "Siddiqui")
+
+  expect_equal(water2@bro3, water3@bro3)
+})
+
 ################################################################################*
 ################################################################################*
 # ozonate_bromate helpers ----
