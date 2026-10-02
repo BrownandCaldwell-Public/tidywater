@@ -12,7 +12,7 @@ been computed using \link{define_water}}
 
 \item{input_waters}{vector of names of the columns of water class data to be used as the input for this function.}
 
-\item{parameter}{vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots.}
+\item{parameter}{vector of water class parameters to view outside the water column. Can also specify "all" to get all non-NA water slots except \code{ks} (see \link{convert_water}).}
 }
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.
