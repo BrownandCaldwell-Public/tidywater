@@ -38,6 +38,18 @@ type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
+every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
+`endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
+
+* `convert_units()` no longer uses edit-distance ("fuzzy") matching for units. Units are now matched case-insensitively
+against a fixed list of known-equivalent spellings: with or without internal whitespace, with or without a slash
+(`mgL` = `mg/L`), with or without the linking word "as" (`mg/L CaCO3` = `mg/L as CaCO3`), and `mol/L` (with the usual
+`m`/`u`/`n` prefixes) as an alias for `M`. A unit that isn't one of these exact aliases of a canonical unit now errors
+with "Units not supported" instead of silently matching an unrelated canonical unit (e.g. `"CaCO3 M"` no longer
+fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Formula fuzzy matching for typos (e.g.
+`"caa"` for `"ca"`) is unchanged.
+
 * `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
 * `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
 * `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
