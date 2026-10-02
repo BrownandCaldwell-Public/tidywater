@@ -11,6 +11,8 @@
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
 * `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
 multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
+* `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC, since both the Zachman and WTP models
+were calibrated on DOC. `gac_toc()` sets effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
 
 ## New features
 

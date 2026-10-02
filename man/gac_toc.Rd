@@ -73,12 +73,13 @@ For most arguments in the \verb{_df} helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 function instead or an unquoted column name can be provided.
 
-Water must contain DOC or TOC value.
+Water must contain a DOC value (or TOC, from which \link{define_water} estimates DOC).
 }
 \details{
 GAC model for TOC removal
 
-The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
+The function will calculate DOC concentration by GAC adsorption in drinking water treatment.
+Both models were calibrated on DOC. Effluent TOC is set equal to effluent DOC.
 UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
 }
 \examples{

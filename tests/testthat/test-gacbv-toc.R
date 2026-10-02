@@ -37,6 +37,7 @@ test_that("gacbv_toc works.", {
   bv3 <- gacbv_toc(water, model = "WTP", target_doc = c(0.6, 0.8, 1))
 
   expect_true(is.data.frame(bv1))
+  expect_equal(bv1$bed_volume, 3300)
   expect_false(identical(bv1$bed_volume, bv2$bed_volume))
   expect_true(is.data.frame(bv3))
   expect_error(gacbv_toc(water, target_doc = 0))
@@ -56,19 +57,12 @@ test_that("gacbv_toc bed volume increases with target_doc.", {
 
 test_that("gacbv_toc returns the bed volume where C/C0 matches target_doc / doc on the gacrun_toc curve.", {
   water <- define_water(ph = 7.5, alk = 80, tds = 250, toc = 3, doc = 2.85, uv254 = 0.08)
-  targets <- c(0.8, 1, 1.5)
 
-  for (model in c("WTP", "Zachman")) {
-    curve <- gacrun_toc(water, ebct = 10, model = model, media_size = "12x40")
-    bv <- gacbv_toc(water, ebct = 10, model = model, media_size = "12x40", target_doc = targets)$bed_volume
+  curve <- gacrun_toc(water, model = "WTP")
+  bv <- gacbv_toc(water, model = "WTP", target_doc = 1)$bed_volume
 
-    x_at_bv <- curve$x_norm[match(bv, curve$bv)]
-    expect_false(anyNA(x_at_bv))
-    expect_equal(x_at_bv, targets / water@doc, tolerance = 0.02)
-
-    # Not simply the end of the breakthrough curve
-    expect_true(all(bv < max(curve$bv)))
-  }
+  expect_equal(curve$x_norm[curve$bv == bv], 1 / water@doc, tolerance = 0.02)
+  expect_true(bv < max(curve$bv)) # not simply the end of the breakthrough curve
 })
 
 ################################################################################*

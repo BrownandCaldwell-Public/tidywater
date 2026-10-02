@@ -9,7 +9,7 @@
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' Water must contain DOC or TOC value.
+#' Water must contain a DOC value (or TOC, from which [define_water] estimates DOC).
 #'
 #' @details The function will calculate bed volume required to achieve given target DOC values.
 #'
@@ -22,9 +22,7 @@
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Default is 12x40.
-#' @param target_doc Target effluent DOC concentration (mg/L). Required. Can be a vector to return a bed volume for each
-#' target. Each target is converted to C/C0 (`target_doc / doc`) and matched to the closest point on the
-#' [gacrun_toc] breakthrough curve.
+#' @param target_doc Target effluent DOC concentration (mg/L). Can be a vector to return a bed volume for each target.
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
