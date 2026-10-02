@@ -132,6 +132,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' @param target_alk The final alkalinity in mg/L as CaCO3 to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
 #' acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+#' CO2 does not change alkalinity, so `chemical = "co2"` always returns `NA` with a warning.
 #'
 #' @seealso [solvedose_ph]
 #'
@@ -196,6 +197,12 @@ solvedose_alk <- function(water, target_alk, chemical) {
     alkfin <- waterfin@alk
 
     (target_alk - alkfin)
+  }
+
+  # CO2 doesn't change alkalinity, so no dose can reach a different target
+  if (chemical == "co2") {
+    tidywater_warn("CO2 does not change alkalinity, so the target cannot be reached; {.val NA} returned.")
+    return(NA)
   }
 
   # Target alkalinity can't be met

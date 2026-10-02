@@ -60,22 +60,43 @@ test_that("Solve dose pH doesn't error when target pH is close to starting.", {
   expect_no_error(solvedose_ph(water2, 8, "naoh"))
 })
 
-test_that("Solve dose pH rejects a discontinuous low-alkalinity solution", {
-  water <- define_water(
-    ph = 12.75,
-    temp = 25,
-    alk = 1000,
-    tds = 3530,
-    ca = 70,
-    mg = 10,
-    so4 = 0
-  )
+test_that("Solve dose pH rejects a discontinuous solution", {
+  water <- define_water(ph = 9, temp = 25, alk = 50, tds = 200)
+  # Step-change pH response, so uniroot converges on a dose that doesn't reach the target
+  local_mocked_bindings(chemdose_ph = function(water, ...) {
+    dose <- list(...)$h2so4
+    water@ph <- ifelse(dose < 10, 9, 5)
+    water
+  })
 
   expect_warning(
     dose <- solvedose_ph(water, 7, "h2so4"),
     "could not find a reliable dose"
   )
   expect_true(is.na(dose))
+})
+
+test_that("Solve dose pH titrates a water with alk below hydroxide alkalinity as carbonate-free", {
+  # OH- alone is ~2800 mg/L as CaCO3 at pH 12.75, so define_water sets carbonate to 0 (#537)
+  expect_warning(
+    water <- define_water(
+      ph = 12.75,
+      temp = 25,
+      alk = 1000,
+      tds = 3530,
+      ca = 70,
+      mg = 10,
+      so4 = 0
+    ),
+    "non-carbonate alkalinity"
+  )
+  expect_equal(water@tot_co3, 0)
+
+  expect_warning(
+    dose <- solvedose_ph(water, 7, "h2so4"),
+    "Supplemental alkalinity may be required"
+  )
+  expect_true(is.finite(dose))
 })
 
 test_that("Solve dose pH retains valid high-dose solutions", {
@@ -103,6 +124,14 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
   expect_equal(suppressWarnings(solvedose_alk(water5, 100, "h2so4")), NA)
   expect_no_warning(solvedose_alk(water5, 100, "naoh"))
   expect_no_error(solvedose_alk(water5, 100, "naoh"))
+})
+
+test_that("Solve dose alk returns NA with a warning for CO2, which doesn't change alkalinity.", {
+  water5 <- define_water(ph = 7.5, alk = 80, tds = 200)
+
+  expect_warning(solvedose_alk(water5, 70, "co2"), "CO2 does not change alkalinity")
+  expect_equal(suppressWarnings(solvedose_alk(water5, 70, "co2")), NA)
+  expect_equal(suppressWarnings(solvedose_alk(water5, 90, "co2")), NA)
 })
 
 test_that("Solve dose alk works.", {

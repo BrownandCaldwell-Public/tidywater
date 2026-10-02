@@ -15,7 +15,9 @@
 #' water must contain DOC or TOC value.
 #'
 #' @details The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
-#' UV254 concentrations are predicted based on a linear relationship with DOC.
+#' UV254 concentrations are predicted based on a linear relationship with DOC, and are set to 0 when that
+#' relationship gives a negative value. For waters with DOC below 1.3 mg/L, the model is applied with the same
+#' percent removal as a 1.3 mg/L water. With a dose or time of 0, the input water is returned unchanged.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 #' @source CHO(2007)
@@ -84,10 +86,10 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
 
   if (dose == 0 | time == 0) {
     tidywater_warn("No PAC added or reaction time is zero; final water will equal input water.")
-    remaining <- 1
+    return(water)
   } else if (doc < 1.3) {
     # Because of the form of the equation, DOC<1.3 results in negative DOC. Assume same % removal as DOC0=1.3
-    remaining <- (coeffs$A + coeffs$a * 1.3 - coeffs$b * dose - coeffs$c * time) / doc
+    remaining <- (coeffs$A + coeffs$a * 1.3 - coeffs$b * dose - coeffs$c * time) / 1.3
   } else {
     remaining <- (coeffs$A + coeffs$a * doc - coeffs$b * dose - coeffs$c * time) / doc
   }
@@ -98,7 +100,8 @@ pac_toc <- function(water, dose, time, type = "bituminous") {
   # UVA can be a good indicator to predict DOC concentration by PAC adsorption
   # can be predicted through relationship of DOC and UVA removal --> dimensionless unit (C/C0)
 
-  UVA <- .0376 * result - .041
+  # The linear fit crosses zero at DOC ~1.09 mg/L, so clamp to keep UV254 non-negative.
+  UVA <- max(.0376 * result - .041, 0)
 
   water@doc <- result
   water@toc <- result

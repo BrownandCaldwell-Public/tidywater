@@ -37,6 +37,21 @@ test_that("Define water calculates correct carbonate balance.", {
   expect_equal(signif(water1@hco3, 2), 0.002)
 })
 
+test_that("define_water warns and sets carbonate to 0 when alk is below the hydroxide alkalinity.", {
+  expect_warning(
+    define_water(ph = 11, temp = 20, alk = 1, ca = 20, mg = 5, na = 20, cl = 20, so4 = 20, tds = 200),
+    "non-carbonate alkalinity"
+  )
+  water1 <- suppressWarnings(
+    define_water(ph = 11, temp = 20, alk = 1, ca = 20, mg = 5, na = 20, cl = 20, so4 = 20, tds = 200)
+  )
+  expect_equal(water1@carbonate_alk_eq, 0)
+  expect_equal(c(water1@tot_co3, water1@h2co3, water1@hco3, water1@co3, water1@dic), rep(0, 5))
+  expect_gte(dissolve_pb(water1)$tot_dissolved_pb, 0)
+
+  expect_no_warning(define_water(ph = 11, temp = 20, alk = 100, tds = 200))
+})
+
 test_that("Define water calculates correct TDS/IS/cond.", {
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tds = 200))
   water2 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, cond = 312))
