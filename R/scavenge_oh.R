@@ -165,6 +165,7 @@ scavenge_oh_df <- function(
     tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
-  output <- df[, !names(df) %in% defaults_added$defaults_used]
+  # Keep the result even if output_column shares a name with a defaulted argument
+  output <- df[, !names(df) %in% setdiff(defaults_added$defaults_used, output_column)]
   return(output)
 }
