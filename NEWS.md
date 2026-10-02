@@ -14,6 +14,10 @@ previously expanded into 15 columns and shifted every column name after it, so D
 equilibrium constants (#534). Use `water@ks` to get the equilibrium constants.
 * `convert_watermg()` returns `tot_sio4` in mg/L as SiO2, matching `define_water()` input (#530). It also converts
 `tot_citric`, `h2citric`, `h1citric`, and `citric` to mg/L as citric acid.
+* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
+It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
+* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
+was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
