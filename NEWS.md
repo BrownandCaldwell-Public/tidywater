@@ -1,5 +1,23 @@
 # Development version
 
+## Breaking changes
+
+* `convert_units()` now converts through moles of the formula, which changes some results (#156, #492):
+  * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
+  factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
+  alkalinity are unchanged.
+  * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
+  * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
+  * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+
+## New features
+
+* `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
+formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
+type (e.g. mg/L to g/L or mM to M).
+
+## Other changes
+
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
