@@ -5,38 +5,65 @@
 #' Other products of the oxidation reactions will not be tracked or updated in the output water object.
 #' For a single water use `chemdose_inorgdemand`; to apply the model to a dataframe use `chemdose_inorgdemand_df`.
 #'
-#' Any free chlorine already in the water (`free_chlorine` slot) is added to `cl_dose` before the inorganic demand is
-#' subtracted, so the output `free_chlorine` is the existing free chlorine plus the dose minus the demand. The function
-#' errors if the inorganic demand is greater than the total available chlorine.
+#' By default (`use_chlorine_slot = FALSE`), the output `free_chlorine` is `cl_dose` minus the inorganic demand, and any
+#' free chlorine already in the water is overwritten (with a warning). Set `use_chlorine_slot = TRUE` to add the existing
+#' `free_chlorine` slot to `cl_dose` before the demand is subtracted. The function errors if the inorganic demand is
+#' greater than the available chlorine.
 #'
 #' The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. Additionally, use `chemdose_chloramine`
 #' if interested in more precise breakpoint chlorination calculations.
 #'
 #' @param water Input water object with mn, fe, and tot_nh3 slots defined.
 #' @param cl_dose Chlorine dose in mg/L Cl2.
+#' @param use_chlorine_slot Defaults to FALSE. When TRUE, the existing free_chlorine slot in the water is added to
+#' `cl_dose`. If `cl_dose` is not specified, only the chlorine slot will be used. If `cl_dose` is specified and
+#' use_chlorine_slot is TRUE, all chlorine will be summed.
 #'
 #' @examples
 #'
 #' water1<-define_water(ph = 7, alk = 70, mn = 1, fe = 2, tot_nh3 = 1)
 #' cl_residual <- chemdose_inorgdemand(water1, 20)
 #'
-#' # Existing free chlorine is added to the dose
-#' water2 <- define_water(ph = 7, alk = 70, mn = 1, fe = 2, tot_nh3 = 1, free_chlorine = 2)
-#' cl_residual <- chemdose_inorgdemand(water2, 20)
+#' # Use the existing free chlorine in the water
+#' water2 <- define_water(ph = 7, alk = 70, mn = 1, fe = 2, tot_nh3 = 1, free_chlorine = 12)
+#' cl_residual <- chemdose_inorgdemand(water2, use_chlorine_slot = TRUE)
 #'
 #' @export
 #'
 #' @returns `chemdose_inorgdemand` returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
 #'
 
-chemdose_inorgdemand <- function(water, cl_dose) {
-  validate_water(water, c("mn", "fe", "tot_nh3", "free_chlorine"))
+chemdose_inorgdemand <- function(water, cl_dose, use_chlorine_slot = FALSE) {
+  if (!is.logical(use_chlorine_slot)) {
+    cli::cli_abort("{.arg use_chlorine_slot} must be {.code TRUE} or {.code FALSE}.")
+  }
+
+  if (missing(cl_dose)) {
+    if (use_chlorine_slot) {
+      cl_dose <- 0
+    } else {
+      cli::cli_abort("Missing value for {.arg cl_dose}. Specify {.arg cl_dose} or set {.code use_chlorine_slot = TRUE} to use the residual chlorine in the water.")
+    }
+  }
+
+  if (use_chlorine_slot) {
+    validate_water(water, c("mn", "fe", "tot_nh3", "free_chlorine"))
+  } else {
+    validate_water(water, c("mn", "fe", "tot_nh3"))
+  }
+
+  if (use_chlorine_slot & cl_dose > 0) {
+    tidywater_warn("Chlorine dose was summed with residual chlorine in the water object. If unintended, omit {.arg cl_dose} or set {.code use_chlorine_slot = FALSE}.")
+  }
+  if (!use_chlorine_slot & !is.na(water@free_chlorine) & water@free_chlorine > 0) {
+    tidywater_warn("Existing {.field free_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
+  }
 
     # convert each species to mg/L
     mn  <- convert_units(water@mn, "mn", "M", "mg/L")
     fe  <- convert_units(water@fe, "fe", "M", "mg/L")
     nh3 <- convert_units(water@tot_nh3, "n", "M", "mg/L") # tot nh3 stored as N
-    free_cl <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
+    free_cl <- if (use_chlorine_slot) convert_units(water@free_chlorine, "cl2", "M", "mg/L") else 0
 
     mn_demands <- mn * 1.29
     fe_demands <- fe * 0.64
@@ -46,10 +73,16 @@ chemdose_inorgdemand <- function(water, cl_dose) {
     residual <- available_cl - demand
 
     if (residual < 0) {
+      available_msg <- if (use_chlorine_slot) {
+        "Available chlorine is {.arg cl_dose} plus the existing {.field free_chlorine} in {.arg water}."
+      } else {
+        "Available chlorine is {.arg cl_dose}. Set {.code use_chlorine_slot = TRUE} to include the existing {.field free_chlorine} in {.arg water}."
+      }
       cli::cli_abort(c(
         "Inorganic demand is greater than the available chlorine.",
         "x" = "Demand from Mn, Fe, and ammonia is {signif(demand, 3)} mg/L as Cl2, but only {signif(available_cl, 3)} mg/L as Cl2 is available.",
-        "i" = "Available chlorine is {.arg cl_dose} plus the existing {.field free_chlorine} in {.arg water}. Increase {.arg cl_dose} to at least {signif(demand - free_cl, 3)} mg/L as Cl2."
+        "i" = available_msg,
+        "i" = "Increase {.arg cl_dose} to at least {signif(demand - free_cl, 3)} mg/L as Cl2."
       ))
     } else {
       output_water <- water
@@ -64,7 +97,7 @@ chemdose_inorgdemand <- function(water, cl_dose) {
 
 #' @rdname chemdose_inorgdemand
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_df]. The df may include a column for the chlorine dose (cl_dose).
+#' [define_water_df]. The df may include columns for the chlorine dose (cl_dose) and use_chlorine_slot.
 #' @param input_water name of the column of water class data to be used as the input for this function. Default is "defined".
 #' @param output_water name of the output column storing updated water class object. Default is "oxidized".
 #' @param pluck_cols Extract water slots modified by the function (free_chlorine, mn, fe, tot_nh3) into new numeric
@@ -84,6 +117,12 @@ chemdose_inorgdemand <- function(water, cl_dose) {
 #'   define_water_df() %>%
 #'   dplyr::mutate(ClDose = seq(3, 14, 1)) %>%
 #'   chemdose_inorgdemand_df(cl_dose = ClDose, output_water = "chlorinated")
+#'
+#' # Use the free_chlorine already in each water instead of a dose
+#' example_df <- water_df %>%
+#'   dplyr::mutate(mn = 20, fe = 0.5, tot_nh3 = 0.2, free_chlorine = 4) %>%
+#'   define_water_df() %>%
+#'   chemdose_inorgdemand_df(use_chlorine_slot = TRUE, pluck_cols = TRUE)
 #' }
 #'
 #' @export
@@ -98,15 +137,17 @@ chemdose_inorgdemand_df <- function(
   pluck_cols = FALSE,
   water_prefix = TRUE,
   keep_dose_cols = FALSE,
-  cl_dose = "use_col"
+  cl_dose = "use_col",
+  use_chlorine_slot = "use_col"
 ) {
   # This allows for the function to process unquoted column names without erroring
   cl_dose <- tryCatch(cl_dose, error = function(e) enquo(cl_dose))
+  use_chlorine_slot <- tryCatch(use_chlorine_slot, error = function(e) enquo(use_chlorine_slot))
 
   validate_water_helpers(df, input_water)
 
   # This returns a dataframe of the input arguments and the correct column names for the others
-  arguments <- construct_helper(df, list("cl_dose" = cl_dose))
+  arguments <- construct_helper(df, list("cl_dose" = cl_dose, "use_chlorine_slot" = use_chlorine_slot))
   final_names <- arguments$final_names
 
   # Only join inputs if they aren't in existing dataframe
@@ -114,17 +155,28 @@ chemdose_inorgdemand_df <- function(
     df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
   }
   # Add columns with default arguments
-  defaults_added <- handle_defaults(df, final_names, list())
+  defaults_added <- handle_defaults(df, final_names, list(use_chlorine_slot = FALSE))
   df <- defaults_added$data
+
+  # cl_dose may be omitted when use_chlorine_slot = TRUE; let the base function handle the missing dose
+  has_dose <- final_names$cl_dose %in% names(df)
 
   warning_counts <- list()
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(
-      chemdose_inorgdemand(
-        water = df[[input_water]][[i]],
-        cl_dose = df[[final_names$cl_dose]][i]
-      ),
+      if (has_dose) {
+        chemdose_inorgdemand(
+          water = df[[input_water]][[i]],
+          cl_dose = df[[final_names$cl_dose]][i],
+          use_chlorine_slot = df[[final_names$use_chlorine_slot]][i]
+        )
+      } else {
+        chemdose_inorgdemand(
+          water = df[[input_water]][[i]],
+          use_chlorine_slot = df[[final_names$use_chlorine_slot]][i]
+        )
+      },
       warning = function(w) {
         msg <- conditionMessage(w)
         warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
@@ -147,7 +199,7 @@ chemdose_inorgdemand_df <- function(
   }
 
   if (!keep_dose_cols) {
-    output <- output[, !colnames(output) %in% unlist(final_names)]
+    output <- output[, !colnames(output) %in% final_names$cl_dose]
   }
 
   return(output)
