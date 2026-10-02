@@ -14,9 +14,10 @@
 
 * New `chemdose_inorgdemand_df()` applies `chemdose_inorgdemand()` to a data frame of waters (#511).
 * `chemdose_inorgdemand()` and `chemdose_inorgdemand_df()` gain a `use_chlorine_slot` argument, matching
-`chemdose_chlordecay()`. When `TRUE`, existing `free_chlorine` in the water is added to `cl_dose` (which may then be
-omitted) before the inorganic demand is subtracted. The default, `FALSE`, keeps the previous behavior of overwriting
-`free_chlorine`, and now warns when existing free chlorine is overwritten (#511, #532).
+`chemdose_chlordecay()`. When `TRUE`, existing `free_chlorine` in the water is added to `cl_dose` before the inorganic
+demand is subtracted. The default, `FALSE`, keeps the previous behavior of overwriting `free_chlorine` when `cl_dose`
+is given, and now warns when existing free chlorine is overwritten. If `cl_dose` is omitted, the `free_chlorine` slot
+is used (with a warning when `use_chlorine_slot = FALSE`) instead of erroring (#511, #532).
 * `chemdose_inorgdemand()` now gives a correct error when the inorganic demand exceeds the available chlorine,
 reporting the demand, the available chlorine, and the dose needed. It previously said there was too much oxidant.
 

@@ -19,13 +19,13 @@ chemdose_inorgdemand_df(
 )
 }
 \arguments{
-\item{water}{Input water object with mn, fe, and tot_nh3 slots defined.}
+\item{water}{Input water object with mn, fe, and tot_nh3 slots defined. The free_chlorine slot must also be defined
+when the slot is used (\code{use_chlorine_slot = TRUE} or \code{cl_dose} not specified).}
 
 \item{cl_dose}{Chlorine dose in mg/L Cl2.}
 
 \item{use_chlorine_slot}{Defaults to FALSE. When TRUE, the existing free_chlorine slot in the water is added to
-\code{cl_dose}. If \code{cl_dose} is not specified, only the chlorine slot will be used. If \code{cl_dose} is specified and
-use_chlorine_slot is TRUE, all chlorine will be summed.}
+\code{cl_dose}. If \code{cl_dose} is not specified, only the chlorine slot will be used, regardless of use_chlorine_slot.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include columns for the chlorine dose (cl_dose) and use_chlorine_slot.}
@@ -34,8 +34,7 @@ use_chlorine_slot is TRUE, all chlorine will be summed.}
 
 \item{output_water}{name of the output column storing updated water class object. Default is "oxidized".}
 
-\item{pluck_cols}{Extract water slots modified by the function (free_chlorine, mn, fe, tot_nh3) into new numeric
-columns for easy access. Default to FALSE.}
+\item{pluck_cols}{Extract the free_chlorine slot into a new numeric column for easy access. Default to FALSE.}
 
 \item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
 
@@ -45,7 +44,7 @@ columns for easy access. Default to FALSE.}
 \code{chemdose_inorgdemand} returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
 
 \code{chemdose_inorgdemand_df} returns a data frame containing a water class column with updated free_chlorine,
-mn, fe, and tot_nh3 slots. Optionally, it also adds columns for each of those slots individually.
+mn, fe, and tot_nh3 slots. Optionally, it also adds a column for free_chlorine.
 }
 \description{
 Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia. The output water will have updated \code{free_chlorine} slot
@@ -55,10 +54,11 @@ For a single water use \code{chemdose_inorgdemand}; to apply the model to a data
 
 By default (\code{use_chlorine_slot = FALSE}), the output \code{free_chlorine} is \code{cl_dose} minus the inorganic demand, and any
 free chlorine already in the water is overwritten (with a warning). Set \code{use_chlorine_slot = TRUE} to add the existing
-\code{free_chlorine} slot to \code{cl_dose} before the demand is subtracted. The function errors if the inorganic demand is
-greater than the available chlorine.
+\code{free_chlorine} slot to \code{cl_dose} before the demand is subtracted. If \code{cl_dose} is not specified, the existing
+\code{free_chlorine} slot is used (with a warning when \code{use_chlorine_slot = FALSE}). The function errors if the inorganic
+demand is greater than the available chlorine.
 
-The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. Additionally, use \code{chemdose_chloramine}
+The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. For chloramine chemistry, use \code{chemdose_chloramine}
 if interested in more precise breakpoint chlorination calculations.
 }
 \examples{

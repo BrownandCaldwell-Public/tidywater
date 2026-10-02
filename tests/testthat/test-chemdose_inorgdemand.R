@@ -26,37 +26,51 @@ test_that("chemdose_inorgdemand correctly updates oxidized species", {
 
 })
 
-test_that("chemdose_inorgdemand overwrites existing free chlorine by default and warns", {
-  water <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1, free_chlorine = 3))
-
-  expect_warning(out <- chemdose_inorgdemand(water, 15), "will be overridden")
-
-  # manual check: 15 mg/L dose - (1 * 1.29 + 2 * 0.64 + 1 * 7.6) demand = 4.83 mg/L as Cl2
-  expect_equal(convert_units(out@free_chlorine, "cl2", "M", "mg/L"), 4.83)
-
-  # no warning when there is no existing chlorine
+test_that("chemdose_inorgdemand uses the free_chlorine slot only when use_chlorine_slot = TRUE", {
   water0 <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1))
-  expect_no_warning(chemdose_inorgdemand(water0, 15))
+  water3 <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1, free_chlorine = 3))
+  cl_dose <- 15
+  slot_mgl <- convert_units(water3@free_chlorine, "cl2", "M", "mg/L")
+
+  expect_warning(ignored <- chemdose_inorgdemand(water3, cl_dose), "will be overridden")
+  expect_no_warning(used <- chemdose_inorgdemand(water3, cl_dose, use_chlorine_slot = TRUE))
+  expect_no_warning(no_slot <- chemdose_inorgdemand(water0, cl_dose))
+
+  # default ignores the slot: same result as a water with no existing chlorine
+  expect_equal(ignored@free_chlorine, no_slot@free_chlorine)
+  # use_chlorine_slot = TRUE adds exactly the slot's free chlorine to the residual
+  expect_equal(
+    convert_units(used@free_chlorine, "cl2", "M", "mg/L") - convert_units(ignored@free_chlorine, "cl2", "M", "mg/L"),
+    slot_mgl
+  )
+  # manual check: 3 mg/L slot + 15 mg/L dose - (1 * 1.29 + 2 * 0.64 + 1 * 7.6) demand = 7.83 mg/L as Cl2
+  expect_equal(convert_units(used@free_chlorine, "cl2", "M", "mg/L"), slot_mgl + cl_dose - 10.17)
+  expect_equal(convert_units(used@free_chlorine, "cl2", "M", "mg/L"), 7.83)
+
+  # a water with no free_chlorine slot can't use it
+  water_na <- water0
+  water_na@free_chlorine <- NA_real_
+  expect_error(chemdose_inorgdemand(water_na, cl_dose, use_chlorine_slot = TRUE), "free_chlorine")
+  expect_no_error(chemdose_inorgdemand(water_na, cl_dose))
 })
 
-test_that("chemdose_inorgdemand adds existing free chlorine when use_chlorine_slot = TRUE", {
-  water <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1, free_chlorine = 3))
+test_that("chemdose_inorgdemand uses the free_chlorine slot when cl_dose is omitted", {
+  water12 <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1, free_chlorine = 12))
+  slot_mgl <- convert_units(water12@free_chlorine, "cl2", "M", "mg/L")
 
-  expect_warning(out <- chemdose_inorgdemand(water, 15, use_chlorine_slot = TRUE), "summed with residual chlorine")
+  # default use_chlorine_slot = FALSE: the slot is used, with a warning
+  expect_warning(out_default <- chemdose_inorgdemand(water12), "`cl_dose` not specified")
+  # use_chlorine_slot = TRUE: same result, no warning
+  expect_no_warning(out_slot <- chemdose_inorgdemand(water12, use_chlorine_slot = TRUE))
 
-  # manual check: 3 mg/L existing + 15 mg/L dose - 10.17 mg/L demand = 7.83 mg/L as Cl2
-  expect_equal(convert_units(out@free_chlorine, "cl2", "M", "mg/L"), 7.83)
-
-  # existing chlorine alone can satisfy the demand when cl_dose is omitted
-  water2 <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1, free_chlorine = 12))
-  expect_no_warning(out2 <- chemdose_inorgdemand(water2, use_chlorine_slot = TRUE))
-  expect_equal(convert_units(out2@free_chlorine, "cl2", "M", "mg/L"), 12 - 10.17)
+  expect_equal(out_default, out_slot)
+  # manual check: 12 mg/L slot - 10.17 mg/L demand = 1.83 mg/L as Cl2
+  expect_equal(convert_units(out_slot@free_chlorine, "cl2", "M", "mg/L"), slot_mgl - 10.17)
 })
 
-test_that("chemdose_inorgdemand errors on invalid or missing arguments", {
+test_that("chemdose_inorgdemand errors on invalid arguments", {
   water <- suppressWarnings(define_water(mn = 1000, fe = 2, tot_nh3 = 1))
 
-  expect_error(chemdose_inorgdemand(water), "Missing value for `cl_dose`")
   expect_error(chemdose_inorgdemand(water, 5, use_chlorine_slot = "yes"), "must be `TRUE` or `FALSE`")
 })
 
@@ -120,7 +134,7 @@ test_that("chemdose_inorgdemand_df accepts column inputs and plucks columns", {
     suppressWarnings(chemdose_inorgdemand(base$defined[[i]], seq(3, 14, 1)[i], slot[i])@free_chlorine)
   })
   expect_equal(unquoted$oxidized_free_chlorine, expected)
-  expect_true(all(unquoted$oxidized_mn == 0 & unquoted$oxidized_fe == 0 & unquoted$oxidized_tot_nh3 == 0))
+  expect_false(any(c("oxidized_mn", "oxidized_fe", "oxidized_tot_nh3") %in% names(unquoted)))
 })
 
 test_that("chemdose_inorgdemand_df accepts constant inputs and output options", {
@@ -146,9 +160,12 @@ test_that("chemdose_inorgdemand_df uses the chlorine slot when cl_dose is omitte
     dplyr::mutate(water_df, mn = 20, fe = 0.5, tot_nh3 = 0.2, free_chlorine = 4)
   ))
 
-  out <- chemdose_inorgdemand_df(base, use_chlorine_slot = TRUE, pluck_cols = TRUE)
-
   expected <- sapply(base$defined, function(w) chemdose_inorgdemand(w, use_chlorine_slot = TRUE)@free_chlorine)
-  expect_equal(out$oxidized_free_chlorine, expected)
-  expect_error(chemdose_inorgdemand_df(base), "Missing value for `cl_dose`")
+
+  expect_no_warning(out_slot <- chemdose_inorgdemand_df(base, use_chlorine_slot = TRUE, pluck_cols = TRUE))
+  expect_equal(out_slot$oxidized_free_chlorine, expected)
+
+  # default use_chlorine_slot = FALSE also uses the slot, with one aggregated warning
+  expect_warning(out_default <- chemdose_inorgdemand_df(base, pluck_cols = TRUE), "`cl_dose` not specified.*12 rows")
+  expect_equal(out_default$oxidized_free_chlorine, expected)
 })
