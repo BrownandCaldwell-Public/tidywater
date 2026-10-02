@@ -30,8 +30,8 @@ type (e.g. mg/L to g/L or mM to M).
 
 * `opensys_ph()` widens its CO2 search when more than 100 mg/L of CO2 has to be removed or added, instead of
 failing with a `uniroot()` error. If no equilibrium dose is found, it gives a clear error (#539).
-* `solvedose_alk(chemical = "co2")` returns `NA` with a warning, since CO2 doesn't change alkalinity. It errored
-before (#539).
+* `solvedose_alk()` no longer lists or accepts `chemical = "co2"`, since CO2 doesn't change alkalinity. It now
+errors with "Selected chemical addition is not supported" instead of a `uniroot()` error (#539).
 
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.

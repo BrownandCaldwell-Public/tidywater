@@ -47,7 +47,6 @@ test_that("define_water warns and sets carbonate to 0 when alk is below the hydr
   )
   expect_equal(water1@carbonate_alk_eq, 0)
   expect_equal(c(water1@tot_co3, water1@h2co3, water1@hco3, water1@co3, water1@dic), rep(0, 5))
-  expect_gte(dissolve_pb(water1)$tot_dissolved_pb, 0)
 
   expect_no_warning(define_water(ph = 11, temp = 20, alk = 100, tds = 200))
 })

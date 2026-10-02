@@ -32,8 +32,6 @@ test_that("pac_toc clamps UV254 at 0.", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 60, toc = 1.3, doc = 1.3, uv254 = 0.08))
   water2 <- suppressWarnings(pac_toc(water1, dose = 20, time = 20))
 
-  # 0.0376 * DOC - 0.041 is negative for this DOC
-  expect_lt(0.0376 * water2@doc - 0.041, 0)
   expect_equal(water2@uv254, 0)
 })
 

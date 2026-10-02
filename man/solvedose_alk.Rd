@@ -21,8 +21,7 @@ solvedose_alk_df(
 \item{target_alk}{The final alkalinity in mg/L as CaCO3 to be achieved after the specified chemical is added.}
 
 \item{chemical}{The chemical to be added. Current supported chemicals include:
-acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
-CO2 does not change alkalinity, so \code{chemical = "co2"} always returns \code{NA} with a warning.}
+acids: "hcl", "h2so4", "h3po4", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column with names for each of the chemicals being dosed.}
