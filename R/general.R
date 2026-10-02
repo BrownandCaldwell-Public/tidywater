@@ -646,11 +646,6 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
 
   # Unit matching is an exact lookup against a fixed list of known-equivalent spellings
   # (see unit_matcher/normalize_unit_alias above), not fuzzy/edit-distance matching.
-  # Edit-distance matching previously let inputs like "CaCO3 M" or "N mM" -- which
-  # aren't supported units -- silently match an unrelated canonical unit (e.g. "mg/L
-  # CaCO3" or "mM") because they happened to be one character away from it. A unit that
-  # isn't an exact alias of a canonical unit falls through unchanged, and
-  # convert_units_private errors with a clear "Units not supported" message.
   startunit_key <- normalize_unit_alias(startunit)
   if (startunit_key %in% unit_matcher_names) {
     startunit <- unit_matcher[[startunit_key]]
@@ -660,12 +655,7 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
     endunit <- unit_matcher[[endunit_key]]
   }
 
-  # The cache key is only unambiguous once both units are exact canonical names (see
-  # the comment on the fast-path gate above): an unmatched unit is left unchanged here,
-  # and pasting it with formula/startunit can still collide with a different valid
-  # combination's key -- e.g. formula = "ca", startunit = "mg/L", endunit = "CaCO3 M"
-  # (left unmatched) pastes to "ca mg/L CaCO3 M", the same key as formula = "ca",
-  # startunit = "mg/L CaCO3", endunit = "M". Gate the lookup the same way so an
+  # Gate the lookup the same way as the fast lookup so an
   # unsupported endunit/startunit always falls through to convert_units_private, which
   # validates against unit_multipliers directly and errors with "Units not supported".
   lookup <- if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
