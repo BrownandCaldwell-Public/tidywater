@@ -2,22 +2,55 @@
 % Please edit documentation in R/chemdose_inorgdemand.R
 \name{chemdose_inorgdemand}
 \alias{chemdose_inorgdemand}
+\alias{chemdose_inorgdemand_df}
 \title{Inorganic Oxidant Demand}
 \usage{
 chemdose_inorgdemand(water, cl_dose)
+
+chemdose_inorgdemand_df(
+  df,
+  input_water = "defined",
+  output_water = "oxidized",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  keep_dose_cols = FALSE,
+  cl_dose = "use_col"
+)
 }
 \arguments{
 \item{water}{Input water object with mn, fe, and tot_nh3 slots defined.}
 
 \item{cl_dose}{Chlorine dose in mg/L Cl2.}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_df}. The df may include a column for the chlorine dose (cl_dose).}
+
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
+
+\item{output_water}{name of the output column storing updated water class object. Default is "oxidized".}
+
+\item{pluck_cols}{Extract water slots modified by the function (free_chlorine, mn, fe, tot_nh3) into new numeric
+columns for easy access. Default to FALSE.}
+
+\item{water_prefix}{Append the output_water name to the start of the plucked columns. Default is TRUE.}
+
+\item{keep_dose_cols}{Option to keep the original chemical dose columns in the output data frame. Default is FALSE.}
 }
 \value{
 \code{chemdose_inorgdemand} returns a water class object with updated free_chlorine slot that reflects the chlorine residual.
+
+\code{chemdose_inorgdemand_df} returns a data frame containing a water class column with updated free_chlorine,
+mn, fe, and tot_nh3 slots. Optionally, it also adds columns for each of those slots individually.
 }
 \description{
 Calculates Cl residual from inorganic scavengers present in the input water object: Mg, Fe, and Ammonia. The output water will have updated \code{free_chlorine} slot
 to reflect the chlorine residual after accounting for the inorganic demand. The \code{mn}, \code{fe}, and \code{tot_nh3} slots will be set to 0, as they are assumed to be fully oxidized by the chlorine dose.
 Other products of the oxidation reactions will not be tracked or updated in the output water object.
+For a single water use \code{chemdose_inorgdemand}; to apply the model to a dataframe use \code{chemdose_inorgdemand_df}.
+
+Any free chlorine already in the water (\code{free_chlorine} slot) is added to \code{cl_dose} before the inorganic demand is
+subtracted, so the output \code{free_chlorine} is the existing free chlorine plus the dose minus the demand. The function
+errors if the inorganic demand is greater than the total available chlorine.
 
 The inorganic demand of ammonia is calculated assuming all ammonia is converted to nitrogen gas, not considering the conversion of ammonia to nitrate. Additionally, use \code{chemdose_chloramine}
 if interested in more precise breakpoint chlorination calculations.
@@ -26,5 +59,22 @@ if interested in more precise breakpoint chlorination calculations.
 
 water1<-define_water(ph = 7, alk = 70, mn = 1, fe = 2, tot_nh3 = 1)
 cl_residual <- chemdose_inorgdemand(water1, 20)
+
+# Existing free chlorine is added to the dose
+water2 <- define_water(ph = 7, alk = 70, mn = 1, fe = 2, tot_nh3 = 1, free_chlorine = 2)
+cl_residual <- chemdose_inorgdemand(water2, 20)
+
+\donttest{
+example_df <- water_df \%>\%
+  dplyr::mutate(mn = 20, fe = 0.5, tot_nh3 = 0.2) \%>\%
+  define_water_df() \%>\%
+  chemdose_inorgdemand_df(cl_dose = 5, pluck_cols = TRUE)
+
+example_df <- water_df \%>\%
+  dplyr::mutate(mn = 20, fe = 0.5, tot_nh3 = 0.2) \%>\%
+  define_water_df() \%>\%
+  dplyr::mutate(ClDose = seq(3, 14, 1)) \%>\%
+  chemdose_inorgdemand_df(cl_dose = ClDose, output_water = "chlorinated")
+}
 
 }

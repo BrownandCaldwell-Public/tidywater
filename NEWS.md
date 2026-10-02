@@ -9,8 +9,14 @@
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `chemdose_inorgdemand()` now adds any existing `free_chlorine` in the water to `cl_dose` before subtracting the
+inorganic demand. It previously overwrote the existing free chlorine, so waters that start with a free chlorine
+residual now return a higher residual (#511, #532). The error when the demand exceeds the available chlorine now
+describes the problem correctly and reports the demand and available chlorine.
 
 ## New features
+
+* New `chemdose_inorgdemand_df()` applies `chemdose_inorgdemand()` to a data frame of waters (#511).
 
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
