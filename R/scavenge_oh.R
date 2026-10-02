@@ -1,47 +1,43 @@
-#' Hydroxyl radical (OH radical) scavenging function
-#' 
-#' 
-#' 
 #' @title OH radical scavenging function
-#' 
+#'
 #' @description The background hydroxyl radical scavenging term is a measure of the degradation rate of non-target constituents in a water. The term is defined as the 
 #' sum of the reaction rate of the constituent multiplied by the concentration of the constituent: `sum(k_i * [C]i)` where `k_i` is the reaction rate of a contaminant and `[C]i` its concentration.
 #' Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging. 
 #' 
-#' @details Scavenging rates used in the code: 
-#'   k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
-#'   k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
-#'   k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
-#'   k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020 
-#'   k(OH,NO3-)	1.00E+05	M-1 s-1	Buxton et al.,1988
-#'   k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
-#' 
-#' Other reported k_doc values from literature. Values on the order of 1e4 are in
-#' L/mg C s-1 and can be passed directly as `kdoc_adjust`. Values on the order of
-#' 1e8 are in M_C^-1 s-1 and must be divided by 12,011 mg C/mol before use
-#' (e.g. 6.35e8 / 12011 = 5.3e4 L/mg C s-1).
-#' 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
-#' 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 2.10E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 3.50E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-#' 6.35E+08, Vinge et al (2021) M^-1 s^-1
-#' 2.00E+08 Wols et al (2014) - 33 M^-1 s^-1
-#'  
+#' @details Rate constants used in the code:
+#' * DOC: 2.5e4 L/mg C/s (Larson and Zepp 1988; 3.0e8 M_C^-1 s^-1 divided by 12,011 mg C/mol)
+#' * HCO3-: 8.5e6 M^-1 s^-1 (Buxton et al. 1988)
+#' * CO3 2-: 3.9e8 M^-1 s^-1 (Buxton et al. 1988)
+#' * NO2-: 1.0e10 M^-1 s^-1 (Coddington et al. 1999; Vinge et al. 2020)
+#' * NO3-: 1.0e5 M^-1 s^-1 (Buxton et al. 1988)
+#' * H2O2: 2.7e7 M^-1 s^-1 (Buxton et al. 1988)
+#'
+#' Other reported DOC rate constants, for use as `kdoc_adjust`. Sources report these per mole of carbon
+#' (M_C^-1 s^-1); they are converted to L/mg C/s by dividing by 12,011 mg C/mol. Brezonik and
+#' Katsoyiannis values are as compiled in Wols and Hofman-Caris (2012), Table 2.
+#' * 2.41e4 (2.9e8 M_C^-1 s^-1): lake and river water, Brezonik and Fulkerson-Brekken (1998)
+#' * 2.25e4 (2.7e8 M_C^-1 s^-1): Lake Zurich, Katsoyiannis et al. (2011)
+#' * 1.67e4 (2.0e8 M_C^-1 s^-1): Lake Jonsvatnet, Katsoyiannis et al. (2011)
+#' * 1.75e4 (2.1e8 M_C^-1 s^-1): Lake Greifensee, Katsoyiannis et al. (2011)
+#' * 2.91e4 (3.5e8 M_C^-1 s^-1): effluent organic matter, Katsoyiannis et al. (2011)
+#' * 1.67e4 (2.0e8 M_C^-1 s^-1): model value, Wols et al. (2014), Table 3
+#' * 5.29e4 (6.35e8 M_C^-1 s^-1): midpoint of the 3.5e8 to 9.2e8 range cited by Vinge et al. (2021)
+#'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-#' @source Katsoyiannis et al. (2011)
-#' @source Vinge et al (2021)
-#' @source Wols et al (2014)
 #' @source Brezonik and Fulkerson-Brekken (1998)
-#' @source Buxton et al.,1988
-#' @source Coddington et al. 1999
-#' @source Vinge et al 2020 
-#' @source Larson et al. 1988
-#' @source Wang et al. 2019
+#' @source Buxton et al. (1988)
+#' @source Coddington et al. (1999)
+#' @source Katsoyiannis et al. (2011)
+#' @source Larson and Zepp (1988)
+#' @source Vinge et al. (2020)
+#' @source Vinge et al. (2021)
+#' @source Wang et al. (2019)
+#' @source Wols and Hofman-Caris (2012)
+#' @source Wols et al. (2014)
 #' 
 #' @param water Source water of tidywater 'water' object type 
 #' @param dose Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0 
-#' @param kdoc_adjust Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg s-1
+#' @param kdoc_adjust Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg C/s. See Details for other reported values.
 #' 
 #' @examples
 #' water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)

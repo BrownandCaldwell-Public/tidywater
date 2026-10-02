@@ -6,23 +6,25 @@
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 
-Katsoyiannis et al. (2011)
-
-Vinge et al (2021)
-
-Wols et al (2014)
-
 Brezonik and Fulkerson-Brekken (1998)
 
-Buxton et al.,1988
+Buxton et al. (1988)
 
-Coddington et al. 1999
+Coddington et al. (1999)
 
-Vinge et al 2020
+Katsoyiannis et al. (2011)
 
-Larson et al. 1988
+Larson and Zepp (1988)
 
-Wang et al. 2019
+Vinge et al. (2020)
+
+Vinge et al. (2021)
+
+Wang et al. (2019)
+
+Wols and Hofman-Caris (2012)
+
+Wols et al. (2014)
 }
 \usage{
 scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
@@ -32,7 +34,7 @@ scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
 
 \item{dose}{Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0}
 
-\item{kdoc_adjust}{Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg s-1}
+\item{kdoc_adjust}{Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg C/s. See Details for other reported values.}
 }
 \value{
 \code{scavenge_oh} returns the total background hydroxyl radical scavenging term in units of s^-1.
@@ -43,27 +45,28 @@ sum of the reaction rate of the constituent multiplied by the concentration of t
 Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging.
 }
 \details{
-Hydroxyl radical (OH radical) scavenging function
+Rate constants used in the code:
+\itemize{
+\item DOC: 2.5e4 L/mg C/s (Larson and Zepp 1988; 3.0e8 M_C^-1 s^-1 divided by 12,011 mg C/mol)
+\item HCO3-: 8.5e6 M^-1 s^-1 (Buxton et al. 1988)
+\item CO3 2-: 3.9e8 M^-1 s^-1 (Buxton et al. 1988)
+\item NO2-: 1.0e10 M^-1 s^-1 (Coddington et al. 1999; Vinge et al. 2020)
+\item NO3-: 1.0e5 M^-1 s^-1 (Buxton et al. 1988)
+\item H2O2: 2.7e7 M^-1 s^-1 (Buxton et al. 1988)
+}
 
-Scavenging rates used in the code:
-k(OH,DOC/TOC)	2.50E+04	L/mg s-1	Larson et al. 1988
-k(OH,HCO3-)	8.50E+06	M-1 s-1	Buxton et al.,1988
-k(OH,CO3-2)	3.90E+08	M-1 s-1	Buxton et al.,1988
-k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020
-k(OH,NO3-)	1.00E+05	M-1 s-1	Buxton et al.,1988
-k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
-
-Other reported k_doc values from literature. Values on the order of 1e4 are in
-L/mg C s-1 and can be passed directly as \code{kdoc_adjust}. Values on the order of
-1e8 are in M_C^-1 s-1 and must be divided by 12,011 mg C/mol before use
-(e.g. 6.35e8 / 12011 = 5.3e4 L/mg C s-1).
-2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
-2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-2.10E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-3.50E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
-6.35E+08, Vinge et al (2021) M^-1 s^-1
-2.00E+08 Wols et al (2014) - 33 M^-1 s^-1
+Other reported DOC rate constants, for use as \code{kdoc_adjust}. Sources report these per mole of carbon
+(M_C^-1 s^-1); they are converted to L/mg C/s by dividing by 12,011 mg C/mol. Brezonik and
+Katsoyiannis values are as compiled in Wols and Hofman-Caris (2012), Table 2.
+\itemize{
+\item 2.41e4 (2.9e8 M_C^-1 s^-1): lake and river water, Brezonik and Fulkerson-Brekken (1998)
+\item 2.25e4 (2.7e8 M_C^-1 s^-1): Lake Zurich, Katsoyiannis et al. (2011)
+\item 1.67e4 (2.0e8 M_C^-1 s^-1): Lake Jonsvatnet, Katsoyiannis et al. (2011)
+\item 1.75e4 (2.1e8 M_C^-1 s^-1): Lake Greifensee, Katsoyiannis et al. (2011)
+\item 2.91e4 (3.5e8 M_C^-1 s^-1): effluent organic matter, Katsoyiannis et al. (2011)
+\item 1.67e4 (2.0e8 M_C^-1 s^-1): model value, Wols et al. (2014), Table 3
+\item 5.29e4 (6.35e8 M_C^-1 s^-1): midpoint of the 3.5e8 to 9.2e8 range cited by Vinge et al. (2021)
+}
 }
 \examples{
 water1 <- define_water(ph=7, doc=3, alk = 70, no3 = 4)
