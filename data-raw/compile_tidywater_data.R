@@ -77,6 +77,7 @@ molec_properties <- data.frame(
   n = c(14.0067, NA),
   p = c(30.97, NA),
   dic = c(12.011, NA),
+  h2o2 = c(34.0147, NA),
   h2o =c(18.015,NA),
 
   # Coagulants. They do their own thing.
