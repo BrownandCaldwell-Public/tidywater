@@ -93,9 +93,9 @@ chemdose_chlordecay <- function(
   # Calculate chlorine dose if slot is used (otherwise, it will just come from the argument)
   if (use_chlorine_slot) {
     if (cl_type == "chlorine") {
-      cl2_dose <- cl2_dose + convert_units(water@free_chlorine, "cl", "M", "mg/L")
+      cl2_dose <- cl2_dose + convert_units(water@free_chlorine, "cl2", "M", "mg/L")
     } else if (cl_type == "chloramine") {
-      cl2_dose <- cl2_dose + convert_units(water@combined_chlorine, "cl", "M", "mg/L")
+      cl2_dose <- cl2_dose + convert_units(water@combined_chlorine, "cl2", "M", "mg/L")
     }
   }
 
@@ -182,7 +182,7 @@ chemdose_chlordecay <- function(
   # Convert final result to molar
   if (cl_type == "chlorine") {
     # chlorine residual correction Eq. 5-118
-    ct_corrected <- cl2_dose + (ct - cl2_dose) / 0.85
+    ct_corrected <- max(0, cl2_dose + (ct - cl2_dose) / 0.85)
     if (water@free_chlorine > 0 & !use_chlorine_slot) {
       tidywater_warn("Existing {.field free_chlorine} slot will be overridden based on recent dose. To sum results instead, set {.code use_chlorine_slot = TRUE}.")
     }
