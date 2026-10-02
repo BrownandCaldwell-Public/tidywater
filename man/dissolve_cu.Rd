@@ -22,8 +22,8 @@ For a single water, use \code{dissolve_cu}; to apply the model to a dataframe us
 }
 \details{
 Dissolved copper is a function of pH, DIC (mg/L as C), and orthophosphate (mg/L as PO4). Output units are in
-mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of roughly
-10 to 90 mg/L as C; a warning is given for inputs outside these ranges.
+mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of 10, 50,
+and 100 mg/L as C (Lytle et al. 2018, equation 1); a warning is given for inputs outside these ranges.
 }
 \examples{
 

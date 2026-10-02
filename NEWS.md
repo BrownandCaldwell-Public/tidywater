@@ -11,8 +11,8 @@
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
 * `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
 so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
-lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, `dic` is validated, and
-a new warning is given for DIC outside roughly 10 to 90 mg/L as C.
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
+given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
 
 ## New features
 

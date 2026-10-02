@@ -7,8 +7,8 @@
 #' For a single water, use `dissolve_cu`; to apply the model to a dataframe use `dissolve_cu_df`.
 #'
 #' @details Dissolved copper is a function of pH, DIC (mg/L as C), and orthophosphate (mg/L as PO4). Output units are in
-#' mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of roughly
-#' 10 to 90 mg/L as C; a warning is given for inputs outside these ranges.
+#' mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of 10, 50,
+#' and 100 mg/L as C (Lytle et al. 2018, equation 1); a warning is given for inputs outside these ranges.
 #'
 #' @source Lytle et al (2018)
 #'
@@ -25,7 +25,8 @@
 #'
 
 dissolve_cu <- function(water) {
-  validate_water(water, c("ph", "alk", "dic"))
+  # dic is not validated separately: define_water() always calculates it from ph and alk
+  validate_water(water, c("ph", "alk"))
 
   # Lytle et al. (2018) fit orthophosphate in mg/L as PO4; water@tot_po4 is stored in M
   po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
@@ -37,8 +38,9 @@ dissolve_cu <- function(water) {
   if (water@ph > 8.52 | water@ph < 6.48) {
     tidywater_warn("This model was not developed for pH values outside 6.48 to 8.52.")
   }
-  if (water@dic < 10 | water@dic > 90) {
-    tidywater_warn("This model was fit on waters with DIC between 10 and 90 mg/L as C.")
+  # Lytle et al. (2018) fit the model at DIC of 10, 50, and 100 mg C/L
+  if (water@dic < 10 | water@dic > 100) {
+    tidywater_warn("This model was fit on waters with DIC between 10 and 100 mg/L as C.")
   }
 
   cu <- 56.68 * exp(-0.77 * water@ph) * exp(-0.20 * po4) * water@dic^0.59

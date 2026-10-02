@@ -27,6 +27,23 @@ test_that("Larson-Skold and CSMR are skipped with a warning when cl or so4 is mi
   expect_true(all(is.na(corrosion_cl)))
 })
 
+test_that("calculate_corrosion_df skips Larson-Skold and CSMR only for rows missing cl or so4", {
+  testthat::skip_on_cran()
+  df <- water_df[1:3, ]
+  df$so4[2] <- NA
+  df <- suppressWarnings(define_water_df(df))
+
+  expect_warning(
+    corrosion <- calculate_corrosion_df(df, index = c("aggressive", "larsonskold", "csmr")),
+    "Larson-Skold index and CSMR will not be calculated. \\(1 row affected"
+  )
+  expect_true(is.na(corrosion$defined_larsonskold[2]))
+  expect_true(is.na(corrosion$defined_csmr[2]))
+  expect_false(anyNA(corrosion$defined_larsonskold[-2]))
+  expect_false(anyNA(corrosion$defined_csmr[-2]))
+  expect_false(anyNA(corrosion$defined_aggressive))
+})
+
 test_that("form is validated and CCPP always uses calcite", {
   water <- suppressWarnings(define_water(
     ph = 8, temp = 20, alk = 100, tot_hard = 150, ca = 40, na = 20, cl = 30, so4 = 40, tds = 300
@@ -34,6 +51,8 @@ test_that("form is validated and CCPP always uses calcite", {
 
   expect_error(calculate_corrosion(water, form = "calcit"), "must be one of")
   expect_error(calculate_corrosion(water, form = c("calcite", "aragonite")), "must be one of")
+  expect_error(calculate_corrosion(water, form = NA), "must be one of")
+  expect_error(calculate_corrosion(water, form = NA_character_), "must be one of")
   expect_error(calculate_corrosion_df(define_water_df(water_df), form = "dolomite"), "must be one of")
 
   calcite <- calculate_corrosion(water, index = c("langelier", "ccpp"), form = "calcite")

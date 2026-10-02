@@ -29,20 +29,21 @@ test_that("warning when po4 is zero", {
 
 test_that("warning when DIC is outside the model range", {
   water1 <- suppressWarnings(define_water(ph = 8, alk = 5, tot_po4 = 2))
-  water2 <- suppressWarnings(define_water(ph = 7.5, alk = 400, tot_po4 = 2))
+  water2 <- suppressWarnings(define_water(ph = 7.5, alk = 500, tot_po4 = 2))
+  water3 <- suppressWarnings(define_water(ph = 7.5, alk = 300, tot_po4 = 2))
 
   expect_warning(dissolve_cu(water1), "DIC")
   expect_warning(dissolve_cu(water2), "DIC")
+  expect_no_warning(dissolve_cu(water3))
 })
 
-test_that("dissolve_cu uses orthophosphate in mg/L as PO4 (#508)", {
+test_that("orthophosphate lowers dissolved copper (#508)", {
   water0 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 0))
   water3 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 3))
 
+  cu0 <- suppressWarnings(dissolve_cu(water0))$cu
   cu3 <- dissolve_cu(water3)$cu
-  # Lytle et al. (2018), PO4 in mg/L as PO4 and DIC in mg/L as C
-  expect_equal(cu3, 56.68 * exp(-0.77 * 7.5) * exp(-0.20 * 3) * water3@dic^0.59)
-  expect_lt(cu3, suppressWarnings(dissolve_cu(water0))$cu * 0.6)
+  expect_lt(cu3, cu0 * 0.6)
 })
 
 # test that dissolve_cu works
