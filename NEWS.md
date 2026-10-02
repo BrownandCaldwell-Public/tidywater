@@ -12,6 +12,8 @@
 
 ## New features
 
+* New `scavenge_oh_df()` applies `scavenge_oh()` to a data frame of waters, adding the OH radical scavenging term as a
+new column (`output_column`, default "oh_scavenging").
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
 type (e.g. mg/L to g/L or mM to M).

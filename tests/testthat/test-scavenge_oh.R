@@ -49,3 +49,92 @@ test_that("scavenge_oh warns when DOC is missing", {
 
   expect_warning(scavenge_oh(water_no_doc), "doc")
 })
+
+# scavenge_oh_df ----
+
+test_that("scavenge_oh_df matches scavenge_oh row by row", {
+  testthat::skip_on_cran()
+  waters <- suppressWarnings(define_water_df(water_df))
+  doses <- seq(0, 22, 2)
+
+  df_out <- waters %>%
+    dplyr::mutate(h2o2 = doses) %>%
+    scavenge_oh_df(dose = h2o2, kdoc_adjust = 1.67e4)
+
+  expected <- vapply(
+    seq_len(nrow(waters)),
+    function(i) scavenge_oh(waters$defined[[i]], dose = doses[i], kdoc_adjust = 1.67e4),
+    numeric(1)
+  )
+
+  expect_equal(df_out$oh_scavenging, expected)
+  expect_equal(nrow(df_out), nrow(waters))
+})
+
+test_that("scavenge_oh_df uses defaults and supports a custom output column", {
+  testthat::skip_on_cran()
+  waters <- suppressWarnings(define_water_df(water_df))
+
+  default_out <- scavenge_oh_df(waters)
+  named_out <- scavenge_oh_df(waters, output_column = "sc")
+
+  expected <- vapply(waters$defined, scavenge_oh, numeric(1))
+  expect_equal(default_out$oh_scavenging, expected)
+  expect_equal(named_out$sc, expected)
+  # default argument columns are dropped
+  expect_false(any(c("dose", "kdoc_adjust", "oh_scavenging") %in% names(named_out)))
+})
+
+test_that("scavenge_oh_df gives the same result for column and constant inputs", {
+  testthat::skip_on_cran()
+  waters <- suppressWarnings(define_water_df(water_df))
+
+  constant <- scavenge_oh_df(waters, dose = 10, kdoc_adjust = 48065)
+  use_col <- waters %>%
+    dplyr::mutate(dose = 10, kdoc_adjust = 48065) %>%
+    scavenge_oh_df()
+  unquoted_col <- waters %>%
+    dplyr::mutate(h2o2 = 10, kdoc = 48065) %>%
+    scavenge_oh_df(dose = h2o2, kdoc_adjust = kdoc)
+
+  expect_equal(constant$oh_scavenging, use_col$oh_scavenging)
+  expect_equal(constant$oh_scavenging, unquoted_col$oh_scavenging)
+  expect_true("dose" %in% names(constant))
+})
+
+test_that("scavenge_oh_df crosses a vector of constant doses with each water", {
+  testthat::skip_on_cran()
+  waters <- suppressWarnings(define_water_df(water_df))
+
+  out <- scavenge_oh_df(waters, dose = c(0, 10))
+
+  expect_equal(nrow(out), 2 * nrow(waters))
+  expect_equal(
+    out$oh_scavenging,
+    vapply(seq_len(nrow(out)), function(i) scavenge_oh(out$defined[[i]], dose = out$dose[i]), numeric(1))
+  )
+})
+
+test_that("scavenge_oh_df reports a repeated warning once with a row count", {
+  testthat::skip_on_cran()
+  waters <- suppressWarnings(define_water_df(dplyr::select(water_df, -toc, -doc)))
+
+  warnings <- character()
+  withCallingHandlers(
+    scavenge_oh_df(waters),
+    warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+
+  expect_length(warnings, 1)
+  expect_match(warnings, "12 rows affected")
+})
+
+test_that("scavenge_oh_df errors when the input water column is missing", {
+  testthat::skip_on_cran()
+  expect_error(scavenge_oh_df(water_df))
+  waters <- suppressWarnings(define_water_df(water_df))
+  expect_error(scavenge_oh_df(waters, input_water = "not_a_column"))
+})

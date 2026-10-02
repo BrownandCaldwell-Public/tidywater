@@ -2,6 +2,7 @@
 % Please edit documentation in R/scavenge_oh.R
 \name{scavenge_oh}
 \alias{scavenge_oh}
+\alias{scavenge_oh_df}
 \title{OH radical scavenging function}
 \source{
 See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -28,6 +29,14 @@ Wols et al. (2014)
 }
 \usage{
 scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
+
+scavenge_oh_df(
+  df,
+  input_water = "defined",
+  output_column = "oh_scavenging",
+  dose = "use_col",
+  kdoc_adjust = "use_col"
+)
 }
 \arguments{
 \item{water}{Source water of tidywater 'water' object type}
@@ -35,14 +44,26 @@ scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
 \item{dose}{Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0}
 
 \item{kdoc_adjust}{Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg C/s. See Details for other reported values.}
+
+\item{df}{a data frame containing a water class column, which has already been computed using
+\link{define_water_df}. The df may include columns named for the H2O2 dose and the DOC rate constant.}
+
+\item{input_water}{name of the column of water class data to be used as the input. Default is "defined".}
+
+\item{output_column}{name of the output column storing the OH radical scavenging term in s^-1. Default is
+"oh_scavenging".}
 }
 \value{
 \code{scavenge_oh} returns the total background hydroxyl radical scavenging term in units of s^-1.
+
+\code{scavenge_oh_df} returns a data frame containing the original data frame and a column with the
+background hydroxyl radical scavenging term in s^-1.
 }
 \description{
 The background hydroxyl radical scavenging term is a measure of the degradation rate of non-target constituents in a water. The term is defined as the
 sum of the reaction rate of the constituent multiplied by the concentration of the constituent: \verb{sum(k_i * [C]i)} where \code{k_i} is the reaction rate of a contaminant and \verb{[C]i} its concentration.
 Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging.
+For a data frame of waters, use \code{scavenge_oh_df}, which adds the scavenging term as a new column.
 }
 \details{
 Rate constants used in the code:
@@ -75,5 +96,15 @@ h2o2_dose<-20
 background_scavenging <- scavenge_oh(water1, h2o2_dose)
 
 background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
+
+
+example_df <- water_df \%>\%
+  define_water_df() \%>\%
+  scavenge_oh_df(dose = 10)
+
+example_df <- water_df \%>\%
+  define_water_df() \%>\%
+  dplyr::mutate(h2o2 = seq(2, 24, 2)) \%>\%
+  scavenge_oh_df(dose = h2o2, kdoc_adjust = 1.67e4, output_column = "sc")
 
 }
