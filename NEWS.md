@@ -9,20 +9,17 @@
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
+`free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
+5 orders of magnitude too low (#523).
+* `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts
+at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
 
 ## New features
 
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
 type (e.g. mg/L to g/L or mM to M).
-
-## Bug fixes
-
-* `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
-`free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
-5 orders of magnitude too low (#523).
-* `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts
-at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
 
 ## Other changes
 
