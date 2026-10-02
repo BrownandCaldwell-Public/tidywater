@@ -39,7 +39,9 @@ gacbv_toc_df(
 
 \item{media_size}{Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Default is 12x40.}
 
-\item{target_doc}{Optional input to set a target DOC concentration and calculate necessary bed volume}
+\item{target_doc}{Target effluent DOC concentration (mg/L). Required. Can be a vector to return a bed volume for each
+target. Each target is converted to C/C0 (\code{target_doc / doc}) and matched to the closest point on the
+\link{gacrun_toc} breakthrough curve.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df} The df may include columns named for the chemical(s) being dosed.}

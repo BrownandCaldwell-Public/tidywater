@@ -9,6 +9,8 @@
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
+multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
 
 ## New features
 

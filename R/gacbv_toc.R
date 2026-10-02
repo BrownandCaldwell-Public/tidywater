@@ -22,7 +22,9 @@
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Default is 12x40.
-#' @param target_doc Optional input to set a target DOC concentration and calculate necessary bed volume
+#' @param target_doc Target effluent DOC concentration (mg/L). Required. Can be a vector to return a bed volume for each
+#' target. Each target is converted to C/C0 (`target_doc / doc`) and matched to the closest point on the
+#' [gacrun_toc] breakthrough curve.
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
@@ -50,7 +52,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
     cli::cli_abort("{.arg target_doc} is outside the range for the chosen model. Use {.fn gacrun_toc} for the complete breakthrough curve.")
   }
 
-  x_index <- sapply(target_doc * water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
+  x_index <- sapply(target_doc / water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
   output_bv <- data.frame(bed_volume = breakthrough_df$bv[x_index])
 
   return(output_bv)
