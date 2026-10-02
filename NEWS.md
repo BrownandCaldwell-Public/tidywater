@@ -14,6 +14,15 @@
 5 orders of magnitude too low (#523).
 * `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts
 at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
+* `convert_water()`, `convert_watermg()`, and `pluck_water(parameter = "all")` no longer return the `ks` slot. It
+previously expanded into 15 columns and shifted every column name after it, so DBP and chlorine columns held
+equilibrium constants (#534). Use `water@ks` to get the equilibrium constants.
+* `convert_watermg()` returns `tot_sio4` in mg/L as SiO2, matching `define_water()` input (#530). It also converts
+`tot_citric`, `h2citric`, `h1citric`, and `citric` to mg/L as citric acid.
+* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
+It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
+* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
+was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
