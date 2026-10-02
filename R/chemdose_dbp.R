@@ -161,7 +161,7 @@ chemdose_dbp <- function(
     if (!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) {
       cli::cli_abort("{.arg coeff} must have the columns: {.val ID}, {.val A}, {.val a}, {.val b}, {.val c}, {.val d}, {.val e}, {.val f}, {.val ph_const}.")
     }
-    if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
+    if (!all(coeff$ID %in% tidywater::dbpcoeffs$ID)) {
       cli::cli_abort("IDs in {.arg coeff} must match existing DBP formulas. See {.help tidywater::dbpcoeffs} for naming.")
     } else if (any(duplicated(coeff$ID))) {
       cli::cli_abort("Only one set of coefficients can be specified per DBP. To test multiple coefficients, use the {.fn chemdose_dbp_df} function.")
