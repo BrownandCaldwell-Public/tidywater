@@ -21,6 +21,8 @@ Coddington et al. 1999
 Vinge et al 2020
 
 Larson et al. 1988
+
+Wang et al. 2019
 }
 \usage{
 scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
@@ -37,7 +39,7 @@ scavenge_oh(water, dose = 0, kdoc_adjust = 25000)
 }
 \description{
 The background hydroxyl radical scavenging term is a measure of the degradation rate of non-target constituents in a water. The term is defined as the
-sum of the reaction rate of the constituent multiplied by the concentration of the constituent: sum(k_i * \link{C}i) where k_i is the reaction rate of a contaminant and \link{C}i its concentration.
+sum of the reaction rate of the constituent multiplied by the concentration of the constituent: \verb{sum(k_i * [C]i)} where \code{k_i} is the reaction rate of a contaminant and \verb{[C]i} its concentration.
 Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging.
 }
 \details{
@@ -51,12 +53,10 @@ k(OH,NO2-)	1.00E+10 M-1 s-1 Coddington et al. 1999; Vinge et al 2020
 k(OH,NO3-)	1.00E+05	M-1 s-1	Buxton et al.,1988
 k(OH,H2O2)	2.70E+07	M-1 s-1	Buxton et al.,1988
 
-Other reported k_doc values from literature
-
-Other reported k_doc values from literature. NOTE: units below are inconsistent
-and are reproduced as-published — they are NOT directly usable as \code{kdoc_adjust},
-which expects L/mg s-1. Values in Mc^-1s^-1 require division by 12,011 mg C/mol.
-See follow-up issue for normalizing these.
+Other reported k_doc values from literature. Values on the order of 1e4 are in
+L/mg C s-1 and can be passed directly as \code{kdoc_adjust}. Values on the order of
+1e8 are in M_C^-1 s-1 and must be divided by 12,011 mg C/mol before use
+(e.g. 6.35e8 / 12011 = 5.3e4 L/mg C s-1).
 2.30E+04,  Brezonik and Fulkerson-Brekken (1998) Mc^-1s^-1
 2.70E+04, Katsoyiannis et al. (2011) Mc^-1s^-1
 2.00E+04, Katsoyiannis et al. (2011) Mc^-1s^-1

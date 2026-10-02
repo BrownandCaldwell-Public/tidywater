@@ -37,6 +37,7 @@
 #' @source Coddington et al. 1999
 #' @source Vinge et al 2020 
 #' @source Larson et al. 1988
+#' @source Wang et al. 2019
 #' 
 #' @param water Source water of tidywater 'water' object type 
 #' @param dose Hydrogen peroxide (h2o2) dose applied in mg/L, defaults to 0 
@@ -79,6 +80,12 @@ scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
     hco3 = k$hco3 * water@hco3, # s-1
     co3 = k$co3 * water@co3 # s-1
   )
+
+  # Warn when a major scavenger is missing. no2 and no3 are usually NA and contribute little, so they are not reported.
+  missing_slots <- intersect(names(k_S)[vapply(k_S, anyNA, logical(1))], c("doc", "hco3", "co3"))
+  if (length(missing_slots) > 0) {
+    tidywater_warn("Missing {.val {missing_slots}} treated as 0 in the OH radical scavenging term.")
+  }
 
   # turn each NA value to 0 because NA's will mess up execution and 0's just won't contribute anything.
   k_S <- lapply(k_S, function(x) {

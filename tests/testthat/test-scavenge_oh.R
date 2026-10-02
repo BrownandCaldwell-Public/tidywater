@@ -4,7 +4,7 @@ test_that("scavenger works with alk params", {
 
   SC_alk <- scavenge_oh(water_alk, dose = 0)
   #no alk
-  SC_base <- scavenge_oh(water_no_alk, dose = 0)
+  expect_warning(SC_base <- scavenge_oh(water_no_alk, dose = 0), "hco3")
 
   # no negative scavenging!
   expect_true(SC_base >0)
@@ -34,4 +34,18 @@ test_that("changing scavenger's rate constant for DOC works", {
   background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
 
   expect_error(expect_equal(background_SC, background_SC_adjusted))
+})
+
+test_that("scavenge_oh returns one value per dose", {
+  water1 <- suppressWarnings(define_water(ph = 7, doc = 3, alk = 70, no3 = 4))
+
+  sc <- scavenge_oh(water1, dose = c(0, 10))
+  expect_length(sc, 2)
+  expect_equal(sc, c(scavenge_oh(water1, dose = 0), scavenge_oh(water1, dose = 10)))
+})
+
+test_that("scavenge_oh warns when DOC is missing", {
+  water_no_doc <- suppressWarnings(define_water(ph = 7, alk = 70, no3 = 4))
+
+  expect_warning(scavenge_oh(water_no_doc), "doc")
 })
