@@ -121,9 +121,9 @@ test_that("Aliasing works", {
   expect_equal( hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "MG  / l ", endunit = "mg/lcaco3"))
   # end unit
   expect_equal(hcl_caco3, convert_units(hcl_mg, "hcl", startunit = "mg/L", endunit = "mG/L caco3"))
-  # typos 
-  expect_warning(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
-  expect_error((convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles")))
+  # typos in units are not fuzzy matched -- they error rather than silently guessing
+  expect_error(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "mg/L caco"))
+  expect_error(convert_units(hcl_caco3, "hcl", startunit = "mj/L", endunit = "moles"))
 
   # formula matching
   expect_equal(hcl_caco3, convert_units(hcl_mg, "H C L ", startunit = "mg/L", endunit = "mg/L CaCO3"))
@@ -132,26 +132,31 @@ test_that("Aliasing works", {
   expect_warning(convert_units(hcl_mg, "hxl", startunit = "mg/L", endunit = "mg/L CaCO3"))
 })
 
-test_that("Fuzzy matching warns about the specific argument that was corrected", {
-  expect_warning(
+test_that("Unit typos are not fuzzy matched and error instead", {
+  # Units are matched via an exact alias lookup, not edit-distance fuzzy matching, so a
+  # typo'd unit that isn't an exact alias of a canonical unit must error.
+  expect_error(
     convert_units(10, "ca", startunit = "mg/Lx", endunit = "M"),
-    "Check startunit"
+    "not supported"
   )
-  expect_warning(
+  expect_error(
     convert_units(10, "ca", startunit = "mg/L", endunit = "nMM"),
-    "Check endunit"
+    "not supported"
   )
+})
+
+test_that("Formula typos still warn via fuzzy matching", {
   expect_warning(
     convert_units(10, "caa", startunit = "mg/L", endunit = "M"),
     "Check formula"
   )
 })
 
-test_that("Single character units are not fuzzy matched", {
+test_that("Single character units require an exact match", {
   # There are too many one-letter matches in the unit table, so a single character
-  # that isn't an exact alias must error rather than silently matching "M" or "m".
-  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "x", endunit = "M")))
-  expect_error(suppressWarnings(convert_units(10, "ca", startunit = "mg/L", endunit = "q")))
+  # that isn't an exact alias must error rather than being guessed at.
+  expect_error(convert_units(10, "ca", startunit = "x", endunit = "M"))
+  expect_error(convert_units(10, "ca", startunit = "mg/L", endunit = "q"))
 
   # ...while the legitimate one-letter units still resolve exactly, with no warning.
   expect_no_warning(mol <- convert_units(10, "ca", startunit = "mg/L", endunit = "M"))
@@ -166,27 +171,37 @@ test_that("Canonical units and formulas convert without warning", {
   expect_no_warning(convert_units(10, "nh4", startunit = "mg/L", endunit = "mg/L N"))
 })
 
-test_that("Units with a misplaced space are not silently accepted", {
+test_that("Units with a misplaced space are rejected, not fuzzy matched", {
   # Canonical unit names contain spaces, so a unit split at the wrong boundary can
-  # look like a different valid combination once formula and units are joined.
-  # "mg/L" + "CaCO3 M" must not be treated as "mg/L CaCO3" + "M".
-  caco3_to_m <- convert_units(50, "ca", startunit = "mg/L CaCO3", endunit = "M")
-  expect_false(isTRUE(all.equal(
-    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "CaCO3 M")),
-    caco3_to_m
-  )))
-  expect_equal(
-    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "CaCO3 M")),
-    suppressWarnings(convert_units(50, "ca", startunit = "mg/L", endunit = "caco3m"))
+  # look like a different valid combination once formula and units are joined, or (with
+  # the old edit-distance fuzzy matching) silently match an unrelated canonical unit.
+  # Neither should happen: "mg/L" + "CaCO3 M" is not a supported endunit and must error,
+  # not be treated as "mg/L CaCO3" + "M" or fuzzy-matched to "mg/L CaCO3".
+  expect_error(
+    convert_units(50, "ca", startunit = "mg/L", endunit = "CaCO3 M"),
+    "not supported"
+  )
+  expect_error(
+    convert_units(50, "ca", startunit = "mg/L", endunit = "caco3m"),
+    "not supported"
+  )
+  expect_error(
+    convert_units(50, "ca", startunit = "M mg/L", endunit = "CaCO3"),
+    "not supported"
   )
 
   # A formula that has absorbed a unit must still be rejected as a formula.
-  expect_error(suppressWarnings(convert_units(50, "ca mg/L", startunit = "CaCO3", endunit = "M")))
+  expect_error(convert_units(50, "ca mg/L", startunit = "CaCO3", endunit = "M"))
 
-  # Same shape for the N and P bases.
-  expect_equal(
-    suppressWarnings(convert_units(50, "nh4", startunit = "mg/L", endunit = "N mM")),
-    suppressWarnings(convert_units(50, "nh4", startunit = "mg/L", endunit = "nmm"))
+  # Same shape for the N and P bases: a misplaced space must not fuzzy match to an
+  # unrelated canonical unit like "mM".
+  expect_error(
+    convert_units(50, "nh4", startunit = "mg/L", endunit = "N mM"),
+    "not supported"
+  )
+  expect_error(
+    convert_units(50, "po4", startunit = "mg/L", endunit = "P M"),
+    "not supported"
   )
 })
 
