@@ -50,6 +50,10 @@ with "Units not supported" instead of silently matching an unrelated canonical u
 fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Formula fuzzy matching for typos (e.g.
 `"caa"` for `"ca"`) is unchanged.
 
+* `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
+* `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
+* `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
+`skip_models = TRUE` instead of returning an empty list (#541).
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
