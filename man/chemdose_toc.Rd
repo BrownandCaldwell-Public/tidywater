@@ -21,7 +21,7 @@ chemdose_toc(
   ferricsulfate = 0,
   ach = 0,
   pacl = 0,
-  model_coeff = "Alum",
+  coeff = "Alum",
   caoh2 = 0,
   fns = NA_real_
 )
@@ -39,7 +39,7 @@ chemdose_toc_df(
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  model_coeff = "use_col",
+  coeff = "use_col",
   fns = "use_col"
 )
 }
@@ -56,13 +56,15 @@ chemdose_toc_df(
 
 \item{pacl}{Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....}
 
-\item{model_coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters, Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
-"Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. See reference list for more information.}
+\item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
+data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters (aluminum coagulants only), Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
+"Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. Reuse models were validated for coagulation pH 5.5 - 8 and 20 - 200 mg/L alum. See reference list for more information.}
 
 \item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
 
-\item{fns}{Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.}
+\item{fns}{Fraction of non-sorbing DOC (0 - 1), required for the site-specific reuse models ("Reuse Site Langmuir" and "Reuse Site Linear").
+Measured as the fraction of DOC remaining after coagulation with 200 mg/L alum at pH 6 (Wilder & Korak 2025). The general reuse models use fixed
+values of 0.649 (Langmuir) and 0.650 (Linear); a supplied \code{fns} is ignored with a warning. Not used by Edwards models.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column named for the coagulant being dosed,
@@ -86,8 +88,8 @@ concentrations. Optionally, it also adds columns for each of those slots individ
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
-DOC. Option to model an input water to reuse processes using the reuse argument, which uses the Wilder & Korak (2025) models to
-predict coagulated DOC for reuse waters with effluent organic matter (EfOM). Model assumes all particulate TOC is removed;
+DOC. Reuse waters with effluent organic matter (EfOM) can be modeled by selecting one of the Wilder & Korak (2025) models
+with \code{coeff}. Reuse models apply only to aluminum coagulants (alum, ACH, PACl). Model assumes all particulate TOC is removed;
 therefore TOC = DOC in output.
 Coagulated UVA is from U.S. EPA (2001) equation 5-80 for Edwards (1997) model and a regression for the Wilder & Korak (2025) model.
 Note that the models rely on pH of coagulation. If
@@ -101,10 +103,10 @@ function instead or an unquoted column name can be provided.
 \examples{
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
 dosed_water <- chemdose_ph(water, alum = 30) \%>\%
-  chemdose_toc(alum = 30, model_coeff = "Alum")
+  chemdose_toc(alum = 30, coeff = "Alum")
 
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
-  chemdose_toc(alum = 10, model_coeff = data.frame(
+  chemdose_toc(alum = 10, coeff = data.frame(
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
@@ -112,12 +114,12 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
 example_df <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) \%>\%
-  chemdose_toc_df(ferricchloride = FerricDose, model_coeff = "Ferric")
+  chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
 
 example_df <- water_df \%>\%
   define_water_df() \%>\%
   dplyr::mutate(ferricchloride = seq(1, 12, 1)) \%>\%
-  chemdose_toc_df(model_coeff = "Ferric", pluck_cols = TRUE)
+  chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
 }
 
 }

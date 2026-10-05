@@ -55,7 +55,15 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     }
 
     # assumes media type associated with 0.0873 is BAC
-    media <- ifelse(media_type == "gac", 1, 0)
+    if (tolower(media_type) == "gac") {
+      media <- 1
+    } else if (tolower(media_type) == "anthracite") {
+      media <- 0
+    } else if (tolower(media_type) == "sand") {
+      media <- 0
+    } else {
+      cli::cli_abort("{.arg media_type} must be {.code 'gac'}, {.code 'anthracite'}, or {.code 'sand'}.")
+    }
     scaled_ozone <- (spec_ozone - 0.48) / 0.44 # mean and std dev values taken from Table 2
     scaled_ebct <- (ebct - 14.4) / 8.5
 
@@ -64,7 +72,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
 
     # Update water object with new TOC and DOC values
     water@toc <- water@toc - TOC_removed
-    water@doc <- max(water@doc - TOC_removed, 0)
+    water@doc <- water@toc
     water@bdoc <- water@bdoc # model built on TOC basis so BDOC is not updated
 
   } else if (reuse == FALSE & atp == 0) {
@@ -131,12 +139,12 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     atp_filter <- atp * (0.034 * temp + 0.203) # Eqn 5
     x_total <- atp_filter * (-0.132 * (ebct * log(ebct) - ebct) + 0.706 * ebct) # Eqn 7
 
-    bdoc0 <- bdoc_fraction * exp(-k * x_total) # Ceff/Cinf from Eqn 9
+    bdoc0 <- exp(-k * x_total) # Ceff/Cinf from Eqn 9
 
     # Update water object with new TOC and DOC values
     bdoc_rem <- water@bdoc * (1 - bdoc0)
     water@doc <- water@doc - bdoc_rem
-    water@toc <- water@toc - bdoc_rem
+    water@toc <- water@doc
     water@bdoc <- water@bdoc * bdoc0
   } else {
     cli::cli_abort("Invalid combination of arguments. Please check your inputs.")

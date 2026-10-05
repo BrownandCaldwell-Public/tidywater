@@ -90,10 +90,10 @@ test_that("biofilter_toc correctly implements ATP argument.", {
   warm_water <- suppressWarnings(define_water(ph = 7, temp = 22, alk = 100, toc = 5.0, doc = 4.0, uv254 = 0.1))
 
 
-  dw_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 10))
-  reuse_nodose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = FALSE, reuse = TRUE, atp = 10))
-  reuse_dose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE, atp = 10))
-  temp_test <- suppressWarnings(biofilter_toc(warm_water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 10))
+  dw_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 500))
+  reuse_nodose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = FALSE, reuse = TRUE, atp = 1000))
+  reuse_dose_atp <- suppressWarnings(biofilter_toc(water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = TRUE, atp = 1000))
+  temp_test <- suppressWarnings(biofilter_toc(warm_water, ebct = 10, ozonated = TRUE, ozone_dose = 5, reuse = FALSE, atp = 500))
 
   perc_rem <- ((water@toc - reuse_dose_atp@toc) / water@toc) * 100
 
@@ -102,7 +102,20 @@ test_that("biofilter_toc correctly implements ATP argument.", {
   expect_false(round(reuse_dose_atp@doc, 3) == round(reuse_nodose_atp@doc, 3))
   expect_true(dw_atp@doc > temp_test@doc) # colder temp adjustment decreases ATP and removal
   expect_true(round(reuse_dose_atp@doc, 3) < round(reuse_nodose_atp@doc, 3)) # ozonated water has more removal than non-ozonated
-  expect_equal(round(perc_rem), 19)
+  expect_equal(round(perc_rem), 25)
+
+  # EfOM6-O3: avg top-of-filter ATP 1630 ng/mL (Table 1), BDOC 60%, k'' = 0.40E-4 (Table 2)
+  # Paper reports 21.4-22.2% DOC removal at 15 min EBCT, 22 C
+  water_test <- suppressWarnings(define_water(ph = 7, temp = 22, alk = 100, toc = 6.5, doc = 6, uv254 = 0.1))
+  biof <- suppressWarnings(biofilter_toc(water_test, ebct = 15, ozonated = TRUE, reuse = TRUE, atp = 1630))
+
+  perc_rem <- (water_test@doc - biof@doc) / water_test@doc * 100
+
+  expect_equal(round(perc_rem, 1), 21.6)
+  expect_true(perc_rem > 21 & perc_rem < 23) # paper range
+  expect_equal(round(biof@doc, 2), 4.70)
+  expect_equal(round(biof@bdoc, 2), 2.30) # 0.6 * 6 * exp(-k'' * Xtotal)
+  expect_equal(biof@toc, biof@doc) # particulate TOC assumed removed
 })
 
 ################################################################################*

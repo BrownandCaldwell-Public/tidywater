@@ -41,7 +41,7 @@ biofilter_toc_df(
 
 \item{ebct}{The empty bed contact time (min) used for the biofilter.}
 
-\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise.}
+\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise. Ignored if ATP is provided.}
 
 \item{ozone_dose}{The ozone dose (mg/L) applied to the water. Only used if \code{reuse = TRUE}.}
 

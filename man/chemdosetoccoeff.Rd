@@ -5,7 +5,7 @@
 \alias{chemdosetoccoeff}
 \title{Data frame of model coefficients for coagulation TOC removal}
 \format{
-A dataframe with 5 rows and 7 columns:
+A dataframe with 9 rows and 11 columns. Columns not used by a model are NA:
 \describe{
 \item{ID}{Coefficient type}
 \item{x3}{x3 parameter}
