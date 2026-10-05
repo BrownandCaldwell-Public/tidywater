@@ -1,8 +1,8 @@
 #' @title Determine TOC removal from coagulation
 #'
 #' @description This function applies the Edwards (1997) model to a water created by [define_water] to determine coagulated
-#' DOC. Option to model an input water to reuse processes using the reuse argument, which uses the Wilder & Korak (2025) models to
-#' predict coagulated DOC for reuse waters with effluent organic matter (EfOM). Model assumes all particulate TOC is removed; 
+#' DOC. Reuse waters with effluent organic matter (EfOM) can be modeled by selecting one of the Wilder & Korak (2025) models
+#' with `coeff`. Reuse models apply only to aluminum coagulants (alum, ACH, PACl). Model assumes all particulate TOC is removed;
 #' therefore TOC = DOC in output.
 #' Coagulated UVA is from U.S. EPA (2001) equation 5-80 for Edwards (1997) model and a regression for the Wilder & Korak (2025) model. 
 #' Note that the models rely on pH of coagulation. If
@@ -20,10 +20,12 @@
 #' @param ach Amount of aluminum chlorohydrate added in mg/L: Al2(OH)5Cl*2H2O + HCO3 -> 2Al(OH)3(am) + Cl + 2H2O + CO2
 #' @param pacl Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....
 #' @param model_coeff String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-#' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters, Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
-#' "Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. See reference list for more information.
+#' data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters (aluminum coagulants only), Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
+#' "Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. Reuse models were validated for coagulation pH 5.5 - 8 and 20 - 200 mg/L alum. See reference list for more information.
 #' @param caoh2 Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.
-#' @param fns Option to specify the fraction of non-sorbing DOC for a site-specific reuse model. If not specified, the default value of 0.649 is used for the Langmuir model and 0.650 for the Linear model.
+#' @param fns Fraction of non-sorbing DOC (0 - 1), required for the site-specific reuse models ("Reuse Site Langmuir" and "Reuse Site Linear").
+#' Measured as the fraction of DOC remaining after coagulation with 200 mg/L alum at pH 6 (Wilder & Korak 2025). The general reuse models use fixed
+#' values of 0.649 (Langmuir) and 0.650 (Linear); a supplied `fns` is ignored with a warning. Not used by Edwards models.
 #' 
 #' @seealso [chemdose_ph]
 #'
@@ -78,12 +80,14 @@ chemdose_toc <- function(
     has_langmuir_cols <- all(c("fns", "x1", "x2", "x3", "b") %in% colnames(model_coeff))
     has_linear_cols <- all(c("fns", "z0", "z1", "z2") %in% colnames(model_coeff))
     
-    if (has_langmuir_cols) {
+    if (has_edwards_cols) {
+      model_type <- "Edwards"
+    } else if (has_langmuir_cols) {
       model_type <- "Reuse Langmuir"
     } else if (has_linear_cols) {
       model_type <- "Reuse Linear"
-    } else if (!has_edwards_cols) {
-      cli::cli_abort("{.arg model_coeff} dataframe must contain either: Edwards model {.val (k1, k2, x1, x2, x3, b)}, Langmuir reuse model {.val (fns, x1, x2, x3, b)}, or Linear reuse model {.val (fns, z0, z1, z2)} coefficients.")
+    } else {
+      cli::cli_abort("{.arg coeff} dataframe must contain either: Edwards model {.val (k1, k2, x1, x2, x3, b)}, Langmuir reuse model {.val (fns, x1, x2, x3, b)}, or Linear reuse model {.val (fns, z0, z1, z2)} coefficients.")
     }
     coeff <- model_coeff[1, , drop = FALSE]
   } else {
@@ -188,15 +192,29 @@ chemdose_toc <- function(
       }
     }
   } else if (grepl("Reuse", model_type)) {
-    # Wilder & Korak (2025) reuse model
-    if (alum == 0) {
-      tidywater_warn("Reuse models are only for alum coagulation. No alum dose entered; final water will equal input water.")
-      return(water)
+    # Wilder & Korak (2025) reuse model, fit on alum; ACH and PACl are treated as equivalent Al3+
+    if (ferricchloride > 0 | ferricsulfate > 0) {
+      cli::cli_abort("Reuse models only apply to aluminum coagulants (alum, ACH, PACl). Remove ferric doses or use an Edwards {.arg coeff}.")
     }
 
-    fns <- ifelse(is.na(coeff$fns), fns, coeff$fns)
-    if(is.na(fns)) {
-      tidywater_warn("Fraction of non-sorbing DOC (fns) must be provided for site-specific reuse models.")
+    if (!is.na(coeff$fns)) {
+      if (!is.na(fns) && fns != coeff$fns) {
+        tidywater_warn("{.arg fns} is ignored for general reuse models, which use a fixed fns of {coeff$fns}. Use a site-specific model to apply a measured fns.")
+      }
+      fns <- coeff$fns
+    } else if (is.na(fns)) {
+      cli::cli_abort("{.arg fns} must be provided for site-specific reuse models (fraction of DOC remaining after coagulation with 200 mg/L alum at pH 6).")
+    }
+    if (fns < 0 | fns > 1) {
+      cli::cli_abort("{.arg fns} must be between 0 and 1.")
+    }
+
+    alum_eq <- convert_units(coag / 2, "alum", startunit = "mM", endunit = "mg/L") # ACH/PACl as equivalent alum
+    if (water@ph < 5.5 | water@ph > 8) {
+      tidywater_warn("Wilder & Korak reuse models were validated for coagulation pH 5.5 - 8. Model accuracy may be reduced outside this range.")
+    }
+    if (alum_eq < 20 | alum_eq > 200) {
+      tidywater_warn("Wilder & Korak reuse models were validated for alum doses of 20 - 200 mg/L. Model accuracy may be reduced outside this range.")
     }
 
     doc_i <- water@doc
@@ -210,7 +228,7 @@ chemdose_toc <- function(
       
       water@doc <- c_eq + fns * doc_i
       water@toc <- water@doc
-      water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
+      water@uv254 <- uv254_i * (1 - (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100)
     
     } else if (model_type == "Reuse Linear") {
       z2 <- coeff$z2
@@ -222,7 +240,7 @@ chemdose_toc <- function(
       
       water@doc <- tot_zterm + fns * doc_i
       water@toc <- water@doc
-      water@uv254 <- uv254_i * (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100
+      water@uv254 <- uv254_i * (1 - (0.97 * ((doc_i - water@doc) / doc_i) * 100 + 5) / 100)
     }
   }
 

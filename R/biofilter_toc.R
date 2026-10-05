@@ -16,7 +16,7 @@
 #'
 #' @param water Source water object of class "water" created by [define_water].
 #' @param ebct The empty bed contact time (min) used for the biofilter.
-#' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise.
+#' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise. Ignored if ATP is provided.
 #' @param ozone_dose The ozone dose (mg/L) applied to the water. Only used if `reuse = TRUE`.
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
@@ -129,7 +129,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     
     # adjust for temp in ATP measurement, assumes lab temp of 22C
     atp_filter <- atp * (0.034 * temp + 0.203) # Eqn 5
-    x_total <- atp_filter * (0.132 * (ebct * log(ebct) - ebct) + 0.706 * ebct) # Eqn 7
+    x_total <- atp_filter * (-0.132 * (ebct * log(ebct) - ebct) + 0.706 * ebct) # Eqn 7
 
     bdoc0 <- bdoc_fraction * exp(-k * x_total) # Ceff/Cinf from Eqn 9
 

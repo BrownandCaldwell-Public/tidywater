@@ -133,12 +133,48 @@ test_that("chemdose_toc reuse model works at high pH", {
   testthat::skip_on_cran()
   water0 <- suppressWarnings(define_water(ph = 9, doc = 3.5, uv254 = 0.1))
 
-  water1 <- chemdose_toc(water0, alum = 3, model_coeff = "Reuse General Langmuir")
-  water2 <- chemdose_toc(water0, alum = 3, model_coeff = "Reuse General Linear")
+  water1 <- suppressWarnings(chemdose_toc(water0, alum = 3, coeff = "Reuse General Langmuir"))
+  water2 <- suppressWarnings(chemdose_toc(water0, alum = 3, coeff = "Reuse General Linear"))
+  expect_warning(chemdose_toc(water0, alum = 3, coeff = "Reuse General Langmuir"), "5.5")
 
   expect_true(water1@doc > 0)
   expect_true(water2@doc > 0)
   expect_true(round(water1@doc, 1) == 3.3) # make sure it's a reasonable result
+})
+
+test_that("chemdose_toc reuse UV254 follows Wilder & Korak (2025) regression", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(define_water(ph = 6, doc = 8, uv254 = 0.16))
+  water1 <- chemdose_toc(water0, alum = 80, coeff = "Reuse General Langmuir")
+
+  doc_rem <- (water0@doc - water1@doc) / water0@doc * 100
+  uv_rem <- (water0@uv254 - water1@uv254) / water0@uv254 * 100
+
+  expect_equal(uv_rem, 0.97 * doc_rem + 5)
+  expect_equal(round(doc_rem), 31)
+  expect_equal(round(uv_rem), 35)
+  expect_true(uv_rem > doc_rem) # preferential UV254 removal
+})
+
+test_that("chemdose_toc reuse models handle fns, coagulant type, and validity ranges", {
+  testthat::skip_on_cran()
+  water0 <- suppressWarnings(define_water(ph = 6, doc = 8, uv254 = 0.16))
+  alum <- chemdose_toc(water0, alum = 80, coeff = "Reuse General Langmuir")
+
+  # fns
+  expect_error(chemdose_toc(water0, alum = 80, coeff = "Reuse Site Linear"))
+  expect_error(chemdose_toc(water0, alum = 80, coeff = "Reuse Site Linear", fns = 1.2))
+  expect_warning(chemdose_toc(water0, alum = 80, coeff = "Reuse General Linear", fns = 0.3), "ignored")
+
+  # ACH and PACl equal alum at the same Al3+; ferric errors
+  ach <- chemdose_toc(water0, ach = 80 * mweights$ach / mweights$alum, coeff = "Reuse General Langmuir")
+  pacl <- chemdose_toc(water0, pacl = 80 * mweights$al2o3 / mweights$alum, coeff = "Reuse General Langmuir")
+  expect_equal(ach@doc, alum@doc)
+  expect_equal(pacl@doc, alum@doc)
+  expect_error(chemdose_toc(water0, ferricchloride = 80, coeff = "Reuse General Langmuir"), "aluminum")
+
+  # validity ranges
+  expect_warning(chemdose_toc(water0, alum = 10, coeff = "Reuse General Langmuir"), "200")
 })
 
 ################################################################################*
