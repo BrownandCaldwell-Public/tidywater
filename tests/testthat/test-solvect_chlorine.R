@@ -41,10 +41,13 @@ test_that("solvect_chlorine correctly uses free_chlorine slot", {
   ct_use3 <- solvect_chlorine(water1, time = 30, residual = 5, baffle = 0.3, free_cl_slot = "sum_with_residual")
 
   expect_error(expect_equal(round(ct$ct_required, 2), round(ct_use$ct_required, 2)))
-  expect_equal(round(ct_use2$ct_required), 10)
+  expect_equal(round(ct_use2$ct_required), 12)
   expect_equal(round(ct_use$ct_required, 2), round(ct_use2$ct_required, 2))
   expect_error(expect_equal(round(ct_use$ct_required, 2), round(ct_use3$ct_required, 2)))
-  expect_equal(round(ct_use3$ct_required), 19)
+  expect_equal(round(ct_use3$ct_required), 21)
+  # slot (mol/L) is converted to mg/L as Cl2, so it matches passing the same residual directly
+  expect_equal(ct_use2, solvect_chlorine(water1, time = 30, residual = 1, baffle = 0.3))
+  expect_equal(ct_use3, solvect_chlorine(water1, time = 30, residual = 6, baffle = 0.3))
   expect_error(solvect_chlorine(water1, time = 30, baffle = 0.3)) # no residual argument or water slot
 })
 

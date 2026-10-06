@@ -114,3 +114,27 @@ check2<-check_water(water2)
   expect_equal(length(check3), 4)
 
 })
+
+test_that("check_water only reports no issues when there are none", {
+  testthat::skip_on_cran()
+  # a single issue is not followed by "No issues found"
+  water1 <- suppressWarnings(define_water(
+    ph = 7.5, temp = 20, alk = 80, ca = 30, mg = 8, na = 20, k = 3, cl = 25, so4 = 30, tds = 600
+  ))
+  check1 <- check_water(water1, skip_models = TRUE)
+
+  expect_false("No issues found with water input." %in% unlist(check1))
+  expect_true(any(grepl("TDS check", unlist(check1))))
+
+  # a clean water reports no issues, with or without the models check
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 80, ca = 30, mg = 8, na = 20, cl = 25, so4 = 30))
+  water2@tot_hard <- calculate_hardness(30, 8)
+  water2@tds <- 113
+  check2 <- check_water(water2, skip_models = TRUE)
+  check3 <- check_water(water2)
+
+  expect_equal(check2, list("No issues found with water input."))
+  expect_equal(length(check3), 2)
+  expect_match(check3[[1]], "Applicable models")
+  expect_equal(check3[[2]], "No issues found with water input.")
+})

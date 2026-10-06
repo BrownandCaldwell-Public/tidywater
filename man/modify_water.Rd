@@ -28,9 +28,9 @@ are allowed. For organic carbon, one of "mg/L", "ug/L". For uv254 one of "cm-1",
 
 \item{df}{a data frame containing a water class column, which has already been computed using \link{define_water_df}}
 
-\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined_water".}
+\item{input_water}{name of the column of water class data to be used as the input for this function. Default is "defined".}
 
-\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "modified_water".}
+\item{output_water}{name of the output column storing updated parameters with the class, water. Default is "modified".}
 }
 \value{
 A data frame containing columns of selected parameters from a list of water class objects.
@@ -42,6 +42,12 @@ This function modifies selected slots of a \code{water} class object without imp
 manually update "tthm" and the new speciation will not be calculated. This function is designed to make sure all parameters
 are stored in the correct units when manually updating a water. Some slots cannot be modified with this function because
 they are interconnected with too many others (usually pH dependent, eg, hco3). For those parameters, update \link{define_water}.
+}
+\details{
+In \code{modify_water_df}, \code{slot}, \code{value}, and \code{units} can each be a constant, an unquoted column name, or left as
+"use_col" to read a column of the same name ("slot", "value", "units"). Constants are applied to every row as
+given, so \code{slot = c("br", "na")}, \code{value = c(50, 60)}, \code{units = c("ug/L", "mg/L")} sets both slots on each water.
+Unlike other \verb{_df} functions, vector constants are not expanded into one row per combination. Columns are read row by row.
 }
 \examples{
 water1 <- define_water(ph = 7, alk = 100, tds = 100, toc = 5) \%>\%

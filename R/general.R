@@ -536,6 +536,61 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
   value * multiplier * mol_per_unit(start_basis) / mol_per_unit(end_basis)
 }
 
+# Normalizes a unit string into a key for exact alias lookup: lowercase, with
+# whitespace, the linking word "as" (e.g. "mg/L as CaCO3"), and slashes all removed.
+# This is deliberately NOT a fuzzy/edit-distance match -- it only maps a fixed list of
+# known-equivalent spellings onto a single key, so a typo or an unrelated unit never
+# matches an unintended canonical unit (see "mg/L" + "CaCO3 M" vs "mg/L CaCO3" + "M").
+normalize_unit_alias <- function(unit) {
+  unit <- tolower(unit)
+  unit <- gsub("[[:space:]]", "", unit)
+  unit <- gsub("as", "", unit, fixed = TRUE)
+  unit <- gsub("/", "", unit, fixed = TRUE)
+  unit
+}
+
+# The canonical unit names convert_units_private and the cache understand.
+canonical_units <- c(
+  "ng/L", "ug/L", "mg/L", "g/L",
+  "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
+  "ng/L N", "ug/L N", "mg/L N", "g/L N",
+  "ng/L P", "ug/L P", "mg/L P", "g/L P",
+  "ng/L Cl2", "ug/L Cl2", "mg/L Cl2", "g/L Cl2",
+  "M", "mM", "uM", "nM",
+  "neq/L", "ueq/L", "meq/L", "eq/L"
+)
+
+# Extra aliases that don't fall out of normalizing a canonical name directly:
+# "Cl" is accepted as shorthand for "Cl2", and "mol/L" (with the usual m/u/n
+# prefixes) is accepted as shorthand for "M".
+unit_alias_extra <- c(
+  "ng/L Cl" = "ng/L Cl2",
+  "ug/L Cl" = "ug/L Cl2",
+  "mg/L Cl" = "mg/L Cl2",
+  "g/L Cl" = "g/L Cl2",
+  "mol/L" = "M",
+  "mmol/L" = "mM",
+  "umol/L" = "uM",
+  "nmol/L" = "nM"
+)
+
+# Canonical unit names keyed by their normalized form. Built once when the package is
+# loaded rather than on every convert_units call.
+unit_matcher <- canonical_units
+names(unit_matcher) <- normalize_unit_alias(canonical_units)
+unit_alias_extra_matcher <- unname(unit_alias_extra)
+names(unit_alias_extra_matcher) <- normalize_unit_alias(names(unit_alias_extra))
+unit_matcher <- c(unit_matcher, unit_alias_extra_matcher)
+# Lookup takes the first match, so a spelling that normalizes onto an existing key would
+# be silently ignored rather than reported. Fail at load instead of at conversion time.
+if (anyDuplicated(names(unit_matcher))) {
+  stop(
+    "Unit spellings collide after normalization: ",
+    paste(unique(names(unit_matcher)[duplicated(names(unit_matcher))]), collapse = ", ")
+  )
+}
+unit_matcher_names <- names(unit_matcher)
+
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
@@ -563,19 +618,30 @@ convert_units_private <- function(value, formula = NULL, startunit = "mg/L", end
 #'
 convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
+
+  # Fast path: callers that already pass canonical units and formulas (which is every
+  # internal tidywater call) hit the cache directly and skip normalization and matching.
+  # Both units must be exact canonical names. Unit names contain spaces, so without
+  # that check paste() could build the key of a different valid combination -- e.g.
+  # ("ca", "mg/L", "CaCO3 M") and ("ca", "mg/L CaCO3", "M") both give "ca mg/L CaCO3 M".
+  if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
+    lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+    if (!is.null(lookup)) {
+      return(value * lookup)
+    }
+  }
+
   mweights <- get("mweights")
   molecNames <- names(mweights)
+  unit_matcher <- get("unit_matcher")
+  unit_matcher_names <- get("unit_matcher_names")
 
-  # normalize strings
+  # formula matcher: typos are fuzzy-matched within an edit distance of 1. Formulas
+  # aren't ambiguous the way units are (no two formulas concatenate into a third), so
+  # this fuzzy matching is left in place.
   if (!is.null(formula)) {
     # Drop parentheses too so "Ca(OCl)2" matches "caocl2"
     formula <- tolower(gsub("[[:space:]()]", "", formula))
-  }
-  startunit <- (tolower(gsub("\\s", "", startunit)))
-  endunit <- (tolower(gsub("\\s", "", endunit)))
-  
-  # formula matcher
-  if (!is.null(formula)) {
     if (!(formula %in% molecNames)) {
       bestFormula <- agrep(formula, molecNames, max.distance = 1)
       if (length(bestFormula) > 0) {
@@ -586,70 +652,21 @@ convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "
     }
   }
 
-  unit_matcher <- c(
-    "ng/l" = "ng/L",
-    "ug/l" = "ug/L",
-    "mg/l" = "mg/L",
-    "g/l" = "g/L",
-    "ng/lcaco3" = "ng/L CaCO3",
-    "ug/lcaco3" = "ug/L CaCO3",
-    "mg/lcaco3" = "mg/L CaCO3",
-    "g/lcaco3" = "g/L CaCO3",
-    "ng/lascaco3" = "ng/L CaCO3",
-    "ug/lascaco3" = "ug/L CaCO3",
-    "mg/lascaco3" = "mg/L CaCO3",
-    "g/lascaco3" = "g/L CaCO3",
-    "ng/ln" = "ng/L N",
-    "ug/ln" = "ug/L N",
-    "mg/ln" = "mg/L N",
-    "g/ln" = "g/L N",
-    "ng/lp" = "ng/L P",
-    "ug/lp" = "ug/L P",
-    "mg/lp" = "mg/L P",
-    "g/lp" = "g/L P",
-    "ng/lcl2" = "ng/L Cl2",
-    "ug/lcl2" = "ug/L Cl2",
-    "mg/lcl2" = "mg/L Cl2",
-    "g/lcl2" = "g/L Cl2",
-    "ng/lcl" = "ng/L Cl2",
-    "ug/lcl" = "ug/L Cl2",
-    "mg/lcl" = "mg/L Cl2",
-    "g/lcl" = "g/L Cl2",
-    "m" = "M",
-    "mm" = "mM",
-    "um" = "uM",
-    "nm" = "nM",
-    "neq/l" = "neq/L",
-    "ueq/l" = "ueq/L",
-    "meq/l" = "meq/L",
-    "eq/l" = "eq/L"
-  )
-
-
-  bestStart <- agrep(startunit, names(unit_matcher), max.distance = 1)
-  bestEnd <- agrep(endunit, names(unit_matcher), max.distance = 1)
-
-  # space and upper case matching
-  if (startunit %in% names(unit_matcher)){
-  startunit <- unit_matcher[[startunit]]
-  } 
-  
-  # making the length of the input unit be greater than 1 because there are too many matches for single letter inputs
-  # like M, without that then every M conversion is wrong. 
-  else if (length(bestStart) > 0 & nchar(startunit) > 1) {
-    startunit <- unit_matcher[[bestStart[1]]]
-    tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check startunit.")
+  # Unit matching is an exact lookup against a fixed list of known-equivalent spellings
+  # (see unit_matcher/normalize_unit_alias above), not fuzzy/edit-distance matching.
+  startunit_key <- normalize_unit_alias(startunit)
+  if (startunit_key %in% unit_matcher_names) {
+    startunit <- unit_matcher[[startunit_key]]
+  }
+  endunit_key <- normalize_unit_alias(endunit)
+  if (endunit_key %in% unit_matcher_names) {
+    endunit <- unit_matcher[[endunit_key]]
   }
 
-  if (endunit %in% names(unit_matcher)) {
-  endunit <- unit_matcher[[endunit]]
-  }
-  else if (length(bestEnd) > 0 & nchar(endunit) > 1) {
-    endunit <- unit_matcher[[bestEnd[1]]]
-        tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check endunit.")
-  }
-  
-  lookup <- if (!is.null(formula)) {
+  # Gate the lookup the same way as the fast lookup so an
+  # unsupported endunit/startunit always falls through to convert_units_private, which
+  # validates against unit_multipliers directly and errors with "Units not supported".
+  lookup <- if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
     convert_units_cache[[paste(formula, startunit, endunit)]]
   } else {
     NULL

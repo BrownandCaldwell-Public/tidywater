@@ -2,6 +2,12 @@
 
 ## Breaking changes
 
+* Deprecated `_once` and `_chain` wrappers now pass arguments to the right parameters, which changes their output
+(#526). `chemdose_toc_once()` previously ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and
+`chemdose_ph_once()` errored. `chemdose_dbp_once()` now respects `water_prefix`, so its output columns are prefixed by
+default.
+* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs, which can change
+`toc_compliance_status` (#529).
 * `convert_units()` now converts through moles of the formula, which changes some results (#156, #492):
   * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
   factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
@@ -13,6 +19,20 @@
 so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
 lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
 given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
+* `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
+`free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
+5 orders of magnitude too low (#523).
+* `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts
+at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
+* `convert_water()`, `convert_watermg()`, and `pluck_water(parameter = "all")` no longer return the `ks` slot. It
+previously expanded into 15 columns and shifted every column name after it, so DBP and chlorine columns held
+equilibrium constants (#534). Use `water@ks` to get the equilibrium constants.
+* `convert_watermg()` returns `tot_sio4` in mg/L as SiO2, matching `define_water()` input (#530). It also converts
+`tot_citric`, `h2citric`, `h1citric`, and `citric` to mg/L as citric acid.
+* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
+It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
+* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
+was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
@@ -26,6 +46,22 @@ type (e.g. mg/L to g/L or mM to M).
 chloride or sulfate is missing, as the warning says, instead of erroring (#538).
 * `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
 state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
+* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
+every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
+`endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
+
+* `convert_units()` no longer uses edit-distance ("fuzzy") matching for units. Units are now matched case-insensitively
+against a fixed list of known-equivalent spellings: with or without internal whitespace, with or without a slash
+(`mgL` = `mg/L`), with or without the linking word "as" (`mg/L CaCO3` = `mg/L as CaCO3`), and `mol/L` (with the usual
+`m`/`u`/`n` prefixes) as an alias for `M`. A unit that isn't one of these exact aliases of a canonical unit now errors
+with "Units not supported" instead of silently matching an unrelated canonical unit (e.g. `"CaCO3 M"` no longer
+fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Formula fuzzy matching for typos (e.g.
+`"caa"` for `"ca"`) is unchanged.
+
+* `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
+* `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
+* `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
+`skip_models = TRUE` instead of returning an empty list (#541).
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by

@@ -288,7 +288,8 @@ toc_list <- lapply(seq_len(nrow(df)), function(i) {
     regulate_toc(
       alk_raw = df[[final_names$alk_raw]][i],
       toc_raw = df[[final_names$toc_raw]][i],
-      toc_finished = df[[final_names$toc_finished]][i]
+      toc_finished = df[[final_names$toc_finished]][i],
+      skip_alternate = skip_alternate
     )
   })
 }

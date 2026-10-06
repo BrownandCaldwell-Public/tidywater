@@ -64,6 +64,14 @@ test_that("ozonate_bromate works.", {
   expect_equal(round(water7@bro3, 1), 1.2)
 })
 
+test_that("ozonate_bromate Siddiqui model runs without time.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, doc = 3.5, uv254 = 0.1, br = 50))
+  water2 <- ozonate_bromate(water1, dose = 1, model = "Siddiqui")
+  water3 <- ozonate_bromate(water1, dose = 1, time = 10, model = "Siddiqui")
+
+  expect_equal(water2@bro3, water3@bro3)
+})
+
 ################################################################################*
 ################################################################################*
 # ozonate_bromate helpers ----
@@ -226,6 +234,21 @@ test_that("ozonate_bromate_df multiple models", {
 
   expect_equal(water1$ozonated_bro3[1], water2$ozonated_bro3) # test different ways to input args
   expect_equal(water1$ozonated_bro3, water3$ozonated_bro3)
+})
+
+test_that("ozonate_bromate_df Siddiqui model runs without time.", {
+  testthat::skip_on_cran()
+  water <- suppressWarnings(
+    water_df %>%
+      slice(1:2) %>%
+      mutate(br = 80) %>%
+      define_water_df()
+  )
+  water1 <- ozonate_bromate_df(water, dose = 3, model = "Siddiqui", pluck_cols = TRUE)
+  water2 <- ozonate_bromate_df(water, dose = 3, time = 10, model = "Siddiqui", pluck_cols = TRUE)
+
+  expect_equal(water1$ozonated_bro3, water2$ozonated_bro3)
+  expect_error(ozonate_bromate_df(water, dose = 3, model = "Ozekin"), "Reaction time")
 })
 
 test_that("ozonate_bromate_df errors with argument + column for same param", {
