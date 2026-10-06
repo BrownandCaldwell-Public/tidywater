@@ -85,6 +85,21 @@ test_that("users can provide their own dbp coefficients.", {
   expect_equal(round(water2@chcl3, 2), 58.78)
 })
 
+test_that("chemdose_dbp accepts a custom coeff table with more than one row.", {
+  coeff <- subset(dbpcoeffs, treatment == "coag")[1:2, ]
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+
+  water2 <- suppressWarnings(chemdose_dbp(water1, cl2 = 3, time = 24, treatment = "coag"))
+  water3 <- suppressWarnings(chemdose_dbp(water1, cl2 = 3, time = 24, treatment = "coag", coeff = coeff))
+
+  # default coefficients passed as custom coeff give the same result
+  expect_equal(water3@tthm, water2@tthm)
+  expect_equal(water3@chcl3, water2@chcl3)
+
+  coeff$ID[2] <- "oops"
+  expect_error(chemdose_dbp(water1, cl2 = 3, time = 24, treatment = "coag", coeff = coeff), "must match")
+})
+
 test_that("chemdose_dbp works when correction is T/F", {
   water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50)) %>%
     chemdose_dbp(cl2 = 2, time = 8)

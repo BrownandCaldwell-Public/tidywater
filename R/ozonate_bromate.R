@@ -63,6 +63,10 @@ ozonate_bromate <- function(water, dose, time, model = "Ozekin") {
   alk <- ifelse(is.na(water@alk), 0, water@alk)
   nh4 <- ifelse(is.na(water@nh4), 0, convert_units(water@nh4, "nh4", "M", "mg/L N"))
   temp <- water@temp
+  # Siddiqui does not use time (exponent is 0), so it may be omitted
+  if (missing(time)) {
+    time <- 1
+  }
   # TODO add warnings for parameters outside model ranges *****************************************************************
   mod <- model
   # All models must match this form.
@@ -148,15 +152,25 @@ ozonate_bromate_df <- function(
   df <- defaults_added$data
 
 warning_counts <- list()
+  # time is optional for the Siddiqui model, so leave it missing when there is no time column
+  has_time <- final_names$time %in% names(df)
 
   df[[output_water]] <- lapply(seq_len(nrow(df)), function(i) {
     withCallingHandlers(
-    ozonate_bromate(
-      water = df[[input_water]][[i]],
-      dose = df[[final_names$dose]][i],
-      time = df[[final_names$time]][i],
-      model = df[[final_names$model]][i]
-    ),
+    if (has_time) {
+      ozonate_bromate(
+        water = df[[input_water]][[i]],
+        dose = df[[final_names$dose]][i],
+        time = df[[final_names$time]][i],
+        model = df[[final_names$model]][i]
+      )
+    } else {
+      ozonate_bromate(
+        water = df[[input_water]][[i]],
+        dose = df[[final_names$dose]][i],
+        model = df[[final_names$model]][i]
+      )
+    },
     warning = function(w){
       msg<-conditionMessage(w)
       warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) +1L
