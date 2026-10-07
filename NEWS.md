@@ -36,6 +36,11 @@ was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
+* New `chemdose_inorgdemand()` and `chemdose_inorgdemand_df()` calculate the free chlorine residual after the
+inorganic chlorine demand of Mn, Fe, and ammonia (#511, #532). `use_chlorine_slot = TRUE` adds the existing
+`free_chlorine` in the water to `cl2_dose`, matching `chemdose_chlordecay()`. If `cl2_dose` is omitted, the
+`free_chlorine` slot is used. The functions error when the demand exceeds the available chlorine.
+
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
 type (e.g. mg/L to g/L or mM to M).
