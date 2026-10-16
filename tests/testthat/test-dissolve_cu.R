@@ -37,7 +37,7 @@ test_that("warning when DIC is outside the model range", {
   expect_no_warning(dissolve_cu(water3))
 })
 
-test_that("orthophosphate lowers dissolved copper (#508)", {
+test_that("orthophosphate lowers dissolved copper", {
   water0 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 0))
   water3 <- suppressWarnings(define_water(ph = 7.5, alk = 125, tot_po4 = 3))
 

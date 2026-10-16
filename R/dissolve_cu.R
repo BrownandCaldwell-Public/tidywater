@@ -10,6 +10,11 @@
 #' mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of 10, 50,
 #' and 100 mg/L as C (Lytle et al. 2018, equation 1); a warning is given for inputs outside these ranges.
 #'
+#' DIC is not an input: \code{\link{define_water}} calculates it from pH and alkalinity. Lytle et al. (2018) give no
+#' alkalinity range, and the alkalinity that corresponds to a given DIC depends on pH. At 25 C, the 10 to 100 mg/L as C
+#' DIC range is roughly 24 to 244 mg/L as CaCO3 alkalinity at pH 6.5, 34 to 340 at pH 7, 39 to 390 at pH 7.5,
+#' and 41 to 410 at pH 8.
+#'
 #' @source Lytle et al (2018)
 #'
 #' @param water Source water object of class "water" created by \code{\link{define_water}}. Water must include ph and dic
@@ -40,7 +45,7 @@ dissolve_cu <- function(water) {
   }
   # Lytle et al. (2018) fit the model at DIC of 10, 50, and 100 mg C/L
   if (water@dic < 10 | water@dic > 100) {
-    tidywater_warn("This model was fit on waters with DIC between 10 and 100 mg/L as C.")
+    tidywater_warn("This model was fit on waters with DIC (calculated from pH and alkalinity) between 10 and 100 mg/L as C.")
   }
 
   cu <- 56.68 * exp(-0.77 * water@ph) * exp(-0.20 * po4) * water@dic^0.59
