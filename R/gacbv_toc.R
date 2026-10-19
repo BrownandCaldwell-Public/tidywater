@@ -12,6 +12,8 @@
 #' Water must contain a DOC value (or TOC, from which [define_water] estimates DOC).
 #'
 #' @details The function will calculate bed volume required to achieve given target DOC values.
+#' Both models were published in terms of TOC. GAC influent is normally coagulated and filtered, so particulate organic
+#' carbon is negligible and TOC = DOC; tidywater therefore applies the models to influent DOC.
 #'
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}

@@ -67,6 +67,8 @@ The function will calculate bed volumes and normalized DOC breakthrough (DOCeff/
 Both models were developed using data sets from bench-scale GAC treatment studies using bituminous GAC and EBCTs of either 10 or 20 minutes.
 The specific mesh sizes used to develop the Zachman and Summers model were 12x40 or 8x30.
 The models were also developed using influent pH and DOC between specific ranges. Refer to the papers included in the references for more details.
+Both models were published in terms of TOC. GAC influent is normally coagulated and filtered, so particulate organic
+carbon is negligible and TOC = DOC; tidywater therefore applies the models to influent DOC.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) \%>\%

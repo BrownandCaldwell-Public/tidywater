@@ -67,6 +67,8 @@ Water must contain a DOC value (or TOC, from which \link{define_water} estimates
 GAC model for TOC removal
 
 The function will calculate bed volume required to achieve given target DOC values.
+Both models were published in terms of TOC. GAC influent is normally coagulated and filtered, so particulate organic
+carbon is negligible and TOC = DOC; tidywater therefore applies the models to influent DOC.
 }
 \examples{
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
