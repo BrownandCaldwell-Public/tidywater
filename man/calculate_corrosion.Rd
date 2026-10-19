@@ -55,7 +55,8 @@ calculate_corrosion_df(
 Default calculates all six indices: "aggressive", "ryznar", "langelier", "ccpp", "larsonskold", "csmr"
 CCPP may not be able to be calculated sometimes, so it may be advantageous to leave this out of the function to avoid errors}
 
-\item{form}{Form of calcium carbonate mineral to use for modelling solubility: "calcite" (default), "aragonite", or "vaterite"}
+\item{form}{Form of calcium carbonate mineral to use for modelling solubility in the Langelier and Ryznar indices:
+"calcite" (default), "aragonite", or "vaterite". CCPP always uses calcite.}
 
 \item{df}{a data frame containing a water class column, created using \link{define_water}}
 
@@ -89,6 +90,11 @@ Chloride-to-sulfate mass ratio (CSMR), mg Cl/mg SO4 - indicator of galvanic corr
 Calcium carbonate precipitation potential (CCPP), mg/L as CaCO3 - a prediction of the mass of calcium carbonate that will precipitate at equilibrium.
 A positive CCPP value indicates the amount of CaCO3 (mg/L as CaCO3) that will precipitate.
 A negative CCPP indicates how much CaCO3 can be dissolved in the water.
+CCPP is always calculated against calcite solubility, following Merrill and Sanks (1977a, 1977b, 1978) and
+Trussell (1998); the \code{form} argument does not affect CCPP.
+
+If chloride or sulfate is missing, the Larson-Skold index and CSMR are returned as \code{NA} with a warning, and the other
+requested indices are still calculated.
 }
 \examples{
 water <- define_water(

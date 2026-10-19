@@ -19,6 +19,10 @@ default.
 multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
 * `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
 written in terms of TOC, but GAC influent is normally coagulated and filtered water, where TOC = DOC. `gac_toc()` sets effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
+* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
+so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
+given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
 * `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
 `free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
 5 orders of magnitude too low (#523).
@@ -36,12 +40,37 @@ was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
+* New `chemdose_inorgdemand()` and `chemdose_inorgdemand_df()` calculate the free chlorine residual after the
+inorganic chlorine demand of Mn, Fe, and ammonia (#511, #532). `use_chlorine_slot = TRUE` adds the existing
+`free_chlorine` in the water to `cl2_dose`, matching `chemdose_chlordecay()`. If `cl2_dose` is omitted, the
+`free_chlorine` slot is used. The functions error when the demand exceeds the available chlorine.
+
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
 type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
+chloride or sulfate is missing, as the warning says, instead of erroring (#538).
+* `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
+state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
+* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
+every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
+`endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
+
+* `convert_units()` no longer uses edit-distance ("fuzzy") matching for units. Units are now matched case-insensitively
+against a fixed list of known-equivalent spellings: with or without internal whitespace, with or without a slash
+(`mgL` = `mg/L`), with or without the linking word "as" (`mg/L CaCO3` = `mg/L as CaCO3`), and `mol/L` (with the usual
+`m`/`u`/`n` prefixes) as an alias for `M`. A unit that isn't one of these exact aliases of a canonical unit now errors
+with "Units not supported" instead of silently matching an unrelated canonical unit (e.g. `"CaCO3 M"` no longer
+fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Formula fuzzy matching for typos (e.g.
+`"caa"` for `"ca"`) is unchanged.
+
+* `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
+* `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
+* `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
+`skip_models = TRUE` instead of returning an empty list (#541).
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by

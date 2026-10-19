@@ -90,7 +90,7 @@ convert_watermg <- function(water) {
   water@tot_po4 <- convert_units(water@tot_po4, "po4", "M", "mg/L")
   water@tot_nh3 <- convert_units(water@tot_nh3, "nh3", "M", "mg/L N")
   water@tot_co3 <- convert_units(water@tot_co3, "co3", "M", "mg/L")
-  water@tot_bo4 <- convert_units(water@tot_bo4, "b", "M", "mg/L B")
+  water@tot_bo4 <- convert_units(water@tot_bo4, "b", "M", "mg/L")
   water@tot_sio4 <- convert_units(water@tot_sio4, "sio2", "M", "mg/L")
   water@tot_ch3coo <- convert_units(water@tot_ch3coo, "ch3cooh", "M", "mg/L")
   water@tot_citric <- convert_units(water@tot_citric, "citric", "M", "mg/L")
