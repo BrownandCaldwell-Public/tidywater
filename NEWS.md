@@ -15,6 +15,10 @@ default.
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
+so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
+given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
 * `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
 `free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
 5 orders of magnitude too low (#523).
@@ -43,6 +47,10 @@ type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
+chloride or sulfate is missing, as the warning says, instead of erroring (#538).
+* `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
+state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
 * `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
 every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
 `endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
