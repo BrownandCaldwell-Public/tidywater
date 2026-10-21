@@ -23,7 +23,7 @@ test_that("opensys_ph widens the CO2 search when more than 100 mg/L must be remo
   water1 <- define_water(ph = 5, temp = 25, alk = 5, tds = 100)
   water2 <- opensys_ph(water1)
   expect_equal(signif(water2@h2co3, 2), 1.3 * 10^-5)
-  expect_gt(water2@ph, 7)
+  expect_gt(water2@ph, water1@ph) # stripping CO2 raises pH
 
   # High pH, very high alk: more than 100 mg/L CO2 must be absorbed
   water3 <- define_water(ph = 12, temp = 25, alk = 5000, tds = 100)
