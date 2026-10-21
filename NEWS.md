@@ -25,6 +25,14 @@ alkalinity (e.g. hydroxide at high pH). Carbonate species, and `dissolve_pb()` r
 * `solveresid_o3()` returns 0 instead of a negative residual when ozone demand exceeds the dose, so
 `solvect_o3()` no longer returns negative CT. `solvect_o3()` with `kd` also returns 0 CT for contact times
 under 30 seconds.
+* `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
+multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
+* `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
+written in terms of TOC, but GAC influent is normally coagulated and filtered water, where TOC = DOC. `gac_toc()` sets effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
+* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
+so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
+given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
 * `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
 `free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
 5 orders of magnitude too low (#523).
@@ -58,6 +66,10 @@ failing with a `uniroot()` error. If no equilibrium dose is found, it gives a cl
 * `solvedose_alk()` no longer lists or accepts `chemical = "co2"`, since CO2 doesn't change alkalinity. It now
 errors with "Selected chemical addition is not supported" instead of a `uniroot()` error (#539).
 
+* `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
+chloride or sulfate is missing, as the warning says, instead of erroring (#538).
+* `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
+state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
 * `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
 every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
 `endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.

@@ -19,6 +19,16 @@ test_that("gacrun_toc returns error if inputs are misspelled or missing.", {
   expect_error(gacrun_toc(water3, model = "Zachman"))
 })
 
+test_that("gacrun_toc Zachman curve matches Zachman and Summers (2010).", {
+  # Model 2 (12x40, 20 min EBCT) at the Fig. 3 median water: influent 3.4 mg/L, pH 7.9.
+  # Table 2: BVx = A / C0 / pH^1.5, A = 164x^2 - 1938x + 245064. BV50 = 558164 / 3.4 / 7.9^1.5 = 7393.
+  # Values are consistent with the Fig. 3 curve for this water (read graphically).
+  water <- suppressWarnings(define_water(ph = 7.9, toc = 3.4, doc = 3.4))
+  curve <- gacrun_toc(water, ebct = 20, model = "Zachman", media_size = "12x40")
+
+  expect_equal(curve$bv[curve$x_norm %in% c(0.2, 0.5, 0.7)], c(3601.6, 7393.4, 12093.5), tolerance = 1e-5)
+})
+
 test_that("gacrun_toc defaults to correct values.", {
   water <- suppressWarnings(define_water(ph = 7.5, toc = 3.5))
 

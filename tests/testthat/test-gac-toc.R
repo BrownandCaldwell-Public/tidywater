@@ -48,7 +48,8 @@ test_that("gac_toc works", {
   water6 <- gac_toc(water1, ebct = 20, model = "Zachman", bed_vol = 10000)
   water7 <- gac_toc(water1, media_size = "8x30", model = "Zachman", bed_vol = 8000)
 
-  expect_equal(round(water2@doc, 2), 1.90)
+  expect_equal(round(water2@doc, 2), 1.85)
+  expect_equal(water2@toc, water2@doc)
   expect_false(identical(water2@doc, water3@doc))
   expect_false(identical(water2@doc, water4@doc))
   expect_false(identical(water2@uv254, water5@uv254))
