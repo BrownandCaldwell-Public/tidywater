@@ -15,6 +15,10 @@ default.
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
+multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
+* `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
+written in terms of TOC, but GAC influent is normally coagulated and filtered water, where TOC = DOC. `gac_toc()` sets effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
 * `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
 so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
 lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
