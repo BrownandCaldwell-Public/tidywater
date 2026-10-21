@@ -50,6 +50,8 @@ was returned unchanged. It now errors when a column it needs is missing (#533).
 
 ## New features
 
+* New `scavenge_oh_df()` applies `scavenge_oh()` to a data frame of waters, adding the OH radical scavenging term as a
+new column (`output_column`, default "oh_scavenging").
 * New `chemdose_inorgdemand()` and `chemdose_inorgdemand_df()` calculate the free chlorine residual after the
 inorganic chlorine demand of Mn, Fe, and ammonia (#511, #532). `use_chlorine_slot = TRUE` adds the existing
 `free_chlorine` in the water to `cl2_dose`, matching `chemdose_chlordecay()`. If `cl2_dose` is omitted, the

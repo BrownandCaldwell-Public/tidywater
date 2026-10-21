@@ -2,8 +2,9 @@
 #'
 #' @description The background hydroxyl radical scavenging term is a measure of the degradation rate of non-target constituents in a water. The term is defined as the 
 #' sum of the reaction rate of the constituent multiplied by the concentration of the constituent: `sum(k_i * [C]i)` where `k_i` is the reaction rate of a contaminant and `[C]i` its concentration.
-#' Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging. 
-#' 
+#' Supporting Information in Wang et al. 2019 provides the definition and additional methods for calculating background scavenging.
+#' For a data frame of waters, use `scavenge_oh_df`, which adds the scavenging term as a new column.
+#'
 #' @details Rate constants used in the code:
 #' * DOC: 2.5e4 L/mg C/s (Larson and Zepp 1988; 3.0e8 M_C^-1 s^-1 divided by 12,011 mg C/mol)
 #' * HCO3-: 8.5e6 M^-1 s^-1 (Buxton et al. 1988)
@@ -45,7 +46,7 @@
 #' 
 #' background_scavenging <- scavenge_oh(water1, h2o2_dose)
 #' 
-#' background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
+#' background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 1.67e4) # Katsoyiannis et al. (2011)
 #'
 #' @export
 #' 
@@ -92,4 +93,79 @@ scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
   # sum all of the scavenging terms
   SC <- Reduce(`+`, k_S)
   return(SC)
+}
+
+#' @rdname scavenge_oh
+#' @param df a data frame containing a water class column, which has already been computed using
+#' [define_water_df]. The df may include columns named for the H2O2 dose in mg/L and the DOC rate constant.
+#' @param input_water name of the column of water class data to be used as the input. Default is "defined".
+#' @param output_column name of the output column storing the OH radical scavenging term in s^-1. Default is
+#' "oh_scavenging".
+#'
+#' @examples
+#'
+#' example_df <- water_df %>%
+#'   define_water_df() %>%
+#'   scavenge_oh_df(dose = 10)
+#'
+#' example_df <- water_df %>%
+#'   define_water_df() %>%
+#'   dplyr::mutate(h2o2 = seq(2, 24, 2)) %>%
+#'   scavenge_oh_df(dose = h2o2, kdoc_adjust = 1.67e4, output_column = "sc")
+#'
+#' @export
+#' @returns `scavenge_oh_df` returns a data frame containing the original data frame and a column with the
+#' background hydroxyl radical scavenging term in s^-1.
+
+scavenge_oh_df <- function(
+  df,
+  input_water = "defined",
+  output_column = "oh_scavenging",
+  dose = "use_col",
+  kdoc_adjust = "use_col"
+) {
+  # This allows for the function to process unquoted column names without erroring
+  dose <- tryCatch(dose, error = function(e) enquo(dose))
+  kdoc_adjust <- tryCatch(kdoc_adjust, error = function(e) enquo(kdoc_adjust))
+
+  validate_water_helpers(df, input_water)
+
+  arguments <- construct_helper(df, list("dose" = dose, "kdoc_adjust" = kdoc_adjust))
+  final_names <- arguments$final_names
+  # Only join inputs if they aren't in existing dataframe
+  if (length(arguments$new_cols) > 0) {
+    df <- merge(df, as.data.frame(arguments$new_cols), by = NULL)
+  }
+  # Add columns with default arguments
+  defaults_added <- handle_defaults(df, final_names, list(dose = 0, kdoc_adjust = 2.5e4))
+  df <- defaults_added$data
+
+  warning_counts <- list()
+
+  df[[output_column]] <- vapply(
+    seq_len(nrow(df)),
+    function(i) {
+      withCallingHandlers(
+        scavenge_oh(
+          water = df[[input_water]][[i]],
+          dose = df[[final_names$dose]][i],
+          kdoc_adjust = df[[final_names$kdoc_adjust]][i]
+        ),
+        warning = function(w) {
+          msg <- conditionMessage(w)
+          warning_counts[[msg]] <<- (warning_counts[[msg]] %||% 0) + 1L
+          invokeRestart("muffleWarning")
+        }
+      )
+    },
+    numeric(1)
+  )
+
+  for (msg in names(warning_counts)) {
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  }
+
+  # Keep the result even if output_column shares a name with a defaulted argument
+  output <- df[, !names(df) %in% setdiff(defaults_added$defaults_used, output_column)]
+  return(output)
 }
