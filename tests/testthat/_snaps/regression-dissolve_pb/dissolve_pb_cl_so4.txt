@@ -18,5 +18,5 @@ acid_high_po4_nocl_ph4.5 :: controlling_solid = Tertiary Lead Orthophosphate
 acid_high_po4_nocl_ph4.5 :: tot_dissolved_pb = 8.0782649767348e-06
 acid_high_po4_nocl_ph5.5 :: controlling_solid = Tertiary Lead Orthophosphate
 acid_high_po4_nocl_ph5.5 :: tot_dissolved_pb = 6.10838900121241e-07
-alkaline_lowcarb_ph11 :: controlling_solid = Cerussite
-alkaline_lowcarb_ph11 :: tot_dissolved_pb = -7.82671520919435e-05
+alkaline_lowcarb_ph11 :: controlling_solid = Lead Hydroxide
+alkaline_lowcarb_ph11 :: tot_dissolved_pb = 0.000282051951642478

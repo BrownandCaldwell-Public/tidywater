@@ -41,25 +41,24 @@ test_that("regression: chemdose_chlordecay full waters", {
   )
 })
 
-test_that("regression: chemdose_chlordecay use_chlorine_slot (known bug)", {
-  # KNOWN-BUG #524: slot converted as Cl not Cl2; residual can go negative
+test_that("regression: chemdose_chlordecay use_chlorine_slot", {
   base <- suppressWarnings(define_water(
     ph = 7.5, temp = 20, alk = 80, tds = 200, toc = 3, uv254 = 0.08,
     free_chlorine = 2, combined_chlorine = 2
   ))
   expect_golden(
     suppressWarnings(list(
-      chlorine_slot_only_knownbug524 = chemdose_chlordecay(base, time = 8, use_chlorine_slot = TRUE),
-      chlorine_slot_plus_dose_knownbug524 = chemdose_chlordecay(base, cl2_dose = 1, time = 8, use_chlorine_slot = TRUE),
-      chlorine_slot_coag_knownbug524 = chemdose_chlordecay(
+      chlorine_slot_only = chemdose_chlordecay(base, time = 8, use_chlorine_slot = TRUE),
+      chlorine_slot_plus_dose = chemdose_chlordecay(base, cl2_dose = 1, time = 8, use_chlorine_slot = TRUE),
+      chlorine_slot_coag = chemdose_chlordecay(
         base,
         time = 8, treatment = "coag", use_chlorine_slot = TRUE
       ),
-      chloramine_slot_only_knownbug524 = chemdose_chlordecay(
+      chloramine_slot_only = chemdose_chlordecay(
         base,
         time = 8, cl_type = "chloramine", use_chlorine_slot = TRUE
       ),
-      chloramine_slot_plus_dose_knownbug524 = chemdose_chlordecay(
+      chloramine_slot_plus_dose = chemdose_chlordecay(
         base,
         cl2_dose = 1, time = 8, cl_type = "chloramine", use_chlorine_slot = TRUE
       )
@@ -68,15 +67,14 @@ test_that("regression: chemdose_chlordecay use_chlorine_slot (known bug)", {
   )
 })
 
-test_that("regression: chemdose_chlordecay long time drives residual negative (known bug)", {
-  # KNOWN-BUG #524: slot converted as Cl not Cl2; residual can go negative
-  # (The 0.85 residual correction, Eq. 5-118, makes ct_corrected < 0 once most
-  # chlorine has decayed.)
+test_that("regression: chemdose_chlordecay long time floors residual at zero", {
+  # The 0.85 residual correction (Eq. 5-118) would make ct_corrected < 0 once most
+  # chlorine has decayed; the residual is floored at 0 (#524).
   ws <- regression_waters()
   expect_golden(
     suppressWarnings(list(
-      high_toc_chlorine_raw_t500_knownbug524 = chemdose_chlordecay(ws$high_toc, cl2_dose = 2, time = 500),
-      high_toc_chlorine_coag_t500_knownbug524 = chemdose_chlordecay(
+      high_toc_chlorine_raw_t500 = chemdose_chlordecay(ws$high_toc, cl2_dose = 2, time = 500),
+      high_toc_chlorine_coag_t500 = chemdose_chlordecay(
         ws$high_toc,
         cl2_dose = 2, time = 500, treatment = "coag"
       ),

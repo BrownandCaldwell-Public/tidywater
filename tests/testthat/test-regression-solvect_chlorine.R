@@ -62,15 +62,12 @@ test_that("regression: solvect_chlorine free_cl_slot options", {
     suppressWarnings(list(
       residual_only_default = solvect_chlorine(w, time = 20, residual = 1, baffle = 0.7),
       residual_only_explicit = solvect_chlorine(w, time = 20, residual = 1, baffle = 0.7, free_cl_slot = "residual_only"),
-      # KNOWN-BUG #523
-      slot_only_knownbug523 = solvect_chlorine(w, time = 20, residual = 1, baffle = 0.7, free_cl_slot = "slot_only"),
-      # KNOWN-BUG #523
-      sum_with_residual_knownbug523 = solvect_chlorine(
+      slot_only = solvect_chlorine(w, time = 20, residual = 1, baffle = 0.7, free_cl_slot = "slot_only"),
+      sum_with_residual = solvect_chlorine(
         w,
         time = 20, residual = 1, baffle = 0.7, free_cl_slot = "sum_with_residual"
       ),
-      # KNOWN-BUG #523
-      slot_only_cold_ph10_knownbug523 = solvect_chlorine(
+      slot_only_cold_ph10 = solvect_chlorine(
         ct_water(10, 5, free_chlorine = 2),
         time = 60, residual = 1, baffle = 1, free_cl_slot = "slot_only"
       )

@@ -31,7 +31,7 @@ test_that("regression: pac_toc lignite dose x time", {
   expect_golden(pac_grid("lignite"), "pac_toc_lignite")
 })
 
-# KNOWN-BUG #540: the DOC < 1.3 clamp can raise DOC, and UV254 can go negative or change at dose 0.
+# DOC < 1.3 clamp edges and dose 0 (fixed in #540: no DOC increase, UV254 >= 0, dose 0 is a no-op).
 test_that("regression: pac_toc DOC clamp and water edge cases", {
   expect_golden(
     suppressWarnings(list(

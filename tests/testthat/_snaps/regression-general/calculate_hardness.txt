@@ -1,9 +1,9 @@
-total_mg/L :: value = 149.307572223878
+total_mg/L :: value = 149.307572223877
 ca_mg/L :: value = 99.8921103847497
-total_g/L :: value = 0.149307572223877
-ca_g/L :: value = 0.0998921103847497
-total_ug/L :: value = 149307.572223877
-ca_ug/L :: value = 99892.1103847497
+total_g/L :: value = 149.307572223877
+ca_g/L :: value = 99.8921103847497
+total_ug/L :: value = 149.307572223877
+ca_ug/L :: value = 99.8921103847497
 total_M :: value = 150.13035
 ca_M :: value = 100.0869
 total_mM :: value = 150.13035

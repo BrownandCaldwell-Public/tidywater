@@ -122,7 +122,6 @@ test_that("regression: regulate_toc_df numeric and water paths", {
     toc_finished = c(1, 4, 4, 6, 2.5, 5.5)
   )
   num <- suppressWarnings(regulate_toc_df(df))
-  # KNOWN-BUG #529
   num_skip <- suppressWarnings(regulate_toc_df(df, skip_alternate = TRUE))
   const_args <- suppressWarnings(regulate_toc_df(data.frame(id = 1:2), alk_raw = 100, toc_raw = 5, toc_finished = 3.4))
 
@@ -139,7 +138,7 @@ test_that("regression: regulate_toc_df numeric and water paths", {
   expect_golden(
     list(
       numeric = num,
-      numeric_skip_knownbug529 = num_skip,
+      numeric_skip = num_skip,
       constant_args = const_args,
       water = keep(wat),
       water_skip = keep(wat_skip)

@@ -1,6 +1,6 @@
 # Regression pins: ozonate_bromate ----
 # Golden files pin every slot of the output water. See tests/testthat/README.md.
-# Siddiqui without `time` errors (#528), so `time` is always passed.
+# `time` is always passed (Siddiqui without `time` errored before #528 was fixed).
 # KNOWN-BUG #536: Siddiqui coefficients give bromate about 100x the other models.
 
 bromate_water <- function(temp, nh3 = 0, ph = 7.5, br = 80, doc = 3, uv254 = 0.07, alk = 90) {

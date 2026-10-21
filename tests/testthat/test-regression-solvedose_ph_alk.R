@@ -42,8 +42,7 @@ test_that("regression: solvedose_alk for every chemical", {
     for (ch in bases) {
       cases[[paste(nm, ch, "up_20", sep = "_")]] <- suppressWarnings(solvedose_alk(water, target_alk = water@alk + 20, chemical = ch))
     }
-    # CO2 does not change alkalinity, so any downward co2 target makes uniroot error; only
-    # the early-return NA path is pinnable for co2.
+    # CO2 does not change alkalinity, so solvedose_alk does not accept it (#539).
     for (ch in setdiff(acids, "co2")) {
       cases[[paste(nm, ch, "down_half", sep = "_")]] <- suppressWarnings(solvedose_alk(water, target_alk = water@alk / 2, chemical = ch))
     }
@@ -53,7 +52,7 @@ test_that("regression: solvedose_alk for every chemical", {
     for (ch in bases) {
       cases[[paste(nm, ch, "unreachable_down", sep = "_")]] <- suppressWarnings(solvedose_alk(water, target_alk = water@alk - 5, chemical = ch))
     }
-    for (ch in acids) {
+    for (ch in setdiff(acids, "co2")) {
       cases[[paste(nm, ch, "unreachable_up", sep = "_")]] <- suppressWarnings(solvedose_alk(water, target_alk = water@alk + 5, chemical = ch))
     }
     cases[[paste0(nm, "_naoh_target_na")]] <- suppressWarnings(solvedose_alk(water, target_alk = NA, chemical = "naoh"))

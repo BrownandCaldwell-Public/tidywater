@@ -173,7 +173,6 @@ test_that("regression: convert_units string normalization and vectors", {
       spaced_formula = convert_units(50, " so4 ", "mg/L", "meq/L"),
       meq_lower = convert_units(2, "mg", "meq/l", "mg/l"),
       fuzzy_formula = convert_units(50, "caco", "mg/L", "M"),
-      fuzzy_unit = convert_units(50, "ca", "mg/L", "mg/L CaCO"),
       vector_value = convert_units(c(0, 1, 10, 100), "na", "mg/L", "M"),
       na_value = convert_units(NA, "na", "mg/L", "M"),
       negative_value = convert_units(-10, "caco3", "mg/L", "M"),
@@ -181,6 +180,8 @@ test_that("regression: convert_units string normalization and vectors", {
     )),
     "convert_units_normalization"
   )
+  # Unrecognized units no longer fuzzy-match to a nearby unit (#561).
+  expect_error(convert_units(50, "ca", "mg/L", "mg/L CaCO"), "Units not supported")
 })
 
 test_that("regression: convert_flow units and specific gravity", {

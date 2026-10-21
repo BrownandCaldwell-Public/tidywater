@@ -30,7 +30,7 @@ test_that("regression: dissolve_pb chloride and sulfate controlled waters", {
       warm_po4 = dissolve_pb(pb_water(ph = 7.8, alk = 80, tot_po4 = 3, temp = 30)),
       acid_high_po4_nocl_ph4.5 = dissolve_pb(pb_water(ph = 4.5, alk = 1, tot_po4 = 20, cl = NA_real_, tds = 200)),
       acid_high_po4_nocl_ph5.5 = dissolve_pb(pb_water(ph = 5.5, alk = 2, tot_po4 = 10, cl = NA_real_, tds = 200)),
-      # KNOWN-BUG #537: alk below hydroxide alkalinity gives negative carbonate and lead.
+      # alk below hydroxide alkalinity: carbonate is floored at 0 (#537).
       alkaline_lowcarb_ph11 = dissolve_pb(pb_water(ph = 11, alk = 1, tds = 200))
     )),
     "dissolve_pb_cl_so4"

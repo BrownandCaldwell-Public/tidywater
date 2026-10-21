@@ -31,8 +31,7 @@ test_that("regression: modify_water organics, uv254, and DBP unit branches", {
   cases <- list()
   for (s in c("toc", "doc", "bdoc")) {
     cases[[paste0(s, "_mg/L")]] <- slot_of(s, 4.2, "mg/L")
-    # KNOWN-BUG #522: inverted unit conversion
-    cases[[paste0(s, "_ug/L_knownbug522")]] <- slot_of(s, 4200, "ug/L")
+    cases[[paste0(s, "_ug/L")]] <- slot_of(s, 4200, "ug/L")
   }
   cases[["uv254_cm-1"]] <- slot_of("uv254", 0.12, "cm-1")
   cases[["uv254_m-1"]] <- slot_of("uv254", 12, "m-1")
@@ -44,8 +43,7 @@ test_that("regression: modify_water organics, uv254, and DBP unit branches", {
   # "baa" is accepted by modify_water but is not a water slot (errors), so it is not pinned.
   for (d in dbps) {
     cases[[paste0(d, "_ug/L")]] <- slot_of(d, 15, "ug/L")
-    # KNOWN-BUG #522: inverted unit conversion
-    cases[[paste0(d, "_mg/L_knownbug522")]] <- slot_of(d, 0.015, "mg/L")
+    cases[[paste0(d, "_mg/L")]] <- slot_of(d, 0.015, "mg/L")
   }
   expect_golden(cases, "modify_organics_dbps")
 })
@@ -69,8 +67,7 @@ test_that("regression: modify_water whole-water outputs", {
         slot = c("tthm", "haa5", "chcl3", "dcaa"), value = c(60, 45, 30, 20),
         units = c("ug/L", "ug/L", "ug/L", "ug/L")
       ),
-      # KNOWN-BUG #522: inverted unit conversion (ug/L organics and mg/L DBPs)
-      ideal_mixed_knownbug522 = modify_water(
+      ideal_mixed = modify_water(
         w$ideal,
         slot = c("toc", "tthm", "fe", "uv254"), value = c(2500, 0.05, 0.3, 0.1),
         units = c("ug/L", "mg/L", "mg/L", "cm-1")

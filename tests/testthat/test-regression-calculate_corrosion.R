@@ -1,6 +1,6 @@
 # Regression pins: calculate_corrosion ----
 # Golden files pin the returned index data frames. See tests/testthat/README.md.
-# Note: CCPP always uses calcite solubility and ignores `form` (open question #531); the
+# Note: CCPP always uses calcite solubility and ignores `form` by design (#531); the
 # ccpp golden pins that behavior for aragonite/vaterite too.
 # CCPP is solved with stats::uniroot at default tolerance, so it gets a looser golden.
 
@@ -61,7 +61,7 @@ test_that("regression: calculate_corrosion CCPP", {
   )]
   cases <- lapply(waters, function(w) suppressWarnings(calculate_corrosion(w, index = "ccpp")))
   names(cases) <- paste0(names(waters), "_calcite")
-  # form is ignored by CCPP (#531)
+  # form is ignored by CCPP by design (#531)
   for (form in c("aragonite", "vaterite")) {
     cases[[paste0("typical_", form)]] <- suppressWarnings(calculate_corrosion(waters$typical, index = "ccpp", form = form))
   }

@@ -1,10 +1,8 @@
 # Regression pins: convert_water, convert_watermg, pluck_water ----
 # Golden files pin every non-NA column of the converted data frames. See tests/testthat/README.md.
 
-# KNOWN-BUG #534: convert_water mislabels columns: the ks slot (a data frame) expands to many
-# columns in as.data.frame(), then names(df) <- slotNames() shifts every name from "ks"
-# onward and leaves trailing columns named NA. Pinned as-is; NA names are replaced with
-# their column position so the golden can hold them.
+# Guard for #534 (columns mislabeled from ks onward, trailing columns named NA): any NA name
+# is replaced with its column position so the golden would record it as a changed row.
 name_na_cols <- function(df) {
   nm <- names(df)
   nm[is.na(nm)] <- paste0("NA_col", which(is.na(nm)))
@@ -43,7 +41,6 @@ test_that("regression: convert_water on several waters", {
 })
 
 test_that("regression: convert_watermg on several waters", {
-  # KNOWN-BUG #530: tot_sio4 conversion in convert_watermg (pinned as-is in the nutrients case)
   expect_golden(
     lapply(regression_convert_waters(), function(x) name_na_cols(suppressWarnings(convert_watermg(x)))),
     "convert_watermg"

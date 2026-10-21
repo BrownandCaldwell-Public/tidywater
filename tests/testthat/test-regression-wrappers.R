@@ -49,11 +49,8 @@ test_that("regression: deprecated wrappers forward arguments to same-named param
   shifted <- names(Filter(function(x) length(x$shifted) > 0, fwd))
   dropped <- names(Filter(function(x) length(x$dropped) > 0, fwd))
 
-  # KNOWN-BUG #526: these wrappers pass doses positionally into the wrong parameters.
-  # When #526 is fixed, remove them from this list.
-  expect_equal(shifted, c("chemdose_ph_once", "chemdose_toc_chain", "chemdose_toc_once"))
-  # KNOWN-BUG #526: chemdose_dbp_once has a water_prefix argument but always passes FALSE.
-  expect_equal(dropped, "chemdose_dbp_once")
+  expect_equal(shifted, character())
+  expect_equal(dropped, character())
 })
 
 # _df helpers match the base function ----
@@ -105,14 +102,29 @@ test_that("regression: water-returning _df helpers match base functions", {
     run(chemdose_toc_df, ferricchloride = 30, coeff = "Ferric"),
     map_base(df, chemdose_toc, ferricchloride = 30, coeff = "Ferric")
   )
+  # chemdose_inorgdemand needs fe, mn, and tot_nh3, which the shared waters lack.
+  df_inorg <- data.frame(id = c("fe_mn", "nh3_cl"))
+  df_inorg$defined <- I(list(
+    suppressWarnings(define_water(ph = 7, temp = 20, alk = 70, tds = 200, fe = 1, mn = 200, tot_nh3 = 0)),
+    suppressWarnings(define_water(ph = 7.5, temp = 15, alk = 50, tds = 150, fe = 0.5, mn = 50, tot_nh3 = 0.2, free_chlorine = 1.5))
+  ))
+  expect_same_outputs(
+    suppressWarnings(chemdose_inorgdemand_df(df_inorg, output_water = "out", cl2_dose = 4))$out,
+    map_base(df_inorg, chemdose_inorgdemand, cl2_dose = 4)
+  )
+  expect_same_outputs(
+    suppressWarnings(chemdose_inorgdemand_df(df_inorg, output_water = "out", cl2_dose = 4, use_chlorine_slot = TRUE))$out,
+    map_base(df_inorg, chemdose_inorgdemand, cl2_dose = 4, use_chlorine_slot = TRUE)
+  )
   expect_same_outputs(run(decarbonate_ph_df, co2_removed = 0.8), map_base(df, decarbonate_ph, co2_removed = 0.8))
   expect_same_outputs(
     run(gac_toc_df, model = "Zachman", media_size = "12x40", ebct = 10, bed_vol = 10000, pretreat = "coag"),
     map_base(df, gac_toc, model = "Zachman", media_size = "12x40", ebct = 10, bed_vol = 10000, pretreat = "coag")
   )
-  # KNOWN-BUG #533: constant slot/value/units are ignored, so the waters come back unchanged.
-  # When #533 is fixed, compare against map_base(df, modify_water, ...) like the others.
-  expect_same_outputs(run(modify_water_df, slot = "na", value = 40, units = "mg/L"), as.list(df$defined))
+  expect_same_outputs(
+    run(modify_water_df, slot = "na", value = 40, units = "mg/L"),
+    map_base(df, modify_water, slot = "na", value = 40, units = "mg/L")
+  )
   df_cols <- df
   df_cols$slot <- "na"
   df_cols$value <- 40
@@ -202,5 +214,9 @@ test_that("regression: numeric-output _df helpers match base functions", {
   expect_identical(
     suppressWarnings(solvedose_alk_df(df, target_alk = 150, chemical = "nahco3"))$dose,
     unlist(map_base(df, solvedose_alk, target_alk = 150, chemical = "nahco3"))
+  )
+  expect_identical(
+    suppressWarnings(scavenge_oh_df(df, dose = 10))$oh_scavenging,
+    unlist(map_base(df, scavenge_oh, dose = 10))
   )
 })

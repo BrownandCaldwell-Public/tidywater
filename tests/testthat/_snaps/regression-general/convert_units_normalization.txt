@@ -5,7 +5,6 @@ upper_formula :: value = 1.24756724387444
 spaced_formula :: value = 1.04098785583567
 meq_lower :: value = 24.305
 fuzzy_formula :: value = 0.000499565877252667
-fuzzy_unit :: value = 124.865137980937
 vector_value :: 1 = 0
 vector_value :: 2 = 4.34976078490563e-05
 vector_value :: 3 = 0.000434976078490563
