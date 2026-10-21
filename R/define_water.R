@@ -5,6 +5,8 @@
 #' @details Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity.
 #' Missing values are handled by defaulting to 0 or NA.
 #' Calcium defaults to 65 percent of the total hardness when not specified. DOC defaults to 95 percent of TOC.
+#' If `alk` is less than the non-carbonate alkalinity at the given pH (for example, hydroxide alone at high pH),
+#' carbonate species are set to 0 with a warning.
 #' @source Crittenden et al. (2012) equation 5-38 - ionic strength from TDS
 #' @source Snoeyink & Jenkins (1980) - ionic strength from conductivity
 #' @source Lewis and Randall (1921), Crittenden et al. (2012) equation 5-37 - ionic strength from ion concentrations
@@ -339,6 +341,12 @@ define_water <- function(
     (ammonium_alk_eq + borate_alk_eq + phosphate_alk_eq + silicate_alk_eq + hypochlorite_alk_eq + oh + citric_alk_eq) +
     h
 
+  # Alkalinity below the non-carbonate alkalinity (e.g. OH- at high pH) would give negative carbonate species
+  neg_carb_alk <- isTRUE(carbonate_alk_eq < 0)
+  if (neg_carb_alk) {
+    carbonate_alk_eq <- 0
+  }
+
   tot_co3 <- carbonate_alk_eq / (alpha1 + 2 * alpha2)
 
   # Initialize water to simplify IS calcs
@@ -480,6 +488,13 @@ define_water <- function(
       water@hypochlorite_alk_eq +
       water@oh) +
     water@h
+
+  if (neg_carb_alk | isTRUE(water@carbonate_alk_eq < 0)) {
+    tidywater_warn(
+      "{.arg alk} is less than the non-carbonate alkalinity (hydroxide, phosphate, borate, etc.) at this pH; carbonate species set to 0. Check {.arg ph} and {.arg alk}."
+    )
+    water@carbonate_alk_eq <- max(water@carbonate_alk_eq, 0)
+  }
 
   water@tot_co3 <- water@carbonate_alk_eq / (alpha1 + 2 * alpha2)
   water@h2co3 <- water@tot_co3 * alpha0

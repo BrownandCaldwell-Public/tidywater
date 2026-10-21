@@ -218,6 +218,11 @@ Guidance on results:
   GitHub username are only needed for contributors outside the tidywater core team
   (Sierra Johnson @sierrajohnson, Libby McKenna @libbymckenna, Jiaming Yuan @jiamingy5).
 - The PR body should contain `Fixes #issue-number`.
+- If the PR is entirely agent-generated, say so at the top of the description, not the bottom.
+- Keep PR descriptions brief. Mention each issue or PR number only once.
+- For minor changes, test results don't need to be reported in the PR description.
+- Don't run the full test suite locally; CI runs it. Run tests only for the files you touch, e.g.
+  `devtools::test(filter = "ozonate_bromate")`.
 - **CI fails on NOTEs**, not just errors and warnings — `R-CMD-check.yaml` sets
   `error-on: '"note"'`. Undocumented arguments, mismatched usage sections, and
   non-standard files in the package root will all fail the build. Update

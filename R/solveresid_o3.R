@@ -19,7 +19,8 @@
 #'   solveresid_o3(dose = 2, time = 10)
 #'
 #' @export
-#' @returns `solveresid_o3` returns a numeric value for the residual ozone.
+#' @returns `solveresid_o3` returns a numeric value for the residual ozone. The residual is 0 when the modeled
+#' ozone demand exceeds the dose.
 solveresid_o3 <- function(water, dose, time) {
   validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -34,7 +35,8 @@ solveresid_o3 <- function(water, dose, time) {
   # Model from WTP model
   if (dose > 0) {
     o3demand <- 0.995 * dose^1.312 * (dose / uv254)^-.386 * suva^-.184 * (time)^.068 * alk^.023 * ph^.229 * temp^.087
-    o3residual <- dose - o3demand
+    # Demand can exceed the dose, so clamp the residual at 0
+    o3residual <- max(dose - o3demand, 0)
   } else {
     o3residual <- 0
   }
