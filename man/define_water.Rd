@@ -258,6 +258,8 @@ Its output is a \code{water} class, and can therefore be chained with "downstrea
 Carbonate balance is calculated and units are converted to mol/L. Ionic strength is determined from ions, TDS, or conductivity.
 Missing values are handled by defaulting to 0 or NA.
 Calcium defaults to 65 percent of the total hardness when not specified. DOC defaults to 95 percent of TOC.
+If \code{alk} is less than the non-carbonate alkalinity at the given pH (for example, hydroxide alone at high pH),
+carbonate species are set to 0 with a warning.
 }
 \examples{
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)

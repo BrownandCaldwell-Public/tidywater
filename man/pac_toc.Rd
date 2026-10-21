@@ -63,7 +63,9 @@ water must contain DOC or TOC value.
 }
 \details{
 The function will calculate DOC concentration by PAC adsorption in drinking water treatment.
-UV254 concentrations are predicted based on a linear relationship with DOC.
+UV254 concentrations are predicted based on a linear relationship with DOC, and are set to 0 when that
+relationship gives a negative value. For waters with DOC below 1.3 mg/L, the model is applied with the same
+percent removal as a 1.3 mg/L water. With a dose or time of 0, the input water is returned unchanged.
 }
 \examples{
 water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) \%>\%

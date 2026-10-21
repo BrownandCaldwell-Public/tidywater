@@ -15,6 +15,16 @@ default.
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
+* `define_water()` now warns and sets carbonate species to 0 when `alk` is less than the non-carbonate
+alkalinity (e.g. hydroxide at high pH). Carbonate species, and `dissolve_pb()` results, were negative before (#537).
+* `pac_toc()` changes (#540):
+  * For DOC below 1.3 mg/L, it now applies the same percent removal as a 1.3 mg/L water, as documented. It
+  previously returned the DOC of a 1.3 mg/L water, which could be higher than the input DOC.
+  * UV254 is set to 0 when the DOC-UV254 relationship gives a negative value.
+  * With a dose or time of 0, the input water is returned unchanged. UV254 and TOC were recalculated before.
+* `solveresid_o3()` returns 0 instead of a negative residual when ozone demand exceeds the dose, so
+`solvect_o3()` no longer returns negative CT. `solvect_o3()` with `kd` also returns 0 CT for contact times
+under 30 seconds.
 * `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
 multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
 * `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
@@ -51,6 +61,11 @@ type (e.g. mg/L to g/L or mM to M).
 
 ## Other changes
 
+* `opensys_ph()` widens its CO2 search when more than 100 mg/L of CO2 has to be removed or added, instead of
+failing with a `uniroot()` error. If no equilibrium dose is found, it gives a clear error (#539).
+* `solvedose_alk()` no longer lists or accepts `chemical = "co2"`, since CO2 doesn't change alkalinity. It now
+errors with "Selected chemical addition is not supported" instead of a `uniroot()` error (#539).
+
 * `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
 chloride or sulfate is missing, as the warning says, instead of erroring (#538).
 * `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
@@ -71,6 +86,7 @@ fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Form
 * `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
 * `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
 `skip_models = TRUE` instead of returning an empty list (#541).
+
 * `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
 `no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
 * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by

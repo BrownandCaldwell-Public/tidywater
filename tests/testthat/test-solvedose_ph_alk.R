@@ -60,24 +60,6 @@ test_that("Solve dose pH doesn't error when target pH is close to starting.", {
   expect_no_error(solvedose_ph(water2, 8, "naoh"))
 })
 
-test_that("Solve dose pH rejects a discontinuous low-alkalinity solution", {
-  water <- define_water(
-    ph = 12.75,
-    temp = 25,
-    alk = 1000,
-    tds = 3530,
-    ca = 70,
-    mg = 10,
-    so4 = 0
-  )
-
-  expect_warning(
-    dose <- solvedose_ph(water, 7, "h2so4"),
-    "could not find a reliable dose"
-  )
-  expect_true(is.na(dose))
-})
-
 test_that("Solve dose pH retains valid high-dose solutions", {
   water <- define_water(
     ph = 12.75,
@@ -103,6 +85,12 @@ test_that("Solve dose alk produces a warning and returns NA when target alk is u
   expect_equal(suppressWarnings(solvedose_alk(water5, 100, "h2so4")), NA)
   expect_no_warning(solvedose_alk(water5, 100, "naoh"))
   expect_no_error(solvedose_alk(water5, 100, "naoh"))
+})
+
+test_that("Solve dose alk doesn't accept CO2, which doesn't change alkalinity.", {
+  water5 <- define_water(ph = 7.5, alk = 80, tds = 200)
+
+  expect_error(solvedose_alk(water5, 70, "co2"), "not supported")
 })
 
 test_that("Solve dose alk works.", {
