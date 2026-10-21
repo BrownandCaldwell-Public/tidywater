@@ -39,10 +39,10 @@
 solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "residual_only") {
   if (free_cl_slot == "slot_only") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
-    residual <- water@free_chlorine
+    residual <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   } else if (free_cl_slot == "sum_with_residual") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
-    residual <- residual + water@free_chlorine
+    residual <- residual + convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   } else {
     validate_water(water, c("ph", "temp"))
   }

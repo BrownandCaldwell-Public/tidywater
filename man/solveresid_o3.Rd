@@ -34,7 +34,8 @@ solveresid_o3_df(
 \item{output_column}{name of the output column storing doses in mg/L. Default is "dose_required".}
 }
 \value{
-\code{solveresid_o3} returns a numeric value for the residual ozone.
+\code{solveresid_o3} returns a numeric value for the residual ozone. The residual is 0 when the modeled
+ozone demand exceeds the dose.
 
 \code{solveresid_o3_df} returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.
 }

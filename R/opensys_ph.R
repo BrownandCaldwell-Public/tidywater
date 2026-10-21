@@ -35,7 +35,39 @@ opensys_ph <- function(water, partialpressure = 10^-3.42) {
     new_water <- chemdose_ph(water, co2 = co2_dose)
     return(new_water@h2co3 - co2_M)
   }
-  results <- stats::uniroot(f = co2_solve, interval = c(-100, 100), water = water, co2_M = co2_M)
+  # Start with +/- 100 mg/L CO2, which brackets the root for most waters.
+  lower <- -100
+  upper <- 100
+  f_lower <- co2_solve(lower, water, co2_M)
+  f_upper <- co2_solve(upper, water, co2_M)
+
+  # Otherwise, widen to physical bounds. H2CO3 can't exceed equilibrium after removing all carbonate,
+  # and adding CO2 equal to the alkalinity plus 100 mg/L converts all alkalinity to HCO3- with excess H2CO3.
+  if (isTRUE(f_lower > 0 & f_upper > 0)) {
+    upper <- lower
+    f_upper <- f_lower
+    lower <- -water@tot_co3 * tidywater::mweights$co2 * 1000
+    f_lower <- co2_solve(lower, water, co2_M)
+  } else if (isTRUE(f_lower < 0 & f_upper < 0)) {
+    lower <- upper
+    f_lower <- f_upper
+    upper <- 100 + max(water@alk_eq, 0) * tidywater::mweights$co2 * 1000
+    f_upper <- co2_solve(upper, water, co2_M)
+  }
+  if (!isTRUE(f_lower * f_upper <= 0)) {
+    cli::cli_abort(
+      "Could not find a CO2 dose between {round(lower, 1)} and {round(upper, 1)} mg/L that reaches equilibrium with the atmosphere. Check the water's pH and alkalinity."
+    )
+  }
+
+  results <- stats::uniroot(
+    f = co2_solve,
+    interval = c(lower, upper),
+    f.lower = f_lower,
+    f.upper = f_upper,
+    water = water,
+    co2_M = co2_M
+  )
   optimal_dose <- results$root
   output_water <- chemdose_ph(water, co2 = optimal_dose)
 

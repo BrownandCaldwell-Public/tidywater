@@ -10,9 +10,12 @@
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' Water must contain DOC or TOC value.
+#' Water must contain a DOC value (or TOC, from which [define_water] estimates DOC).
 #'
-#' @details The function will calculate TOC concentration by GAC adsorption in drinking water treatment.
+#' @details The function will calculate DOC concentration by GAC adsorption in drinking water treatment.
+#' Both models were published in terms of TOC. GAC influent is normally coagulated and filtered, so particulate organic
+#' carbon is negligible and TOC = DOC; tidywater therefore applies the models to influent DOC.
+#' Effluent TOC is set equal to effluent DOC.
 #' UV254 concentrations are predicted based on a linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -46,16 +49,16 @@ gac_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40", b
 
   bv_index <- which.min(abs(breakthrough_df$bv - bed_vol)) # retrieves index of bv that's closest to bv arg
   output_water <- water
-  output_water@toc <- breakthrough_df$x_norm[bv_index] * water@toc # calculate toc from predicted breakthrough curve
-  output_water@doc <- 0.95 * output_water@toc
+  output_water@doc <- breakthrough_df$x_norm[bv_index] * water@doc # calculate doc from predicted breakthrough curve
+  output_water@toc <- output_water@doc # post-GAC TOC = DOC
 
   # UV254 removal from WTP manual model:
   if (pretreat == "coag") {
-    # if only coagulation before gac, 0.1 < x_norm*toc_inf < 14.7
-    output_water@uv254 <- 0.0195 * output_water@toc - 0.0077
+    # if only coagulation before gac, 0.1 < x_norm*doc_inf < 14.7
+    output_water@uv254 <- 0.0195 * output_water@doc - 0.0077
   } else {
-    # if coagulation, ozonation, and biotreatment before gac, 0.1 < x_norm*toc_inf < 6.1
-    output_water@uv254 <- 0.0014 * output_water@toc - 0.00141
+    # if coagulation, ozonation, and biotreatment before gac, 0.1 < x_norm*doc_inf < 6.1
+    output_water@uv254 <- 0.0014 * output_water@doc - 0.00141
   }
 
   return(output_water)

@@ -120,6 +120,17 @@ test_that("regulate_toc_df can take column and argument inputs", {
   expect_equal(nrow(regulated3), 24) # cross joined
 })
 
+test_that("regulate_toc_df passes skip_alternate for numeric inputs", {
+  testthat::skip_on_cran()
+  base <- suppressWarnings(regulate_toc(toc_raw = 1.8, toc_finished = 1.5, alk_raw = 80, skip_alternate = TRUE))
+  regulated <- suppressWarnings(
+    regulate_toc_df(data.frame(toc_raw = 1.8, toc_finished = 1.5, alk_raw = 80), skip_alternate = TRUE)
+  )
+
+  expect_equal(regulated$toc_compliance_status, base$toc_compliance_status)
+  expect_equal(regulated$comment, base$comment)
+})
+
 test_that("regulate_toc_df can take water objects as inputs", {
   water_df2 <- water_df |> 
     define_water_df()

@@ -147,8 +147,11 @@ check_water <- function(water, skip_models = FALSE) {
   }
 
 
+  # count issues before the applicable models message is added
+  n_issues <- length(results)
+
 #  applicable  models
-  
+
   if (!skip_models){
 # each necessary paramater for each function 
 models <- list(
@@ -183,7 +186,7 @@ final_models <- Filter(function(v) all(!is.na(sapply(v, function(sl) methods::sl
   ) 
   }
   }
-  if (length(results)==1){
+  if (n_issues == 0){
     results<-append(results, paste0("No issues found with water input."))
   }
   return(results)
