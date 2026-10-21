@@ -31,7 +31,7 @@ test_that("changing scavenger's rate constant for DOC works", {
   h2o2_dose<-20
 
   background_SC <- scavenge_oh(water1, h2o2_dose)
-  background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
+  background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 1.67e4) # Katsoyiannis et al. (2011)
 
   expect_error(expect_equal(background_SC, background_SC_adjusted))
 })
@@ -108,20 +108,20 @@ test_that("scavenge_oh_df can use a column and/or function argument for dose and
   dose <- data.frame(dose = seq(2, 24, 2))
   water1 <- water0 %>%
     merge(dose) %>%
-    scavenge_oh_df(kdoc_adjust = 48065)
+    scavenge_oh_df(kdoc_adjust = 2.41e4) # Brezonik and Fulkerson-Brekken (1998)
 
   water2 <- water0 %>%
-    scavenge_oh_df(dose = seq(2, 24, 2), kdoc_adjust = 48065)
+    scavenge_oh_df(dose = seq(2, 24, 2), kdoc_adjust = 2.41e4)
 
   water3 <- water0 %>%
     merge(dose) %>%
     dplyr::rename(H2O2Dose = dose) %>%
-    dplyr::mutate(kdoc_adjust = 48065) %>%
+    dplyr::mutate(kdoc_adjust = 2.41e4) %>%
     scavenge_oh_df(dose = H2O2Dose)
 
   water4 <- water0 %>%
     merge(dose) %>%
-    scavenge_oh_df(kdoc_adjust = c(2.5e4, 48065))
+    scavenge_oh_df(kdoc_adjust = c(2.5e4, 2.41e4))
 
   expect_equal(water1$oh_scavenging, water2$oh_scavenging) # test different ways to input dose
   expect_equal(water1$oh_scavenging, water3$oh_scavenging)

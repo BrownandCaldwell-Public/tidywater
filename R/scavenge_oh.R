@@ -46,7 +46,7 @@
 #' 
 #' background_scavenging <- scavenge_oh(water1, h2o2_dose)
 #' 
-#' background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
+#' background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 1.67e4) # Katsoyiannis et al. (2011)
 #'
 #' @export
 #' 
@@ -97,7 +97,7 @@ scavenge_oh <- function(water, dose = 0, kdoc_adjust = 2.5e4) {
 
 #' @rdname scavenge_oh
 #' @param df a data frame containing a water class column, which has already been computed using
-#' [define_water_df]. The df may include columns named for the H2O2 dose and the DOC rate constant.
+#' [define_water_df]. The df may include columns named for the H2O2 dose in mg/L and the DOC rate constant.
 #' @param input_water name of the column of water class data to be used as the input. Default is "defined".
 #' @param output_column name of the output column storing the OH radical scavenging term in s^-1. Default is
 #' "oh_scavenging".

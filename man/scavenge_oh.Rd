@@ -46,7 +46,7 @@ scavenge_oh_df(
 \item{kdoc_adjust}{Optional input for a different k_DOC rate constant for fitting data, defaults to 2.5e4 L/mg C/s. See Details for other reported values.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
-\link{define_water_df}. The df may include columns named for the H2O2 dose and the DOC rate constant.}
+\link{define_water_df}. The df may include columns named for the H2O2 dose in mg/L and the DOC rate constant.}
 
 \item{input_water}{name of the column of water class data to be used as the input. Default is "defined".}
 
@@ -95,7 +95,7 @@ h2o2_dose<-20
 
 background_scavenging <- scavenge_oh(water1, h2o2_dose)
 
-background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 48065)
+background_SC_adjusted <- scavenge_oh(water1, h2o2_dose, 1.67e4) # Katsoyiannis et al. (2011)
 
 
 example_df <- water_df \%>\%
