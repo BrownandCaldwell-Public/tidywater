@@ -7,6 +7,7 @@ write_golden <- function(tbl) {
 }
 
 test_that("golden_table flattens waters, data frames, lists, and scalars", {
+  testthat::skip_on_cran()
   water <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 50))
   tbl <- golden_table(list(
     w = water,
@@ -26,6 +27,7 @@ test_that("golden_table flattens waters, data frames, lists, and scalars", {
 })
 
 test_that("golden_format keeps 15 significant digits", {
+  testthat::skip_on_cran()
   expect_equal(golden_format(1 / 3), "0.333333333333333")
   expect_equal(golden_format(1.23456789012345e-12), "1.23456789012345e-12")
   expect_equal(golden_format(c(NA, Inf, -Inf)), c("NA", "Inf", "-Inf"))
@@ -33,6 +35,7 @@ test_that("golden_format keeps 15 significant digits", {
 })
 
 test_that("golden files round-trip text containing '=' and ' = '", {
+  testthat::skip_on_cran()
   tbl <- data.frame(case = "a", output = c("x", "y"), value = c("TOC <= 2", "a = b"))
   path <- write_golden(tbl)
   expect_equal(golden_read(path)$key, c("a :: x", "a :: y"))
@@ -41,6 +44,7 @@ test_that("golden files round-trip text containing '=' and ' = '", {
 })
 
 test_that("golden_compare applies tolerance and catches changes", {
+  testthat::skip_on_cran()
   old <- data.frame(case = "a", output = c("x", "y", "z"), value = c("1", "NA", "text"))
   same <- write_golden(old)
   near <- write_golden(transform(old, value = c("1.0000000001", "NA", "text")))

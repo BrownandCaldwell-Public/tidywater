@@ -2,6 +2,7 @@
 # Golden files pin every slot of the balanced water. See tests/testthat/README.md.
 
 test_that("regression: balance_ions cation options on cation-short waters", {
+  testthat::skip_on_cran()
   # All major ions given, so tds and cond are estimated and get updated by the balance.
   estimated <- suppressWarnings(define_water(
     ph = 7, temp = 20, alk = 50, ca = 10, mg = 2, na = 5, k = 1, cl = 100, so4 = 80
@@ -19,6 +20,7 @@ test_that("regression: balance_ions cation options on cation-short waters", {
 })
 
 test_that("regression: balance_ions anion options on anion-short waters", {
+  testthat::skip_on_cran()
   estimated <- suppressWarnings(define_water(
     ph = 7.5, temp = 15, alk = 30, ca = 60, mg = 20, na = 40, k = 5, cl = 5, so4 = 5
   ))
@@ -34,6 +36,7 @@ test_that("regression: balance_ions anion options on anion-short waters", {
 })
 
 test_that("regression: balance_ions fills NA ion slots", {
+  testthat::skip_on_cran()
   cation_na <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 50, cl = 100, so4 = 80))
   anion_na <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 20, ca = 50, mg = 20, na = 50))
   cases <- list()
@@ -47,6 +50,7 @@ test_that("regression: balance_ions fills NA ion slots", {
 })
 
 test_that("regression: balance_ions on scenario waters", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   cases <- lapply(w, function(x) suppressWarnings(balance_ions(x)))
   cases$typical_so4_ca <- suppressWarnings(balance_ions(w$typical, anion = "so4", cation = "ca"))

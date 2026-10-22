@@ -9,6 +9,7 @@ pb_water <- function(ph = 7.5, alk = 50, tot_po4 = 0, cl = 20, so4 = 20, temp = 
 }
 
 test_that("regression: dissolve_pb pH x DIC x phosphate sweep", {
+  testthat::skip_on_cran()
   grid <- expand.grid(ph = c(6, 7, 8, 9, 10.5), alk = c(5, 50, 300), po4 = c(0, 1, 4))
   out <- lapply(seq_len(nrow(grid)), function(i) {
     suppressWarnings(dissolve_pb(pb_water(ph = grid$ph[i], alk = grid$alk[i], tot_po4 = grid$po4[i])))
@@ -18,6 +19,7 @@ test_that("regression: dissolve_pb pH x DIC x phosphate sweep", {
 })
 
 test_that("regression: dissolve_pb chloride and sulfate controlled waters", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       high_cl_ph6 = dissolve_pb(pb_water(ph = 6, alk = 5, cl = 5000, tds = 9000)),
@@ -38,6 +40,7 @@ test_that("regression: dissolve_pb chloride and sulfate controlled waters", {
 })
 
 test_that("regression: dissolve_pb equilibrium constant options", {
+  testthat::skip_on_cran()
   waters <- list(
     po4_ph7 = pb_water(ph = 7, alk = 20, tot_po4 = 3),
     po4_ph8 = pb_water(ph = 8, alk = 30, tot_po4 = 1),

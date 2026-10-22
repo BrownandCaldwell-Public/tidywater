@@ -4,6 +4,7 @@
 # mg/L. rel_tol = 1e-4 covers the solver noise for large slots, abs_tol = 1e-10 for tiny ones.
 
 test_that("regression: opensys_ph across waters, partial pressures, and temperatures", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   waters <- w[c("typical", "low_alk", "hard_high_alk", "cold", "warm", "nutrients")]
   cases <- list()

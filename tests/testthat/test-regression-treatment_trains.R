@@ -4,6 +4,7 @@
 # when each function's own golden still passes.
 
 test_that("regression: conventional coagulation, chlorination, and corrosion", {
+  testthat::skip_on_cran()
   steps <- suppressWarnings({
     raw <- regression_waters()$typical
     coag_ph <- chemdose_ph(raw, alum = 35)
@@ -29,6 +30,7 @@ test_that("regression: conventional coagulation, chlorination, and corrosion", {
 })
 
 test_that("regression: lime softening and recarbonation", {
+  testthat::skip_on_cran()
   steps <- suppressWarnings({
     raw <- regression_waters()$hard_high_alk
     limed <- chemdose_ph(raw, caoh2 = 200)
@@ -47,6 +49,7 @@ test_that("regression: lime softening and recarbonation", {
 })
 
 test_that("regression: ozone, biofiltration, GAC, and chloramination", {
+  testthat::skip_on_cran()
   steps <- suppressWarnings({
     raw <- regression_waters()$high_toc
     coag_ph <- chemdose_ph(raw, ferricchloride = 40)
@@ -74,6 +77,7 @@ test_that("regression: ozone, biofiltration, GAC, and chloramination", {
 })
 
 test_that("regression: blended sources with corrosion control", {
+  testthat::skip_on_cran()
   steps <- suppressWarnings({
     surface <- regression_waters()$low_alk
     ground <- regression_waters()$hard_high_alk
@@ -96,6 +100,7 @@ test_that("regression: blended sources with corrosion control", {
 })
 
 test_that("regression: data frame workflow matches the single-water chain", {
+  testthat::skip_on_cran()
   df <- suppressWarnings(
     transform(water_df[1:6, ], br = 60) |>
       define_water_df("raw") |>

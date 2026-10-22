@@ -37,10 +37,12 @@ regression_convert_waters <- function() {
 }
 
 test_that("regression: convert_water on several waters", {
+  testthat::skip_on_cran()
   expect_golden(lapply(regression_convert_waters(), function(x) name_na_cols(convert_water(x))), "convert_water")
 })
 
 test_that("regression: convert_watermg on several waters", {
+  testthat::skip_on_cran()
   expect_golden(
     lapply(regression_convert_waters(), function(x) name_na_cols(suppressWarnings(convert_watermg(x)))),
     "convert_watermg"
@@ -48,6 +50,7 @@ test_that("regression: convert_watermg on several waters", {
 })
 
 test_that("regression: pluck_water numeric columns", {
+  testthat::skip_on_cran()
   df <- suppressWarnings(define_water_df(water_df[1:4, ]))
   df$blended <- lapply(df$defined, function(x) {
     suppressWarnings(blend_waters(list(x, regression_waters()$typical), c(0.5, 0.5)))

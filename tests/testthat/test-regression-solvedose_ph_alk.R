@@ -7,6 +7,7 @@ bases <- c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2")
 acids <- c("hcl", "h2so4", "h3po4", "co2")
 
 test_that("regression: solvedose_ph for every chemical", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   cases <- list()
   for (nm in c("typical", "low_alk", "hard_high_alk")) {
@@ -35,6 +36,7 @@ test_that("regression: solvedose_ph for every chemical", {
 })
 
 test_that("regression: solvedose_alk for every chemical", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   cases <- list()
   for (nm in c("typical", "low_alk")) {

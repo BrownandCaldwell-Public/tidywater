@@ -2,6 +2,7 @@
 # Golden files pin every slot of the output water. See tests/testthat/README.md.
 
 test_that("regression: chemdose_inorgdemand Fe/Mn/NH3 combinations", {
+  testthat::skip_on_cran()
   mk <- function(fe = 0, mn = 0, tot_nh3 = 0, ...) {
     suppressWarnings(define_water(ph = 7, temp = 20, alk = 70, tds = 200, fe = fe, mn = mn, tot_nh3 = tot_nh3, ...))
   }
@@ -22,6 +23,7 @@ test_that("regression: chemdose_inorgdemand Fe/Mn/NH3 combinations", {
 })
 
 test_that("regression: chemdose_inorgdemand with pre-existing chlorine", {
+  testthat::skip_on_cran()
   # By default free_chlorine is overwritten with the residual of cl2_dose only and the
   # pre-existing chlorine is dropped (#532); use_chlorine_slot = TRUE adds it to the dose.
   w <- suppressWarnings(define_water(

@@ -9,6 +9,7 @@ gac_water <- function(ph = 7.5, toc = 3, doc = toc * 0.95) {
 }
 
 test_that("regression: gacbv_toc Zachman and WTP with vector target_doc", {
+  testthat::skip_on_cran()
   w <- gac_water(toc = 3, doc = 2.85)
   w_low <- gac_water(ph = 7, toc = 2, doc = 1.2)
   targets <- c(0.9, 1.2, 1.5, 1.9)

@@ -20,6 +20,7 @@ ion_sum_mgl <- function(w) {
 
 # KNOWN-BUG #541: TDS check leaves out bicarbonate. (The "No issues found" part was fixed in #553.)
 test_that("regression: check_water message lists", {
+  testthat::skip_on_cran()
   dw <- function(...) suppressWarnings(define_water(...))
   clean_args <- list(ph = 7.5, temp = 20, alk = 100, ca = 40, mg = 10, na = 20, k = 3, cl = 30, so4 = 40)
   clean_tds <- ion_sum_mgl(do.call(dw, clean_args))

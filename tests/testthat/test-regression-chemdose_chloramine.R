@@ -20,6 +20,7 @@ chloramine_water <- function(ph = 7.5, temp = 20, alk = 80) {
 }
 
 test_that("regression: chemdose_chloramine breakpoint regimes (Cl2:N mass ratio)", {
+  testthat::skip_on_cran()
   w <- chloramine_water()
   ratios <- c(3, 5, 7.6, 10, 15)
   out <- lapply(ratios, function(r) suppressWarnings(chemdose_chloramine(w, time = 30, cl2 = r, nh3 = 1)))
@@ -28,6 +29,7 @@ test_that("regression: chemdose_chloramine breakpoint regimes (Cl2:N mass ratio)
 })
 
 test_that("regression: chemdose_chloramine pH and temperature sweep", {
+  testthat::skip_on_cran()
   grid <- expand.grid(ph = c(6, 7, 8, 9), temp = c(5, 20, 30), ratio = c(4, 10))
   out <- lapply(seq_len(nrow(grid)), function(i) {
     w <- chloramine_water(ph = grid$ph[i], temp = grid$temp[i])
@@ -43,6 +45,7 @@ test_that("regression: chemdose_chloramine pH and temperature sweep", {
 })
 
 test_that("regression: chemdose_chloramine alkalinity and time", {
+  testthat::skip_on_cran()
   out <- suppressWarnings(list(
     alk_10 = chemdose_chloramine(chloramine_water(alk = 10), time = 60, cl2 = 5, nh3 = 1),
     alk_250 = chemdose_chloramine(chloramine_water(alk = 250), time = 60, cl2 = 5, nh3 = 1),
@@ -61,6 +64,7 @@ test_that("regression: chemdose_chloramine alkalinity and time", {
 })
 
 test_that("regression: chemdose_chloramine starting chloramine species", {
+  testthat::skip_on_cran()
   w <- chloramine_water()
   w_nh2cl <- w
   w_nh2cl@nh2cl <- convert_units(2, "cl2")
@@ -79,6 +83,7 @@ test_that("regression: chemdose_chloramine starting chloramine species", {
 })
 
 test_that("regression: chemdose_chloramine free chlorine / ammonia slot paths", {
+  testthat::skip_on_cran()
   w <- suppressWarnings(define_water(
     ph = 7.5, temp = 20, alk = 80, tds = 200, free_chlorine = 4, tot_nh3 = 1
   ))

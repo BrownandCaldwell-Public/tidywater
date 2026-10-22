@@ -4,6 +4,7 @@
 times <- c("day", "month", "year")
 
 test_that("regression: solvecost_chem", {
+  testthat::skip_on_cran()
   cases <- list()
   for (t in times) {
     cases[[paste0("alum_30mgL_10mgd_", t)]] <- solvecost_chem(dose = 30, flow = 10, cost = 0.3, time = t)
@@ -15,6 +16,7 @@ test_that("regression: solvecost_chem", {
 })
 
 test_that("regression: solvecost_power", {
+  testthat::skip_on_cran()
   cases <- list()
   for (t in times) {
     cases[[paste0("full_util_", t)]] <- solvecost_power(power = 50, cost = 0.08, time = t)
@@ -25,6 +27,7 @@ test_that("regression: solvecost_power", {
 })
 
 test_that("regression: solvecost_labor", {
+  testthat::skip_on_cran()
   cases <- list()
   for (t in times) {
     cases[[paste0("fte1.5_", t)]] <- solvecost_labor(fte = 1.5, cost = 50000, time = t)
@@ -34,6 +37,7 @@ test_that("regression: solvecost_labor", {
 })
 
 test_that("regression: solvecost_solids", {
+  testthat::skip_on_cran()
   cases <- list()
   for (t in times) {
     cases[[paste0("alum_", t)]] <- solvecost_solids(alum = 30, flow = 10, turb = 5, cost = 0.05, time = t)

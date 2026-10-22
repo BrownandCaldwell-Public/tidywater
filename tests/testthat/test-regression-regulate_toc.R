@@ -13,6 +13,7 @@ toc_waters <- function(toc_raw, toc_fin, alk = 80, doc_raw = toc_raw * 0.9, uv_r
 
 
 test_that("regression: regulate_toc numeric alternative compliance and guard rails", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       alt_i_raw_toc_1.5 = regulate_toc(alk_raw = 80, toc_raw = 1.5, toc_finished = 1),
@@ -38,6 +39,7 @@ test_that("regression: regulate_toc numeric alternative compliance and guard rai
 })
 
 test_that("regression: regulate_toc every TOC x alkalinity table cell and boundary", {
+  testthat::skip_on_cran()
   # skip_alternate = TRUE so each cell reaches the standard compliance table.
   tocs <- c(2.5, 4, 6, 8, 12)
   alks <- c(0.5, 30, 60, 90, 120, 200)
@@ -52,6 +54,7 @@ test_that("regression: regulate_toc every TOC x alkalinity table cell and bounda
 })
 
 test_that("regression: regulate_toc removal exactly at requirement", {
+  testthat::skip_on_cran()
   req <- tidywater::toc_compliance_table
   cells <- data.frame(toc = c(3, 3, 3, 6, 6, 6, 10, 10, 10), alk = c(30, 90, 150, 30, 90, 150, 30, 90, 150))
   cells$req <- vapply(seq_len(nrow(cells)), function(i) {
@@ -73,6 +76,7 @@ test_that("regression: regulate_toc removal exactly at requirement", {
 })
 
 test_that("regression: regulate_toc water-object inputs (alternative paths iii-vi)", {
+  testthat::skip_on_cran()
   cases <- list(
     # (iii) toc_raw < 4, alk > 60, TTHM < 40 or HAA5 < 30 (only one needs to be low)
     alt_iii_low_tthm = toc_waters(3.5, 3, alk = 80, tthm = 30, haa5 = 50),
@@ -116,6 +120,7 @@ test_that("regression: regulate_toc water-object inputs (alternative paths iii-v
 })
 
 test_that("regression: regulate_toc_df numeric and water paths", {
+  testthat::skip_on_cran()
   df <- data.frame(
     alk_raw = c(80, 30, 0, 150, 90, 50),
     toc_raw = c(1.5, 6, 5, 9, 3.5, 5),

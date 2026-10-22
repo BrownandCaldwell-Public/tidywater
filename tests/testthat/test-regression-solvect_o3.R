@@ -12,6 +12,7 @@ o3_waters <- function() {
 }
 
 test_that("regression: solvect_o3 with kd (first-order decay)", {
+  testthat::skip_on_cran()
   ws <- o3_waters()
   grid <- expand.grid(
     water = c("typical", "cold"), dose = c(0, 1, 3), time = c(1, 2.5, 10),
@@ -28,6 +29,7 @@ test_that("regression: solvect_o3 with kd (first-order decay)", {
 })
 
 test_that("regression: solvect_o3 without kd (solveresid_o3 decay curve)", {
+  testthat::skip_on_cran()
   ws <- o3_waters()
   grid <- expand.grid(
     water = names(ws), dose = c(0, 1, 3, 6), time = c(0.5, 3, 7.75, 20),
@@ -43,6 +45,7 @@ test_that("regression: solvect_o3 without kd (solveresid_o3 decay curve)", {
 })
 
 test_that("regression: solvect_o3 negative residual cases", {
+  testthat::skip_on_cran()
   ws <- o3_waters()
   # Low doses into high-UV water give negative modeled residuals, so the summed CT is negative.
   expect_golden(

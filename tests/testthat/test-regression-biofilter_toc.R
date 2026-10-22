@@ -19,14 +19,17 @@ biof_grid <- function(ozonated) {
 }
 
 test_that("regression: biofilter_toc ozonated temperature x ebct", {
+  testthat::skip_on_cran()
   expect_golden(biof_grid(TRUE), "biofilter_toc_ozonated")
 })
 
 test_that("regression: biofilter_toc non-ozonated temperature x ebct", {
+  testthat::skip_on_cran()
   expect_golden(biof_grid(FALSE), "biofilter_toc_nonozonated")
 })
 
 test_that("regression: biofilter_toc edge inputs", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       ebct0 = biofilter_toc(biof_water(15), ebct = 0),

@@ -2,6 +2,7 @@
 # Golden files pin the returned masses (lb/day). See tests/testthat/README.md.
 
 test_that("regression: solvemass_chem", {
+  testthat::skip_on_cran()
   expect_golden(
     list(
       alum_full_strength = solvemass_chem(dose = 30, flow = 10),
@@ -15,6 +16,7 @@ test_that("regression: solvemass_chem", {
 })
 
 test_that("regression: solvemass_solids totals and details", {
+  testthat::skip_on_cran()
   cases <- list(
     alum = solvemass_solids(alum = 30, flow = 10, turb = 5),
     ferricchloride = solvemass_solids(ferricchloride = 20, flow = 10, turb = 5),

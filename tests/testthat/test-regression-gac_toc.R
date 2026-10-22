@@ -9,6 +9,7 @@ gac_water <- function(ph = 7.5, toc = 3, doc = toc * 0.95) {
 }
 
 test_that("regression: gac_toc Zachman media x ebct x bed_vol (coag pretreat)", {
+  testthat::skip_on_cran()
   w <- gac_water()
   grid <- expand.grid(media = c("12x40", "8x30"), ebct = c(10, 20), bed_vol = c(5000, 15000, 30000),
                       stringsAsFactors = FALSE)
@@ -21,6 +22,7 @@ test_that("regression: gac_toc Zachman media x ebct x bed_vol (coag pretreat)", 
 })
 
 test_that("regression: gac_toc WTP and pretreat options", {
+  testthat::skip_on_cran()
   w <- gac_water()
   low <- gac_water(ph = 8.5, toc = 1.2)
   expect_golden(

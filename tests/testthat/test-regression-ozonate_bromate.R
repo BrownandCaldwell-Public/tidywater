@@ -17,6 +17,7 @@ bromate_rows <- data.frame(
 )
 
 test_that("regression: ozonate_bromate all model rows x temperature", {
+  testthat::skip_on_cran()
   grid <- merge(bromate_rows, data.frame(temp = c(10, 20, 30)))
   out <- lapply(seq_len(nrow(grid)), function(i) {
     w <- bromate_water(temp = grid$temp[i], nh3 = if (grid$ammonia[i]) 0.5 else 0)
@@ -27,6 +28,7 @@ test_that("regression: ozonate_bromate all model rows x temperature", {
 })
 
 test_that("regression: ozonate_bromate waters, doses and times", {
+  testthat::skip_on_cran()
   ws <- list(
     typical = regression_waters()$typical,
     high_toc = regression_waters()$high_toc,

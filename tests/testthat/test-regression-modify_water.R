@@ -3,6 +3,7 @@
 # nothing else changes. See tests/testthat/README.md.
 
 test_that("regression: modify_water ion slots across convert_units units", {
+  testthat::skip_on_cran()
   base <- regression_waters()$typical
   ions <- c("na", "ca", "mg", "k", "cl", "so4", "no3", "br", "bro3", "f", "fe", "al", "mn")
   units <- c("mg/L", "ug/L", "M", "mM", "meq/L")
@@ -24,6 +25,7 @@ test_that("regression: modify_water ion slots across convert_units units", {
 })
 
 test_that("regression: modify_water organics, uv254, and DBP unit branches", {
+  testthat::skip_on_cran()
   base <- regression_waters()$typical
   slot_of <- function(slot, value, units) {
     methods::slot(suppressWarnings(modify_water(base, slot = slot, value = value, units = units)), slot)
@@ -49,6 +51,7 @@ test_that("regression: modify_water organics, uv254, and DBP unit branches", {
 })
 
 test_that("regression: modify_water whole-water outputs", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   expect_golden(
     suppressWarnings(list(

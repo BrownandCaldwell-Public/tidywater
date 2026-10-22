@@ -173,8 +173,12 @@ files. Never edit those to make a change pass.
   `test-regression-define_water.R`.
 - `test-regression-wrappers.R` checks that every `_df` helper equals its base function row by row, and that the
   deprecated wrappers forward each argument to the parameter of the same name.
-- Snapshots are skipped on CRAN. On CI a missing snapshot is a failure, so commit new `.txt` files. Snapshots are
-  plain text because `*.csv` is gitignored.
+- The regression files are kept out of the built package (`.Rbuildignore`), so `R CMD check` doesn't run them.
+  `R-CMD-check.yaml` runs them in a separate step with `testthat::test_local(filter = "regression")` on every OS,
+  and uploads any changed `.new.txt` snapshots when that step fails. Locally, `devtools::test(filter = "regression")`.
+- Every `test_that()` block in a regression file starts with `testthat::skip_on_cran()`.
+- On CI a missing snapshot is a failure, so commit new `.txt` files. Snapshots are plain text because `*.csv` is
+  gitignored.
 
 **When a golden test fails:**
 

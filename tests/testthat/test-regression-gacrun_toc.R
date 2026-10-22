@@ -9,6 +9,7 @@ gac_water <- function(ph = 7.5, toc = 3, doc = toc * 0.95) {
 }
 
 test_that("regression: gacrun_toc Zachman media x ebct", {
+  testthat::skip_on_cran()
   waters <- list(ph7.5_toc3 = gac_water(), ph6.5_toc5 = gac_water(ph = 6.5, toc = 5))
   cases <- list()
   for (w in names(waters)) {
@@ -23,6 +24,7 @@ test_that("regression: gacrun_toc Zachman media x ebct", {
 })
 
 test_that("regression: gacrun_toc WTP ebct 10 and 20", {
+  testthat::skip_on_cran()
   w <- gac_water(ph = 7.5, toc = 3)
   expect_golden(
     suppressWarnings(list(
@@ -34,6 +36,7 @@ test_that("regression: gacrun_toc WTP ebct 10 and 20", {
 })
 
 test_that("regression: gacrun_toc WTP toc <= 1.5 (bv to 40000)", {
+  testthat::skip_on_cran()
   w <- gac_water(ph = 8.5, toc = 1.2)
   expect_golden(
     suppressWarnings(list(
@@ -45,6 +48,7 @@ test_that("regression: gacrun_toc WTP toc <= 1.5 (bv to 40000)", {
 })
 
 test_that("regression: gacrun_toc WTP custom bvs and other ebct", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       wtp_custom_bvs = gacrun_toc(gac_water(ph = 7, toc = 4), ebct = 10, model = "WTP", bvs = c(1000, 30000, 1000)),
@@ -57,6 +61,7 @@ test_that("regression: gacrun_toc WTP custom bvs and other ebct", {
 })
 
 test_that("regression: gacrun_toc_df", {
+  testthat::skip_on_cran()
   df <- suppressWarnings(define_water_df(water_df[1:3, ]))
   drop_water <- function(out) out[, !vapply(out, is.list, logical(1)), drop = FALSE]
   zach <- suppressWarnings(gacrun_toc_df(df))

@@ -3,6 +3,7 @@
 # uniroot is run with tol = 1e-14, so the default rel_tol = 1e-8 is used.
 
 test_that("regression: chemdose_chlordecay chlorine and chloramine grid", {
+  testthat::skip_on_cran()
   ws <- regression_waters()
   grid <- expand.grid(
     water = c("typical", "high_toc", "cold"),
@@ -25,6 +26,7 @@ test_that("regression: chemdose_chlordecay chlorine and chloramine grid", {
 })
 
 test_that("regression: chemdose_chlordecay full waters", {
+  testthat::skip_on_cran()
   ws <- regression_waters()
   expect_golden(
     suppressWarnings(list(
@@ -42,6 +44,7 @@ test_that("regression: chemdose_chlordecay full waters", {
 })
 
 test_that("regression: chemdose_chlordecay use_chlorine_slot", {
+  testthat::skip_on_cran()
   base <- suppressWarnings(define_water(
     ph = 7.5, temp = 20, alk = 80, tds = 200, toc = 3, uv254 = 0.08,
     free_chlorine = 2, combined_chlorine = 2
@@ -68,6 +71,7 @@ test_that("regression: chemdose_chlordecay use_chlorine_slot", {
 })
 
 test_that("regression: chemdose_chlordecay long time floors residual at zero", {
+  testthat::skip_on_cran()
   # The 0.85 residual correction (Eq. 5-118) would make ct_corrected < 0 once most
   # chlorine has decayed; the residual is floored at 0 (#524).
   ws <- regression_waters()

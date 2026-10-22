@@ -2,6 +2,7 @@
 # Golden files pin every slot of the decarbonated water. See tests/testthat/README.md.
 
 test_that("regression: decarbonate_ph across waters and removal fractions", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   low_ph <- suppressWarnings(define_water(ph = 4, temp = 25, alk = 5, tds = 100))
   acidified <- suppressWarnings(define_water(ph = 5.5, temp = 12, alk = 150, tds = 300, ca = 40))

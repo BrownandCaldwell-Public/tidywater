@@ -2,10 +2,12 @@
 # Golden files pin every slot of the output water. See tests/testthat/README.md.
 
 test_that("regression: standard scenario waters", {
+  testthat::skip_on_cran()
   expect_golden(regression_waters(), "scenario_waters")
 })
 
 test_that("regression: define_water hardness estimation paths", {
+  testthat::skip_on_cran()
   base <- function(...) {
     suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 80, na = 20, cl = 30, so4 = 40, ...))
   }
@@ -24,6 +26,7 @@ test_that("regression: define_water hardness estimation paths", {
 })
 
 test_that("regression: define_water organics and ionic strength paths", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       toc_only = define_water(ph = 7, alk = 50, tds = 200, toc = 4),
@@ -40,6 +43,7 @@ test_that("regression: define_water organics and ionic strength paths", {
 })
 
 test_that("regression: define_water temperature and pH sweep", {
+  testthat::skip_on_cran()
   grid <- expand.grid(temp = c(1, 10, 25, 35), ph = c(5.5, 7, 8.5, 10))
   waters <- lapply(seq_len(nrow(grid)), function(i) {
     suppressWarnings(define_water(
@@ -53,6 +57,7 @@ test_that("regression: define_water temperature and pH sweep", {
 })
 
 test_that("regression: define_water minor ions and unit conversions", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       minor = define_water(
@@ -65,6 +70,7 @@ test_that("regression: define_water minor ions and unit conversions", {
 })
 
 test_that("regression: define_water_df matches water_df dataset", {
+  testthat::skip_on_cran()
   out <- suppressWarnings(define_water_df(water_df))
   expect_golden(list(water_df = out), "define_water_df")
 })

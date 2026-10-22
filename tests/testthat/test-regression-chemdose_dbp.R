@@ -35,22 +35,27 @@ dbp_grid <- function(water, cl2, time) {
 }
 
 test_that("regression: chemdose_dbp full option grid, typical water", {
+  testthat::skip_on_cran()
   expect_golden(dbp_grid(dbp_waters()$typical, cl2 = 4, time = 24), "chemdose_dbp_grid_typical")
 })
 
 test_that("regression: chemdose_dbp full option grid, high TOC / high bromide water", {
+  testthat::skip_on_cran()
   expect_golden(dbp_grid(dbp_waters()$high_toc, cl2 = 8, time = 48), "chemdose_dbp_grid_high_toc")
 })
 
 test_that("regression: chemdose_dbp full option grid, warm high pH water", {
+  testthat::skip_on_cran()
   expect_golden(dbp_grid(dbp_waters()$warm, cl2 = 2.5, time = 12), "chemdose_dbp_grid_warm")
 })
 
 test_that("regression: chemdose_dbp full option grid, low DOC high bromide (GAC-range) water", {
+  testthat::skip_on_cran()
   expect_golden(dbp_grid(dbp_waters()$gac_like, cl2 = 1.5, time = 72), "chemdose_dbp_grid_gac_like")
 })
 
 test_that("regression: chemdose_dbp dose and time sweep", {
+  testthat::skip_on_cran()
   ws <- dbp_waters()
   grid <- expand.grid(
     water = c("typical", "high_toc"), treatment = c("raw", "coag", "gac"),
@@ -73,6 +78,7 @@ test_that("regression: chemdose_dbp dose and time sweep", {
 })
 
 test_that("regression: chemdose_dbp default cl_type and custom single-row coeff", {
+  testthat::skip_on_cran()
   ws <- dbp_waters()
   # Default cl_type is the misspelled "chorine", which behaves as chlorine.
   default_cl <- suppressWarnings(chemdose_dbp(ws$typical, cl2 = 4, time = 24))

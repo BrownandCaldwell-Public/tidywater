@@ -45,6 +45,7 @@ wrapper_forwarding <- function() {
 }
 
 test_that("regression: deprecated wrappers forward arguments to same-named parameters", {
+  testthat::skip_on_cran()
   fwd <- wrapper_forwarding()
   shifted <- names(Filter(function(x) length(x$shifted) > 0, fwd))
   dropped <- names(Filter(function(x) length(x$dropped) > 0, fwd))
@@ -77,6 +78,7 @@ map_base <- function(df, f, ...) {
 }
 
 test_that("regression: water-returning _df helpers match base functions", {
+  testthat::skip_on_cran()
   df <- regression_df()
   run <- function(f_df, ...) suppressWarnings(f_df(df, output_water = "out", ...))$out
 
@@ -142,6 +144,7 @@ test_that("regression: water-returning _df helpers match base functions", {
 })
 
 test_that("regression: _df helpers read arguments from columns", {
+  testthat::skip_on_cran()
   df <- regression_df()
   df$alum <- c(0, 10, 30, 60)
   df$naoh <- c(5, 0, 2, 0)
@@ -157,6 +160,7 @@ test_that("regression: _df helpers read arguments from columns", {
 })
 
 test_that("regression: pluck_cols gives the same values as the water column", {
+  testthat::skip_on_cran()
   df <- regression_df()
   out <- suppressWarnings(chemdose_ph_df(df, output_water = "out", alum = 25, pluck_cols = TRUE))
   waters <- out$out
@@ -167,6 +171,7 @@ test_that("regression: pluck_cols gives the same values as the water column", {
 })
 
 test_that("regression: blend_waters_df matches blend_waters", {
+  testthat::skip_on_cran()
   df <- regression_df()
   df$second <- rev(df$defined)
   out <- suppressWarnings(blend_waters_df(df, c("defined", "second"), c(0.3, 0.7), output_water = "out"))$out
@@ -175,6 +180,7 @@ test_that("regression: blend_waters_df matches blend_waters", {
 })
 
 test_that("regression: numeric-output _df helpers match base functions", {
+  testthat::skip_on_cran()
   df <- regression_df()
   # _df helpers add "<input_water>_<name>" columns; compare them by name to the base output.
   expect_prefixed_match <- function(out, base) {

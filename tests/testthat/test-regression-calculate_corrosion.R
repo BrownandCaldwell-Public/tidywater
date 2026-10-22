@@ -36,6 +36,7 @@ corrosion_is_na <- function() {
 non_ccpp <- c("aggressive", "ryznar", "langelier", "larsonskold", "csmr")
 
 test_that("regression: calculate_corrosion non-CCPP indices x form", {
+  testthat::skip_on_cran()
   waters <- corrosion_waters()
   cases <- list()
   for (w in names(waters)) {
@@ -52,6 +53,7 @@ test_that("regression: calculate_corrosion non-CCPP indices x form", {
 })
 
 test_that("regression: calculate_corrosion CCPP", {
+  testthat::skip_on_cran()
   # CCPP is slow (each root evaluation calls chemdose_ph), so pin a subset that covers each
   # uniroot fallback stage: restricted interval, big scan (aggressive and supersaturated),
   # extendInt "downX" (extreme_supersaturated) and extendInt "upX" (extreme_aggressive).

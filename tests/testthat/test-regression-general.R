@@ -2,6 +2,7 @@
 # Golden files pin current numeric output. See tests/testthat/README.md.
 
 test_that("regression: correct_k across waters and temperatures", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   extra <- suppressWarnings(list(
     t1_tds300 = define_water(ph = 7, temp = 1, alk = 50, tds = 300),
@@ -15,6 +16,7 @@ test_that("regression: correct_k across waters and temperatures", {
 })
 
 test_that("regression: alpha functions over pH and temperature", {
+  testthat::skip_on_cran()
   alpha_fns <- c(
     "calculate_alpha0_carbonate", "calculate_alpha1_carbonate", "calculate_alpha2_carbonate",
     "calculate_alpha0_phosphate", "calculate_alpha1_phosphate", "calculate_alpha2_phosphate",
@@ -38,6 +40,7 @@ test_that("regression: alpha functions over pH and temperature", {
 })
 
 test_that("regression: calculate_activity", {
+  testthat::skip_on_cran()
   grid <- expand.grid(z = 1:3, is = c(0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5), temp = c(5, 25, 35))
   out <- lapply(seq_len(nrow(grid)), function(i) calculate_activity(grid$z[i], grid$is[i], grid$temp[i]))
   names(out) <- paste0("z", grid$z, "_is", grid$is, "_t", grid$temp)
@@ -48,11 +51,13 @@ test_that("regression: calculate_activity", {
 })
 
 test_that("regression: calculate_ionicstrength on scenario waters", {
+  testthat::skip_on_cran()
   out <- lapply(regression_waters(), calculate_ionicstrength)
   expect_golden(out, "calculate_ionicstrength")
 })
 
 test_that("regression: correlate_ionicstrength all conversions", {
+  testthat::skip_on_cran()
   vals <- c(0, 0.005, 150, 500, 2000)
   combos <- list(
     c("cond", "is"), c("tds", "is"), c("is", "tds"),
@@ -69,6 +74,7 @@ test_that("regression: correlate_ionicstrength all conversions", {
 })
 
 test_that("regression: K_temp_adjust for every dissociation constant", {
+  testthat::skip_on_cran()
   temps <- c(0, 5, 15, 25, 35)
   out <- lapply(rownames(discons), function(r) {
     res <- K_temp_adjust(discons[r, ]$deltah, discons[r, ]$k, temps)
@@ -80,6 +86,7 @@ test_that("regression: K_temp_adjust for every dissociation constant", {
 })
 
 test_that("regression: calculate_hardness types and units", {
+  testthat::skip_on_cran()
   inputs <- list(
     `mg/L` = c(ca = 40, mg = 12),
     `g/L` = c(ca = 0.04, mg = 0.012),
@@ -106,6 +113,7 @@ test_that("regression: calculate_hardness types and units", {
 })
 
 test_that("regression: calc_suva", {
+  testthat::skip_on_cran()
   expect_golden(
     list(
       typical = calc_suva(3.2, 0.1),
@@ -133,6 +141,7 @@ convert_units_matrix <- function(formulas, units, from, to) {
 }
 
 test_that("regression: convert_units formulas x units", {
+  testthat::skip_on_cran()
   units <- c(
     "ng/L", "ug/L", "mg/L", "g/L",
     "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
@@ -164,6 +173,7 @@ test_that("regression: convert_units formulas x units", {
 })
 
 test_that("regression: convert_units string normalization and vectors", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       lower_case_units = convert_units(50, "ca", "mg/l", "m"),
@@ -185,6 +195,7 @@ test_that("regression: convert_units string normalization and vectors", {
 })
 
 test_that("regression: convert_flow units and specific gravity", {
+  testthat::skip_on_cran()
   vol <- c(
     "MGS", "MGM", "MGH", "MGD", "gps", "gpm", "gph", "gpd", "cfs", "cfm", "cfh", "cfd",
     "L/s", "L/m", "L/h", "L/d", "m3/s", "m3/m", "m3/h", "m3/day"
@@ -213,6 +224,7 @@ test_that("regression: convert_flow units and specific gravity", {
 })
 
 test_that("regression: solve_ph directly", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   orgacid <- suppressWarnings(define_water(
     ph = 7, temp = 20, alk = 60, tds = 200, ca = 20, mg = 5, na = 15, cl = 20, so4 = 20,

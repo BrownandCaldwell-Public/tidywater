@@ -20,19 +20,23 @@ pac_grid <- function(type) {
 }
 
 test_that("regression: pac_toc bituminous dose x time", {
+  testthat::skip_on_cran()
   expect_golden(pac_grid("bituminous"), "pac_toc_bituminous")
 })
 
 test_that("regression: pac_toc wood dose x time", {
+  testthat::skip_on_cran()
   expect_golden(pac_grid("wood"), "pac_toc_wood")
 })
 
 test_that("regression: pac_toc lignite dose x time", {
+  testthat::skip_on_cran()
   expect_golden(pac_grid("lignite"), "pac_toc_lignite")
 })
 
 # DOC < 1.3 clamp edges and dose 0 (fixed in #540: no DOC increase, UV254 >= 0, dose 0 is a no-op).
 test_that("regression: pac_toc DOC clamp and water edge cases", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       doc1.0_clamp_bituminous = pac_toc(pac_water(doc = 1.0), dose = 10, time = 30),

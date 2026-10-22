@@ -21,26 +21,32 @@ toc_coag_grid <- function(coag, dose = 30) {
 }
 
 test_that("regression: chemdose_toc alum x coeff x pH", {
+  testthat::skip_on_cran()
   expect_golden(toc_coag_grid("alum"), "chemdose_toc_alum_grid")
 })
 
 test_that("regression: chemdose_toc ferricchloride x coeff x pH", {
+  testthat::skip_on_cran()
   expect_golden(toc_coag_grid("ferricchloride"), "chemdose_toc_ferricchloride_grid")
 })
 
 test_that("regression: chemdose_toc ferricsulfate x coeff x pH", {
+  testthat::skip_on_cran()
   expect_golden(toc_coag_grid("ferricsulfate"), "chemdose_toc_ferricsulfate_grid")
 })
 
 test_that("regression: chemdose_toc ach x coeff x pH", {
+  testthat::skip_on_cran()
   expect_golden(toc_coag_grid("ach"), "chemdose_toc_ach_grid")
 })
 
 test_that("regression: chemdose_toc pacl x coeff x pH", {
+  testthat::skip_on_cran()
   expect_golden(toc_coag_grid("pacl"), "chemdose_toc_pacl_grid")
 })
 
 test_that("regression: chemdose_toc custom coeff, SUVA cap, no coagulant, mixed coagulants", {
+  testthat::skip_on_cran()
   custom <- data.frame(k1 = -0.05, k2 = 0.6, x1 = 150, x2 = -40, x3 = 3, b = 0.1)
   high_suva <- function(ph) toc_water(ph, doc = 2, uv254 = 0.15) # SUVA = 7.5 -> capped at 5
   suva5 <- function(ph) toc_water(ph, doc = 2, uv254 = 0.1) # SUVA exactly 5
@@ -72,6 +78,7 @@ test_that("regression: chemdose_toc custom coeff, SUVA cap, no coagulant, mixed 
 })
 
 test_that("regression: chemdose_toc caoh2 softening branch", {
+  testthat::skip_on_cran()
   expect_golden(
     suppressWarnings(list(
       caoh2_only_ph7 = chemdose_toc(toc_water(7), caoh2 = 50),

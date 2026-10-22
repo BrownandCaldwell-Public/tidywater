@@ -2,6 +2,7 @@
 # Golden files pin the returned OH radical scavenging term (s^-1). See tests/testthat/README.md.
 
 test_that("regression: scavenge_oh scenario waters x H2O2 dose", {
+  testthat::skip_on_cran()
   waters <- regression_waters()
   out <- list()
   for (nm in names(waters)) {
@@ -13,6 +14,7 @@ test_that("regression: scavenge_oh scenario waters x H2O2 dose", {
 })
 
 test_that("regression: scavenge_oh kdoc_adjust, nitrite/nitrate, and missing slots", {
+  testthat::skip_on_cran()
   w <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, tds = 250, doc = 3, no3 = 4, no2 = 0.2))
   expect_golden(
     suppressWarnings(list(

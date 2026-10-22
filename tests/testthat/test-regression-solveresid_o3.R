@@ -2,6 +2,7 @@
 # Closed-form model, default rel_tol = 1e-8. See tests/testthat/README.md.
 
 test_that("regression: solveresid_o3 waters x doses x times", {
+  testthat::skip_on_cran()
   ws <- regression_waters()
   ws <- list(
     typical = ws$typical, high_toc = ws$high_toc, warm = ws$warm,
@@ -21,6 +22,7 @@ test_that("regression: solveresid_o3 waters x doses x times", {
 })
 
 test_that("regression: solveresid_o3 temperature and pH sweep", {
+  testthat::skip_on_cran()
   grid <- expand.grid(temp = c(5, 15, 25, 35), ph = c(6, 7, 8, 9))
   out <- lapply(seq_len(nrow(grid)), function(i) {
     w <- suppressWarnings(define_water(

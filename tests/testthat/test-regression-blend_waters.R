@@ -2,6 +2,7 @@
 # Golden files pin every slot of the blended water. See tests/testthat/README.md.
 
 test_that("regression: blend_waters two-way blends of dissimilar waters", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   ratios <- c(0.1, 0.25, 0.5, 0.75, 0.9)
   pairs <- list(
@@ -21,6 +22,7 @@ test_that("regression: blend_waters two-way blends of dissimilar waters", {
 })
 
 test_that("regression: blend_waters three-way blends", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   expect_golden(
     suppressWarnings(list(
@@ -34,6 +36,7 @@ test_that("regression: blend_waters three-way blends", {
 })
 
 test_that("regression: blend_waters with po4/nh3/chlorine/borate/silicate species", {
+  testthat::skip_on_cran()
   mk <- function(...) suppressWarnings(define_water(temp = 20, tds = 200, ...))
   po4 <- mk(ph = 7.8, alk = 60, tot_po4 = 2)
   nh3 <- mk(ph = 7.2, alk = 90, tot_nh3 = 1.5)
@@ -54,6 +57,7 @@ test_that("regression: blend_waters with po4/nh3/chlorine/borate/silicate specie
 })
 
 test_that("regression: blend_waters with an IS = NA water", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   is_na <- suppressWarnings(define_water(ph = 7, temp = 20, alk = 50))
   is_na2 <- suppressWarnings(define_water(ph = 8, temp = 15, alk = 120))

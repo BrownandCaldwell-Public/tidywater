@@ -6,6 +6,7 @@ ct_water <- function(ph, temp, free_chlorine = 0) {
 }
 
 test_that("regression: solvect_chlorine temperature and pH sweep (Giardia branches)", {
+  testthat::skip_on_cran()
   # temp < 12.5 and >= 12.5 use different Giardia CT equations; 12.5 itself is the edge.
   grid <- expand.grid(
     temp = c(0.5, 5, 10, 12.4, 12.5, 15, 20, 25, 30),
@@ -19,6 +20,7 @@ test_that("regression: solvect_chlorine temperature and pH sweep (Giardia branch
 })
 
 test_that("regression: solvect_chlorine virus table bin edges", {
+  testthat::skip_on_cran()
   # residual = baffle = 1 so ct_actual == time; CTs sit on and around each table break.
   cts_69 <- list(
     `0.5` = c(5.9, 6, 9, 12, 20),
@@ -57,6 +59,7 @@ test_that("regression: solvect_chlorine virus table bin edges", {
 })
 
 test_that("regression: solvect_chlorine free_cl_slot options", {
+  testthat::skip_on_cran()
   w <- ct_water(7.5, 15, free_chlorine = 1.5)
   expect_golden(
     suppressWarnings(list(

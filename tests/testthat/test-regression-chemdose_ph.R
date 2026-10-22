@@ -45,31 +45,38 @@ dose_all_single <- function(water) {
 }
 
 test_that("regression: chemdose_ph every chemical, typical water", {
+  testthat::skip_on_cran()
   expect_golden(dose_all_single(regression_waters()$typical), "chemdose_ph_single_typical")
 })
 
 test_that("regression: chemdose_ph every chemical, low_alk water", {
+  testthat::skip_on_cran()
   expect_golden(dose_all_single(regression_waters()$low_alk), "chemdose_ph_single_low_alk")
 })
 
 test_that("regression: chemdose_ph every chemical, hard_high_alk water", {
+  testthat::skip_on_cran()
   expect_golden(dose_all_single(regression_waters()$hard_high_alk), "chemdose_ph_single_hard_high_alk")
 })
 
 test_that("regression: chemdose_ph every chemical, ideal water (IS = NA)", {
+  testthat::skip_on_cran()
   expect_golden(dose_all_single(regression_waters()$ideal), "chemdose_ph_single_ideal")
 })
 
 test_that("regression: chemdose_ph every chemical, cold water", {
+  testthat::skip_on_cran()
   expect_golden(dose_all_single(regression_waters()$cold), "chemdose_ph_single_cold")
 })
 
 test_that("regression: chemdose_ph zero dose on every scenario water", {
+  testthat::skip_on_cran()
   out <- lapply(regression_waters(), function(w) suppressWarnings(chemdose_ph(w)))
   expect_golden(out, "chemdose_ph_zero_dose")
 })
 
 test_that("regression: chemdose_ph multi-chemical combinations", {
+  testthat::skip_on_cran()
   w <- regression_waters()
   expect_golden(
     suppressWarnings(list(
@@ -98,6 +105,7 @@ test_that("regression: chemdose_ph multi-chemical combinations", {
 })
 
 test_that("regression: chemdose_ph hcl dose sweep", {
+  testthat::skip_on_cran()
   w <- regression_waters()$typical
   doses <- c(0.5, 2, 5, 20, 50, 100)
   out <- lapply(doses, function(d) suppressWarnings(chemdose_ph(w, hcl = d)))
@@ -106,6 +114,7 @@ test_that("regression: chemdose_ph hcl dose sweep", {
 })
 
 test_that("regression: chemdose_ph softening correction", {
+  testthat::skip_on_cran()
   hard <- regression_waters()$hard_high_alk
   doc_water <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350))
   expect_golden(
@@ -123,6 +132,7 @@ test_that("regression: chemdose_ph softening correction", {
 })
 
 test_that("regression: chemdose_ph TDS < 0 clamp", {
+  testthat::skip_on_cran()
   low_tds <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, tot_hard = 150, tds = 20))
   low_cond <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 100, tot_hard = 150, cond = 30))
   expect_golden(
@@ -137,6 +147,7 @@ test_that("regression: chemdose_ph TDS < 0 clamp", {
 })
 
 test_that("regression: chemdose_ph waters with existing residuals", {
+  testthat::skip_on_cran()
   nut <- regression_waters()$nutrients
   orgacid <- suppressWarnings(define_water(
     ph = 7, temp = 20, alk = 60, tds = 200, ca = 20, mg = 5, na = 15, cl = 20, so4 = 20,
@@ -168,6 +179,7 @@ test_that("regression: chemdose_ph waters with existing residuals", {
 })
 
 test_that("regression: chemdose_ph_df with plucked columns", {
+  testthat::skip_on_cran()
   out <- suppressWarnings(
     water_df %>%
       dplyr::slice_head(n = 4) %>%
