@@ -43,6 +43,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
   if (!is.numeric(ebct) || ebct <= 0) {
     cli::cli_abort("{.arg ebct} must be a positive number (min).")
   }
+  if (!is.numeric(ozone_dose) || ozone_dose < 0) {
+    cli::cli_abort("{.arg ozone_dose} must be a nonnegative number (mg/L)")
+  }
 
   temp <- water@temp
 
@@ -152,7 +155,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
     bdoc_rem <- water@bdoc * (1 - bdoc0)
     water@doc <- water@doc - bdoc_rem
     water@toc <- water@doc
-    water@bdoc <- water@bdoc * bdoc0
+    water@bdoc <- water@bdoc - bdoc_rem
   } else {
     cli::cli_abort("Invalid combination of arguments. Please check your inputs.")
   }

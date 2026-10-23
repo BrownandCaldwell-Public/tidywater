@@ -3,7 +3,7 @@
 \name{biofilter_toc}
 \alias{biofilter_toc}
 \alias{biofilter_toc_df}
-\title{Determine TOC removal from biofiltration using Terry & Summers BDOC model or Peterson & Summers TOC model}
+\title{Determine TOC removal from biofiltration using Terry & Summers, Peterson & Summers, or Terry et al  models}
 \source{
 Terry and Summers 2018
 
@@ -41,7 +41,8 @@ biofilter_toc_df(
 
 \item{ebct}{The empty bed contact time (min) used for the biofilter.}
 
-\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise. Ignored if ATP is provided.}
+\item{ozonated}{Logical; TRUE if the water is ozonated (default), FALSE otherwise. Used by the Terry & Summers (2018) model and to select the
+BDOC fraction for reuse waters in the Terry et al. (2024) ATP model. Ignored by the Peterson & Summers (2021) model, which uses \code{ozone_dose} instead.}
 
 \item{ozone_dose}{The ozone dose (mg/L) applied to the water. Only used if \code{reuse = TRUE}.}
 
@@ -76,7 +77,7 @@ whether or not the water was ozonated. When the reuse argument is TRUE, the Pete
 The Peterson & Summers (2021) model does not adjust for temperature impacts due to a lack of collected temperature data in the metanalysis literature.
 Peterson & Summers (2021) is also a TOC-basis model, so the output water object's BDOC slot will not be updated.
 If a lab-measured ATP concentration is known, the Terry et al. (2024) model can be used to determine biofiltered DOC (mg/L) for both drinking water and reuse.
-The Terry et al. (2024) model has similar bdoc assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
+The Terry et al. (2024) model has similar BDOC assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
 For all three models, all particulate TOC is assumed to be removed so TOC = DOC.
 For a single water use \code{biofilter_toc}; for a dataframe use \code{biofilter_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.
