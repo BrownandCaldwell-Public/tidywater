@@ -56,7 +56,7 @@ function instead or an unquoted column name can be provided.
 \details{
 First order decay curve for ozone has the form: \code{residual = dose * exp(kd*time)}. kd should be a negative number.
 Actual CT is an integration of the first order curve. The first 30 seconds are removed from the integral to account for
-instantaneous demand.
+instantaneous demand. CT is set to 0 when the contact time is shorter than those 30 seconds.
 
 When \code{kd} is not specified, a default decay curve is used from the Water Treatment Plant Model (2002). This model does
 not perform well for ozone decay, so specifying the decay curve is recommended.

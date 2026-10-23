@@ -131,7 +131,7 @@ solvedose_ph <- function(water, target_ph, chemical) {
 #' @param water Source water of class "water" created by \code{\link{define_water}}
 #' @param target_alk The final alkalinity in mg/L as CaCO3 to be achieved after the specified chemical is added.
 #' @param chemical The chemical to be added. Current supported chemicals include:
-#' acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
+#' acids: "hcl", "h2so4", "h3po4", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"
 #'
 #' @seealso [solvedose_ph]
 #'
@@ -154,7 +154,6 @@ solvedose_alk <- function(water, target_alk, chemical) {
         "hcl",
         "h2so4",
         "h3po4",
-        "co2",
         "naoh",
         "na2co3",
         "nahco3",
@@ -177,7 +176,6 @@ solvedose_alk <- function(water, target_alk, chemical) {
     nahco3 <- ifelse(chemical == "nahco3", root_dose, 0)
     caoh2 <- ifelse(chemical == "caoh2", root_dose, 0)
     mgoh2 <- ifelse(chemical == "mgoh2", root_dose, 0)
-    co2 <- ifelse(chemical == "co2", root_dose, 0)
 
     waterfin <- suppressWarnings(
       chemdose_ph(
@@ -189,8 +187,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
         na2co3 = na2co3,
         nahco3 = nahco3,
         caoh2 = caoh2,
-        mgoh2 = mgoh2,
-        co2 = co2
+        mgoh2 = mgoh2
       )
     )
     alkfin <- waterfin@alk
@@ -201,7 +198,7 @@ solvedose_alk <- function(water, target_alk, chemical) {
   # Target alkalinity can't be met
   if (
     (chemical %in% c("naoh", "na2co3", "nahco3", "caoh2", "mgoh2") & target_alk <= water@alk) |
-      (chemical %in% c("hcl", "h2so4", "h3po4", "co2") & target_alk >= water@alk) |
+      (chemical %in% c("hcl", "h2so4", "h3po4") & target_alk >= water@alk) |
       is.na(target_alk)
   ) {
     tidywater_warn("Target alkalinity cannot be reached with the selected chemical; {.val NA} returned.")

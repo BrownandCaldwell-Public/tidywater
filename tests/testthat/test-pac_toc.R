@@ -8,6 +8,33 @@ test_that("pac_toc returns no removed DOC value when PAC dose is 0.", {
   expect_equal(water2@doc, water1@doc)
 })
 
+test_that("pac_toc returns the input water unchanged when dose or time is 0.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 60, toc = 1.3, doc = 1.0, uv254 = 0.08))
+
+  expect_match(capture_warnings(pac_toc(water1, dose = 0, time = 20)), "final water will equal input water", all = FALSE)
+  expect_identical(suppressWarnings(pac_toc(water1, dose = 0, time = 20)), water1)
+  expect_identical(suppressWarnings(pac_toc(water1, dose = 10, time = 0)), water1)
+})
+
+test_that("pac_toc applies the DOC = 1.3 mg/L percent removal to waters below 1.3 mg/L.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 60, toc = 1.3, doc = 1.0, uv254 = 0.08))
+  water2 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 60, toc = 1.3, doc = 1.3, uv254 = 0.08))
+
+  for (pac in c("bituminous", "wood", "lignite")) {
+    low <- suppressWarnings(pac_toc(water1, dose = 10, time = 30, type = pac))
+    edge <- suppressWarnings(pac_toc(water2, dose = 10, time = 30, type = pac))
+    expect_equal(low@doc / water1@doc, edge@doc / water2@doc)
+    expect_lt(low@doc, water1@doc)
+  }
+})
+
+test_that("pac_toc clamps UV254 at 0.", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, alk = 60, toc = 1.3, doc = 1.3, uv254 = 0.08))
+  water2 <- suppressWarnings(pac_toc(water1, dose = 20, time = 20))
+
+  expect_equal(water2@uv254, 0)
+})
+
 test_that("No water defined, no default listed", {
   expect_error(pac_toc(dose = 15, time = 50, type = "wood")) # argument water is missing, with no default
 })
@@ -56,7 +83,8 @@ test_that("pac_toc works", {
 
   water5 <- suppressWarnings(define_water(doc = 1, uv254 = .05))
   water6 <- suppressWarnings(pac_toc(water5, dose = 15, time = 20))
-  expect_equal(round(water6@doc, 2), 0.91)
+  # Same % removal as DOC = 1.3: (0.156 + 0.911 * 1.3 - 0.0263 * 15 - 0.002 * 20) / 1.3 * 1
+  expect_equal(round(water6@doc, 2), 0.70)
 })
 
 test_that("Error when an unaccepted PAC type is entered.", {

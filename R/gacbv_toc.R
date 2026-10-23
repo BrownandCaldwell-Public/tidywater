@@ -9,9 +9,11 @@
 #' "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
 #' function instead or an unquoted column name can be provided.
 #'
-#' Water must contain DOC or TOC value.
+#' Water must contain a DOC value (or TOC, from which [define_water] estimates DOC).
 #'
 #' @details The function will calculate bed volume required to achieve given target DOC values.
+#' Both models were published in terms of TOC. GAC influent is normally coagulated and filtered, so particulate organic
+#' carbon is negligible and TOC = DOC; tidywater therefore applies the models to influent DOC.
 #'
 #'
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -22,7 +24,7 @@
 #' @param ebct Empty bed contact time (minutes). Model results are valid for 10 or 20 minutes. Default is 10 minutes.
 #' @param model Specifies which GAC TOC removal model to apply. Options are Zachman and WTP.
 #' @param media_size Size of GAC filter mesh. Model includes 12x40 and 8x30 mesh sizes. Default is 12x40.
-#' @param target_doc Optional input to set a target DOC concentration and calculate necessary bed volume
+#' @param target_doc Target effluent DOC concentration (mg/L). Can be a vector to return a bed volume for each target.
 #'
 #' @examples
 #' water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
@@ -50,7 +52,7 @@ gacbv_toc <- function(water, ebct = 10, model = "Zachman", media_size = "12x40",
     cli::cli_abort("{.arg target_doc} is outside the range for the chosen model. Use {.fn gacrun_toc} for the complete breakthrough curve.")
   }
 
-  x_index <- sapply(target_doc * water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
+  x_index <- sapply(target_doc / water@doc, function(x) which.min(abs(breakthrough_df$x_norm - x))) # should work with input of multiple target DOCs
   output_bv <- data.frame(bed_volume = breakthrough_df$bv[x_index])
 
   return(output_bv)

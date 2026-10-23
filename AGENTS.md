@@ -150,6 +150,9 @@ and regenerate.
   convention: roughly a third of the suite is skipped this way (see
   `tests/testthat/test-balance_ions.R` for the pattern). Keep the fast single-water
   tests running on CRAN so the package is still meaningfully checked there.
+- Default to `|` and `&` in conditions. Use `||` or `&&` only when short-circuiting is actually
+  needed, e.g. `is.null(x) || is.na(x)`, where the right side would error or return `logical(0)` if
+  evaluated. Reviewers find unneeded `||`/`&&` confusing, and it has been a recurring review comment.
 - R >= 4.1 is the floor, so the native `|>` pipe is available; `%>%` is also
   re-exported and used throughout.
 
@@ -210,10 +213,16 @@ Guidance on results:
 ## Pull requests
 
 - Branch from `main`.
-- Add a `NEWS.md` bullet at the top for any user-facing change, including the issue
-  number and GitHub username, following the
-  [tidyverse NEWS style](https://style.tidyverse.org/news.html).
+- Add a `NEWS.md` bullet at the top for any user-facing change, following the
+  [tidyverse NEWS style](https://style.tidyverse.org/news.html). The issue number and
+  GitHub username are only needed for contributors outside the tidywater core team
+  (Sierra Johnson @sierrajohnson, Libby McKenna @libbymckenna, Jiaming Yuan @jiamingy5).
 - The PR body should contain `Fixes #issue-number`.
+- If the PR is entirely agent-generated, say so at the top of the description, not the bottom.
+- Keep PR descriptions brief. Mention each issue or PR number only once.
+- For minor changes, test results don't need to be reported in the PR description.
+- Don't run the full test suite locally; CI runs it. Run tests only for the files you touch, e.g.
+  `devtools::test(filter = "ozonate_bromate")`.
 - **CI fails on NOTEs**, not just errors and warnings — `R-CMD-check.yaml` sets
   `error-on: '"note"'`. Undocumented arguments, mismatched usage sections, and
   non-standard files in the package root will all fail the build. Update
