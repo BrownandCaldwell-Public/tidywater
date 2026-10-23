@@ -13,6 +13,7 @@
 ^DISCLAIMER\.md$
 ^GOVERNANCE\.md$
 ^SECURITY\.md$
+^AI_POLICY\.md$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$

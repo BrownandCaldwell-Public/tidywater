@@ -69,6 +69,14 @@ See tidyverse guide on [how to create a great issue](https://code-review.tidyver
    Contributions with test cases included are easier to accept.  
 
 
+## Use of generative AI
+
+AI tools may be used to contribute, subject to the [AI policy](AI_POLICY.md). In short: disclose AI use in your PR, point agents
+to [AGENTS.md](AGENTS.md), and review agent-generated work yourself before requesting review. Agent-written code must keep the
+existing architecture, and agent-added dependencies get extra scrutiny. Output changes need verification against the source
+publication or detailed review of the changed tests, and new models always need the former.
+
+
 ## Licensing
 * This package and any contributions you make will be licensed under MIT and Apache 2.0.
 * See [GitHub's terms of service](https://docs.github.com/en/site-policy/github-terms/github-terms-of-service#6-contributions-under-repository-license) 
