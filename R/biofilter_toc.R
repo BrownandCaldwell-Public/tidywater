@@ -1,4 +1,4 @@
-#' @title Determine TOC removal from biofiltration using Terry & Summers BDOC model or Peterson & Summers TOC model
+#' @title Determine TOC removal from biofiltration using Terry & Summers, Peterson & Summers, or Terry et al  models
 #'
 #' @description This function applies the Terry model to a water created by [define_water] to determine biofiltered
 #' DOC (mg/L). The Terry & Summers (2018) model does not adjust for ozone dose but assumes a constant biodegradable fraction based on 
@@ -6,7 +6,7 @@
 #' The Peterson & Summers (2021) model does not adjust for temperature impacts due to a lack of collected temperature data in the metanalysis literature. 
 #' Peterson & Summers (2021) is also a TOC-basis model, so the output water object's BDOC slot will not be updated.
 #' If a lab-measured ATP concentration is known, the Terry et al. (2024) model can be used to determine biofiltered DOC (mg/L) for both drinking water and reuse.
-#' The Terry et al. (2024) model has similar bdoc assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
+#' The Terry et al. (2024) model has similar BDOC assumptions as Terry & Summers (2018), but the model ATP value can be adjusted for biofilter water temperature.
 #' For all three models, all particulate TOC is assumed to be removed so TOC = DOC.
 #' For a single water use `biofilter_toc`; for a dataframe use `biofilter_toc_df`.
 #' Use `pluck_cols = TRUE` to get values from the output water as new dataframe columns.
@@ -16,7 +16,8 @@
 #'
 #' @param water Source water object of class "water" created by [define_water].
 #' @param ebct The empty bed contact time (min) used for the biofilter.
-#' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise. Ignored if ATP is provided.
+#' @param ozonated Logical; TRUE if the water is ozonated (default), FALSE otherwise. Used by the Terry & Summers (2018) model and to select the
+#' BDOC fraction for reuse waters in the Terry et al. (2024) ATP model. Ignored by the Peterson & Summers (2021) model, which uses `ozone_dose` instead.
 #' @param ozone_dose The ozone dose (mg/L) applied to the water. Only used if `reuse = TRUE`.
 #' @param reuse Logical; TRUE if the water is effluent from a reuse treatment process, FALSE otherwise. 
 #' If TRUE, the Peterson and Summers (2021) model is used to determine TOC removal. If FALSE, the Terry and Summers (2018) model is used to determine BDOC removal.
@@ -39,6 +40,9 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
   if (!is.logical(ozonated)) {
     cli::cli_abort("{.arg ozonated} must be {.code TRUE} or {.code FALSE}.")
   }
+  if (!is.numeric(ebct) || ebct <= 0) {
+    cli::cli_abort("{.arg ebct} must be a positive number (min).")
+  }
 
   temp <- water@temp
 
@@ -46,12 +50,15 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
 
   if (reuse == TRUE & atp == 0) {
     # Peterson and Summers (2021)
+    if (ozonated & ozone_dose == 0) {
+      tidywater_warn("{.arg ozonated} is TRUE but {.arg ozone_dose} is 0. The Peterson and Summers model uses {.arg ozone_dose}, so no ozone effect is applied.")
+    }
     spec_ozone <- ozone_dose / water@toc
     if (spec_ozone < 0 | spec_ozone > 1.2) {
-      cli::cli_warn("Peterson and Summers model was validated for an ozone to TOC ratio of 0 - 1.2. Model accuracy may be reduced outside this range.")
+      tidywater_warn("Peterson and Summers model was validated for an ozone to TOC ratio of 0 - 1.2. Model accuracy may be reduced outside this range.")
     }
     if (ebct < 5 | ebct > 30) {
-      cli::cli_warn("Peterson and Summers model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
+      tidywater_warn("Peterson and Summers model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
     }
 
     # assumes media type associated with 0.0873 is BAC
@@ -120,7 +127,7 @@ biofilter_toc <- function(water, ebct, ozonated = TRUE, ozone_dose = 0, reuse = 
   } else if (atp > 0) {
     # Terry et al. (2024) model for both drinking water and reuse when ATP data is available
     if (ebct < 5 | ebct > 30) {
-      cli::cli_warn("Terry et al. model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
+      tidywater_warn("Terry et al. model was validated for EBCT range of 5 - 30 min. Model accuracy may be reduced outside this range.")
     }
     
     if (reuse == FALSE) {

@@ -68,8 +68,8 @@ chemdose_toc <- function(
     coeff <- subset(tidywater::chemdosetoccoeff, tidywater::chemdosetoccoeff$ID == coeff)
     if (nrow(coeff) != 1) {
       cli::cli_abort("{.arg coeff} must be one of {.val Alum}, {.val Ferric}, {.val General Alum}, 
-      {.val General Ferric}, {.val Low DOC}, {.val Reuse General Langmuir}, {.val Reuse Site Langmuir}, 
-      {.val Reuse General Linear}, {.val Reuse Site Linear}, or a data frame of coefficients.")
+      {.val General Ferric}, or {.val Low DOC} for drinking water; or {.val Reuse General Langmuir}, {.val Reuse Site Langmuir}, 
+      {.val Reuse General Linear}, {.val Reuse Site Linear} for reuse; or a data frame of named coefficients.")
     }
     if (grepl("Reuse", coeff$ID)) {
       model_type <- ifelse(grepl("Langmuir", coeff$ID), "Reuse Langmuir", "Reuse Linear")
@@ -90,6 +90,14 @@ chemdose_toc <- function(
       cli::cli_abort("{.arg coeff} dataframe must contain either: Edwards model {.val (k1, k2, x1, x2, x3, b)}, Langmuir reuse model {.val (fns, x1, x2, x3, b)}, or Linear reuse model {.val (fns, z0, z1, z2)} coefficients.")
     }
     coeff <- coeff[1, , drop = FALSE]
+    required_cols <- switch(model_type,
+      "Edwards" = c("k1", "k2", "x1", "x2", "x3", "b"),
+      "Reuse Langmuir" = c("x1", "x2", "x3", "b"),
+      "Reuse Linear" = c("z0", "z1", "z2")
+    )
+    if (any(is.na(coeff[, required_cols]))) {
+      cli::cli_abort("{.arg coeff} data frame cannot contain NA values in {.val {required_cols}}.")
+    }
   } else {
     cli::cli_abort("{.arg coeff} must be a string or data frame. See documentation for acceptable formats.")
   }
@@ -138,14 +146,9 @@ chemdose_toc <- function(
       removed <- (4.657 * 10^-4) * water@toc^1.3843 * water@ph^2.2387 * caoh2^0.1707 * (1 + coag2)^2.4402
       removed <- removed / 0.87 # apply correction factor
 
-      if (coag == 0) {
-        water@doc <- water@doc
-        water@uv254 <- water@uv254
-      } else {
-        water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
-        water@doc <- water@doc - removed
-        water@toc <- water@doc
-      }
+      water@uv254 <- 0.01685 * removed^0.8367 * suva^1.2501
+      water@doc <- water@doc - removed
+      water@toc <- water@doc
     } else if (water@ph >= 8) {
       nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
 
@@ -160,14 +163,9 @@ chemdose_toc <- function(
         1) /
         (2 * b)
 
-      if (coag == 0) {
-        water@doc <- water@doc
-        water@uv254 <- water@uv254
-      } else {
-        water@doc <- nonadsorb + adsorb
-        water@toc <- nonadsorb + adsorb
-        water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
-      }
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
       tidywater_warn("pH>8 is outside Edwards model range; assumed pH==8 for modeling.")
     } else {
       nonadsorb <- water@doc * (coeff$k1 * suva + coeff$k2)
@@ -183,19 +181,17 @@ chemdose_toc <- function(
         1) /
         (2 * b)
 
-      if (coag == 0) {
-        water@doc <- water@doc
-        water@uv254 <- water@uv254
-      } else {
-        water@doc <- nonadsorb + adsorb
-        water@toc <- nonadsorb + adsorb
-        water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
-      }
+      water@doc <- nonadsorb + adsorb
+      water@toc <- nonadsorb + adsorb
+      water@uv254 <- 5.716 * water@uv254^1.0894 * coag2^0.306 * water@ph^-.9513
     }
   } else if (grepl("Reuse", model_type)) {
     # Wilder & Korak (2025) reuse model, fit on alum; ACH and PACl are treated as equivalent Al3+
     if (ferricchloride > 0 | ferricsulfate > 0) {
       cli::cli_abort("Reuse models only apply to aluminum coagulants (alum, ACH, PACl). Remove ferric doses or use an Edwards {.arg coeff}.")
+    }
+    if (caoh2 > 0) {
+      tidywater_warn("{.arg caoh2} is not used by the Wilder & Korak reuse models and will be ignored.")
     }
 
     if (!is.na(coeff$fns)) {
@@ -210,7 +206,7 @@ chemdose_toc <- function(
       cli::cli_abort("{.arg fns} must be between 0 and 1.")
     }
 
-    alum_eq <- convert_units(coag / 2, "alum", startunit = "mM", endunit = "mg/L") # ACH/PACl as equivalent alum
+    alum_eq <- convert_units(coag / 2, "alum", startunit = "mM", endunit = "mg/L") # ACH/PACl as mg/L alum
     if (water@ph < 5.5 | water@ph > 8) {
       tidywater_warn("Wilder & Korak reuse models were validated for coagulation pH 5.5 - 8. Model accuracy may be reduced outside this range.")
     }

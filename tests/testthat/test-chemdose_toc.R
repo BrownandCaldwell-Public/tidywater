@@ -136,7 +136,10 @@ test_that("chemdose_toc reuse model works at high pH", {
 
   water1 <- suppressWarnings(chemdose_toc(water0, alum = 3, coeff = "Reuse General Langmuir"))
   water2 <- suppressWarnings(chemdose_toc(water0, alum = 3, coeff = "Reuse General Linear"))
-  expect_warning(chemdose_toc(water0, alum = 3, coeff = "Reuse General Langmuir"), "5.5")
+  expect_warning(
+    expect_warning(chemdose_toc(water0, alum = 3, coeff = "Reuse General Langmuir"), "5.5"),
+    "200"
+  )
 
   expect_true(water1@doc > 0)
   expect_true(water2@doc > 0)
