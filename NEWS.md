@@ -1,13 +1,9 @@
-# Development version
+# tidywater 0.11.0
 
 ## Breaking changes
 
-* Deprecated `_once` and `_chain` wrappers now pass arguments to the right parameters, which changes their output
-(#526). `chemdose_toc_once()` previously ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and
-`chemdose_ph_once()` errored. `chemdose_dbp_once()` now respects `water_prefix`, so its output columns are prefixed by
-default.
-* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs, which can change
-`toc_compliance_status` (#529).
+### Unit conversions
+
 * `convert_units()` now converts through moles of the formula, which changes some results (#156, #492):
   * mg/L as CaCO3 to or from M or eq/L now uses the formula's charge. Monovalent ions were previously off by a
   factor of 2 (e.g. 50 mg/L as CaCO3 of HCO3 is now 1 mM, not 0.5 mM). Divalent conversions like hardness and
@@ -15,106 +11,120 @@ default.
   * mg/L as N and mg/L as P count N or P atoms per formula, so (NH4)2SO4 is 2 N.
   * mg/L as Cl2 counts oxidizing capacity: NHCl2 is 2 Cl2, NCl3 is 3 Cl2, and Ca(OCl)2 is 2 Cl2.
   * Converting to mg/L as N, P, or Cl2 now errors for formulas that don't contain that element.
-* `define_water()` now warns and sets carbonate species to 0 when `alk` is less than the non-carbonate
-alkalinity (e.g. hydroxide at high pH). Carbonate species, and `dissolve_pb()` results, were negative before (#537).
-* `pac_toc()` changes (#540):
-  * For DOC below 1.3 mg/L, it now applies the same percent removal as a 1.3 mg/L water, as documented. It
-  previously returned the DOC of a 1.3 mg/L water, which could be higher than the input DOC.
-  * UV254 is set to 0 when the DOC-UV254 relationship gives a negative value.
-  * With a dose or time of 0, the input water is returned unchanged. UV254 and TOC were recalculated before.
-* `solveresid_o3()` returns 0 instead of a negative residual when ozone demand exceeds the dose, so
-`solvect_o3()` no longer returns negative CT. `solvect_o3()` with `kd` also returns 0 CT for contact times
-under 30 seconds.
-* `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously
-multiplied by DOC, which usually returned the last point of the breakthrough curve for every target (#525).
-* `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
-written in terms of TOC, but GAC influent is normally coagulated and filtered water, where TOC = DOC. `gac_toc()` sets effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
-* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
-so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
-lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
-given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
-* `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
-`free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
-5 orders of magnitude too low (#523).
-* `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts
-at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
+* `convert_units()` no longer uses edit-distance ("fuzzy") matching for units. Units are matched case-insensitively
+against a fixed list of equivalent spellings: with or without internal whitespace, with or without a slash
+(`mgL` = `mg/L`), with or without "as" (`mg/L CaCO3` = `mg/L as CaCO3`), and `mol/L` (with the usual `m`/`u`/`n`
+prefixes) as an alias for `M`. Any other unit now errors with "Units not supported" instead of silently matching an
+unrelated unit (e.g. `"CaCO3 M"` no longer matches `"mg/L CaCO3"`). Fuzzy matching for formula typos (e.g. `"caa"`
+for `"ca"`) is unchanged.
+
+### Water class and helpers
+
+* `define_water()` now warns and sets carbonate species to 0 when `alk` is less than the non-carbonate alkalinity
+(e.g. hydroxide at high pH). Carbonate species, and `dissolve_pb()` results, were negative before (#537).
 * `convert_water()`, `convert_watermg()`, and `pluck_water(parameter = "all")` no longer return the `ks` slot. It
 previously expanded into 15 columns and shifted every column name after it, so DBP and chlorine columns held
 equilibrium constants (#534). Use `water@ks` to get the equilibrium constants.
 * `convert_watermg()` returns `tot_sio4` in mg/L as SiO2, matching `define_water()` input (#530). It also converts
 `tot_citric`, `h2citric`, `h1citric`, and `citric` to mg/L as citric acid.
-* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted.
-It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
-* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
-was returned unchanged. It now errors when a column it needs is missing (#533).
-* `chemdose_toc` and `biofilter_toc` have new models specifically for reuse waters using Wilder & Korak (2025), and Peterson & Summers (2021) and Terry et al. (2024) models respectively. Models that used a user-defined data frame of coefficients for chemdose_toc may require an update to add NAs in the new coefficient fields.
+* `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both
+conversions were inverted. It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
+* `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored
+and the water was returned unchanged. It now errors when a column it needs is missing (#533).
+* `chemdose_ph_df()` and the other `chemdose_*_df()` functions gain `keep_dose_cols` (default `FALSE`), which drops the
+dose columns from the output to prevent double dosing downstream.
+* Deprecated `_once` and `_chain` wrappers now pass arguments to the right parameters, which changes their output
+(#526). `chemdose_toc_once()` previously ignored doses, `chemdose_toc_chain()` errored when `coeff` was set, and
+`chemdose_ph_once()` errored. `chemdose_dbp_once()` now respects `water_prefix`, so its output columns are prefixed by
+default.
+
+### Model corrections
+
+* `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot
+counts at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative (#524).
+* `solvect_chlorine()` now converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when
+`free_cl_slot = "slot_only"` or `"sum_with_residual"`. Before, it used the mol/L value directly, so CT came out about
+5 orders of magnitude too low (#523).
+* `solveresid_o3()` returns 0 instead of a negative residual when ozone demand exceeds the dose, so `solvect_o3()` no
+longer returns negative CT. `solvect_o3()` with `kd` also returns 0 CT for contact times under 30 seconds.
+* `dissolve_cu()` now uses orthophosphate in mg/L as PO4 in the Lytle et al. (2018) model. It previously used mol/L,
+so orthophosphate had almost no effect on predicted copper; results with orthophosphate are now lower (e.g. 2 mg/L PO4
+lowers copper by about 33%) (#508). The phosphate range warning now uses the same PO4 basis, and a new warning is
+given for DIC outside the 10 to 100 mg/L as C range the model was fit on.
+* `gacrun_toc()`, `gac_toc()`, and `gacbv_toc()` now use influent DOC, not TOC. Both the Zachman and WTP models are
+written in terms of TOC, but GAC influent is normally coagulated and filtered water, where TOC = DOC. `gac_toc()` sets
+effluent TOC equal to effluent DOC (previously DOC = 0.95 * TOC) (#525).
+* `gacbv_toc()` and `gacbv_toc_df()` now look up bed volume at C/C0 = `target_doc / doc`. They previously multiplied by
+DOC, which usually returned the last point of the breakthrough curve for every target (#525).
+* `pac_toc()` changes (#540):
+  * For DOC below 1.3 mg/L, it now applies the same percent removal as a 1.3 mg/L water, as documented. It previously
+  returned the DOC of a 1.3 mg/L water, which could be higher than the input DOC.
+  * UV254 is set to 0 when the DOC-UV254 relationship gives a negative value.
+  * With a dose or time of 0, the input water is returned unchanged. UV254 and TOC were recalculated before.
+* `regulate_toc_df()` now respects `skip_alternate` for numeric column inputs, which can change
+`toc_compliance_status` (#529).
+* `chemdose_chloramine()` previously stored free ammonia in the `tot_nh3` slot. The slot now holds total ammonia.
+* Kw is now calculated consistently with `K_temp_adjust()` using the van 't Hoff equation, assuming a constant
+enthalpy of 55,830 J/mol for H2O -> H+ + OH-. pH results change slightly at temperatures other than 25 C.
 
 ## New features
 
-* New `scavenge_oh_df()` applies `scavenge_oh()` to a data frame of waters, adding the OH radical scavenging term as a
-new column (`output_column`, default "oh_scavenging").
+* `chemdose_toc()` gains reuse-water models from Wilder & Korak (2025) for aluminum coagulants: select one of the
+"Reuse General Langmuir", "Reuse Site Langmuir", "Reuse General Linear", or "Reuse Site Linear" coefficient sets, or
+supply a custom data frame of Langmuir or linear coefficients. The site-specific models require the new `fns`
+argument.
+* `biofilter_toc()` gains `reuse`, `ozone_dose`, `media_type`, and `atp` arguments. `reuse = TRUE` uses the Peterson &
+Summers (2021) model, and a nonzero `atp` uses the Terry et al. (2024) model for drinking water or reuse.
 * New `chemdose_inorgdemand()` and `chemdose_inorgdemand_df()` calculate the free chlorine residual after the
 inorganic chlorine demand of Mn, Fe, and ammonia (#511, #532). `use_chlorine_slot = TRUE` adds the existing
 `free_chlorine` in the water to `cl2_dose`, matching `chemdose_chlordecay()`. If `cl2_dose` is omitted, the
 `free_chlorine` slot is used. The functions error when the demand exceeds the available chlorine.
-
+* New `scavenge_oh_df()` applies `scavenge_oh()` to a data frame of waters, adding the OH radical scavenging term as a
+new column (`output_column`, default "oh_scavenging").
+* `chemdose_ph()` supports polyaluminum chloride (`pacl`), currently with one Cl:Al molar ratio. `chemdose_toc()`
+supports ACH and PACl; see the documentation for units.
+* `define_water()` and `define_water_df()` gain a `no2` argument for nitrite in mg/L as N. It is stored in a new `no2`
+slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
+* The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
+`define_water()`, `chemdose_ph()`, and `blend_waters()`.
 * `convert_units()` supports mg/L as P and mg/L as Cl2, and accepts NaOCl, Ca(OCl)2, and HOCl. Parentheses in
 formulas are ignored, so "Ca(OCl)2" and "(NH4)2SO4" work. `formula` is optional when converting within the same unit
 type (e.g. mg/L to g/L or mM to M).
+* `solvemass_solids()` gains a `polymer` input and a `details` argument. With `details = TRUE`, it returns a named
+list with total and per-component solids in lb/day. The ferric sulfate conversion factor now uses explicit
+stoichiometry.
+* `balance_ions()` now includes Fe, Al, Mn, F, and Br.
 
-## Other changes
+## Bug fixes
 
-* `opensys_ph()` widens its CO2 search when more than 100 mg/L of CO2 has to be removed or added, instead of
-failing with a `uniroot()` error. If no equilibrium dose is found, it gives a clear error (#539).
-* `solvedose_alk()` no longer lists or accepts `chemical = "co2"`, since CO2 doesn't change alkalinity. It now
-errors with "Selected chemical addition is not supported" instead of a `uniroot()` error (#539).
-
+* `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
+* `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`,
+which does not use it (#528).
 * `calculate_corrosion()` and `calculate_corrosion_df()` now return `NA` for the Larson-Skold index and CSMR when
 chloride or sulfate is missing, as the warning says, instead of erroring (#538).
 * `calculate_corrosion()` and `calculate_corrosion_df()` now give a clear error for an invalid `form`. The docs now
 state that `form` applies to the Langelier and Ryznar indices and that CCPP always uses calcite (#531).
-* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
-every internal tidywater call, now go straight to the lookup table. Numeric results are unchanged. A `startunit` or
-`endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
-
-* `convert_units()` no longer uses edit-distance ("fuzzy") matching for units. Units are now matched case-insensitively
-against a fixed list of known-equivalent spellings: with or without internal whitespace, with or without a slash
-(`mgL` = `mg/L`), with or without the linking word "as" (`mg/L CaCO3` = `mg/L as CaCO3`), and `mol/L` (with the usual
-`m`/`u`/`n` prefixes) as an alias for `M`. A unit that isn't one of these exact aliases of a canonical unit now errors
-with "Units not supported" instead of silently matching an unrelated canonical unit (e.g. `"CaCO3 M"` no longer
-fuzzy-matches `"mg/L CaCO3"`, and `"N mM"` no longer fuzzy-matches `"mM"`). Formula fuzzy matching for typos (e.g.
-`"caa"` for `"ca"`) is unchanged.
-
-* `chemdose_dbp()` no longer errors when `coeff` has more than one row (#527).
-* `ozonate_bromate()` and `ozonate_bromate_df()` no longer error when `time` is omitted for `model = "Siddiqui"`, which does not use it (#528).
 * `check_water()` only adds "No issues found with water input." when no issues were found, and now adds it with
 `skip_models = TRUE` instead of returning an empty list (#541).
+* `opensys_ph()` widens its CO2 search when more than 100 mg/L of CO2 has to be removed or added, instead of failing
+with a `uniroot()` error. If no equilibrium dose is found, it gives a clear error (#539).
+* `solvedose_alk()` no longer lists or accepts `chemical = "co2"`, since CO2 doesn't change alkalinity. It now errors
+with "Selected chemical addition is not supported" instead of a `uniroot()` error (#539).
+* The pH solver handles borate and silicate correctly again; this was broken by the previous alkalinity update.
+* `convert_units()` converts to g/L as CaCO3 correctly.
+* `chemdose_ph_chain()` output column names are fixed.
+* `define_water_df()` now maps columns to `define_water()` arguments by name.
+* `biofilter_toc_df()` no longer errors when reporting how many rows a repeated warning affected.
 
-* `define_water()` and `define_water_df()` gain an `no2` argument for nitrite in mg/L as N. It is stored in a new
-`no2` slot and is supported by `modify_water()`, `convert_watermg()`, and `convert_units()`.
-* The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3` by
-`define_water()`, `chemdose_ph()`, and `blend_waters()`.
+## Other changes
 
-* Define_water_df now uses column mapping to call arguments. 
-* Updated chemdose_ph_df as well as other chemdose df functions with an additional argument, keep_dose_calls (default = FALSE), that 
-drops the output dosing columns unless told to keep to prevent double dosing.
-* Updated chemdose_ph_chain to fix column naming issues.
-* Code consistency improved with making Kw uniformly calculated with K_temp_adjust. Kw calculation now uses
-Vant Hoff equation with the assumption that delta H for H20 -> H + HO (55830 J/mol) is constant across temp ranges. 
-* Updated warnings across tidywater to use cli.
-* Added additional ions to ballance ions function calculation (Fe, Al, Mn, F, Br).
-* Updated warnings on _df functions so repeated errors are reported as a single warning. 
-* fixed issues with converting to g/L caco3 in `convert_units`.
-* Updated chemdose_ph_chain to fix column naming issues.
-* Borate and silicate fixed used pH solver. Error introduced with previous alkalinity update.
-* `chemdose_chloramine` used to output free ammonia in the `tot_nh3` slot. Updated so that the slot is actually total ammonia.
-* Add a PACl to `chemdose_ph`. Currently only supports one Cl:Al molar ratio.
-* Add ACH and PACl to `chemdose_toc`. Supports one molar mass, check documentation for units.
-* Warnings are now formatted through an internal helper that caches the rendered text of each message. Warning text is unchanged, but
-models that warn repeatedly (notably `chemdose_ph` inside `solvedose_ph`, where the warnings are suppressed anyway) are much faster.
-* Fixed an error in `biofilter_toc_df` when reporting how many rows a repeated warning affected.
-* Add polymer input to solvemass_solids and details argument. When details = TRUE, function returns a named list with total and per-component values in lb/day. Ferric sulfate conversion factor also updated to explicit stoichiometric conversion.
-
+* Warnings and errors now use cli. Repeated warnings from `_df` functions are reported once with the number of rows
+affected.
+* Warning text is cached, so models that warn repeatedly (notably `chemdose_ph()` inside `solvedose_ph()`) are much
+faster. Warning text is unchanged.
+* `convert_units()` is substantially faster. Conversions that already use canonical units and formulas, which is
+every internal tidywater call, go straight to the lookup table. Numeric results are unchanged. A `startunit` or
+`endunit` of `""` now reports "Units not supported" instead of an internal fuzzy-matching error.
 
 # tidywater 0.10.0
 
