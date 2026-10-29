@@ -73,7 +73,7 @@ if you use an agent to review a PR, a human must still review both the agent's c
 * **Focus on the tests.** Tests are how reviewers see what an agent actually changed. They must be thorough enough to show what
   the change does, including edge cases, warnings, and errors, without relying on the agent's summary. Reviewers may ask for more.
 * To keep the CRAN package fast, wrap long-running tests in `testthat::skip_on_cran()` so they still run on CI. Most `_df`
-  helper tests already do this. The golden regression tests are excluded from the built package instead.
+  helper tests already do this. 
 * For 3b changes, check the cited values against the source publication. For 3c changes, go through every changed golden value.
 * Reviewers may ask for an AI-assisted PR to be split up, explained, or reworked if it is too large or unclear to review.
 
