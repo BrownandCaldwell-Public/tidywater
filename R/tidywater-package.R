@@ -45,14 +45,15 @@ NULL
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
 "discons"
 
-#' Data frame of Edwards model coefficients
+#' Data frame of model coefficients for coagulation TOC removal
 #'
-#' A dataset containing coefficients from the Edwards (1997) model for coagulation TOC removal.
+#' A dataset containing coefficients from the Edwards (1997) model for coagulation TOC removal, 
+#' or Wilder & Korak (2025) model for reuse waters.
 #'
 #' @docType data
 #' @keywords datasets
-#' @name edwardscoeff
-#' @format A dataframe with 5 rows and 7 columns:
+#' @name chemdosetoccoeff
+#' @format A dataframe with 9 rows and 11 columns. Columns not used by a model are NA:
 #' \describe{
 #' \item{ID}{Coefficient type}
 #' \item{x3}{x3 parameter}
@@ -61,10 +62,14 @@ NULL
 #' \item{k1}{k1 parameter}
 #' \item{k2}{k2 parameter}
 #' \item{b}{b parameter}
+#' \item{fns}{Fraction of non-sorbing DOC}
+#' \item{z0}{z0 parameter}
+#' \item{z1}{z1 parameter}
+#' \item{z2}{z2 parameter}
 #' }
-#' @source Edwards (1997) Table 2.
+#' @source Edwards (1997) Table 2. Wilder & Korak (2025) Table 1.
 #' @source See references list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
-"edwardscoeff"
+"chemdosetoccoeff"
 
 #' Data frame of water quality parameters
 #'

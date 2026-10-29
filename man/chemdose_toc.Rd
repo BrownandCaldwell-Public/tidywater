@@ -7,6 +7,8 @@
 \source{
 Edwards (1997)
 
+Wilder & Korak (2025)
+
 U.S. EPA (2001)
 
 See reference list at: \url{https://github.com/BrownandCaldwell-Public/tidywater/wiki/References}
@@ -20,7 +22,8 @@ chemdose_toc(
   ach = 0,
   pacl = 0,
   coeff = "Alum",
-  caoh2 = 0
+  caoh2 = 0,
+  fns = NA_real_
 )
 
 chemdose_toc_df(
@@ -36,7 +39,8 @@ chemdose_toc_df(
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  coeff = "use_col"
+  coeff = "use_col",
+  fns = "use_col"
 )
 }
 \arguments{
@@ -53,9 +57,14 @@ chemdose_toc_df(
 \item{pacl}{Amount of polyaluminum chloride added in mg/L as Al2O3 (assumed Cl:Al ratio = 0.9): Al2(OH)4.2Cl(1.8) + #HCO3 -> 2Al(OH)3(am) + 1.8Cl + #H2O + #CO2....}
 
 \item{coeff}{String specifying the Edwards coefficients to be used from "Alum", "Ferric", "General Alum", "General Ferric", or "Low DOC" or
-data frame of coefficients, which must include: k1, k2, x1, x2, x3, b}
+data frame of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse waters (aluminum coagulants only), Wilder & Korak string specifying coefficients can be used from "Reuse General Langmuir", "Reuse Site Langmuir",
+"Reuse General Linear", "Reuse Site Linear", or a dataframe of coefficients that must include: fns, x1, x2, x3, b for Langmuir or fns, z0, z1, z2 for Linear. Reuse models were validated for coagulation pH 5.5 - 8 and 20 - 200 mg/L alum. See reference list for more information.}
 
 \item{caoh2}{Option to add caoh2 in mg/L to soften the water. Will predict DOC, TOC, UV254 using a modified equation (see reference list). Defaults to zero.}
+
+\item{fns}{Fraction of non-sorbing DOC (0 - 1), required for the site-specific reuse models ("Reuse Site Langmuir" and "Reuse Site Linear").
+Measured as the fraction of DOC remaining after coagulation with 200 mg/L alum at pH 6 (Wilder & Korak 2025). The general reuse models use fixed
+values of 0.649 (Langmuir) and 0.650 (Linear); a supplied \code{fns} is ignored with a warning. Not used by Edwards models.}
 
 \item{df}{a data frame containing a water class column, which has already been computed using
 \link{define_water_df}. The df may include a column named for the coagulant being dosed,
@@ -79,8 +88,11 @@ concentrations. Optionally, it also adds columns for each of those slots individ
 }
 \description{
 This function applies the Edwards (1997) model to a water created by \link{define_water} to determine coagulated
-DOC. Model assumes all particulate TOC is removed; therefore TOC = DOC in output.
-Coagulated UVA is from U.S. EPA (2001) equation 5-80. Note that the models rely on pH of coagulation. If
+DOC. Reuse waters with effluent organic matter (EfOM) can be modeled by selecting one of the Wilder & Korak (2025) models
+with \code{coeff}. Reuse models apply only to aluminum coagulants (alum, ACH, PACl). Model assumes all particulate TOC is removed;
+therefore TOC = DOC in output.
+Coagulated UVA is from U.S. EPA (2001) equation 5-80 for Edwards (1997) model and a regression for the Wilder & Korak (2025) model.
+Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize \link{chemdose_ph} first.
 For a single water use \code{chemdose_toc}; for a dataframe use \code{chemdose_toc_df}.
 Use \code{pluck_cols = TRUE} to get values from the output water as new dataframe columns.

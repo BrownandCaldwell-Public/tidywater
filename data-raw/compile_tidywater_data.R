@@ -148,56 +148,33 @@ water_df <- data.frame(
 
 usethis::use_data(water_df, overwrite = TRUE)
 
-# edwardscoeff ----
-# Data frame of Edwards model coefficients
-edwardscoeff <- data.frame(
-  ID = "Alum",
-  x3 = 4.91,
-  x2 = -74.2,
-  x1 = 284,
-  k1 = -0.075,
-  k2 = 0.56,
-  b = 0.147
-) %>%
-  add_row(
-    ID = "Ferric",
-    x3 = 4.96,
-    x2 = -73.9,
-    x1 = 280,
-    k1 = -0.028,
-    k2 = 0.23,
-    b = 0.068
-  ) %>%
-  add_row(
-    ID = "Low DOC",
-    x3 = 6.44,
-    x2 = -99.2,
-    x1 = 387,
-    k1 = -0.053,
-    k2 = 0.54,
-    b = 0.107
-  ) %>%
-  add_row(
-    ID = "General Alum",
-    x3 = 6.42,
-    x2 = -98.6,
-    x1 = 383,
-    k1 = -0.054,
-    k2 = 0.54,
-    b = 0.145
-  ) %>%
-  add_row(
-    ID = "General Ferric",
-    x3 = 6.42,
-    x2 = -98.6,
-    x1 = 383,
-    k1 = -0.054,
-    k2 = 0.54,
-    b = 0.092
-  )
-rownames(edwardscoeff) <- edwardscoeff$ID
+# chemdosetoccoeff ----
+# Data frame of Edwards and reuse model coefficients
+# Edwards models (Alum, Ferric, etc.): k1, k2, x1, x2, x3, b (DOC removal)
+# Reuse Langmuir models: fns, x1, x2, x3, b (EfOM sorption)
+# Reuse Linear models: fns, z0, z1, z2 (EfOM sorption)
+chemdosetoccoeff <- data.frame(
+  ID = c(
+    "Alum", "Ferric", "Low DOC", "General Alum", "General Ferric",
+    "Reuse General Langmuir", "Reuse Site Langmuir",
+    "Reuse General Linear", "Reuse Site Linear"
+  ),
+  # Edwards DOC removal coefficients
+  k1 = c(-0.075, -0.028, -0.053, -0.054, -0.054, NA_real_, NA_real_, NA_real_, NA_real_),
+  k2 = c(0.56, 0.23, 0.54, 0.54, 0.54, NA_real_, NA_real_, NA_real_, NA_real_),
+  x1 = c(284, 280, 387, 383, 383, 289, 308, NA_real_, NA_real_),
+  x2 = c(-74.2, -73.9, -99.2, -98.6, -98.6, -74.3, -73.5, NA_real_, NA_real_),
+  x3 = c(4.91, 4.96, 6.44, 6.42, 6.42, 4.82, 4.50, NA_real_, NA_real_),
+  b = c(0.147, 0.068, 0.107, 0.145, 0.092, 0.308, 0.149, NA_real_, NA_real_),
+  # Reuse model coefficients
+  fns = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 0.649, NA_real_, 0.650, NA_real_),
+  z0 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 636, 320),
+  z1 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, -165, -79.5),
+  z2 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 10.7, 5.06)
+)
+rownames(chemdosetoccoeff) <- chemdosetoccoeff$ID
 
-usethis::use_data(edwardscoeff, overwrite = TRUE)
+usethis::use_data(chemdosetoccoeff, overwrite = TRUE)
 
 # leadsol_constants ----
 # Data frame of equilibrium constants for lead and copper solubility
@@ -1521,12 +1498,6 @@ vlog_removalcts <- data.frame(
     temp_value = 20,
     ct_range = "22",
     vlog_removal = 4.0
-  ) %>%
-  add_row(
-    ph_range = "6-9",
-    temp_value = 25,
-    ct_range = "1",
-    vlog_removal = 2.0
   ) %>%
   add_row(
     ph_range = "6-9",

@@ -47,6 +47,7 @@ equilibrium constants (#534). Use `water@ks` to get the equilibrium constants.
 It also accepts `tbaa` and no longer lists the nonexistent `baa` slot (#522).
 * `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water
 was returned unchanged. It now errors when a column it needs is missing (#533).
+* `chemdose_toc` and `biofilter_toc` have new models specifically for reuse waters using Wilder & Korak (2025), and Peterson & Summers (2021) and Terry et al. (2024) models respectively. Models that used a user-defined data frame of coefficients for chemdose_toc may require an update to add NAs in the new coefficient fields.
 
 ## New features
 
