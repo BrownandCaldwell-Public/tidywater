@@ -58,14 +58,15 @@ test_that("regression: biofilter_toc reuse media x ozone dose x ebct", {
 })
 
 test_that("regression: biofilter_toc ATP model (Terry et al. 2024)", {
+  # Biofilter media ATP is typically 100 - 1000 ng/cm3.
   testthat::skip_on_cran()
   modes <- list(
     drinking = list(reuse = FALSE, ozonated = TRUE),
     reuse_oz = list(reuse = TRUE, ozonated = TRUE),
     reuse_nonoz = list(reuse = TRUE, ozonated = FALSE)
   )
-  grid <- expand.grid(mode = names(modes), atp = c(5, 50), temp = c(5, 22, 30), ebct = 15, stringsAsFactors = FALSE)
-  grid <- rbind(grid, expand.grid(mode = names(modes), atp = 50, temp = 22, ebct = c(3, 30), stringsAsFactors = FALSE))
+  grid <- expand.grid(mode = names(modes), atp = c(100, 1000), temp = c(5, 22, 30), ebct = 15, stringsAsFactors = FALSE)
+  grid <- rbind(grid, expand.grid(mode = names(modes), atp = 1000, temp = 22, ebct = c(3, 30), stringsAsFactors = FALSE))
   out <- lapply(seq_len(nrow(grid)), function(i) {
     m <- modes[[grid$mode[i]]]
     suppressWarnings(biofilter_toc(
@@ -84,15 +85,15 @@ test_that("regression: biofilter_toc reuse and ATP options", {
       reuse_media_upper = biofilter_toc(reuse_water(), ebct = 10, reuse = TRUE, media_type = "GAC", ozone_dose = 2),
       reuse_cold = biofilter_toc(reuse_water(5), ebct = 10, reuse = TRUE, ozone_dose = 2),
       reuse_doc_only = biofilter_toc(suppressWarnings(define_water(ph = 7, temp = 12, alk = 50, doc = 2.5)), ebct = 8, reuse = TRUE),
-      atp_doc_only = biofilter_toc(suppressWarnings(define_water(ph = 7, temp = 12, alk = 50, doc = 2.5)), ebct = 8, atp = 20)
+      atp_doc_only = biofilter_toc(suppressWarnings(define_water(ph = 7, temp = 12, alk = 50, doc = 2.5)), ebct = 8, atp = 500)
     )),
     "biofilter_toc_reuse_options"
   )
 
   # The ATP model ignores ozone_dose and media_type.
   expect_identical(
-    suppressWarnings(biofilter_toc(reuse_water(), ebct = 10, reuse = TRUE, atp = 20, ozone_dose = 4, media_type = "gac")),
-    suppressWarnings(biofilter_toc(reuse_water(), ebct = 10, reuse = TRUE, atp = 20))
+    suppressWarnings(biofilter_toc(reuse_water(), ebct = 10, reuse = TRUE, atp = 500, ozone_dose = 4, media_type = "gac")),
+    suppressWarnings(biofilter_toc(reuse_water(), ebct = 10, reuse = TRUE, atp = 500))
   )
 })
 

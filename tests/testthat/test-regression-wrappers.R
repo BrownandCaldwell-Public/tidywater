@@ -89,8 +89,8 @@ test_that("regression: water-returning _df helpers match base functions", {
     map_base(df, biofilter_toc, ebct = 12, reuse = TRUE, ozone_dose = 2, media_type = "gac")
   )
   expect_same_outputs(
-    run(biofilter_toc_df, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 30),
-    map_base(df, biofilter_toc, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 30)
+    run(biofilter_toc_df, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 500),
+    map_base(df, biofilter_toc, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 500)
   )
   expect_same_outputs(
     run(chemdose_chloramine_df, time = 10, cl2 = 4, nh3 = 1),
@@ -178,7 +178,7 @@ test_that("regression: _df helpers read arguments from columns", {
   )
   expect_same_outputs(from_cols, base)
 
-  df$atp <- c(0, 10, 40, 100)
+  df$atp <- c(0, 100, 500, 1500)
   from_cols <- suppressWarnings(biofilter_toc_df(df, output_water = "out", ebct = 10, reuse = TRUE))$out
   base <- Map(function(w, atp) suppressWarnings(biofilter_toc(w, ebct = 10, reuse = TRUE, atp = atp)), df$defined, df$atp)
   expect_same_outputs(from_cols, base)

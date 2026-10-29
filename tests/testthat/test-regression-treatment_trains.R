@@ -124,7 +124,7 @@ test_that("regression: reuse coagulation, ozone, and biofiltration", {
     coag <- chemdose_toc(coag_ph, alum = 60, coeff = "Reuse Site Langmuir", fns = 0.55)
     ozonated <- ozonate_bromate(coag, dose = 4, time = 10, model = "Ozekin")
     biofiltered <- biofilter_toc(ozonated, ebct = 12, reuse = TRUE, ozone_dose = 4, media_type = "gac")
-    biofiltered_atp <- biofilter_toc(ozonated, ebct = 12, reuse = TRUE, ozonated = TRUE, atp = 40)
+    biofiltered_atp <- biofilter_toc(ozonated, ebct = 12, reuse = TRUE, ozonated = TRUE, atp = 1000)
     gac <- gac_toc(biofiltered, ebct = 15, model = "WTP", bed_vol = 8000, pretreat = "o3biof")
     list(
       raw = raw, coag = coag, ozonated = ozonated, biofiltered = biofiltered,
