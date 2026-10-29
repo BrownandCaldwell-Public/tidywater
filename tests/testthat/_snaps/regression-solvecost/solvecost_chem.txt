@@ -1,0 +1,13 @@
+alum_30mgL_10mgd_day :: value = 750.6
+naoh_50pct_day :: value = 405.324
+alum_30mgL_10mgd_month :: value = 22830.77502
+naoh_50pct_month :: value = 12328.6185108
+alum_30mgL_10mgd_year :: value = 274156.65
+naoh_50pct_year :: value = 148044.591
+vector_doses :: 1 = 0
+vector_doses :: 2 = 29.7535135135135
+vector_doses :: 3 = 104.137297297297
+vector_doses :: 4 = 238.028108108108
+vector_flows_month :: 1 = 1116.1712232
+vector_flows_month :: 2 = 2232.3424464
+vector_flows_month :: 3 = 55808.56116

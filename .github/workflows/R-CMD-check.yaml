@@ -49,3 +49,20 @@ jobs:
           error-on: '"note"'
           upload-snapshots: true
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
+
+      # The golden regression tests are left out of the built package (.Rbuildignore), so R CMD check
+      # doesn't run them. Run them here from the source tree instead.
+      - name: Regression (golden) tests
+        if: ${{ !cancelled() }}
+        env:
+          NOT_CRAN: true
+        run: testthat::test_local(filter = "regression", stop_on_failure = TRUE)
+        shell: Rscript {0}
+
+      - name: Upload changed goldens
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-snapshots-${{ matrix.config.os }}-${{ matrix.config.r }}
+          path: tests/testthat/_snaps/regression-*/*.new.txt
+          if-no-files-found: ignore

@@ -156,6 +156,48 @@ and regenerate.
 - R >= 4.1 is the floor, so the native `|>` pipe is available; `%>%` is also
   re-exported and used throughout.
 
+## Numeric regression (golden) tests
+
+`tests/testthat/test-regression-*.R` pin the **current** output of every exported model: every slot of every
+returned `water`, over a wide grid of scenario waters and options. They exist so refactors can't silently change
+results. They are not validation. Reference checks against published values stay in the regular `test-*.R`
+files. Never edit those to make a change pass.
+
+- `expect_golden(list(case = output, ...), "name")` (in `tests/testthat/helper-regression.R`) writes
+  `_snaps/regression-<topic>/<name>.txt`, one `case :: output = value` line per value. Later runs compare each
+  number with `|new - old| <= abs_tol + rel_tol * |old|`. Text and `NA` must match exactly.
+- The default is `rel_tol = 1e-8`. Loosen only where a solver limits precision, and say why in a comment. Current
+  exceptions: CCPP and `opensys_ph` (`uniroot` at its default tolerance, `rel_tol = 1e-4`), and
+  `chemdose_chloramine` (ODE; differs ~1e-6 across platforms, so `rel_tol = 1e-4`, `abs_tol = 1e-12` M).
+- `regression_waters()` returns the shared scenario waters; their own outputs are pinned in
+  `test-regression-define_water.R`.
+- `test-regression-wrappers.R` checks that every `_df` helper equals its base function row by row, and that the
+  deprecated wrappers forward each argument to the parameter of the same name.
+- The regression files are kept out of the built package (`.Rbuildignore`), so `R CMD check` doesn't run them.
+  `R-CMD-check.yaml` runs them in a separate step with `testthat::test_local(filter = "regression")` on every OS,
+  and uploads any changed `.new.txt` snapshots when that step fails. Locally, `devtools::test(filter = "regression")`.
+- Every `test_that()` block in a regression file starts with `testthat::skip_on_cran()`.
+- On CI a missing snapshot is a failure, so commit new `.txt` files. Snapshots are plain text because `*.csv` is
+  gitignored.
+
+**When a golden test fails:**
+
+- **Refactor (no intended numeric change):** the refactor changed the numbers. Fix the code. Never run
+  `testthat::snapshot_accept()` or edit `_snaps/` in a refactor PR.
+- **Intended numeric change:** this is a breaking change (see guardrail 4). Review the diff with
+  `testthat::snapshot_review()`, then accept only the affected files. In the PR, list which goldens changed and
+  why.
+- **New `water` slot:** every whole-water golden gains a line per slot. Confirm the snapshot diff only adds lines
+  for the new slot (no existing value changes) before accepting.
+
+**Known bugs are pinned as-is.** A case that captures a filed bug carries a `# KNOWN-BUG #<issue>` comment,
+and a `_knownbug<issue>` name suffix where the case exists for that bug. When you fix the issue, accept the new
+values for those cases only, remove the tag, and confirm nothing else moved. `grep "KNOWN-BUG #<n>"` finds every
+test an issue touches. Issue #532 tracks open questions about model behavior that are pinned but unconfirmed.
+
+**New function or option:** add cases to the matching `test-regression-*.R`. Pass whole `water` objects so
+every slot is pinned. Keep each golden under about 3000 lines and each file under about 30 s.
+
 ## Performance — benchmark changes to core functions
 
 A handful of functions sit on the hot path of every workflow: they are called once
@@ -233,7 +275,7 @@ Guidance on results:
 
 ## Ask a human before
 
-- Anything that changes a model's numeric output.
+- Anything that changes a model's numeric output, including accepting changed golden snapshots.
 - Adding or removing a `water` slot — it affects every function and all stored data.
 - Adding a new package dependency.
 - Changing default argument values on exported functions.
