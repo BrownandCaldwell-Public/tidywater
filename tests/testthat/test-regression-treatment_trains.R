@@ -112,3 +112,24 @@ test_that("regression: data frame workflow matches the single-water chain", {
   )
   expect_golden(list(train = df), "water_df_train")
 })
+
+test_that("regression: reuse coagulation, ozone, and biofiltration", {
+  testthat::skip_on_cran()
+  steps <- suppressWarnings({
+    raw <- define_water(
+      ph = 7.2, temp = 22, alk = 180, tot_hard = 200, ca = 50, mg = 18, na = 90, k = 15, cl = 110, so4 = 80,
+      tds = 650, toc = 7.5, doc = 7, uv254 = 0.11, br = 150, tot_nh3 = 0.5
+    )
+    coag_ph <- chemdose_ph(raw, alum = 60, h2so4 = 20)
+    coag <- chemdose_toc(coag_ph, alum = 60, coeff = "Reuse Site Langmuir", fns = 0.55)
+    ozonated <- ozonate_bromate(coag, dose = 4, time = 10, model = "Ozekin")
+    biofiltered <- biofilter_toc(ozonated, ebct = 12, reuse = TRUE, ozone_dose = 4, media_type = "gac")
+    biofiltered_atp <- biofilter_toc(ozonated, ebct = 12, reuse = TRUE, ozonated = TRUE, atp = 40)
+    gac <- gac_toc(biofiltered, ebct = 15, model = "WTP", bed_vol = 8000, pretreat = "o3biof")
+    list(
+      raw = raw, coag = coag, ozonated = ozonated, biofiltered = biofiltered,
+      biofiltered_atp = biofiltered_atp, gac = gac
+    )
+  })
+  expect_golden(steps, "reuse")
+})

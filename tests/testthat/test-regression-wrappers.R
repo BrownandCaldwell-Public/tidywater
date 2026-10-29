@@ -85,6 +85,14 @@ test_that("regression: water-returning _df helpers match base functions", {
   expect_same_outputs(run(balance_ions_df, anion = "so4", cation = "ca"), map_base(df, balance_ions, anion = "so4", cation = "ca"))
   expect_same_outputs(run(biofilter_toc_df, ebct = 12, ozonated = FALSE), map_base(df, biofilter_toc, ebct = 12, ozonated = FALSE))
   expect_same_outputs(
+    run(biofilter_toc_df, ebct = 12, reuse = TRUE, ozone_dose = 2, media_type = "gac"),
+    map_base(df, biofilter_toc, ebct = 12, reuse = TRUE, ozone_dose = 2, media_type = "gac")
+  )
+  expect_same_outputs(
+    run(biofilter_toc_df, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 30),
+    map_base(df, biofilter_toc, ebct = 12, reuse = TRUE, ozonated = FALSE, atp = 30)
+  )
+  expect_same_outputs(
     run(chemdose_chloramine_df, time = 10, cl2 = 4, nh3 = 1),
     map_base(df, chemdose_chloramine, time = 10, cl2 = 4, nh3 = 1)
   )
@@ -103,6 +111,10 @@ test_that("regression: water-returning _df helpers match base functions", {
   expect_same_outputs(
     run(chemdose_toc_df, ferricchloride = 30, coeff = "Ferric"),
     map_base(df, chemdose_toc, ferricchloride = 30, coeff = "Ferric")
+  )
+  expect_same_outputs(
+    run(chemdose_toc_df, alum = 50, coeff = "Reuse Site Linear", fns = 0.6),
+    map_base(df, chemdose_toc, alum = 50, coeff = "Reuse Site Linear", fns = 0.6)
   )
   # chemdose_inorgdemand needs fe, mn, and tot_nh3, which the shared waters lack.
   df_inorg <- data.frame(id = c("fe_mn", "nh3_cl"))
@@ -156,6 +168,19 @@ test_that("regression: _df helpers read arguments from columns", {
   df$time <- c(5, 10, 15, 20)
   from_cols <- suppressWarnings(ozonate_bromate_df(df, output_water = "out", model = "Sohn"))$out
   base <- Map(function(w, dose, time) suppressWarnings(ozonate_bromate(w, dose = dose, time = time, model = "Sohn")), df$defined, df$dose, df$time)
+  expect_same_outputs(from_cols, base)
+
+  df$fns <- c(0.4, 0.5, 0.6, 0.7)
+  from_cols <- suppressWarnings(chemdose_toc_df(df, output_water = "out", coeff = "Reuse Site Langmuir"))$out
+  base <- Map(
+    function(w, alum, fns) suppressWarnings(chemdose_toc(w, alum = alum, coeff = "Reuse Site Langmuir", fns = fns)),
+    df$defined, df$alum, df$fns
+  )
+  expect_same_outputs(from_cols, base)
+
+  df$atp <- c(0, 10, 40, 100)
+  from_cols <- suppressWarnings(biofilter_toc_df(df, output_water = "out", ebct = 10, reuse = TRUE))$out
+  base <- Map(function(w, atp) suppressWarnings(biofilter_toc(w, ebct = 10, reuse = TRUE, atp = atp)), df$defined, df$atp)
   expect_same_outputs(from_cols, base)
 
   df$kdoc <- c(1.67e4, 2.5e4, 3.6e4, 2e4)
