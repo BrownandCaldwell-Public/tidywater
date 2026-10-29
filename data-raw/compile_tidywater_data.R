@@ -30,8 +30,10 @@ molec_properties <- data.frame(
   h3sio4 = c(95.107, 1),
   h2sio4 = c(94.099, 2),
   sio4 = c(92.083, 4),
-  bo3 = c(58.809, 3),
+  h4bo4 = c(78.11, 1),
+  h3bo3 = c(61.83, 0),
   no3 = c(62.005, 1),
+  no2 = c(46.005, 1),
   mno4 = c(158.032 - 39.0983, 1),
 
   # Chemicals. These only have a charge if both ions have the same charge.
@@ -42,20 +44,23 @@ molec_properties <- data.frame(
   h2so4 = c(98.079, 2),
   h3po4 = c(97.995181, 3),
   naoh = c(39.9971, 1),
-  na2co3 = c(105.98844, NA),
+  na2co3 = c(105.98844, 2),
   nahco3 = c(84.00661, 1),
   caoh2 = c(74.09268, 2),
   mgoh2 = c(58.31968, 2),
-  cacl2 = c(110.98, NA),
+  cacl2 = c(110.98, 2),
+  naocl = c(22.98977 + 16 + 35.453, 1),
+  caocl2 = c(40.078 + 2 * (16 + 35.453), 2),
   ch3cooh = c(60.05, 1),
-  fecl3 = c(55.845 + 35.453 * 3, NA),
-  na3po4 = c(163.939, NA),
+  fecl3 = c(55.845 + 35.453 * 3, 3),
+  na3po4 = c(163.939, 3),
   h2co3 = c(62.024, 2),
   naf = c(41.9882, 1),
   hno3 = c(63.0128, 1),
   nh4oh = c(18.04 + 17.008, 1),
-  nh42so4 = c(18.04 * 2 + 96.0626, NA),
+  nh42so4 = c(18.04 * 2 + 96.0626, 2),
   kmno4 = c(158.032, 1),
+  citric = c(192.12, 0),
 
   # Stuff that isn't made of ions. No charge.
   cl2 = c(70.906, NA),
@@ -66,11 +71,14 @@ molec_properties <- data.frame(
   sio2 = c(60.0843, NA),
   nh3 = c(17.031, NA),
   nh2cl = c(51.48, NA),
+  hocl = c(1.008 + 16 + 35.453, NA),
   nhcl2 = c(85.92, NA),
   ncl3 = c(120.365, NA),
   n = c(14.0067, NA),
+  p = c(30.97, NA),
   dic = c(12.011, NA),
-  h20 =c(18.015,NA),
+  h2o2 = c(34.0147, NA),
+  h2o =c(18.015,NA),
 
   # Coagulants. They do their own thing.
   alum = c(26.981539 * 2 + 96.0626 * 3 + 14 * 18.01528, 3), # 14 H2O
@@ -103,12 +111,14 @@ discons <- data.frame(
   # Ammonia
   add_row(ID = "knh4", k = 10^-9.244, deltah = 52210) %>% # NH4+ <--> NH3 + H+
   # Borate
-  add_row(ID = "kbo3", k = 10^-9.24, deltah = -42000) %>% # H4BO4- <--> H3BO3 + OH-
+  add_row(ID = "kbo4", k = 10^-9.236, deltah = 13830) %>% # H3BO3 + H2O <--> H4BO4- + H+
   # Silicate
   # H3SiO4- <--> H2SiO42- + H+; H2SiO42- <--> HSiO43- + H+
   add_row(ID = c("k1sio4", "k2sio4"), k = c(10^-9.84, 10^-13.2), deltah = c(25600, 37000)) %>%
   # Acetate
-  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) # CH3COOH <--> H+ + CH3COO-
+  add_row(ID = "kch3coo", k = 10^-4.757, deltah = -200) %>% # CH3COOH <--> H+ + CH3COO-
+  add_row(ID = "water", k =  10^-14   , deltah=  55830 ) %>% # H2O <--> H+ + OH-
+  add_row(ID= c( "k1citric","k2citric","k3citric"), k = c(10^-3.128, 10^-4.761, 10^-6.396),  deltah = c(3470, 1880, -3330)) # H3Cit <--> H+ + H2Cit ;  H2Cit <--> H+ + HCit ;  HCit <--> H+ + Cit
 rownames(discons) <- discons$ID
 
 usethis::use_data(discons, overwrite = TRUE)
@@ -138,56 +148,33 @@ water_df <- data.frame(
 
 usethis::use_data(water_df, overwrite = TRUE)
 
-# edwardscoeff ----
-# Data frame of Edwards model coefficients
-edwardscoeff <- data.frame(
-  ID = "Alum",
-  x3 = 4.91,
-  x2 = -74.2,
-  x1 = 284,
-  k1 = -0.075,
-  k2 = 0.56,
-  b = 0.147
-) %>%
-  add_row(
-    ID = "Ferric",
-    x3 = 4.96,
-    x2 = -73.9,
-    x1 = 280,
-    k1 = -0.028,
-    k2 = 0.23,
-    b = 0.068
-  ) %>%
-  add_row(
-    ID = "Low DOC",
-    x3 = 6.44,
-    x2 = -99.2,
-    x1 = 387,
-    k1 = -0.053,
-    k2 = 0.54,
-    b = 0.107
-  ) %>%
-  add_row(
-    ID = "General Alum",
-    x3 = 6.42,
-    x2 = -98.6,
-    x1 = 383,
-    k1 = -0.054,
-    k2 = 0.54,
-    b = 0.145
-  ) %>%
-  add_row(
-    ID = "General Ferric",
-    x3 = 6.42,
-    x2 = -98.6,
-    x1 = 383,
-    k1 = -0.054,
-    k2 = 0.54,
-    b = 0.092
-  )
-rownames(edwardscoeff) <- edwardscoeff$ID
+# chemdosetoccoeff ----
+# Data frame of Edwards and reuse model coefficients
+# Edwards models (Alum, Ferric, etc.): k1, k2, x1, x2, x3, b (DOC removal)
+# Reuse Langmuir models: fns, x1, x2, x3, b (EfOM sorption)
+# Reuse Linear models: fns, z0, z1, z2 (EfOM sorption)
+chemdosetoccoeff <- data.frame(
+  ID = c(
+    "Alum", "Ferric", "Low DOC", "General Alum", "General Ferric",
+    "Reuse General Langmuir", "Reuse Site Langmuir",
+    "Reuse General Linear", "Reuse Site Linear"
+  ),
+  # Edwards DOC removal coefficients
+  k1 = c(-0.075, -0.028, -0.053, -0.054, -0.054, NA_real_, NA_real_, NA_real_, NA_real_),
+  k2 = c(0.56, 0.23, 0.54, 0.54, 0.54, NA_real_, NA_real_, NA_real_, NA_real_),
+  x1 = c(284, 280, 387, 383, 383, 289, 308, NA_real_, NA_real_),
+  x2 = c(-74.2, -73.9, -99.2, -98.6, -98.6, -74.3, -73.5, NA_real_, NA_real_),
+  x3 = c(4.91, 4.96, 6.44, 6.42, 6.42, 4.82, 4.50, NA_real_, NA_real_),
+  b = c(0.147, 0.068, 0.107, 0.145, 0.092, 0.308, 0.149, NA_real_, NA_real_),
+  # Reuse model coefficients
+  fns = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 0.649, NA_real_, 0.650, NA_real_),
+  z0 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 636, 320),
+  z1 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, -165, -79.5),
+  z2 = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, NA_real_, 10.7, 5.06)
+)
+rownames(chemdosetoccoeff) <- chemdosetoccoeff$ID
 
-usethis::use_data(edwardscoeff, overwrite = TRUE)
+usethis::use_data(chemdosetoccoeff, overwrite = TRUE)
 
 # leadsol_constants ----
 # Data frame of equilibrium constants for lead and copper solubility
@@ -1232,24 +1219,32 @@ unit_multipliers <- data.frame(
   "g/L" = 1,
   "g/L CaCO3" = 1,
   "g/L N" = 1,
+  "g/L P" = 1,
+  "g/L Cl2" = 1,
   "M" = 1,
   "eq/L" = 1,
   # milli
   "mg/L" = 1e-3,
   "mg/L CaCO3" = 1e-3,
   "mg/L N" = 1e-3,
+  "mg/L P" = 1e-3,
+  "mg/L Cl2" = 1e-3,
   "mM" = 1e-3,
   "meq/L" = 1e-3,
   # micro
   "ug/L" = 1e-6,
   "ug/L CaCO3" = 1e-6,
   "ug/L N" = 1e-6,
+  "ug/L P" = 1e-6,
+  "ug/L Cl2" = 1e-6,
   "uM" = 1e-6,
   "ueq/L" = 1e-6,
   # nano
   "ng/L" = 1e-9,
   "ng/L CaCO3" = 1e-9,
   "ng/L N" = 1e-9,
+  "ng/L P" = 1e-9,
+  "ng/L Cl2" = 1e-9,
   "nM" = 1e-9,
   "neq/L" = 1e-9,
   # required to allow names with slashes
@@ -1503,12 +1498,6 @@ vlog_removalcts <- data.frame(
     temp_value = 20,
     ct_range = "22",
     vlog_removal = 4.0
-  ) %>%
-  add_row(
-    ph_range = "6-9",
-    temp_value = 25,
-    ct_range = "1",
-    vlog_removal = 2.0
   ) %>%
   add_row(
     ph_range = "6-9",

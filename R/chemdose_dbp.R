@@ -73,98 +73,98 @@ chemdose_dbp <- function(
   } else if (treatment == "coag" | treatment == "gac") {
     validate_water(water, c("doc", "uv254"))
   } else {
-    stop("Treatment must be one of c('raw', 'coag', 'gac'.")
+    cli::cli_abort("{.arg treatment} must be one of {.val raw}, {.val coag}, or {.val gac}.")
   }
 
   if (missing(cl2) | missing(time)) {
-    stop("Missing value for cl2 or time. Please check the function inputs required to calculate DBP formation.")
+    cli::cli_abort("Missing value for {.arg cl2} or {.arg time}. Please check the inputs required to calculate DBP formation.")
   }
 
   # toc/doc warnings
   if (treatment == "raw" & (toc < 1.2 | toc > 10.6)) {
-    warning("TOC is outside the model bounds of 1.2 <= TOC <= 10.6 mg/L.")
+    tidywater_warn("TOC is outside the model bounds (1.2 \u2264 TOC \u2264 10.6 mg/L).")
   }
   if (treatment == "coag" & (doc < 1.00 | doc > 7.77)) {
-    warning("DOC is outside the model bounds of 1.00 <= doc <= 7.77 mg/L for coagulated water.")
+    tidywater_warn("DOC is outside the model bounds (1.00 \u2264 DOC \u2264 7.77 mg/L) for coagulated water.")
   }
   if (treatment == "gac" & (doc < 0.14 | doc > 2.0)) {
-    warning("DOC is outside the model bounds of 0.14 <= DOC <= 2.0 mg/L for GAC treated water.")
+    tidywater_warn("DOC is outside the model bounds (0.14 \u2264 DOC \u2264 2.0 mg/L) for GAC treated water.")
   }
 
   # uv254 warnings
   if (treatment == "coag" & (uv254 < 0.016 | uv254 > 0.215)) {
-    warning("UV254 is outside the model bounds of 0.016 <= UV254 <= 0.215 cm-1 for coagulated water.")
+    tidywater_warn("UV254 is outside the model bounds (0.016 \u2264 UV254 \u2264 0.215 cm^-1) for coagulated water.")
   }
   if (treatment == "gac" & (uv254 < 0.001 | uv254 > 0.048)) {
-    warning("UV254 is outside the model bounds of 0.001 <= UV254 <= 0.048 cm-1 for GAC treated water.")
+    tidywater_warn("UV254 is outside the model bounds (0.001 \u2264 UV254 \u2264 0.048 cm^-1) for GAC treated water.")
   }
 
   # cl2 warnings
   if (treatment == "raw" & (cl2 < 1.51 | cl2 > 33.55)) {
-    warning("Chlorine is outside the model bounds of 1.51 <= Cl2 <= 33.55 mg/L for raw water.")
+    tidywater_warn("Chlorine is outside the model bounds (1.51 \u2264 Cl2 \u2264 33.55 mg/L) for raw water.")
   }
   if (treatment == "coag" & (cl2 < 1.11 | cl2 > 24.75)) {
-    warning("Chlorine is outside the model bounds of 1.11 <= Cl2 <= 24.75 mg/L for coagulated water.")
+    tidywater_warn("Chlorine is outside the model bounds (1.11 \u2264 Cl2 \u2264 24.75 mg/L) for coagulated water.")
   }
   if (treatment == "gac" & (cl2 < 0.5 | cl2 > 3.0)) {
-    warning("Chlorine is outside the model bounds of 0.5 <= Cl2 <= 3.0 mg/L for GAC treated water.")
+    tidywater_warn("Chlorine is outside the model bounds (0.5 \u2264 Cl2 \u2264 3.0 mg/L) for GAC treated water.")
   }
 
   # br warnings
   if (treatment == "raw" & (br < 7 | br > 600)) {
-    warning("Bromide is outside the model bounds of 7 <= Br <= 600 ug/L for raw water.")
+    tidywater_warn("Bromide is outside the model bounds (7 \u2264 Br \u2264 600 \u03bcg/L) for raw water.")
   }
   if (treatment == "coag" & (br < 23 | br > 308)) {
-    warning("Bromide is outside the model bounds of 23 <= Br <= 308 ug/L for coagulated water.")
+    tidywater_warn("Bromide is outside the model bounds (23 \u2264 Br \u2264 308 \u03bcg/L) for coagulated water.")
   }
   if (treatment == "gac" & (br < 10 | br > 570)) {
-    warning("Bromide is outside the model bounds of 10 <= Br <= 570 ug/L for GAC treated water.")
+    tidywater_warn("Bromide is outside the model bounds (10 \u2264 Br \u2264 570 \u03bcg/L) for GAC treated water.")
   }
 
   # temp warnings
   if (treatment == "raw" & (temp < 15 | temp > 25)) {
-    warning("Temperature is outside the model bounds of 15 <= temp <= 25 Celsius for raw water.")
+    tidywater_warn("Temperature is outside the model bounds (15 \u2264 temp \u2264 25 \u00b0C) for raw water.")
   }
   if (treatment == "coag" & temp != 20) {
-    warning("Temperature is outside the model bounds of temp=20 Celsius for coagulated water.")
+    tidywater_warn("Temperature is outside the model bounds (temp = 20 \u00b0C) for coagulated water.")
   }
   if (treatment == "gac" & (temp < 3 | temp > 33)) {
-    warning("Temperature is outside the model bounds of 3 <= temp <= 33 Celsius for GAC treated water.")
+    tidywater_warn("Temperature is outside the model bounds (3 \u2264 temp \u2264 33 \u00b0C) for GAC treated water.")
   }
 
   # ph warnings
   if (treatment == "raw" & (ph < 6.5 | ph > 8.5)) {
-    warning("pH is outside the model bounds of 6.5 <= pH <= 8.5 for raw water.")
+    tidywater_warn("pH is outside the model bounds (6.5 \u2264 pH \u2264 8.5) for raw water.")
   }
   if (treatment == "coag" & ph != 7.5) {
-    warning("pH is outside the model bounds of pH = 7.5 for coagulated water")
+    tidywater_warn("pH is outside the model bounds (pH = 7.5) for coagulated water.")
   }
   if (treatment == "gac" & (ph < 6.7 | ph > 10)) {
-    warning("pH is outside the model bounds of 6.7 <= pH <= 10 for GAC treated water.")
+    tidywater_warn("pH is outside the model bounds (6.7 \u2264 pH \u2264 10) for GAC treated water.")
   }
 
   # time warning
   if (time < 2 | time > 168) {
-    warning("Reaction time is outside the model bounds of 2 <= time <= 168 hours.")
+    tidywater_warn("{.arg time} is outside the model bounds (2 \u2264 time \u2264 168 hours).")
   }
 
   # breakpoint warning
   if (water@tot_nh3 > 0) {
-    warning("Background ammonia present, chloramines may form.\nUse chemdose_chloramine for breakpoint caclulations.")
+    tidywater_warn("Background ammonia present; chloramines may form. Use {.fn chemdose_chloramine} for breakpoint calculations.")
   }
 
   # check coeff
   if (!is.null(coeff)) {
     if (!is.data.frame(coeff)) {
-      stop("coeff must be a dataframe.")
+      cli::cli_abort("{.arg coeff} must be a data frame.")
     }
     if (!any(colnames(coeff) %in% c("ID", "A", "a", "b", "c", "d", "e", "f", "ph_const"))) {
-      stop("coeff must have the columns: ID, A, a, b, c, d, e, f, ph_const")
+      cli::cli_abort("{.arg coeff} must have the columns: {.val ID}, {.val A}, {.val a}, {.val b}, {.val c}, {.val d}, {.val e}, {.val f}, {.val ph_const}.")
     }
-    if (!coeff$ID %in% tidywater::dbpcoeffs$ID) {
-      stop("IDs in coeff must match existing DBP formulas. See dbpcoeffs for naming.")
+    if (!all(coeff$ID %in% tidywater::dbpcoeffs$ID)) {
+      cli::cli_abort("IDs in {.arg coeff} must match existing DBP formulas. See {.help tidywater::dbpcoeffs} for naming.")
     } else if (any(duplicated(coeff$ID))) {
-      stop("Only one set of coeficients can be specified per DBP. To test multiple coeff, use the _df function.")
+      cli::cli_abort("Only one set of coefficients can be specified per DBP. To test multiple coefficients, use the {.fn chemdose_dbp_df} function.")
     } else {
       changecoeff <- coeff$ID
       newcoeff <- unique(subset(tidywater::dbpcoeffs, ID %in% changecoeff, select = c(ID, alias, group)))
@@ -269,6 +269,7 @@ chemdose_dbp <- function(
 #' Alternatively, specify "all" to get all DBP species in addition: (tthm, chcl3, chcl2br, chbr2cl, chbr3, haa5, mcaa, dcaa, tcaa, mbaa, dbaa)
 #' Defaults to FALSE.
 #' @param water_prefix Append the output_water name to the start of the plucked columns. Default is TRUE.
+#' @param keep_dose_cols Option to keep the original chemical dose columns in the output data frame. Default is FALSE.
 #' @examples
 #' \donttest{
 #' example_df <- water_df %>%
@@ -301,6 +302,7 @@ chemdose_dbp_df <- function(
   output_water = "disinfected",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
@@ -369,7 +371,7 @@ chemdose_dbp_df <- function(
   output <- df[, !names(df) %in% defaults_added$defaults_used]
 
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   if (pluck_cols == TRUE) {
@@ -389,6 +391,10 @@ chemdose_dbp_df <- function(
       names(output) <- gsub(paste0(output_water, "_"), "", names(output))
     }
   }
+
+   if (!keep_dose_cols) {
+     output <- output[, !colnames(output) %in% "cl2", drop = FALSE]
+   }
 
   return(output)
 }

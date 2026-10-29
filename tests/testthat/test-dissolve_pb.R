@@ -75,6 +75,17 @@ test_that("dissolve_pb works.", {
   expect_equal(water4$controlling_solid, "Hydrocerussite")
 })
 
+test_that("dissolve_pb returns positive lead from a non-carbonate solid when carbonate is 0.", {
+  # alk is below the hydroxide alkalinity, so define_water sets carbonate species to 0
+  water1 <- suppressWarnings(
+    define_water(ph = 11, temp = 20, alk = 1, ca = 20, mg = 5, na = 20, cl = 20, so4 = 20, tds = 200)
+  )
+  lead <- dissolve_pb(water1)
+
+  expect_gt(lead$tot_dissolved_pb, 0)
+  expect_false(lead$controlling_solid %in% c("Cerussite", "Hydrocerussite"))
+})
+
 ################################################################################*
 ################################################################################*
 # dissolve_pb helper ----

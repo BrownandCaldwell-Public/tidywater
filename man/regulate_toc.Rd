@@ -5,26 +5,46 @@
 \alias{regulate_toc_df}
 \title{Determine if TOC removal meets Stage 1 DBP Rule requirements}
 \usage{
-regulate_toc(alk_raw, toc_raw, toc_finished)
+regulate_toc(
+  alk_raw,
+  toc_raw,
+  toc_finished,
+  raw_water,
+  treated_water,
+  skip_alternate = FALSE
+)
 
 regulate_toc_df(
   df,
   alk_raw = "use_col",
   toc_raw = "use_col",
-  toc_finished = "use_col"
+  toc_finished = "use_col",
+  input_raw_water = "defined",
+  input_treated_water = "treated",
+  skip_alternate = FALSE
 )
 }
 \arguments{
-\item{alk_raw}{Raw water alkalinity (mg/L as calcium carbonate).}
+\item{alk_raw}{Raw water alkalinity (mg/L as calcium carbonate). Not needed if waters are provided.}
 
-\item{toc_raw}{Raw water total organic carbon (mg/L).}
+\item{toc_raw}{Raw water total organic carbon (mg/L). Not needed if waters are provided.}
 
-\item{toc_finished}{Finished water total organic carbon (mg/L).}
+\item{toc_finished}{Finished water total organic carbon (mg/L). Not needed if waters are provided.}
+
+\item{raw_water}{A water object of class "water" created by \code{\link[=define_water]{define_water()}} containing raw water parameters. If provided, the function will use the \code{alk} and \code{toc} slots from this object as inputs. If not provided, \code{alk_raw} and \code{toc_raw} must be specified.}
+
+\item{treated_water}{A water object of class "water" created by \code{\link[=define_water]{define_water()}} containing treated water parameters. If provided, the function will use the \code{toc} slot from this object as input for finished water TOC. If not provided, \code{toc_finished} must be specified.}
+
+\item{skip_alternate}{Logical value indicating whether to skip alternative compliance checks. By default, alternative compliance will be checked.}
 
 \item{df}{a data frame optionally containing columns for raw water alkalinity, raw water TOC, and finished water TOC}
+
+\item{input_raw_water}{a name of the column of water class data to be used as the input raw water for this function. Default is "defined".}
+
+\item{input_treated_water}{a name of the column of water class data to be used as the input treated water for this function. Default is "treated".}
 }
 \value{
-A data frame containing the TOC removal compliance status.
+A data frame containing the TOC removal compliance status, and a comment with the reasoning for the compliance status.
 
 A data frame with compliance status, removal percent, and optional note columns.
 }
@@ -35,17 +55,24 @@ It then calculates the TOC removal percentage and checks compliance with the Sta
 \details{
 The function prints the input parameters and the calculated removal
 percentage for TOC. It checks compliance with regulations considering the raw
-TOC, alkalinity, and removal percentage. If the conditions are met, it prints
-"In compliance"; otherwise, it prints "Not in compliance" and stops execution
-with an error message.
+TOC, alkalinity, and removal percentage. It outputs a dataframe that contains
+the compliance status as a boolean, calculated removal precent as a numeric,
+and a comment that indicates internal reasoning for compliance status.
 }
 \examples{
-regulate_toc(50, 5, 2)
+regulate_toc(alk_raw=50, toc_raw=5, toc_finished=2)
+
+water1 <- define_water(alk = 70, toc = 4)
+water2 <- define_water(toc = 2.5)
+regulate_toc(raw_water = water1, treated_water = water2)
+
+regulate_toc(raw_water = define_water(alk = 50, toc = 5), 
+treated_water = define_water(toc = 2), skip_alternate = TRUE)
 
 
 regulated <- water_df \%>\%
   dplyr::select(toc_raw = toc, alk_raw = alk) \%>\%
-  regulate_toc_df(toc_finished = seq(0, 1.2, 0.1))
+  regulate_toc_df(toc_finished = seq(2, 4, 0.1))
 
 regulated <- water_df \%>\%
   define_water_df() \%>\%
@@ -55,4 +82,9 @@ regulated <- water_df \%>\%
   dplyr::select(toc_finished = coagulated_toc, toc_raw = defined_toc, alk_raw = defined_alk) \%>\%
   regulate_toc_df()
 
+water1<-water_df |> 
+ define_water_df() |> 
+ chemdose_toc_df(output_water= "dosed", alum=20) |> 
+ regulate_toc_df(input_raw_water = "defined", input_treated_water= "dosed")
+ 
 }

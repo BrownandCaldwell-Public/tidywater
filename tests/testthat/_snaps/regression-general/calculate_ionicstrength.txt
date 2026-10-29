@@ -1,0 +1,8 @@
+typical :: value = 0.00496415753447374
+low_alk :: value = 0.00100895585367495
+hard_high_alk :: value = 0.01474496930402
+high_toc :: value = 0.00223707722417496
+cold :: value = 0.00314864848679481
+warm :: value = 0.00654459260635921
+nutrients :: value = 0.00368452081527967
+ideal :: value = 0.000500132769521183

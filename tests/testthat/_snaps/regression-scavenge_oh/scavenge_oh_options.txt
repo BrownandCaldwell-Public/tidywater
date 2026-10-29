@@ -1,0 +1,6 @@
+default_k :: value = 244010.626128272
+kdoc_1.67e4 :: value = 219110.626128272
+kdoc_3.6e4 :: value = 277010.626128272
+high_ph_co3 :: value = 264138.300825349
+no_doc :: value = 25913.7122565173
+di_water :: value = 7937.74456337995

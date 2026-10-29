@@ -1,0 +1,10 @@
+typical_calcite :: ccpp = -7.06061826753605
+low_alk_calcite :: ccpp = -13.288461583823
+hard_high_alk_calcite :: ccpp = 40.6326326282059
+aggressive_calcite :: ccpp = -63.1376790663777
+supersaturated_calcite :: ccpp = 150.823574429579
+extreme_aggressive_calcite :: ccpp = -643.330414522071
+extreme_supersaturated_calcite :: ccpp = 587.863400110994
+typical_aragonite :: ccpp = -7.06061826753605
+typical_vaterite :: ccpp = -7.06061826753605
+is_na_calcite :: ccpp = -0.58398399344005

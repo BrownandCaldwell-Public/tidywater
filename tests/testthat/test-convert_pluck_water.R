@@ -43,6 +43,22 @@ test_that("convert water works", {
   expect_equal(water1@tot_co3, df_water$tot_co3)
 })
 
+test_that("convert water labels every column with its slot and drops ks", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tds = 200, free_chlorine = 1))
+  water1 <- modify_water(water1, "tthm", 40, "ug/L")
+  df_water <- convert_water(water1)
+
+  expect_false("ks" %in% names(df_water))
+  expect_false(any(is.na(names(df_water))))
+  expect_true(all(names(df_water) %in% methods::slotNames(water1)))
+  expect_equal(nrow(df_water), 1)
+  expect_equal(df_water$tthm, 40)
+  expect_equal(df_water$free_chlorine, water1@free_chlorine)
+  for (nm in names(df_water)) {
+    expect_equal(df_water[[nm]], methods::slot(water1, nm), info = nm)
+  }
+})
+
 test_that("convert water mg works", {
   water1 <- suppressWarnings(define_water(
     ph = 6.7,
@@ -66,6 +82,27 @@ test_that("convert water mg works", {
   expect_equal(3.2, df_water$tot_po4)
   expect_equal(0.54, df_water$tot_nh3)
   expect_equal(2.1, df_water$free_chlorine)
+})
+
+test_that("convert water mg converts no2 as N and leaves co2 in mg/L", {
+  water1 <- suppressWarnings(define_water(ph = 6.7, temp = 20, alk = 20, no3 = 2, no2 = 0.5))
+  df_water <- convert_watermg(water1)
+
+  expect_equal(0.5, df_water$no2)
+  expect_equal(2, df_water$no3)
+  # co2 is already stored in mg/L CO2; h2co3 is converted to mg/L H2CO3
+  expect_equal(df_water$co2, water1@co2)
+  expect_equal(df_water$h2co3, water1@h2co3 * 62.024 * 1000)
+})
+
+test_that("convert water mg returns silica as SiO2 and converts citrate", {
+  water1 <- suppressWarnings(define_water(ph = 7, alk = 50, tds = 200, tot_sio4 = 10, tot_citric = 5))
+  df_water <- convert_watermg(water1)
+
+  expect_equal(df_water$tot_sio4, 10)
+  expect_equal(df_water$tot_citric, 5)
+  expect_equal(df_water$citric, convert_units(water1@citric, "citric", "M", "mg/L"))
+  expect_false("ks" %in% names(df_water))
 })
 
 ################################################################################*
@@ -121,4 +158,10 @@ test_that("pluck_water all works", {
 
   expect_equal(water1$raw_hco3, water2$raw_hco3)
   expect_equal(water1$coag_doc, water2$coag_doc)
+  expect_false(any(grepl("NA", names(water1), fixed = TRUE)))
+  expect_false("raw_ks" %in% names(water1))
+  for (col in grep("^coag_", names(water1), value = TRUE)) {
+    slot_name <- sub("^coag_", "", col)
+    expect_equal(water1[[col]], sapply(water1$coag, function(w) methods::slot(w, slot_name)), info = col)
+  }
 })

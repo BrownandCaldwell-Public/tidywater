@@ -1,0 +1,9 @@
+full_util_day :: value = 96
+util35_day :: value = 221.76
+full_util_month :: value = 2920.0032
+util35_month :: value = 6745.207392
+full_util_year :: value = 35064
+util35_year :: value = 80997.84
+vector_power :: 1 = 0
+vector_power :: 2 = 19.2
+vector_power :: 3 = 144.96

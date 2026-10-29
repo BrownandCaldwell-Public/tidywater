@@ -95,7 +95,7 @@ test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
 
   # use slot but no dose
   water3 <- water0 %>%
-    chemdose_chlordecay(cl_type = "chlorine", time = 10, use_chlorine_slot = TRUE)
+    chemdose_chlordecay(cl_type = "chlorine", time = 5, use_chlorine_slot = TRUE)
 
   # compare output of using slot w/o a dose to not using slot
   expect_error(expect_equal(water3@free_chlorine, water1@free_chlorine))
@@ -143,6 +143,27 @@ test_that("chemdose_chlordecay correctly uses use_chlorine_slot", {
 
   # check that free_cl slot is unchanged
   expect_equal(convert_units(water6@free_chlorine, "cl2", "M", "mg/L"), 2)
+})
+
+test_that("chemdose_chlordecay counts the chlorine slot at its full value as Cl2", {
+  water0 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50))
+  water_free <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, free_chlorine = 2))
+  water_comb <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 3.5, uv254 = 0.1, br = 50, combined_chlorine = 2))
+
+  expect_equal(
+    chemdose_chlordecay(water_free, time = 8, treatment = "coag", use_chlorine_slot = TRUE)@free_chlorine,
+    suppressWarnings(chemdose_chlordecay(water0, cl2_dose = 2, time = 8, treatment = "coag"))@free_chlorine
+  )
+  expect_equal(
+    chemdose_chlordecay(water_comb, time = 8, cl_type = "chloramine", use_chlorine_slot = TRUE)@combined_chlorine,
+    chemdose_chlordecay(water0, cl2_dose = 2, time = 8, cl_type = "chloramine")@combined_chlorine
+  )
+})
+
+test_that("chemdose_chlordecay free chlorine residual is not negative", {
+  water1 <- suppressWarnings(define_water(ph = 7.5, temp = 20, toc = 10, uv254 = 0.5))
+  water2 <- suppressWarnings(chemdose_chlordecay(water1, cl2_dose = 1, time = 100))
+  expect_equal(water2@free_chlorine, 0)
 })
 
 test_that("chemdose_chlordecay works.", {

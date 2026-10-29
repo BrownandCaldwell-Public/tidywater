@@ -1,0 +1,10 @@
+alum_full_strength :: value = 2502
+naoh_50pct :: value = 900.72
+zero_dose :: value = 0
+vector_doses :: 1 = 0
+vector_doses :: 2 = 247.945945945946
+vector_doses :: 3 = 867.810810810811
+vector_doses :: 4 = 1983.56756756757
+vector_flows :: 1 = 33.36
+vector_flows :: 2 = 66.72
+vector_flows :: 3 = 1668

@@ -28,10 +28,10 @@
 summarize_wq <- function(water, params = c("general")) {
   pH <- TOC <- Na <- CO3 <- result <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
-    stop("Input must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
   if (any(!params %in% c("general", "ions", "dbps"))) {
-    stop("params must be one or more of c('general', 'ions', 'dbps')")
+    cli::cli_abort("{.arg params} must be one or more of {.val general}, {.val ions}, or {.val dbps}.")
   }
 
   # Compile general WQ parameters
@@ -163,7 +163,7 @@ summarise_wq <- summarize_wq
 plot_ions <- function(water) {
   type <- concentration <- label_pos <- ion <- label_y <- label <- repel_label <- Na <- OH <- NULL # Quiet RCMD check global variable note
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   # Compile major ions to plot
@@ -292,39 +292,37 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
   colnames(df) <- gsub("total_dis.+", "tds", colnames(df))
 
   if (!"ph" %in% colnames(df)) {
-    stop("pH column not present in the dataframe. Ensure that pH is included as 'ph'.")
+    cli::cli_abort("No {.val ph} column found in the data frame. Ensure pH is included as {.val ph}.")
   }
   if (!"dic" %in% colnames(df)) {
-    stop("DIC column not present in the dataframe. Ensure that DIC is included as 'dic'.")
+    cli::cli_abort("No {.val dic} column found in the data frame. Ensure DIC is included as {.val dic}.")
   }
   if ("alk" %in% colnames(df) | "alkalinity" %in% colnames(df)) {
-    warning("Alkalinity will be recalculated from the input DIC.")
+    tidywater_warn("Alkalinity will be recalculated from the input DIC.")
   }
   if (!missing(temp)) {
     temp <- temp
   } else if ("temp" %in% colnames(df)) {
     if (length(unique(df$temp)) > 1) {
       temp <- as.numeric(df$temp[1])
-      message <- sprintf("Multiple temperature values provided, function used the first value (%f).", df$temp[1])
-      warning(message)
+      tidywater_warn("Multiple temperature values provided; using the first value ({df$temp[1]}).")
     } else {
       temp <- df$temp[1]
     }
   } else {
-    stop("Temperature not provided. Either add a 'temp' column to df or input temperature as a numeric argument.")
+    cli::cli_abort("No {.arg temp} provided. Add a {.val temp} column to {.arg df} or pass {.arg temp} directly.")
   }
   if (!missing(tds)) {
     tds <- tds
   } else if ("tds" %in% colnames(df)) {
     if (length(unique(df$tds)) > 1) {
       tds <- as.numeric(df$tds[1])
-      message <- sprintf("Multiple TDS values provided, function used the first value (%f).", df$tds[1])
-      warning(message)
+      tidywater_warn("Multiple TDS values provided; using the first value ({df$tds[1]}).")
     } else {
       tds <- df$tds[1]
     }
   } else {
-    stop("TDS not provided. Either add a 'tds' column to df or input TDS as a numeric argument.")
+    cli::cli_abort("No {.arg tds} provided. Add a {.val tds} column to {.arg df} or pass {.arg tds} directly.")
   }
   if (missing(ph_range)) {
     min_ph <- min(df$ph)
@@ -441,124 +439,173 @@ plot_lead <- function(df, temp, tds, ph_range, dic_range) {
 # This function generates a cached table of unit conversions with every combo of formula and units in the compile_tidywater_data file.
 # If we fail to lookup a unit conversion in our cached table we look here
 # This function is ~20x slower than the cache lookup
-convert_units_private <- function(value, formula, startunit = "mg/L", endunit = "M") {
+convert_units_private <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
   unit_multipliers <- get("unit_multipliers")
   formula_to_charge <- get("formula_to_charge")
-  gram_list <- c(
-    "ng/L",
-    "ug/L",
-    "mg/L",
-    "g/L",
-    "ng/L CaCO3",
-    "ug/L CaCO3",
-    "mg/L CaCO3",
-    "g/L CaCO3",
-    "ng/L N",
-    "ug/L N",
-    "mg/L N",
-    "g/L N"
-  )
+
   mole_list <- c("M", "mM", "uM", "nM")
   eqvl_list <- c("neq/L", "ueq/L", "meq/L", "eq/L")
 
-  caco_list <- c("mg/L CaCO3", "g/L CaCO3", "ug/L CaCO3", "ng/L CaCO3")
-  n_list <- c("mg/L N", "g/L N", "ug/L N", "ng/L N")
+  # Molar weights of the "mg/L as X" bases
+  basis_mw <- c(
+    CaCO3 = as.numeric(tidywater::mweights["caco3"]),
+    N = as.numeric(tidywater::mweights["n"]),
+    P = as.numeric(tidywater::mweights["p"]),
+    Cl2 = as.numeric(tidywater::mweights["cl2"])
+  )
+  # Moles of basis per mole of formula for the elemental bases.
+  # Cl2 counts active (+1) chlorines by oxidizing capacity, so NHCl2 = 2 Cl2 and NCl3 = 3 Cl2.
+  # CaCO3 is an equivalents basis, so it uses the formula charge instead.
+  basis_count <- list(
+    N = c(n = 1, nh3 = 1, nh4 = 1, nh4oh = 1, nh42so4 = 2, no3 = 1, hno3 = 1, no2 = 1, nh2cl = 1, nhcl2 = 1, ncl3 = 1),
+    P = c(p = 1, po4 = 1, hpo4 = 1, h2po4 = 1, h3po4 = 1, na3po4 = 1),
+    Cl2 = c(cl2 = 1, hocl = 1, ocl = 1, naocl = 1, caocl2 = 2, nh2cl = 1, nhcl2 = 2, ncl3 = 3)
+  )
 
   # Look up the unit multipliers for starting and end units
   start_mult <- unit_multipliers[[startunit]]
   end_mult <- unit_multipliers[[endunit]]
-  if (is.null(start_mult) || is.null(end_mult)) {
-    # If we didn't find multipliers these units are not supported
-    stop("Units not supported")
+  if (is.null(start_mult) | is.null(end_mult)) {
+    cli::cli_abort("Units not supported.")
   }
-  # Calculate the net multiplier
   multiplier <- start_mult / end_mult
 
-  # Need molar mass of CaCO3 and N
-  caco3_mw <- as.numeric(tidywater::mweights["caco3"])
-  n_mw <- as.numeric(tidywater::mweights["n"])
-
-  # Determine relevant molar weight
-  if (formula %in% colnames(tidywater::mweights)) {
-    if (
-      (startunit %in% caco_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% caco_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- caco3_mw
-    } else if (
-      (startunit %in% n_list & endunit %in% c(mole_list, eqvl_list)) |
-        (endunit %in% n_list & startunit %in% c(mole_list, eqvl_list))
-    ) {
-      molar_weight <- n_mw
+  # Classify each unit as moles, equivalents, plain mass, or mass as a basis
+  unit_basis <- function(unit) {
+    if (unit %in% mole_list) {
+      "mol"
+    } else if (unit %in% eqvl_list) {
+      "eq"
     } else {
-      molar_weight <- as.numeric(tidywater::mweights[formula])
+      basis <- sub("^[num]?g/L ?", "", unit)
+      if (basis == "") "mass" else basis
     }
-  } else if (!(startunit %in% gram_list) & !(endunit %in% gram_list)) {
-    molar_weight <- 0
-  } else {
-    stop(paste("Chemical formula not supported: ", formula))
+  }
+  start_basis <- unit_basis(startunit)
+  end_basis <- unit_basis(endunit)
+
+  # Same dimension and basis (e.g. mg/L to g/L, mM to M) only changes the prefix, so no formula is needed.
+  # This returns early; everything below only runs when the basis changes.
+  if (start_basis == end_basis) {
+    return(value * multiplier)
   }
 
-  # Determine charge for equivalents
-  # Look up our known charges in our hashtable
-  table_charge <- formula_to_charge[[formula]]
-  if (!is.null(table_charge)) {
-    # If we found a charge in the hash table use that
-    charge <- table_charge
-  } else if (!(startunit %in% eqvl_list) & !(endunit %in% eqvl_list)) {
-    # This is included so that charge can be in equations later without impacting results
-    charge <- 1
-  } else {
-    stop("Unable to find charge for equivalent conversion")
+  if (is.null(formula)) {
+    cli::cli_abort("A chemical formula is required to convert {startunit} to {endunit}.")
+  }
+  if (!(formula %in% colnames(tidywater::mweights))) {
+    cli::cli_abort("Chemical formula not supported: {formula}.")
   }
 
-  # Unit conversion
-  # g - mol
-  if (startunit %in% gram_list & endunit %in% mole_list) {
-    value / molar_weight * multiplier
-  } else if (startunit %in% mole_list & endunit %in% gram_list) {
-    value * molar_weight * multiplier
-    # g - eq
-  } else if (startunit %in% eqvl_list & endunit %in% gram_list) {
-    value / charge * molar_weight * multiplier
-  } else if (startunit %in% gram_list & endunit %in% eqvl_list) {
-    value / molar_weight * charge * multiplier
-    # mol - eq
-  } else if (startunit %in% mole_list & endunit %in% eqvl_list) {
-    value * charge * multiplier
-  } else if (startunit %in% eqvl_list & endunit %in% mole_list) {
-    value / charge * multiplier
-    # g CaCO3 - g
-  } else if (startunit %in% caco_list & endunit %in% gram_list & !(endunit %in% caco_list)) {
-    value / caco3_mw * molar_weight * 2 / charge
-  } else if (endunit %in% caco_list & startunit %in% gram_list & !(startunit %in% caco_list)) {
-    value / molar_weight * caco3_mw * charge / 2
-    # g N - g
-  } else if (startunit %in% n_list & endunit %in% gram_list & !(endunit %in% n_list)) {
-    value / n_mw * molar_weight
-  } else if (endunit %in% n_list & startunit %in% gram_list & !(startunit %in% n_list)) {
-    value / molar_weight * n_mw
-    # same lists
-  } else if (
-    (startunit %in% gram_list & endunit %in% gram_list) |
-      (startunit %in% mole_list & endunit %in% mole_list) |
-      (startunit %in% eqvl_list & endunit %in% eqvl_list)
-  ) {
-    value * multiplier
-  } else {
-    stop("Units not supported")
+  # Charge is only needed when converting to or from eq/L or mass as CaCO3.
+  # Conversions between mass, moles, and mass as N, P, or Cl2 don't use it.
+  charge <- formula_to_charge[[formula]]
+  if (is.null(charge)) {
+    charge <- NA_real_
   }
+  if (is.na(charge) | charge == 0) {
+    if ("CaCO3" %in% c(start_basis, end_basis)) {
+      cli::cli_abort(
+        "{formula} has no charge, so it can't be converted to or from mg/L as CaCO3 (an equivalents basis)."
+      )
+    } else if ("eq" %in% c(start_basis, end_basis)) {
+      cli::cli_abort("Unable to find charge for equivalent conversion.")
+    }
+  }
+
+  # Moles of formula in one base unit (M, eq/L, g/L, or g/L as basis)
+  mol_per_unit <- function(basis) {
+    if (basis == "mol") {
+      1
+    } else if (basis == "eq") {
+      1 / charge
+    } else if (basis == "mass") {
+      1 / as.numeric(tidywater::mweights[formula])
+    } else if (basis == "CaCO3") {
+      # 1 mol CaCO3 = 2 eq
+      2 / (basis_mw[["CaCO3"]] * charge)
+    } else {
+      count <- unname(basis_count[[basis]][formula])
+      if (is.na(count)) {
+        cli::cli_abort("Conversion to mg/L as {basis} not supported for {formula}.")
+      }
+      1 / (basis_mw[[basis]] * count)
+    }
+  }
+
+  value * multiplier * mol_per_unit(start_basis) / mol_per_unit(end_basis)
 }
+
+# Normalizes a unit string into a key for exact alias lookup: lowercase, with
+# whitespace, the linking word "as" (e.g. "mg/L as CaCO3"), and slashes all removed.
+# This is deliberately NOT a fuzzy/edit-distance match -- it only maps a fixed list of
+# known-equivalent spellings onto a single key, so a typo or an unrelated unit never
+# matches an unintended canonical unit (see "mg/L" + "CaCO3 M" vs "mg/L CaCO3" + "M").
+normalize_unit_alias <- function(unit) {
+  unit <- tolower(unit)
+  unit <- gsub("[[:space:]]", "", unit)
+  unit <- gsub("as", "", unit, fixed = TRUE)
+  unit <- gsub("/", "", unit, fixed = TRUE)
+  unit
+}
+
+# The canonical unit names convert_units_private and the cache understand.
+canonical_units <- c(
+  "ng/L", "ug/L", "mg/L", "g/L",
+  "ng/L CaCO3", "ug/L CaCO3", "mg/L CaCO3", "g/L CaCO3",
+  "ng/L N", "ug/L N", "mg/L N", "g/L N",
+  "ng/L P", "ug/L P", "mg/L P", "g/L P",
+  "ng/L Cl2", "ug/L Cl2", "mg/L Cl2", "g/L Cl2",
+  "M", "mM", "uM", "nM",
+  "neq/L", "ueq/L", "meq/L", "eq/L"
+)
+
+# Extra aliases that don't fall out of normalizing a canonical name directly:
+# "Cl" is accepted as shorthand for "Cl2", and "mol/L" (with the usual m/u/n
+# prefixes) is accepted as shorthand for "M".
+unit_alias_extra <- c(
+  "ng/L Cl" = "ng/L Cl2",
+  "ug/L Cl" = "ug/L Cl2",
+  "mg/L Cl" = "mg/L Cl2",
+  "g/L Cl" = "g/L Cl2",
+  "mol/L" = "M",
+  "mmol/L" = "mM",
+  "umol/L" = "uM",
+  "nmol/L" = "nM"
+)
+
+# Canonical unit names keyed by their normalized form. Built once when the package is
+# loaded rather than on every convert_units call.
+unit_matcher <- canonical_units
+names(unit_matcher) <- normalize_unit_alias(canonical_units)
+unit_alias_extra_matcher <- unname(unit_alias_extra)
+names(unit_alias_extra_matcher) <- normalize_unit_alias(names(unit_alias_extra))
+unit_matcher <- c(unit_matcher, unit_alias_extra_matcher)
+# Lookup takes the first match, so a spelling that normalizes onto an existing key would
+# be silently ignored rather than reported. Fail at load instead of at conversion time.
+if (anyDuplicated(names(unit_matcher))) {
+  stop(
+    "Unit spellings collide after normalization: ",
+    paste(unique(names(unit_matcher)[duplicated(names(unit_matcher))]), collapse = ", ")
+  )
+}
+unit_matcher_names <- names(unit_matcher)
 
 #' @title Calculate unit conversions for common compounds
 #'
 #' @description This function takes a value and converts units based on compound name.
 #'
 #' @param value Value to be converted
-#' @param formula Chemical formula of compound. Accepts compounds in mweights for conversions between g and mol or eq
-#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; M; eq/L;
+#' @param formula Chemical formula of compound; accepts compounds in mweights. Optional when converting within the same
+#' unit type and basis (e.g., mg/L to g/L, mM to M, meq/L to eq/L, or mg/L CaCO3 to g/L CaCO3).
+#' @param startunit Units of current value, currently accepts g/L; g/L CaCO3; g/L N; g/L P; g/L Cl2; M; eq/L;
 #' and the same units with "m", "u", "n" prefixes
 #' @param endunit Desired units, currently accepts same as start units
+#' @details Mass concentrations may be expressed as CaCO3, N, P, or molecular chlorine (Cl2).
+#' Mass as CaCO3 is an equivalents basis: 1 eq of the compound = 50 g as CaCO3, so 61 mg/L HCO3 is 50 mg/L as CaCO3.
+#' Mass as N or P counts the atoms in the compound: 1 mol of (NH4)2SO4 is 28 g as N.
+#' Mass as Cl2 counts oxidizing capacity: 1 mol of NHCl2 is 2 mol as Cl2.
+#' "mg/L Cl" is treated as "mg/L Cl2".
 #'
 #' @examples
 #' convert_units(50, "ca") # converts from mg/L to M by default
@@ -569,10 +616,61 @@ convert_units_private <- function(value, formula, startunit = "mg/L", endunit = 
 #'
 #' @returns A numeric value for the converted parameter.
 #'
-convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
+convert_units <- function(value, formula = NULL, startunit = "mg/L", endunit = "M") {
   convert_units_cache <- get("convert_units_cache")
-  # Start with pre-generated lookup table (which has most combinations of formula and units) for speed.
-  lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+
+  # Fast path: callers that already pass canonical units and formulas (which is every
+  # internal tidywater call) hit the cache directly and skip normalization and matching.
+  # Both units must be exact canonical names. Unit names contain spaces, so without
+  # that check paste() could build the key of a different valid combination -- e.g.
+  # ("ca", "mg/L", "CaCO3 M") and ("ca", "mg/L CaCO3", "M") both give "ca mg/L CaCO3 M".
+  if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
+    lookup <- convert_units_cache[[paste(formula, startunit, endunit)]]
+    if (!is.null(lookup)) {
+      return(value * lookup)
+    }
+  }
+
+  mweights <- get("mweights")
+  molecNames <- names(mweights)
+  unit_matcher <- get("unit_matcher")
+  unit_matcher_names <- get("unit_matcher_names")
+
+  # formula matcher: typos are fuzzy-matched within an edit distance of 1. Formulas
+  # aren't ambiguous the way units are (no two formulas concatenate into a third), so
+  # this fuzzy matching is left in place.
+  if (!is.null(formula)) {
+    # Drop parentheses too so "Ca(OCl)2" matches "caocl2"
+    formula <- tolower(gsub("[[:space:]()]", "", formula))
+    if (!(formula %in% molecNames)) {
+      bestFormula <- agrep(formula, molecNames, max.distance = 1)
+      if (length(bestFormula) > 0) {
+        formula <- molecNames[bestFormula[1]]
+        tidywater_warn("Fuzzy matching used, conversion may be wrong due to a typo. Check formula.")
+      }
+      # else: fall through — convert_units_private will error with a clear message
+    }
+  }
+
+  # Unit matching is an exact lookup against a fixed list of known-equivalent spellings
+  # (see unit_matcher/normalize_unit_alias above), not fuzzy/edit-distance matching.
+  startunit_key <- normalize_unit_alias(startunit)
+  if (startunit_key %in% unit_matcher_names) {
+    startunit <- unit_matcher[[startunit_key]]
+  }
+  endunit_key <- normalize_unit_alias(endunit)
+  if (endunit_key %in% unit_matcher_names) {
+    endunit <- unit_matcher[[endunit_key]]
+  }
+
+  # Gate the lookup the same way as the fast lookup so an
+  # unsupported endunit/startunit always falls through to convert_units_private, which
+  # validates against unit_multipliers directly and errors with "Units not supported".
+  lookup <- if (!is.null(formula) && startunit %in% canonical_units && endunit %in% canonical_units) {
+    convert_units_cache[[paste(formula, startunit, endunit)]]
+  } else {
+    NULL
+  }
   if (is.null(lookup)) {
     # Fallback to full implementation
     convert_units_private(value, formula, startunit, endunit)
@@ -581,6 +679,105 @@ convert_units <- function(value, formula, startunit = "mg/L", endunit = "M") {
   }
 }
 
+
+#' @title Convert flow rate
+#'
+#' @description Given units for flow rate, convert to different units of flow rate.
+#'
+#' @param value Value of flow rate to be converted
+#' @param startunit Current units of flow rate
+#' @param endunit Desired units of flow rate
+#' @param sg Optional argument for specific gravity, default to 1. Required for converting between mass and volumetric flows.
+#'
+#' @examples
+#' flow <- 40 #in MGD
+#'
+#' convert_flow(flow, "MGD", "gpm")
+#'
+#' @export
+#'
+#' @returns A numeric value for the converted flow
+convert_flow <- function(value, startunit, endunit, sg = 1) {
+  startunit <- tolower(gsub("\\s", "", startunit))
+  endunit <- tolower(gsub("\\s", "", endunit))
+
+  startmultiplier <- 0
+  endmultiplier <- 0
+
+  # idea is convert units to gpm then reconvert end unit
+  # volumetric
+  volumetricstartunits <- c(
+    mgs = 60000000,
+    mgm = 1000000.0,
+    mgh = 16666.67,
+    mgd = 694.444,
+    gps = 60,
+    gpm = 1,
+    gph = 0.016667,
+    gpd = 0.000694,
+    cfs = 448.831,
+    cfm = 7.48052,
+    cfh = 0.124674,
+    cfd = 0.005195,
+    `l/s` = 15.8503,
+    `l/m` = 0.264172,
+    `l/h` = 0.004403,
+    `l/d` = 0.000183,
+    `m3/s` = 15850.32,
+    `m3/m` = 264.172,
+    `m3/h` = 4.40287,
+    `m3/day` = 0.183453
+  )
+  volumetricendunits <- 1 / volumetricstartunits
+
+  # to pound / min
+  # Mass Rate -> lbs/min
+  massstartunits <- c(
+    `kg/s` = 132.277, `kg/m` = 2.20462, `kg/min` = 2.20462, `kg/h` = 0.036744, `kg/d` = 0.001531, `kg/day` = 0.001531,
+    `g/s` = 0.132277, `g/m` = 0.002205, `g/min` = 0.002205, `g/h` = 0.000037, `g/d` = 0.00000153, `g/day` = 0.00000153,
+    `lb/s` = 60.0000, `lbs/s` = 60.0000, `lb/m` = 1, `lbs/m` = 1, `lb/min` = 1, `lbs/min` = 1,
+    `lb/h` = 0.016667, `lbs/h` = 0.016667, `lb/d` = 0.0006944, `lbs/d` = 0.0006944, `lb/day` = 0.0006944, `lbs/day` = 0.0006944
+  )
+
+  # lbs/min -> Mass Rate
+  massendunits <- 1 / massstartunits
+
+  # volumetric flow to volumetric flow or mass to mass
+  if (startunit %in% names(volumetricstartunits) & endunit %in% names(volumetricendunits)){
+    startmultiplier <- volumetricstartunits[startunit]
+    endmultiplier <- volumetricendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # mass to mass
+  if (startunit %in% names(massstartunits) & endunit %in% names(massendunits)) {
+    startmultiplier <- massstartunits[startunit]
+    endmultiplier <- massendunits[endunit]
+    totalmultiplier <- startmultiplier * endmultiplier
+    return(unname(value * totalmultiplier))
+  }
+
+  # volumetric to mass
+  if (startunit %in% names(volumetricstartunits) & endunit %in% names(massendunits)) {
+    gpm <- value * volumetricstartunits[startunit]
+    # Physical bridge: GPM -> lbs/min
+    lbs_min <- gpm * 8.34008 * sg
+
+    return(unname(lbs_min * massendunits[endunit]))
+  }
+
+  # mass to volumetric
+  if (startunit %in% names(massstartunits) & endunit %in% names(volumetricendunits)) {
+    lbs_min <- value * massstartunits[startunit]
+
+    gpm <- lbs_min / (8.34008 * sg)
+
+    return(unname(gpm * volumetricendunits[endunit]))
+  }
+
+  cli::cli_abort("Start unit or end unit is not accepted")
+}
 
 #' @title Calculate hardness from calcium and magnesium
 #'
@@ -612,7 +809,7 @@ calculate_hardness <- function(ca, mg, type = "total", startunit = "mg/L") {
   } else if (type == "ca") {
     ca_hard
   } else {
-    stop("Unsupported type. Specify 'total' or 'ca'")
+    cli::cli_abort("{.arg type} must be {.val total} or {.val ca}.")
   }
 }
 
@@ -698,14 +895,22 @@ correct_k <- function(water) {
   kocl <- K_temp_adjust(discons["kocl", ]$deltah, discons["kocl", ]$k, temp) / activity_z1^2
   # knh4 = {h+}{nh3}/{nh4+}
   knh4 <- K_temp_adjust(discons["knh4", ]$deltah, discons["knh4", ]$k, temp) / activity_z1^2
-  # kbo3 = {oh-}{h3bo3}/{h4bo4-}
-  kbo3 <- K_temp_adjust(discons["kbo3", ]$deltah, discons["kbo3", ]$k, temp) / activity_z1^2
+  # kbo4 = {oh-}{h3bo3}/{h4bo4-}
+  kbo4 <- K_temp_adjust(discons["kbo4", ]$deltah, discons["kbo4", ]$k, temp) / activity_z1^2
   # k1sio4 = {h+}{h2sio42-}/{h3sio4-}
   k1sio4 <- K_temp_adjust(discons["k1sio4", ]$deltah, discons["k1sio4", ]$k, temp) / activity_z1^2
   # k2sio4 = {h+}{hsio43-}/{h2sio42-}
   k2sio4 <- K_temp_adjust(discons["k2sio4", ]$deltah, discons["k2sio4", ]$k, temp) / activity_z2
   # kch3coo = {h+}{ch3coo-}/{ch3cooh}
   kch3coo <- K_temp_adjust(discons["kch3coo", ]$deltah, discons["kch3coo", ]$k, temp) / activity_z1^2
+  # k1citric = {h+}{h2citric-}/{h3citric}
+  k1citric <- K_temp_adjust(discons["k1citric", ]$deltah, discons["k1citric", ]$k, temp) / activity_z1^2
+  # k2citric = {h+}{hcitric2-}/{h2citric-}
+  k2citric <- K_temp_adjust(discons["k2citric", ]$deltah, discons["k2citric", ]$k, temp) / activity_z2
+  # k3citric = {h+}{citric3-}/{hcitric2-}
+  k3citric <- K_temp_adjust(discons["k3citric", ]$deltah, discons["k3citric", ]$k, temp) *
+    activity_z2 /
+    (activity_z1 * activity_z3)
 
   return(data.frame(
     "k1co3" = k1co3,
@@ -716,10 +921,13 @@ correct_k <- function(water) {
     "kocl" = kocl,
     "knh4" = knh4,
     "kso4" = kso4,
-    "kbo3" = kbo3,
+    "kbo4" = kbo4,
     "k1sio4" = k1sio4,
     "k2sio4" = k2sio4,
-    "kch3coo" = kch3coo
+    "kch3coo" = kch3coo,
+    "k1citric" = k1citric,
+    "k2citric" = k2citric,
+    "k3citric" = k3citric
   ))
 }
 
@@ -728,10 +936,10 @@ correct_k <- function(water) {
 validate_water <- function(water, slots) {
   # Make sure a water is present.
   if (missing(water)) {
-    stop("No source water defined. Create a water using the 'define_water' function.")
+    cli::cli_abort("No source water defined. Create a water using {.fn define_water}.")
   }
   if (!methods::is(water, "water")) {
-    stop("Input water must be of class 'water'. Create a water using define_water.")
+    cli::cli_abort("Input water must be of class {.cls water}. Create a water using {.fn define_water}.")
   }
 
   # Check if any slots are NA
@@ -746,7 +954,7 @@ validate_water <- function(water, slots) {
       ))
     )
 
-    stop("Water is missing the following modeling parameter(s): ", missing, ". Specify in 'define_water'.")
+    cli::cli_abort("Water is missing the following modeling parameter(s): {missing}. Specify in {.fn define_water}.")
   }
 }
 
@@ -754,13 +962,13 @@ validate_water_helpers <- function(df, input_water) {
   # Make sure input_water column is in the dataframe and is a water class.
 
   if (!(input_water %in% colnames(df))) {
-    stop(
-      "Specified input_water column not found. Check spelling or create a water class column using define_water_df()."
+    cli::cli_abort(
+      "Specified {.arg input_water} column not found. Check spelling or create a water class column using {.fn define_water_df}."
     )
   }
   if (!all(sapply(df[[input_water]], function(x) methods::is(x, "water")))) {
-    stop(
-      "Specified input_water does not contain water class objects. Use define_water_df() or specify a different column."
+    cli::cli_abort(
+      "Specified {.arg input_water} column does not contain water class objects. Use {.fn define_water_df} or specify a different column."
     )
   }
 }
@@ -769,22 +977,22 @@ validate_args <- function(num_args = list(), str_args = list(), log_args = list(
   all_args <- c(num_args, str_args, log_args, misc_args)
   for (arg in names(all_args)) {
     if (is.null(all_args[[arg]])) {
-      stop("argument '", arg, "' is missing, with no default")
+      cli::cli_abort("Argument {.arg {arg}} is missing, with no default.")
     }
   }
   for (arg in names(num_args)) {
     if (!is.numeric(num_args[[arg]])) {
-      stop("argument '", arg, "' must be numeric.")
+      cli::cli_abort("Argument {.arg {arg}} must be numeric.")
     }
   }
   for (arg in names(str_args)) {
     if (!is.character(str_args[[arg]])) {
-      stop("argument '", arg, "' must be specified as a string.")
+      cli::cli_abort("Argument {.arg {arg}} must be a string.")
     }
   }
   for (arg in names(log_args)) {
     if (!is.logical(log_args[[arg]])) {
-      stop("argument '", arg, "' must be either TRUE or FALSE.")
+      cli::cli_abort("Argument {.arg {arg}} must be {.code TRUE} or {.code FALSE}.")
     }
   }
 }
@@ -821,17 +1029,13 @@ calculate_alpha0_phosphate <- function(h, k) {
 
 calculate_alpha1_phosphate <- function(h, k) {
   # H2PO4
-  k1 <- k$k1po4
-  k2 <- k$k2po4
-  k3 <- k$k3po4
-  calculate_alpha0_phosphate(h, k) * k1 / h
+  calculate_alpha0_phosphate(h, k) * k$k1po4 / h
 }
 
 calculate_alpha2_phosphate <- function(h, k) {
   # HPO4
   k1 <- k$k1po4
   k2 <- k$k2po4
-  k3 <- k$k3po4
   calculate_alpha0_phosphate(h, k) * (k1 * k2 / h^2)
 }
 
@@ -857,7 +1061,7 @@ calculate_alpha1_ammonia <- function(h, k) {
 
 calculate_alpha1_borate <- function(h, k) {
   # H4BO4-
-  k1 <- k$kbo3
+  k1 <- k$kbo4
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
 }
 
@@ -879,6 +1083,31 @@ calculate_alpha1_acetate <- function(h, k) {
   # CH3COO-
   k1 <- k$kch3coo
   1 / (1 + h / k1) # calculating how much is in the deprotonated form with -1 charge
+}
+
+calculate_alpha0_citric <- function (h , k){
+  # H3Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
+  1 / (1 + (k1 / h) + (k1 * k2 / h^2) + (k1 * k2 * k3 / h^3))
+}
+calculate_alpha1_citric <- function (h , k){
+  # H2Citricc
+  calculate_alpha0_citric(h, k) * k$k1citric / h
+}
+calculate_alpha2_citric <- function (h , k){
+  # H1Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  calculate_alpha0_citric(h, k) * (k1 * k2 / h^2)
+}
+calculate_alpha3_citric <- function (h , k){
+  #Citric
+  k1 <- k$k1citric
+  k2 <- k$k2citric
+  k3 <- k$k3citric
+  calculate_alpha0_citric(h, k) * (k1 * k2 * k3 / h^3)
 }
 
 # General temperature correction for equilibrium constants
@@ -935,7 +1164,7 @@ correlate_ionicstrength <- function(result, from = "cond", to = "is") {
   } else if (from == "cond" & to == "tds") {
     result * (1.6 * 10^-5) / (2.5 * 10^-5)
   } else {
-    stop("from and to arguments must be one of 'is', 'tds', or 'cond'.")
+    cli::cli_abort("{.arg from} and {.arg to} must be one of {.val is}, {.val tds}, or {.val cond}.")
   }
 }
 
@@ -962,8 +1191,8 @@ construct_helper <- function(df, all_args) {
   inputs_arg <- do.call(expand.grid, list(from_new[from_inputs], stringsAsFactors = FALSE))
 
   if (any(colnames(df) %in% colnames(inputs_arg))) {
-    stop(
-      "Argument was applied as a function argument, but the column already exists in the data frame. Remove argument or rename dataframe column."
+    cli::cli_abort(
+      "Argument was passed as a function argument, but the column already exists in the data frame. Remove the argument or rename the data frame column."
     )
   }
 

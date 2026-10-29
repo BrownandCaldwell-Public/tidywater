@@ -1,0 +1,14 @@
+alum_day :: value = 86.8621494559811
+ferricchloride_day :: value = 114.675
+ferricsulfate_day :: value = 91.35707763861
+alum_month :: value = 2642.05994135774
+ferricchloride_month :: value = 3488.0350725
+ferricsulfate_month :: value = 2778.78082341031
+alum_year :: value = 31726.4000887971
+ferricchloride_year :: value = 41885.04375
+ferricsulfate_year :: value = 33368.1726075023
+all_terms :: value = 127516.035909265
+turb_only :: value = 25.02
+vector_alum :: 1 = 152.2051668
+vector_alum :: 2 = 377.642186647699
+vector_alum :: 3 = 1279.39026603849

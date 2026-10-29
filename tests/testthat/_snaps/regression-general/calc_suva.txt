@@ -1,0 +1,6 @@
+typical :: value = 3.125
+high :: value = 4.66666666666667
+vector :: 1 = 2
+vector :: 2 = 2.5
+vector :: 3 = 5
+na_doc :: value = NA

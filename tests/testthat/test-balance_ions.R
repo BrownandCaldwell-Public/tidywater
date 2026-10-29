@@ -127,18 +127,33 @@ test_that("Balance ions results in neutral charge.", {
     br = 50
   )
   water2 <- balance_ions(water1)
-  expect_equal(
-    water2@na +
-      water2@ca * 2 +
-      water2@mg * 2 +
-      water2@k -
-      (water2@cl + 2 * water2@so4 + water2@hco3 + 2 * water2@co3 + water2@h2po4 + 2 * water2@hpo4 + 3 * water2@po4) +
-      water2@h -
-      water2@oh -
-      water2@ocl,
-    0
-  )
-
+ expect_equal(
+  sum(
+    water2@cl,
+    2 * water2@so4,
+    water2@hco3,
+    2 * water2@co3,
+    water2@h2po4,
+    2 * water2@hpo4,
+    3 * water2@po4,
+    water2@oh,
+    water2@ocl,
+    water2@f,
+    water2@br,
+    na.rm = TRUE
+  ) - sum(
+    water2@na,
+    2 * water2@ca,
+    2 * water2@mg,
+    water2@k,
+    water2@h,
+    3 * water2@fe,
+    3 * water2@al,
+    2 * water2@mn,
+    na.rm = TRUE
+  ),
+  0
+)
   water3 <- define_water(
     ph = 7,
     temp = 25,
@@ -155,44 +170,97 @@ test_that("Balance ions results in neutral charge.", {
     toc = 5,
     doc = 4.8,
     uv254 = .1,
-    br = 50
+    br = 50,
+    fe= 1,
+    al = 1,
+    mn = 1,
+    f =1
   )
   water4 <- balance_ions(water3)
   expect_equal(
-    water4@na +
-      water4@ca * 2 +
-      water4@mg * 2 +
-      water4@k -
-      (water4@cl + 2 * water4@so4 + water4@hco3 + 2 * water4@co3 + water4@h2po4 + 2 * water4@hpo4 + 3 * water4@po4) +
-      water4@h -
-      water4@oh -
-      water4@ocl,
+     sum(
+    water4@cl,
+    2 * water4@so4,
+    water4@hco3,
+    2 * water4@co3,
+    water4@h2po4,
+    2 * water4@hpo4,
+    3 * water4@po4,
+    water4@oh,
+    water4@ocl,
+    water4@f,
+    water4@br,
+    na.rm = TRUE
+  ) - sum(
+    water4@na,
+    2 * water4@ca,
+    2 * water4@mg,
+    water4@k,
+    water4@h,
+    3 * water4@fe,
+    3 * water4@al,
+    2 * water4@mn,
+    na.rm = TRUE
+  ),
     0
   )
 
   water5 <- balance_ions(water3, cation = "mg")
   expect_equal(
-    water5@na +
-      water5@ca * 2 +
-      water5@mg * 2 +
-      water5@k -
-      (water5@cl + 2 * water5@so4 + water5@hco3 + 2 * water5@co3 + water5@h2po4 + 2 * water5@hpo4 + 3 * water5@po4) +
-      water5@h -
-      water5@oh -
-      water5@ocl,
+    
+      sum(
+    water5@cl,
+    2 * water5@so4,
+    water5@hco3,
+    2 * water5@co3,
+    water5@h2po4,
+    2 * water5@hpo4,
+    3 * water5@po4,
+    water5@oh,
+    water5@ocl,
+    water5@f,
+    water5@br,
+    na.rm = TRUE
+  ) - sum(
+    water5@na,
+    2 * water5@ca,
+    2 * water5@mg,
+    water5@k,
+    water5@h,
+    3 * water5@fe,
+    3 * water5@al,
+    2 * water5@mn,
+    na.rm = TRUE
+  ),
     0
   )
 
   water6 <- balance_ions(water1, anion = "so4")
   expect_equal(
-    water6@na +
-      water6@ca * 2 +
-      water6@mg * 2 +
-      water6@k -
-      (water6@cl + 2 * water6@so4 + water6@hco3 + 2 * water6@co3 + water6@h2po4 + 2 * water6@hpo4 + 3 * water6@po4) +
-      water6@h -
-      water6@oh -
-      water6@ocl,
+     sum(
+    water6@cl,
+    2 * water6@so4,
+    water6@hco3,
+    2 * water6@co3,
+    water6@h2po4,
+    2 * water6@hpo4,
+    3 * water6@po4,
+    water6@oh,
+    water6@ocl,
+    water6@f,
+    water6@br,
+    na.rm = TRUE
+  ) - sum(
+    water6@na,
+    2 * water6@ca,
+    2 * water6@mg,
+    water6@k,
+    water6@h,
+    3 * water6@fe,
+    3 * water6@al,
+    2 * water6@mn,
+    na.rm = TRUE
+  ),
     0
   )
 })
@@ -292,7 +360,7 @@ test_that("balance_ions_df can be piped and handle an output_water argument", {
   testthat::skip_on_cran()
   water1 <- suppressWarnings(define_water_df(slice(water_df, 1))) %>%
     balance_ions_df(output_water = "different_column") %>%
-    chemdose_ph_df(naoh = 20)
+    chemdose_ph_df(naoh = 20, keep_dose_cols = TRUE)
 
   expect_equal(names(water1[2]), "different_column") # check output_water arg
   expect_equal(ncol(water1), 4) # check if pipe worked

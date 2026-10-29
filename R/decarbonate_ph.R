@@ -28,11 +28,11 @@
 decarbonate_ph <- function(water, co2_removed) {
   validate_water(water, c("ph", "alk"))
   if (missing(co2_removed)) {
-    stop("No CO2 removal defined. Enter a value for co2_removed between 0 and 1.")
+    cli::cli_abort("No CO2 removal defined. Enter a value for {.arg co2_removed} between 0 and 1.")
   }
 
   if ((co2_removed > 1 | co2_removed < 0) & !is.na(co2_removed)) {
-    stop("CO2 removed should be a fraction of the total CO2, between 0 and 1.")
+    cli::cli_abort("{.arg co2_removed} should be a fraction between 0 and 1.")
   }
 
   co2_mol <- water@h2co3 * co2_removed
@@ -98,7 +98,7 @@ decarbonate_ph_df <- function(
     )
   })
   for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   output <- df
