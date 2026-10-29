@@ -261,6 +261,7 @@ Guidance on results:
   (Sierra Johnson @sierrajohnson, Libby McKenna @libbymckenna, Jiaming Yuan @jiamingy5).
 - The PR body should contain `Fixes #issue-number`.
 - If the PR is entirely agent-generated, say so at the top of the description, not the bottom.
+- Follow [AI_POLICY.md](AI_POLICY.md): state how AI was used and which part of its section 3 (a, b, or c) the change falls under.
 - Keep PR descriptions brief. Mention each issue or PR number only once.
 - For minor changes, test results don't need to be reported in the PR description.
 - Don't run the full test suite locally; CI runs it. Run tests only for the files you touch, e.g.

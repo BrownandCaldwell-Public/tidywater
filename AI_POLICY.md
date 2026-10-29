@@ -3,7 +3,7 @@ and the scverse AI policy (https://scverse.org/about/ai_policy/). -->
 
 # Generative AI policy
 
-Generative AI tools, especially coding agents, help the project. They can streamline routine updates, find errors, and improve
+Generative AI tools, especially coding agents, help tidywater development. They can streamline routine updates, find errors, and improve
 code quality and test coverage. Contributors may use them on any part of tidywater.
 
 tidywater's outputs are used to make engineering decisions, so they have to match the published models the package implements.
@@ -41,12 +41,15 @@ rest of the test suite must pass without accepting new snapshots or changing exp
 * The PR lists each changed or added equation, constant, and coefficient with its page or table in the source, notes any departure
   from the publication, and lists which golden snapshots changed and why.
 
-**New models may only be added under 3b.** If the agent cannot read the source, a human must write or check the reference tests.
+**New models must meet 3b.** If the agent cannot read the source, a human must write or check the reference tests.
 
 **c. Changes that affect outputs but that have not been verified against a publication.** Examples are bug fixes and changes to
-unit handling, input validation, defaults, or chaining. These are allowed, but the PR must list every golden snapshot that changed,
-with old and new values and the reason for each. Reviewers go through these in detail (section 6). A change the PR cannot explain is
-treated as a bug.
+unit handling, input validation, defaults, or chaining. A bug fix may change an equation, coefficient, or constant when the existing
+code does not match its publication, as long as the PR explains the discrepancy. These changes are allowed, but the PR must list
+every golden snapshot that changed, with old and new values and the reason for each. Reviewers go through these in detail
+(section 6). A change the PR cannot explain is treated as a bug.
+
+Any change to numeric output under 3b or 3c also needs a `NEWS.md` entry under "Breaking changes".
 
 ## 4. Keep the package's architecture
 
@@ -64,12 +67,13 @@ scrutiny in review. The PR must call it out and explain why base R or an existin
 
 ## 6. Human review
 
-Every PR is reviewed by at least one human other than the submitter. An AI review can help but does not replace a human review.
+Every PR is reviewed by at least one human other than the submitter. An AI review can help but does not replace a human review:
+if you use an agent to review a PR, a human must still review both the agent's comments and the original PR.
 
 * **Focus on the tests.** Tests are how reviewers see what an agent actually changed. They must be thorough enough to show what
   the change does, including edge cases, warnings, and errors, without relying on the agent's summary. Reviewers may ask for more.
-* To keep the CRAN package fast, wrap long-running tests in `testthat::skip_on_cran()` so they still run on CI. The golden
-  regression tests already do this.
+* To keep the CRAN package fast, wrap long-running tests in `testthat::skip_on_cran()` so they still run on CI. Most `_df`
+  helper tests already do this. The golden regression tests are excluded from the built package instead.
 * For 3b changes, check the cited values against the source publication. For 3c changes, go through every changed golden value.
 * Reviewers may ask for an AI-assisted PR to be split up, explained, or reworked if it is too large or unclear to review.
 
