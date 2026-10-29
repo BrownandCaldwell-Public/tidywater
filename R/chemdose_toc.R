@@ -45,7 +45,7 @@
 #'   ))
 #' 
 #' dosed_reuse <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
-#'   chemdose_toc(alum = 10, coeff = "Reuse Site Langmuir", fns = 0.6)
+#'   chemdose_toc(alum = 40, coeff = "Reuse Site Langmuir", fns = 0.6)
 #'
 #' @export
 #'
