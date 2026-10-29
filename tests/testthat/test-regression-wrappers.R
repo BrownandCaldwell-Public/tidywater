@@ -157,6 +157,12 @@ test_that("regression: _df helpers read arguments from columns", {
   from_cols <- suppressWarnings(ozonate_bromate_df(df, output_water = "out", model = "Sohn"))$out
   base <- Map(function(w, dose, time) suppressWarnings(ozonate_bromate(w, dose = dose, time = time, model = "Sohn")), df$defined, df$dose, df$time)
   expect_same_outputs(from_cols, base)
+
+  df$kdoc <- c(1.67e4, 2.5e4, 3.6e4, 2e4)
+  expect_identical(
+    suppressWarnings(scavenge_oh_df(df, dose = dose, kdoc_adjust = kdoc))$oh_scavenging,
+    unlist(Map(function(w, dose, kdoc) suppressWarnings(scavenge_oh(w, dose = dose, kdoc_adjust = kdoc)), df$defined, df$dose, df$kdoc))
+  )
 })
 
 test_that("regression: pluck_cols gives the same values as the water column", {
