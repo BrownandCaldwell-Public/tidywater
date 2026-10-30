@@ -6,13 +6,13 @@
   * `chemdose_toc()` gains reuse-water models from Wilder & Korak (2025) for aluminum coagulants.
   * `biofilter_toc()` gains reuse and ATP-based models from Peterson & Summers (2021) and Terry et al. (2024).
   * `chemdose_ph()` now supports polyaluminum chloride and citric acid. `chemdose_toc()` now supports ACH and PACl.
-  * `define_water()` gains a `no2` argument for nitrite in mg/L as N, a `tot_citric` argument for citric acid.
+  * `define_water()` gains `no2` (nitrite, mg/L as N) and `tot_citric` (citric acid) arguments.
   * The `water` class gains a `co2` slot (dissolved CO2, H2CO3*, in mg/L as CO2). It is calculated from `h2co3`.
   * `convert_units()` supports mg/L as P and mg/L as Cl2. Start and end units and formulas allow for "close enough" spellings (eg; case insensitive, with or without spaces and slashes, etc). `formula` is optional when converting within the same unit type (e.g. mg/L to g/L).
 
 * New functions
   * `scavenge_oh()` calculates the background OH radical scavenging term for UV/AOP.
-  * `chemdose_inorgdemand()` calculate the free chlorine residual after the inorganic chlorine demand of Mn, Fe, and ammonia.
+  * `chemdose_inorgdemand()` calculates the free chlorine residual after the inorganic chlorine demand of Mn, Fe, and ammonia.
   * `check_water()` contains many of the warnings that were previously included in `define_water()`. The warnings were cumbersome and often ignored, so this function provides a way to deliberately evaluate how a water quality is defined.
   * `convert_flow()` for unit conversions involving flow rates.
   * `define_chemical()` function and new `chemical` class are the starting point for better units handling of chemicals, but are not yet incorporated into other functions.
@@ -41,7 +41,7 @@
   * `pac_toc()` corrections at low DOC and UV254.
   * `convert_watermg()` returns `tot_sio4` in mg/L as SiO2, matching `define_water()` input.
   * `modify_water()` now converts TOC, DOC, and BDOC entered in ug/L and DBPs entered in mg/L correctly. Both conversions were inverted. It also accepts `tbaa` and no longer lists the nonexistent `baa` slot.
-  * `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water was returned unchanged. It now errors when a column it needs is missing (#533).
+  * `modify_water_df()` now applies `slot`, `value`, and `units` passed as constants. Before, they were silently ignored and the water was returned unchanged. It now errors when a column it needs is missing.
 
 
 
