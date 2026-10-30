@@ -110,6 +110,9 @@ dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
 
+dosed_reuse <- chemdose_ph(water, alum = 10, h2so4 = 10) \%>\%
+  chemdose_toc(alum = 40, coeff = "Reuse Site Langmuir", fns = 0.6)
+
 \donttest{
 example_df <- water_df \%>\%
   define_water_df() \%>\%

@@ -30,8 +30,8 @@
   * Kw is now calculated consistently with `K_temp_adjust()` using the van 't Hoff equation, assuming a constant enthalpy of 55,830 J/mol for H2O -> H+ + OH-. It previously used a rounded empirical formula; pH results change slightly at temperatures other than 25 C.
   * `chemdose_chloramine()` previously stored free ammonia in the `tot_nh3` slot. The slot now correctly holds total ammonia.
   * `chemdose_chlordecay()` with `use_chlorine_slot = TRUE` now reads the chlorine slot as Cl2, not Cl, so the slot counts at its full value. The free chlorine residual is also clamped at 0 and no longer goes negative.
-  * `solvect_chlorine()` now correctly converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when `free_cl_slot = "slot_only"` or `"sum_with_residual"`. 
-  * `dissolve_cu()` now correctly uses orthophosphate in mg/L as PO4; it previously used mol/L.
+  * `solvect_chlorine()` now correctly converts the `free_chlorine` slot from mol/L to mg/L as Cl2 when `free_cl_slot = "slot_only"` or `"sum_with_residual"`. CT was previously about 5 orders of magnitude too low.
+  * `dissolve_cu()` now correctly uses orthophosphate in mg/L as PO4; it previously used mol/L, so orthophosphate had almost no effect. Results with orthophosphate are now lower (e.g. 2 mg/L PO4 lowers copper by about 33%).
   * `gacbv_toc()` now correctly looks up bed volume at C/C0 = `target_doc / doc`.
 * Minor calculation changes and edge cases
   * `balance_ions()` now includes Fe, Al, Mn, F, and Br.
