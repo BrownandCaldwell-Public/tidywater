@@ -14,7 +14,7 @@ Provides multiple water chemistry-based models and published empirical models in
 Useful links:
 \itemize{
   \item \url{https://github.com/BrownandCaldwell-Public/tidywater}
-  \item \url{https://BrownandCaldwell-Public.github.io/tidywater}
+  \item \url{https://brownandcaldwell-public.github.io/tidywater/}
   \item Report bugs at \url{https://github.com/BrownandCaldwell-Public/tidywater/issues}
 }
 
@@ -35,6 +35,9 @@ Other contributors:
   \item Mayuri Namasivayam [contributor]
   \item Phoebe Chen [contributor]
   \item Jiaming Yuan [contributor]
+  \item Atticus Fretz [contributor]
+  \item Bengu Kilinc [contributor]
+  \item Hania Zanib [contributor]
   \item USEPA (Copyright holder of included TELSS fragments (dissolve_pb function)) [copyright holder]
   \item Brown and Caldwell [funder, copyright holder]
 }
