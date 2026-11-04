@@ -1,7 +1,7 @@
 # Simulate contributions of various lead solids to total soluble lead
 
 This function takes a water data frame defined by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and outputs a dataframe of the controlling lead solid and total lead
 solubility. Lead solid solubility is calculated based on controlling
 solid. Total dissolved lead species (tot_dissolved_pb, M) are calculated
@@ -57,7 +57,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   Water must include alk and is. If po4, cl, and so4 are known, those
   should also be included.
 
@@ -80,7 +80,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 

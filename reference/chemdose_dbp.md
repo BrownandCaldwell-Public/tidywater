@@ -3,10 +3,10 @@
 Calculates disinfection byproduct (DBP) formation based on the U.S.
 EPA's Water Treatment Plant Model (U.S. EPA, 2001). Required arguments
 include an object of class "water" created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 chlorine dose, type, reaction time, and treatment applied (if any). The
 function also requires additional water quality parameters defined in
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 including bromide, TOC, UV254, temperature, and pH.
 
 For a single water use `chemdose_dbp`; for a dataframe use
@@ -36,6 +36,7 @@ chemdose_dbp_df(
   output_water = "disinfected",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   cl2 = "use_col",
   time = "use_col",
   treatment = "use_col",
@@ -64,7 +65,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - cl2:
 
@@ -110,7 +111,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include columns for the other function arguments.
 
 - input_water:
@@ -135,6 +136,11 @@ See references list at:
   Append the output_water name to the start of the plucked columns.
   Default is TRUE.
 
+- keep_dose_cols:
+
+  Option to keep the original chemical dose columns in the output data
+  frame. Default is FALSE.
+
 ## Value
 
 `chemdose_dbp` returns a single water class object with predicted DBP
@@ -156,12 +162,14 @@ quickly tabulate the results.
 ``` r
 example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
   chemdose_dbp(cl2 = 2, time = 8)
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
   chemdose_dbp(cl2 = 3, time = 168, treatment = "coag", location = "ds")
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # \donttest{
 example_df <- water_df %>%
@@ -181,9 +189,9 @@ example_df <- water_df %>%
     cl2 = cl2_dose, treatment = "coag", location = "ds",
     cl_type = "chloramine", pluck_cols = TRUE
   )
-#> Warning: pH is outside the model bounds of pH = 7.5 for coagulated water (3 rows
+#> Warning: pH is outside the model bounds (pH = 7.5) for coagulated water. (3 rows
 #> affected.)
-#> Warning: Temperature is outside the model bounds of temp=20 Celsius for coagulated
-#> water. (2 rows affected.)
+#> Warning: Temperature is outside the model bounds (temp = 20 °C) for coagulated water. (2
+#> rows affected.)
 # }
 ```

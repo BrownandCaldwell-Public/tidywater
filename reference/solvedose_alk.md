@@ -28,7 +28,7 @@ solvedose_alk_df(
 - water:
 
   Source water of class "water" created by
-  [`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - target_alk:
 
@@ -38,14 +38,14 @@ solvedose_alk_df(
 - chemical:
 
   The chemical to be added. Current supported chemicals include: acids:
-  "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3",
-  "caoh2", "mgoh2"
+  "hcl", "h2so4", "h3po4", bases: "naoh", "na2co3", "nahco3", "caoh2",
+  "mgoh2"
 
 - df:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column with names for each of the chemicals being
   dosed.
 
@@ -71,25 +71,26 @@ chemical dose.
 
 `solvedose_alk` uses
 [`stats::uniroot()`](https://rdrr.io/r/stats/uniroot.html) on
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 to match the required dose for the requested alkalinity target.
 
 ## See also
 
-[solvedose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_ph.md)
+[solvedose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/solvedose_ph.md)
 
 ## Examples
 
 ``` r
 dose_required <- define_water(ph = 7.9, temp = 22, alk = 100, 80, 50) %>%
   solvedose_alk(target_alk = 150, "naoh")
-#> Warning: Missing value for magnesium. Value estimated from total hardness and calcium.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `mg`; estimated from total hardness and calcium.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 example_df <- water_df %>%
   define_water_df() %>%
   dplyr::mutate(finAlk = seq(100, 210, 10)) %>%
   solvedose_alk_df(chemical = "na2co3", target_alk = finAlk)
-#> Warning: Target alkalinity cannot be reached with selected chemical. NA returned. (2
-#> rows affected.)
+#> Warning: Target alkalinity cannot be reached with the selected chemical; "NA" returned.
+#> (2 rows affected.)
 ```

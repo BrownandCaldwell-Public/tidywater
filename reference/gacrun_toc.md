@@ -1,12 +1,14 @@
 # Calculate TOC Concentration in GAC system
 
-Returns a data frame with a breakthrough curve based on the TOC
+Returns a data frame with a breakthrough curve based on the DOC
 concentration after passing through GAC treatment, according to the
 model developed in "Modeling TOC Breakthrough in Granular Activated
 Carbon Adsorbers" by Zachman and Summers (2010), or the USEPA WTP Model
 v. 2.0 Manual (2001).
 
-Water must contain DOC or TOC value.
+Water must contain a DOC value (or TOC, from which
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
+estimates DOC).
 
 ## Usage
 
@@ -44,7 +46,7 @@ USEPA (2001)
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - ebct:
 
@@ -71,7 +73,7 @@ USEPA (2001)
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column named for the coagulant being dosed, and a
   column named for the set of coefficients to use.
 
@@ -87,8 +89,8 @@ USEPA (2001)
 
 ## Value
 
-`gacrun_toc` returns a data frame with bed volumes and breakthrough TOC
-values.
+`gacrun_toc` returns a data frame with bed volumes and normalized
+breakthrough DOC values (`x_norm`, DOCeff/DOCinf).
 
 `gacrun_toc_df` returns a data frame containing columns of the
 breakthrough curve (breakthrough and bed volume).
@@ -97,21 +99,25 @@ breakthrough curve (breakthrough and bed volume).
 
 GAC model for TOC removal
 
-The function will calculate bed volumes and normalized TOC breakthrough
-(TOCeff/TOCinf) given model type. Both models were developed using data
+The function will calculate bed volumes and normalized DOC breakthrough
+(DOCeff/DOCinf) given model type. Both models were developed using data
 sets from bench-scale GAC treatment studies using bituminous GAC and
 EBCTs of either 10 or 20 minutes. The specific mesh sizes used to
 develop the Zachman and Summers model were 12x40 or 8x30. The models
-were also developed using influent pH and TOC between specific ranges.
-Refer to the papers included in the references for more details.
+were also developed using influent pH and DOC between specific ranges.
+Refer to the papers included in the references for more details. Both
+models were published in terms of TOC. GAC influent is normally
+coagulated and filtered, so particulate organic carbon is negligible and
+TOC = DOC; tidywater therefore applies the models to influent DOC.
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
   gacrun_toc(media_size = "8x30", ebct = 20, model = "Zachman")
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # \donttest{
 example_df <- water_df %>%

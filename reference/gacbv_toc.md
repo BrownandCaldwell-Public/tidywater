@@ -9,7 +9,9 @@ the `_df` helper "use_col" default looks for a column of the same name
 in the dataframe. The argument can be specified directly in the function
 instead or an unquoted column name can be provided.
 
-Water must contain DOC or TOC value.
+Water must contain a DOC value (or TOC, from which
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
+estimates DOC).
 
 ## Usage
 
@@ -47,7 +49,7 @@ USEPA (2001)
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - ebct:
 
@@ -66,14 +68,14 @@ USEPA (2001)
 
 - target_doc:
 
-  Optional input to set a target DOC concentration and calculate
-  necessary bed volume
+  Target effluent DOC concentration (mg/L). Can be a vector to return a
+  bed volume for each target.
 
 - df:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
   The df may include columns named for the chemical(s) being dosed.
 
 - input_water:
@@ -98,14 +100,18 @@ DOC.
 GAC model for TOC removal
 
 The function will calculate bed volume required to achieve given target
-DOC values.
+DOC values. Both models were published in terms of TOC. GAC influent is
+normally coagulated and filtered, so particulate organic carbon is
+negligible and TOC = DOC; tidywater therefore applies the models to
+influent DOC.
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5)
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 bed_volume <- gacbv_toc(water, media_size = "8x30", ebct = 20, model = "Zachman", target_doc = 0.8)
 
 # \donttest{

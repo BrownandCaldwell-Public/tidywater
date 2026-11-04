@@ -6,10 +6,10 @@ on the two papers Jafvert & Valentine (Environ. Sci. Technol., 1992, 26
 (3), pp 577-586) and Vikesland et al. (Water Res., 2001, 35 (7), pp
 1766-1776). Required arguments include an object of class "water"
 created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md),
 chlorine dose, and reaction time. The function also requires additional
 water quality parameters defined in
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 including temperature, pH, and alkalinity. For a single water use
 `chemdose_chloramine`; for a dataframe use `chemdose_chloramine_df`. Use
 `pluck_cols = TRUE` to get values from the output water as new dataframe
@@ -36,6 +36,7 @@ chemdose_chloramine_df(
   output_water = "chloraminated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   time = "use_col",
   cl2 = "use_col",
   nh3 = "use_col",
@@ -54,7 +55,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - time:
 
@@ -87,7 +88,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column named for the applied chlorine dose
   (cl2_dose), and a column for time in hours.
 
@@ -112,6 +113,11 @@ See references list at:
   Append the output_water name to the start of the plucked columns.
   Default is TRUE.
 
+- keep_dose_cols:
+
+  Option to keep the original chemical dose columns in the output data
+  frame. Default is FALSE.
+
 ## Value
 
 `chemdose_chloramine` returns a water class object with predicted
@@ -127,15 +133,14 @@ columns for each of those slots individually.
 ``` r
 breakpoint <- define_water(7.5, 20, 65, free_chlorine = 5, tot_nh3 = 1) %>%
   chemdose_chloramine(time = 40, cl2 = 2, nh3 = 1, use_free_cl_slot = TRUE)
-#> Warning: Both chlorine and ammonia are present and may form chloramines.
-#> Use chemdose_chloramine for breakpoint caclulations.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.
-#>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.
-#> Warning: Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (0.000071 mol/L) was ignored.
-#>               If you want to use ONLY tot_nh3 slot in water, please set use_tot_nh3_slot to TRUE and remove ammonia dose.
-#>               If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
+#> Warning: Both `cl2` dose and free_chlorine slot (7.05158942825713e-05 mol/L) were used.
+#> ℹ To use ONLY the dose, set `use_free_cl_slot = FALSE`.
+#> ℹ To use ONLY the water slot, remove `cl2`.
+#> Warning: Ammonia dose was used; tot_nh3 slot (7.13944041066061e-05 mol/L) was ignored.
+#> ℹ To use ONLY the water slot, set `use_tot_nh3_slot = TRUE` and remove `nh3`.
+#> ℹ To use BOTH, set `use_tot_nh3_slot = TRUE`.
 
 # \donttest{
 breakpoint <- water_df %>%
@@ -152,11 +157,8 @@ breakpoint <- water_df %>%
     use_tot_nh3_slot = TRUE,
     pluck_cols = TRUE
   )
-#> Warning: Both chlorine and ammonia are present and may form chloramines. Use
-#> chemdose_chloramine for breakpoint caclulations. (12 rows affected.)
-#> Warning: Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.
-#> If you want to use ONLY the chlorine dose, please set use_free_cl_slot to
-#> FALSE.  If you want to use ONLY the free chlorine water slot, remove chlorine
-#> dose. (12 rows affected.)
+#> Warning: Both `cl2` dose and free_chlorine slot (7.05158942825713e-05 mol/L) were used.
+#> ℹ To use ONLY the dose, set `use_free_cl_slot = FALSE`. ℹ To use ONLY the water
+#> slot, remove `cl2`. (12 rows affected.)
 # }
 ```

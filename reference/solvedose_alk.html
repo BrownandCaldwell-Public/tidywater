@@ -9,7 +9,7 @@ Returns numeric value for dose in mg/L. Uses uniroot on the chemdose_ph function
 For a single water, use solvedose_alk; to apply the model to a dataframe, use solvedose_alk_df.
 For most arguments, the _df helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
-function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png"></head><body>
+function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ function instead or an unquoted column name can be provided.'><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,12 +86,12 @@ function instead or an unquoted column name can be provided.</p>
 
 <dt id="arg-chemical">chemical<a class="anchor" aria-label="anchor" href="#arg-chemical"></a></dt>
 <dd><p>The chemical to be added. Current supported chemicals include:
-acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"</p></dd>
+acids: "hcl", "h2so4", "h3po4", bases: "naoh", "na2co3", "nahco3", "caoh2", "mgoh2"</p></dd>
 
 
 <dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>a data frame containing a water class column, which has already been computed using
-<a href="define_water_df.html">define_water_df</a>. The df may include a column with names for each of the chemicals being dosed.</p></dd>
+<a href="define_water.html">define_water_df</a>. The df may include a column with names for each of the chemicals being dosed.</p></dd>
 
 
 <dt id="arg-input-water">input_water<a class="anchor" aria-label="anchor" href="#arg-input-water"></a></dt>
@@ -120,15 +120,16 @@ acids: "hcl", "h2so4", "h3po4", "co2", bases: "naoh", "na2co3", "nahco3", "caoh2
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">dose_required</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7.9</span>, temp <span class="op">=</span> <span class="fl">22</span>, alk <span class="op">=</span> <span class="fl">100</span>, <span class="fl">80</span>, <span class="fl">50</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">solvedose_alk</span><span class="op">(</span>target_alk <span class="op">=</span> <span class="fl">150</span>, <span class="st">"naoh"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Missing value for magnesium. Value estimated from total hardness and calcium.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Missing value for `mg`; estimated from total hardness and calcium.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">example_df</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>finAlk <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">210</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">solvedose_alk_df</span><span class="op">(</span>chemical <span class="op">=</span> <span class="st">"na2co3"</span>, target_alk <span class="op">=</span> <span class="va">finAlk</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Target alkalinity cannot be reached with selected chemical. NA returned. (2</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> rows affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Target alkalinity cannot be reached with the selected chemical; <span style="color: #0000BB;">"NA"</span> returned.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> (2 rows affected.)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

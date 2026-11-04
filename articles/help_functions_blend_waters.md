@@ -2,10 +2,10 @@
 
 This vignette assumes a basic understanding of `define_water` and the S4
 `water` class. See
-[`vignette("intro", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/intro.md)
+[`vignette("intro", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/intro.md)
 for more information. Additionally, for more information on tidywater’s
 `_df` and `pluck_waters` functions, please see the
-[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/help_functions_chemdose_ph.md).
+[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/help_functions_chemdose_ph.md).
 
 ## Blending analysis setup
 
@@ -219,4 +219,4 @@ new column storing updated parameters with the class `water`.
 We also got more practice using helper functions with the `_df` suffix
 and also `pluck_water`. For more context on helper functions or to learn
 more about the `chemdose_ph` and `solvedose_ph` functions, please see
-[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/help_functions_chemdose_ph.md).
+[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/help_functions_chemdose_ph.md).

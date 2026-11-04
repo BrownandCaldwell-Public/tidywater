@@ -29,7 +29,7 @@ solvedose_ph_df(
 - water:
 
   Source water of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - target_ph:
 
@@ -45,7 +45,7 @@ solvedose_ph_df(
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column with names for each of the chemicals being
   dosed.
 
@@ -70,19 +70,20 @@ dose.
 
 `solvedose_ph` uses
 [`stats::uniroot()`](https://rdrr.io/r/stats/uniroot.html) on
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 to match the required dose for the requested pH target.
 
 ## See also
 
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md),
-[solvedose_alk](https://BrownandCaldwell-Public.github.io/tidywater/reference/solvedose_alk.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md),
+[solvedose_alk](https://brownandcaldwell-public.github.io/tidywater/reference/solvedose_alk.md)
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 7, temp = 25, alk = 10)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # Calculate required dose of lime to reach pH 8
 solvedose_ph(water, target_ph = 8, chemical = "caoh2")

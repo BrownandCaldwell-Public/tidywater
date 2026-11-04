@@ -33,7 +33,7 @@ See reference list at:
 - water:
 
   Source water object of class `water` created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - dose:
 
@@ -47,7 +47,7 @@ See reference list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [`define_water_df`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [`define_water_df`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 
@@ -61,7 +61,8 @@ See reference list at:
 
 ## Value
 
-`solveresid_o3` returns a numeric value for the residual ozone.
+`solveresid_o3` returns a numeric value for the residual ozone. The
+residual is 0 when the modeled ozone demand exceeds the dose.
 
 `solveresid_o3_df` returns a data frame containing the original data
 frame and columns for ozone dosed, time, and ozone residual.
@@ -71,7 +72,8 @@ frame and columns for ozone dosed, time, and ozone residual.
 ``` r
 ozone_resid <- define_water(7, 20, 100, doc = 2, toc = 2.2, uv254 = .02, br = 50) %>%
   solveresid_o3(dose = 2, time = 10)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 ozone_resid <- water_df %>%
   dplyr::mutate(br = 50) %>%

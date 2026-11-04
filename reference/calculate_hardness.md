@@ -39,7 +39,6 @@ calculate_hardness(50, 10)
 #> [1] 166.0447
 
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#> Warning: User entered total hardness is >10% different than calculated hardness.
 calculate_hardness(water_defined@ca, water_defined@mg, "total", "M")
 #> [1] 240.9638
 ```

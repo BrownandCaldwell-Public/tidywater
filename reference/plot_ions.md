@@ -1,7 +1,7 @@
 # Create summary plot of ions from water class
 
 This function takes a water data frame defined by
-[`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and outputs an ion balance plot.
 
 ## Usage

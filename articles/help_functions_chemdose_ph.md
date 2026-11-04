@@ -2,7 +2,7 @@
 
 This vignette assumes a basic understanding of `define_water` and the S4
 `water` class. See
-[`vignette("intro", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/intro.md)
+[`vignette("intro", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/intro.md)
 for more information.
 
 ## Chemical dosing setup
@@ -119,20 +119,20 @@ dose_water <- raw_water %>%
   select(-c(raw, dosed_chem))
 
 head(dose_water)
->#                                                 balanced alum_dose hcl
-># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5
-># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30   5
-># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40   5
-># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50   5
-># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60   5
-># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5
->#   dosed_chem_ph dosed_chem_alk raw_ph
-># 1          6.60       33.04107    7.9
-># 2          6.42       27.96961    7.9
-># 3          6.25       22.98907    7.9
-># 4          6.07       17.92141    7.9
-># 5          5.87       12.96700    7.9
-># 6          6.93       62.87537    8.5
+>#                                                 balanced dosed_chem_ph
+># 1 <S4 class 'water' [package "tidywater"] with 84 slots>          6.60
+># 2 <S4 class 'water' [package "tidywater"] with 84 slots>          6.42
+># 3 <S4 class 'water' [package "tidywater"] with 84 slots>          6.25
+># 4 <S4 class 'water' [package "tidywater"] with 84 slots>          6.07
+># 5 <S4 class 'water' [package "tidywater"] with 84 slots>          5.87
+># 6 <S4 class 'water' [package "tidywater"] with 84 slots>          6.93
+>#   dosed_chem_alk raw_ph
+># 1       33.03976    7.9
+># 2       27.96848    7.9
+># 3       22.98813    7.9
+># 4       17.92067    7.9
+># 5       12.96646    7.9
+># 6       63.02160    8.5
 
 # 2. Dose a chemical in the function
 dose_water <- raw_water %>%
@@ -141,20 +141,13 @@ dose_water <- raw_water %>%
   select(-c(raw, dosed_chem))
 
 head(dose_water)
->#                                                 balanced alum_dose hcl raw_ph
-># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5    7.9
-># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30   5    7.9
-># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40   5    7.9
-># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50   5    7.9
-># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60   5    7.9
-># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20   5    8.5
->#   dosed_chem_ph
-># 1          6.60
-># 2          6.42
-># 3          6.25
-># 4          6.07
-># 5          5.87
-># 6          6.93
+>#                                                 balanced raw_ph dosed_chem_ph
+># 1 <S4 class 'water' [package "tidywater"] with 84 slots>    7.9          6.60
+># 2 <S4 class 'water' [package "tidywater"] with 84 slots>    7.9          6.42
+># 3 <S4 class 'water' [package "tidywater"] with 84 slots>    7.9          6.25
+># 4 <S4 class 'water' [package "tidywater"] with 84 slots>    7.9          6.07
+># 5 <S4 class 'water' [package "tidywater"] with 84 slots>    7.9          5.87
+># 6 <S4 class 'water' [package "tidywater"] with 84 slots>    8.5          6.93
 ```
 
 Notice in the above code that we used the `pluck_water` helper function.
@@ -185,20 +178,20 @@ solve_ph <- raw_water %>%
   select(-c(raw, dosed_chem))
 
 head(solve_ph)
->#                                                 balanced alum_dose target_ph
-># 1 <S4 class 'water' [package "tidywater"] with 75 slots>        20         8
-># 2 <S4 class 'water' [package "tidywater"] with 75 slots>        30         8
-># 3 <S4 class 'water' [package "tidywater"] with 75 slots>        40         8
-># 4 <S4 class 'water' [package "tidywater"] with 75 slots>        50         8
-># 5 <S4 class 'water' [package "tidywater"] with 75 slots>        60         8
-># 6 <S4 class 'water' [package "tidywater"] with 75 slots>        20         8
->#   chemical dose
-># 1     naoh  8.3
-># 2     naoh 12.3
-># 3     naoh 16.5
-># 4     naoh 20.5
-># 5     naoh 24.4
-># 6     naoh  6.3
+>#                                                 balanced target_ph chemical
+># 1 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+># 2 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+># 3 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+># 4 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+># 5 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+># 6 <S4 class 'water' [package "tidywater"] with 84 slots>         8     naoh
+>#   dose
+># 1  8.3
+># 2 12.4
+># 3 16.5
+># 4 20.5
+># 5 24.4
+># 6  6.3
 ```
 
 Now that we have the dose required to raise the pH to 8, let’s dose
@@ -213,20 +206,20 @@ dosed_caustic_water <- raw_water %>%
   select(-c(raw:balanced, alum_dosed))
 
 head(dosed_caustic_water)
->#   alum_dose target_ph chemical dose
-># 1        20         8     naoh  8.3
-># 2        30         8     naoh 12.3
-># 3        40         8     naoh 16.5
-># 4        50         8     naoh 20.5
-># 5        60         8     naoh 24.4
-># 6        20         8     naoh  6.3
->#                                            caustic_dosed caustic_dosed_ph
-># 1 <S4 class 'water' [package "tidywater"] with 75 slots>             7.99
-># 2 <S4 class 'water' [package "tidywater"] with 75 slots>             7.98
-># 3 <S4 class 'water' [package "tidywater"] with 75 slots>             8.00
-># 4 <S4 class 'water' [package "tidywater"] with 75 slots>             8.02
-># 5 <S4 class 'water' [package "tidywater"] with 75 slots>             8.01
-># 6 <S4 class 'water' [package "tidywater"] with 75 slots>             7.99
+>#   target_ph chemical                                          caustic_dosed
+># 1         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+># 2         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+># 3         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+># 4         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+># 5         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+># 6         8     naoh <S4 class 'water' [package "tidywater"] with 84 slots>
+>#   caustic_dosed_ph
+># 1             7.99
+># 2             8.02
+># 3             8.00
+># 4             8.02
+># 5             8.01
+># 6             7.99
 ```
 
 You can see the resulting pH from dosing caustic has raised the pH to 8

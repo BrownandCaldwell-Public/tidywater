@@ -2,10 +2,10 @@
 
 This vignette assumes a basic understanding of `define_water` and the S4
 `water` class. See
-[`vignette("intro", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/intro.md)
+[`vignette("intro", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/intro.md)
 for more information. Additionally, for more information on tidywater’s
 `_df` and `pluck_waters` functions, please see the
-[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://BrownandCaldwell-Public.github.io/tidywater/articles/help_functions_chemdose_ph.md).
+[`vignette("help_functions_chemdose_ph", package = "tidywater")`](https://brownandcaldwell-public.github.io/tidywater/articles/help_functions_chemdose_ph.md).
 
 ## Water setup
 
@@ -20,12 +20,9 @@ influent water and disinfection method to predict DBPs using the
 
 influent <- define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = .2, br = 50) %>%
   chemdose_dbp(cl2 = 2, time = 8, treatment = "coag", cl_type = "chlorine", location = "plant")
-#> Warning in define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = 0.2, :
-#> Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning in define_water(ph = 7.5, temp = 20, alk = 50, toc = 4, uv254 = 0.2, :
-#> Major ions missing and neither TDS or conductivity entered. Ideal conditions
-#> will be assumed. Ionic strength will be set to NA and activity coefficients in
-#> future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 ```
 
 The influent water object now has populated slots corresponding to

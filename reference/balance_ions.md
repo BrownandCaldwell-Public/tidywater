@@ -1,7 +1,7 @@
 # Add an ion to balance overall charge in a water
 
 This function takes a water defined by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and balances charge. For a single water use `balance_ions`; for a
 dataframe use `balance_ions_df`. Use `pluck_cols = TRUE` to get values
 from the output water as new dataframe columns.
@@ -27,7 +27,7 @@ balance_ions_df(
 - water:
 
   Water created with
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md),
   which may have some ions set to 0 when unknown
 
 - anion:
@@ -44,7 +44,7 @@ balance_ions_df(
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 
@@ -79,7 +79,7 @@ balanced water
 If more cations are needed, sodium will be added. User may specify which
 cation ("na", "k", "ca", or "mg") to use for balancing. If calcium and
 magnesium are not specified when defining a water with
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md),
 they will default to 0 and not be changed by this function unless
 specified in the cation argument. Anions are added by default with
 chloride. User may specify which anion ("cl", "so4") to use for
@@ -92,12 +92,13 @@ source water.
 ``` r
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10) %>%
   balance_ions()
-#> Warning: User entered total hardness is >10% different than calculated hardness.
 
 water_defined <- define_water(7, 20, 50, tot_hard = 150) %>%
   balance_ions(anion = "so4")
-#> Warning: Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%
+#> Ca/Mg split.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 example_df <- water_df %>%
   define_water_df() %>%

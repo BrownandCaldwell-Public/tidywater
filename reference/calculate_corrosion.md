@@ -1,7 +1,7 @@
 # Calculate six corrosion and scaling indices (AI, RI, LSI, LI, CSMR, CCPP)
 
 This function takes an object created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and calculates corrosion and scaling indices. For a single water, use
 `calculate_corrosion`; to apply the calculations to a dataframe, use
 `calculate_corrosion_df`.
@@ -60,7 +60,7 @@ See reference list at
 - water:
 
   Source water of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - index:
 
@@ -71,13 +71,14 @@ See reference list at
 
 - form:
 
-  Form of calcium carbonate mineral to use for modelling solubility:
-  "calcite" (default), "aragonite", or "vaterite"
+  Form of calcium carbonate mineral to use for modelling solubility in
+  the Langelier and Ryznar indices: "calcite" (default), "aragonite", or
+  "vaterite". CCPP always uses calcite.
 
 - df:
 
   a data frame containing a water class column, created using
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 
@@ -119,7 +120,13 @@ Calcium carbonate precipitation potential (CCPP), mg/L as CaCO3 - a
 prediction of the mass of calcium carbonate that will precipitate at
 equilibrium. A positive CCPP value indicates the amount of CaCO3 (mg/L
 as CaCO3) that will precipitate. A negative CCPP indicates how much
-CaCO3 can be dissolved in the water.
+CaCO3 can be dissolved in the water. CCPP is always calculated against
+calcite solubility, following Merrill and Sanks (1977a, 1977b, 1978) and
+Trussell (1998); the `form` argument does not affect CCPP.
+
+If chloride or sulfate is missing, the Larson-Skold index and CSMR are
+returned as `NA` with a warning, and the other requested indices are
+still calculated.
 
 ## Examples
 
@@ -128,14 +135,18 @@ water <- define_water(
   ph = 8, temp = 25, alk = 200, tot_hard = 200,
   tds = 576, cl = 150, so4 = 200
 )
-#> Warning: Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%
+#> Ca/Mg split.
 corrosion_indices <- calculate_corrosion(water)
-#> Warning: Calcium estimated by previous tidywater function, aggressiveness index calculation approximate.
+#> Warning: Calcium estimated by previous tidywater function; aggressiveness index
+#> calculation is approximate.
 
 water <- define_water(ph = 8, temp = 25, alk = 100, tot_hard = 50, tds = 200)
-#> Warning: Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%
+#> Ca/Mg split.
 corrosion_indices <- calculate_corrosion(water, index = c("aggressive", "ccpp"))
-#> Warning: Calcium estimated by previous tidywater function, aggressiveness index calculation approximate.
+#> Warning: Calcium estimated by previous tidywater function; aggressiveness index
+#> calculation is approximate.
 
 
 example_df <- water_df %>%

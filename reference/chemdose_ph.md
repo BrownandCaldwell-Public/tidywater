@@ -18,6 +18,7 @@ chemdose_ph(
   h3po4 = 0,
   hno3 = 0,
   ch3cooh = 0,
+  citric = 0,
   co2 = 0,
   naoh = 0,
   caoh2 = 0,
@@ -50,6 +51,7 @@ chemdose_ph_df(
   na_to_zero = TRUE,
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   hcl = "use_col",
   h2so4 = "use_col",
   h3po4 = "use_col",
@@ -86,7 +88,7 @@ chemdose_ph_df(
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - hcl:
 
@@ -106,7 +108,12 @@ chemdose_ph_df(
 
 - ch3cooh:
 
-  Amount of acetic acid added in mg/L: CH3COOH -\> H + CH3COO-
+  Amount of acetic acid added in mg/L: CH3COOH -\> H + CH3COO
+
+- citric:
+
+  Amount of citric acid added in mg/L: C3H4OH(COOH)3 -\> 3H+
+  C3H4OH(COO)3
 
 - co2:
 
@@ -216,7 +223,7 @@ chemdose_ph_df(
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
   The df may include columns named for the chemical(s) being dosed.
 
 - input_water:
@@ -244,6 +251,11 @@ chemdose_ph_df(
   Append the output_water name to the start of the plucked columns.
   Default is TRUE.
 
+- keep_dose_cols:
+
+  Option to keep the original chemical dose columns in the output data
+  frame. Default is FALSE.
+
 ## Value
 
 `chemdose_ph` returns a water class object with updated pH, alkalinity,
@@ -255,7 +267,7 @@ with updated pH, alkalinity, and ions post-chemical addition.
 ## Details
 
 The function takes an object of class "water" created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and user-specified chemical additions and returns a new object of class
 "water" with updated water quality. Units of all chemical additions are
 in mg/L as chemical (not as product).
@@ -270,27 +282,33 @@ independently through sequential doses.
 
 ## See also
 
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
-[convert_units](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_units.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md),
+[convert_units](https://brownandcaldwell-public.github.io/tidywater/reference/convert_units.md)
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 7, temp = 25, alk = 10)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 # Dose 1 mg/L of hydrochloric acid
 dosed_water <- chemdose_ph(water, hcl = 1)
-#> Warning: Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.
+#> Warning: Chloride-containing chemical dosed, but cl slot is "NA"; slot not updated
+#> because background Cl is unknown.
 
 # Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously
 dosed_water <- chemdose_ph(water, hcl = 1, alum = 5)
-#> Warning: Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.
-#> Warning: Sulfate-containing chemical dosed, but so4 water slot is NA. Slot not updated because background so4 unknown.
+#> Warning: Chloride-containing chemical dosed, but cl slot is "NA"; slot not updated
+#> because background Cl is unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
 
 # Softening:
 water2 <- define_water(ph = 7, temp = 25, alk = 100, tot_hard = 350)
-#> Warning: Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%
+#> Ca/Mg split.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 dosed_water2 <- chemdose_ph(water2, caco3 = -100, softening_correction = TRUE)
 
 # \donttest{

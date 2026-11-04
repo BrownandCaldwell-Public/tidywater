@@ -25,11 +25,9 @@ mywater <- define_water(
   cond = 100,
   toc = 3, uv254 = .02, br = 50
 )
-#> Warning in define_water(ph = 7, temp = 15, alk = 100, tot_hard = 100, na = 100,
-#> : Missing values for calcium and magnesium but total hardness supplied. Default
-#> ratio of 65% Ca2+ and 35% Mg2+ will be used.
-#> Warning in define_water(ph = 7, temp = 15, alk = 100, tot_hard = 100, na = 100,
-#> : Missing value for DOC. Default value of 95% of TOC will be used.
+#> Warning: Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%
+#> Ca/Mg split.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
 ```
 
 Now that we have a water, we can apply treatment models to it. The main
@@ -52,9 +50,8 @@ coagulant.
 ``` r
 
 dosed_water <- chemdose_ph(mywater, hcl = 5, alum = 20)
-#> Warning in chemdose_ph(mywater, hcl = 5, alum = 20): Sulfate-containing
-#> chemical dosed, but so4 water slot is NA. Slot not updated because background
-#> so4 unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
 mywater@ph
 #> [1] 7
 dosed_water@ph
@@ -89,9 +86,8 @@ and TOC more compactly. Notice that the pH and DOC values returned from
 piped_coag_water <- mywater %>%
   chemdose_ph(hcl = 5, alum = 20) %>%
   chemdose_toc(alum = 20)
-#> Warning in chemdose_ph(., hcl = 5, alum = 20): Sulfate-containing chemical
-#> dosed, but so4 water slot is NA. Slot not updated because background so4
-#> unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
 
 piped_coag_water@ph
 #> [1] 6.68
@@ -124,12 +120,11 @@ groups of parameters in the water.
 
 dist_water <- chemdose_ph(fin_water, naocl = 4) %>%
   chemdose_dbp(cl2 = 4, time = 24, treatment = "coag")
-#> Warning in chemdose_dbp(., cl2 = 4, time = 24, treatment = "coag"): UV254 is
-#> outside the model bounds of 0.016 <= UV254 <= 0.215 cm-1 for coagulated water.
-#> Warning in chemdose_dbp(., cl2 = 4, time = 24, treatment = "coag"): Temperature
-#> is outside the model bounds of temp=20 Celsius for coagulated water.
-#> Warning in chemdose_dbp(., cl2 = 4, time = 24, treatment = "coag"): pH is
-#> outside the model bounds of pH = 7.5 for coagulated water
+#> Warning: UV254 is outside the model bounds (0.016 ≤ UV254 ≤ 0.215 cm^-1) for coagulated
+#> water.
+#> Warning: Temperature is outside the model bounds (temp = 20 °C) for
+#> coagulated water.
+#> Warning: pH is outside the model bounds (pH = 7.5) for coagulated water.
 
 summarize_wq(dist_water, "dbps")
 ```

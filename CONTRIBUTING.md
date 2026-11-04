@@ -112,6 +112,18 @@ more advice.
   unit tests. Contributions with test cases included are easier to
   accept.
 
+## Use of generative AI
+
+AI tools may be used to contribute, subject to the [AI
+policy](https://brownandcaldwell-public.github.io/tidywater/AI_POLICY.md).
+In short: disclose AI use in your PR, point agents to
+[AGENTS.md](https://brownandcaldwell-public.github.io/tidywater/AGENTS.md),
+and review agent-generated work yourself before requesting review.
+Agent-written code must keep the existing architecture, and agent-added
+dependencies get extra scrutiny. Output changes need verification
+against the source publication or detailed review of the changed tests,
+and new models always need the former.
+
 ## Licensing
 
 - This package and any contributions you make will be licensed under MIT
@@ -125,7 +137,7 @@ more advice.
 
 Please note that the tidywater project is released with a [Contributor
 Code of
-Conduct](https://BrownandCaldwell-Public.github.io/tidywater/CODE_OF_CONDUCT.md).
+Conduct](https://brownandcaldwell-public.github.io/tidywater/CODE_OF_CONDUCT.md).
 By contributing to this project you agree to abide by its terms.
 
 Portions of this guide were adapted from the OmicNavigator package under

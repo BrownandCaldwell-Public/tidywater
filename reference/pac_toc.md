@@ -42,7 +42,7 @@ CHO(2007)
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - dose:
 
@@ -62,7 +62,7 @@ CHO(2007)
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include columns named for the dose, time, and type
 
 - input_water:
@@ -98,16 +98,20 @@ columns for each of those slots individually.
 
 The function will calculate DOC concentration by PAC adsorption in
 drinking water treatment. UV254 concentrations are predicted based on a
-linear relationship with DOC.
+linear relationship with DOC, and are set to 0 when that relationship
+gives a negative value. For waters with DOC below 1.3 mg/L, the model is
+applied with the same percent removal as a 1.3 mg/L water. With a dose
+or time of 0, the input water is returned unchanged.
 
 ## Examples
 
 ``` r
 water <- define_water(toc = 2.5, uv254 = .05, doc = 1.5) %>%
   pac_toc(dose = 15, time = 50, type = "wood")
-#> Warning: Missing value for pH. Carbonate balance will not be calculated.
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `ph`; carbonate balance will not be calculated.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 
 example_df <- water_df %>%

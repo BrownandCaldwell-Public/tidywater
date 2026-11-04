@@ -13,7 +13,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to tidywater: Basic functions">
 <meta name="description" content="This vignette will detail how to use the tidywater base functions for basic water quality analysis.">
 <meta property="og:description" content="This vignette will detail how to use the tidywater base functions for basic water quality analysis.">
-<meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png">
+<meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,13 +109,12 @@ For example, <code>ph</code> must always be a number, and
 <code>empty_water.</code></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">empty_water</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/define_water.html">define_water</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in define_water(): Missing value for pH. Carbonate balance will not be</span></span>
+<span><span class="co">#&gt; Warning: Missing value for `ph`; carbonate balance will not be</span></span>
 <span><span class="co">#&gt; calculated.</span></span>
-<span><span class="co">#&gt; Warning in define_water(): Missing value for alkalinity. Carbonate balance will</span></span>
-<span><span class="co">#&gt; not be calculated.</span></span>
-<span><span class="co">#&gt; Warning in define_water(): Major ions missing and neither TDS or conductivity</span></span>
-<span><span class="co">#&gt; entered. Ideal conditions will be assumed. Ionic strength will be set to NA and</span></span>
-<span><span class="co">#&gt; activity coefficients in future calculations will be set to 1.</span></span></code></pre></div>
+<span><span class="co">#&gt; Warning: Missing value for `alk`; carbonate balance will not be</span></span>
+<span><span class="co">#&gt; calculated.</span></span>
+<span><span class="co">#&gt; Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span></span>
+<span><span class="co">#&gt; Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span></span></code></pre></div>
 <p>Notice that several warnings are generated about the water class.
 <code>define_water</code> will return warnings noting the assumptions
 and limitations of the water class depending on how much information you
@@ -162,7 +161,7 @@ water based on the alkalinity and pH.</p>
 <span><span class="va">my_water</span><span class="op">@</span><span class="va">na</span></span>
 <span><span class="co">#&gt; [1] 0.00217488</span></span>
 <span><span class="va">my_water</span><span class="op">@</span><span class="va">hco3</span></span>
-<span><span class="co">#&gt; [1] 0.001992775</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.001992759</span></span></code></pre></div>
 <p>You can easily summarize your water quality using the
 <code>summarize_wq</code> function, which takes a water class object and
 exports an easy-to-read table of the water quality into the console.</p>
@@ -300,18 +299,15 @@ determined. We can remedy this in a few ways.</p>
 <span></span>
 <span><span class="co"># Input TDS or conductivity</span></span>
 <span><span class="va">new_water1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7.5</span>, alk <span class="op">=</span> <span class="fl">100</span>, temp <span class="op">=</span> <span class="fl">20</span>, na <span class="op">=</span> <span class="fl">50</span>, ca <span class="op">=</span> <span class="fl">50</span>, tds <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :</span></span>
-<span><span class="co">#&gt; Missing values for magnesium and total hardness but calcium supplied. Default</span></span>
-<span><span class="co">#&gt; ratio of 65% Ca2+ and 35% Mg2+ will be used.</span></span>
+<span><span class="co">#&gt; Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%</span></span>
+<span><span class="co">#&gt; Ca/Mg split.</span></span>
 <span><span class="va">new_water2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7.5</span>, alk <span class="op">=</span> <span class="fl">100</span>, temp <span class="op">=</span> <span class="fl">20</span>, na <span class="op">=</span> <span class="fl">50</span>, ca <span class="op">=</span> <span class="fl">50</span>, cond <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :</span></span>
-<span><span class="co">#&gt; Missing values for magnesium and total hardness but calcium supplied. Default</span></span>
-<span><span class="co">#&gt; ratio of 65% Ca2+ and 35% Mg2+ will be used.</span></span>
+<span><span class="co">#&gt; Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%</span></span>
+<span><span class="co">#&gt; Ca/Mg split.</span></span>
 <span><span class="co"># Input more known ions</span></span>
 <span><span class="va">new_water3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7.5</span>, alk <span class="op">=</span> <span class="fl">100</span>, temp <span class="op">=</span> <span class="fl">20</span>, na <span class="op">=</span> <span class="fl">50</span>, ca <span class="op">=</span> <span class="fl">50</span>, so4 <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :</span></span>
-<span><span class="co">#&gt; Missing values for magnesium and total hardness but calcium supplied. Default</span></span>
-<span><span class="co">#&gt; ratio of 65% Ca2+ and 35% Mg2+ will be used.</span></span>
+<span><span class="co">#&gt; Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%</span></span>
+<span><span class="co">#&gt; Ca/Mg split.</span></span>
 <span></span>
 <span><span class="va">new_water1</span><span class="op">@</span><span class="va">is</span></span>
 <span><span class="co">#&gt; [1] 0.0025</span></span>

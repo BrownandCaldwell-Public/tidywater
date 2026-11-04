@@ -41,13 +41,12 @@ To start, let’s create a blank water class and call it `empty_water.`
 ``` r
 
 empty_water <- define_water()
-#> Warning in define_water(): Missing value for pH. Carbonate balance will not be
+#> Warning: Missing value for `ph`; carbonate balance will not be
 #> calculated.
-#> Warning in define_water(): Missing value for alkalinity. Carbonate balance will
-#> not be calculated.
-#> Warning in define_water(): Major ions missing and neither TDS or conductivity
-#> entered. Ideal conditions will be assumed. Ionic strength will be set to NA and
-#> activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be
+#> calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 ```
 
 Notice that several warnings are generated about the water class.
@@ -102,7 +101,7 @@ my_water
 my_water@na
 #> [1] 0.00217488
 my_water@hco3
-#> [1] 0.001992775
+#> [1] 0.001992759
 ```
 
 You can easily summarize your water quality using the `summarize_wq`
@@ -213,18 +212,15 @@ my_water@is
 
 # Input TDS or conductivity
 new_water1 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, tds = 100)
-#> Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :
-#> Missing values for magnesium and total hardness but calcium supplied. Default
-#> ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%
+#> Ca/Mg split.
 new_water2 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, cond = 200)
-#> Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :
-#> Missing values for magnesium and total hardness but calcium supplied. Default
-#> ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%
+#> Ca/Mg split.
 # Input more known ions
 new_water3 <- define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, so4 = 100)
-#> Warning in define_water(ph = 7.5, alk = 100, temp = 20, na = 50, ca = 50, :
-#> Missing values for magnesium and total hardness but calcium supplied. Default
-#> ratio of 65% Ca2+ and 35% Mg2+ will be used.
+#> Warning: Missing values for `mg` and `tot_hard`; estimated from calcium using a 65%/35%
+#> Ca/Mg split.
 
 new_water1@is
 #> [1] 0.0025

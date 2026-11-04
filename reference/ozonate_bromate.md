@@ -2,10 +2,10 @@
 
 Calculates bromate (BrO3-, ug/L) formation based on selected model.
 Required arguments include an object of class "water" created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 ozone dose, reaction time, and desired model. The function also requires
 additional water quality parameters defined in
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 including bromide, DOC or UV254 (depending on the model), pH, alkalinity
 (depending on the model), and optionally, ammonia (added when defining
 water using the `tot_nh3` argument.) For a single water use
@@ -46,7 +46,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - dose:
 
@@ -67,7 +67,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column named for the applied chlorine dose (cl2),
   and a column for time in minutes.
 
@@ -105,12 +105,14 @@ for each of those slots individually.
 ``` r
 example_dbp <- define_water(8, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
   ozonate_bromate(dose = 1.5, time = 5, model = "Ozekin")
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 example_dbp <- define_water(7.5, 20, 66, toc = 4, uv254 = .2, br = 50) %>%
   ozonate_bromate(dose = 3, time = 15, model = "Sohn")
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 
 example_df <- water_df %>%

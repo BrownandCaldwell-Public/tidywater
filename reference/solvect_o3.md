@@ -1,7 +1,7 @@
 # Determine disinfection credit from ozone.
 
 This function takes a water defined by
-[`define_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[`define_water()`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and the first order decay curve parameters from an ozone dose and
 outputs a dataframe of actual CT, and log removal for giardia, virus,
 and crypto. For a single water, use `solvect_o3`; to apply the model to
@@ -39,7 +39,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [`define_water()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [`define_water()`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   Water must include ph and temp
 
 - time:
@@ -64,7 +64,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [`define_water_df()`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [`define_water_df()`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
 
 - input_water:
 
@@ -89,7 +89,8 @@ and columns for required CT, actual CT, and giardia log removal.
 First order decay curve for ozone has the form:
 `residual = dose * exp(kd*time)`. kd should be a negative number. Actual
 CT is an integration of the first order curve. The first 30 seconds are
-removed from the integral to account for instantaneous demand.
+removed from the integral to account for instantaneous demand. CT is set
+to 0 when the contact time is shorter than those 30 seconds.
 
 When `kd` is not specified, a default decay curve is used from the Water
 Treatment Plant Model (2002). This model does not perform well for ozone
@@ -102,15 +103,17 @@ decay, so specifying the decay curve is recommended.
 # Use kd from experimental data (recommended):
 define_water(ph = 7.5, temp = 25) %>%
   solvect_o3(time = 10, dose = 2, kd = -0.5, baffle = 0.9)
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 #>   ct_actual glog_removal vlog_removal clog_removal
 #> 1  2.779426     17.22941     34.85294     1.131231
 # Use modeled decay curve:
 define_water(ph = 7.5, alk = 100, doc = 2, uv254 = .02, br = 50) %>%
   solvect_o3(time = 10, dose = 2, baffle = 0.5)
-#> Warning: Missing value for TOC. DOC assumed to be 95% of TOC.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `toc`; DOC assumed to be 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 #>   ct_actual glog_removal vlog_removal clog_removal
 #> 1  4.624554     28.66719     57.99013     1.882201
 

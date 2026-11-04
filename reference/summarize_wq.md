@@ -1,7 +1,7 @@
 # Create summary table from water class
 
 This function takes a water data frame defined by
-[`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and outputs a formatted summary table of specified water quality
 parameters.
 
@@ -20,7 +20,7 @@ summarise_wq(water, params = c("general"))
 - water:
 
   Source water vector created by
-  [`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
 
 - params:
 
@@ -34,7 +34,7 @@ A knitr_kable table of specified water quality parameters.
 ## Details
 
 Use
-[`chemdose_dbp`](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_dbp.md)
+[`chemdose_dbp`](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_dbp.md)
 for modeled DBP concentrations.
 
 ## Examples
@@ -42,7 +42,6 @@ for modeled DBP concentrations.
 ``` r
 # Summarize general parameters
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#> Warning: User entered total hardness is >10% different than calculated hardness.
 summarize_wq(water_defined)
 #> 
 #> 

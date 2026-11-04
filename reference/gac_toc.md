@@ -5,13 +5,15 @@ according to the model developed in "Modeling TOC Breakthrough in
 Granular Activated Carbon Adsorbers" by Zachman and Summers (2010), or
 the logistics curve approach in EPA WTP Model v. 2.0 Manual (2001). For
 a single water use `gac_toc`; for a dataframe use `gac_toc_df`. Use
-[pluck_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/pluck_water.md)
+[pluck_water](https://brownandcaldwell-public.github.io/tidywater/reference/pluck_water.md)
 to get values from the output water as new dataframe columns. For most
 arguments in the `_df` helper "use_col" default looks for a column of
 the same name in the dataframe. The argument can be specified directly
 in the function instead or an unquoted column name can be provided.
 
-Water must contain DOC or TOC value.
+Water must contain a DOC value (or TOC, from which
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
+estimates DOC).
 
 ## Usage
 
@@ -53,7 +55,7 @@ U.S. EPA (2001)
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - ebct:
 
@@ -84,7 +86,7 @@ U.S. EPA (2001)
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include columns named for the media_size, ebct, and bed
   volume.
 
@@ -120,17 +122,22 @@ updated DOC, TOC, and UV254 slots
 
 GAC model for TOC removal
 
-The function will calculate TOC concentration by GAC adsorption in
-drinking water treatment. UV254 concentrations are predicted based on a
-linear relationship with DOC from WTP Model Equation 5-93 and 5-94.
+The function will calculate DOC concentration by GAC adsorption in
+drinking water treatment. Both models were published in terms of TOC.
+GAC influent is normally coagulated and filtered, so particulate organic
+carbon is negligible and TOC = DOC; tidywater therefore applies the
+models to influent DOC. Effluent TOC is set equal to effluent DOC. UV254
+concentrations are predicted based on a linear relationship with DOC
+from WTP Model Equation 5-93 and 5-94.
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 8, toc = 2.5, uv254 = .05, doc = 1.5) %>%
   gac_toc(media_size = "8x30", ebct = 20, model = "Zachman", bed_vol = 15000)
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # \donttest{
 example_df <- water_df %>%

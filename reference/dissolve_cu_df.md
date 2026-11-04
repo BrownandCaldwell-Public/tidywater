@@ -14,7 +14,7 @@ dissolve_cu_df(df, input_water = "defined", water_prefix = TRUE)
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 
@@ -37,6 +37,6 @@ and a column for dissolved copper in mg/L.
 cu_calc <- water_df %>%
   define_water_df() %>%
   dissolve_cu_df()
-#> Warning: This model was fit on waters with phosphate residual between 0.2-3.1 mg/L. (8
-#> rows affected.)
+#> Warning: This model was fit on waters with phosphate residual between 0.2 and 3.1 mg/L.
+#> (8 rows affected.)
 ```

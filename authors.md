@@ -18,6 +18,12 @@
 
 - **Jiaming Yuan**. Contributor.
 
+- **Atticus Fretz**. Contributor.
+
+- **Bengu Kilinc**. Contributor.
+
+- **Hania Zanib**. Contributor.
+
 - **USEPA**. Copyright holder.  
   Copyright holder of included TELSS fragments (dissolve_pb function)
 
@@ -30,13 +36,12 @@ Source:
 
 Johnson S, McKenna L, Mulhern R, Corwin C (2026). *tidywater: Water
 Quality Models for Drinking Water Treatment Processes*. R package
-version 0.10.9000,
-<https://github.com/BrownandCaldwell-Public/tidywater>.
+version 0.11.0, <https://github.com/BrownandCaldwell-Public/tidywater>.
 
     @Manual{,
       title = {tidywater: Water Quality Models for Drinking Water Treatment Processes},
       author = {Sierra Johnson and Libby McKenna and Riley Mulhern and Chris Corwin},
       year = {2026},
-      note = {R package version 0.10.9000},
+      note = {R package version 0.11.0},
       url = {https://github.com/BrownandCaldwell-Public/tidywater},
     }

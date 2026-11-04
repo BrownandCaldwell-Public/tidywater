@@ -28,10 +28,10 @@ improving existing issues, or submitting pull requests. Anyone can
 become a contributor: there is no expectation of commitment to the
 project, no required set of skills, and no selection process. The only
 obligation is to follow the [code of
-conduct](https://BrownandCaldwell-Public.github.io/tidywater/CODE_OF_CONDUCT.md).
+conduct](https://brownandcaldwell-public.github.io/tidywater/CODE_OF_CONDUCT.md).
 
 Specific advice for contributing to the project can be found in
-[CONTRIBUTING.md](https://BrownandCaldwell-Public.github.io/tidywater/CONTRIBUTING.md).
+[CONTRIBUTING.md](https://brownandcaldwell-public.github.io/tidywater/CONTRIBUTING.md).
 
 ## Core developers
 
@@ -57,7 +57,7 @@ project lead. The project lead will the confirm the invitation with the
 other core developers.
 
 All core developers are bound by the [code of
-conduct](https://BrownandCaldwell-Public.github.io/tidywater/CODE_OF_CONDUCT.md).
+conduct](https://brownandcaldwell-public.github.io/tidywater/CODE_OF_CONDUCT.md).
 
 ## Project lead
 
@@ -70,7 +70,7 @@ responsible for:
 - Ensuring that the project survives in the long term.
 
 The project lead is bound by the [code of
-conduct](https://BrownandCaldwell-Public.github.io/tidywater/CODE_OF_CONDUCT.md).
+conduct](https://brownandcaldwell-public.github.io/tidywater/CODE_OF_CONDUCT.md).
 
 ## Security reviewers
 

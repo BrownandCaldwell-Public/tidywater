@@ -3,7 +3,7 @@
 based on bench-scale copper solubility testing that can be used to predict copper levels as a function of pH, DIC, and orthophosphate.
 For a single water, use dissolve_cu; to apply the model to a dataframe use dissolve_cu_df."><meta property="og:description" content="This function takes a water defined by defined_water and output a column of dissolved copper. It is an empirical model developed
 based on bench-scale copper solubility testing that can be used to predict copper levels as a function of pH, DIC, and orthophosphate.
-For a single water, use dissolve_cu; to apply the model to a dataframe use dissolve_cu_df."><meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png"></head><body>
+For a single water, use dissolve_cu; to apply the model to a dataframe use dissolve_cu_df."><meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -11,7 +11,7 @@ For a single water, use dissolve_cu; to apply the model to a dataframe use disso
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,13 @@ For a single water, use <code>dissolve_cu</code>; to apply the model to a datafr
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Dissolved copper is a function of pH, DIC, and PO4. Output units are in mg/L.</p>
+    <p>Dissolved copper is a function of pH, DIC (mg/L as C), and orthophosphate (mg/L as PO4). Output units are in
+mg/L. The model was fit on waters with pH 6.48 to 8.52, orthophosphate 0.2 to 3.1 mg/L as PO4, and DIC of 10, 50,
+and 100 mg/L as C (Lytle et al. 2018, equation 1); a warning is given for inputs outside these ranges.</p>
+<p>DIC is not an input: <code><a href="define_water.html">define_water</a></code> calculates it from pH and alkalinity. Lytle et al. (2018) give no
+alkalinity range, and the alkalinity that corresponds to a given DIC depends on pH. At 25 C, the 10 to 100 mg/L as C
+DIC range is roughly 24 to 244 mg/L as CaCO3 alkalinity at pH 6.5, 34 to 340 at pH 7, 39 to 390 at pH 7.5,
+and 41 to 410 at pH 8.</p>
     </div>
 
     <div class="section level2">
@@ -81,7 +87,8 @@ For a single water, use <code>dissolve_cu</code>; to apply the model to a datafr
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">example_cu</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7.5</span>, alk <span class="op">=</span> <span class="fl">125</span>, tot_po4 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dissolve_cu</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -11,7 +11,7 @@ For a single water use chemdose_ph; for a dataframe use chemdose_ph_df.
 Use pluck_cols = TRUE to get values from the output water as new dataframe columns.
 For most arguments in the _df helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
-function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png"></head><body>
+function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +19,7 @@ function instead or an unquoted column name can be provided.'><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -71,6 +71,7 @@ function instead or an unquoted column name can be provided.</p>
 <span>  h3po4 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  hno3 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  ch3cooh <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  citric <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  co2 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  naoh <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  caoh2 <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -103,6 +104,7 @@ function instead or an unquoted column name can be provided.</p>
 <span>  na_to_zero <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  pluck_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  water_prefix <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep_dose_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  hcl <span class="op">=</span> <span class="st">"use_col"</span>,</span>
 <span>  h2so4 <span class="op">=</span> <span class="st">"use_col"</span>,</span>
 <span>  h3po4 <span class="op">=</span> <span class="st">"use_col"</span>,</span>
@@ -159,7 +161,11 @@ function instead or an unquoted column name can be provided.</p>
 
 
 <dt id="arg-ch-cooh">ch3cooh<a class="anchor" aria-label="anchor" href="#arg-ch-cooh"></a></dt>
-<dd><p>Amount of acetic acid added in mg/L: CH3COOH -&gt; H + CH3COO-</p></dd>
+<dd><p>Amount of acetic acid added in mg/L: CH3COOH -&gt; H + CH3COO</p></dd>
+
+
+<dt id="arg-citric">citric<a class="anchor" aria-label="anchor" href="#arg-citric"></a></dt>
+<dd><p>Amount of citric acid added in mg/L: C3H4OH(COOH)3 -&gt; 3H+ C3H4OH(COO)3</p></dd>
 
 
 <dt id="arg-co-">co2<a class="anchor" aria-label="anchor" href="#arg-co-"></a></dt>
@@ -256,7 +262,7 @@ function instead or an unquoted column name can be provided.</p>
 
 <dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>a data frame containing a water class column, which has already been computed using
-<a href="define_water_df.html">define_water_df</a> The df may include columns named for the chemical(s) being dosed.</p></dd>
+<a href="define_water.html">define_water_df</a> The df may include columns named for the chemical(s) being dosed.</p></dd>
 
 
 <dt id="arg-input-water">input_water<a class="anchor" aria-label="anchor" href="#arg-input-water"></a></dt>
@@ -277,6 +283,10 @@ function instead or an unquoted column name can be provided.</p>
 
 <dt id="arg-water-prefix">water_prefix<a class="anchor" aria-label="anchor" href="#arg-water-prefix"></a></dt>
 <dd><p>Append the output_water name to the start of the plucked columns. Default is TRUE.</p></dd>
+
+
+<dt id="arg-keep-dose-cols">keep_dose_cols<a class="anchor" aria-label="anchor" href="#arg-keep-dose-cols"></a></dt>
+<dd><p>Option to keep the original chemical dose columns in the output data frame. Default is FALSE.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -302,25 +312,31 @@ modeled independently through sequential doses.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">water</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7</span>, temp <span class="op">=</span> <span class="fl">25</span>, alk <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
 <span class="r-in"><span><span class="co"># Dose 1 mg/L of hydrochloric acid</span></span></span>
 <span class="r-in"><span><span class="va">dosed_water</span> <span class="op">&lt;-</span> <span class="fu">chemdose_ph</span><span class="op">(</span><span class="va">water</span>, hcl <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chloride-containing chemical dosed, but <span style="color: #00BB00;">cl</span> slot is <span style="color: #0000BB;">"NA"</span>; slot not updated</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> because background Cl is unknown.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Dose 1 mg/L of hydrochloric acid and 5 mg/L of alum simultaneously</span></span></span>
 <span class="r-in"><span><span class="va">dosed_water</span> <span class="op">&lt;-</span> <span class="fu">chemdose_ph</span><span class="op">(</span><span class="va">water</span>, hcl <span class="op">=</span> <span class="fl">1</span>, alum <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chloride-containing chemical dosed, but cl water slot is NA. Slot not updated because background cl unknown.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Sulfate-containing chemical dosed, but so4 water slot is NA. Slot not updated because background so4 unknown.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chloride-containing chemical dosed, but <span style="color: #00BB00;">cl</span> slot is <span style="color: #0000BB;">"NA"</span>; slot not updated</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> because background Cl is unknown.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Sulfate-containing chemical dosed, but <span style="color: #00BB00;">so4</span> slot is <span style="color: #0000BB;">"NA"</span>; slot not updated</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> because background SO4 is unknown.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Softening:</span></span></span>
 <span class="r-in"><span><span class="va">water2</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span>ph <span class="op">=</span> <span class="fl">7</span>, temp <span class="op">=</span> <span class="fl">25</span>, alk <span class="op">=</span> <span class="fl">100</span>, tot_hard <span class="op">=</span> <span class="fl">350</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Missing values for calcium and magnesium but total hardness supplied. Default ratio of 65% Ca2+ and 35% Mg2+ will be used.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Missing values for `ca` and `mg`; estimated from total hardness using a 65%/35%</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ca/Mg split.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
 <span class="r-in"><span><span class="va">dosed_water2</span> <span class="op">&lt;-</span> <span class="fu">chemdose_ph</span><span class="op">(</span><span class="va">water2</span>, caco3 <span class="op">=</span> <span class="op">-</span><span class="fl">100</span>, softening_correction <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">example_df</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_head</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    hcl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span>,</span></span>
@@ -329,7 +345,7 @@ modeled independently through sequential doses.</p>
 <span class="r-in"><span>  <span class="fu">chemdose_ph_df</span><span class="op">(</span>input_water <span class="op">=</span> <span class="st">"defined"</span>, mgoh2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">55</span><span class="op">)</span>, co2 <span class="op">=</span> <span class="fl">4</span>, naoh <span class="op">=</span> <span class="va">Caustic</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">example_df</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">chemdose_ph_df</span><span class="op">(</span>naoh <span class="op">=</span> <span class="fl">5</span>, pluck_cols <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

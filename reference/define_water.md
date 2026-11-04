@@ -4,6 +4,10 @@ This function takes user-defined water quality parameters and creates an
 S4 "water" class object that forms the input and output of all tidywater
 models.
 
+This function allows define_water to be added to a piped data frame. Its
+output is a `water` class, and can therefore be chained with
+"downstream" tidywater functions.
+
 ## Usage
 
 ``` r
@@ -24,7 +28,8 @@ define_water(
   tot_po4 = 0,
   tot_nh3 = 0,
   tot_ch3coo = 0,
-  tot_bo3 = 0,
+  tot_bo4 = 0,
+  tot_citric = 0,
   tot_sio4 = 0,
   tds,
   cond,
@@ -36,7 +41,46 @@ define_water(
   fe,
   al,
   mn,
-  no3
+  no3,
+  no2
+)
+
+define_water_df(
+  df,
+  output_water = "defined",
+  pluck_cols = FALSE,
+  water_prefix = TRUE,
+  ph = "use_col",
+  temp = "use_col",
+  alk = "use_col",
+  tot_hard = "use_col",
+  ca = "use_col",
+  mg = "use_col",
+  na = "use_col",
+  k = "use_col",
+  cl = "use_col",
+  so4 = "use_col",
+  mno4 = "use_col",
+  free_chlorine = "use_col",
+  combined_chlorine = "use_col",
+  tot_po4 = "use_col",
+  tot_nh3 = "use_col",
+  tot_bo4 = "use_col",
+  tot_sio4 = "use_col",
+  tot_ch3coo = "use_col",
+  tot_citric = "use_col",
+  tds = "use_col",
+  cond = "use_col",
+  toc = "use_col",
+  doc = "use_col",
+  uv254 = "use_col",
+  br = "use_col",
+  f = "use_col",
+  fe = "use_col",
+  al = "use_col",
+  mn = "use_col",
+  no3 = "use_col",
+  no2 = "use_col"
 )
 ```
 
@@ -56,7 +100,7 @@ Temperature correction of dielectric constant (relative permittivity)
 
 - ph:
 
-  water pH
+  Water pH
 
 - temp:
 
@@ -121,9 +165,13 @@ Temperature correction of dielectric constant (relative permittivity)
 
   Total acetate in mg/L
 
-- tot_bo3:
+- tot_bo4:
 
   Total borate (B(OH)4 -) in mg/L as B
+
+- tot_citric:
+
+  Total citric acid in mg/L
 
 - tot_sio4:
 
@@ -173,13 +221,37 @@ Temperature correction of dielectric constant (relative permittivity)
 
   Nitrate in mg/L as N
 
+- no2:
+
+  Nitrite in mg/L as N
+
+- df:
+
+  a data frame containing columns with all the desired parameters with
+  column names matching argument names in define_water
+
+- output_water:
+
+  name of the output column storing updated parameters with the class,
+  water. Default is "defined".
+
+- pluck_cols:
+
+  Extract primary water slots (ph, alk, doc, uv254) into new numeric
+  columns for easy access. Default to FALSE.
+
+- water_prefix:
+
+  Append the output_water name to the start of the plucked columns.
+  Default is TRUE.
+
 ## Value
 
 define_water outputs a water class object where slots are filled or
 calculated based on input parameters. Water slots have different units
 than those input into the define_water function, as listed below.
 
-- pH:
+- ph:
 
   pH, numeric, in standard units (SU).
 
@@ -234,6 +306,10 @@ than those input into the define_water function, as listed below.
 - hypochlorite_alk_eq:
 
   hypochlorite alkalinity as equivalents, numeric, equivalent (eq).
+
+- citric_alk_eq:
+
+  citrate alkalinity as equivalents, numeric, equivalent (eq).
 
 - toc:
 
@@ -291,6 +367,20 @@ than those input into the define_water function, as listed below.
 
   nitrate, numeric, mols/L.
 
+- no2:
+
+  nitrite, numeric, mols/L.
+
+- h2co3:
+
+  carbonic acid (H2CO3\*, the sum of dissolved CO2 and H2CO3), numeric,
+  mols/L.
+
+- co2:
+
+  dissolved carbon dioxide (H2CO3\*, calculated from h2co3), numeric,
+  mg/L as CO2.
+
 - hco3:
 
   bicarbonate, numeric, mols/L.
@@ -301,7 +391,7 @@ than those input into the define_water function, as listed below.
 
 - h2po4:
 
-  phosphoric acid, numeric, mols/L.
+  dihydrogen phosphate, numeric, mols/L.
 
 - hpo4:
 
@@ -311,13 +401,29 @@ than those input into the define_water function, as listed below.
 
   phosphate, numeric, mols/L.
 
+- h2citric:
+
+  dihydrogen citrate, numeric, mols/L.
+
+- h1citric:
+
+  hydrogen citrate, numeric, mols/L.
+
+- citric:
+
+  citrate ion, numeric, mols/L.
+
 - nh4:
 
   ammonium, numeric, mol/L as N.
 
-- bo3:
+- h4bo4:
 
   borate, numeric, mol/L.
+
+- h3bo3:
+
+  boric acid, numeric, mol/L.
 
 - h3sio4:
 
@@ -351,7 +457,7 @@ than those input into the define_water function, as listed below.
 
   total carbonate, numeric, mol/L.
 
-- tot_bo3:
+- tot_bo4:
 
   total borate, numeric, mol/L.
 
@@ -362,6 +468,10 @@ than those input into the define_water function, as listed below.
 - tot_ch3coo:
 
   total acetate, numeric, mol/L.
+
+- tot_citric:
+
+  total citric acid, numeric, mol/L.
 
 - br:
 
@@ -411,6 +521,15 @@ than those input into the define_water function, as listed below.
 
   trichloramine, numeric, mol/L.
 
+- estimated:
+
+  list of parameters that were estimated based on other inputs.
+
+- ks:
+
+  data frame with corrected equilibrium constants given defined water
+  initial temperature and ionic strength
+
 - chcl3:
 
   chloroform, numeric, ug/L.
@@ -435,7 +554,7 @@ than those input into the define_water function, as listed below.
 
   chloroacetic acid, numeric, ug/L.
 
-- dmcaa:
+- dcaa:
 
   dichloroacetic acid, numeric, ug/L.
 
@@ -471,18 +590,35 @@ than those input into the define_water function, as listed below.
 
   tribromoacetic acid, numeric, ug/L.
 
+A data frame containing a water class column.
+
 ## Details
 
 Carbonate balance is calculated and units are converted to mol/L. Ionic
 strength is determined from ions, TDS, or conductivity. Missing values
 are handled by defaulting to 0 or NA. Calcium defaults to 65 percent of
 the total hardness when not specified. DOC defaults to 95 percent of
-TOC.
+TOC. If `alk` is less than the non-carbonate alkalinity at the given pH
+(for example, hydroxide alone at high pH), carbonate species are set to
+0 with a warning.
+
+## See also
+
+define_water
 
 ## Examples
 
 ``` r
 water_missingions <- define_water(ph = 7, temp = 15, alk = 100, tds = 10)
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1)
-#> Warning: User entered total hardness is >10% different than calculated hardness.
+
+# \donttest{
+example_df <- water_df %>%
+  define_water_df() %>%
+  balance_ions_df()
+
+example_df <- water_df %>%
+  define_water_df(output_water = "This is a column of water") %>%
+  balance_ions_df(input_water = "This is a column of water")
+# }
 ```

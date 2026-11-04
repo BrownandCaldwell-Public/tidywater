@@ -18,7 +18,7 @@ Useful links:
 
 - <https://github.com/BrownandCaldwell-Public/tidywater>
 
-- <https://BrownandCaldwell-Public.github.io/tidywater>
+- <https://brownandcaldwell-public.github.io/tidywater/>
 
 - Report bugs at
   <https://github.com/BrownandCaldwell-Public/tidywater/issues>
@@ -28,8 +28,6 @@ Useful links:
 **Maintainer**: Sierra Johnson <sjohnson2@brwncald.com>
 
 Authors:
-
-- Sierra Johnson <sjohnson2@brwncald.com>
 
 - Libby McKenna <lmckenna@brwncald.com>
 
@@ -48,6 +46,12 @@ Other contributors:
 - Phoebe Chen \[contributor\]
 
 - Jiaming Yuan \[contributor\]
+
+- Atticus Fretz \[contributor\]
+
+- Bengu Kilinc \[contributor\]
+
+- Hania Zanib \[contributor\]
 
 - USEPA (Copyright holder of included TELSS fragments (dissolve_pb
   function)) \[copyright holder\]

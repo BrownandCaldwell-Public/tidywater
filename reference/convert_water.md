@@ -7,10 +7,16 @@ one-off checks. For typical applications, use `pluck_cols = TRUE` in any
 
 Use convert_water to keep all slots in the same units as the water.
 
-Use convert_watermg to convert to more typical units. Converts the
-following slots from M to mg/L: na, ca, mg, k, cl, so4, hco3, co3,
-h2po4, hpo4, po4, ocl, bro3, f, fe, al. Converts these slots to ug/L:
-br, mn. All other values remain unchanged.
+Use convert_watermg to convert to more typical units. Converts all
+non-NA water slots with ions to mg/L, with the exception of br and mn,
+which are converted to ug/L. Total silicate is converted to mg/L as
+SiO2, and citrate species are converted to mg/L as citric acid, matching
+the
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
+inputs. All other values remain unchanged.
+
+The `ks` slot (a data frame of corrected equilibrium constants) is not
+included in the output. Access it directly with `water@ks`.
 
 ## Usage
 
@@ -28,7 +34,7 @@ convert_watermg(water)
 
 ## Value
 
-A data frame containing columns for all non-NA water slots.
+A data frame containing columns for all non-NA water slots, except `ks`.
 
 A data frame containing columns for all non-NA water slots with ions in
 mg/L.
@@ -40,7 +46,8 @@ mg/L.
 # Generates 1 row dataframe
 example_df <- define_water(ph = 7, temp = 20, alk = 100) %>%
   convert_water()
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 example_df <- water_df %>%
   define_water_df() %>%
@@ -50,5 +57,4 @@ example_df <- water_df %>%
 
 water_defined <- define_water(7, 20, 50, 100, 80, 10, 10, 10, 10, tot_po4 = 1) %>%
   convert_watermg()
-#> Warning: User entered total hardness is >10% different than calculated hardness.
 ```

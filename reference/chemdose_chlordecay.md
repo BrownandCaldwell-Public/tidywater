@@ -47,7 +47,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - cl2_dose:
 
@@ -83,7 +83,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column named for the applied chlorine dose (cl2),
   and a column for time in hours.
 
@@ -112,7 +112,7 @@ See references list at:
 
 `chemdose_chlordecay` returns an updated disinfectant residual in the
 free_chlorine or combined_chlorine water slot in units of M. Use
-[convert_units](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_units.md)
+[convert_units](https://brownandcaldwell-public.github.io/tidywater/reference/convert_units.md)
 to convert to mg/L.
 
 `chemdose_chlordecay_df` returns a data frame containing a water class
@@ -122,12 +122,12 @@ Optionally, it also adds columns for each of those slots individually.
 ## Details
 
 Required arguments include an object of class "water" created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md),
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md),
 applied chlorine/chloramine dose, type, reaction time, and treatment
 applied (options include "raw" for no treatment, or "coag" for
 coagulated water). The function also requires additional water quality
 parameters defined in
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 including TOC and UV254. The output is a new "water" class with the
 calculated total chlorine value stored in the 'free_chlorine' or
 'combined_chlorine' slot, depending on what type of chlorine is dosed.
@@ -142,14 +142,17 @@ on the output.
 ``` r
 example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2) %>%
   chemdose_chlordecay(cl2_dose = 2, time = 8)
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 example_cl2 <- define_water(8, 20, 66, toc = 4, uv254 = 0.2, free_chlorine = 3) %>%
   chemdose_chlordecay(cl2_dose = 2, time = 8, use_chlorine_slot = TRUE)
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot = FALSE'.
-#> Warning: Missing value for DOC. Default value of 95% of TOC will be used.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Chlorine dose was summed with residual chlorine in the water object. If
+#> unintended, omit `cl2_dose` or set `use_chlorine_slot = FALSE`.
+#> Warning: Missing value for `doc`; defaulting to 95% of TOC.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # \donttest{
 
@@ -157,8 +160,8 @@ example_df <- water_df %>%
   dplyr::mutate(br = 50) %>%
   define_water_df() %>%
   chemdose_chlordecay_df(input_water = "defined", cl2_dose = 4, time = 8)
-#> Warning: Existing 'free_chlorine' slot will be overridden based on recent dose. To sum
-#> results instead, set 'use_chlorine_slot = TRUE'. (6 rows affected.)
+#> Warning: Existing free_chlorine slot will be overridden based on recent dose. To sum
+#> results instead, set `use_chlorine_slot = TRUE`. (6 rows affected.)
 
 example_df <- water_df %>%
   dplyr::mutate(
@@ -177,8 +180,8 @@ example_df <- water_df %>%
     cl_type = "chloramine",
     pluck_cols = TRUE
   )
-#> Warning: Chlorine dose was summed with residual chlorine in the water object. If this is
-#> not intended, either do not specify 'cl_dose' or use 'use_chlorine_slot =
-#> FALSE'. (12 rows affected.)
+#> Warning: Chlorine dose was summed with residual chlorine in the water object. If
+#> unintended, omit `cl2_dose` or set `use_chlorine_slot = FALSE`. (12 rows
+#> affected.)
 # }
 ```

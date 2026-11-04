@@ -32,7 +32,7 @@ decarbonate_ph_df(
 - water:
 
   Source water of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - co2_removed:
 
@@ -42,7 +42,7 @@ decarbonate_ph_df(
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column with names for each of the chemicals being
   dosed.
 
@@ -78,19 +78,20 @@ adds columns for each of those slots individually.
 
 `decarbonate_ph` uses `water@h2co3` to determine the existing CO2 in
 water, then applies
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 to match the CO2 removal.
 
 ## See also
 
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 4, temp = 25, alk = 5) %>%
   decarbonate_ph(co2_removed = .95)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 
 example_df <- water_df %>%

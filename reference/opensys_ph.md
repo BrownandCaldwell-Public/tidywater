@@ -30,7 +30,7 @@ opensys_ph_df(
 - water:
 
   Source water of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - partialpressure:
 
@@ -41,7 +41,7 @@ opensys_ph_df(
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column with names for each of the chemicals being
   dosed.
 
@@ -82,14 +82,15 @@ CO2(aq).
 
 ## See also
 
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 7, temp = 25, alk = 5) %>%
   opensys_ph()
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 
 # \donttest{
 example_df <- water_df %>%

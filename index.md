@@ -5,7 +5,7 @@
 Tidywater incorporates published water chemistry and empirical models in
 a standard format. The modular functions allow for building custom,
 comprehensive drinking water treatment processes. Functions are designed
-to work in a [tidyverse](https://www.tidyverse.org/) workflow.
+to work in a [tidyverse](https://tidyverse.org/) workflow.
 
 ## Installation
 

@@ -19,7 +19,7 @@ For a single water use chemdose_chloramine; for a dataframe use chemdose_chloram
 Use pluck_cols = TRUE to get values from the output water as new dataframe columns.
 For most arguments in the _df helper
 &quot;use_col&quot; default looks for a column of the same name in the dataframe. The argument can be specified directly in the
-function instead or an unquoted column name can be provided."><meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png"></head><body>
+function instead or an unquoted column name can be provided."><meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -27,7 +27,7 @@ function instead or an unquoted column name can be provided."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,6 +91,7 @@ function instead or an unquoted column name can be provided.</p>
 <span>  output_water <span class="op">=</span> <span class="st">"chloraminated"</span>,</span>
 <span>  pluck_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  water_prefix <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  keep_dose_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  time <span class="op">=</span> <span class="st">"use_col"</span>,</span>
 <span>  cl2 <span class="op">=</span> <span class="st">"use_col"</span>,</span>
 <span>  nh3 <span class="op">=</span> <span class="st">"use_col"</span>,</span>
@@ -132,7 +133,7 @@ function instead or an unquoted column name can be provided.</p>
 
 
 <dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p>a data frame containing a water class column, which has already been computed using <a href="define_water_df.html">define_water_df</a>.
+<dd><p>a data frame containing a water class column, which has already been computed using <a href="define_water.html">define_water_df</a>.
 The df may include a column named for the applied chlorine dose (cl2_dose), and a column for time in hours.</p></dd>
 
 
@@ -151,6 +152,10 @@ The df may include a column named for the applied chlorine dose (cl2_dose), and 
 <dt id="arg-water-prefix">water_prefix<a class="anchor" aria-label="anchor" href="#arg-water-prefix"></a></dt>
 <dd><p>Append the output_water name to the start of the plucked columns. Default is TRUE.</p></dd>
 
+
+<dt id="arg-keep-dose-cols">keep_dose_cols<a class="anchor" aria-label="anchor" href="#arg-keep-dose-cols"></a></dt>
+<dd><p>Option to keep the original chemical dose columns in the output data frame. Default is FALSE.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -163,20 +168,19 @@ free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it al
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">breakpoint</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span><span class="fl">7.5</span>, <span class="fl">20</span>, <span class="fl">65</span>, free_chlorine <span class="op">=</span> <span class="fl">5</span>, tot_nh3 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">chemdose_chloramine</span><span class="op">(</span>time <span class="op">=</span> <span class="fl">40</span>, cl2 <span class="op">=</span> <span class="fl">2</span>, nh3 <span class="op">=</span> <span class="fl">1</span>, use_free_cl_slot <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Both chlorine and ammonia are present and may form chloramines.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> Use chemdose_chloramine for breakpoint caclulations.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>             If you want to use ONLY the chlorine dose, please set use_free_cl_slot to FALSE.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>             If you want to use ONLY the free chlorine water slot, remove chlorine dose.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ammonia dose was used as the initial free ammonia. tot_nh3 slot in water (0.000071 mol/L) was ignored.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>               If you want to use ONLY tot_nh3 slot in water, please set use_tot_nh3_slot to TRUE and remove ammonia dose.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>               If you want to use BOTH tot_nh3 slot in water and ammonia dose, use_tot_nh3_slot to TRUE.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Both `cl2` dose and <span style="color: #00BB00;">free_chlorine</span> slot (7.05158942825713e-05 mol/L) were used.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> To use ONLY the dose, set `use_free_cl_slot = FALSE`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> To use ONLY the water slot, remove `cl2`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Ammonia dose was used; <span style="color: #00BB00;">tot_nh3</span> slot (7.13944041066061e-05 mol/L) was ignored.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> To use ONLY the water slot, set `use_tot_nh3_slot = TRUE` and remove `nh3`.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> To use BOTH, set `use_tot_nh3_slot = TRUE`.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">breakpoint</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>free_chlorine <span class="op">=</span> <span class="fl">5</span>, tot_nh3 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    time <span class="op">=</span> <span class="fl">8</span>,</span></span>
 <span class="r-in"><span>    cl2dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span></span>
@@ -188,12 +192,9 @@ free_chlorine, nh2cl, nhcl2, ncl3, combined_chlorine, tot_nh3. Optionally, it al
 <span class="r-in"><span>    use_tot_nh3_slot <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>    pluck_cols <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Both chlorine and ammonia are present and may form chloramines. Use</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> chemdose_chloramine for breakpoint caclulations. (12 rows affected.)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Chlorine dose and free chlorine slot in water (0.000071 mol/L) were BOTH used.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> If you want to use ONLY the chlorine dose, please set use_free_cl_slot to</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> FALSE.  If you want to use ONLY the free chlorine water slot, remove chlorine</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> dose. (12 rows affected.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Both `cl2` dose and <span style="color: #00BB00;">free_chlorine</span> slot (7.05158942825713e-05 mol/L) were used.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> To use ONLY the dose, set `use_free_cl_slot = FALSE`. <span style="color: #00BBBB;">ℹ</span> To use ONLY the water</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> slot, remove `cl2`. (12 rows affected.)</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

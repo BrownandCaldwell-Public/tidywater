@@ -9,7 +9,7 @@ from U.S. EPA (2001) equation 5-128.
 For a single water, use solveresid_o3; to apply the model to a dataframe, use solveresid_o3_df.
 For most arguments, the _df helper
 "use_col" default looks for a column of the same name in the dataframe. The argument can be specified directly in the
-function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://BrownandCaldwell-Public.github.io/tidywater/logo.png"></head><body>
+function instead or an unquoted column name can be provided.'><meta property="og:image" content="https://brownandcaldwell-public.github.io/tidywater/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ function instead or an unquoted column name can be provided.'><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">tidywater</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.10.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.11.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,7 +94,7 @@ function instead or an unquoted column name can be provided.</p>
 
 
 <dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
-<dd><p>a data frame containing a water class column, which has already been computed using <code><a href="define_water_df.html">define_water_df</a></code></p></dd>
+<dd><p>a data frame containing a water class column, which has already been computed using <code><a href="define_water.html">define_water_df</a></code></p></dd>
 
 
 <dt id="arg-input-water">input_water<a class="anchor" aria-label="anchor" href="#arg-input-water"></a></dt>
@@ -107,7 +107,8 @@ function instead or an unquoted column name can be provided.</p>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>solveresid_o3</code> returns a numeric value for the residual ozone.</p>
+    <p><code>solveresid_o3</code> returns a numeric value for the residual ozone. The residual is 0 when the modeled
+ozone demand exceeds the dose.</p>
 <p><code>solveresid_o3_df</code> returns a data frame containing the original data frame and columns for ozone dosed, time, and ozone residual.</p>
     </div>
 
@@ -115,16 +116,17 @@ function instead or an unquoted column name can be provided.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ozone_resid</span> <span class="op">&lt;-</span> <span class="fu"><a href="define_water.html">define_water</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">20</span>, <span class="fl">100</span>, doc <span class="op">=</span> <span class="fl">2</span>, toc <span class="op">=</span> <span class="fl">2.2</span>, uv254 <span class="op">=</span> <span class="fl">.02</span>, br <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">solveresid_o3</span><span class="op">(</span>dose <span class="op">=</span> <span class="fl">2</span>, time <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Major ions, TDS, and conductivity are all missing; assuming ideal conditions.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> Ionic strength will be <span style="color: #0000BB;">"NA"</span> and activity coefficients will be 1.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ozone_resid</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>br <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">solveresid_o3_df</span><span class="op">(</span>dose <span class="op">=</span> <span class="fl">2</span>, time <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ozone_resid</span> <span class="op">&lt;-</span> <span class="va">water_df</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>br <span class="op">=</span> <span class="fl">50</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="define_water_df.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="define_water.html">define_water_df</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">12</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">24</span>, <span class="fl">2</span><span class="op">)</span></span></span>

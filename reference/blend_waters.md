@@ -1,11 +1,11 @@
 # Determine blended water quality from multiple waters based on mass balance and acid/base equilibrium
 
 This function takes a vector of waters defined by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and a vector of ratios and outputs a new water object with updated ions
 and pH. For a single blend use `blend_waters`; for a dataframe use
 `blend_waters_df`. Use
-[pluck_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/pluck_water.md)
+[pluck_water](https://brownandcaldwell-public.github.io/tidywater/reference/pluck_water.md)
 to get values from the output water as new dataframe columns.
 
 ## Usage
@@ -21,7 +21,7 @@ blend_waters_df(df, waters, ratios, output_water = "blended")
 - waters:
 
   Vector of source waters created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   For `df` function, this can include quoted column names and/or
   existing single water objects unquoted.
 
@@ -35,7 +35,7 @@ blend_waters_df(df, waters, ratios, output_water = "blended")
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - output_water:
 
@@ -52,15 +52,17 @@ containing blended water quality
 
 ## See also
 
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 ## Examples
 
 ``` r
 water1 <- define_water(7, 20, 50)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 water2 <- define_water(7.5, 20, 100, tot_nh3 = 2)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 blend_waters(c(water1, water2), c(.4, .6))
 #> pH (unitless):  7.31 
 #> Temperature (deg C):  20 
@@ -87,9 +89,8 @@ example_df <- water_df %>%
   dplyr::slice_head(n = 3) %>%
   define_water_df() %>%
   blend_waters_df(waters = c("defined", waterA), ratios = c(.8, .2))
-#> Warning: The following parameters are missing in some of the waters and will be set to
-#> NA in the blend: tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4 To fix this,
-#> make sure all waters provided have the same parameters specified. (3 rows
-#> affected.)
+#> Warning: The following parameters are missing in some waters and will be set to "NA" in
+#> the blend: ℹ tot_hard, toc, doc, uv254, na, ca, mg, k, cl, so4 ℹ Make sure all
+#> waters have the same parameters specified. (3 rows affected.)
 # }
 ```

@@ -1,7 +1,7 @@
 # Determine disinfection credit from chlorine.
 
 This function takes a water defined by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 and other disinfection parameters and outputs a data frame of the
 required CT (`ct_required`), actual CT (`ct_actual`), and giardia log
 removal (`glog_removal`). For a single water, use `solvect_chlorine`; to
@@ -42,7 +42,7 @@ See references list at:
 - water:
 
   Source water object of class "water" created by
-  [`define_water`](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [`define_water`](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   Water must include ph and temp
 
 - time:
@@ -68,7 +68,7 @@ See references list at:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md)
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_water:
 
@@ -104,13 +104,14 @@ Profiling Guidance. Log removal is a rearrangement of the CT equations.
 
 example_ct <- define_water(ph = 7.5, temp = 25) %>%
   solvect_chlorine(time = 30, residual = 1, baffle = 0.7)
-#> Warning: Missing value for alkalinity. Carbonate balance will not be calculated.
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Missing value for `alk`; carbonate balance will not be calculated.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 ct_calc <- water_df %>%
   define_water_df() %>%
   solvect_chlorine_df(residual = 2, time = 10, baffle = .5)
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table
-#> E-7 (4 rows affected.)
+#> Warning: Virus log removal estimated to the closest temperature in EPA Guidance Manual
+#> Table E-7. (4 rows affected.)
 
 chlor_resid <- water_df %>%
   dplyr::mutate(br = 50) %>%
@@ -121,6 +122,6 @@ chlor_resid <- water_df %>%
     baffle = 0.7
   ) %>%
   solvect_chlorine_df()
-#> Warning: Virus log removal estimated to closest temperature in EPA Guidance Manual Table
-#> E-7 (4 rows affected.)
+#> Warning: Virus log removal estimated to the closest temperature in EPA Guidance Manual
+#> Table E-7. (4 rows affected.)
 ```

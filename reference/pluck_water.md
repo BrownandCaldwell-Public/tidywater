@@ -16,7 +16,7 @@ pluck_water(df, input_waters = c("defined"), parameter)
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
 
 - input_waters:
 
@@ -26,7 +26,8 @@ pluck_water(df, input_waters = c("defined"), parameter)
 - parameter:
 
   vector of water class parameters to view outside the water column. Can
-  also specify "all" to get all non-NA water slots.
+  also specify "all" to get all non-NA water slots except `ks` (see
+  [convert_water](https://brownandcaldwell-public.github.io/tidywater/reference/convert_water.md)).
 
 ## Value
 
@@ -35,7 +36,7 @@ water class objects.
 
 ## See also
 
-[convert_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/convert_water.md)
+[convert_water](https://brownandcaldwell-public.github.io/tidywater/reference/convert_water.md)
 
 ## Examples
 

@@ -1,12 +1,16 @@
 # Determine TOC removal from coagulation
 
 This function applies the Edwards (1997) model to a water created by
-[define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md)
-to determine coagulated DOC. Model assumes all particulate TOC is
-removed; therefore TOC = DOC in output. Coagulated UVA is from U.S. EPA
-(2001) equation 5-80. Note that the models rely on pH of coagulation. If
+[define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md)
+to determine coagulated DOC. Reuse waters with effluent organic matter
+(EfOM) can be modeled by selecting one of the Wilder & Korak (2025)
+models with `coeff`. Reuse models apply only to aluminum coagulants
+(alum, ACH, PACl). Model assumes all particulate TOC is removed;
+therefore TOC = DOC in output. Coagulated UVA is from U.S. EPA (2001)
+equation 5-80 for Edwards (1997) model and a regression for the Wilder &
+Korak (2025) model. Note that the models rely on pH of coagulation. If
 only raw water pH is known, utilize
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 first. For a single water use `chemdose_toc`; for a dataframe use
 `chemdose_toc_df`. Use `pluck_cols = TRUE` to get values from the output
 water as new dataframe columns. For most arguments in the `_df` helper
@@ -25,7 +29,8 @@ chemdose_toc(
   ach = 0,
   pacl = 0,
   coeff = "Alum",
-  caoh2 = 0
+  caoh2 = 0,
+  fns = NA_real_
 )
 
 chemdose_toc_df(
@@ -34,19 +39,23 @@ chemdose_toc_df(
   output_water = "coagulated",
   pluck_cols = FALSE,
   water_prefix = TRUE,
+  keep_dose_cols = FALSE,
   alum = "use_col",
   ferricchloride = "use_col",
   ferricsulfate = "use_col",
   ach = "use_col",
   pacl = "use_col",
   caoh2 = "use_col",
-  coeff = "use_col"
+  coeff = "use_col",
+  fns = "use_col"
 )
 ```
 
 ## Source
 
 Edwards (1997)
+
+Wilder & Korak (2025)
 
 U.S. EPA (2001)
 
@@ -58,7 +67,7 @@ See reference list at:
 - water:
 
   Source water object of class "water" created by
-  [define_water](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water.md).
+  [define_water](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   Water must include ph, doc, and uv254
 
 - alum:
@@ -91,7 +100,14 @@ See reference list at:
 
   String specifying the Edwards coefficients to be used from "Alum",
   "Ferric", "General Alum", "General Ferric", or "Low DOC" or data frame
-  of coefficients, which must include: k1, k2, x1, x2, x3, b
+  of coefficients, which must include: k1, k2, x1, x2, x3, b. For reuse
+  waters (aluminum coagulants only), Wilder & Korak string specifying
+  coefficients can be used from "Reuse General Langmuir", "Reuse Site
+  Langmuir", "Reuse General Linear", "Reuse Site Linear", or a dataframe
+  of coefficients that must include: fns, x1, x2, x3, b for Langmuir or
+  fns, z0, z1, z2 for Linear. Reuse models were validated for
+  coagulation pH 5.5 - 8 and 20 - 200 mg/L alum. See reference list for
+  more information.
 
 - caoh2:
 
@@ -99,11 +115,20 @@ See reference list at:
   TOC, UV254 using a modified equation (see reference list). Defaults to
   zero.
 
+- fns:
+
+  Fraction of non-sorbing DOC (0 - 1), required for the site-specific
+  reuse models ("Reuse Site Langmuir" and "Reuse Site Linear"). Measured
+  as the fraction of DOC remaining after coagulation with 200 mg/L alum
+  at pH 6 (Wilder & Korak 2025). The general reuse models use fixed
+  values of 0.649 (Langmuir) and 0.650 (Linear); a supplied `fns` is
+  ignored with a warning. Not used by Edwards models.
+
 - df:
 
   a data frame containing a water class column, which has already been
   computed using
-  [define_water_df](https://BrownandCaldwell-Public.github.io/tidywater/reference/define_water_df.md).
+  [define_water_df](https://brownandcaldwell-public.github.io/tidywater/reference/define_water.md).
   The df may include a column named for the coagulant being dosed, and a
   column named for the set of coefficients to use.
 
@@ -127,6 +152,11 @@ See reference list at:
   Append the output_water name to the start of the plucked columns.
   Default is TRUE.
 
+- keep_dose_cols:
+
+  Option to keep the original chemical dose columns in the output data
+  frame. Default is FALSE.
+
 ## Value
 
 `chemdose_toc` returns a single water class object with an updated DOC,
@@ -138,32 +168,44 @@ adds columns for each of those slots individually.
 
 ## See also
 
-[chemdose_ph](https://BrownandCaldwell-Public.github.io/tidywater/reference/chemdose_ph.md)
+[chemdose_ph](https://brownandcaldwell-public.github.io/tidywater/reference/chemdose_ph.md)
 
 ## Examples
 
 ``` r
 water <- define_water(ph = 7, temp = 25, alk = 100, toc = 3.7, doc = 3.5, uv254 = .1)
-#> Warning: Major ions missing and neither TDS or conductivity entered. Ideal conditions will be assumed. Ionic strength will be set to NA and activity coefficients in future calculations will be set to 1.
+#> Warning: Major ions, TDS, and conductivity are all missing; assuming ideal conditions.
+#> Ionic strength will be "NA" and activity coefficients will be 1.
 dosed_water <- chemdose_ph(water, alum = 30) %>%
   chemdose_toc(alum = 30, coeff = "Alum")
-#> Warning: Sulfate-containing chemical dosed, but so4 water slot is NA. Slot not updated because background so4 unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
 
 dosed_water <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
   chemdose_toc(alum = 10, coeff = data.frame(
     x1 = 280, x2 = -73.9, x3 = 4.96, k1 = -0.028, k2 = 0.23, b = 0.068
   ))
-#> Warning: Sulfate-containing chemical dosed, but so4 water slot is NA. Slot not updated because background so4 unknown.
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
+
+dosed_reuse <- chemdose_ph(water, alum = 10, h2so4 = 10) %>%
+  chemdose_toc(alum = 40, coeff = "Reuse Site Langmuir", fns = 0.6)
+#> Warning: Sulfate-containing chemical dosed, but so4 slot is "NA"; slot not updated
+#> because background SO4 is unknown.
 
 # \donttest{
 example_df <- water_df %>%
   define_water_df() %>%
   dplyr::mutate(FerricDose = seq(1, 12, 1)) %>%
   chemdose_toc_df(ferricchloride = FerricDose, coeff = "Ferric")
+#> Warning: pH>8 is outside Edwards model range; assumed pH==8 for modeling. (6 rows
+#> affected.)
 
 example_df <- water_df %>%
   define_water_df() %>%
   dplyr::mutate(ferricchloride = seq(1, 12, 1)) %>%
   chemdose_toc_df(coeff = "Ferric", pluck_cols = TRUE)
+#> Warning: pH>8 is outside Edwards model range; assumed pH==8 for modeling. (6 rows
+#> affected.)
 # }
 ```
