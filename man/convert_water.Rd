@@ -13,7 +13,7 @@ convert_watermg(water)
 \item{water}{A water class object}
 }
 \value{
-A data frame containing columns for all non-NA water slots.
+A data frame containing columns for all non-NA water slots, except \code{ks}.
 
 A data frame containing columns for all non-NA water slots with ions in mg/L.
 }
@@ -24,9 +24,11 @@ use \code{pluck_cols = TRUE} in any \verb{_df} function or \code{pluck_water} to
 
 Use \link{convert_water} to keep all slots in the same units as the water.
 
-Use \link{convert_watermg} to convert to more typical units. Converts the following slots from M to mg/L:
-na, ca, mg, k, cl, so4, hco3, co3, h2po4, hpo4, po4, ocl, bro3, f, fe, al.
-Converts these slots to ug/L: br, mn.  All other values remain unchanged.
+Use \link{convert_watermg} to convert to more typical units. Converts all non-NA water slots with ions to mg/L, with the exception of br and mn, which
+are converted to ug/L. Total silicate is converted to mg/L as SiO2, and citrate species are converted to mg/L as citric acid,
+matching the \link{define_water} inputs. All other values remain unchanged.
+
+The \code{ks} slot (a data frame of corrected equilibrium constants) is not included in the output. Access it directly with \code{water@ks}.
 }
 \examples{
 

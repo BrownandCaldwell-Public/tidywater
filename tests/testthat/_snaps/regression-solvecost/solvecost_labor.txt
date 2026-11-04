@@ -1,0 +1,6 @@
+fte1.5_day :: value = 205.338809034908
+fte1.5_month :: value = 6245.72895277207
+fte1.5_year :: value = 75000
+vector_fte_year :: 1 = 21250
+vector_fte_year :: 2 = 85000
+vector_fte_year :: 3 = 340000

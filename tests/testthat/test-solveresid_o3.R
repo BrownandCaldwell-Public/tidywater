@@ -37,6 +37,15 @@ test_that("solveresid_o3 works.", {
   expect_equal(round(solveresid_o3(water1, time = 30, dose = 3), 2), .38)
 })
 
+test_that("solveresid_o3 returns 0 when ozone demand exceeds the dose.", {
+  water1 <- suppressWarnings(define_water(
+    ph = 7.5, temp = 20, alk = 80, tds = 200, toc = 6, doc = 5.5, uv254 = 0.25, br = 50
+  ))
+
+  expect_equal(solveresid_o3(water1, dose = 0.5, time = 10), 0)
+  expect_equal(solveresid_o3(water1, dose = 1, time = 30), 0)
+})
+
 
 # HELPERS ----
 test_that("solveresid_o3_df outputs are the same as base function, solveresid_o3", {

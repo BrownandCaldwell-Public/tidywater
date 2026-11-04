@@ -9,7 +9,7 @@
 #'
 #' @details First order decay curve for ozone has the form: `residual = dose * exp(kd*time)`. kd should be a negative number.
 #' Actual CT is an integration of the first order curve. The first 30 seconds are removed from the integral to account for
-#' instantaneous demand.
+#' instantaneous demand. CT is set to 0 when the contact time is shorter than those 30 seconds.
 #'
 #' When `kd` is not specified, a default decay curve is used from the Water Treatment Plant Model (2002). This model does
 #' not perform well for ozone decay, so specifying the decay curve is recommended.
@@ -48,7 +48,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
         use_kd <- TRUE
       } else {
         use_kd <- FALSE
-        stop("kd must be less than zero for decay curve")
+        cli::cli_abort("{.arg kd} must be less than zero for the decay curve.")
       }
     } else {
       use_kd <- FALSE
@@ -72,6 +72,7 @@ solvect_o3 <- function(water, time, dose, kd, baffle) {
     ct_tot <- dose * (exp(kd * time) - 1) / kd
     ct_inst <- dose * (exp(kd * .5) - 1) / kd
     ct_tot <- ct_tot - ct_inst # Remove the first 30 seconds to account for instantaneous demand
+    ct_tot <- max(ct_tot, 0) # Contact times under 30 seconds would otherwise give a negative CT
   } else {
     validate_water(water, c("ph", "temp", "alk", "doc", "uv254", "br"))
 
@@ -178,7 +179,7 @@ warning_counts <- list()
   }
 
  for (msg in names(warning_counts)) {
-    cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+    tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
   }
 
   output <- cbind(df, ct_df)

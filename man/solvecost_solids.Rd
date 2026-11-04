@@ -13,7 +13,9 @@ solvecost_solids(
   ferricsulfate = 0,
   flow,
   toc_removed = 0,
-  caco3_removed = 0,
+  ca_removed = 0,
+  mg_removed = 0,
+  polymer = 0,
   turb,
   b = 1.5,
   cost,
@@ -31,7 +33,11 @@ solvecost_solids(
 
 \item{toc_removed}{Amount of total organic carbon removed by the treatment process in mg/L}
 
-\item{caco3_removed}{Amount of hardness removed by softening as mg/L CaCO3}
+\item{ca_removed}{Amount of calcium removed by softening as mg/L Ca}
+
+\item{mg_removed}{Amount of magnesium removed by softening as mg/L Mg}
+
+\item{polymer}{Amount of polymer added in mg/L as chemical}
 
 \item{turb}{Turbidity removed in NTU}
 

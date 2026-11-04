@@ -1,0 +1,14 @@
+lower_case_units :: value = 0.00124756724387444
+spaces_in_units :: value = 124.865137980937
+as_caco3 :: value = 124.865137980937
+upper_formula :: value = 1.24756724387444
+spaced_formula :: value = 1.04098785583567
+meq_lower :: value = 24.305
+fuzzy_formula :: value = 0.000499565877252667
+vector_value :: 1 = 0
+vector_value :: 2 = 4.34976078490563e-05
+vector_value :: 3 = 0.000434976078490563
+vector_value :: 4 = 0.00434976078490563
+na_value :: value = NA
+negative_value :: value = -9.99131754505335e-05
+default_units :: value = 0.00124756724387444

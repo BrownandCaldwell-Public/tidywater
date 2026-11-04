@@ -18,6 +18,20 @@ test_that("opensys_ph preserves carbonate balance", {
   expect_equal(signif(water2@h2co3, 2), 1.3 * 10^-5)
 })
 
+test_that("opensys_ph widens the CO2 search when more than 100 mg/L must be removed or added", {
+  # Low pH, low alk: ~108 mg/L CO2 present, so more than 100 mg/L must be stripped
+  water1 <- define_water(ph = 5, temp = 25, alk = 5, tds = 100)
+  water2 <- opensys_ph(water1)
+  expect_equal(signif(water2@h2co3, 2), 1.3 * 10^-5)
+  expect_gt(water2@ph, water1@ph) # stripping CO2 raises pH
+
+  # High pH, very high alk: more than 100 mg/L CO2 must be absorbed
+  water3 <- define_water(ph = 12, temp = 25, alk = 5000, tds = 100)
+  water4 <- opensys_ph(water3)
+  expect_equal(signif(water4@h2co3, 2), 1.3 * 10^-5)
+  expect_lt(water4@ph, water3@ph)
+})
+
 test_that("opensys_ph works", {
   water0 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 10))
   water1 <- suppressWarnings(define_water(ph = 7, temp = 25, alk = 0))

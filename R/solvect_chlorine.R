@@ -39,10 +39,10 @@
 solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "residual_only") {
   if (free_cl_slot == "slot_only") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
-    residual <- water@free_chlorine
+    residual <- convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   } else if (free_cl_slot == "sum_with_residual") {
     validate_water(water, c("ph", "temp", "free_chlorine"))
-    residual <- residual + water@free_chlorine
+    residual <- residual + convert_units(water@free_chlorine, "cl2", "M", "mg/L")
   } else {
     validate_water(water, c("ph", "temp"))
   }
@@ -65,15 +65,15 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
   # determine virus log removal based on EPA Guidance Manual Table E-7
   if (ph < 6 | ph > 10) {
     vlog_removal <- NA_real_
-    warning("pH is out of range: virus log removal calculation only valid when pH is between 6-10.")
+    tidywater_warn("pH is out of range; virus log removal is only valid for pH 6 to 10.")
   } else {
     if (ph > 9 & ph < 10) {
       ph <- round(ph)
-      warning("Virus log removal estimated to closest pH in EPA Guidance Manual Table E-7")
+      tidywater_warn("Virus log removal estimated to the closest pH in EPA Guidance Manual Table E-7.")
     }
     tempr <- tidywater::vlog_removalcts$temp_value[which.min(abs(tidywater::vlog_removalcts$temp_value - temp))]
     if (temp != tempr) {
-      warning("Virus log removal estimated to closest temperature in EPA Guidance Manual Table E-7")
+      tidywater_warn("Virus log removal estimated to the closest temperature in EPA Guidance Manual Table E-7.")
     }
 
     # Determine ph_range key
@@ -104,9 +104,7 @@ solvect_chlorine <- function(water, time, residual, baffle, free_cl_slot = "resi
 
     if (any(is.na(vlog_removal))) {
       vlog_removal <- NA_real_
-      warning(
-        "pH or contact time out of range for virus log removal calculation. See EPA Guidance Manual Table E-7 for valid ranges."
-      )
+      tidywater_warn("pH or contact time is out of range for virus log removal. See EPA Guidance Manual Table E-7 for valid ranges.")
     }
   }
 
@@ -189,7 +187,7 @@ warning_counts <- list()
 )
 
 for (msg in names(warning_counts)) {
-  cli::cli_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
+  tidywater_warn("{msg} ({warning_counts[[msg]]} row{?s} affected.)")
 }
 
   if (water_prefix) {
