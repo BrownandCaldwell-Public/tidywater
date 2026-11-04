@@ -77,8 +77,8 @@ solvecost_power <- function(power, utilization = 100, cost, time = "day") {
 #' @param ferricsulfate Amount of ferric sulfate added in mg/L: Fe2(SO4)3*8.8H2O + 6HCO3 -> 2Fe(OH)3(am) + 3SO4 + 8.8H2O + 6CO2
 #' @param flow Plant flow in MGD
 #' @param toc_removed Amount of total organic carbon removed by the treatment process in mg/L
-#' @param ca_removed Amount of calcium removed by softening as mg/L CaCO3
-#' @param mg_removed Amount of magnesium removed by softening as mg/L Mg(OH)2
+#' @param ca_removed Amount of calcium removed by softening as mg/L Ca
+#' @param mg_removed Amount of magnesium removed by softening as mg/L Mg
 #' @param polymer Amount of polymer added in mg/L as chemical
 #' @param turb Turbidity removed in NTU
 #' @param b Correlation factor from turbidity to suspended solids. Defaults to 1.5.

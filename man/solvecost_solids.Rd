@@ -33,9 +33,9 @@ solvecost_solids(
 
 \item{toc_removed}{Amount of total organic carbon removed by the treatment process in mg/L}
 
-\item{ca_removed}{Amount of calcium removed by softening as mg/L CaCO3}
+\item{ca_removed}{Amount of calcium removed by softening as mg/L Ca}
 
-\item{mg_removed}{Amount of magnesium removed by softening as mg/L Mg(OH)2}
+\item{mg_removed}{Amount of magnesium removed by softening as mg/L Mg}
 
 \item{polymer}{Amount of polymer added in mg/L as chemical}
 

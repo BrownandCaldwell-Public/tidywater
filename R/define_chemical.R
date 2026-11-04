@@ -1,13 +1,11 @@
-#'@title Create a chemical class object given a chemical's paramaters
+#'@title Create a chemical class object given a chemical's parameters
 #'
-#' @description This function matches user input chemicals with a database of common chemicals, allowing the user to define and use
-#' a greater variety of chemical paramaters in their calculations.  
-#' 
-#' @details Coming soon to theaters near you!
+#' @description Creates an S4 chemical class object that stores a chemical's formula, dose, strength, dose units, hydration,
+#' cost, and solids formula.
 #'
 #' @param formula Associated chemical formula
-#' @param dose Dosage of the chemical 
-#' @param strength from 100% to 1%, measure of the ammount of chemical to its solution
+#' @param dose Dosage of the chemical
+#' @param strength from 100% to 1%, measure of the amount of chemical to its solution
 #' @param dose_unit Units the chemical is in, defaults to mg/L as chemical 
 #' @param hydration Waters of hydration
 #' @param cost How much the chemical costs 
@@ -19,7 +17,7 @@
 #' 
 #' @export
 #' 
-#' @return An S4 chemical class object with user defined paramaters. 
+#' @return An S4 chemical class object with user defined parameters.
 #'   
 
 

@@ -12,11 +12,11 @@ check_water(water, skip_models = FALSE)
 \item{skip_models}{a boolean to specify whether to skip the check for applicable models, defaults to FALSE}
 }
 \value{
-a tibble with the check, value, and flag for any issues found. If skip_models = FALSE, also includes a check for applicable models with tidywater functions.
+an unnamed list with the check, value, and flag for any issues found. If skip_models = FALSE, also includes a check for applicable models with tidywater functions.
 }
 \description{
 This function takes a previously defined water class input and checks common mismatch issues with water quality.
-It returns a list with the check, the value, and a flag if there is an issue.
+It returns an unnamed list with the check, the value, and a flag if there is an issue.
 It will also check to see what other tidywater models are applicable to the input water unless the user specifies to skip that step.
 }
 \details{
