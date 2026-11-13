@@ -32,7 +32,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/BrownandCaldwell-Public/tidywater/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/BrownandCaldwell-Public/tidywater/blob/v0.11.0/DESCRIPTION)
 
 Johnson S, McKenna L, Mulhern R, Corwin C (2026). *tidywater: Water
 Quality Models for Drinking Water Treatment Processes*. R package
